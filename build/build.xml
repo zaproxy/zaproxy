@@ -1,0 +1,101 @@
+<project name="zap" default="dist" basedir=".">
+    <description>Build ZAP.</description>
+  <!-- set global properties for this build -->
+  <property name="src" location="../src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="zap"/>
+  <property name="dist.lib.dir"  location="../lib"/>
+	
+	<path id="dist.classpath">
+		 <!--pathelement location="."/-->
+		<fileset dir="${dist.lib.dir}" includes="**/*.jar" />
+	</path>
+	
+	<echo message = "ClassPath=${dist.classpath}"/>
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <delete dir="${dist}" includeEmptyDirs="true"/>
+    <delete dir="${build}" includeEmptyDirs="true"/>
+
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
+    <javac srcdir="${src}" destdir="${build}">
+    	<classpath>
+			<fileset dir="${dist.lib.dir}">
+				<include name="**/*.jar"/>
+			</fileset>
+    	</classpath>
+    </javac>
+
+  </target>
+
+  <target name="dist" depends="compile" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}"/>
+    <!--copy file="lib.jar" tofile="${dist}/lib.jar"/--> 
+
+    <copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties"/> 
+
+    <copy todir="${build}">
+      <fileset dir="${src}" includes="*.properties"/>
+    </copy>
+    <copy todir="${build}/resource">
+		<fileset dir="${src}/resource"/>
+    </copy>
+
+  <copy todir="${dist}/xml">
+    <fileset dir="${src}/xml"/>
+  </copy>
+  <copy todir="${dist}/db">
+    <fileset dir="${src}/db"/>
+  </copy>
+  <copy todir="${dist}/filter">
+    <fileset dir="${src}/filter"/>
+  </copy>
+    <copy todir="${dist}/plugin">
+    	<fileset dir="${src}/plugin"/>
+    </copy>
+    <copy todir="${dist}/session">
+    	<fileset dir="${src}/session"/>
+    </copy>
+    <copy todir="${dist}/license">
+	<fileset dir="${src}/license"/>
+    </copy>
+    <copy todir="${dist}/log">
+      <fileset dir="${src}/log"/>
+    </copy>
+    <copy todir="${dist}/lib">
+		<fileset dir="${dist.lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+    </copy>
+    <copy todir="${dist}">
+    	<!-- TODO change this! -->
+      <fileset dir="${src}" includes="*.exe *.so *.dll mozembed* *.bat *.sh *.properties"/>
+    </copy>
+
+    <copy file="${src}/doc/release.txt" todir="${dist}"/>
+
+  	<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
+		<classpath refid="dist.classpath" />
+	</manifestclasspath>
+
+    <jar jarfile="${dist}/zap.jar" update="true" compress="false">
+    	<zipfileset dir="${build}" prefix="" />
+    	<manifest>
+   			<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
+   			<attribute name="Class-Path" value="${dist.manifest.classpath}"/>
+    	</manifest>
+    </jar>
+  </target>
+
+
+
+</project>
