@@ -53,6 +53,10 @@ public class SiteNode extends DefaultMutableTreeNode {
         return nodeName;
     }
     
+    public String getNodeName() {
+    	return this.nodeName;
+    }
+    
     public HistoryReference getHistoryReference() {
         return historyReference;
     }

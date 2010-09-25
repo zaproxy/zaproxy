@@ -23,6 +23,8 @@ package org.parosproxy.paros.view;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.event.InputEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -32,8 +34,10 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.SiteMapListener;
 
 /**
  *
@@ -49,6 +53,9 @@ public class SiteMapPanel extends JPanel {
 	private JTree treeSite = null;
 	private TreePath rootTreePath = null;
 	private View view = null;
+	
+	// ZAP: Added SiteMapListenners
+	private List<SiteMapListener> listenners = new ArrayList<SiteMapListener>();
 	
 	/**
 	 * This is the default constructor
@@ -138,8 +145,9 @@ public class SiteMapPanel extends JPanel {
 
 				    HttpMessage msg = null;
 				    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-				    if (node == null)
+				    if (node == null) {
 				        return;
+				    }
 				    if (!node.isRoot()) {
                         try {
                             msg = node.getHistoryReference().getHttpMessage();
@@ -155,6 +163,10 @@ public class SiteMapPanel extends JPanel {
 				        reqPanel.setMessage(msg, true);
 			            resPanel.setMessage(msg, false);
 
+			        	// ZAP: Call SiteMapListenners
+			            for (SiteMapListener listener : listenners) {
+			            	listener.nodeSelected(node);
+			            }
 				    }
 	
 				}
@@ -185,4 +197,9 @@ public class SiteMapPanel extends JPanel {
         	log.warn(e.getMessage(), e);
 		}
 	}
-  }
+	
+	// ZAP: Added addSiteMapListenners
+	public void addSiteMapListenner (SiteMapListener listenner) {
+		this.listenners.add(listenner);
+	}
+}

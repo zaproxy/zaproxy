@@ -40,8 +40,11 @@ import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.params.ExtensionParams;
+import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.extension.test.ExtensionTest;
 
 
 /**
@@ -74,9 +77,13 @@ public class Control extends AbstractControl {
 		    // no need to start proxy if no view
 		    getProxy();
 		    getExtensionLoader().hookProxyListener(getProxy());
-		
+
+		    // ZAP: Add site map listeners
+		    getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
+
 		    // post-init
 		    getProxy().startServer();
+		    
 		}
     }
     
@@ -117,13 +124,18 @@ public class Control extends AbstractControl {
         // ZAP: This is now the ZAP autoupdate extension
         getExtensionLoader().addExtension(new ExtensionAutoUpdate());
 
-        // ZAP: new extensions - break, tech, passive scanner 
+        // ZAP: new extensions - break, tech, passive scanner, port scanner, params 
         getExtensionLoader().addExtension(new ExtensionBreak());
-        // Tech extension not fully implemented 
-        //getExtensionLoader().addExtension(new ExtensionTech());
         getExtensionLoader().addExtension(new ExtensionPassiveScan());
+        getExtensionLoader().addExtension(new ExtensionPortScan());
+        // Params extension not fully implemented
+        //getExtensionLoader().addExtension(new ExtensionParams());
         getExtensionLoader().addExtension(new ExtensionHelp());
         getExtensionLoader().addExtension(new ExtensionCompare());
+        // Tech extension not fully implemented 
+        //getExtensionLoader().addExtension(new ExtensionTech());
+        // This is just for testing
+        //getExtensionLoader().addExtension(new ExtensionTest());
 
     }
     

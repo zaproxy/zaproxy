@@ -23,8 +23,6 @@ package org.parosproxy.paros.extension;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -39,8 +37,10 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.SiteMapListener;
 
 
 /**
@@ -106,6 +106,26 @@ public class ExtensionLoader {
                     ProxyListener listener = (ProxyListener) listenerList.get(j);
                     if (listener != null) {
                         proxy.addProxyListener(listener);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        
+    }
+    
+    // ZAP: Added support for site map listeners
+    public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
+        for (int i=0; i<getExtensionCount(); i++) {
+            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                	SiteMapListener listener = (SiteMapListener) listenerList.get(j);
+                    if (listener != null) {
+                    	siteMapPanel.addSiteMapListenner(listener);
                     }
                 } catch (Exception e) {
                 	// ZAP: Log the exception
