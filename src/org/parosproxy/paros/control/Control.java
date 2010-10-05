@@ -40,11 +40,9 @@ import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.params.ExtensionParams;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
-import org.zaproxy.zap.extension.test.ExtensionTest;
 
 
 /**
