@@ -28,6 +28,8 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.SSLConnector;
 
+import ch.csnc.extension.httpclient.SSLContextManager;
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -35,7 +37,7 @@ import org.parosproxy.paros.network.SSLConnector;
  */
 public class OptionsParamCertificate extends AbstractParam {
 
-    private static final String ROOT = "certificate";
+   
 
     private static final String USE_CLIENT_CERT = "certificate.use";
     private static final String CLIENT_CERT_LOCATION = "certificate.clientCertLocation";
@@ -53,19 +55,6 @@ public class OptionsParamCertificate extends AbstractParam {
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
     protected void parse() {
-        
-
-        int tempUseClientCert = 0;
-        String tempClientCertLocation = "";
-        
-        
-        // use temp variable to check.  Exception will be flagged if any error.
-        tempUseClientCert = getConfig().getInt(USE_CLIENT_CERT, 0);
-        tempClientCertLocation = getConfig().getString(CLIENT_CERT_LOCATION, "");
-        
-        // set member variable after here
-//      setUseClientCert(tempUseClientCert != 0);
-//      setClientCertLocation(tempClientCertLocation);
 
         // always turn off client cert
         setUseClientCert(false);
@@ -98,35 +87,44 @@ public class OptionsParamCertificate extends AbstractParam {
         return (useClientCert != 0);
     }
 
-    public void setUseClientCert(boolean isUse) {
-        if (isUse) {
+    private void setUseClientCert(boolean isUse) {
+    	if (isUse) {
             useClientCert = 1;
             getConfig().setProperty(USE_CLIENT_CERT, Integer.toString(useClientCert));
             return;
         }
         useClientCert = 0;
         getConfig().setProperty(USE_CLIENT_CERT, Integer.toString(useClientCert));
+    }
         
-    }
+
     
-    public void setCertificate(char[] passphrase) throws Exception {
-
-        ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
-        SSLConnector ssl = null;
-        if (sslFactory instanceof SSLConnector) {
-            ssl = (SSLConnector) sslFactory;
-            ssl.setClientCert(new File(getClientCertLocation()), passphrase);
-        }
-    }
-
     public void setEnableCertificate(boolean enabled) {
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
-        SSLConnector ssl = null;
-        if (sslFactory instanceof SSLConnector) {
-            ssl = (SSLConnector) sslFactory;
-            ssl.setEnableClientCert(enabled);
-        }
         
+    	SSLConnector ssl = (SSLConnector) sslFactory;
+        ssl.setEnableClientCert(enabled);
+        
+        setUseClientCert(enabled);
     }
+    
+    public void setActiveCertificate(){
+    	
+    	ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
+        
+    	SSLConnector ssl = (SSLConnector) sslFactory;
+        ssl.setActiveCertificate();
+    	
+    }
+    
+    
+    public SSLContextManager getSSLContextManager(){
+		
+    	ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
+    	SSLConnector ssl = (SSLConnector) sslFactory;
+        
+        return ssl.getSSLContextManager();
+	}
+
     
 }
