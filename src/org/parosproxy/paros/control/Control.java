@@ -37,6 +37,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -125,6 +126,7 @@ public class Control extends AbstractControl {
         // ZAP: new extensions - break, tech, passive scanner, port scanner, params 
         getExtensionLoader().addExtension(new ExtensionBreak());
         getExtensionLoader().addExtension(new ExtensionPassiveScan());
+        getExtensionLoader().addExtension(new ExtensionBruteForce());
         getExtensionLoader().addExtension(new ExtensionPortScan());
         // Params extension not fully implemented
         //getExtensionLoader().addExtension(new ExtensionParams());

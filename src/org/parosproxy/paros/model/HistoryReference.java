@@ -52,6 +52,8 @@ public class HistoryReference {
    public static final int TYPE_SPIDER_SEED = 4;
    public static final int TYPE_SPIDER_VISITED = 5;
    public static final int TYPE_HIDDEN = 6;
+   // ZAP: Added TYPE_BRUTE_FORCE
+   public static final int TYPE_BRUTE_FORCE = 7;
    
    // -ve means unsaved message;
    public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;
