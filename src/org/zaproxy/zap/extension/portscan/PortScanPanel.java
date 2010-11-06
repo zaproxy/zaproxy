@@ -516,6 +516,7 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 				// Ignore
 			}
 		}
+		portScanMap.clear();
 		
 		siteModel.removeAllElements();
 		siteSelect.addItem(Constant.messages.getString("ports.toolbar.site.select"));
