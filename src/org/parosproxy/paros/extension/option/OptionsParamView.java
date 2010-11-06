@@ -33,10 +33,16 @@ public class OptionsParamView extends AbstractParam {
 	private static final String ROOT = "view";
 
 	private static final String PROCESS_IMAGES = "view.processImages";
-	
+	// ZAP: Added support fr selecting the locale
+	public static final String LOCALE = "view.locale";
+	public static final String LOCALES = "view.locales";
+
+	public static final String DEFAULT_LOCALE = "en_GB";
+	private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES"};
 
 	private int processImages = 0;
-		
+	private String locale = "";
+	private String[] locales = DEFAULT_LOCALES;
 	
     /**
      * @param rootElementName
@@ -52,6 +58,11 @@ public class OptionsParamView extends AbstractParam {
 
 	    // use temp variable to check.  Exception will be flagged if any error.
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
+	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
+	    locales = getConfig().getStringArray(LOCALES);
+	    if (locales == null || locales.length == 0) {
+	    	locales = DEFAULT_LOCALES;
+	    }
 		
     }
 
@@ -73,6 +84,19 @@ public class OptionsParamView extends AbstractParam {
 	
 	public boolean isProcessImages() {
 		return !(processImages == 0);
+	}
+
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
+		getConfig().setProperty(LOCALE, locale);
+	}
+
+	public String[] getLocales() {
+		return locales;
 	}
 
 	
