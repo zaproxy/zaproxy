@@ -22,6 +22,7 @@
 package org.parosproxy.paros;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -31,6 +32,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 
 /**
@@ -93,7 +95,9 @@ public final class Constant {
     
     // ZAP: Added vulnerabilities file
     public String VULNS_CONFIG = "xml/vulnerabilities.xml";
-
+    
+    // ZAP: Added dirbuster dir
+    public String DIRBUSTER_DIR = "dirbuster";
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -206,9 +210,23 @@ public final class Constant {
         }
         
         // ZAP: Init i18n
-        // TODO select correct locale!
-	    messages = ResourceBundle.getBundle("Messages");
+        
+        String lang = null;
+        Locale locale = Locale.ENGLISH;
+        try {
+            // Select the correct locale
+            XMLConfiguration config = new XMLConfiguration(FILE_CONFIG);
+            config.setAutoSave(false);
+            config.load();
 
+            lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
+            String[] langArray = lang.split("_");
+            locale = new Locale(langArray[0], langArray[1]);
+        } catch (Exception e) {
+        	System.out.println("SBSB Exception " + e);
+        }
+        
+	    messages = ResourceBundle.getBundle("Messages", locale);
     }
     
     public static Constant getInstance() {
