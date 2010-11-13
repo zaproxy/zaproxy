@@ -132,6 +132,15 @@ public class SearchResult {
 			}
 			return;
 		}
+		if (ExtensionSearch.Type.Header.equals(type)) {
+			m = p.matcher(reqPanel.getTxtHeader().getText());
+			if (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+							m.start(), m.end()));
+			}
+			return;
+		}
 		if (ExtensionSearch.Type.All.equals(type) ||
 				ExtensionSearch.Type.Request.equals(type)) {
 			m = p.matcher(reqPanel.getTxtHeader().getText());

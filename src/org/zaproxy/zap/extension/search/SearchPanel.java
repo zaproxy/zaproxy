@@ -37,6 +37,9 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
@@ -70,6 +73,7 @@ public class SearchPanel extends AbstractPanel {
 	private HttpPanel responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
+    private static Log log = LogFactory.getLog(SearchPanel.class);
 
     /**
      * 
@@ -95,7 +99,7 @@ public class SearchPanel extends AbstractPanel {
 	private  void initialize() {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
-        this.setName("Search");
+        this.setName(Constant.messages.getString("search.panel.title"));
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
 
@@ -226,9 +230,9 @@ public class SearchPanel extends AbstractPanel {
 	private JButton getBtnNext() {
 		if (btnNext == null) {
 			btnNext = new JButton();
-			btnNext.setText("Next");
+			btnNext.setText(Constant.messages.getString("search.toolbar.label.next"));
 			btnNext.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/107.png")));	// 'arrow down' icon
-			btnNext.setToolTipText("Next");
+			btnNext.setToolTipText(Constant.messages.getString("search.toolbar.label.next"));
 
 			btnNext.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -243,9 +247,9 @@ public class SearchPanel extends AbstractPanel {
 	private JButton getBtnPrev() {
 		if (btnPrev == null) {
 			btnPrev = new JButton();
-			btnPrev.setText("Previous");
+			btnPrev.setText(Constant.messages.getString("search.toolbar.label.previous"));
 			btnPrev.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/108.png")));	// 'arrow up' icon
-			btnPrev.setToolTipText("Previous");
+			btnPrev.setToolTipText(Constant.messages.getString("search.toolbar.label.previous"));
 
 			btnPrev.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -330,6 +334,10 @@ public class SearchPanel extends AbstractPanel {
 		}
     }
     
+    protected void setSearchType(ExtensionSearch.Type type) {
+    	this.getSearchType().setSelectedItem(type);
+    }
+    
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
         if (msg.getRequestHeader().isEmpty()) {
@@ -348,6 +356,9 @@ public class SearchPanel extends AbstractPanel {
     
     private void highlightMatch (SearchMatch sm) {
     	JTextArea txtArea = null;
+    	if (sm == null) {
+    		return;
+    	}
     	
     	switch (sm.getLocation()) {
     	case REQUEST_HEAD:	
@@ -379,8 +390,7 @@ public class SearchPanel extends AbstractPanel {
 			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
 			txtArea.setCaretPosition(sm.getStart());
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
     }
     
@@ -439,6 +449,7 @@ public class SearchPanel extends AbstractPanel {
 	    	searchType.addItem(ExtensionSearch.Type.URL);
 	    	searchType.addItem(ExtensionSearch.Type.Request);
 	    	searchType.addItem(ExtensionSearch.Type.Response);
+	    	searchType.addItem(ExtensionSearch.Type.Header);
     	}
     	return searchType;
     }

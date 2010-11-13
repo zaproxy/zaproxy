@@ -20,20 +20,14 @@
 package org.zaproxy.zap.extension.search;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 
 /**
  *
@@ -42,12 +36,14 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
-	public enum Type {All, URL, Request, Response};
+	public enum Type {All, URL, Request, Response, Header};
 
 	private SearchPanel searchPanel = null;
     private JMenuItem menuSearch = null;
     private JMenuItem menuNext = null;
     private JMenuItem menuPrev = null;
+    
+    private SearchThread searchThread = null;
 
 	/**
      * 
@@ -75,6 +71,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+	    extensionHook.addSessionListener(this);
 	    if (getView() != null) {
 	        extensionHook.getHookView().addStatusPanel(getSearchPanel());
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuSearch());
@@ -113,86 +110,44 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
+		this.getSearchPanel().resetSearchResults();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public String search(String filter, Type reqType){
-	    String result="";
-	    Session session = getModel().getSession();
-        Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
-		Matcher matcher = null;
+	public void search(String filter, Type reqType) {
+		this.search(filter, reqType, false);
+	}
+	public void search(String filter, Type reqType, boolean setToolbar){
 		
 		this.searchPanel.resetSearchResults();
 		
+		if (setToolbar) {
+			this.getSearchPanel().searchFocus();
+			this.getSearchPanel().getRegExField().setText(filter);
+			this.getSearchPanel().setSearchType(reqType);
+		}
+		
 	    synchronized (this) {
-	        try {
-	            List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
-	            int last = list.size();
-	            for (int index=0;index < last;index++){
-	                int v = ((Integer)(list.get(index))).intValue();
-	                try {
-                        HttpMessage message = getModel().getDb().getTableHistory().read(v).getHttpMessage();
-
-                        if (Type.URL.equals(reqType)) {
-                            // URL
-                            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
-                            if (matcher.find()) {
-                		        this.searchPanel.addSearchResult(
-                		        		new SearchResult(message, reqType, 
-                		        				filter, matcher.group()));
-                            }
-						}
-                        if (Type.Request.equals(reqType) ||
-                        		Type.All.equals(reqType)) {
-                            // Request Header 
-                            matcher = pattern.matcher(message.getRequestHeader().toString());    
-                            if (matcher.find()) {
-                		        this.searchPanel.addSearchResult(
-                		        		new SearchResult(message, reqType, 
-                		        				filter, matcher.group()));
-                            }
-                            // Request Body
-                            matcher = pattern.matcher(message.getRequestBody().toString());    
-                            if (matcher.find()) {
-                		        this.searchPanel.addSearchResult(
-                		        		new SearchResult(message, reqType, 
-                		        				filter, matcher.group()));
-                            }
-                        }
-                        if (Type.Response.equals(reqType) ||
-                        		Type.All.equals(reqType)) {
-                            // Response header
-                            matcher = pattern.matcher(message.getResponseHeader().toString());    
-                            if (matcher.find()) {
-                		        this.searchPanel.addSearchResult(
-                		        		new SearchResult(message, reqType, 
-                		        				filter, matcher.group())); 
-                            }
-                            // Response body
-                            matcher = pattern.matcher(message.getResponseBody().toString());    
-                            if (matcher.find()) {
-                		        this.searchPanel.addSearchResult(
-                		        		new SearchResult(message, reqType, 
-                		        				filter, matcher.group())); 
-                            }
-                        }
-                        
-                    } catch (HttpMalformedHeaderException e1) {
-                        e1.printStackTrace();
-                    }	               
-	            }	            
-	        } catch (SQLException e) {
-	        	// Ignore
-	        }
-
+	    	if (searchThread != null && searchThread.isAlive()) {
+	    		searchThread.stopSearch();
+	    		
+	    		while (searchThread.isAlive()) {
+	    			try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+	    		}
+	    	}
+    		searchThread = new SearchThread(filter, reqType, searchPanel);
+	    	searchThread.start();
+	    	
 	    }
-	    return result;
 	}
 
 	private JMenuItem getMenuSearch() {
         if (menuSearch == null) {
         	menuSearch = new JMenuItem();
-        	menuSearch.setText("Search...");
+        	menuSearch.setText(Constant.messages.getString("menu.edit.search"));
         	menuSearch.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
         			java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK, false));
 
@@ -208,7 +163,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     private JMenuItem getMenuNext() {
         if (menuNext == null) {
         	menuNext = new JMenuItem();
-        	menuNext.setText("Next");
+        	menuNext.setText(Constant.messages.getString("menu.edit.next"));
         	
         	menuNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
         			java.awt.event.KeyEvent.VK_G, java.awt.Event.CTRL_MASK, false));
@@ -225,7 +180,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     private JMenuItem getMenuPrev() {
         if (menuPrev == null) {
         	menuPrev = new JMenuItem();
-        	menuPrev.setText("Previous");
+        	menuPrev.setText(Constant.messages.getString("menu.edit.previous"));
 
         	menuPrev.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -235,4 +190,5 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         }
         return menuPrev;
     }
+
   }
