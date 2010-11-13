@@ -43,6 +43,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 
 	private String site;
 	private String fileName;
+	private int port = 80;
 	private SortedListModel list;
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
@@ -71,6 +72,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		String hostName = site;
 		if (hostName.indexOf(":") > 0) {
 			hostName = site.substring(0, hostName.indexOf(":"));
+			port = Integer.parseInt(site.substring(site.indexOf(":")+1));
 		}
 		ConnectionParam conParam = Model.getSingleton().getOptionsParam().getConnectionParam();
 		
@@ -81,6 +83,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	    	manager.setProxyPort(conParam.getProxyChainPort());
 	    	manager.setProxyUsername(conParam.getProxyChainUserName());
 	    	manager.setProxyPassword(conParam.getProxyChainPassword());
+	    	manager.setUseProxy(true);
+	    	manager.setUseProxyAuth(true);
 			log.debug("BruteForce : set proxy to " + manager.getProxyHost() + ":" + manager.getProxyPort());
 	    }
 
@@ -89,18 +93,13 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-        try
-        {
+        try {
             URL targetURL = new URL("http://" + site + "/");
             manager.setTargetURL(targetURL);
             manager.setFileLocation(fileName);
             
             String protocol = targetURL.getProtocol();
             String host = targetURL.getHost();
-            int port = targetURL.getPort();
-            if (port == -1) {
-                port = targetURL.getDefaultPort();
-            }
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
@@ -117,7 +116,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			} catch (InterruptedException e) {
 			}
 
-			while(manager.areWorkersAlive() || isPaused) {
+			while( ! manager.hasFinished()) {
 				if (stopScan) {
 					isPaused = false;
 					manager.youAreFinished();
@@ -135,8 +134,9 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				//System.out.println("Done so far " +  manager.getTotalDone());
 				//System.out.println("Dirs found  " +  manager.getTotalDirsFound());
 				//System.out.println("Worker count " +  manager.getWorkerCount());
+				//System.out.println("Done " +  manager.getTotalDone() + "/" + manager.getTotal());
 				
-				this.listenner.scanProgress(host, manager.getTotalDone(), manager.getTotal());
+				this.listenner.scanProgress(host, port, manager.getTotalDone(), manager.getTotal());
 				
 				try {
 					sleep(1000);
@@ -184,9 +184,9 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	}
 
 	@Override
-	public void scanProgress(String host, int done, int todo) {
+	public void scanProgress(String host, int port, int done, int todo) {
 		if (this.listenner != null) {
-			this.listenner.scanProgress(site, done, todo);
+			this.listenner.scanProgress(site, port, done, todo);
 		}
 	}
 
@@ -235,7 +235,10 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			reason = resHeader.getReasonPhrase();
 		}
 
-		list.addElement(new BruteForceItem(url.toString(), statusCode, reason, historyId));
+		BruteForceItem bfi = new BruteForceItem(url.toString(), statusCode, reason, historyId);
+		if (! list.contains(bfi)) {
+			list.addElement(bfi);
+		}
 
 	}
 
@@ -249,6 +252,14 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	
 	public boolean isPaused() {
 		return this.isPaused;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 }

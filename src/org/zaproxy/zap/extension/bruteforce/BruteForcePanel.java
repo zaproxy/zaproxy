@@ -72,7 +72,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	public static final String PANEL_NAME = "bruteforce";
 	
 	//private ExtensionBruteForce extension = null;
-	private BruteForceParam portScanParam = null;
+	private BruteForceParam bruteForceParam = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
@@ -93,6 +93,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
+	//private JButton launchButton = null;
 	private JList bruteForceList = null;
 	private JProgressBar progressBar = null;
 	private Map <String, BruteForce> bruteForceMap = new HashMap <String, BruteForce>();
@@ -103,13 +104,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
     private static Log log = LogFactory.getLog(BruteForcePanel.class);
     
     /**
-     * @param portScanParam 
+     * @param bruteForceParam 
      * 
      */
-    public BruteForcePanel(ExtensionBruteForce extension, BruteForceParam portScanParam) {
+    public BruteForcePanel(ExtensionBruteForce extension, BruteForceParam bruteForceParam) {
         super();
         //this.extension = extension;
-        this.portScanParam = portScanParam;
+        this.bruteForceParam = bruteForceParam;
  		initialize();
     }
 
@@ -263,8 +264,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			panelToolbar.add(getProgressBar(), gridBagConstraints8);
 			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints9);
 			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints10);
-			
+
 			panelToolbar.add(t1, gridBagConstraintsx);
+			//panelToolbar.add(getLaunchButton(), gridBagConstraintsx);
 		}
 		return panelToolbar;
 	}
@@ -359,6 +361,68 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
 		return pauseScanButton;
 	}
+
+	// Not working yet:)
+	/*
+	private JButton getLaunchButton() {
+		if (launchButton == null) {
+			launchButton = new JButton();
+			launchButton.setToolTipText("TBI LAUNCH");
+			launchButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
+			launchButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					launchDirBuster();
+				}
+
+			});
+		}
+		return launchButton;
+	}
+
+	private void launchDirBuster() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("/usr/bin/java -classpath ");
+		
+		sb.append("lib/BrowserLauncher2-1_3.jar:");
+		sb.append("lib/commons-codec-1.2.jar:");
+		sb.append("lib/commons-collections-3.1.jar:");
+		sb.append("lib/commons-configuration-1.1.jar:");
+		sb.append("lib/commons-httpclient-3.0.jar:");
+		sb.append("lib/commons-lang-2.0.jar:");
+		sb.append("lib/commons-logging-api.jar:");
+		sb.append("lib/commons-logging.jar:");
+		sb.append("lib/DirBuster-0.12.jar:");
+		sb.append("lib/hsqldb.jar:");
+		sb.append("lib/java-getopt-1.0.13.jar:");
+		sb.append("lib/jdom.jar:");
+		sb.append("lib/jericho-html-2.6.jar:");
+		sb.append("lib/jh.jar:");
+		sb.append("lib/js.jar:");
+		sb.append("lib/log4j-1.2.8.jar:");
+		sb.append("lib/looks-2.2.0.jar:");
+		sb.append("lib/swing-layout-1.0.3.jar:");
+		sb.append("lib/zaphelp.jar ");
+		
+		sb.append("com.sittinglittleduck.DirBuster.Start");
+
+		System.out.println(sb.toString());
+		try {
+			// TODO works from cmdline, but not from ZAP :(
+			Process proc = Runtime.getRuntime().exec(sb.toString());
+			
+			// Currently exists with 1...
+			System.out.println("Exit value=" + proc.waitFor());
+			//System.out.println("Exit value=" + proc.exitValue());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	*/
 
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
@@ -505,7 +569,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				if (! f.exists()) {
 					log.error("No such file: " + f.getAbsolutePath());
 				} else {
-					bruteForce = new BruteForce(site, fileName, this, this.portScanParam);
+					bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam);
 					bruteForceMap.put(site, bruteForce);
 				}
 			}
@@ -561,50 +625,48 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 		this.activeScans.add(currentSite);
 
-		BruteForce portScan = bruteForceMap.get(currentSite);
-		if (portScan.isStopped()) {
-			// Start a new thread
-			String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
-			File f = new File(fileName);
-			if (! f.exists()) {
-				log.error("No such file: " + f.getAbsolutePath());
-			} else {
-				portScan = new BruteForce(currentSite, f.getAbsolutePath(), this, portScanParam);
-				bruteForceMap.put(currentSite, portScan);
-			}
+		// Start a new thread
+		String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
+		File f = new File(fileName);
+		if (! f.exists()) {
+			log.error("No such file: " + f.getAbsolutePath());
+			return;
 		}
-		portScan.start();
-		bruteForceMap.put(currentSite, portScan);
+		BruteForce bruteForce = new BruteForce(currentSite, f.getAbsolutePath(), this, bruteForceParam);
+		bruteForceMap.put(currentSite, bruteForce);
+		
+		bruteForce.start();
 		setActiveScanLabels();
 		getProgressBar().setEnabled(true);
-		getProgressBar().setMaximum(portScan.getWorkTotal());
-		bruteForceList.setModel(portScan.getList());
+		getProgressBar().setMaximum(bruteForce.getWorkTotal());
+		bruteForceList.setModel(bruteForce.getList());
 
-		if (siteModel.getIndexOf(passiveSitelabel(currentSite)) >= 0) {
+		String selectedSite = currentSite;	// currentSite can change when we remove elements
+		if (siteModel.getIndexOf(passiveSitelabel(selectedSite)) >= 0) {
 			// Change the site label to be bold
-			siteModel.removeElement(passiveSitelabel(currentSite));
-			siteModel.addElement(activeSitelabel(currentSite));
-			siteModel.setSelectedItem(activeSitelabel(currentSite));
+			siteModel.removeElement(passiveSitelabel(selectedSite));
+			siteModel.addElement(activeSitelabel(selectedSite));
+			siteModel.setSelectedItem(activeSitelabel(selectedSite));
 		}
 	}
 	
 	private void stopScan() {
 		log.debug("Stopping scan on " + currentSite);
-		BruteForce portScan = bruteForceMap.get(currentSite);
-		if (portScan != null) {
-			portScan.stopScan();
+		BruteForce bruteForce = bruteForceMap.get(currentSite);
+		if (bruteForce != null) {
+			bruteForce.stopScan();
 		}
 	}
 
 	private void pauseScan() {
 		log.debug("Pausing scan on " + currentSite);
-		BruteForce portScan = bruteForceMap.get(currentSite);
-		if (portScan != null) {
-			if (portScan.isPaused()) {
-				portScan.unpauseScan();
+		BruteForce bruteForce = bruteForceMap.get(currentSite);
+		if (bruteForce != null) {
+			if (bruteForce.isPaused()) {
+				bruteForce.unpauseScan();
 				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
 			} else {
-				portScan.pauseScan();
+				bruteForce.pauseScan();
 				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
 			}
 		}
@@ -635,12 +697,11 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	@Override
-	public void scanProgress(String host, int done, int todo) {
-		if (host.equals(currentSite)) {
+	public void scanProgress(String host, int port, int done, int todo) {
+		if (currentSite != null && (currentSite.equals(host) || currentSite.equals(host + ":" + port))) {
 			getProgressBar().setValue(done);
-			getProgressBar().setMaximum(done + todo);
+			getProgressBar().setMaximum(todo);
 		}
-		
 	}
 
 	public void reset() {
