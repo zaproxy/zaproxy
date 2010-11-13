@@ -42,7 +42,7 @@ import org.parosproxy.paros.model.FileCopier;
  */
 public final class Constant {
 	// ZAP: rebrand
-    public static final String PROGRAM_NAME     = "ZAP";
+    public static final String PROGRAM_NAME     = "OWASP ZAP";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
