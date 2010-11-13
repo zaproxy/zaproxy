@@ -22,6 +22,7 @@ package org.parosproxy.paros.extension.option;
 
 import javax.swing.JCheckBoxMenuItem;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -92,7 +93,7 @@ public class ExtensionOption extends ExtensionAdaptor {
 	private JCheckBoxMenuItem getMenuViewImage() {
 		if (menuViewImage == null) {
 			menuViewImage = new JCheckBoxMenuItem();
-			menuViewImage.setText("Enable Image in History");
+			menuViewImage.setText(Constant.messages.getString("menu.view.enableImage"));	// ZAP: i18n
 			menuViewImage.addItemListener(new java.awt.event.ItemListener() { 
 
 				public void itemStateChanged(java.awt.event.ItemEvent e) {    

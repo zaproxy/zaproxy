@@ -22,14 +22,15 @@ package org.parosproxy.paros.extension.history;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 
 public class HistoryFilter {
 
-	public static final String NOTES_IGNORE = "Ignore";
-	public static final String NOTES_PRESENT = "Present";
-	public static final String NOTES_ABSENT = "Absent";
+	public static final String NOTES_IGNORE = Constant.messages.getString("history.filter.notes.ignore");
+	public static final String NOTES_PRESENT = Constant.messages.getString("history.filter.notes.present");
+	public static final String NOTES_ABSENT = Constant.messages.getString("history.filter.notes.absent");
 	public static final String [] NOTES_OPTIONS = {NOTES_IGNORE, NOTES_PRESENT, NOTES_ABSENT};
 	
 	private List<String> methodList = new ArrayList<String>();
@@ -135,66 +136,75 @@ public class HistoryFilter {
 		}
 		return true;
 	}
+	
 	public String toShortString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Filter: ");
+		sb.append(Constant.messages.getString("history.filter.label.filter"));
+		sb.append(" ");
 		boolean empty = true;
 		if (methodList.size() > 0) {
 			if (empty) {
-				sb.append("ON ");
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(" ");
 			}
 			empty = false;
-			sb.append("Methods");
+			sb.append(Constant.messages.getString("history.filter.label.methods"));
 		}
 		if (codeList.size() > 0) {
 			if (empty) {
-				sb.append("ON ");
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(" ");
 			} else {
 				sb.append(", ");
 			}
 			empty = false;
-			sb.append("Codes");
+			sb.append(Constant.messages.getString("history.filter.label.codes"));
 		}
 		if (tagList.size() > 0) {
 			if (empty) {
-				sb.append("ON ");
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(" ");
 			} else {
 				sb.append(", ");
 			}
 			empty = false;
-			sb.append("Tags");
+			sb.append(Constant.messages.getString("history.filter.label.tags"));
 		}
 		if (riskList.size() > 0 || reliabilityList.size() > 0) {
 			if (empty) {
-				sb.append("ON ");
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(" ");
 			} else {
 				sb.append(", ");
 			}
 			empty = false;
-			sb.append("Alerts");
+			sb.append(Constant.messages.getString("history.filter.label.alerts"));
 		}
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
 			if (empty) {
-				sb.append("ON ");
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(" ");
 			} else {
 				sb.append(", ");
 			}
 			empty = false;
-			sb.append("Notes");
+			sb.append(Constant.messages.getString("history.filter.label.notes"));
 		}
 		if (empty) {
-			sb.append("OFF");
+			sb.append(Constant.messages.getString("history.filter.label.off"));
 		}
 		return sb.toString();
 	}
 	
 	public String toLongString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Filter: ");
+		sb.append(Constant.messages.getString("history.filter.label.filter"));
+		sb.append(" ");
 		boolean empty = true;
 		if (methodList.size() > 0) {
 			empty = false;
-			sb.append("Methods: ");
+			sb.append(Constant.messages.getString("history.filter.label.methods"));
+			sb.append(": ");
 			for (String method : methodList) {
 				sb.append(method);
 				sb.append(" ");
@@ -202,7 +212,8 @@ public class HistoryFilter {
 		}
 		if (codeList.size() > 0) {
 			empty = false;
-			sb.append("Codes: ");
+			sb.append(Constant.messages.getString("history.filter.label.codes"));
+			sb.append(": ");
 			Integer lastCode = null;
 			boolean inBlock = false;
 			for (Integer code : codeList) {
@@ -235,7 +246,8 @@ public class HistoryFilter {
 		}
 		if (tagList.size() > 0) {
 			empty = false;
-			sb.append("Tags: ");
+			sb.append(Constant.messages.getString("history.filter.label.tags"));
+			sb.append(": ");
 			for (String tag : tagList) {
 				sb.append(tag);
 				sb.append(" ");
@@ -243,7 +255,8 @@ public class HistoryFilter {
 		}
 		if (riskList.size() > 0 || reliabilityList.size() > 0) {
 			empty = false;
-			sb.append("Alerts: ");
+			sb.append(Constant.messages.getString("history.filter.label.alerts"));
+			sb.append(": ");
 			for (String risk : riskList) {
 				sb.append(risk);
 				sb.append(" ");
@@ -255,10 +268,12 @@ public class HistoryFilter {
 		}
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
 			empty = false;
-			sb.append("Notes: " + note);
+			sb.append(Constant.messages.getString("history.filter.label.notes"));
+			sb.append(": ");
+			sb.append(note);
 		}
 		if (empty) {
-			sb.append("OFF");
+			sb.append(Constant.messages.getString("history.filter.label.off"));
 		}
 		return sb.toString();
 	}

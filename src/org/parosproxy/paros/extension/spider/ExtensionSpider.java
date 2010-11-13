@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.spider.Spider;
 import org.parosproxy.paros.core.spider.SpiderListener;
 import org.parosproxy.paros.core.spider.SpiderParam;
@@ -101,7 +102,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	JMenuItem getMenuItemSpider() {
 		if (menuItemSpider == null) {
 			menuItemSpider = new JMenuItem();
-			menuItemSpider.setText("Spider...");
+			menuItemSpider.setText(Constant.messages.getString("menu.analyse.spider"));	// ZAP: i18n
 			menuItemSpider.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -109,12 +110,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 		            SiteNode node = (SiteNode) siteTree.getLastSelectedPathComponent();
 		            HttpMessage msg = null;
 		            if (node == null) {
-		                getView().showWarningDialog("You need to visit the website via a browser first and select a URL/folder/node in the 'Sites' panel displayed.");
+		                getView().showWarningDialog(Constant.messages.getString("spider.emptyView.warning"));	// ZAP: i18n
 		                return;
 		            }
 	                setStartNode(node);
 	                if (node.isRoot()) {
-	                    showDialog("All sites will be crawled");
+	                    showDialog(Constant.messages.getString("spider.rootNode.warning"));	// ZAP: i18n
 	                } else {
                         try {
                             msg = node.getHistoryReference().getHttpMessage();

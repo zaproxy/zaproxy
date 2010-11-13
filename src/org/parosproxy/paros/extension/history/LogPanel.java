@@ -32,6 +32,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
@@ -187,7 +188,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			gridBagConstraintsX.anchor = java.awt.GridBagConstraints.EAST;
 			gridBagConstraintsX.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-			filterStatus = new JLabel("Filter: OFF");
+			filterStatus = new JLabel(Constant.messages.getString("history.filter.label.filter") + 
+					Constant.messages.getString("history.filter.label.off"));
 			JLabel t1 = new JLabel();
 
 			panelToolbar.add(getFilterButton(), gridBagConstraints1);
@@ -206,7 +208,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		if (filterButton == null) {
 			filterButton = new JButton();
 			filterButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/054.png")));	// 'filter' icon
-			filterButton.setToolTipText("Filter");
+			filterButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
 
 			filterButton.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -25,6 +25,7 @@ import java.awt.Component;
 import javax.swing.JTree;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -63,9 +64,7 @@ public class PopupMenuSpider extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Spider...");
-
-
+        this.setText(Constant.messages.getString("sites.spider.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

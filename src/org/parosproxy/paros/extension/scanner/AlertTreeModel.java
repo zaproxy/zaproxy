@@ -24,6 +24,7 @@ import java.net.URL;
 
 import javax.swing.tree.DefaultTreeModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
 
@@ -41,7 +42,7 @@ class AlertTreeModel extends DefaultTreeModel {
 	private int totalHigh = 0;
 	
     AlertTreeModel() {
-        super(new AlertNode(-1, "Alerts"));
+        super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));	// ZAP: i18n
         
     }
     

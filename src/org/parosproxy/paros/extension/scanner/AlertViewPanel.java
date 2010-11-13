@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -466,12 +467,7 @@ public class AlertViewPanel extends AbstractPanel {
 			defaultOutput.setLineWrap(true);
 			defaultOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			defaultOutput.setName("");
-			defaultOutput.append("Full details of any selected alert will be displayed here.\n");
-			defaultOutput.append("\n");
-			defaultOutput.append("You can manually add alerts by right clicking on the relevant line " +
-					"in the history and selecting 'Add alert'.\n");
-			defaultOutput.append("\n");
-			defaultOutput.append("You can also edit existing alerts by double clicking on them.\n");
+			defaultOutput.append(Constant.messages.getString("alerts.label.defaultMessage"));
 		}
 		return defaultOutput;
 	}

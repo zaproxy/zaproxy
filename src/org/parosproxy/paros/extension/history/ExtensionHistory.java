@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Proxy;
 import org.parosproxy.paros.core.proxy.CacheProcessingItem;
@@ -139,7 +140,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public LogPanel getLogPanel() {
 		if (logPanel == null) {
 			logPanel = new LogPanel();
-			logPanel.setName("History");
+			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
 			logPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/025.png")));	// 'calendar' icon
 

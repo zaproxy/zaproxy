@@ -25,6 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.httpclient.HttpState;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -85,7 +86,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	private JCheckBoxMenuItem getMenuSessionTrackingEnable() {
 		if (menuSessionTrackingEnable == null) {
 		    menuSessionTrackingEnable = new JCheckBoxMenuItem();
-		    menuSessionTrackingEnable.setText("Enable Session Tracking (Cookie)");
+		    menuSessionTrackingEnable.setText(Constant.messages.getString("menu.edit.enableTracking"));	// ZAP: i18n
 			getMenuResetSessionState().setEnabled(menuSessionTrackingEnable.isSelected());
 
 			menuSessionTrackingEnable.addItemListener(new java.awt.event.ItemListener() { 
@@ -112,10 +113,10 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	private JMenuItem getMenuResetSessionState() {
 		if (menuResetSessionState == null) {
 			menuResetSessionState = new JMenuItem();
-			menuResetSessionState.setText("Reset Session State");
+			menuResetSessionState.setText(Constant.messages.getString("menu.edit.resetState"));	// ZAP: i18n
 			menuResetSessionState.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    if (getView().showConfirmDialog("Session state will be reset.  Continue?") == JOptionPane.OK_OPTION) {
+				    if (getView().showConfirmDialog(Constant.messages.getString("state.reset.warning")) == JOptionPane.OK_OPTION) {
 				        resetSessionState();
 				    }
 

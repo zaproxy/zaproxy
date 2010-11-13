@@ -24,6 +24,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -113,7 +114,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private JMenuItem getMenuItemLastScanReport() {
 		if (menuItemLastScanReport == null) {
 			menuItemLastScanReport = new JMenuItem();
-			menuItemLastScanReport.setText("Generate Report...");
+			menuItemLastScanReport.setText(Constant.messages.getString("menu.report.generate"));	// ZAP: i18n
 			menuItemLastScanReport.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    

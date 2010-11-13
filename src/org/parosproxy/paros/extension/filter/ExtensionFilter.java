@@ -22,6 +22,7 @@ package org.parosproxy.paros.extension.filter;
 
 import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -82,7 +83,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	private JMenuItem getMenuToolsFilter() {
 		if (menuToolsFilter == null) {
 			menuToolsFilter = new JMenuItem();
-			menuToolsFilter.setText("Filter...");
+			menuToolsFilter.setText(Constant.messages.getString("menu.tools.filter"));	// ZAP: i18n
 			menuToolsFilter.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    

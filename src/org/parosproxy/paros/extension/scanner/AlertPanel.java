@@ -33,6 +33,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -77,7 +78,7 @@ public class AlertPanel extends AbstractPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setSize(274, 251);
-        this.setName("Alerts");
+        this.setName(Constant.messages.getString("alerts.panel.title"));	// ZAP: i18n
         // ZAP: Added Alerts (flag) icon
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/071.png")));	// 'flag' icon
 

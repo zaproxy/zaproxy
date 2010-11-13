@@ -68,7 +68,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 
 			panelMisc.setLayout(gridLayout2);
 			panelMisc.setSize(114, 132);
-			panelMisc.setName("Miscellenous");
+			panelMisc.setName("Miscellaneous");
 			gridLayout2.setRows(1);
 			panelMisc.add(getChkCheckOnStart(), null);
 		}

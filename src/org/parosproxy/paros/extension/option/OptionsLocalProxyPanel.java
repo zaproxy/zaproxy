@@ -86,7 +86,9 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			
 			panelLocalProxy = new JPanel();
 			panelLocalProxy.setLayout(new GridBagLayout());
-			panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Local proxy", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(
+					null, Constant.messages.getString("options.proxy.local.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));	// ZAP: i18n
 			jLabel.setText("Address (eg localhost, 127.0.0.1)");
 			gridBagConstraints4.gridx = 0;
 			gridBagConstraints4.gridy = 0;
@@ -164,7 +166,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
 			panelReverseProxy.setLayout(new GridBagLayout());
 			panelReverseProxy.setSize(114, 132);
-			panelReverseProxy.setName("Miscellenous");
+			panelReverseProxy.setName("Miscellaneous");	// ZAP: Fixed typo
 			panelReverseProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Reverse proxy", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
 			panelReverseProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints101.gridx = 0;

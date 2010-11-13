@@ -20,6 +20,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import org.parosproxy.paros.Constant;
+
 
 /**
  * 00000 - 09999 :	information gathering
@@ -36,20 +38,20 @@ public class Category {
     public static final int SERVER = 2;
     public static final int MISC = 3;
     public static final int INJECTION = 4;
-    
+
+    // ZAP: i18n
     private static String[] names = {
-            "Information gathering",
-            "Client browser",
-            "Server security",
-            "Miscellenous",
-            "Injection"
-            
+    		Constant.messages.getString("scanner.category.info"),
+    		Constant.messages.getString("scanner.category.browser"),
+    		Constant.messages.getString("scanner.category.server"),
+    		Constant.messages.getString("scanner.category.misc"),
+    		Constant.messages.getString("scanner.category.inject")
             
     };
     
     
     public static String getName(int category) {
-        String result = "Undefined";
+        String result = Constant.messages.getString("scanner.category.undef");
         if (category < names.length) {
             result = names[category];
         }

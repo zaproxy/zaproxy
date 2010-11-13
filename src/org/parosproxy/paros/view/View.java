@@ -89,7 +89,7 @@ public class View implements ViewDelegate {
 		
 		// ZAP: Added 'world' icon
 		Icon icon = new ImageIcon(getClass().getResource("/resource/icon/16/094.png"));
-		getWorkbench().getTabbedSelect().addTab("Sites ", icon, siteMapPanel);
+		getWorkbench().getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, siteMapPanel); // ZAP: i18n
 		
 		getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
@@ -150,7 +150,7 @@ public class View implements ViewDelegate {
     public HttpPanel getRequestPanel() {
         if (requestPanel == null) {
             requestPanel = new HttpPanel(false);
-            requestPanel.setName("Request");
+            requestPanel.setName(Constant.messages.getString("request.panel.title"));	// ZAP: i18n
         }
         return requestPanel;
     }
@@ -158,7 +158,7 @@ public class View implements ViewDelegate {
     public HttpPanel getResponsePanel() {
         if (responsePanel == null) {
             responsePanel = new HttpPanel(false);
-            responsePanel.setName("Response");
+            responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
             responsePanel.setMessage("","",false);
         }
         return responsePanel;
@@ -167,7 +167,7 @@ public class View implements ViewDelegate {
     public SessionDialog getSessionDialog(String title) {
         String[] ROOT = {};
         if (sessionDialog == null) {
-            sessionDialog = new SessionDialog(getMainFrame(), true, title, "Session");
+            sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel());
 
         }

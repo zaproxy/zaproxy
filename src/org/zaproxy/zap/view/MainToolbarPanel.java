@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.View;
 
@@ -111,7 +112,7 @@ public class MainToolbarPanel extends JPanel {
 		if (btnNew == null) {
 			btnNew = new JButton();
 			btnNew.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/021.png")));	// 'Blank file' icon
-			btnNew.setToolTipText("New Session");
+			btnNew.setToolTipText(Constant.messages.getString("menu.file.newSession"));
 
 			btnNew.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -119,7 +120,7 @@ public class MainToolbarPanel extends JPanel {
 					try {
 						Control.getSingleton().getMenuFileControl().newSession(true);
 					} catch (Exception e1) {
-						View.getSingleton().showWarningDialog("Error creating new session");
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.newSession.error"));
 						e1.printStackTrace();
 					}
 				}
@@ -132,7 +133,7 @@ public class MainToolbarPanel extends JPanel {
 		if (btnOpen == null) {
 			btnOpen = new JButton();
 			btnOpen.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/047.png")));	// 'open folder' icon
-			btnOpen.setToolTipText("Open Session");
+			btnOpen.setToolTipText(Constant.messages.getString("menu.file.openSession"));
 
 			btnOpen.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -140,7 +141,7 @@ public class MainToolbarPanel extends JPanel {
 					try {
 						Control.getSingleton().getMenuFileControl().openSession();
 					} catch (Exception e1) {
-						View.getSingleton().showWarningDialog("Error openning a session");
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.openSession.error"));
 						e1.printStackTrace();
 					}
 				}
@@ -153,7 +154,7 @@ public class MainToolbarPanel extends JPanel {
 		if (btnSave == null) {
 			btnSave = new JButton();
 			btnSave.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/096.png")));	// 'diskette' icon
-			btnSave.setToolTipText("Save Session As");
+			btnSave.setToolTipText(Constant.messages.getString("menu.file.saveSession"));
 
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -161,7 +162,7 @@ public class MainToolbarPanel extends JPanel {
 					try {
 						Control.getSingleton().getMenuFileControl().saveAsSession();
 					} catch (Exception e1) {
-						View.getSingleton().showWarningDialog("Error saving session");
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.saveSession.error"));
 						e1.printStackTrace();
 					}
 				}

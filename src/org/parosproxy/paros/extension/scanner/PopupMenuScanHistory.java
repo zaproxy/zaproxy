@@ -25,6 +25,7 @@ import java.awt.Component;
 import javax.swing.JList;
 import javax.swing.JTree;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
@@ -61,7 +62,7 @@ public class PopupMenuScanHistory extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Scan this History");
+        this.setText(Constant.messages.getString("history.scan.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -77,7 +78,7 @@ public class PopupMenuScanHistory extends ExtensionPopupMenu {
                     SiteNode siteNode = ref.getSiteNode();
                     extension.startScan(siteNode);
                 } catch (Exception e1) {
-                    extension.getView().showWarningDialog("Error getting History.");
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.scan.warning"));	// ZAP: i18n
                 }
         	}
         });

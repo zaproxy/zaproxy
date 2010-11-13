@@ -22,6 +22,7 @@ package org.parosproxy.paros.extension.scanner;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -29,10 +30,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Scanner;
@@ -119,7 +120,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	private JMenuItem getMenuItemScanAll() {
 		if (menuItemScanAll == null) {
 			menuItemScanAll = new JMenuItem();
-			menuItemScanAll.setText("Scan All");
+			menuItemScanAll.setText(Constant.messages.getString("menu.analyse.scanAll"));	// ZAP: i18n
 			menuItemScanAll.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -246,8 +247,8 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	        if (EventQueue.isDispatchThread()) {
 	            progressDialog.dispose();
                 progressDialog = null;
-                // ZAP: changed message
-                getView().showMessageDialog("Scanning completed in " + scanTime/1000 + "s.");
+                getView().showMessageDialog(MessageFormat.format(Constant.messages.getString("scanner.completed.label"), 
+                		new Object []{ Long.valueOf(scanTime/1000)}));	// ZAP: i18n
 	            return;
 	        }
 	        try {
@@ -255,8 +256,8 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	                public void run() {
 	                    progressDialog.dispose();
 	                    progressDialog = null;
-	                    // ZAP: changed message
-                        getView().showMessageDialog("Scanning completed in " + scanTime/1000 + "s.");
+	                    getView().showMessageDialog(MessageFormat.format(Constant.messages.getString("scanner.completed.label"), 
+	                    		new Object []{ Long.valueOf(scanTime/1000)}));	// ZAP: i18n
 	                }
 	            });
 	        } catch (Exception e) {
@@ -275,7 +276,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	private JMenuItem getMenuItemPolicy() {
 		if (menuItemPolicy == null) {
 			menuItemPolicy = new JMenuItem();
-			menuItemPolicy.setText("Scan Policy...");
+			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));	// ZAP: i18n
 			menuItemPolicy.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -288,7 +289,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 			                getModel().getOptionsParam().getConfig().save();
 			            } catch (ConfigurationException ce) {
 			                ce.printStackTrace();
-			                getView().showWarningDialog("Error saving policy.");
+			                getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));	// ZAP: i18n
 			                return;
 			            }
 					}					
@@ -373,7 +374,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	private JMenuItem getMenuItemScan() {
 		if (menuItemScan == null) {
 			menuItemScan = new JMenuItem();
-			menuItemScan.setText("Scan");
+			menuItemScan.setText(Constant.messages.getString("menu.analyse.scan"));	// ZAP: i18n
 			menuItemScan.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -381,7 +382,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 				    JTree siteTree = getView().getSiteTreePanel().getTreeSite();
 		            SiteNode node = (SiteNode) siteTree.getLastSelectedPathComponent();
 		            if (node == null) {
-		                getView().showWarningDialog("Please select a site/folder/URL in Sites panel.");
+		                getView().showWarningDialog(Constant.messages.getString("scanner.select.warning"));	// ZAP: i18n
 		                return;
 		            }
 				    menuItemScan.setEnabled(false);
@@ -499,7 +500,7 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	ManualRequestEditorDialog getManualRequestEditorDialog() {
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
-			manualRequestEditorDialog.setTitle("Resend");
+			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 			manualRequestEditorDialog.setSize(500, 600);
 		}
 		return manualRequestEditorDialog;

@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 import javax.swing.JTree;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
@@ -69,7 +70,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Resend...");
+        this.setText(Constant.messages.getString("sites.resend.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import javax.swing.JList;
 import javax.swing.JTree;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -65,7 +66,7 @@ public class PopupMenuResend extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Resend...");
+        this.setText(Constant.messages.getString("history.resend.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

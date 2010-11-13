@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -45,9 +46,9 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class HttpPanel extends AbstractPanel {
     
-    private static final String VIEW_RAW = "Raw View    ";
-    private static final String VIEW_TABULAR = "Tabular View";
-    private static final String VIEW_IMAGE = "Image View";
+    private static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView");	// ZAP: i18n
+    private static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView");	// ZAP: i18n
+    private static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView");	// ZAP: i18n
     
 	private javax.swing.JSplitPane splitVert = null;  //
 	private javax.swing.JScrollPane scrollHeader = null;

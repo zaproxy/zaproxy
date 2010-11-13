@@ -32,6 +32,7 @@ import javax.swing.JTree;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
@@ -70,7 +71,7 @@ public class PopupMenuExportResponse extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Export Response to File...");
+        this.setText(Constant.messages.getString("history.export.response.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -79,12 +80,12 @@ public class PopupMenuExportResponse extends ExtensionPopupMenu {
                 JList listLog = extension.getLogPanel().getListLog();
         	    Object[] obj = listLog.getSelectedValues();
         	    if (obj.length == 0) {
-                    extension.getView().showWarningDialog("Select HTTP message in History panel before export to file.");        	        
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.select.warning"));        	        	// ZAP: i18n
                     return;
         	    }
 
                 if (obj.length > 1) {
-                    extension.getView().showWarningDialog("Only one response can be exported at a time.");                   
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.single.warning"));	// ZAP: i18n
                     return;
                 }
 
@@ -93,12 +94,12 @@ public class PopupMenuExportResponse extends ExtensionPopupMenu {
                 try {
                     msg = ref.getHttpMessage();
                 } catch (Exception e1) {
-                    extension.getView().showWarningDialog("Error reading response.");
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.read.warning"));	// ZAP: i18n
                     return;
                 }
                 
                 if (msg.getResponseHeader().isEmpty() || msg.getResponseBody().length() == 0) {
-                    extension.getView().showWarningDialog("Empty body.  File not created.");
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.body.warning"));	// ZAP: i18n
                     return;                    
                 }
                     
@@ -109,7 +110,7 @@ public class PopupMenuExportResponse extends ExtensionPopupMenu {
         	    
         	    boolean isAppend = true;
         	    if (file.exists()) {
-                    int rc = extension.getView().showYesNoCancelDialog("File exists.  Yes = overwrite, No = append?");
+                    int rc = extension.getView().showYesNoCancelDialog(Constant.messages.getString("file.overwrite.warning"));
                     if (rc == JOptionPane.CANCEL_OPTION) {
                         return;
                     } else if (rc == JOptionPane.YES_OPTION) {
@@ -125,7 +126,7 @@ public class PopupMenuExportResponse extends ExtensionPopupMenu {
             	    }
 
                 } catch (Exception e1) {
-                    extension.getView().showWarningDialog("Error saving file to " + file.getAbsolutePath() + ".");
+                    extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
                 	// ZAP: Log exceptions
                 	log.warn(e1.getMessage(), e1);
                 } finally {

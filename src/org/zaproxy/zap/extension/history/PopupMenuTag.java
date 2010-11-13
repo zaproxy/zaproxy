@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 import javax.swing.JList;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -62,7 +63,7 @@ public class PopupMenuTag extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Manage Tags...");
+        this.setText(Constant.messages.getString("history.tags.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

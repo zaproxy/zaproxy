@@ -24,6 +24,7 @@ import javax.swing.JMenuItem;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -87,7 +88,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	private JMenuItem getMenuManualRequestEditor() {
 		if (menuManualRequestEditor == null) {
 		    menuManualRequestEditor = new JMenuItem();
-		    menuManualRequestEditor.setText("Manual Request Editor...");
+		    menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
 		    menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
 		    	public void actionPerformed(java.awt.event.ActionEvent e) {
 		    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
@@ -120,7 +121,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
 			manualRequestEditorDialog.setSize(500, 600);
-			manualRequestEditorDialog.setTitle("Manual Request Editor");
+			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;
 	}

@@ -286,7 +286,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileExit() {
 		if (menuFileExit == null) {
 			menuFileExit = new javax.swing.JMenuItem();
-			menuFileExit.setText("Exit");
+			menuFileExit.setText(Constant.messages.getString("menu.file.exit")); // ZAP: i18n
 			menuFileExit.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    

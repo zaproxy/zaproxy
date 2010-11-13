@@ -34,6 +34,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 
@@ -72,7 +73,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Export Messages to File...");
+        this.setText(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -81,7 +82,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenu {
                 JList listLog = extension.getLogPanel().getListLog();
         	    Object[] obj = listLog.getSelectedValues();
         	    if (obj.length == 0) {
-                    extension.getView().showWarningDialog("Select HTTP messages in History panel before export to file.");        	        
+                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.messages.select.warning"));        	        
                     return;
         	    }
 
@@ -92,7 +93,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenu {
         	    
         	    boolean isAppend = true;
         	    if (file.exists()) {
-                    int rc = extension.getView().showYesNoCancelDialog("File exists.  Yes = overwrite, No = append?");
+                    int rc = extension.getView().showYesNoCancelDialog(Constant.messages.getString("file.overwrite.warning"));
                     if (rc == JOptionPane.CANCEL_OPTION) {
                         return;
                     } else if (rc == JOptionPane.YES_OPTION) {
@@ -109,7 +110,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenu {
             	    }
 
                 } catch (Exception e1) {
-                    extension.getView().showWarningDialog("Error saving file to " + file.getAbsolutePath() + ".");
+                    extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
                 	// ZAP: Log exceptions
                 	log.warn(e1.getMessage(), e1);
                 } finally {
@@ -211,7 +212,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenu {
 	                return false;
 	            }
 	           public String getDescription() {
-	               return "ASCII text file";
+	               return Constant.messages.getString("file.format.ascii");
 	           }
 	    });
 		File file = null;

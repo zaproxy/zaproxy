@@ -24,9 +24,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.text.JTextComponent;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.view.FindDialog;
 
 /**
@@ -94,7 +94,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     private JMenuItem getMenuFind() {
         if (menuFind == null) {
             menuFind = new JMenuItem();
-            menuFind.setText("Find...");
+            menuFind.setText(Constant.messages.getString("menu.edit.find"));	// ZAP: i18n
             menuFind.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.Event.CTRL_MASK, false));
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
@@ -114,7 +114,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     private PopupFindMenu getPopupMenuFind() {
         if (popupFindMenu== null) {
             popupFindMenu = new PopupFindMenu();
-            popupFindMenu.setText("Find...");
+            popupFindMenu.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
             popupFindMenu.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     showFindDialog(popupFindMenu.getParentFrame(), popupFindMenu.getLastInvoker());

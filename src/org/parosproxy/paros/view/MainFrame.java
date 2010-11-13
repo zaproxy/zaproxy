@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.MainToolbarPanel;
 /**
  *
@@ -119,8 +120,7 @@ public class MainFrame extends AbstractFrame {
 	private JLabel getAlertHigh(int alert) {
 		if (alertHigh == null) {
 			alertHigh = new JLabel();
-			alertHigh.setToolTipText("High priority alerts");
-
+			alertHigh.setToolTipText(Constant.messages.getString("footer.alerts.high.tooltip"));
 		}
 		alertHigh.setText("" + alert);
 		return alertHigh;
@@ -133,7 +133,7 @@ public class MainFrame extends AbstractFrame {
 	private JLabel getAlertMedium(int alert) {
 		if (alertMedium == null) {
 			alertMedium = new JLabel();
-			alertMedium.setToolTipText("Medium priority alerts");
+			alertMedium.setToolTipText(Constant.messages.getString("footer.alerts.medium.tooltip"));
 		}
 		alertMedium.setText("" + alert);
 		return alertMedium;
@@ -146,7 +146,7 @@ public class MainFrame extends AbstractFrame {
 	private JLabel getAlertLow(int alert) {
 		if (alertLow == null) {
 			alertLow = new JLabel();
-			alertLow.setToolTipText("Low priority alerts");
+			alertLow.setToolTipText(Constant.messages.getString("footer.alerts.low.tooltip"));
 		}
 		alertLow.setText("" + alert);
 		return alertLow;
@@ -159,7 +159,7 @@ public class MainFrame extends AbstractFrame {
 	private JLabel getAlertInfo(int alert) {
 		if (alertInfo == null) {
 			alertInfo = new JLabel();
-			alertInfo.setToolTipText("Informational alerts");
+			alertInfo.setToolTipText(Constant.messages.getString("footer.alerts.info.tooltip"));
 		}
 		alertInfo.setText("" + alert);
 		return alertInfo;
@@ -176,13 +176,13 @@ public class MainFrame extends AbstractFrame {
 			this.footerToolbarPanel.setEnabled(true);
 			
 			this.footerToolbarPanel.add(new JLabel(
-				"<html>&nbsp;Alerts&nbsp;</html>"));
+					Constant.messages.getString("footer.alerts.label")));
 			
 			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
 			
 			// logPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/025.png")));	// 'calendar' icon
 			JLabel flagHigh = new JLabel("<html>:&nbsp;</html>");
-			flagHigh.setToolTipText("High priority alerts");
+			flagHigh.setToolTipText(Constant.messages.getString("footer.alerts.high.tooltip"));
 			ImageIcon iconHigh = new ImageIcon(getClass().getResource("/resource/icon/10/071.png"));
 			flagHigh.setIcon(iconHigh);
 			this.footerToolbarPanel.add(flagHigh);
@@ -191,7 +191,7 @@ public class MainFrame extends AbstractFrame {
 			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
 
 			JLabel flagMedium = new JLabel("<html>:&nbsp;</html>");
-			flagMedium.setToolTipText("Medium priority alerts");
+			flagMedium.setToolTipText(Constant.messages.getString("footer.alerts.medium.tooltip"));
 			ImageIcon iconMedium = new ImageIcon(getClass().getResource("/resource/icon/10/076.png"));
 			flagMedium.setIcon(iconMedium);
 			this.footerToolbarPanel.add(flagMedium);
@@ -200,7 +200,7 @@ public class MainFrame extends AbstractFrame {
 			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
 
 			JLabel flagLow = new JLabel("<html>:&nbsp;</html>");
-			flagLow.setToolTipText("Low priority alerts");
+			flagLow.setToolTipText(Constant.messages.getString("footer.alerts.low.tooltip"));
 			ImageIcon iconLow = new ImageIcon(getClass().getResource("/resource/icon/10/074.png"));
 			flagLow.setIcon(iconLow);
 			this.footerToolbarPanel.add(flagLow);
@@ -209,7 +209,7 @@ public class MainFrame extends AbstractFrame {
 			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
 
 			JLabel flagInfo = new JLabel("<html>:&nbsp;</html>");
-			flagInfo.setToolTipText("Informational alerts");
+			flagInfo.setToolTipText(Constant.messages.getString("footer.alerts.info.tooltip"));
 			ImageIcon iconInfo = new ImageIcon(getClass().getResource("/resource/icon/10/073.png"));
 			flagInfo.setIcon(iconInfo);
 			this.footerToolbarPanel.add(flagInfo);

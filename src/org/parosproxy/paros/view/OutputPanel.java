@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 
 import java.awt.CardLayout;
@@ -54,7 +55,7 @@ public class OutputPanel extends AbstractPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("Output");
+        this.setName(Constant.messages.getString("output.panel.title"));	// ZAP: i18n
         this.setSize(243, 119);
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/172.png")));	// 'doc' icon

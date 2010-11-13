@@ -26,6 +26,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -66,7 +67,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Purge (from DB)");
+        this.setText(Constant.messages.getString("history.purge.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -74,7 +75,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
         	    JList listLog = extension.getLogPanel().getListLog();
         	    Object[] obj = listLog.getSelectedValues();
         	    if (obj.length > 1) {
-        	        int result = extension.getView().showConfirmDialog("The history will be purged from database.  Proceed?");
+        	        int result = extension.getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
         	        if (result != JOptionPane.YES_OPTION) {
         	            return;
         	        }

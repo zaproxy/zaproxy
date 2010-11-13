@@ -66,7 +66,8 @@ public class TestObsoleteFileExtended extends AbstractAppPlugin {
     }
     
     public String getDescription() {
-        return "Miscellenous include files, backup, unused or obsolete files exist as indicated.  If these files contain program source, information such as server logic or ODBC/JDBC user ID and passwords may be revealed since these file extension may not be processed by the web server.";
+    	// ZAP: fixed typo
+        return "Miscellaneous include files, backup, unused or obsolete files exist as indicated.  If these files contain program source, information such as server logic or ODBC/JDBC user ID and passwords may be revealed since these file extension may not be processed by the web server.";
     }
     
     public String getSolution() {

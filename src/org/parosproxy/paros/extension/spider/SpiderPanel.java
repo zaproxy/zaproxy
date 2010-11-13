@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
 /**
@@ -67,7 +68,7 @@ public class SpiderPanel extends AbstractPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setSize(700, 214);
-        this.setName("Spider");
+        this.setName(Constant.messages.getString("spider.panel.title"));	// ZAP: i18n
         // ZAP: Added Spider icon
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/spider.png")));	// 'spider' icon
 
@@ -104,7 +105,7 @@ public class SpiderPanel extends AbstractPanel {
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			leftPanel = new JPanel();
 			leftPanel.setLayout(new GridBagLayout());
-			jLabel.setText("URI found during crawl:");
+			jLabel.setText(Constant.messages.getString("spider.label.inScope"));	// ZAP: i18n 
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
@@ -135,7 +136,7 @@ public class SpiderPanel extends AbstractPanel {
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			rightPanel = new JPanel();
 			rightPanel.setLayout(new GridBagLayout());
-			jLabel1.setText("URI found but out of crawl scope:");
+			jLabel1.setText(Constant.messages.getString("spider.label.outOfScope"));	// ZAP: i18n
 			gridBagConstraints3.gridx = 0;
 			gridBagConstraints3.gridy = 0;
 			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);

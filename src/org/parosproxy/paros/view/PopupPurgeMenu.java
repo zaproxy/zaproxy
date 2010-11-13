@@ -25,6 +25,7 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -57,7 +58,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Purge (from DB)");
+        this.setText(Constant.messages.getString("sites.purge.popup"));	// ZAP: i18n
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {    

@@ -24,6 +24,7 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
@@ -62,7 +63,7 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Edit...");
+        this.setText(Constant.messages.getString("scanner.edit.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -23,6 +23,7 @@ import java.awt.Component;
 
 import javax.swing.JList;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -59,7 +60,7 @@ public class PopupMenuAlert extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("New Alert...");
+        this.setText(Constant.messages.getString("history.alert.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -26,6 +26,7 @@ import java.awt.Container;
 import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
@@ -62,7 +63,7 @@ public class PopupFindMenu extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("Find...");
+        this.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
 
 
 			
