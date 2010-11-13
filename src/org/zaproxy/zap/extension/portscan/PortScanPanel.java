@@ -40,6 +40,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 
@@ -77,6 +78,7 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
+	private JToggleButton pauseScanButton = null;
 	private JList portList = null;
 	private JProgressBar progressBar = null;
 	private Map <String, PortScan> portScanMap = new HashMap <String, PortScan>();
@@ -168,6 +170,7 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 
 			gridBagConstraints1.gridx = 0;
@@ -205,7 +208,12 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 			gridBagConstraints7.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraintsx.gridx = 7;
+			gridBagConstraints8.gridx = 7;
+			gridBagConstraints8.gridy = 0;
+			gridBagConstraints8.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraints8.anchor = java.awt.GridBagConstraints.WEST;
+
+			gridBagConstraintsx.gridx = 8;
 			gridBagConstraintsx.gridy = 0;
 			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.weighty = 1.0;
@@ -220,9 +228,10 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 			
 			panelToolbar.add(getStartScanButton(), gridBagConstraints3);
 			panelToolbar.add(getStopScanButton(), gridBagConstraints4);
-			panelToolbar.add(getProgressBar(), gridBagConstraints5);
-			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints6);
-			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints7);
+			panelToolbar.add(getPauseScanButton(), gridBagConstraints5);
+			panelToolbar.add(getProgressBar(), gridBagConstraints6);
+			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints7);
+			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints8);
 			
 			panelToolbar.add(t1, gridBagConstraintsx);
 		}
@@ -302,6 +311,22 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 			});
 		}
 		return stopScanButton;
+	}
+
+	private JToggleButton getPauseScanButton() {
+		if (pauseScanButton == null) {
+			pauseScanButton = new JToggleButton();
+			pauseScanButton.setToolTipText(Constant.messages.getString("ports.toolbar.button.pause"));
+			pauseScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setEnabled(false);
+			pauseScanButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					pauseScan();
+				}
+			});
+		}
+		return pauseScanButton;
 	}
 
 	private JScrollPane getJScrollPane() {
@@ -405,10 +430,19 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 			if (portScan.isAlive()) {
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
+				getPauseScanButton().setEnabled(true);
+				if (portScan.isPaused()) {
+					getPauseScanButton().setSelected(true);
+					getPauseScanButton().setToolTipText(Constant.messages.getString("ports.toolbar.button.unpause"));
+				} else {
+					getPauseScanButton().setSelected(false);
+					getPauseScanButton().setToolTipText(Constant.messages.getString("ports.toolbar.button.pause"));
+				}
 				getProgressBar().setEnabled(true);
 			} else {
 				getStartScanButton().setEnabled(true);
 				getStopScanButton().setEnabled(false);
+				getPauseScanButton().setEnabled(false);
 				getProgressBar().setEnabled(false);
 				getProgressBar().setValue(0);
 			}
@@ -440,6 +474,7 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 	private void startScan() {
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
+		this.getPauseScanButton().setEnabled(true);
 		this.activeScans.add(currentSite);
 
 		PortScan portScan = portScanMap.get(currentSite);
@@ -454,12 +489,12 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 		getProgressBar().setEnabled(true);
 		getProgressBar().setMaximum(portScan.getMaxPort());
 		portList.setModel(portScan.getList());
-
-		if (siteModel.getIndexOf(passiveSitelabel(currentSite)) >= 0) {
+		String selectedSite = currentSite;	// currentSite can change when we remove elements
+		if (siteModel.getIndexOf(passiveSitelabel(selectedSite)) >= 0) {
 			// Change the site label to be bold
-			siteModel.removeElement(passiveSitelabel(currentSite));
-			siteModel.addElement(activeSitelabel(currentSite));
-			siteModel.setSelectedItem(activeSitelabel(currentSite));
+			siteModel.removeElement(passiveSitelabel(selectedSite));
+			siteModel.addElement(activeSitelabel(selectedSite));
+			siteModel.setSelectedItem(activeSitelabel(selectedSite));
 		}
 	}
 	
@@ -471,11 +506,28 @@ public class PortScanPanel extends AbstractPanel implements PortScanListenner {
 		}
 	}
 
+	private void pauseScan() {
+		log.debug("Pausing scan on " + currentSite);
+		PortScan portScan = portScanMap.get(currentSite);
+		if (portScan != null) {
+			if (portScan.isPaused()) {
+				portScan.unpauseScan();
+				getPauseScanButton().setToolTipText(Constant.messages.getString("ports.toolbar.button.pause"));
+			} else {
+				portScan.pauseScan();
+				getPauseScanButton().setToolTipText(Constant.messages.getString("ports.toolbar.button.unpause"));
+			}
+		}
+	}
+
 	@Override
 	public void scanFinshed(String host) {
 		if (host.equals(currentSite)) {
 			getStartScanButton().setEnabled(true);
 			getStopScanButton().setEnabled(false);
+			getPauseScanButton().setEnabled(false);
+			getPauseScanButton().setSelected(false);
+			getPauseScanButton().setToolTipText(Constant.messages.getString("ports.toolbar.button.pause"));
 			getProgressBar().setEnabled(false);
 		}
 		this.activeScans.remove(host);

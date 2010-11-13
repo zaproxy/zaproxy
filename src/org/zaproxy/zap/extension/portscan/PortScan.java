@@ -36,12 +36,16 @@ public class PortScan extends Thread implements PortScanListenner {
 	private String site;
 	private SortedListModel list;
 	private boolean stopScan = false;
+	private boolean pauseScan = false;
+	private boolean unpauseScan = false;
+	private boolean isPaused = false;
 	private PortScanListenner listenner;
 	private int maxPort = 0;
 	private int threads = 0;
 	private int threadIndex = -1;
 	private int port = 0;
 	private int progress = 0;
+	private List<PortScan> subThreads = new ArrayList<PortScan>();
 	
     private static Log log = LogFactory.getLog(PortScan.class);
 
@@ -95,6 +99,24 @@ public class PortScan extends Thread implements PortScanListenner {
 
 		for (port = startPort; port < maxPort; port += threads) {
 			try {
+				if (pauseScan) {
+					pauseScan = false;
+					isPaused = true;
+					for (PortScan ps : subThreads) {
+						ps.pauseScan();
+					}
+					while (! stopScan && ! unpauseScan) {
+						try {
+							sleep (500);
+						} catch (InterruptedException e) {
+							// Ignore
+						}
+					}
+					isPaused = false;
+					for (PortScan ps : subThreads) {
+						ps.unpauseScan();
+					}
+				}
 				if (stopScan) {
 					log.debug("Scanned stopped");
 					break;
@@ -118,7 +140,6 @@ public class PortScan extends Thread implements PortScanListenner {
 	}
 
 	private void runSubThreads() {
-		List<PortScan> subThreads = new ArrayList<PortScan>();
 		for (int i=0; i < threads; i++) {
 			PortScan ps = new PortScan(site, this, list, maxPort, threads, i+1);
 			subThreads.add(ps);
@@ -130,6 +151,14 @@ public class PortScan extends Thread implements PortScanListenner {
 			for (PortScan st : subThreads) {
 				if (stopScan) {
 					st.stopScan();
+				}
+				if (pauseScan) {
+					unpauseScan = false;
+					st.pauseScan();
+				}
+				if (unpauseScan) {
+					pauseScan = false;
+					st.unpauseScan();
 				}
 				if (st.isAlive()) {
 					running = true;
@@ -143,7 +172,6 @@ public class PortScan extends Thread implements PortScanListenner {
 				}
 			}
 		}
-		
 	}
 
 	public void stopScan() {
@@ -181,6 +209,22 @@ public class PortScan extends Thread implements PortScanListenner {
 			this.progress = progress;
 			this.listenner.scanProgress(site, progress);
 		}
+	}
+
+	public void pauseScan() {
+		this.pauseScan = true;
+		this.unpauseScan = false;
+		this.isPaused = true;
+	}
+
+	public void unpauseScan() {
+		this.unpauseScan = true;
+		this.pauseScan = false;
+		this.isPaused = false;
+	}
+	
+	public boolean isPaused() {
+		return this.isPaused;
 	}
 
 }
