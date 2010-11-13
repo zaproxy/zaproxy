@@ -1,0 +1,35 @@
+<!-- 
+ * Copyright 2007 James Fisher
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  </head>
+  <body>
+      <h1>FAQ</h1>
+      <h2>I wish to test an appliction that requires authentication can DirBuster do this?</h2>
+      <p>Yes</p>
+      <p>If the application is using basic, digest or NTLM auth, you can add the required credentials via Options -> Advanced Options -> Authentication Options</p>
+      <p>If the application auth is done via a HTML form, the session cookie set by the applicaiton can be added.  This can be done via Options -> Advanced Options -> Scan Options -> Add Custom Header</p
+      <h2>Why do the DirBuster lists contain explicit words?</h2>
+      <p>It will come as no surprise to you all that the internet is full of porn, thus it not surprising that the spider used to generate the lists visited a few along the way. Thus there are explicit words contained within the lists. My stand point on this is simple, this tool was designed to used as part of legitimate security testing, and if there are directories/files based on explicit words, clients would want to know!!</p>
+      <h2>DirBuster is finding too much stuff, how do I make it more managable(sp?)</h2>
+      <p>This is normally due to the HTML parsing find lots of links.  If DirBuster is finding too much trun off the HTML parsing, this can be done via Options -> Parse HTML.
+  </body>
+</html>
