@@ -45,6 +45,9 @@ public class SpiderThread extends Thread {
     
     private Spider parent = null;
     private boolean stop = false;
+    // ZAP: Allow the spider to be paused
+    private boolean pause = false;
+    private boolean resume = false;
     private List queue = null;
     private boolean completed = false;
     private Collector collector = null;
@@ -106,14 +109,25 @@ public class SpiderThread extends Thread {
                     } while (!stop && item != null && parent.isInVisitedLink(item.getMessage()));
                 }
                 
-                if (item != null) {
+                if (stop) {
+                	// ZAP: stop now
+                } else if (pause) {
+                	// ZAP: support pause and resume
+                	while (! resume) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e1) {}
+                	}
+                	pause = false;
+                	resume = false;
+                } else if (item != null) {
                     parent.SpiderProgress(item);
                     crawl(item.getMessage(), item.getDepth());
                     item.getHistoryReference().delete();
                     try {
                         Thread.sleep(30);
                     } catch (InterruptedException e1) {}
-                } else if (!stop) {
+                } else {
                     // no item, waiting for all spider queue empty
                     try {
                         Thread.sleep(500);
@@ -295,4 +309,21 @@ public class SpiderThread extends Thread {
     Spider getParent() {
         return parent;
     }
+
+	public boolean isPause() {
+		return pause;
+	}
+
+	public void setPause(boolean pause) {
+		this.pause = pause;
+	}
+
+	public boolean isResume() {
+		return resume;
+	}
+
+	public void setResume(boolean resume) {
+		this.resume = resume;
+	}
+    
 }

@@ -323,7 +323,6 @@ public class Spider {
     }
     
     public void stop() {
-        getHttpSender().shutdown();
         for (int i=0; i<spiderThread.length; i++) {
             spiderThread[i].setStop(true);
             try {
@@ -331,9 +330,25 @@ public class Spider {
             } catch (InterruptedException e) {
             }
         }
+        // ZAP: Shutdown sender after stopping threads - otherwise loads of exceptions 
+        getHttpSender().shutdown();
         log.info("spider stopped.");
         isStop = true;
                     
+    }
+
+    // ZAP: Support pause and resume
+    public void pause() {
+        for (int i=0; i<spiderThread.length; i++) {
+            spiderThread[i].setResume(false);
+            spiderThread[i].setPause(true);
+        }
+    }
+    public void resume() {
+        for (int i=0; i<spiderThread.length; i++) {
+            spiderThread[i].setPause(false);
+            spiderThread[i].setResume(true);
+        }
     }
     
     public boolean isSeedScope(URI uri) {
