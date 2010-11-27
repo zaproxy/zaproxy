@@ -42,4 +42,17 @@ public class ExtensionPopupMenu extends JMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         return true;
     }
+    
+    // ZAP: Support submenus
+    public boolean isSubMenu() {
+    	return false;
+    }
+    
+    public String getParentMenuName() {
+    	return null;
+    }
+    
+    public int getParentMenuIndex() {
+    	return -1;
+    }
 }
