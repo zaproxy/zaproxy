@@ -21,14 +21,17 @@
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
-import org.parosproxy.paros.extension.edit.PopupFindMenu;
 /**
  *
  * To change the template for this generated type comment go to
@@ -40,6 +43,8 @@ public class MainPopupMenu extends JPopupMenu {
 //	private PopupFindMenu popupFindMenu = null;  //  @jve:decl-index=0:visual-constraint="125,151"
 	private PopupDeleteMenu popupDeleteMenu = null;
 	private PopupPurgeMenu popupPurgeMenu = null;
+	// ZAP: Added support for submenus
+    Map<String, JMenu> superMenus = new HashMap<String, JMenu>();
     /**
      * 
      */
@@ -91,6 +96,7 @@ public class MainPopupMenu extends JPopupMenu {
 	        }
 	    }
 	    
+	    
 	    for (int i=0; i<itemList.size(); i++) {
 	        menu = (ExtensionPopupMenu) itemList.get(i);
 	        try {
@@ -100,7 +106,12 @@ public class MainPopupMenu extends JPopupMenu {
 	            }
 	            
 	            if (menu.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
-	                this.add(menu);
+	            	if (menu.isSubMenu()) {
+	            		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
+	            		
+	            	} else {
+	            		this.add(menu);
+	            	}
 	                isFirst = false;
 	            }
 	        } catch (Exception e) {
@@ -108,6 +119,18 @@ public class MainPopupMenu extends JPopupMenu {
 	        }
 	    }
 	    super.show(invoker, x, y);
+	}
+	
+	// ZAP: Added support for submenus
+	private JMenu getSuperMenu (String name, int index) {
+		JMenu superMenu = superMenus.get(name);
+		if (superMenu == null) {
+			superMenu = new JMenu(name);
+			superMenus.put(name, superMenu);
+			this.add(superMenu, index);
+		}
+		return superMenu;
+		
 	}
 
 	/**
