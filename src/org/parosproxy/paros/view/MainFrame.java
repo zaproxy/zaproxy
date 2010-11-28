@@ -46,13 +46,12 @@ public class MainFrame extends AbstractFrame {
 	private JPanel paneDisplay = null;
 
 	private MainToolbarPanel mainToolbarPanel = null;
+	// ZAP Added footer alert icons
 	private JToolBar footerToolbarPanel = null;
 	private JLabel alertHigh = null;
 	private JLabel alertMedium = null;
 	private JLabel alertLow = null;
 	private JLabel alertInfo = null;
-	
-	// ZAP Added footer
 
 	/**
 	 * This method initializes 
@@ -215,8 +214,24 @@ public class MainFrame extends AbstractFrame {
 			this.footerToolbarPanel.add(flagInfo);
 			this.footerToolbarPanel.add(this.getAlertInfo(0));
 
+			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
+
+			// Current scans
+			this.footerToolbarPanel.addSeparator();
+			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
+			this.footerToolbarPanel.add(new JLabel(Constant.messages.getString("footer.scans.label")));
+			
+			this.footerToolbarPanel.add(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
 		}
 		return this.footerToolbarPanel;
+	}
+	
+	public void addFooterLabel (JLabel label) {
+		this.footerToolbarPanel.add(label);
+	}
+
+	public void addFooterSeparator () {
+		this.footerToolbarPanel.addSeparator();
 	}
 
 
