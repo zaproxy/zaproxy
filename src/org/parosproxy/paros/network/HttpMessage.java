@@ -21,7 +21,9 @@
  */
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -496,6 +498,33 @@ public class HttpMessage {
 			query = "";
 		}
 		return this.getParamsSet(HtmlParameter.Type.form, query);
+	}
+	
+	// ZAP: Added getCookieParams
+	public TreeSet<HtmlParameter> getCookieParams() {
+		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		Vector cookies = null;
+        if (! this.getRequestHeader().isEmpty()) {
+        	cookies = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+        } else if (! this.getResponseHeader().isEmpty()) {
+        	cookies = this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE);
+        	cookies.addAll(this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE2));
+        }
+
+        if (cookies != null) {
+        	for (String header : (Vector<String>)cookies) {
+        		if (header.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
+        			// HttpCookie wont parse lines starting with "Cookie:"
+        			header = header.substring(HttpHeader.COOKIE.length() + 1);
+        		}
+        		// TODO: doesnt parse all cookies
+        		List<HttpCookie> httpCookies = HttpCookie.parse(header);
+        		for (HttpCookie httpCookie : httpCookies) {
+        			set.add(new HtmlParameter(httpCookie));
+        		}
+        	}
+        }
+		return set;
 	}
 	
     /**

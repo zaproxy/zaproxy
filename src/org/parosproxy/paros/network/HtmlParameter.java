@@ -19,17 +19,35 @@
  */
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class HtmlParameter implements Comparable<HtmlParameter> {
 	public enum Type {cookie, url, form};
 	private String name;
 	private String value;
 	private Type type;
+	private Set<String> flags = new HashSet<String>();
 	
 	public HtmlParameter(Type type, String name, String value) {
 		super();
 		this.name = name;
 		this.value = value;
 		this.type = type;
+	}
+	
+	public HtmlParameter(HttpCookie cookie) {
+		this.name = cookie.getName();
+		this.value = cookie.getValue();
+		this.type = Type.cookie;
+		if (cookie.getSecure()) {
+			flags.add("secure");
+		}
+		if (cookie.hasExpired()) {
+			flags.add("expired");
+		}
 	}
 	
 	public String getName() {
@@ -49,6 +67,12 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 	}
 	public void setType(Type type) {
 		this.type = type;
+	}
+	public Set<String> getFlags() {
+		return this.flags;
+	}
+	public void addFlag(String flag) {
+		this.flags.add(flag);
 	}
 	
 	@Override
