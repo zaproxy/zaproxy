@@ -29,12 +29,11 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.extension.option.ExtensionOption;
 import org.parosproxy.paros.extension.report.ExtensionReport;
-import org.parosproxy.paros.extension.scanner.ExtensionScanner;
-import org.parosproxy.paros.extension.spider.ExtensionSpider;
 import org.parosproxy.paros.extension.state.ExtensionState;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
@@ -44,6 +43,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.extension.spider.ExtensionSpider;
 
 
 /**
@@ -101,37 +101,41 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionEdit());
 
         getExtensionLoader().addExtension(new ExtensionFilter());
-        // ZAP: disabled as its replaced by the new search extension
+        
+        // ZAP: Lots of changes here!
+
+        // Replaced extensions
         //getExtensionLoader().addExtension(new ExtensionPatternSearch());
+        //getExtensionLoader().addExtension(new ExtensionTrap());
+        //getExtensionLoader().addExtension(new ExtensionEncoder());
+        //getExtensionLoader().addExtension(new ExtensionScanner());
+
         getExtensionLoader().addExtension(new ExtensionState());
 
-        // ZAP: Moved report extension above history so Generate Report is above the Exports 
+        // Moved report extension above history so Generate Report is above the Exports 
         getExtensionLoader().addExtension(new ExtensionReport());
-
-        // getExtensionLoader().addExtension(new ExtensionTrap());
         getExtensionLoader().addExtension(new ExtensionHistory());
         
-        // ZAP: new extension - search 
         getExtensionLoader().addExtension(new ExtensionSearch());
-        // ZAP: replaced encoder with encoder2 
         getExtensionLoader().addExtension(new ExtensionEncoder2());
-        
-        //getExtensionLoader().addExtension(new ExtensionEncoder());
-        getExtensionLoader().addExtension(new ExtensionSpider());
-        getExtensionLoader().addExtension(new ExtensionScanner());
-        getExtensionLoader().addExtension(new ExtensionManualRequestEditor());
-        // ZAP: This is now the ZAP autoupdate extension
-        getExtensionLoader().addExtension(new ExtensionAutoUpdate());
-
-        // ZAP: new extensions - break, tech, passive scanner, port scanner, params 
         getExtensionLoader().addExtension(new ExtensionBreak());
+        
+        getExtensionLoader().addExtension(new ExtensionActiveScan());
         getExtensionLoader().addExtension(new ExtensionPassiveScan());
+        // This is now the ZAP spider extension
+        getExtensionLoader().addExtension(new ExtensionSpider());
         getExtensionLoader().addExtension(new ExtensionBruteForce());
         getExtensionLoader().addExtension(new ExtensionPortScan());
-        // Params extension not fully implemented
-        //getExtensionLoader().addExtension(new ExtensionParams());
+        
+        getExtensionLoader().addExtension(new ExtensionManualRequestEditor());
+        // This is now the ZAP autoupdate extension
+        getExtensionLoader().addExtension(new ExtensionAutoUpdate());
+
         getExtensionLoader().addExtension(new ExtensionHelp());
         getExtensionLoader().addExtension(new ExtensionCompare());
+
+        // Params extension not fully implemented
+        //getExtensionLoader().addExtension(new ExtensionParams());
         // Tech extension not fully implemented 
         //getExtensionLoader().addExtension(new ExtensionTech());
         // This is just for testing
