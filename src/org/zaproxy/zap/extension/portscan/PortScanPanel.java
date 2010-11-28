@@ -27,9 +27,9 @@ import javax.swing.ListCellRenderer;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
-import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.view.ScanPanel;
 /**
  *
@@ -104,11 +104,24 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 
 	@Override
 	protected void switchView(String site) {
+		if (site.indexOf(":") >= 0) {
+			// Strip off port
+			site = site.substring(0, site.indexOf(":"));
+		}
 		GenericScanner thread = this.getScanThread(site);
 		if (thread != null) {
 			getPortList().setModel(((PortScan)thread).getList());
 		}
 	}
 
+	@Override
+	protected String getSiteName(SiteNode node) {
+		String site = super.getSiteName(node);
+		if (site != null && site.indexOf(":") > 0) {
+			// Strip off port
+			site = site.substring(0, site.indexOf(":"));
+		}
+		return site;
+	}
 
 }
