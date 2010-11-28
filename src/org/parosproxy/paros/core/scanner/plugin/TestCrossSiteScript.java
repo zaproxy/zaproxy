@@ -39,10 +39,13 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
 //	private static final String XSS1 = "<SCRIPT>alert(" + '"' + Constant.getEyeCatcher() + '"' + ");</SCRIPT>";
 //	private static final String XSS2 = "<SCRIPT>alert(" + Constant.getEyeCatcher() + ");</SCRIPT>";   
 
+	// ZAP: Changed to include single quotes and use example.org
     private static final String[] XSS = {
         "<SCRIPT>alert(" + '"' + Constant.getEyeCatcher() + '"' + ");</SCRIPT>",    // normal XSS
+        "<SCRIPT>alert(" + '\'' + Constant.getEyeCatcher() + '\'' + ");</SCRIPT>",    // with single quotes
         "<SCRIPT>alert(" + Constant.getEyeCatcher() + ");</SCRIPT>",                // XSS without double quotes
-        "bob@<SCRipt>alert(" + Constant.getEyeCatcher() + ")</scrIPT>.parosproxy.org"   // XSS to fulfill email check
+        "bob@<SCRipt>alert('" + Constant.getEyeCatcher() + "')</scrIPT>.example.org",   // XSS to fulfill email check
+        "bob@<SCRipt>alert(" + Constant.getEyeCatcher() + ")</scrIPT>.example.org"   // email without quotes
         
     };
 

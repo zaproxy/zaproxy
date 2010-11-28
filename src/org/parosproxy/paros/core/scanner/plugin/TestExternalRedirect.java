@@ -39,8 +39,9 @@ import org.parosproxy.paros.network.HttpStatusCode;
  */
 public class TestExternalRedirect extends AbstractAppParamPlugin {
 
-	private String redirect1 = "http://www.parosproxy.org";
-	private String redirect2 = "www.parosproxy.org";
+	// ZAP: Changed to use owasp.org
+	private String redirect1 = "http://www.owasp.org";
+	private String redirect2 = "www.owasp.org";
 	
 	
 	private Pattern patternRedirect = Pattern.compile(redirect1, PATTERN_PARAM);
