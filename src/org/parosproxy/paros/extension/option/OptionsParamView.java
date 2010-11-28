@@ -38,7 +38,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LOCALES = "view.locales";
 
 	public static final String DEFAULT_LOCALE = "en_GB";
-	private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES"};
+	private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR"};
 
 	private int processImages = 0;
 	private String locale = "";

@@ -176,6 +176,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    String [] locales = options.getViewParam().getLocales();
+	    localeSelect.removeAllItems();
 	    for (String locale : locales) {
 			localeSelect.addItem(Constant.messages.getString("view.locale." + locale));
 			localeMap.put(Constant.messages.getString("view.locale." + locale), locale);
