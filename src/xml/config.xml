@@ -99,7 +99,7 @@
 			<reqUrlRegex/>
 			<reqHeadRegex/>
 			<resHeadRegex/>
-			<resBodyRegex>type\s*=\s*"?password"?</resBodyRegex>
+			<resBodyRegex>type\s*=\s*['"]?password['"]?</resBodyRegex>
 			<enabled>true</enabled>
 		</html_type_password>
 		<html_type_hidden>
@@ -108,7 +108,7 @@
 			<reqUrlRegex/>
 			<reqHeadRegex/>
 			<resHeadRegex/>
-			<resBodyRegex>type\s*=\s*"?hidden"?</resBodyRegex>
+			<resBodyRegex>type\s*=\s*['"]?hidden['"]?</resBodyRegex>
 			<enabled>true</enabled>
 		</html_type_hidden>
 		<html_type_upload>
@@ -117,7 +117,7 @@
 			<reqUrlRegex/>
 			<reqHeadRegex/>
 			<resHeadRegex/>
-			<resBodyRegex>type\s*=\s*"?file"?</resBodyRegex>
+			<resBodyRegex>type\s*=\s*['"]?file['"]?</resBodyRegex>
 			<enabled>true</enabled>
 		</html_type_upload>
 		<html_tag_object>
@@ -144,7 +144,7 @@
 			<reqUrlRegex/>
 			<reqHeadRegex/>
 			<resHeadRegex/>
-			<resBodyRegex>&lt;.*href\s*"?mailto:</resBodyRegex>
+			<resBodyRegex>&lt;.*href\s*['"]?mailto:</resBodyRegex>
 			<enabled>true</enabled>
 		</html_mailto>
 	</pscans>
