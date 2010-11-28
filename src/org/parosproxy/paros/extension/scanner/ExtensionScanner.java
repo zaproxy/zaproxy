@@ -54,6 +54,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 /**
  *
  * To change the template for this generated type comment go to
@@ -589,5 +590,10 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
         }
         return popupMenuScanHistory;
     }
+
+	@Override
+	public void notifyNewMessage(HttpMessage msg) {
+		// Ignore
+	}
 	
 }
