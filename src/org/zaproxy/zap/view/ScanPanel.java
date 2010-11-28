@@ -17,17 +17,14 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.bruteforce;
+package org.zaproxy.zap.view;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,57 +32,37 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.ListCellRenderer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.FilenameExtensionFilter;
+import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
-import org.zaproxy.zap.view.ScanStatus;
 
-import com.sittinglittleduck.DirBuster.BaseCase;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
-public class BruteForcePanel extends AbstractPanel implements BruteForceListenner {
-	
+public abstract class ScanPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 
-	public static final String PANEL_NAME = "bruteforce";
+	public String prefix;
 	
-	//private ExtensionBruteForce extension = null;
-	private BruteForceParam bruteForceParam = null;
+	private ExtensionAdaptor extension = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
-	private JScrollPane jScrollPane = null;
 	private JLabel activeScansNameLabel = null;
 	private JLabel activeScansValueLabel = null;
 	private List<String> activeScans = new ArrayList<String>();;
-    private BruteForcePanelCellRenderer portPanelCellRenderer = null;
-	private JComboBox fileSelect = null;
-
-	private String fileDirectory = Constant.getInstance().DIRBUSTER_DIR;
-	private String fileExtension = ".txt";
 
 	private String currentSite = null;
 	private JComboBox siteSelect = null;
@@ -95,27 +72,24 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
-	//private JButton launchButton = null;
-	private JList bruteForceList = null;
 	private JProgressBar progressBar = null;
-	private Map <String, BruteForce> bruteForceMap = new HashMap <String, BruteForce>();
-
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
-
+	private Map <String, GenericScanner> scanMap = new HashMap <String, GenericScanner>();
+	private AbstractParam scanParam = null;
 	private ScanStatus scanStatus = null;
-
-    private static Log log = LogFactory.getLog(BruteForcePanel.class);
+	
+	private static Log log = LogFactory.getLog(ScanPanel.class);
     
     /**
-     * @param bruteForceParam 
+     * @param ScanParam 
      * 
      */
-    public BruteForcePanel(ExtensionBruteForce extension, BruteForceParam bruteForceParam) {
+    public ScanPanel(String prefix, ImageIcon icon, ExtensionAdaptor extension, AbstractParam scanParam) {
         super();
-        //this.extension = extension;
-        this.bruteForceParam = bruteForceParam;
- 		initialize();
+        this.prefix = prefix;
+        this.extension = extension;
+        this.scanParam = scanParam;
+ 		initialize(icon);
+ 		log.debug("Constructor " + prefix);
     }
 
 	/**
@@ -123,21 +97,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	 * 
 	 * @return void
 	 */
-	private  void initialize() {
+	private  void initialize(ImageIcon icon) {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
-        this.setName(Constant.messages.getString("bruteforce.panel.title"));
-		//TODO: Find a hammer icon :)
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));	// 'spanner' icon
-        this.add(getPanelCommand(), getPanelCommand().getName());
-        
-        // Wont need to do this if/when this class is changed to extend ScanPanel
-        scanStatus = new ScanStatus(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")), 
-        		Constant.messages.getString("bruteforce.panel.title"));
+        this.setName(Constant.messages.getString(prefix + ".panel.title"));
+		this.setIcon(icon);
+        this.add(getPanelCommand(), prefix + ".panel");
+        scanStatus = new ScanStatus(icon, Constant.messages.getString(prefix + ".panel.title"));
         View.getSingleton().getMainFrame().addFooterLabel(scanStatus.getCountLabel());
         View.getSingleton().getMainFrame().addFooterLabel(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
-
 	}
+
 	/**
 
 	 * This method initializes panelCommand	
@@ -153,7 +123,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			panelCommand = new javax.swing.JPanel();
 			panelCommand.setLayout(new java.awt.GridBagLayout());
-			panelCommand.setName("BruteForce");
+			panelCommand.setName(prefix + ".panel");
 			
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -173,11 +143,12 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			
 			panelCommand.add(this.getPanelToolbar(), gridBagConstraints1);
-			panelCommand.add(getJScrollPane(), gridBagConstraints2);
+			panelCommand.add(getWorkPanel(), gridBagConstraints2);
 			
 		}
 		return panelCommand;
 	}
+	
 	/**/
 
 	private javax.swing.JToolBar getPanelToolbar() {
@@ -190,7 +161,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			panelToolbar.setName("PortToolbar");
+			panelToolbar.setName(prefix + ".toolbar");
 			
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -200,8 +171,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 
 			gridBagConstraints1.gridx = 0;
@@ -231,7 +200,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			gridBagConstraints6.gridx = 5;
 			gridBagConstraints6.gridy = 0;
-			gridBagConstraints6.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraints6.insets = new java.awt.Insets(0,3,0,0);	// Slight indent
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 
 			gridBagConstraints7.gridx = 6;
@@ -241,20 +210,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			gridBagConstraints8.gridx = 7;
 			gridBagConstraints8.gridy = 0;
-			gridBagConstraints8.insets = new java.awt.Insets(0,3,0,0);	// Slight indent
+			gridBagConstraints8.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints8.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraints9.gridx = 8;
-			gridBagConstraints9.gridy = 0;
-			gridBagConstraints9.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints9.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints10.gridx = 9;
-			gridBagConstraints10.gridy = 0;
-			gridBagConstraints10.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints10.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraintsx.gridx = 10;
+			gridBagConstraintsx.gridx = 8;
 			gridBagConstraintsx.gridy = 0;
 			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.weighty = 1.0;
@@ -264,20 +223,19 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			JLabel t1 = new JLabel();
 
-			panelToolbar.add(new JLabel(Constant.messages.getString("bruteforce.toolbar.site.label")), gridBagConstraints1);
+			panelToolbar.add(new JLabel(Constant.messages.getString(prefix + ".toolbar.site.label")), gridBagConstraints1);
 			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
-			panelToolbar.add(new JLabel(Constant.messages.getString("bruteforce.toolbar.list.label")), gridBagConstraints3);
-			panelToolbar.add(getFileSelect(), gridBagConstraints4);
 			
-			panelToolbar.add(getStartScanButton(), gridBagConstraints5);
-			panelToolbar.add(getPauseScanButton(), gridBagConstraints6);
-			panelToolbar.add(getStopScanButton(), gridBagConstraints7);
-			panelToolbar.add(getProgressBar(), gridBagConstraints8);
-			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints9);
-			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints10);
-
+			panelToolbar.add(getStartScanButton(), gridBagConstraints3);
+			panelToolbar.add(getStopScanButton(), gridBagConstraints4);
+			panelToolbar.add(getPauseScanButton(), gridBagConstraints5);
+			panelToolbar.add(getProgressBar(), gridBagConstraints6);
+			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints7);
+			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints8);
+			
+			// TODO allow implementing classes to add extra elements
+			
 			panelToolbar.add(t1, gridBagConstraintsx);
-			//panelToolbar.add(getLaunchButton(), gridBagConstraintsx);
 		}
 		return panelToolbar;
 	}
@@ -285,7 +243,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel getActiveScansNameLabel() {
 		if (activeScansNameLabel == null) {
 			activeScansNameLabel = new javax.swing.JLabel();
-			activeScansNameLabel.setText(Constant.messages.getString("bruteforce.toolbar.ascans.label"));
+			activeScansNameLabel.setText(Constant.messages.getString(prefix + ".toolbar.ascans.label"));
 		}
 		return activeScansNameLabel;
 	}
@@ -310,13 +268,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		sb.append("</html>");
 		getActiveScansNameLabel().setToolTipText(sb.toString());
 		getActiveScansValueLabel().setToolTipText(sb.toString());
-		
+
 		scanStatus.setScanCount(activeScans.size());
 	}
 	
 	private JProgressBar getProgressBar() {
 		if (progressBar == null) {
-			progressBar = new JProgressBar(0, 100);	// Max will change as scan progresses
+			progressBar = new JProgressBar(0, 100);
 			progressBar.setValue(0);
 			progressBar.setStringPainted(true);
 			progressBar.setEnabled(false);
@@ -327,7 +285,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JButton getStartScanButton() {
 		if (startScanButton == null) {
 			startScanButton = new JButton();
-			startScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.start"));
+			startScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.start"));
 			startScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
 			startScanButton.setEnabled(false);
 			startScanButton.addActionListener(new ActionListener () {
@@ -346,7 +304,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JButton getStopScanButton() {
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
-			stopScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.stop"));
+			stopScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.stop"));
 			stopScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
@@ -362,7 +320,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
 			pauseScanButton = new JToggleButton();
-			pauseScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
+			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			pauseScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
@@ -375,154 +333,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		return pauseScanButton;
 	}
 
-	// Not working yet:)
-	/*
-	private JButton getLaunchButton() {
-		if (launchButton == null) {
-			launchButton = new JButton();
-			launchButton.setToolTipText("TBI LAUNCH");
-			launchButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
-			launchButton.addActionListener(new ActionListener () {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					launchDirBuster();
-				}
-
-			});
-		}
-		return launchButton;
-	}
-
-	private void launchDirBuster() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("/usr/bin/java -classpath ");
-		
-		sb.append("lib/BrowserLauncher2-1_3.jar:");
-		sb.append("lib/commons-codec-1.2.jar:");
-		sb.append("lib/commons-collections-3.1.jar:");
-		sb.append("lib/commons-configuration-1.1.jar:");
-		sb.append("lib/commons-httpclient-3.0.jar:");
-		sb.append("lib/commons-lang-2.0.jar:");
-		sb.append("lib/commons-logging-api.jar:");
-		sb.append("lib/commons-logging.jar:");
-		sb.append("lib/DirBuster-0.12.jar:");
-		sb.append("lib/hsqldb.jar:");
-		sb.append("lib/java-getopt-1.0.13.jar:");
-		sb.append("lib/jdom.jar:");
-		sb.append("lib/jericho-html-2.6.jar:");
-		sb.append("lib/jh.jar:");
-		sb.append("lib/js.jar:");
-		sb.append("lib/log4j-1.2.8.jar:");
-		sb.append("lib/looks-2.2.0.jar:");
-		sb.append("lib/swing-layout-1.0.3.jar:");
-		sb.append("lib/zaphelp.jar ");
-		
-		sb.append("com.sittinglittleduck.DirBuster.Start");
-
-		System.out.println(sb.toString());
-		try {
-			// TODO works from cmdline, but not from ZAP :(
-			Process proc = Runtime.getRuntime().exec(sb.toString());
-			
-			// Currently exists with 1...
-			System.out.println("Exit value=" + proc.waitFor());
-			//System.out.println("Exit value=" + proc.exitValue());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	*/
-
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getBruteForceList());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		}
-		return jScrollPane;
-	}
-
-	private void resetPortList() {
-		getBruteForceList().setModel(new DefaultListModel());
-	}
-
-	private JList getBruteForceList() {
-		if (bruteForceList == null) {
-			bruteForceList = new JList();
-			bruteForceList.setDoubleBuffered(true);
-			bruteForceList.setCellRenderer(getPortPanelCellRenderer());
-			bruteForceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			bruteForceList.setName(PANEL_NAME);
-			bruteForceList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-			
-			bruteForceList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
-
-				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				    if (bruteForceList.getSelectedValue() == null) {
-				        return;
-				    }
-                    
-				    displayMessage((BruteForceItem) bruteForceList.getSelectedValue());
-				}
-			});
-			
-			resetPortList();
-		}
-		return bruteForceList;
-	}
-
-    private void displayMessage(BruteForceItem sr) {
-        HttpMessage msg;
-		try {
-			msg = new HistoryReference(sr.getHistoryId()).getHttpMessage();
-	        if (msg.getRequestHeader().isEmpty()) {
-	            requestPanel.setMessage(null, true);
-	        } else {
-	            requestPanel.setMessage(msg, true);
-	        }
-	        
-	        if (msg.getResponseHeader().isEmpty()) {
-	            responsePanel.setMessage(null, false);
-	        } else {
-	            responsePanel.setMessage(msg, false);
-	        }
-		} catch (Exception e) {
-			log.error("Failed to access message id " + sr.getHistoryId(), e);
-		}
-    }
-
-	private ListCellRenderer getPortPanelCellRenderer() {
-        if (portPanelCellRenderer == null) {
-            portPanelCellRenderer = new BruteForcePanelCellRenderer();
-            portPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            portPanelCellRenderer.setBackground(java.awt.Color.white);
-            portPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return portPanelCellRenderer;
-	}
-
-	private JComboBox getFileSelect() {
-		if (fileSelect == null) {
-			fileSelect = new JComboBox();
-			File dir = new File(fileDirectory);
-			FilenameFilter filter = new FilenameExtensionFilter(fileExtension, true);
-			String[] files = dir.list(filter );
-			Arrays.sort(files);
-			for (String file : files) {
-				fileSelect.addItem(file);
-			}
-			fileSelect.setSelectedIndex(0);
-		}
-		return fileSelect;
-	}
-
-	private JComboBox getSiteSelect() {
+	protected JComboBox getSiteSelect() {
 		if (siteSelect == null) {
 			siteSelect = new JComboBox(siteModel);
-			siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
+			siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 
 			siteSelect.addActionListener(new java.awt.event.ActionListener() { 
@@ -537,6 +351,27 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			});
 		}
 		return siteSelect;
+	}
+	
+	public boolean isScanning(SiteNode node) {
+		String site = getSiteFromLabel(this.getSiteName(node));
+		if (site != null) {
+			GenericScanner scanThread = scanMap.get(site);
+			if (scanThread != null) {
+				return scanThread.isAlive();
+			}
+		}
+		return false;
+	}
+
+	
+	public void scanSite(SiteNode node) {
+ 		log.debug("scanSite " + prefix + " node=" + node.getNodeName());
+		this.setTabFocus();
+		nodeSelected(node);
+		if (currentSite != null && this.getStartScanButton().isEnabled()) {
+			startScan();
+		}
 	}
 	
 	private String activeSitelabel(String site) {
@@ -560,11 +395,12 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	public void addSite(String site) {
 		if (siteModel.getIndexOf(activeSitelabel(site)) < 0 &&
 				siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
+	 		log.debug("addSite " + site);
 			siteModel.addElement(passiveSitelabel(site));
 		}
 	}
 	
-	private void siteSelected(String site) {
+	protected void siteSelected(String site) {
 		site = getSiteFromLabel(site);
 		if (! site.equals(currentSite)) {
 			if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
@@ -573,27 +409,22 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				siteModel.setSelectedItem(passiveSitelabel(site));
 			}
 
-			BruteForce bruteForce = bruteForceMap.get(site);
-			if (bruteForce == null) {
-				String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
-				File f = new File(fileName);
-				if (! f.exists()) {
-					log.error("No such file: " + f.getAbsolutePath());
-				} else {
-					bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam, null);
-					bruteForceMap.put(site, bruteForce);
-				}
+			GenericScanner scanThread = scanMap.get(site);
+			if (scanThread == null) {
+				scanThread = this.newScanThread(site, this.scanParam);
+				scanMap.put(site, scanThread);
+				
 			}
-			if (bruteForce.isAlive()) {
+			if (scanThread.isAlive()) {
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
 				getPauseScanButton().setEnabled(true);
-				if (bruteForce.isPaused()) {
+				if (scanThread.isPaused()) {
 					getPauseScanButton().setSelected(true);
-					getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
+					getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 				} else {
 					getPauseScanButton().setSelected(false);
-					getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
+					getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 				}
 				getProgressBar().setEnabled(true);
 			} else {
@@ -601,16 +432,15 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				getStopScanButton().setEnabled(false);
 				getPauseScanButton().setEnabled(false);
 				getProgressBar().setEnabled(false);
-				getProgressBar().setValue(0);
 			}
 			
-			getProgressBar().setValue(bruteForce.getWorkDone());
-			getProgressBar().setMaximum(bruteForce.getWorkTotal());
-			bruteForceList.setModel(bruteForce.getList());
+			getProgressBar().setValue(scanThread.getProgress());
+			getProgressBar().setMaximum(scanThread.getMaximum());
 			currentSite = site;
+			switchView(currentSite);
 		}
 	}
-
+	
 	protected String getSiteName(SiteNode node) {
 		if (node != null) {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
@@ -629,56 +459,26 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		siteSelected(getSiteName(node));
 	}
 	
+	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
-	protected void bruteForceSite(SiteNode node) {
-		this.setTabFocus();
-		nodeSelected(node);
-		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan();
-		}
-	}
-
-	protected void bruteForceDirectory(SiteNode node) {
-		this.setTabFocus();
-		nodeSelected(node);
-		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			try {
-				String dir = node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().getPath();
-				startScan(dir);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void startScan() {
-		this.startScan(null);
-	}
-	
-	private void startScan(String directory) {
-			
+	protected void startScan() {
+ 		log.debug("startScan " + prefix);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
 		this.getPauseScanButton().setEnabled(true);
-
 		this.activeScans.add(currentSite);
 
-		// Start a new thread
-		String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
-		File f = new File(fileName);
-		if (! f.exists()) {
-			log.error("No such file: " + f.getAbsolutePath());
-			return;
+		GenericScanner scanThread = scanMap.get(currentSite);
+		if (scanThread.isStopped()) {
+			// Start a new thread
+			scanThread = this.newScanThread(currentSite, scanParam);
+			scanMap.put(currentSite, scanThread);
 		}
-		BruteForce bruteForce = new BruteForce(currentSite, f.getAbsolutePath(), this, bruteForceParam, directory);
-		bruteForceMap.put(currentSite, bruteForce);
-		
-		bruteForce.start();
+		scanThread.start();
+		scanMap.put(currentSite, scanThread);
 		setActiveScanLabels();
 		getProgressBar().setEnabled(true);
-		getProgressBar().setMaximum(bruteForce.getWorkTotal());
-		bruteForceList.setModel(bruteForce.getList());
-
+		getProgressBar().setMaximum(scanThread.getMaximum());
 		String selectedSite = currentSite;	// currentSite can change when we remove elements
 		if (siteModel.getIndexOf(passiveSitelabel(selectedSite)) >= 0) {
 			// Change the site label to be bold
@@ -686,38 +486,39 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			siteModel.addElement(activeSitelabel(selectedSite));
 			siteModel.setSelectedItem(activeSitelabel(selectedSite));
 		}
+		switchView(currentSite);
 	}
 	
-	private void stopScan() {
-		log.debug("Stopping scan on " + currentSite);
-		BruteForce bruteForce = bruteForceMap.get(currentSite);
-		if (bruteForce != null) {
-			bruteForce.stopScan();
+	protected void stopScan() {
+		log.debug("stopScan " + prefix + " on " + currentSite);
+		GenericScanner scan = scanMap.get(currentSite);
+		if (scan != null) {
+			scan.stopScan();
 		}
 	}
 
 	private void pauseScan() {
-		log.debug("Pausing scan on " + currentSite);
-		BruteForce bruteForce = bruteForceMap.get(currentSite);
-		if (bruteForce != null) {
-			if (bruteForce.isPaused()) {
-				bruteForce.unpauseScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
+		log.debug("pauseScan " + prefix + " on " + currentSite);
+		GenericScanner scan = scanMap.get(currentSite);
+		if (scan != null) {
+			if (scan.isPaused()) {
+				scan.resumeScan();
+				getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			} else {
-				bruteForce.pauseScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
+				scan.pauseScan();
+				getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 			}
 		}
 	}
 
-	@Override
 	public void scanFinshed(String host) {
+		log.debug("scanFinished " + prefix + " on " + currentSite);
 		if (host.equals(currentSite)) {
 			getStartScanButton().setEnabled(true);
 			getStopScanButton().setEnabled(false);
 			getPauseScanButton().setEnabled(false);
 			getPauseScanButton().setSelected(false);
-			getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
+			getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			getProgressBar().setEnabled(false);
 		}
 		this.activeScans.remove(host);
@@ -734,20 +535,22 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		setActiveScanLabels();
 	}
 
-	@Override
-	public void scanProgress(String host, int port, int done, int todo) {
-		if (currentSite != null && (currentSite.equals(host) || currentSite.equals(host + ":" + port))) {
-			getProgressBar().setValue(done);
-			getProgressBar().setMaximum(todo);
+	public void scanProgress(String host, int progress, int maximum) {
+		//log.debug("scanProgress " + prefix + " on " + currentSite + " " + progress);
+		if (host.equals(currentSite)) {
+			getProgressBar().setValue(progress);
+			getProgressBar().setMaximum(maximum);
 		}
+		
 	}
 
 	public void reset() {
+		log.debug("reset " + prefix);
 		// Stop all scans
-		Set<Entry<String, BruteForce>> set = bruteForceMap.entrySet();
-		Iterator<Entry<String, BruteForce>> iter = set.iterator();
+		Set<Entry<String, GenericScanner>> set = scanMap.entrySet();
+		Iterator<Entry<String, GenericScanner>> iter = set.iterator();
 		while (iter.hasNext()) {
-			Entry<String, BruteForce> entry = iter.next();
+			Entry<String, GenericScanner> entry = iter.next();
 			entry.getValue().stopScan();
 		}
 		// Wait until all threads have stopped
@@ -758,42 +561,38 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				// Ignore
 			}
 		}
-		bruteForceMap.clear();
+		scanMap.clear();
 		
 		siteModel.removeAllElements();
-		siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
+		siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
 		siteSelect.setSelectedIndex(0);
 		currentSite = null;
-		resetPortList();
+		
 		setActiveScanLabels();
 		getStartScanButton().setEnabled(false);
 		getStopScanButton().setEnabled(false);
 		getProgressBar().setEnabled(false);
 		getProgressBar().setValue(0);
-		
 	}
 
-	@Override
-	public void foundDir(URL url, int statusCode, String responce,
-			String baseCase, String rawResponce, BaseCase baseCaseObj) {
-		
+	public ExtensionAdaptor getExtension() {
+		return extension;
 	}
-
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
-
+	
+    public AbstractParam getScanParam() {
+		return scanParam;
+	}
+    
+    protected GenericScanner getScanThread (String site) {
+    	return scanMap.get(site);
     }
 
-	public boolean isScanning(SiteNode node) {
-		String site = getSiteFromLabel(this.getSiteName(node));
-		if (site != null) {
-			BruteForce bf = bruteForceMap.get(site);
-			if (bf != null) {
-				return bf.isAlive();
-			}
-		}
-		return false;
-	}
-
+    public boolean isCurrentSite(String site) {
+    	return currentSite != null && currentSite.equals(site);
+    }
+    
+	protected abstract Component getWorkPanel();
+	
+	protected abstract void switchView (String site);
+	
 }

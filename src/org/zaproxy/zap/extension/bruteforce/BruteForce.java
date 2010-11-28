@@ -44,6 +44,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private String site;
 	private String fileName;
 	private int port = 80;
+	private String directory = null;
 	private SortedListModel list;
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
@@ -55,14 +56,15 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	
     private static Log log = LogFactory.getLog(BruteForce.class);
 
-	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
+	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
 		this.site = site;
 		this.fileName = fileName;
+		this.directory = directory;
 		this.listenner = listenner;
 		this.threads = bruteForceParam.getThreadPerScan();
 
 		this.list = new SortedListModel();
-		log.info("BruteForce : " + site + " threads: " + threads);
+		log.info("BruteForce : " + site + "/" + directory + " threads: " + threads);
 
 		manager = new DirBusterManager(this);
 		
@@ -94,11 +96,14 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	@Override
 	public void run() {
         try {
-            URL targetURL = new URL("http://" + site + "/");
+        	String protocol = "http";
+        	if (port == 443 || port == 8443) {
+        		protocol = "https";
+        	}
+            URL targetURL = new URL(protocol + "://" + site + "/");
             manager.setTargetURL(targetURL);
             manager.setFileLocation(fileName);
             
-            String protocol = targetURL.getProtocol();
             String host = targetURL.getHost();
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
@@ -107,6 +112,10 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			Vector extsVector = new Vector();
 			String exts = "php";
 			String startPoint = "/";
+			if (directory != null) {
+				startPoint = directory;
+			}
+			log.debug("BruteForce : starting on http://" + site + startPoint);
 			manager.setupManager(startPoint, fileName, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
 			
 			manager.start();

@@ -29,9 +29,11 @@ import javax.swing.DefaultListModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.zaproxy.zap.model.ScanListenner;
+import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.utils.SortedListModel;
 
-public class PortScan extends Thread implements PortScanListenner {
+public class PortScan extends ScanThread implements ScanListenner {
 
 	private String site;
 	private SortedListModel list;
@@ -39,7 +41,7 @@ public class PortScan extends Thread implements PortScanListenner {
 	private boolean pauseScan = false;
 	private boolean unpauseScan = false;
 	private boolean isPaused = false;
-	private PortScanListenner listenner;
+	private ScanListenner listenner;
 	private int maxPort = 0;
 	private int threads = 0;
 	private int threadIndex = -1;
@@ -49,7 +51,8 @@ public class PortScan extends Thread implements PortScanListenner {
 	
     private static Log log = LogFactory.getLog(PortScan.class);
 
-	public PortScan (String site, PortScanListenner listenner, PortScanParam portScanParam) {
+	public PortScan (String site, ScanListenner listenner, PortScanParam portScanParam) {
+		super(site, listenner);
 		this.site = site;
 		this.listenner = listenner;
 		this.maxPort = portScanParam.getMaxPort();
@@ -59,7 +62,8 @@ public class PortScan extends Thread implements PortScanListenner {
 		log.debug("PortScan : " + site + " threads: " + threads);
 	}
 	
-	private PortScan (String site, PortScanListenner listenner, SortedListModel list, int maxPort, int threads, int threadIndex) {
+	private PortScan (String site, ScanListenner listenner, SortedListModel list, int maxPort, int threads, int threadIndex) {
+		super(site, listenner);
 		this.site = site;
 		this.listenner = listenner;
 		this.maxPort = maxPort;
@@ -114,7 +118,7 @@ public class PortScan extends Thread implements PortScanListenner {
 					}
 					isPaused = false;
 					for (PortScan ps : subThreads) {
-						ps.unpauseScan();
+						ps.resumeScan();
 					}
 				}
 				if (stopScan) {
@@ -122,7 +126,7 @@ public class PortScan extends Thread implements PortScanListenner {
 					break;
 				}
 				if (this.listenner != null) {
-					this.listenner.scanProgress(site, port);
+					this.listenner.scanProgress(site, port, maxPort);
 				}
 				Socket s = new Socket(site, port);
 				log.debug("Site : " + site + " open port: " + port);
@@ -158,7 +162,7 @@ public class PortScan extends Thread implements PortScanListenner {
 				}
 				if (unpauseScan) {
 					pauseScan = false;
-					st.unpauseScan();
+					st.resumeScan();
 				}
 				if (st.isAlive()) {
 					running = true;
@@ -187,7 +191,7 @@ public class PortScan extends Thread implements PortScanListenner {
 	}
 	
 	public int getProgress () {
-		return port;
+		return progress;
 	}
 
 	 int getMaxPort() {
@@ -204,10 +208,10 @@ public class PortScan extends Thread implements PortScanListenner {
 	}
 
 	@Override
-	public void scanProgress(String host, int progress) {
+	public void scanProgress(String host, int progress, int maximum) {
 		if (progress > this.progress) {
 			this.progress = progress;
-			this.listenner.scanProgress(site, progress);
+			this.listenner.scanProgress(site, progress, maximum);
 		}
 	}
 
@@ -217,7 +221,7 @@ public class PortScan extends Thread implements PortScanListenner {
 		this.isPaused = true;
 	}
 
-	public void unpauseScan() {
+	public void resumeScan() {
 		this.unpauseScan = true;
 		this.pauseScan = false;
 		this.isPaused = false;
@@ -225,6 +229,11 @@ public class PortScan extends Thread implements PortScanListenner {
 	
 	public boolean isPaused() {
 		return this.isPaused;
+	}
+
+	@Override
+	public int getMaximum() {
+		return maxPort;
 	}
 
 }

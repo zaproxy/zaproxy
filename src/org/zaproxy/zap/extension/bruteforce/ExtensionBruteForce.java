@@ -44,6 +44,9 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	private BruteForcePanel bruteForcePanel = null;
 	private OptionsBruteForcePanel optionsPortScanPanel = null;
+    private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
+    private PopupMenuBruteForceDirectory popupMenuBruteForceDirectory = null;
+
 	private BruteForceParam params = null;
     private Logger logger = Logger.getLogger(ExtensionBruteForce.class);
 
@@ -85,6 +88,10 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addStatusPanel(getBruteForcePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsPortScanPanel());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceSite());
+            // Specifying an initial directory doesnt work
+            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
+
 	        this.getBruteForcePanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 	    }
         extensionHook.addOptionsParamSet(getPortScanParam());
@@ -102,6 +109,14 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 			bruteForcePanel = new BruteForcePanel(this, getPortScanParam());
 		}
 		return bruteForcePanel;
+	}
+	
+	protected void bruteForceSite (SiteNode siteNode) {
+		this.getBruteForcePanel().bruteForceSite(siteNode);
+	}
+	
+	protected void bruteForceDirectory (SiteNode siteNode) {
+		this.getBruteForcePanel().bruteForceDirectory(siteNode);
 	}
 	
 	public void sessionChanged(final Session session)  {
@@ -140,7 +155,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	public void onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
 		String site = msg.getRequestHeader().getHostName();
-		if (msg.getRequestHeader().getHostPort() != 80) {
+		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
 			site += ":" + msg.getRequestHeader().getHostPort();
 		}
 		this.getBruteForcePanel().addSite(site);
@@ -156,7 +171,24 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		// Event from SiteMapListenner
 		this.getBruteForcePanel().nodeSelected(node);
 	}
-	
+
+    private PopupMenuBruteForceSite getPopupMenuBruteForceSite() {
+        if (popupMenuBruteForceSite == null) {
+        	popupMenuBruteForceSite = new PopupMenuBruteForceSite();
+        	popupMenuBruteForceSite.setExtension(this);
+        }
+        return popupMenuBruteForceSite;
+    }
+
+    @SuppressWarnings("unused")
+	private PopupMenuBruteForceDirectory getPopupMenuBruteForceDirectory() {
+        if (popupMenuBruteForceDirectory == null) {
+        	popupMenuBruteForceDirectory = new PopupMenuBruteForceDirectory();
+        	popupMenuBruteForceDirectory.setExtension(this);
+        }
+        return popupMenuBruteForceDirectory;
+    }
+
 	private OptionsBruteForcePanel getOptionsPortScanPanel() {
 		if (optionsPortScanPanel == null) {
 			optionsPortScanPanel = new OptionsBruteForcePanel();
@@ -167,5 +199,9 @@ public class ExtensionBruteForce extends ExtensionAdaptor
     public int getThreadPerScan() {
     	return this.getOptionsPortScanPanel().getThreadPerScan();
     }
+
+	public boolean isScanning(SiteNode node) {
+		return this.getBruteForcePanel().isScanning(node);
+	}
 
 }

@@ -43,6 +43,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		implements SessionChangedListener, ProxyListener, SiteMapListener {
 
 	private PortScanPanel portScanPanel = null;
+    private PopupMenuPortScan popupMenuPortScan = null;
 	private OptionsPortScanPanel optionsPortScanPanel = null;
 	private PortScanParam params = null;
     private Logger logger = Logger.getLogger(ExtensionPortScan.class);
@@ -85,6 +86,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addStatusPanel(getPortScanPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsPortScanPanel());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPortScan());
 	    }
         extensionHook.addOptionsParamSet(getPortScanParam());
 	}
@@ -154,12 +156,24 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		// Event from SiteMapListenner
 		this.getPortScanPanel().nodeSelected(node);
 	}
-	
+
+    private PopupMenuPortScan getPopupMenuPortScan() {
+        if (popupMenuPortScan == null) {
+        	popupMenuPortScan = new PopupMenuPortScan();
+        	popupMenuPortScan.setExtension(this);
+        }
+        return popupMenuPortScan;
+    }
+
 	private OptionsPortScanPanel getOptionsPortScanPanel() {
 		if (optionsPortScanPanel == null) {
 			optionsPortScanPanel = new OptionsPortScanPanel();
 		}
 		return optionsPortScanPanel;
+	}
+	
+	protected void portScanSite(SiteNode node) {
+		this.getPortScanPanel().scanSite(node);
 	}
 	
     public int getThreadPerScan() {
@@ -169,5 +183,9 @@ public class ExtensionPortScan extends ExtensionAdaptor
     public int getMaxPort() {
     	return this.getOptionsPortScanPanel().getMaxPort();
     }
+
+	public boolean isScanning(SiteNode node) {
+		return 	this.getPortScanPanel().isScanning(node);
+	}
 
 }
