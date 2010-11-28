@@ -20,6 +20,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import org.parosproxy.paros.network.HttpMessage;
+
 
 /**
  *
@@ -38,5 +40,8 @@ public interface ScannerListener {
     public void hostComplete(String hostAndPort);
 
     public void alertFound(Alert alert);
+
+    // ZAP: Added notifyNewMessage
+	public void notifyNewMessage(HttpMessage msg);
     
 }

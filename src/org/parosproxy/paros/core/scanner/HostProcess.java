@@ -57,7 +57,6 @@ public class HostProcess implements Runnable {
     private HashMap mapPluginStartTime = new HashMap();
     private long hostProcessStartTime = 0;
 
-    
 
     /**
      * 
@@ -131,6 +130,11 @@ public class HostProcess implements Runnable {
         scanSingleNode(plugin, node);
 
         for (int i=0; i<node.getChildCount() && !isStop(); i++) {
+            // ZAP: Implement pause and resume
+            while (parentScanner.isPaused() && ! this.isStop()) {
+            	Util.sleep(500);
+            }
+
             try {
                 traverse(plugin, (SiteNode) node.getChildAt(i));
             } catch (Exception e) {
@@ -208,13 +212,18 @@ public class HostProcess implements Runnable {
         parentScanner.notifyHostComplete(hostAndPort);
     }
     
+    // ZAP: notify parent
+    public void notifyNewMessage (HttpMessage msg) {
+    	parentScanner.notifyNewMessage(msg);
+    }
+    
     public void alertFound(Alert alert) {
         parentScanner.notifyAlertFound(alert);
     }
     
 	public Analyser getAnalyser() {
 	    if (analyser == null) {
-	        analyser = new Analyser(getHttpSender());
+	        analyser = new Analyser(getHttpSender(), this);
 	    }
 	    return analyser;
 	}
@@ -246,5 +255,5 @@ public class HostProcess implements Runnable {
 	    }
 	    return kb;
 	}
-    
+
 }

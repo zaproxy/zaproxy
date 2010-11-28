@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.network.HttpMessage;
 
 
 
@@ -50,7 +51,10 @@ public class Scanner implements Runnable {
 	private SiteNode startNode = null;
 	private Analyser analyser = null;
 	private long startTimeMillis = 0;
-	
+
+	// ZAP: Added scanner pause option
+	private boolean pause = false;
+
     /**
      * 
      */
@@ -192,6 +196,25 @@ public class Scanner implements Runnable {
 	    }
 	    
 	}
-	
 
+	// ZAP: support pause and notify parent
+	public void pause() {
+		this.pause = true;
+	}
+	
+	public void resume () {
+		this.pause = false;
+	}
+	
+	public boolean isPaused() {
+		return pause;
+	}
+
+
+	public void notifyNewMessage(HttpMessage msg) {
+	    for (int i=0; i<listenerList.size(); i++) {
+	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        listener.notifyNewMessage(msg);
+	    }
+	}
 }

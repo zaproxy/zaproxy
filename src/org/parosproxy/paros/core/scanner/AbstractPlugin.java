@@ -172,6 +172,8 @@ abstract public class AbstractPlugin implements Plugin, Comparable {
       msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 
         parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
+        // ZAP: Notify parent
+        parent.notifyNewMessage(msg);
         return;
 
         // below code moved to httpsender for generic use.

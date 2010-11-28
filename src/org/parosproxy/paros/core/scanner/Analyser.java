@@ -56,11 +56,14 @@ public class Analyser {
 	private TreeMap		mapVisited = new TreeMap();
 	private boolean		isStop = false;
 	
+	// ZAP: Added parent
+	HostProcess parent = null;
+	
 	public Analyser() {
         
     }
     
-    public Analyser(HttpSender httpSender) {
+    public Analyser(HttpSender httpSender, HostProcess parent) {
         this.httpSender = httpSender;
     }
 	
@@ -390,6 +393,8 @@ public class Analyser {
 	
 	private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
 	    httpSender.sendAndReceive(msg, true);
+	    // ZAP: Notify parent
+	    parent.notifyNewMessage(msg);
 	}
 	
 
