@@ -61,6 +61,7 @@ public class AboutPanel extends JPanel {
         + "HSQLDB is licensed under BSD license.  JDIC is licensed by Sun Microsystems, Inc under the LGPL license.  "
         + "The Copyrights of these softwares belong to their respective owners."
         + "</body></html>";
+	private static final String HOMEPAGE = "<html><body><p>http://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</body></html>";
         
 	private JLabel lblDisclaimer = null;
     /**
@@ -106,13 +107,13 @@ public class AboutPanel extends JPanel {
 	 * @return void
 	 */
 	private  void initialize() {
+		GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 		lblDisclaimer = new JLabel();
 		//lblName = new JLabel();
@@ -127,9 +128,9 @@ public class AboutPanel extends JPanel {
 		javax.swing.JLabel lblCopyrightDetail = new JLabel();
 
 		javax.swing.JLabel lblLogo = new JLabel();
+		JLabel lblHomepage = new JLabel();
 
 		this.setLayout(new GridBagLayout());
-		// TODO get this right...
 		this.setPreferredSize(new java.awt.Dimension(420,450));
 		this.setBackground(java.awt.Color.white);
 		//this.setSize(new java.awt.Dimension(0,0));
@@ -138,9 +139,6 @@ public class AboutPanel extends JPanel {
 		lblLogo.setIcon(new ImageIcon(getClass().getResource("/resource/zap48x48.png")));
 		lblLogo.setName("lblLogo");
 		lblCopyrightDetail.setText(LICENSE_DETAIL);
-		// TODO get this looking right
-		//lblCopyrightDetail.setPreferredSize(new java.awt.Dimension(300,120));
-		//lblCopyrightDetail.setPreferredSize(new java.awt.Dimension(350,140));
 		lblCopyrightDetail.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 11));
 		lblCopyrightDetail.setName("lblCopyrightDetail");
 		lblCopyrightDetail.setBackground(java.awt.Color.white);
@@ -150,9 +148,11 @@ public class AboutPanel extends JPanel {
 		lblVersion.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 18));
 		lblVersion.setName("lblVersion");
 		lblVersion.setBackground(java.awt.Color.white);
+		
+		lblHomepage.setText(HOMEPAGE);
+		lblHomepage.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+		
 		lblOtherCopyright.setText(OTHER_LICENSE);
-		// TODO get this looking right
-		//lblOtherCopyright.setPreferredSize(new java.awt.Dimension(300,80));
 		lblOtherCopyright.setPreferredSize(new java.awt.Dimension(350,140));
 		lblOtherCopyright.setName("lblOtherCopyright");
 		lblOtherCopyright.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
@@ -173,8 +173,6 @@ public class AboutPanel extends JPanel {
 				"the security of your own web application or those you are authorized " +
 				"to do so.  The authors of this product take no responsibility for any " +
 				"problems in relation to running ZAP against any applications or machines.<p></body></html>");
-		// TODO get this looking right
-		//lblDisclaimer.setPreferredSize(new java.awt.Dimension(300,60));
 		lblDisclaimer.setPreferredSize(new java.awt.Dimension(350,70));
 		lblDisclaimer.setName("lblDisclaimer");
 		lblDisclaimer.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
@@ -184,22 +182,21 @@ public class AboutPanel extends JPanel {
 		gridBagConstraints1.ipadx = 0;
 		gridBagConstraints1.ipady = 0;
 		gridBagConstraints1.gridheight = 2;
-		gridBagConstraints2.gridx = 1;
-		gridBagConstraints2.gridy = 0;
-		gridBagConstraints2.ipadx = 0;
-		gridBagConstraints2.ipady = 0;
+		
 		gridBagConstraints3.gridx = 1;
 		gridBagConstraints3.gridy = 0;
 		gridBagConstraints3.ipadx = 0;
 		gridBagConstraints3.ipady = 0;
 		gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
+		
 		gridBagConstraints4.gridx = 1;
 		gridBagConstraints4.gridy = 1;
 		gridBagConstraints4.ipadx = 0;
 		gridBagConstraints4.ipady = 0;
 		gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		gridBagConstraints4.insets = new java.awt.Insets(0,5,0,5);
+		
 		gridBagConstraints5.gridx = 1;
 		gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints5.weightx = 1.0D;
@@ -207,44 +204,56 @@ public class AboutPanel extends JPanel {
 		gridBagConstraints5.ipadx = 0;
 		gridBagConstraints5.ipady = 0;
 		gridBagConstraints5.insets = new java.awt.Insets(2,5,2,5);
+		
 		gridBagConstraints6.gridx = 0;
-		gridBagConstraints6.gridy = 5;
-		gridBagConstraints6.ipadx = 0;
+		gridBagConstraints6.gridy = 4;
 		gridBagConstraints6.ipady = 0;
-		gridBagConstraints6.insets = new java.awt.Insets(2,5,2,5);
-		gridBagConstraints6.weightx = 1.0D;
-		gridBagConstraints6.gridwidth = 2;
+		gridBagConstraints6.ipadx = 0;
 		gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints6.gridwidth = 2;
+
 		gridBagConstraints7.gridx = 0;
-		gridBagConstraints7.gridy = 6;
+		gridBagConstraints7.gridy = 5;
 		gridBagConstraints7.ipadx = 0;
 		gridBagConstraints7.ipady = 0;
-		gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		gridBagConstraints7.gridwidth = 2;
+		gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints7.insets = new java.awt.Insets(2,5,2,5);
+		gridBagConstraints7.weightx = 1.0D;
+		gridBagConstraints7.gridwidth = 2;
+		
 		gridBagConstraints8.gridx = 0;
-		gridBagConstraints8.gridy = 4;
+		gridBagConstraints8.gridy = 6;
 		gridBagConstraints8.ipadx = 0;
 		gridBagConstraints8.ipady = 0;
-		gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints8.insets = new java.awt.Insets(2,5,2,5);
 		gridBagConstraints8.weightx = 1.0D;
 		gridBagConstraints8.gridwidth = 2;
+		gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
+		gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		
+		gridBagConstraints9.gridx = 0;
+		gridBagConstraints9.gridy = 7;
+		gridBagConstraints9.ipadx = 0;
+		gridBagConstraints9.ipady = 0;
+		gridBagConstraints9.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints9.anchor = java.awt.GridBagConstraints.NORTHWEST;
+		gridBagConstraints9.gridwidth = 2;
+		gridBagConstraints9.insets = new java.awt.Insets(2,5,2,5);
+		
 		this.add(lblProgramName, gridBagConstraints3);
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints1.insets = new java.awt.Insets(5,15,5,15);
-			gridBagConstraints2.insets = new java.awt.Insets(3,5,5,10);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gridBagConstraints6.insets = new java.awt.Insets(3,5,5,10);
+			gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			this.add(lblVersion, gridBagConstraints4);
 			this.add(lblLogo, gridBagConstraints1);
-			//this.add(lblName, gridBagConstraints2);
 			this.add(lblCopyright, gridBagConstraints5);
-			this.add(lblDisclaimer, gridBagConstraints8);
-			this.add(lblCopyrightDetail, gridBagConstraints6);
-			this.add(lblOtherCopyright, gridBagConstraints7);
+			this.add(lblHomepage, gridBagConstraints6);
+			this.add(lblDisclaimer, gridBagConstraints7);
+			this.add(lblCopyrightDetail, gridBagConstraints8);
+			this.add(lblOtherCopyright, gridBagConstraints9);
 	}
-}  //  @jve:decl-index=0:visual-constraint="7,0"
+}
