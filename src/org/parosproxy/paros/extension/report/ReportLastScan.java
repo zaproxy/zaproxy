@@ -141,8 +141,8 @@ public class ReportLastScan {
 	    sb.append(getAlertXML(model.getDb(), null));
 	    sb.append("</report>");	
 	    
-	    if (!fileName.endsWith(".htm")) {
-	        fileName = fileName + ".htm";		        
+	    if (!fileName.toLowerCase().endsWith(".htm") && !fileName.toLowerCase().endsWith(".html")) {
+	        fileName = fileName + ".html";		        
 	    }
 	    
 	    File report = ReportGenerator.stringToHtml(sb.toString(), "xml" + File.separator + "reportLatestScan.xsl", fileName);
