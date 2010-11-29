@@ -19,12 +19,15 @@
  */
 package org.zaproxy.zap.model;
 
+import org.parosproxy.paros.model.SiteNode;
+
 
 public abstract class ScanThread extends Thread implements GenericScanner {
 
 	private String site;
 	private ScanListenner listenner;
 	private int progress = 0;
+	private SiteNode startNode = null;
 	
 	public ScanThread (String site, ScanListenner listenner) {
 		this.site = site;
@@ -36,6 +39,14 @@ public abstract class ScanThread extends Thread implements GenericScanner {
 			this.progress = progress;
 			this.listenner.scanProgress(site, progress, maximum);
 		}
+	}
+
+	public SiteNode getStartNode() {
+		return startNode;
+	}
+
+	public void setStartNode(SiteNode startNode) {
+		this.startNode = startNode;
 	}
 
 	public abstract void stopScan();

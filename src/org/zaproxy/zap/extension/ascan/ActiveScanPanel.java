@@ -96,7 +96,6 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 				public void valueChanged(ListSelectionEvent e) {
 					HttpMessage msg = (HttpMessage) messageList.getSelectedValue();
 					displayMessage(msg);
-					
 				}});
 			
 			resetMessageList();
@@ -196,4 +195,12 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
         this.responsePanel = responsePanel;
 
     }
+    
+	@Override
+	public void reset() {
+		super.reset();
+		this.resetMessageList();
+	}
+
+
 }

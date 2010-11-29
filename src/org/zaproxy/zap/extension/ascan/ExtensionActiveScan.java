@@ -50,7 +50,6 @@ import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -67,12 +66,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private static final int ARG_SCAN_IDX = 0;
     
 	private Scanner scanner = null;
-	private SiteMap siteTree = null;
-	private SiteNode startNode = null;	
 	private AlertTreeModel treeAlert = null;
 	
 	private JMenuItem menuItemPolicy = null;
-	private AlertPanel alertPanel = null;  //  @jve:decl-index=0:visual-constraint="61,102"
+	private AlertPanel alertPanel = null;
 	private RecordScan recordScan = null;
 	
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
@@ -80,10 +77,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	// ZAP: Added popup menu alert edit
 	private PopupMenuAlertEdit popupMenuAlertEdit = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
+	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
 	
 	private OptionsScannerPanel optionsScannerPanel = null;
 	private ActiveScanPanel activeScanPanel = null;
-	private ScannerParam scannerParam = null;   //  @jve:decl-index=0:
+	private ScannerParam scannerParam = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 
     private PopupMenuScanHistory popupMenuScanHistory = null;
@@ -113,36 +111,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionScanner");
+        this.setName("ExtensionActiveScan");
 			
         ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
 	}
-	/**
-	 * This method initializes menuItemScanAll	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	/*
-	private JMenuItem getMenuItemScanAll() {
-		if (menuItemScanAll == null) {
-			menuItemScanAll = new JMenuItem();
-			menuItemScanAll.setText(Constant.messages.getString("menu.analyse.scanAll"));	// ZAP: i18n
-			menuItemScanAll.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    menuItemScan.setEnabled(false);
-				    menuItemScanAll.setEnabled(false);
-				    getAlertPanel().setTabFocus();
-				    startScan();
-				    
-				}
-			});
-
-		}
-		return menuItemScanAll;
-	}
-	*/
-		
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -153,11 +126,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResend());
             // TODO this doesnt work properly
-            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
         	// ZAP: Added popup menu alert edit
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
 
             extensionHook.getHookView().addStatusPanel(getAlertPanel());
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
@@ -183,26 +157,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return activeScanPanel;
 	}
 
-	void startScan() {
-        siteTree = getModel().getSession().getSiteTree();
-
-	    if (startNode == null) {
-	        startNode = (SiteNode) siteTree.getRoot();
-	    }
-	    
-        startScan(startNode);
+	private void startScan() {
+        startScan(null);
 	}
 	
 	void startScan(SiteNode startNode) {
 		this.getActiveScanPanel().scanSite(startNode);
 	}
-
-    /**
-     * @return Returns the startNode.
-     */
-    public SiteNode getStartNode() {
-        return startNode;
-    }
 
     public void scannerComplete() {
     }
@@ -284,37 +245,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public Scanner getScanner() {
         return scanner;
     }
-	/**
-	 * This method initializes menuItemScan	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-    /*
-	private JMenuItem getMenuItemScan() {
-		if (menuItemScan == null) {
-			menuItemScan = new JMenuItem();
-			menuItemScan.setText(Constant.messages.getString("menu.analyse.scan"));	// ZAP: i18n
-			menuItemScan.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-				    JTree siteTree = getView().getSiteTreePanel().getTreeSite();
-		            SiteNode node = (SiteNode) siteTree.getLastSelectedPathComponent();
-		            if (node == null) {
-		                getView().showWarningDialog(Constant.messages.getString("scanner.select.warning"));	// ZAP: i18n
-		                return;
-		            }
-				    menuItemScan.setEnabled(false);
-				    menuItemScanAll.setEnabled(false);
-	                startScan(node);
-	                
-				}
-			});
-
-		}
-		return menuItemScan;
-	}
-	*/
 	/**
 	 * This method initializes alertPanel	
 	 * 	
@@ -533,7 +464,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
      * 	
      * @return org.parosproxy.paros.extension.scanner.PopupMenuScanHistory	
      */
-    @SuppressWarnings("unused")
 	private PopupMenuScanHistory getPopupMenuScanHistory() {
         if (popupMenuScanHistory == null) {
             popupMenuScanHistory = new PopupMenuScanHistory();
@@ -569,6 +499,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			popupMenuActiveScanSites.setExtension(this);
 		}
 		return popupMenuActiveScanSites;
+	}
+
+	private PopupMenuActiveScanNode getPopupMenuActiveScanNode() {
+		if (popupMenuActiveScanNode == null) {
+			popupMenuActiveScanNode = new PopupMenuActiveScanNode();
+			popupMenuActiveScanNode.setExtension(this);
+		}
+		return popupMenuActiveScanNode;
 	}
 
 	public HistoryList getHistoryList() {

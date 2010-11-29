@@ -27,7 +27,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.SiteNode;
 
-public class PopupMenuActiveScanSites extends ExtensionPopupMenu {
+public class PopupMenuActiveScanNode extends ExtensionPopupMenu {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionActiveScan extension = null;
@@ -36,7 +36,7 @@ public class PopupMenuActiveScanSites extends ExtensionPopupMenu {
     /**
      * 
      */
-    public PopupMenuActiveScanSites() {
+    public PopupMenuActiveScanNode() {
         super();
  		initialize();
     }
@@ -44,7 +44,7 @@ public class PopupMenuActiveScanSites extends ExtensionPopupMenu {
     /**
      * @param label
      */
-    public PopupMenuActiveScanSites(String label) {
+    public PopupMenuActiveScanNode(String label) {
         super(label);
     }
 
@@ -69,19 +69,14 @@ public class PopupMenuActiveScanSites extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText(Constant.messages.getString("ascan.site.popup"));
+        this.setText(Constant.messages.getString("ascan.node.popup"));
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         		if (treeSite != null) {
         		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-        		    
         		    if (node != null) {
-        		    	// Loop up to get the top parent
-        				while (node.getParent() != null && node.getParent().getParent() != null) {
-        					node = (SiteNode) node.getParent();
-        				}
         		    	extension.startScan(node);
         		    }
         		}

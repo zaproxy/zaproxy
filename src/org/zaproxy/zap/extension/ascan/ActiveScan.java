@@ -21,6 +21,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private int progress = 0;
 	private boolean isAlive = false;
 	private DefaultListModel list;
+	private SiteNode startNode = null;
 	
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);
@@ -69,21 +70,24 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		isAlive = true;
 		SiteMap siteTree = this.activeScanPanel.getExtension().getModel().getSession().getSiteTree();
 		SiteNode rootNode = (SiteNode) siteTree.getRoot();
-		SiteNode startNode = null;
-		
-		Enumeration<SiteNode> en = rootNode.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
-			String nodeName = sn.getNodeName();
-			if (nodeName.indexOf("//") >= 0) {
-				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
-			}
-			if (this.site.equals(nodeName)) {
-				startNode = sn;
-				break;
+		//SiteNode startNode = null;
+		if (startNode == null) {
+			
+			Enumeration<SiteNode> en = rootNode.children();
+			while (en.hasMoreElements()) {
+				SiteNode sn = en.nextElement();
+				String nodeName = sn.getNodeName();
+				if (nodeName.indexOf("//") >= 0) {
+					nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
+				}
+				if (this.site.equals(nodeName)) {
+					startNode = sn;
+					break;
+				}
 			}
 		}
 		if (startNode != null) {
+			System.out.println("ActiveScan.startNode " + startNode.getNodeName());
 			this.start(startNode);
 		} else {
 			// TODO what? Popup?
@@ -132,7 +136,19 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	
 	
 	@Override
-	public void notifyNewMessage(HttpMessage msg) {
-		this.list.addElement(msg);
+	public void notifyNewMessage(final HttpMessage msg) {
+		synchronized (list) {
+			this.list.addElement(msg);
+		}
+	}
+
+	@Override
+	public SiteNode getStartNode() {
+		return this.startNode;
+	}
+
+	@Override
+	public void setStartNode(SiteNode startNode) {
+		this.startNode = startNode;
 	}
 }

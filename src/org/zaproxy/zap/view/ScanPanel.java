@@ -370,7 +370,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan();
+			startScan(node);
 		}
 	}
 	
@@ -462,6 +462,9 @@ public abstract class ScanPanel extends AbstractPanel {
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
 	protected void startScan() {
+		this.startScan(null);
+	}
+	protected void startScan(SiteNode startNode) {
  		log.debug("startScan " + prefix);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
@@ -474,6 +477,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			scanThread = this.newScanThread(currentSite, scanParam);
 			scanMap.put(currentSite, scanThread);
 		}
+		scanThread.setStartNode(startNode);
 		scanThread.start();
 		scanMap.put(currentSite, scanThread);
 		setActiveScanLabels();

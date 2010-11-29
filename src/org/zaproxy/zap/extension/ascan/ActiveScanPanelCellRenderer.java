@@ -240,7 +240,7 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
         HistoryReference ref = (HistoryReference) value;
         txtId.setText(Integer.toString(ref.getHistoryId()));
         */
-        HttpMessage msg = (HttpMessage) value;
+    		HttpMessage msg = (HttpMessage) value;
 
             //msg = ref.getHttpMessage();
             txtMethod.setText(msg.getRequestHeader().getMethod());
@@ -264,8 +264,8 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
             	txtNote.setIcon(null);
             }
 /*
-            if (ref.getAlerts().size() > 0) {
-            	switch (ref.getHighestAlert()) {
+            if (hmw.getAlerts().size() > 0) {
+            	switch (hmw.getHighestAlert()) {
             	case Alert.RISK_INFO:
                 	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/073.png")));	// 'Blue flag' icon
             		break;

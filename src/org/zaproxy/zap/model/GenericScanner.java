@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.model;
 
+import org.parosproxy.paros.model.SiteNode;
+
 
 public interface GenericScanner extends Runnable {
 
@@ -41,4 +43,9 @@ public interface GenericScanner extends Runnable {
 	public boolean isAlive();
 	
 	public void start();
+
+	public SiteNode getStartNode();
+	
+	public void setStartNode(SiteNode startNode);
+
 }
