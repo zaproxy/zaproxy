@@ -32,6 +32,7 @@ import org.parosproxy.paros.extension.scanner.ExtensionScanner;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.w3c.dom.Document;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 
 
 public class ProxyListenerPassiveScan implements ProxyListener {
@@ -41,7 +42,8 @@ public class ProxyListenerPassiveScan implements ProxyListener {
 	private List<PassiveScanDefn> passiveScanners = new ArrayList<PassiveScanDefn>();
 
 	private ExtensionHistory extHist = null; 
-	private ExtensionScanner extScan = null; 
+	private ExtensionScanner extScan = null;
+	private ExtensionActiveScan extAScan = null;
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 
@@ -53,7 +55,12 @@ public class ProxyListenerPassiveScan implements ProxyListener {
 		
 		if (extHist == null) {
 			extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
-			extScan = (ExtensionScanner) Control.getSingleton().getExtensionLoader().getExtension("ExtensionScanner");
+			if (Control.getSingleton().getExtensionLoader().getExtension("ExtensionScanner") != null) {
+				extScan = (ExtensionScanner) Control.getSingleton().getExtensionLoader().getExtension("ExtensionScanner");
+			}
+			if (Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan") != null) {
+				extAScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+			}
 		}
 		
 		logger.debug("Scanner " + scanner.getName() + 
@@ -87,7 +94,12 @@ public class ProxyListenerPassiveScan implements ProxyListener {
 				extHist.getHistoryList().notifyItemChanged(hRef);
 			}
 		    // Raise the alert
-			extScan.alertFound(alert);
+			if (extAScan != null) {
+				extAScan.alertFound(alert);
+			}
+			if (extScan != null) {
+				extScan.alertFound(alert);
+			}
 
 			break;
 		}
