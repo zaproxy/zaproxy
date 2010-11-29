@@ -67,6 +67,12 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 		}
 		return jScrollPane;
 	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		this.resetPortList();
+	}
 
 	private void resetPortList() {
 		getPortList().setModel(new DefaultListModel());
