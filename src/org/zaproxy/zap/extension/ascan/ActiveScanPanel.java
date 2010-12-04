@@ -90,10 +90,13 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			messageList.setName(PANEL_NAME);
 			messageList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
+			messageList.setFixedCellHeight(16);	// Significantly speeds up rendering
+			
 			messageList.addListSelectionListener(new ListSelectionListener() {
 
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
+
 					HttpMessage msg = (HttpMessage) messageList.getSelectedValue();
 					displayMessage(msg);
 				}});
