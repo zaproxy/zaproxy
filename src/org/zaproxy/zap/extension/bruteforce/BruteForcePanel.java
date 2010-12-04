@@ -458,6 +458,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			bruteForceList.setName(PANEL_NAME);
 			bruteForceList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
+			bruteForceList.setFixedCellHeight(16);	// Significantly speeds up rendering
+
 			bruteForceList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {

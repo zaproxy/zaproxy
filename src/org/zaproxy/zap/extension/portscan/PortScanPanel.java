@@ -87,6 +87,8 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 			portList.setName(PANEL_NAME);
 			portList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
+			portList.setFixedCellHeight(16);	// Significantly speeds up rendering
+
 			resetPortList();
 		}
 		return portList;
