@@ -113,6 +113,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private void initialize() {
         this.setName("ExtensionActiveScan");
 			
+        ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
         ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
 	}
 

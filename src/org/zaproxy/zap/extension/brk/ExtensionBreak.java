@@ -77,6 +77,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         this.setName("ExtensionBreak");
         
         ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
+        ExtensionHelp.enableHelpKey(getBreakPointsPanel(), "ui.tabs.breakpoints");
 
 	}
 	

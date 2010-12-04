@@ -28,6 +28,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 /**
  *
@@ -67,6 +68,8 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	 */
 	private void initialize() {
         this.setName("ExtensionSearch");
+
+        ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
