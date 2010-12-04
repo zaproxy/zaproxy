@@ -468,8 +468,12 @@ public class Manager implements ProcessChecker.ProcessUpdate
 
     private void createHttpClient()
     {
-        Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
-        Protocol.registerProtocol("https", easyhttps);
+    	Protocol protocol = Protocol.getProtocol("https");
+    	if (protocol == null) {
+    		// ZAP: Dont override an existing protocol - it causes problems with ZAP
+    		Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
+    		Protocol.registerProtocol("https", easyhttps);
+    	}
         initialState = new HttpState();
 
         MultiThreadedHttpConnectionManager connectionManager =
