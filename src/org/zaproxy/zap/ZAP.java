@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.AboutWindow;
 import org.zaproxy.zap.view.LicenseFrame;
+import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
 
 /**
@@ -148,6 +149,16 @@ public class ZAP {
 	    Model.getSingleton().init();
 	    Model.getSingleton().getOptionsParam().setGUI(cmdLine.isGUI());
 	    
+	    // Prompt for language if not set
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
+        	// Dont use a parent of the MainFrame - that will initialise it with English! 
+			LocaleDialog dialog = new LocaleDialog(null, true);
+			dialog.init(Model.getSingleton().getOptionsParam());
+			dialog.setVisible(true);
+			Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
+			Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
+	    }
+
 	    // Prompt for proxy details if set
 	    if (Model.getSingleton().getOptionsParam().getConnectionParam().isProxyChainPrompt()) {
 			ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
