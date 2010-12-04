@@ -87,7 +87,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			}
 		}
 		if (startNode != null) {
-			System.out.println("ActiveScan.startNode " + startNode.getNodeName());
 			this.start(startNode);
 		} else {
 			// TODO what? Popup?
