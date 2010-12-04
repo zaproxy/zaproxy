@@ -56,6 +56,9 @@
   <copy todir="${dist}/db">
     <fileset dir="${src}/db"/>
   </copy>
+    <copy todir="${dist}/dirbuster">
+      <fileset dir="${src}/dirbuster"/>
+    </copy>
   <copy todir="${dist}/filter">
     <fileset dir="${src}/filter"/>
   </copy>
@@ -81,7 +84,7 @@
       <fileset dir="${src}" includes="*.exe *.so *.dll mozembed* *.bat *.sh *.properties"/>
     </copy>
 
-    <copy file="${src}/doc/release.txt" todir="${dist}"/>
+    <!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
 
   	<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
 		<classpath refid="dist.classpath" />
