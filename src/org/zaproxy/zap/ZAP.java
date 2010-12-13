@@ -48,11 +48,6 @@ import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ZAP {
     
     private static Log log = null;
@@ -107,18 +102,19 @@ public class ZAP {
 
 	    Locale.setDefault(Locale.ENGLISH);
 	    
-		try {
-  			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {
-		}
-	    // Nimbus looks better than the default L&F (IMHO), so use if available
 	    try {
-	        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-	            if ("Nimbus".equals(info.getName())) {
-	                UIManager.setLookAndFeel(info.getClassName());
-	                break;
-	            }
-	        }
+	    	// Get the systems Look and Feel
+	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	    	
+	    	// Set Nimbus LaF if available and system is not OSX
+	    	if (!Constant.isMacOsX()) {
+		        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		            if ("Nimbus".equals(info.getName())) {
+		                UIManager.setLookAndFeel(info.getClassName());
+		                break;
+		            }
+		        }
+	    	}
 	    } catch (UnsupportedLookAndFeelException e) {
 	        // handle exception
 	    } catch (ClassNotFoundException e) {

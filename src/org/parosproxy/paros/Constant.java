@@ -89,8 +89,7 @@ public final class Constant {
 
     private static String staticEyeCatcher = PROGRAM_NAME;
     private static boolean staticSP = false;
-    private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
-    private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
+
     
     // ZAP: Added i18n
     public static ResourceBundle messages = null;
@@ -245,6 +244,10 @@ public final class Constant {
 
     }
     
+    
+    // Determine Windows Operating System
+    private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
+    
     public static boolean isWindows() {
         String os_name = System.getProperty("os.name");
         
@@ -252,9 +255,21 @@ public final class Constant {
         return matcher.find();
     }
     
+    // Determine Linux Operating System
+    private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
+    
     public static boolean isLinux() {
         String os_name = System.getProperty("os.name");
         Matcher matcher = patternLinux.matcher(os_name);
+        return matcher.find();
+    }
+    
+    // Determine Windows Operating System
+    private static Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
+    
+    public static boolean isMacOsX() {
+        String os_name = System.getProperty("os.name");
+        Matcher matcher = patternMacOsX.matcher(os_name);
         return matcher.find();
     }
     
