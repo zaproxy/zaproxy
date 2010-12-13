@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -128,6 +129,8 @@ public class HttpPanel extends AbstractPanel {
 			splitVert.setTopComponent(getScrollHeader());
 			splitVert.setContinuousLayout(false);
 			splitVert.setBottomComponent(getPanelView());
+			// Removed unnecessary border
+			splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
 		return splitVert;
 	}

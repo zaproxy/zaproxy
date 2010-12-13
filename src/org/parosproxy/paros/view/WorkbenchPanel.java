@@ -20,23 +20,38 @@
  */
 package org.parosproxy.paros.view;
 
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import java.awt.CardLayout;
+
 /**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * 
+ * To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Generation - Code and Comments
  */
 public class WorkbenchPanel extends JPanel {
-	private javax.swing.JSplitPane splitVert = null;
-	private javax.swing.JSplitPane splitHoriz = null;
-	private javax.swing.JPanel paneStatus = null;
-	private javax.swing.JPanel paneSelect = null;
-	private javax.swing.JPanel paneWork = null;
+
+	private static final long serialVersionUID = -4610792807151921550L;
+
+	private JSplitPane splitVert = null;
+	private JSplitPane splitHoriz = null;
+
+	private JPanel paneStatus = null;
+	private JPanel paneSelect = null;
+	private JPanel paneWork = null;
+
 	private org.parosproxy.paros.view.TabbedPanel tabbedStatus = null;
 	private org.parosproxy.paros.view.TabbedPanel tabbedWork = null;
 	private org.parosproxy.paros.view.TabbedPanel tabbedSelect = null;
+
 	/**
 	 * This is the default constructor
 	 */
@@ -44,188 +59,162 @@ public class WorkbenchPanel extends JPanel {
 		super();
 		initialize();
 	}
+
 	/**
 	 * This method initializes this
 	 * 
 	 * @return void
 	 */
-	private  void initialize() {
-		java.awt.GridBagConstraints consGridBagConstraints1 = new java.awt.GridBagConstraints();
+	private void initialize() {
+		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
-		this.setLayout(new java.awt.GridBagLayout());
+		this.setLayout(new GridBagLayout());
 		this.setSize(800, 600);
-		this.setPreferredSize(new java.awt.Dimension(800,600));
+		this.setPreferredSize(new Dimension(800, 600));
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;
 		consGridBagConstraints1.weightx = 1.0;
 		consGridBagConstraints1.weighty = 1.0;
-		consGridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-		this.add(getSplitVert(), consGridBagConstraints1);
+		consGridBagConstraints1.fill = GridBagConstraints.BOTH;
+		this.add(getSplitHoriz(), consGridBagConstraints1);
 	}
+
 	/**
-
-	 * This method initializes splitVert	
-
-	 * 	
-
-	 * @return javax.swing.JSplitPane	
-
-	 */    
-	private javax.swing.JSplitPane getSplitVert() {
+	 * This method initializes splitVert
+	 * (TOP/BOTTOM (History))
+	 * 
+	 * @return JSplitPane
+	 */
+	private JSplitPane getSplitVert() {
 		if (splitVert == null) {
-			splitVert = new javax.swing.JSplitPane();
+			splitVert = new JSplitPane();
 			splitVert.setDividerLocation(480);
 			splitVert.setDividerSize(3);
-			splitVert.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+			splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitVert.setResizeWeight(0.5D);
-			splitVert.setPreferredSize(new java.awt.Dimension(800,400));
-			splitVert.setTopComponent(getSplitHoriz());
+			splitVert.setPreferredSize(new Dimension(800, 400));
+			splitVert.setTopComponent(getPaneWork());
 			splitVert.setBottomComponent(getPaneStatus());
 			splitVert.setContinuousLayout(false);
+			splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
 		return splitVert;
 	}
 
 	/**
-
-	 * This method initializes splitHoriz	
-
-	 * 	
-
-	 * @return javax.swing.JSplitPane	
-
-	 */    
-	private javax.swing.JSplitPane getSplitHoriz() {
+	 * This method initializes splitHoriz
+	 * 
+	 * Site Panel / Work
+	 * 
+	 * @return JSplitPane
+	 */
+	private JSplitPane getSplitHoriz() {
 		if (splitHoriz == null) {
-			splitHoriz = new javax.swing.JSplitPane();
+			splitHoriz = new JSplitPane();
 			splitHoriz.setLeftComponent(getPaneSelect());
-			splitHoriz.setRightComponent(getPaneWork());
+			splitHoriz.setRightComponent(getSplitVert());
 			splitHoriz.setDividerLocation(280);
 			splitHoriz.setDividerSize(3);
 			splitHoriz.setResizeWeight(0.3D);
-			splitHoriz.setPreferredSize(new java.awt.Dimension(800,400));
+			splitHoriz.setPreferredSize(new Dimension(800, 400));
 			splitHoriz.setContinuousLayout(false);
-			splitHoriz.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
 		return splitHoriz;
 	}
 
 	/**
-
-	 * This method initializes paneStatus	
-
-	 * 	
-
-	 * @return javax.swing.JPanel	
-
-	 */    
-	private javax.swing.JPanel getPaneStatus() {
+	 * This method initializes paneStatus
+	 * 
+	 * @return JPanel
+	 */
+	private JPanel getPaneStatus() {
 		if (paneStatus == null) {
-			paneStatus = new javax.swing.JPanel();
+			paneStatus = new JPanel();
 			paneStatus.setLayout(new CardLayout());
-			paneStatus.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			paneStatus.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			paneStatus.add(getTabbedStatus(), getTabbedStatus().getName());
 		}
 		return paneStatus;
 	}
 
 	/**
-
-	 * This method initializes paneSelect	
-
-	 * 	
-
-	 * @return javax.swing.JPanel	
-
-	 */    
-	private javax.swing.JPanel getPaneSelect() {
+	 * This method initializes paneSelect
+	 * 
+	 * @return JPanel
+	 */
+	private JPanel getPaneSelect() {
 		if (paneSelect == null) {
-			paneSelect = new javax.swing.JPanel();
+			paneSelect = new JPanel();
 			paneSelect.setLayout(new CardLayout());
-			paneSelect.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			paneSelect.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			paneSelect.add(getTabbedSelect(), getTabbedSelect().getName());
 		}
 		return paneSelect;
 	}
 
 	/**
-
-	 * This method initializes paneWork	
-
-	 * 	
-
-	 * @return javax.swing.JPanel	
-
-	 */    
-	private javax.swing.JPanel getPaneWork() {
+	 * This method initializes paneWork
+	 *  
+	 * @return JPanel
+	 */
+	private JPanel getPaneWork() {
 		if (paneWork == null) {
-			paneWork = new javax.swing.JPanel();
+			paneWork = new JPanel();
 			paneWork.setLayout(new CardLayout());
-			paneWork.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
-			paneWork.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+			paneWork.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+			paneWork.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			paneWork.add(getTabbedWork(), getTabbedWork().getName());
 		}
 		return paneWork;
 	}
 
 	/**
-
-	 * This method initializes tabbedStatus	
-
-	 * 	
-
-	 * @return com.proofsecure.paros.view.ParosTabbedPane	
-
-	 */    
+	 * This method initializes tabbedStatus
+	 * 
+	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedStatus() {
 		if (tabbedStatus == null) {
 			tabbedStatus = new org.parosproxy.paros.view.TabbedPanel();
-			tabbedStatus.setPreferredSize(new java.awt.Dimension(800,200));
+			tabbedStatus.setPreferredSize(new Dimension(800, 200));
 			// ZAP: Move tabs to the top of the panel
-			tabbedStatus.setTabPlacement(javax.swing.JTabbedPane.TOP);
+			tabbedStatus.setTabPlacement(JTabbedPane.TOP);
 			tabbedStatus.setName("tabbedStatus");
-			tabbedStatus.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			tabbedStatus.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
 		return tabbedStatus;
 	}
 
 	/**
-
-	 * This method initializes tabbedWork	
-
-	 * 	
-
-	 * @return com.proofsecure.paros.view.ParosTabbedPane	
-
-	 */    
+	 * This method initializes tabbedWork
+	 * 
+	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedWork() {
 		if (tabbedWork == null) {
 			tabbedWork = new org.parosproxy.paros.view.TabbedPanel();
-			tabbedWork.setPreferredSize(new java.awt.Dimension(600,400));
+			tabbedWork.setPreferredSize(new Dimension(600, 400));
 			tabbedWork.setName("tabbedWork");
-			tabbedWork.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			tabbedWork.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
 		return tabbedWork;
 	}
 
 	/**
-
-	 * This method initializes tabbedSelect	
-
-	 * 	
-
-	 * @return com.proofsecure.paros.view.ParosTabbedPane	
-
-	 */    
+	 * This method initializes tabbedSelect
+	 * 
+	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedSelect() {
 		if (tabbedSelect == null) {
 			tabbedSelect = new org.parosproxy.paros.view.TabbedPanel();
-			tabbedSelect.setPreferredSize(new java.awt.Dimension(200,400));
+			tabbedSelect.setPreferredSize(new Dimension(200, 400));
 			tabbedSelect.setName("tabbedSelect");
-			tabbedSelect.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+			tabbedSelect.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
-		
+
 		return tabbedSelect;
 	}
 
-        }
+}
