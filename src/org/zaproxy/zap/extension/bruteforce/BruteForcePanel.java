@@ -132,22 +132,20 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         this.add(getPanelCommand(), getPanelCommand().getName());
         
         // Wont need to do this if/when this class is changed to extend ScanPanel
-        scanStatus = new ScanStatus(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")), 
-        		Constant.messages.getString("bruteforce.panel.title"));
-        View.getSingleton().getMainFrame().addFooterLabel(scanStatus.getCountLabel());
-        View.getSingleton().getMainFrame().addFooterLabel(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
+        scanStatus = new ScanStatus(
+        				new ImageIcon(
+        					getClass().getResource("/resource/icon/16/086.png")),
+        					Constant.messages.getString("bruteforce.panel.title"));
+       
+        View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
 
 	}
+	
 	/**
-
 	 * This method initializes panelCommand	
-
 	 * 	
-
 	 * @return javax.swing.JPanel	
-
 	 */    
-	/**/
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 

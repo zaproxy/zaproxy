@@ -104,8 +104,8 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setIcon(icon);
         this.add(getPanelCommand(), prefix + ".panel");
         scanStatus = new ScanStatus(icon, Constant.messages.getString(prefix + ".panel.title"));
-        View.getSingleton().getMainFrame().addFooterLabel(scanStatus.getCountLabel());
-        View.getSingleton().getMainFrame().addFooterLabel(new JLabel("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</html>"));
+        
+        View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
 	}
 
 	/**
