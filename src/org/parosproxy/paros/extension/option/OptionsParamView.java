@@ -21,7 +21,10 @@
 
 package org.parosproxy.paros.extension.option;
 
+import java.util.List;
+
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.utils.LocaleUtils;
 
 /**
  *
@@ -38,11 +41,11 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LOCALES = "view.locales";
 
 	public static final String DEFAULT_LOCALE = "en_GB";
-	private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR"};
+	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
 
 	private int processImages = 0;
+	private String configLocale = "";
 	private String locale = "";
-	private String[] locales = DEFAULT_LOCALES;
 	
     /**
      * @param rootElementName
@@ -54,16 +57,10 @@ public class OptionsParamView extends AbstractParam {
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
     protected void parse() {
-        
-
 	    // use temp variable to check.  Exception will be flagged if any error.
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
+	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
-	    locales = getConfig().getStringArray(LOCALES);
-	    if (locales == null || locales.length == 0) {
-	    	locales = DEFAULT_LOCALES;
-	    }
-		
     }
 
 	/**
@@ -95,9 +92,8 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(LOCALE, locale);
 	}
 
-	public String[] getLocales() {
-		return locales;
+	public String getConfigLocale() {
+		return configLocale;
 	}
-
 	
 }

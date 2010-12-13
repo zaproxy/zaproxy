@@ -115,6 +115,10 @@ public class PluginFactory {
                 if (!plugin.isVisible()) {
                     continue;
                 }
+                if (plugin instanceof AbstractDefaultFilePlugin) {
+                	// ZAP: ignore all default file plugins
+                	continue;
+                }
 //                plugin.setEnabled(true);
                 log.info("loaded plugin " + plugin.getName());
                 mapAllPlugin.put(new Integer(plugin.getId()), plugin);

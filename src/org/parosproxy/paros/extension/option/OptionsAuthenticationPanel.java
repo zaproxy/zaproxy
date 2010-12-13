@@ -65,7 +65,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
         this.setLayout(new GridBagLayout());
         this.setSize(409, 268);
         this.setName("Authentication");
-        jLabel.setText("<html><body><p>Enter the HTTP authentication of varioius hosts into the table below.</p><p>Currently basic authentication is supported.  NTLM support works in some hosts but not extensively tested.</p><p>To delete an entry, just leave the host name blank.</p></body></html>");
+        jLabel.setText("<html><body><p>Enter the HTTP authentication of various hosts into the table below.</p><p>Currently basic authentication is supported.  NTLM support works in some hosts but not extensively tested.</p><p>To delete an entry, just leave the host name blank.</p></body></html>");
         jLabel.setPreferredSize(new java.awt.Dimension(494,80));
         jLabel.setMinimumSize(new java.awt.Dimension(494,16));
         gridBagConstraints1.gridx = 0;

@@ -43,13 +43,14 @@ import org.parosproxy.paros.model.FileCopier;
 public final class Constant {
 	// ZAP: rebrand
     public static final String PROGRAM_NAME     = "OWASP ZAP";
+    public static final String OLD_PROGRAM_NAME     = "ZAP";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.0.0";
-    public static final long VERSION_TAG = 10000000;
+    public static final String PROGRAM_VERSION = "1.1.0";
+    public static final long VERSION_TAG = 10100000;
 //  ************************************************************
 //  note the above
 //  ************************************************************
@@ -71,6 +72,7 @@ public final class Constant {
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public String FOLDER_SESSION = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
+    public static final String MESSAGES_PREFIX = "Messages";
 
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
@@ -223,10 +225,16 @@ public final class Constant {
             String[] langArray = lang.split("_");
             locale = new Locale(langArray[0], langArray[1]);
         } catch (Exception e) {
-        	System.out.println("SBSB Exception " + e);
+        	System.out.println("Failed to initialise locale " + e);
         }
         
-	    messages = ResourceBundle.getBundle("Messages", locale);
+	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
+    }
+    
+    public static void setLocale (String loc) {
+        String[] langArray = loc.split("_");
+        Locale locale = new Locale(langArray[0], langArray[1]);
+	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
     }
     
     public static Constant getInstance() {

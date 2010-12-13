@@ -30,11 +30,9 @@ import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.control.Proxy;
-import org.parosproxy.paros.core.proxy.CacheProcessingItem;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -43,9 +41,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.network.HttpHeader;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
@@ -129,7 +125,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */
 	private void initialize() {
         this.setName("ExtensionHistory");
-			
+
+        ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
+
 	}
 	
 	/**
@@ -173,7 +171,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert());
 
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEmbeddedBrowser());
+            // ZAP: Disabled embedded browser
+            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEmbeddedBrowser());
 
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());

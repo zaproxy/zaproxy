@@ -102,18 +102,22 @@ public class OptionsParamCertificate extends AbstractParam {
     public void setEnableCertificate(boolean enabled) {
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
         
-    	SSLConnector ssl = (SSLConnector) sslFactory;
-        ssl.setEnableClientCert(enabled);
-        
-        setUseClientCert(enabled);
+        if (sslFactory instanceof SSLConnector) { 
+	    	SSLConnector ssl = (SSLConnector) sslFactory;
+	        ssl.setEnableClientCert(enabled);
+	        
+	        setUseClientCert(enabled);
+        }
     }
     
     public void setActiveCertificate(){
     	
     	ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
         
-    	SSLConnector ssl = (SSLConnector) sslFactory;
-        ssl.setActiveCertificate();
+        if (sslFactory instanceof SSLConnector) { 
+        	SSLConnector ssl = (SSLConnector) sslFactory;
+        	ssl.setActiveCertificate();
+        }
     	
     }
     
@@ -121,9 +125,12 @@ public class OptionsParamCertificate extends AbstractParam {
     public SSLContextManager getSSLContextManager(){
 		
     	ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
-    	SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof SSLConnector) { 
+        	SSLConnector ssl = (SSLConnector) sslFactory;
         
-        return ssl.getSSLContextManager();
+        	return ssl.getSSLContextManager();
+        }
+        return null;
 	}
 
     

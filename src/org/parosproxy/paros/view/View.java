@@ -31,6 +31,7 @@ import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 
 
@@ -79,6 +80,8 @@ public class View implements ViewDelegate {
 
 		siteMapPanel = new SiteMapPanel();
 		outputPanel = new OutputPanel();
+
+        ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
 
 		// do not allow editable in request panel
 		getWorkbench().getTabbedWork().add(getRequestPanel());

@@ -24,6 +24,7 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
@@ -34,6 +35,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.LocaleUtils;
 
 /**
  *
@@ -175,13 +177,16 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
-	    String [] locales = options.getViewParam().getLocales();
+	    
 	    localeSelect.removeAllItems();
-	    for (String locale : locales) {
-			localeSelect.addItem(Constant.messages.getString("view.locale." + locale));
-			localeMap.put(Constant.messages.getString("view.locale." + locale), locale);
-	    }
-	    String locale = Constant.messages.getString("view.locale." + options.getViewParam().getLocale());
+		List <String> locales = LocaleUtils.getAvailableLocales();
+		for (String locale : locales) {
+			String desc = LocaleUtils.getLocalDisplayName(locale);
+			localeSelect.addItem(desc);
+			localeMap.put(desc, locale);
+		}
+
+	    String locale = LocaleUtils.getLocalDisplayName(options.getViewParam().getLocale());
 	    localeSelect.setSelectedItem(locale);
 	}
 	
