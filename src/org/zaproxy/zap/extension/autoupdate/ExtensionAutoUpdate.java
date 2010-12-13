@@ -45,7 +45,10 @@ import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 public class ExtensionAutoUpdate extends ExtensionAdaptor{
 
 	private JMenuItem menuItemCheckUpdate = null;
-    private static final String GF_ZAP_LATEST = "https://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
+    private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
+    private static final String GF_ZAP_LATEST_XML = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
+    private static final String ZAP_START_TAG = "&lt;ZAP&gt;";
+    private static final String ZAP_END_TAG = "&lt;/ZAP&gt;";
 	private HttpSender httpSender = null;
     
     private String latestVersionName = null;
@@ -185,24 +188,40 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
         String resBody = null;
         
         try {
-            msg = new HttpMessage(new URI(GF_ZAP_LATEST, true));
+            msg = new HttpMessage(new URI(GF_ZAP_LATEST_XML, true));
             getHttpSender().sendAndReceive(msg,true);
             if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-            	logger.error("Failed to access " + GF_ZAP_LATEST +
+            	logger.error("Failed to access " + GF_ZAP_LATEST_XML +
             			" response " + msg.getResponseHeader().getStatusCode());
                 throw new IOException();
             }
             resBody = msg.getResponseBody().toString();
             
-            if (! resBody.startsWith(Constant.PROGRAM_NAME)) {
-            	logger.error("Unexpected contents from " + GF_ZAP_LATEST +
-            			" : " + resBody);
+            int startIndex = resBody.indexOf(ZAP_START_TAG);
+            if (startIndex > 0) {
+            	startIndex += ZAP_START_TAG.length();
+                int endIndex = resBody.indexOf(ZAP_END_TAG, startIndex);
+            	newVersionName = resBody.substring(startIndex, endIndex ); 
             } else {
-                newVersionName = resBody.substring(3).trim();
+            	// Just in case Google change the format try to access the old page directly
+                msg = new HttpMessage(new URI(GF_ZAP_LATEST_OLD, true));
+                getHttpSender().sendAndReceive(msg,true);
+                if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
+                	logger.error("Failed to access " + GF_ZAP_LATEST_XML +
+                			" response " + msg.getResponseHeader().getStatusCode());
+                    throw new IOException();
+                }
+                resBody = msg.getResponseBody().toString();
+                if (resBody.startsWith(Constant.OLD_PROGRAM_NAME)) {
+                    newVersionName = resBody.substring(Constant.OLD_PROGRAM_NAME.length()).trim();
+	            } else {
+	            	logger.error("Unexpected contents from " + GF_ZAP_LATEST_XML +
+	            			" : " + resBody);
+	            }
             }
             
         } catch (Exception e) {
-        	logger.error("Failed to access " + GF_ZAP_LATEST, e);
+        	logger.error("Failed to access " + GF_ZAP_LATEST_XML, e);
             newVersionName = "";
         } finally {
             httpSender.shutdown();
