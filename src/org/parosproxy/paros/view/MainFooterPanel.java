@@ -156,7 +156,7 @@ public class MainFooterPanel extends JPanel {
 	private JLabel getAlertFlagHigh() {
 		if (flagHigh == null) {
 			flagHigh = new JLabel();
-			flagHigh.setToolTipText("High priority alerts");
+			flagHigh.setToolTipText(Constant.messages.getString("footer.alerts.high.tooltip"));
 			ImageIcon iconHigh = new ImageIcon(getClass().getResource("/resource/icon/10/071.png")); // Red
 			flagHigh.setIcon(iconHigh);
 		}
@@ -166,7 +166,7 @@ public class MainFooterPanel extends JPanel {
 	private JLabel getAlertFlagMedium() {
 		if (flagMedium == null) {
 			flagMedium = new JLabel();
-			flagMedium.setToolTipText("Medium priority alerts");
+			flagMedium.setToolTipText(Constant.messages.getString("footer.alerts.medium.tooltip"));
 			ImageIcon iconMedium = new ImageIcon(getClass().getResource("/resource/icon/10/076.png")); // Orange
 			flagMedium.setIcon(iconMedium);
 		}
@@ -176,7 +176,7 @@ public class MainFooterPanel extends JPanel {
 	private JLabel getAlertFlagLow() {
 		if (flagLow == null) {
 			flagLow = new JLabel();
-			flagLow.setToolTipText("Low priority alerts");
+			flagLow.setToolTipText(Constant.messages.getString("footer.alerts.low.tooltip"));
 			ImageIcon iconLow = new ImageIcon(getClass().getResource("/resource/icon/10/074.png")); // Yellow
 			flagLow.setIcon(iconLow);
 		}
@@ -186,7 +186,7 @@ public class MainFooterPanel extends JPanel {
 	private JLabel getAlertFlagInfo() {
 		if (flagInfo == null) {
 			flagInfo = new JLabel();
-			flagInfo.setToolTipText("Infos");
+			flagInfo.setToolTipText(Constant.messages.getString("footer.alerts.info.tooltip"));
 			ImageIcon iconLow = new ImageIcon(getClass().getResource("/resource/icon/10/073.png")); // Blue
 			flagInfo.setIcon(iconLow);
 		}
