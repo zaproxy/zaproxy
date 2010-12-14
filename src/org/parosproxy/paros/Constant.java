@@ -43,14 +43,17 @@ import org.parosproxy.paros.model.FileCopier;
 public final class Constant {
 	// ZAP: rebrand
     public static final String PROGRAM_NAME     = "OWASP ZAP";
+    public static final String PROGRAM_NAME_SHORT = "ZAP";
+    
+    //FIXME Remove old program name definition
     public static final String OLD_PROGRAM_NAME     = "ZAP";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.1.0";
-    public static final long VERSION_TAG = 10100000;
+    public static final String PROGRAM_VERSION = "1.1.1";
+    public static final long VERSION_TAG = 1001001;
 //  ************************************************************
 //  note the above
 //  ************************************************************
@@ -65,6 +68,8 @@ public final class Constant {
 //    public static final String DBNAME_TEMPLATE = "db/parosdb";
 //  public static final String DBNAME_UNTITLED = FOLDER_SESSION + "/untitled";
 
+    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public String FILE_CONFIG = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
@@ -118,7 +123,12 @@ public final class Constant {
 
 
     public Constant() {
-        FileCopier copier = new FileCopier();
+    	initializeFilesAndDirectories();
+    }
+    	
+    private void initializeFilesAndDirectories() {
+        
+    	FileCopier copier = new FileCopier();
         File f = null;
         Log log = null;
         
@@ -128,14 +138,25 @@ public final class Constant {
         System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
         if (userhome != null && !userhome.equals("")) {
-        	// ZAP: Rebrand
-            userhome += System.getProperty("file.separator")+"zap";
-            f = new File(userhome);
-            userhome += System.getProperty("file.separator");
-            FILE_CONFIG = userhome+FILE_CONFIG;
-            FOLDER_SESSION = userhome+FOLDER_SESSION;
-            DBNAME_UNTITLED = userhome+DBNAME_UNTITLED;
-            ACCEPTED_LICENSE = userhome+ACCEPTED_LICENSE;
+            
+            if (isLinux()) {
+            	// Linux: Hidden Zap directory in the user's home directory
+				userhome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
+			} else if (isMacOsX()) {
+				// Mac Os X: Support for writing the configuration into the users Library 
+				userhome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
+					+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
+			} else {
+				// Windows: Zap directory in the user's home directory
+				userhome += FILE_SEPARATOR + PROGRAM_NAME;
+			}
+			
+			f = new File(userhome);
+			userhome += FILE_SEPARATOR;
+			FILE_CONFIG = userhome + FILE_CONFIG;
+			FOLDER_SESSION = userhome + FOLDER_SESSION;
+			DBNAME_UNTITLED = userhome + DBNAME_UNTITLED;
+			ACCEPTED_LICENSE = userhome + ACCEPTED_LICENSE;
 
             try {
                 
