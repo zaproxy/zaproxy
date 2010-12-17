@@ -75,7 +75,7 @@ public class PolicyDialog extends AbstractParamDialog {
 	    getPolicyCategoryPanel().getCategoryTableModel().setTable(category, PluginFactory.getAllPlugin());
 	}
 	
-	protected void showParamPanel(String name) {
+	public void showParamPanel(String name) {
 	    super.showParamPanel(name);
 	    if (!name.equals(this.getRootNode().toString())) {
 	        categorySelected(name);

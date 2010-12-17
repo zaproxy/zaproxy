@@ -107,9 +107,15 @@ public class MainPopupMenu extends JPopupMenu {
 	            
 	            if (menu.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
 	            	if (menu.isSubMenu()) {
+	            		if (menu.precedeWithSeparator()) {
+	            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+	            		}
 	            		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
 	            		
 	            	} else {
+	            		if (menu.precedeWithSeparator()) {
+	    	                this.addSeparator();
+	            		}
 	            		this.add(menu);
 	            	}
 	                isFirst = false;
@@ -155,5 +161,16 @@ public class MainPopupMenu extends JPopupMenu {
 		}
 		return popupPurgeMenu;
 	}
-    }
+
+	// ZAP: added addMenu and removeMenu to support dynamic changing of menus
+
+	public void addMenu(ExtensionPopupMenu menu) {
+		itemList.add(menu);
+	}
+	
+	public void removeMenu(ExtensionPopupMenu menu) {
+		itemList.remove(menu);
+	}
+	
+}
 

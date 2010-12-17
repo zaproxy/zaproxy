@@ -32,6 +32,7 @@ import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 
 
@@ -51,8 +52,9 @@ public class OptionsParam extends AbstractParam {
 	private ConnectionParam connectionParam = new ConnectionParam();
 	private OptionsParamView viewParam = new OptionsParamView();
 	private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
-	// ZAP: Added OptionsParamCheckForUpdates
+	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
+	private InvokeParam invokeParam = new InvokeParam();
 
 	private Vector paramSetList = new Vector();
 	private XMLConfiguration config = null;
@@ -173,6 +175,7 @@ public class OptionsParam extends AbstractParam {
 		getCertificateParam().load(getConfig());
 		getViewParam().load(getConfig());
 		getCheckForUpdatesParam().load(getConfig());
+		getInvokeParam().load(getConfig());
 		
 		String userDir = getConfig().getString(USER_DIR);
 		if (userDir != null) {
@@ -213,5 +216,9 @@ public class OptionsParam extends AbstractParam {
 			e.printStackTrace();
 		}
     }
+
+	public InvokeParam getInvokeParam() {
+		return invokeParam;
+	}
     
 }

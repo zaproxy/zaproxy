@@ -55,9 +55,15 @@ public class MenuToolsControl {
 	}
 	
 	public void options() {
+		this.options(null);
+	}
+	
+	// ZAP: added ability to select panel
+	public void options(String panel) {
 	    OptionsDialog dialog = view.getOptionsDialog("Options");
 	    dialog.initParam(model.getOptionsParam());
-		int result = dialog.showDialog(false);
+
+	    int result = dialog.showDialog(false, panel);
 		if (result == JOptionPane.OK_OPTION) {
 		    try {
                 model.getOptionsParam().getConfig().save();
