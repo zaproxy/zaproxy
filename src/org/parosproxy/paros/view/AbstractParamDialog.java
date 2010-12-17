@@ -41,6 +41,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.AbstractDialog;
 /**
  *
@@ -67,6 +69,11 @@ public class AbstractParamDialog extends AbstractDialog {
 	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
 	private JScrollPane jScrollPane = null;
 	private JScrollPane jScrollPane1 = null;
+	
+	// ZAP: Added logger
+    private static Log log = LogFactory.getLog(AbstractParamDialog.class);
+
+	
 	public AbstractParamDialog() {
 	    super();
 	    initialize();
@@ -413,7 +420,8 @@ public class AbstractParamDialog extends AbstractDialog {
 	    } else {
 	        // No need to create node.  This is the root panel.
 	    }
-        getPanelParam().add(panel, panel.getName());
+	    panel.setName(name);
+        getPanelParam().add(panel, name);
         tablePanel.put(name, panel);
 	    
 	}
@@ -422,7 +430,8 @@ public class AbstractParamDialog extends AbstractDialog {
 	    addParamPanel(parentParams, panel.getName(), panel);
 	}
 	
-	protected void showParamPanel(String name) {
+	// ZAP: Made public so that other classes can specify which panel is displayedf
+	public void showParamPanel(String name) {
 	    if (name == null || name.equals("")) return;
 	    
 	    // exit if panel name not found. 
@@ -431,7 +440,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	    
         getTxtHeadline().setText(name);
         CardLayout card = (CardLayout) getPanelParam().getLayout();
-        card.show(getPanelParam(), panel.getName());
+        card.show(getPanelParam(), name);
 	    
 	}
 
@@ -479,17 +488,36 @@ public class AbstractParamDialog extends AbstractDialog {
 	}
 	
 	public int showDialog(boolean showRoot) {
+		return showDialog(showRoot, null);
+	}
+	
+	// ZAP: Added option to specify panel - note this only supports one level at the moment
+	public int showDialog(boolean showRoot, String panel) {
         expandRoot();
         try {
             DefaultMutableTreeNode firstNode = null;
-            if (showRoot) {
-                firstNode = (DefaultMutableTreeNode) getTreeModel().getRoot();
-            } else {
-                firstNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+            if (panel != null) {
+            	Enumeration<DefaultMutableTreeNode> children = ((DefaultMutableTreeNode) getTreeModel().getRoot()).children();
+            	while (children.hasMoreElements()) {
+            		DefaultMutableTreeNode child = children.nextElement();
+            		if (panel.equals(child.toString())) {
+            			firstNode = child;
+            			break;
+            		}
+            	}
             }
-            showParamPanel(firstNode.toString());
+            if (firstNode == null) {
+	            if (showRoot) {
+	                firstNode = (DefaultMutableTreeNode) getTreeModel().getRoot();
+	            } else {
+	                firstNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+	            }
+            }
+        	showParamPanel(firstNode.toString());
             getTreeParam().setSelectionPath(new TreePath(firstNode.getPath()));
         } catch (Exception e) {
+        	// ZAP: log errors
+        	log.error(e.getMessage(), e);
         }
         
         this.setVisible(true);
@@ -525,4 +553,4 @@ public class AbstractParamDialog extends AbstractDialog {
 		}
 		return jScrollPane1;
 	}
-        }  //  @jve:decl-index=0:visual-constraint="73,11"
+}  //  @jve:decl-index=0:visual-constraint="73,11"
