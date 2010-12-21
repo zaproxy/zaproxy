@@ -289,6 +289,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	            try {
 	                    historyRef = new HistoryReference(historyId);
+	                    historyRef.loadAlerts();
 	                    historyList.addElement(historyRef);
 	            } catch (Exception e) {
 	            	e.printStackTrace();
@@ -309,6 +310,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	            try {
                     historyRef = new HistoryReference(historyId);
+                    historyRef.loadAlerts();
                     if (historyFilter.matches(historyRef)) {
                     	historyList.addElement(historyRef);
                     }
@@ -720,7 +722,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
     	dialogAlertAdd.setPlugin(this);
     	dialogAlertAdd.setVisible(true);
-    	// TODO
     	dialogAlertAdd.setHistoryRef(ref);
     }
 

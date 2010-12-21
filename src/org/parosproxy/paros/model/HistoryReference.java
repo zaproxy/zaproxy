@@ -92,12 +92,6 @@ public class HistoryReference {
 		}
 		
 		build(history.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
-
-		// ZAP: Support for loading the alerts from the db
-		List<RecordAlert> alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
-		for (RecordAlert alert: alerts) {
-			this.addAlert(new Alert(alert, this));
-		}
 	}
 	
 	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
@@ -269,6 +263,20 @@ public class HistoryReference {
            e.printStackTrace();
        }
        
+   }
+   
+   public void loadAlerts() {
+		// ZAP: Support for loading the alerts from the db
+		List<RecordAlert> alerts;
+		try {
+			alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
+			for (RecordAlert alert: alerts) {
+				this.addAlert(new Alert(alert, this));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
    }
    
    public synchronized void addAlert(Alert alert) {

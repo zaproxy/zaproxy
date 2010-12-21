@@ -177,6 +177,8 @@ public class Session extends FileXML {
 			try {
 				historyRef = new HistoryReference(historyId);
 				getSiteTree().addPath(historyRef);
+				// ZAP: Load alerts from db
+				historyRef.loadAlerts();
 
 				if (i % 100 == 99) Thread.yield();
 			} catch (Exception e) {

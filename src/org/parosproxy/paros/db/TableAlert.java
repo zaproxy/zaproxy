@@ -251,5 +251,20 @@ public class TableAlert extends AbstractTable {
     	
     	return result;
 	}
+
+	// ZAP: Added getAlertList
+	public Vector<Integer> getAlertList() throws SQLException {
+	    PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM ALERT");
+        
+	    Vector<Integer> v = new Vector<Integer>();
+		psReadScan.executeQuery();
+		ResultSet rs = psReadScan.getResultSet();
+		while (rs.next()) {
+			v.add(new Integer(rs.getInt(ALERTID)));
+		}
+		rs.close();
+		psReadScan.close();
+		return v;
+	}
 	
 }

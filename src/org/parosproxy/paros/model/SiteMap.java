@@ -196,7 +196,8 @@ public class SiteMap extends DefaultTreeModel {
                 if (folder != null && !folder.equals("")) {
                     if (tokenizer.countTokens() == 0) {
                         // leaf - path name
-                        findAndAddLeaf(parent, folder, ref, msg);
+                        SiteNode sn = findAndAddLeaf(parent, folder, ref, msg);
+                        ref.setSiteNode(sn);
                     } else {
                         parent = findAndAddChild(parent, folder, ref, msg);
                     }
