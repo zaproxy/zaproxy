@@ -26,6 +26,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -52,6 +53,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	private JTextField editDisplayName = null;
 	private JTextField editFullCommand = null;
 	private JTextField editParameters = null;
+	private JCheckBox editOutput = null;
 	private JButton chooseApp = null;
 	private JButton newButton = null;
 	private JButton saveButton = null;
@@ -202,6 +204,8 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 			});
 
 	        editParameters = new JTextField();
+	        editOutput = new JCheckBox();
+	        
 	    	newButton = new JButton(Constant.messages.getString("invoke.options.button.new"));
 	    	saveButton = new JButton(Constant.messages.getString("invoke.options.button.save"));
 	    	saveButton.setEnabled(false);
@@ -273,6 +277,10 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        		getGridBackConstrants(rowId, 0, 0, false));
 	        editPane.add(editParameters, getGridBackConstrants(rowId++, 1, 1, true));
 	        
+	        editPane.add(new JLabel(Constant.messages.getString("invoke.options.label.output")), 
+	        		getGridBackConstrants(rowId, 0, 0, false));
+	        editPane.add(editOutput, getGridBackConstrants(rowId++, 1, 1, true));
+	        
 	        
 	        JPanel buttons = new JPanel();
 	        buttons.add(newButton);
@@ -330,6 +338,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        				editDisplayName.setText(app.getDisplayName());
 	        				editFullCommand.setText(app.getFullCommand());
 	        				editParameters.setText(app.getParameters());
+	        				editOutput.setSelected(app.isCaptureOutput());
 	        				saveButton.setEnabled(true);
 	        				deleteButton.setEnabled(true);
 	        			}
@@ -344,6 +353,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		editDisplayName.setText("");
 		editFullCommand.setText("");
 		editParameters.setText("");
+		editOutput.setSelected(true);
 		tableAuth.clearSelection();
 	}
 	
@@ -360,12 +370,14 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		app.setDisplayName(editDisplayName.getText());
 		app.setFullCommand(editFullCommand.getText());
 		app.setParameters(editParameters.getText());
+		app.setCaptureOutput(editOutput.isSelected());
 
 		if (tableAuth.getSelectedRow() > -1) {
 			((OptionsInvokeTableModel)tableAuth.getModel()).replaceInvokableApp(tableAuth.getSelectedRow(), app);
 		} else {
 			((OptionsInvokeTableModel)tableAuth.getModel()).addInvokableApp(app);
 		}
+		clearEditForm();
 	}
 	
 	/**

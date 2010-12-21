@@ -30,6 +30,7 @@ public class InvokeParam extends AbstractParam {
     private static final String INVOKE_NAME = "name";
     private static final String INVOKE_COMMAND = "command";
     private static final String INVOKE_PARAMS = "parameters";
+    private static final String INVOKE_OUTPUT = "output";
 
 	private List<InvokableApp> listInvoke = new ArrayList<InvokableApp>();
 	
@@ -54,7 +55,8 @@ public class InvokeParam extends AbstractParam {
             InvokableApp auth = new InvokableApp(
                     getConfig().getString(getInvoke(i, INVOKE_NAME)),
                     getConfig().getString(getInvoke(i, INVOKE_COMMAND)),
-                    getConfig().getString(getInvoke(i, INVOKE_PARAMS))
+                    getConfig().getString(getInvoke(i, INVOKE_PARAMS)),
+                    getConfig().getBoolean(getInvoke(i, INVOKE_OUTPUT), true)
                     );
             listInvoke.add(auth);
         }
@@ -73,7 +75,8 @@ public class InvokeParam extends AbstractParam {
             // clearProperty doesn't work.  So set all host name to blank as a workaround.
             getConfig().clearProperty(getInvoke(i, INVOKE_NAME));            
             getConfig().clearProperty(getInvoke(i, INVOKE_COMMAND));            
-            getConfig().clearProperty(getInvoke(i, INVOKE_PARAMS));            
+            getConfig().clearProperty(getInvoke(i, INVOKE_PARAMS));
+            getConfig().clearProperty(getInvoke(i, INVOKE_OUTPUT));
             getConfig().clearProperty(INVOKE + ".A"+i);
         }
         for (int i=0; i<listAuth.size(); i++) {
@@ -81,6 +84,7 @@ public class InvokeParam extends AbstractParam {
             getConfig().setProperty(getInvoke(i, INVOKE_NAME), app.getDisplayName());
             getConfig().setProperty(getInvoke(i, INVOKE_COMMAND), app.getFullCommand());
             getConfig().setProperty(getInvoke(i, INVOKE_PARAMS), app.getParameters());
+            getConfig().setProperty(getInvoke(i, INVOKE_OUTPUT), app.isCaptureOutput());
         }
         
     }

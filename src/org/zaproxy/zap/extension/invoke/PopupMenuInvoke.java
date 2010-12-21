@@ -20,9 +20,6 @@
 package org.zaproxy.zap.extension.invoke;
 
 import java.awt.Component;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JList;
 import javax.swing.JTree;
@@ -41,6 +38,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
     private Component invoker = null;
     private String command = null;
     private String parameters = null;
+    private boolean captureOutput = true;
 
     private Logger logger = Logger.getLogger(PopupMenuInvoke.class);
 
@@ -78,12 +76,8 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		String url = "";	// Full URL
-        		String host = "";	// Just the server name, e.g. localhost
-        		String port = "";	// the port
-        		String site = "";	// e.g. http://localhost:8080/
-        		
         		HistoryReference hr = null;
+				URI uri = null;
         		
         		if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
         			JTree treeSite = (JTree) invoker;
@@ -99,51 +93,26 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
         		}
         		if (hr != null) {
         			try {
-        				URI uri = hr.getHttpMessage().getRequestHeader().getURI();
-        				url = uri.toString();
-        				host = uri.getHost();
-        				site = uri.getScheme() + "://" + uri.getHost();
-        				if (uri.getPort() > 0) {
-        					site = site + ":" + uri.getPort() + "/";
-        					port = "" + uri.getPort();
-        				} else {
-        					if (uri.getScheme().equalsIgnoreCase("http")) {
-        						port = "80";
-        					} else if (uri.getScheme().equalsIgnoreCase("https")) {
-        						port = "443";
-        					}
-        					site = site + "/";
-        				}
-						
+        				uri = hr.getHttpMessage().getRequestHeader().getURI();
 					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
 					}
         		}
-        		
-        		if (command != null) {
-        			List<String> cmd = new ArrayList<String>();
-        			cmd.add(command);
-        			if (parameters != null) {
-            			// Replace all of the tags 
-        				String params = parameters.replace("%url%", url)
-    											.replace("%host%", host)
-    											.replace("%port%", port)
-    											.replace("%site%", site);
-        				for (String p : params.split(" ")) {
-        					cmd.add(p);
-        				}
-        			}
-        			try {
-        				logger.debug("Invoking: " + cmd.toString());
-						new ProcessBuilder(cmd).start();
-					} catch (IOException e1) {
-						View.getSingleton().showWarningDialog(e1.getMessage());
-						logger.error(e1.getMessage(), e1);
-					}
+
+        		try {
+	        		if (command != null) {
+	        			InvokeAppWorker iaw = new InvokeAppWorker(command, parameters, captureOutput, uri);
+	        			iaw.execute();
+	        		}
+        		} catch (Exception e1) {
+        			View.getSingleton().showWarningDialog(e1.getMessage());
+        			logger.error(e1.getMessage(), e1);
+
         		}
         	}
         });
 	}
+	
 	
     public boolean isEnableForComponent(Component invoker) {
         this.invoker = invoker;
@@ -188,6 +157,14 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
 	public void setParameters(String parameters) {
 		this.parameters = parameters;
+	}
+
+	public boolean isCaptureOutput() {
+		return captureOutput;
+	}
+
+	public void setCaptureOutput(boolean captureOutput) {
+		this.captureOutput = captureOutput;
 	}
     	
 }

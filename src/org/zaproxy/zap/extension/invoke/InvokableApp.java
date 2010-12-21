@@ -24,12 +24,14 @@ public class InvokableApp {
 	private String displayName = "";
 	private String fullCommand = "";
 	private String parameters = "";
+	private boolean captureOutput = true;
 	
-	public InvokableApp(String displayName, String fullCommand, String parameters) {
+	public InvokableApp(String displayName, String fullCommand, String parameters, boolean captureOutput) {
 		super();
 		this.displayName = displayName;
 		this.fullCommand = fullCommand;
 		this.parameters = parameters;
+		this.captureOutput = captureOutput;
 	}
 	
 	public InvokableApp() {
@@ -54,6 +56,14 @@ public class InvokableApp {
 
 	public void setParameters(String parameters) {
 		this.parameters = parameters;
+	}
+
+	public boolean isCaptureOutput() {
+		return captureOutput;
+	}
+
+	public void setCaptureOutput(boolean captureOutput) {
+		this.captureOutput = captureOutput;
 	}
 	
 }
