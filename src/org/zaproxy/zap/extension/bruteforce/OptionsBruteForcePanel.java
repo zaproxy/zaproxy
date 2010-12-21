@@ -112,6 +112,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		}
 		return panelPortScan;
 	}
+	
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    BruteForceParam param = (BruteForceParam) options.getParamSet(BruteForceParam.class);

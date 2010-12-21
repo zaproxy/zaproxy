@@ -620,6 +620,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			if (site.indexOf("//") >= 0) {
 				site = site.substring(site.indexOf("//") + 2);
 			}
+			if (site.indexOf(" (") >= 0) {
+				// Alert counts
+				site = site.substring(0, site.indexOf(" ("));
+			}
 			return site;
 		}
 		return null;

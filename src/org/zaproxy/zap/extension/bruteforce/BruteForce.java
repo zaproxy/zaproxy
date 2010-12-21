@@ -74,7 +74,11 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		String hostName = site;
 		if (hostName.indexOf(":") > 0) {
 			hostName = site.substring(0, hostName.indexOf(":"));
-			port = Integer.parseInt(site.substring(site.indexOf(":")+1));
+			String portStr = site.substring(site.indexOf(":")+1);
+			if (portStr.indexOf(" ") > 0) {
+				portStr = portStr.substring(0, portStr.indexOf(" "));
+			}
+			port = Integer.parseInt(portStr);
 		}
 		ConnectionParam conParam = Model.getSingleton().getOptionsParam().getConnectionParam();
 		

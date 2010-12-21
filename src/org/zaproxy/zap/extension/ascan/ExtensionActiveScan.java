@@ -1,22 +1,21 @@
 /*
- *
- * Paros and its related class files.
+ * Zed Attack Proxy (ZAP) and its related class files.
  * 
- * Paros is an HTTP/HTTPS proxy for assessing web application security.
- * Copyright (C) 2003-2004 Chinotec Technologies Company
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Clarified Artistic License
- * as published by the Free Software Foundation.
+ * Copyright 2010 psiinon@gmail.com
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * Clarified Artistic License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
  * 
- * You should have received a copy of the Clarified Artistic License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
  */
 package org.zaproxy.zap.extension.ascan;
 
@@ -46,6 +45,7 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
@@ -74,7 +74,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
 	private PopupMenuResend popupMenuResend = null;
-	// ZAP: Added popup menu alert edit
 	private PopupMenuAlertEdit popupMenuAlertEdit = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
@@ -129,7 +128,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             // TODO this doesnt work properly
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
-        	// ZAP: Added popup menu alert edit
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
@@ -262,6 +260,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		
 		return alertPanel;
 	}
+
+	@Override
+    public void initView(ViewDelegate view) {
+    	super.initView(view);
+    	getAlertPanel().setView(view);
+    }
+
 	
 	// ZAP: Changed return type for getTreeModel
 	private AlertTreeModel getTreeModel() {
@@ -275,7 +280,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
         HistoryReference ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
-        // ZAP: cope with recordScan being null
         int scanId = 0;
         if (recordScan != null) {
         	scanId = recordScan.getScanId();
@@ -290,7 +294,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         
 	}
 
-    // ZAP: Added updateAlertInDB
 	public void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
@@ -300,12 +303,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    		alert.getReference(), alert.getSourceHistoryId());
 	}
 	
-	// ZAP: Added displayAlert 
 	public void displayAlert (Alert alert) {
 		this.alertPanel.getAlertViewPanel().displayAlert(alert);
 	}
 	
-	// ZAP: Added updateAlertInTree
 	public void updateAlertInTree(Alert originalAlert, Alert alert) {
 		this.getTreeModel().updatePath(originalAlert, alert);
 	}
@@ -361,17 +362,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void refreshAlert(Session session) throws SQLException {
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
-	    Vector v = tableAlert.getAlertListBySession(session.getSessionId());
+	    Vector<Integer> v = tableAlert.getAlertList();
 	    
 	    for (int i=0; i<v.size(); i++) {
-	        int alertId = ((Integer) v.get(i)).intValue();
+	        int alertId = v.get(i).intValue();
 	        RecordAlert recAlert = tableAlert.read(alertId);
 	        Alert alert = new Alert(recAlert);
 	        addAlertToDisplay(alert);
+	        HistoryReference hr = alert.getHistoryRef();
+	        if (hr != null) {
+	        	hr.addAlert(alert);
+	        }
 	    }
 	}
 
@@ -401,7 +405,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return popupMenuResend;
 	}
 	
-	// ZAP: Added popup menu alert edit
 	private PopupMenuAlertEdit getPopupMenuAlertEdit() {
 		if (popupMenuAlertEdit == null) {
 			popupMenuAlertEdit = new PopupMenuAlertEdit();
