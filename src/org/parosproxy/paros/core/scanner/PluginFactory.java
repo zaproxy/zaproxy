@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
+import org.parosproxy.paros.core.scanner.plugin.TestObsoleteFile;
+import org.parosproxy.paros.core.scanner.plugin.TestObsoleteFileExtended;
 
 
 /**
@@ -115,8 +117,10 @@ public class PluginFactory {
                 if (!plugin.isVisible()) {
                     continue;
                 }
-                if (plugin instanceof AbstractDefaultFilePlugin) {
-                	// ZAP: ignore all default file plugins
+                if (plugin instanceof AbstractDefaultFilePlugin || 
+                		plugin instanceof TestObsoleteFile ||
+                		plugin instanceof TestObsoleteFileExtended  ) {
+                	// ZAP: ignore all default file and obsolete file plugins
                 	continue;
                 }
 //                plugin.setEnabled(true);
