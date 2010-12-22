@@ -361,6 +361,7 @@ public class TableHistory extends AbstractTable {
 	    psContainsURI.executeQuery();
 		ResultSet rs = psContainsURI.getResultSet();
 	    if (rs.next()) {
+		    rs.close();		// ZAP: Memory leak fix
 	        return true;
 	    }
 	    rs.close();
