@@ -114,9 +114,10 @@ public class TableAlert extends AbstractTable {
     	
 	public synchronized RecordAlert read(int alertId) throws SQLException {
 		psRead.setInt(1, alertId);
-		psRead.execute();
-		ResultSet rs = psRead.getResultSet();
-		return build(rs);
+		ResultSet rs = psRead.executeQuery();
+		RecordAlert ra = build(rs);
+		rs.close();
+		return ra;
 	}
 	
 
@@ -140,10 +141,10 @@ public class TableAlert extends AbstractTable {
 		psInsert1.setInt(13, sourceHistoryId);
 		psInsert1.executeUpdate();
 		
-		psInsert2.executeQuery();
-		ResultSet rs = psInsert2.getResultSet();
+		ResultSet rs = psInsert2.executeQuery();
 		rs.next();
 		int id = rs.getInt(1);
+		rs.close();
 		return read(id);
 	}
 	
@@ -167,6 +168,7 @@ public class TableAlert extends AbstractTable {
 					rs.getInt(SOURCEHISTORYID)
 			);
 		}
+		rs.close();
 		return alert;
 	
 	}
@@ -176,8 +178,7 @@ public class TableAlert extends AbstractTable {
         
 	    Vector v = new Vector();
 		psReadScan.setInt(1, scanId);
-		psReadScan.executeQuery();
-		ResultSet rs = psReadScan.getResultSet();
+		ResultSet rs = psReadScan.executeQuery();
 		while (rs.next()) {
 			v.add(new Integer(rs.getInt(ALERTID)));
 		}
@@ -192,8 +193,7 @@ public class TableAlert extends AbstractTable {
         
 	    Vector v = new Vector();
 		psReadSession.setLong(1, sessionId);
-		psReadSession.executeQuery();
-		ResultSet rs = psReadSession.getResultSet();
+		ResultSet rs = psReadSession.executeQuery();
 		while (rs.next()) {
 		    int alertId = rs.getInt(ALERTID);
 			v.add(new Integer(alertId));
@@ -206,7 +206,8 @@ public class TableAlert extends AbstractTable {
 	
 	public void deleteAlert(int alertId) throws SQLException {
 	    psDeleteAlert.setInt(1, alertId);
-	    psDeleteAlert.executeQuery();
+	    ResultSet rs = psDeleteAlert.executeQuery();
+	    rs.close();
 	}
 	
 	public synchronized void update(int alertId, String alert, 
@@ -241,13 +242,13 @@ public class TableAlert extends AbstractTable {
 
 		List<RecordAlert> result = new ArrayList<RecordAlert>();
     	psGetAlertsForHistoryId.setLong(1, historyId);
-    	psGetAlertsForHistoryId.execute();
-    	ResultSet rs = psGetAlertsForHistoryId.getResultSet();
+    	ResultSet rs = psGetAlertsForHistoryId.executeQuery();
 		RecordAlert ra = build(rs);
 		while (ra != null) {
 			result.add(ra);
 			ra = build(rs);
 		}
+		rs.close();
     	
     	return result;
 	}
@@ -257,8 +258,7 @@ public class TableAlert extends AbstractTable {
 	    PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM ALERT");
         
 	    Vector<Integer> v = new Vector<Integer>();
-		psReadScan.executeQuery();
-		ResultSet rs = psReadScan.getResultSet();
+		ResultSet rs = psReadScan.executeQuery();
 		while (rs.next()) {
 			v.add(new Integer(rs.getInt(ALERTID)));
 		}

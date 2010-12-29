@@ -54,8 +54,7 @@ public class TableScan extends AbstractTable {
     public synchronized RecordScan getLatestScan() throws SQLException {
         PreparedStatement psLatest	= getConnection().prepareStatement("SELECT * FROM SCAN WHERE SCANID = (SELECT MAX(B.SCANID) FROM SCAN AS B)");
         
-        psLatest.execute();		
-		ResultSet rs = psLatest.getResultSet();
+		ResultSet rs = psLatest.executeQuery();
 		RecordScan result = build(rs);
 		rs.close();
 		psLatest.close();
@@ -65,9 +64,8 @@ public class TableScan extends AbstractTable {
     
 	public synchronized RecordScan read(int scanId) throws SQLException {
 		psRead.setInt(1, scanId);
-		psRead.execute();
 		
-		ResultSet rs = psRead.getResultSet();
+		ResultSet rs = psRead.executeQuery();
 		RecordScan result = build(rs);
 		rs.close();
 		return result;
@@ -78,8 +76,7 @@ public class TableScan extends AbstractTable {
         psInsert1.setString(2, scanName);
         psInsert1.executeUpdate();
         
-        psInsert2.executeQuery();
-		ResultSet rs = psInsert2.getResultSet();
+		ResultSet rs = psInsert2.executeQuery();
 		rs.next();
 		int id = rs.getInt(1);
 		rs.close();

@@ -134,7 +134,6 @@ public class TableHistory extends AbstractTable {
     }
     
     
-// TODO Support multiple tags    	
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, SQLException {
 	    psRead.setInt(1, historyId);
 		psRead.execute();
@@ -203,8 +202,7 @@ public class TableHistory extends AbstractTable {
 		ResultSet rs = stmt.getResultSet();
 		*/
 		
-		psWrite2.executeQuery();
-		ResultSet rs = psWrite2.getResultSet();
+		ResultSet rs = psWrite2.executeQuery();
 		rs.next();
 		int id = rs.getInt(1);
 		rs.close();
@@ -229,6 +227,7 @@ public class TableHistory extends AbstractTable {
 			);
 			
 		}
+		rs.close();
 		return history;
 	
 	}
@@ -239,8 +238,7 @@ public class TableHistory extends AbstractTable {
 	    Vector v = new Vector();
 	    psReadSession.setLong(1, sessionId);
 	    psReadSession.setInt(2, histType);
-	    psReadSession.executeQuery();
-	    ResultSet rs = psReadSession.getResultSet();
+	    ResultSet rs = psReadSession.executeQuery();
 	    
 	    while (rs.next()) {
 	        int last = rs.getInt(HISTORYID);
@@ -261,8 +259,7 @@ public class TableHistory extends AbstractTable {
 		Vector v = new Vector();
 		psReadSearch.setLong(1, sessionId);
 		psReadSearch.setInt(2, histType);
-		psReadSearch.executeQuery();
-		ResultSet rs = psReadSearch.getResultSet();
+		ResultSet rs = psReadSearch.executeQuery();
 		while (rs.next()) {
 		    if (isRequest) {
 		        matcher = pattern.matcher(rs.getString(REQHEADER));
@@ -361,7 +358,7 @@ public class TableHistory extends AbstractTable {
 	    psContainsURI.executeQuery();
 		ResultSet rs = psContainsURI.getResultSet();
 	    if (rs.next()) {
-		    rs.close();		// ZAP: Memory leak fix
+	    	rs.close();		// ZAP: Fix leak
 	        return true;
 	    }
 	    rs.close();
@@ -369,7 +366,6 @@ public class TableHistory extends AbstractTable {
 	    
 	}
     
-// TODO Support multiple tags    	
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg) throws SQLException , HttpMalformedHeaderException {
 
         //  get the cache from provided reference.

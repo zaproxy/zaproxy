@@ -165,6 +165,7 @@ public class DatabaseServer {
         }
         
         psCompact.execute();
+        psCompact.close();
         mConn.close();
         mConn = null;
     }
