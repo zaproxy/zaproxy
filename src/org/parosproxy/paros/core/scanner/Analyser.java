@@ -65,6 +65,7 @@ public class Analyser {
     
     public Analyser(HttpSender httpSender, HostProcess parent) {
         this.httpSender = httpSender;
+        this.parent = parent;
     }
 	
     public boolean isStop() {
@@ -394,7 +395,9 @@ public class Analyser {
 	private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
 	    httpSender.sendAndReceive(msg, true);
 	    // ZAP: Notify parent
-	    parent.notifyNewMessage(msg);
+	    if (parent != null) {
+	    	parent.notifyNewMessage(msg);
+	    }
 	}
 	
 

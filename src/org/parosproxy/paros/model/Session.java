@@ -25,11 +25,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.swing.JTree;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 
 
@@ -208,6 +211,9 @@ public class Session extends FileXML {
 			
 		}
 		
+		// ZAP: expand root
+	    View.getSingleton().getSiteTreePanel().expandRoot();
+
 		System.gc();
 		
 	}

@@ -134,6 +134,62 @@ public class SiteMap extends DefaultTreeModel {
         return nodeMsg;
     }
     
+    public synchronized SiteNode findNode(HttpMessage msg) {
+        SiteNode resultNode = null;
+        URI uri = msg.getRequestHeader().getURI();
+        
+        String scheme = null;
+        String host = null;
+        String path = null;
+        int port = 80;
+        SiteNode parent = (SiteNode) getRoot();
+        StringTokenizer tokenizer = null;
+        String folder = "";
+        
+        try {
+            
+            scheme = uri.getScheme();
+            host = scheme + "://" + uri.getHost();
+            port = uri.getPort();
+            if (port != -1) {
+                host = host + ":" + port;
+            }
+            
+            // no host yet
+            parent = findChild(parent, host);
+            if (parent == null) {
+                return null;
+        	}
+            
+            path = uri.getPath();
+            if (path == null) {
+                path = "";
+            }
+                        
+            tokenizer = new StringTokenizer(path, "/");
+            while (tokenizer.hasMoreTokens()) {
+                
+                folder = tokenizer.nextToken();
+                if (folder != null && !folder.equals("")) {
+                    if (tokenizer.countTokens() == 0) {
+                        String leafName = getLeafName(folder, msg);
+                        resultNode = findChild(parent, leafName);
+                    } else {
+                        parent = findChild(parent, folder);
+                        if (parent == null)
+                            return null;
+                    }
+                    
+                }
+                
+            }
+        } catch (URIException e) {
+            log.error(e.getMessage(), e);
+        }
+        
+        return resultNode;
+    }
+    
     /**
      * Add the HistoryReference into the SiteMap.
      * This method will rely on reading message from the History table.

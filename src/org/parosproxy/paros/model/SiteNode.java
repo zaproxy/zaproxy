@@ -91,18 +91,25 @@ public class SiteNode extends DefaultMutableTreeNode {
         return pastHistoryList;
     }
     
-    public void addAlert(Alert alert) {
+    public boolean hasAlert(Alert alert) {
 		for (Alert a : alerts) {
 			   if (a.equals(alert)) {
 				   // We've already recorded it
-				   return;
+				   return true;
 			   }
 		}
- 	   this.alerts.add(alert);
- 	   if (this.getParent() != null && 
+    	return false;
+    }
+    
+    public void addAlert(Alert alert) {
+    	if (this.hasAlert(alert)) {
+    		return;
+    	}
+    	this.alerts.add(alert);
+    	if (this.getParent() != null && 
  			   (! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
- 		   ((SiteNode)this.getParent()).addAlert(alert);
- 	   }
+ 			((SiteNode)this.getParent()).addAlert(alert);
+    	}
     }
     
     public void updateAlert(Alert alert) {

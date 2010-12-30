@@ -102,6 +102,7 @@ public class ReportLastScan {
                 lastAlert = alert;
 
             }
+            rs.close();
 
             if (lastAlert != null) {
                 sb.append(lastAlert.toPluginXML(sbURLs.toString()));
