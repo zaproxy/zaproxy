@@ -151,7 +151,6 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 
 			gridBagConstraints30.weightx = 1.0D;
 			gridBagConstraints30.weighty = 1.0D;
-			gridBagConstraints30.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints30.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints30.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints30.gridy = 3;

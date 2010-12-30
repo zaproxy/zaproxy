@@ -50,6 +50,7 @@ import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -119,9 +120,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
-	        //extensionHook.getHookMenu().addNewMenu(getMenuScanner());
-            //extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemScanAll());
-            //extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemScan());
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResend());
@@ -222,6 +220,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         try {
             writeAlertToDB(alert);
             addAlertToDisplay(alert);
+            
+    		SiteMap siteTree = this.getModel().getSession().getSiteTree();
+        	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
+
         } catch (Exception e) {
         	// ZAP: Print stack trace to Output tab
         	getView().getOutputPanel().append(e);
@@ -292,6 +294,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         
         alert.setAlertId(recordAlert.getAlertId());
         
+		SiteMap siteTree = this.getModel().getSession().getSiteTree();
+		SiteNode node = siteTree.findNode(alert.getMessage());
+		if (node == null || ! node.hasAlert(alert)) {
+			// Add new alerts to the site tree
+			siteTree.addPath(ref);
+	        ref.addAlert(alert);
+		}
+		
 	}
 
 	public void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
@@ -363,6 +373,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	private void refreshAlert(Session session) throws SQLException {
+		SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
 	    Vector<Integer> v = tableAlert.getAlertList();
@@ -374,9 +385,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	        addAlertToDisplay(alert);
 	        HistoryReference hr = alert.getHistoryRef();
 	        if (hr != null) {
+	        	// Make sure its in the Sites tree
+				siteTree.addPath(hr);
+
 	        	hr.addAlert(alert);
+	        	
 	        }
 	    }
+    	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
 	}
 
 	/**

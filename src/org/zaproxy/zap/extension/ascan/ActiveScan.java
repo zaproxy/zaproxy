@@ -20,7 +20,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private ActiveScanPanel activeScanPanel;
 	private int progress = 0;
 	private boolean isAlive = false;
-	private DefaultListModel list;
+	private DefaultListModel list = new DefaultListModel();
 	private SiteNode startNode = null;
 	
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
@@ -30,7 +30,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		this.addScannerListener(activeScanPanel);
 		// TODO doesnt this make it circular??
 		this.addScannerListener(this);
-		this.list = new DefaultListModel();
 	
 	}
 
@@ -86,6 +85,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 				}
 			}
 		}
+		list.clear();
+		this.progress = 0;
 		if (startNode != null) {
 			this.start(startNode);
 		} else {
@@ -113,6 +114,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void hostComplete(String hostAndPort) {
 		this.activeScanPanel.scanFinshed(hostAndPort);
+		this.removeScannerListener(activeScanPanel);
 		isAlive = false;
 	}
 
@@ -129,6 +131,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void scannerComplete() {
 	}
 
+	@Override
 	public DefaultListModel getList() {
 		return list;
 	}
@@ -149,5 +152,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
+	}
+
+	@Override
+	public void reset() {
+		this.list = new DefaultListModel();
 	}
 }

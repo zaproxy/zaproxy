@@ -36,7 +36,7 @@ import org.zaproxy.zap.utils.SortedListModel;
 public class PortScan extends ScanThread implements ScanListenner {
 
 	private String site;
-	private SortedListModel list;
+	private SortedListModel list = new SortedListModel();
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
 	private boolean unpauseScan = false;
@@ -58,7 +58,6 @@ public class PortScan extends ScanThread implements ScanListenner {
 		this.maxPort = portScanParam.getMaxPort();
 		this.threads = portScanParam.getThreadPerScan();
 
-		this.list = new SortedListModel();
 		log.debug("PortScan : " + site + " threads: " + threads);
 	}
 	
@@ -94,6 +93,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 		// If there are multiple sub threads then they will start at a different point
 		Date start = new Date();
 		log.debug("Starting scan on " + site + " at " + start);
+		list.clear();
 
 		stopScan = false;
 		int startPort = threadIndex;
@@ -198,6 +198,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 		return this.maxPort;
 	}
 
+	@Override
 	public DefaultListModel getList() {
 		return list;
 	}
@@ -234,6 +235,11 @@ public class PortScan extends ScanThread implements ScanListenner {
 	@Override
 	public int getMaximum() {
 		return maxPort;
+	}
+
+	@Override
+	public void reset() {
+		this.list = new SortedListModel();
 	}
 
 }

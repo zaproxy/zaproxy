@@ -134,7 +134,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 
 			gridBagConstraints15.weightx = 1.0D;
 			gridBagConstraints15.weighty = 1.0D;
-			gridBagConstraints15.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints15.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints15.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints15.gridwidth = 3;
@@ -186,10 +185,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 								historyRef.updateAlert(alert);
 			                    extension.getHistoryList().notifyItemChanged(historyRef);
 							}
-
-		                    // TODO select the right node in the alert tree?
-		                    
-							// TODO Update site tree, when we support 'false positive'
 
 						} else {
 							historyRef.addAlert(alert);

@@ -100,6 +100,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	@Override
 	public void run() {
         try {
+        	list.clear();
+        	
         	String protocol = "http";
         	if (port == 443 || port == 8443) {
         		protocol = "https";
@@ -190,6 +192,13 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	public DefaultListModel getList() {
 		return list;
 	}
+	
+	public void clearList() {
+		if (this.list != null) {
+			this.list.clear();
+		}
+	}
+		
 
 	@Override
 	public void scanFinshed(String host) {

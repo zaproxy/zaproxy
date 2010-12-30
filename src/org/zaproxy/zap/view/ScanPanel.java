@@ -441,20 +441,23 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 	}
 	
+	protected String cleanSiteName(String site) {
+		if (site.indexOf("//") >= 0) {
+			site = site.substring(site.indexOf("//") + 2);
+		}
+		if (site.indexOf(" (") >= 0) {
+			// Alert counts
+			site = site.substring(0, site.indexOf(" ("));
+		}
+		return site;
+	}
+	
 	protected String getSiteName(SiteNode node) {
 		if (node != null) {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			String site = node.toString();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			if (site.indexOf(" (") >= 0) {
-				// Alert counts
-				site = site.substring(0, site.indexOf(" ("));
-			}
-			return site;
+			return this.cleanSiteName(node.toString());
 		}
 		return null;
 	}
@@ -478,6 +481,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		GenericScanner scanThread = scanMap.get(currentSite);
 		if (scanThread.isStopped()) {
 			// Start a new thread
+			scanThread.reset();
 			scanThread = this.newScanThread(currentSite, scanParam);
 			scanMap.put(currentSite, scanThread);
 		}
@@ -548,8 +552,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (host.equals(currentSite)) {
 			getProgressBar().setValue(progress);
 			getProgressBar().setMaximum(maximum);
-		}
-		
+		}		
 	}
 
 	public void reset() {
@@ -560,6 +563,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		while (iter.hasNext()) {
 			Entry<String, GenericScanner> entry = iter.next();
 			entry.getValue().stopScan();
+			entry.getValue().reset();
 		}
 		// Wait until all threads have stopped
 		while (activeScans.size() > 0) {

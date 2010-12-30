@@ -579,6 +579,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				File f = new File(fileName);
 				if (! f.exists()) {
 					log.error("No such file: " + f.getAbsolutePath());
+					return;
 				} else {
 					bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam, null);
 					bruteForceMap.put(site, bruteForce);
@@ -753,6 +754,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		while (iter.hasNext()) {
 			Entry<String, BruteForce> entry = iter.next();
 			entry.getValue().stopScan();
+			entry.getValue().clearList();
 		}
 		// Wait until all threads have stopped
 		while (activeScans.size() > 0) {

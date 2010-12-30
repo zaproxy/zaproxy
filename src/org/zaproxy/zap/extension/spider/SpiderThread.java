@@ -74,6 +74,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		// Do the scan
 		Date start = new Date();
 		log.debug("Starting scan on " + site + " at " + start);
+		list.clear();
 		startSpider();
 	}
 
@@ -238,13 +239,11 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
 		HistoryReference historyRef = null;
         try {
-            historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+        	historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
         } catch (Exception e) {
         	log.warn(e.getMessage(), e);
         }
         siteTree.addPath(historyRef, msg);
-
-        
 	}
 
     public Spider getSpider() {
@@ -269,5 +268,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
         this.startNode = startNode;
     }
 
+	@Override
+	public void reset() {
+		this.list = new SortedListModel();
+	}
 
 }

@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.model;
 
+import javax.swing.ListModel;
+
 import org.parosproxy.paros.model.SiteNode;
 
 
@@ -47,5 +49,9 @@ public interface GenericScanner extends Runnable {
 	public SiteNode getStartNode();
 	
 	public void setStartNode(SiteNode startNode);
+	
+	public ListModel getList();
+
+	public void reset();
 
 }

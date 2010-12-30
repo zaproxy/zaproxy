@@ -127,7 +127,6 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 
 			gridBagConstraints15.weightx = 1.0D;
 			gridBagConstraints15.weighty = 1.0D;
-			gridBagConstraints15.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints15.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints15.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints15.gridwidth = 3;
