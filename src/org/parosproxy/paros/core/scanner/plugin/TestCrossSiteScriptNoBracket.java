@@ -135,7 +135,8 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
         StringBuffer sb = new StringBuffer();
         //result = msg.getResponseBody().toString();
         if (matchBodyPattern(msg, patternXSS3, sb)) {
-			bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param + "=" + XSS3, null, msg);
+        	// ZAP: Changed XSS level to HIGH
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS3, null, msg);
 			return;
 		}
 		

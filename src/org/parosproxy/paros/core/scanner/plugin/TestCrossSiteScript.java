@@ -200,11 +200,12 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
                 
                 if (result.charAt(pos-1) != '"' && result.charAt(pos+XSS[i].length()) != '"') {
                     // check if adjacent character is double quote.  If so, maybe OK
-                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param + "=" + XSS[i], null, msg);
+                    bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS[i], null, msg);
                     return;
                 }
             } else {
-		        bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, param + "=" + XSS[i], null, msg);
+            	// ZAP: Changed XSS level to HIGH
+		        bingo(Alert.RISK_HIGH, Alert.WARNING, null, param + "=" + XSS[i], null, msg);
                 return;
 		    }
 		}

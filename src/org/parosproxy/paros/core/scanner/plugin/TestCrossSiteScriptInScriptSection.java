@@ -134,7 +134,8 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 //        String result = msg.getResponseBody().toString();
 //        System.out.println(result);
         if (matchBodyPattern(msg, patternXSS4, sb)) {
-			bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param + "=" + XSS4, null, msg);
+        	// ZAP: Changed XSS level to HIGH
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS4, null, msg);
 			return;
 		}
 		
