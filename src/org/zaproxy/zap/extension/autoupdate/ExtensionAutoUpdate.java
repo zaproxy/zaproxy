@@ -45,8 +45,12 @@ import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 public class ExtensionAutoUpdate extends ExtensionAdaptor{
 
 	private JMenuItem menuItemCheckUpdate = null;
-    private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
-    private static final String GF_ZAP_LATEST_XML = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
+    //private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
+	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/EhdIA
+    private static final String GF_ZAP_LATEST_XML_SHORT = "http://goo.gl/EhdIA";
+    // The long URL is a failsafe ;)
+    private static final String GF_ZAP_LATEST_XML_FULL = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
+    
     private static final String ZAP_START_TAG = "&lt;ZAP&gt;";
     private static final String ZAP_END_TAG = "&lt;/ZAP&gt;";
 	private HttpSender httpSender = null;
@@ -183,15 +187,28 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
 	}
     
     private String getLatestVersionName() {
+        String newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_SHORT);
+        if (newVersionName.length() == 0) {
+        	// Shortened version failed, try going direct
+            newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_FULL);
+        }
+
+        httpSender.shutdown();
+        httpSender = null;
+        
+        return newVersionName;
+    }
+    
+    private String getLatestVersionNameFromUrl(String url) {
         String newVersionName = "";
         HttpMessage msg = null;
         String resBody = null;
         
         try {
-            msg = new HttpMessage(new URI(GF_ZAP_LATEST_XML, true));
+            msg = new HttpMessage(new URI(url, true));
             getHttpSender().sendAndReceive(msg,true);
             if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-            	logger.error("Failed to access " + GF_ZAP_LATEST_XML +
+            	logger.error("Failed to access " + url +
             			" response " + msg.getResponseHeader().getStatusCode());
                 throw new IOException();
             }
@@ -202,33 +219,15 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
             	startIndex += ZAP_START_TAG.length();
                 int endIndex = resBody.indexOf(ZAP_END_TAG, startIndex);
             	newVersionName = resBody.substring(startIndex, endIndex ); 
-            } else {
-            	// Just in case Google change the format try to access the old page directly
-                msg = new HttpMessage(new URI(GF_ZAP_LATEST_OLD, true));
-                getHttpSender().sendAndReceive(msg,true);
-                if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-                	logger.error("Failed to access " + GF_ZAP_LATEST_XML +
-                			" response " + msg.getResponseHeader().getStatusCode());
-                    throw new IOException();
-                }
-                resBody = msg.getResponseBody().toString();
-                if (resBody.startsWith(Constant.OLD_PROGRAM_NAME)) {
-                    newVersionName = resBody.substring(Constant.OLD_PROGRAM_NAME.length()).trim();
-	            } else {
-	            	logger.error("Unexpected contents from " + GF_ZAP_LATEST_XML +
-	            			" : " + resBody);
-	            }
             }
             
         } catch (Exception e) {
-        	logger.error("Failed to access " + GF_ZAP_LATEST_XML, e);
+        	logger.error("Failed to access " + url, e);
             newVersionName = "";
-        } finally {
-            httpSender.shutdown();
-            httpSender = null;
         }
         
         return newVersionName;
+    	
     }
     
     private HttpSender getHttpSender() {
