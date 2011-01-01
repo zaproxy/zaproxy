@@ -35,8 +35,11 @@ import javax.swing.JTabbedPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.model.HistoryList;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -61,6 +64,8 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	private Extension extension = null;
 	private HttpSender httpSender = null;
 	private boolean isSendEnabled = true;
+	// ZAP Add request to the history pane, c/o Andiparos
+	private HistoryList historyList = null;
 
 	private JPanel jPanel = null;
 	private JCheckBox chkFollowRedirect = null;
@@ -68,9 +73,9 @@ public class ManualRequestEditorDialog extends AbstractDialog {
    /**
     * @throws HeadlessException
     */
-   public ManualRequestEditorDialog() throws HeadlessException {
-       super();
-		initialize();
+	public ManualRequestEditorDialog() throws HeadlessException {
+	   super();
+	   initialize();
        
    }
 
@@ -105,6 +110,7 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	    this.setContentPane(getJPanel());
 	    //this.setVisible(true);
 	    
+	    this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
 	
 	/**
@@ -223,7 +229,7 @@ public class ManualRequestEditorDialog extends AbstractDialog {
                }
            } catch (Exception e) {
         	   // ZAP: Log exceptions
-        	   log.warn(e.getMessage(), e);
+        	   log.error(e.getMessage(), e);
            }
            getPanelTab().setSelectedIndex(0);
        }
@@ -304,9 +310,17 @@ public class ManualRequestEditorDialog extends AbstractDialog {
                     
                     EventQueue.invokeAndWait(new Runnable() {
                         public void run() {
-                        if (!msg.getResponseHeader().isEmpty()) {
-                            getResponsePanel().setMessage(msg, false);
-                        }
+	                        if (!msg.getResponseHeader().isEmpty()) {
+	                            getResponsePanel().setMessage(msg, false);
+	                            
+	                            final int finalType = HistoryReference.TYPE_MANUAL;
+	                            Thread t = new Thread(new Runnable() {
+	                            	public void run() {
+	                            		addHistory(msg, finalType);
+	                            	}
+	                            });
+	                            t.start();
+	                        }
                         getPanelTab().setSelectedIndex(1);
                         }
                     });
@@ -318,7 +332,7 @@ public class ManualRequestEditorDialog extends AbstractDialog {
                     getExtention().getView().showWarningDialog("IO error in sending request.");
                 } catch (Exception e) {
                 	// ZAP: Log exceptions
-                	log.warn(e.getMessage(), e);
+                	log.error(e.getMessage(), e);
                 } finally {
                     btnSend.setEnabled(true);
                 }
@@ -328,4 +342,34 @@ public class ManualRequestEditorDialog extends AbstractDialog {
         t.start();
     }
     
+    private void addHistory(HttpMessage msg, int type) {
+        HistoryReference historyRef = null;
+        try {
+	        historyRef = new HistoryReference(Model.getSingleton().getSession(), type, msg);
+	        synchronized (historyList) {
+	        	if (type == HistoryReference.TYPE_MANUAL) {
+	        		addHistoryInEventQueue(historyRef);
+	        		historyList.notifyItemChanged(historyRef);
+	        	}
+	        }
+        } catch (Exception e) {
+        	log.error(e.getMessage(), e);
+        }
+    }
+
+    private void addHistoryInEventQueue(final HistoryReference ref) {
+        if (EventQueue.isDispatchThread()) {
+                historyList.addElement(ref);
+        } else {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                	public void run() {
+                		historyList.addElement(ref);
+                	}
+                });
+            } catch (Exception e) {
+            	log.error(e.getMessage(), e);
+            }
+        }
+    }
 }
