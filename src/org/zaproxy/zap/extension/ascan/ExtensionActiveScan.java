@@ -123,7 +123,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResend());
-            // TODO this doesnt work properly
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
@@ -218,8 +217,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void alertFound(Alert alert) {
 
         try {
-            writeAlertToDB(alert);
-            addAlertToDisplay(alert);
+            HistoryReference ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
+            
+            writeAlertToDB(alert, ref);
+            addAlertToDisplay(alert, ref);
             
     		SiteMap siteTree = this.getModel().getSession().getSiteTree();
         	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
@@ -230,13 +231,39 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
     }
 
-    private void addAlertToDisplay(Alert alert) {
+    private void addAlertToDisplay(final Alert alert, final HistoryReference ref) {
+	    if (EventQueue.isDispatchThread()) {
+	    	
+	    	addAlertToDisplayEventHandler(alert, ref);
 
-        treeAlert.addPath(alert);
+	    } else {
+	        
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	        	    	addAlertToDisplayEventHandler(alert, ref);
+	                }
+	            });
+	        } catch (Exception e) {
+	            logger.error(e.getMessage(), e);
+	        }
+	    }
+    }
+
+    private void addAlertToDisplayEventHandler (Alert alert, HistoryReference ref) {
+
+    	treeAlert.addPath(alert);
         if (getView() != null) {
             getAlertPanel().expandRoot();
         }
         
+		SiteMap siteTree = this.getModel().getSession().getSiteTree();
+		SiteNode node = siteTree.findNode(alert.getMessage());
+		if (ref != null && (node == null || ! node.hasAlert(alert))) {
+			// Add new alerts to the site tree
+			siteTree.addPath(ref);
+	        ref.addAlert(alert);
+		}
     }
 
 	
@@ -278,10 +305,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    return treeAlert;
 	}
 	
-	private void writeAlertToDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
+	private void writeAlertToDB(Alert alert, HistoryReference ref) throws HttpMalformedHeaderException, SQLException {
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
-        HistoryReference ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
         int scanId = 0;
         if (recordScan != null) {
         	scanId = recordScan.getScanId();
@@ -294,14 +320,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         
         alert.setAlertId(recordAlert.getAlertId());
         
-		SiteMap siteTree = this.getModel().getSession().getSiteTree();
-		SiteNode node = siteTree.findNode(alert.getMessage());
-		if (node == null || ! node.hasAlert(alert)) {
-			// Add new alerts to the site tree
-			siteTree.addPath(ref);
-	        ref.addAlert(alert);
-		}
-		
 	}
 
 	public void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
@@ -382,15 +400,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	        int alertId = v.get(i).intValue();
 	        RecordAlert recAlert = tableAlert.read(alertId);
 	        Alert alert = new Alert(recAlert);
-	        addAlertToDisplay(alert);
-	        HistoryReference hr = alert.getHistoryRef();
-	        if (hr != null) {
-	        	// Make sure its in the Sites tree
-				siteTree.addPath(hr);
-
-	        	hr.addAlert(alert);
-	        	
-	        }
+	        addAlertToDisplay(alert, alert.getHistoryRef());
 	    }
     	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
 	}
