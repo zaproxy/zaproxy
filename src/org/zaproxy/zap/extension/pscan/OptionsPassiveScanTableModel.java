@@ -25,6 +25,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 
 /**
@@ -41,7 +42,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
 		Constant.messages.getString("pscan.options.table.type"),
 		Constant.messages.getString("pscan.options.table.enabled")};
     
-	private List <PassiveScanDefn> defns = new ArrayList<PassiveScanDefn>();
+	private List <RegexAutoTagScanner> defns = new ArrayList<RegexAutoTagScanner>();
     //private Vector listAuth = new Vector();
     
     /**
@@ -69,7 +70,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
     public Object getValueAt(int row, int col) {
-    	PassiveScanDefn defn = (PassiveScanDefn) defns.get(row);
+    	RegexAutoTagScanner defn = (RegexAutoTagScanner) defns.get(row);
         Object result = null;
         switch (col) {
         	case 0:	result = defn.getName();
@@ -88,29 +89,10 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
     }
     
     /**
-     * @return Returns the listAuth.
-     */
-    /*
-    public Vector getListAuth() {
-        HostAuthentication auth = null;
-        for (int i=0; i<listAuth.size();) {
-            auth = (HostAuthentication) listAuth.get(i);
-            if (auth.getHostName().equals("")) {
-                listAuth.remove(i);
-                continue;
-            }
-            i++;
-        }
-        
-        Vector newList = new Vector(listAuth);
-        return newList;
-    }
-    */
-    /**
      * @param listAuth The listAuth to set.
      */
-    public void setScanDefns(List <PassiveScanDefn> defns) {
-        this.defns = new ArrayList<PassiveScanDefn>(defns);
+    public void setScanDefns(List <RegexAutoTagScanner> defns) {
+        this.defns = new ArrayList<RegexAutoTagScanner>(defns);
   	  	fireTableDataChanged();
     }
     

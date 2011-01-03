@@ -24,14 +24,19 @@ import java.util.List;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.zaproxy.zap.extension.pscan.PassiveScanDefn.TYPE;
+import org.zaproxy.zap.extension.pscan.scanner.CookieHttpOnlyScanner;
+import org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner;
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
+import org.zaproxy.zap.extension.pscan.scanner.WeakAuthenticationScanner;
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor {
 
 	private static final String PSCAN_NAMES = "pscans.names";
 
-	private ProxyListenerPassiveScan proxyListener = null;
+	private PassiveScannerList scannerList;
 	private OptionsPassiveScan optionsPassiveScan = null;
+	private PassiveScanThread pst = null;
 	
 	public ExtensionPassiveScan() {
 		super();
@@ -40,28 +45,30 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
 
 	private void initialize() {
         this.setName("ExtensionProxyScan");
+
 	}
 
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
-        
-        extensionHook.addProxyListener(getProxyListenerPassiveScan());
 
+        extensionHook.addProxyListener(getPassiveScanThread());
+        extensionHook.addSessionListener(getPassiveScanThread());
         extensionHook.getHookView().addOptionPanel(
-        		getOptionsPassiveScan(getProxyListenerPassiveScan()));
-	}
+        		getOptionsPassiveScan(getPassiveScanThread()));
 
+	}
+	
 	@SuppressWarnings("unchecked")
-	private ProxyListenerPassiveScan getProxyListenerPassiveScan() {
-        if (proxyListener == null) {
-            proxyListener = new ProxyListenerPassiveScan(this);
-            
+	private PassiveScannerList getPassiveScannerList() {
+		if (scannerList == null) {
+			scannerList = new PassiveScannerList();
+	        
             // Read from the configs
             FileConfiguration config = this.getModel().getOptionsParam().getConfig();
             List<String> pscanList = config.getList(PSCAN_NAMES);
             for (String pscanName : pscanList) {
-                proxyListener.add(
-                	new PassiveScanDefn(pscanName, 
+            	scannerList.add(
+                	new RegexAutoTagScanner(pscanName, 
                 		TYPE.valueOf(config.getString("pscans." + pscanName + ".type")),
                 		config.getString("pscans." + pscanName + ".config"),
                 		config.getString("pscans." + pscanName + ".reqUrlRegex"),
@@ -70,20 +77,26 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
                 		config.getString("pscans." + pscanName + ".resBodyRegex"),
                 		config.getBoolean("pscans." + pscanName + ".enabled")));
             }
+            
+            // TODO Get all instances? Allow scanners to be turned off
+    		scannerList.add(new PasswordAutocompleteScanner());
+    		scannerList.add(new CookieHttpOnlyScanner());
+    		scannerList.add(new WeakAuthenticationScanner());
 
-            // TODO: can these be read automatically?
-            /*
-             * Disabled for now - concentrating on non automated stuff first
-            
-            proxyListener.add(new AutocompleteScanDefn(
-            		"html_type_password_autocomplete", TYPE.ALERT, "TBA"));
-            */
-            
-        }
-        return proxyListener;
+		}
+		return scannerList;
 	}
-	
-	protected void save (PassiveScanDefn defn) {
+
+	private PassiveScanThread getPassiveScanThread() {
+		if (pst == null) {
+	        pst = new PassiveScanThread(getPassiveScannerList());
+	        
+	        pst.start();
+		}
+		return pst;
+	}
+
+	protected void save (RegexAutoTagScanner defn) {
         FileConfiguration config = this.getModel().getOptionsParam().getConfig();
     	String pscanName = defn.getName();
 
@@ -98,7 +111,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void add (PassiveScanDefn defn) {
+	protected void add (RegexAutoTagScanner defn) {
         FileConfiguration config = this.getModel().getOptionsParam().getConfig();
     	String pscanName = defn.getName();
 
@@ -118,9 +131,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
 		
 	}
 
-	private OptionsPassiveScan getOptionsPassiveScan(ProxyListenerPassiveScan proxyListenerPassiveScan) {
+	private OptionsPassiveScan getOptionsPassiveScan(PassiveScanThread passiveScanThread) {
 		if (optionsPassiveScan == null) {
-			optionsPassiveScan = new OptionsPassiveScan(this, proxyListenerPassiveScan);
+			optionsPassiveScan = new OptionsPassiveScan(this, scannerList);
 		}
 		return optionsPassiveScan;
 	}

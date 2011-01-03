@@ -18,16 +18,19 @@
  * limitations under the License. 
  */
 
-package org.zaproxy.zap.extension.pscan;
+package org.zaproxy.zap.extension.pscan.scanner;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.htmlparser.jericho.Source;
+
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
-import org.w3c.dom.Document;
+import org.zaproxy.zap.extension.pscan.PassiveScanThread;
+import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-public class PassiveScanDefn {
+public class RegexAutoTagScanner implements PassiveScanner {
 
     // protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
     protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE;
@@ -46,6 +49,8 @@ public class PassiveScanDefn {
 	private Pattern responseHeaderPattern = null;
 	private Pattern responseBodyPattern = null;
 
+	private PassiveScanThread parent = null;
+	
 	public Pattern getRequestUrlPattern() {
 		return requestUrlPattern;
 	}
@@ -80,14 +85,14 @@ public class PassiveScanDefn {
 		this.config = config;
 	}
 
-	public PassiveScanDefn(String name, TYPE type, String config) {
+	public RegexAutoTagScanner(String name, TYPE type, String config) {
 		super();
 		this.name = name;
 		this.type = type;
 		this.config = config;
 	}
 
-	public PassiveScanDefn(String name, TYPE type, String config,
+	public RegexAutoTagScanner(String name, TYPE type, String config,
 			String requestUrlregex, String requestHeaderRegex,
 			String responseHeaderRegex, String responseBodyRegex,
 			boolean enabled) {
@@ -155,16 +160,17 @@ public class PassiveScanDefn {
 		this.name = name;
 	}
 
-	public boolean scanHttpRequestSend(HttpMessage msg) {
+	public void scanHttpRequestSend(HttpMessage msg, int id) {
 		if (! enabled) {
-			return false;
+			return;
 		}
 		if (getRequestHeaderPattern() != null) {
 			Matcher m = getRequestHeaderPattern().matcher(
 					msg.getRequestHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				return true;
+				parent.addTag(id, this.getConfig());
+				return;
 			}
 		}
 		if (getRequestUrlPattern() != null) {
@@ -172,35 +178,12 @@ public class PassiveScanDefn {
 					msg.getRequestHeader().getURI().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				return true;
+				parent.addTag(id, this.getConfig());
+				return;
 			}
 		}
-		return false;
 	}
 
-	public boolean scanHttpResponseReceive(HttpMessage msg, Document document) {
-		if (! enabled) {
-			return false;
-		}
-		if (getResponseHeaderPattern() != null) {
-			Matcher m = getResponseHeaderPattern().matcher(
-					msg.getResponseHeader().toString());
-			if (m.find()) {
-				// Scanner matches, so do what it wants...
-				return true;
-			}
-		}
-		if (getResponseBodyPattern() != null) {
-			Matcher m = getResponseBodyPattern().matcher(
-					msg.getResponseBody().toString());
-			if (m.find()) {
-				// Scanner matches, so do what it wants...
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public Alert getAlert(HttpMessage msg) {
 		return null;
 	}
@@ -211,6 +194,36 @@ public class PassiveScanDefn {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	@Override
+	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
+		if (! enabled) {
+			return;
+		}
+		if (getResponseHeaderPattern() != null) {
+			Matcher m = getResponseHeaderPattern().matcher(
+					msg.getResponseHeader().toString());
+			if (m.find()) {
+				// Scanner matches, so do what it wants...
+				parent.addTag(id, this.getConfig());
+				return;
+			}
+		}
+		if (getResponseBodyPattern() != null) {
+			Matcher m = getResponseBodyPattern().matcher(
+					msg.getResponseBody().toString());
+			if (m.find()) {
+				// Scanner matches, so do what it wants...
+				parent.addTag(id, this.getConfig());
+				return;
+			}
+		}
+	}
+
+	@Override
+	public void setParent(PassiveScanThread parent) {
+		this.parent = parent;
 	}
 
 }

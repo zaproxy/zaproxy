@@ -21,6 +21,8 @@
 package org.parosproxy.paros.model;
 
 
+import java.util.Hashtable;
+
 import javax.swing.DefaultListModel;
 
 /**
@@ -30,26 +32,19 @@ import javax.swing.DefaultListModel;
  */
 public class HistoryList extends DefaultListModel {
     
-    public void addElement(final Object obj) {
-//        if (EventQueue.isDispatchThread()) {
-//            synchronized(this) {
-//                super.addElement(obj);
-//            }
-//            return;
-//        }
-//        try {
-//            EventQueue.invokeLater(new Runnable() {
-//                public void run() {
-//                    synchronized(HistoryList.this) {
-//                        HistoryList.super.addElement(obj);
-//                    }
-//                }
-//            });
-//        } catch (Exception e) {
-//        }
+	private static final long serialVersionUID = 1L;
+	// ZAP: Added hashtable to allow elements of the list to be accessed via historyid
+	private Hashtable<Integer, Integer> historyIdToIndex = new Hashtable<Integer, Integer>();
 
-        super.addElement(obj);
-        
+	public void addElement(final HistoryReference hRef) {
+		int sizeBefore = super.size();
+        super.addElement(hRef);
+        if (sizeBefore == super.size() -1 ) {
+        	historyIdToIndex.put(hRef.getHistoryId(), sizeBefore);
+        } else {
+        	// Cope with multiple threads adding to the list
+        	historyIdToIndex.put(hRef.getHistoryId(), indexOf(hRef));
+        }
     }
     
     public synchronized void notifyItemChanged(Object obj) {
@@ -57,6 +52,21 @@ public class HistoryList extends DefaultListModel {
         if (i >= 0) {
             fireContentsChanged(this, i, i);
         }
+    }
+
+    public synchronized void notifyItemChanged(int historyId) {
+        Integer i = historyIdToIndex.get(historyId);
+        if (i != null) {
+            fireContentsChanged(this, i, i);
+        }
+    }
+    
+    public HistoryReference getHistoryReference (int historyId) {
+        Integer i = historyIdToIndex.get(historyId);
+        if (i != null) {
+        	return (HistoryReference) this.elementAt(i);
+        }
+    	return null;
     }
     
 }

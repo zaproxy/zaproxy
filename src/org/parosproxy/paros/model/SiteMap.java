@@ -263,7 +263,7 @@ public class SiteMap extends DefaultTreeModel {
             }
         } catch (Exception e) {
             // ZAP: Added error
-            log.error(e.getMessage(), e);
+            log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
         }
         
     }
@@ -404,8 +404,15 @@ public class SiteMap extends DefaultTreeModel {
     private HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, SQLException, URIException, NullPointerException {
         TreeNode[] path = node.getPath();
         StringBuffer sb = new StringBuffer();
+        String nodeName;
         for (int i=1; i<path.length; i++) {
-            sb.append(path[i].toString());
+        	// ZAP Cope with error counds in the node names
+        	nodeName = path[i].toString();
+        	if (nodeName.indexOf(" (") > -1) {
+                sb.append(nodeName.substring(0, nodeName.indexOf(" (")));
+        	} else {
+                sb.append(nodeName);
+        	}
             if (i<path.length-1) {
                 sb.append('/');
             }

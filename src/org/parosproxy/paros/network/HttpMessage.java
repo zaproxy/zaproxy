@@ -389,9 +389,13 @@ public class HttpMessage {
 					value = keyValue[i].substring(pos+1);
 
 					//!!! note: this means param not separated by & and = is not parsed
+				} else {
+					key = keyValue[i];
 				}
 				
-				set.add(key);
+				if (key != null) {
+					set.add(key);
+				}
 			} catch (Exception e) {
 				// ZAP: log error
 				log.error(e.getMessage(), e);

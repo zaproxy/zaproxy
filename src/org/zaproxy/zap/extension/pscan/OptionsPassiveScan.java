@@ -44,6 +44,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.utils.FilteredJTextField;
 /**
  *
@@ -59,7 +60,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	private JTable tableAuth = null;
 	private JScrollPane jScrollPane = null;
 	private JPanel editPane = null;
-	private ProxyListenerPassiveScan proxyListenerPassiveScan = null;
+	private PassiveScannerList proxyListenerPassiveScan = null;
 	private OptionsPassiveScanTableModel tableModel = null;
 	private FilteredJTextField editName = null;
 	private JTextField editType = null;
@@ -74,13 +75,13 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	
     /**
      * @param extension 
-     * @param proxyListenerPassiveScan 
+     * @param scannerList 
      * 
      */
-    public OptionsPassiveScan(ExtensionPassiveScan extension, ProxyListenerPassiveScan proxyListenerPassiveScan) {
+    public OptionsPassiveScan(ExtensionPassiveScan extension, PassiveScannerList scannerList) {
         super();
         this.extension = extension;
-        this.proxyListenerPassiveScan = proxyListenerPassiveScan; 
+        this.proxyListenerPassiveScan = scannerList; 
  		initialize();
     }
 
@@ -267,11 +268,23 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 		}
 		return editPane;
 	}
+	
+	private List<RegexAutoTagScanner> getRegexAutoTags(List<PassiveScanner> scannerList) {
+		List<RegexAutoTagScanner> ratsList = new ArrayList<RegexAutoTagScanner>();
+		for (PassiveScanner scanner : scannerList) {
+			if (scanner instanceof RegexAutoTagScanner) {
+				ratsList.add((RegexAutoTagScanner)scanner);
+			}
+		}
+		
+		return ratsList;
+	}
+	
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
     public void initParam(Object obj) {
-	    getTableModel().setScanDefns(proxyListenerPassiveScan.list());
+	    getTableModel().setScanDefns(getRegexAutoTags(proxyListenerPassiveScan.list()));
     }
 
     /* (non-Javadoc)
@@ -324,18 +337,19 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	        tableAuth.addMouseListener(new MouseAdapter() {
 	        	public void mouseClicked(MouseEvent e){
 	        		if (tableAuth.getSelectedRow() > -1) {
-	        			PassiveScanDefn defn = proxyListenerPassiveScan.getDefn(
+	        			PassiveScanner defn = proxyListenerPassiveScan.getDefn(
 	        					tableAuth.convertRowIndexToModel(
 	        							tableAuth.getSelectedRow()));
-	        			if (defn != null) {
-	        				editName.setText(defn.getName());
-	        				editType.setText(defn.getType().name());
-	        				editConfig.setText(defn.getConfig());
-	        		    	editRequestUrlRegex.setText(defn.getRequestUrlRegex());
-	        		    	editRequestHeaderRegex.setText(defn.getRequestHeaderRegex());
-	        		    	editResponseHeaderRegex.setText(defn.getResponseHeaderRegex());
-	        		    	editResponseBodyRegex.setText(defn.getResponseBodyRegex());
-	        		    	editEnabled.setSelected(defn.isEnabled());
+	        			if (defn != null && defn instanceof RegexAutoTagScanner) {
+	        				RegexAutoTagScanner rats = (RegexAutoTagScanner) defn;
+	        				editName.setText(rats.getName());
+	        				editType.setText(rats.getType().name());
+	        				editConfig.setText(rats.getConfig());
+	        		    	editRequestUrlRegex.setText(rats.getRequestUrlRegex());
+	        		    	editRequestHeaderRegex.setText(rats.getRequestHeaderRegex());
+	        		    	editResponseHeaderRegex.setText(rats.getResponseHeaderRegex());
+	        		    	editResponseBodyRegex.setText(rats.getResponseBodyRegex());
+	        		    	editEnabled.setSelected(rats.isEnabled());
 	        		    	// Cant change existing names
 	        		    	editName.setEditable(false);
 	        			}
@@ -348,7 +362,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	
 	private void clearEditForm() {
 		editName.setText("");
-		editType.setText(PassiveScanDefn.TYPE.TAG.name());
+		editType.setText(RegexAutoTagScanner.TYPE.TAG.name());
 		editConfig.setText("");
     	editRequestUrlRegex.setText("");
     	editRequestHeaderRegex.setText("");
@@ -361,32 +375,33 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	private void saveEditForm() {
 		boolean isNew = false;
 		
-		PassiveScanDefn defn = proxyListenerPassiveScan.getDefn(editName.getText());
-		
-		// Check mandatory fields are e
-		
-		if (defn == null) {
+		PassiveScanner defn = proxyListenerPassiveScan.getDefn(editName.getText());
+		RegexAutoTagScanner rats = null;
+
+		if (defn != null && defn instanceof RegexAutoTagScanner) {
+			rats = (RegexAutoTagScanner) defn;
+		} else {
 			// New one
-			defn = new PassiveScanDefn(
-					editName.getText(), PassiveScanDefn.TYPE.TAG, editConfig.getText());
+			rats = new RegexAutoTagScanner(
+					editName.getText(), RegexAutoTagScanner.TYPE.TAG, editConfig.getText());
 			isNew = true;
 		}
 		// TODO validate params, eg config is mandatory
-		defn.setConfig(editConfig.getText());
-		defn.setRequestHeaderRegex(editRequestHeaderRegex.getText());
-		defn.setRequestUrlRegex(editRequestUrlRegex.getText());
-		defn.setResponseHeaderRegex(editResponseHeaderRegex.getText());
-		defn.setResponseBodyRegex(editResponseBodyRegex.getText());
-		defn.setEnabled(editEnabled.isSelected());
-		proxyListenerPassiveScan.save(defn);
+		rats.setConfig(editConfig.getText());
+		rats.setRequestHeaderRegex(editRequestHeaderRegex.getText());
+		rats.setRequestUrlRegex(editRequestUrlRegex.getText());
+		rats.setResponseHeaderRegex(editResponseHeaderRegex.getText());
+		rats.setResponseBodyRegex(editResponseBodyRegex.getText());
+		rats.setEnabled(editEnabled.isSelected());
+		proxyListenerPassiveScan.save(rats);
 		
-	    getTableModel().setScanDefns(proxyListenerPassiveScan.list());
+	    getTableModel().setScanDefns(getRegexAutoTags(proxyListenerPassiveScan.list()));
 
 	    // Save in the config file
 	    if (isNew) {
-	    	extension.add(defn);
+	    	extension.add(rats);
 	    } else {
-	    	extension.save(defn);
+	    	extension.save(rats);
 	    }
 	}
 	

@@ -73,6 +73,7 @@ public class TableHistory extends AbstractTable {
     private PreparedStatement psAlterTable = null;
     private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
+    private PreparedStatement psLastIndex = null;
     
     private static boolean isExistStatusCode = false;
 
@@ -127,10 +128,12 @@ public class TableHistory extends AbstractTable {
         if (!rs.next()) {
             PreparedStatement stmt = conn.prepareStatement("ALTER TABLE HISTORY ADD COLUMN NOTE VARCHAR DEFAULT ''");
             stmt.execute();
+            stmt.close();
         }
         rs.close();
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
+       	psLastIndex = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
     }
     
     
@@ -435,8 +438,7 @@ public class TableHistory extends AbstractTable {
         psReadCache.setString(3, reqMsg.getRequestBody().toString(HttpBody.STORAGE_CHARSET));
         psReadCache.setLong(4, ref.getSessionId());
         
-        psReadCache.executeQuery();
-        rs = psReadCache.getResultSet();
+        rs = psReadCache.executeQuery();
         rec = null;
        
         try {
@@ -466,6 +468,16 @@ public class TableHistory extends AbstractTable {
         psUpdateNote.setString(1, note);
         psUpdateNote.setInt(2, historyId);
         psUpdateNote.execute();
+    }
+    
+    public int lastIndex () throws SQLException {
+    	int lastIndex = -1;
+		ResultSet rs = psLastIndex.executeQuery();
+	    if (rs.next()) {
+	        lastIndex = rs.getInt(HISTORYID);
+	    }
+	    rs.close();
+	    return lastIndex;
     }
 
 }
