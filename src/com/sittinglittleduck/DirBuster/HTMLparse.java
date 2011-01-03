@@ -19,15 +19,16 @@
  *///TODO convert this over to a thread, so it doe snot tie up the workers :)
 package com.sittinglittleduck.DirBuster;
 
-import au.id.jericho.lib.html.Attribute;
-import au.id.jericho.lib.html.Attributes;
-import au.id.jericho.lib.html.Element;
-import au.id.jericho.lib.html.Source;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Vector;
+
+import net.htmlparser.jericho.Attribute;
+import net.htmlparser.jericho.Attributes;
+import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.Source;
 
 /**
  * This class is to paser the returned html pages and extract other dirs and files from them
@@ -110,7 +111,7 @@ public class HTMLparse extends Thread
                     {
                         HTMLelementToParse elementToParse = (HTMLelementToParse) elementsToParse.elementAt(z);
 
-                        for(Iterator i = source.findAllElements(elementToParse.getTag()).iterator(); i.hasNext();)
+                        for(Iterator i = source.getAllElements(elementToParse.getTag()).iterator(); i.hasNext();)
                         {
                             Element element = (Element) i.next();
                             Attributes attributes = element.getAttributes();
