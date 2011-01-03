@@ -114,4 +114,11 @@ public interface Plugin extends Runnable {
     public Configuration getConfig();
     
     public void createParamIfNotExist();
+    
+	// ZAP Added isDepreciated, getDelayInMs, setDelayInMs
+	public boolean isDepreciated();
+	
+	public int getDelayInMs();
+	
+	public void setDelayInMs(int delay);
 }

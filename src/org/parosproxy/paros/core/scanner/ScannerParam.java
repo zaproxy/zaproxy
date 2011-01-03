@@ -33,10 +33,12 @@ public class ScannerParam extends AbstractParam {
 
 	private static final String HOST_PER_SCAN = "scanner.hostPerScan";
 	private static final String THREAD_PER_HOST = "scanner.threadPerHost";
+	// ZAP: Added support for delayInMs
+	private static final String DELAY_IN_MS = "scanner.delayInMs";
 		
 	private int hostPerScan = 2;
 	private int threadPerHost = 1;
-	
+	private int delayInMs = 0;
 	
     /**
      * @param rootElementName
@@ -54,6 +56,9 @@ public class ScannerParam extends AbstractParam {
 		} catch (Exception e) {}
 		try {
 			setHostPerScan(getConfig().getInt(HOST_PER_SCAN, 2));
+		} catch (Exception e) {}
+		try {
+			setDelayInMs(getConfig().getInt(DELAY_IN_MS, 0));
 		} catch (Exception e) {}
 
     }
@@ -82,5 +87,14 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
 
     }
+
+	public void setDelayInMs(int delayInMs) {
+		this.delayInMs = delayInMs;
+		getConfig().setProperty(DELAY_IN_MS, Integer.toString(this.delayInMs));
+	}
+
+	public int getDelayInMs() {
+		return delayInMs;
+	}
 	
 }

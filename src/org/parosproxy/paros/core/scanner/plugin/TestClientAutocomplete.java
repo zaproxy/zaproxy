@@ -37,6 +37,12 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class TestClientAutocomplete extends AbstractAppPlugin {
     
+	// ZAP Depreciated by org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
+
     //  pattern for testing
 
     // <form autocomplete=off>

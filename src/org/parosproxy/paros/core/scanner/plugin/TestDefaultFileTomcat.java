@@ -31,6 +31,11 @@ import org.parosproxy.paros.core.scanner.Category;
  */
 public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
 
+	// ZAP Depreciated by Brute Force scanner
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()

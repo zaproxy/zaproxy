@@ -37,6 +37,12 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class TestObsoleteFile extends AbstractAppPlugin {
 
+	// ZAP Depreciated by Brute Force scanner
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
+
     private final static String[] staticSuffixList = {
             ".old", 
             ".bak", 

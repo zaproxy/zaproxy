@@ -88,6 +88,7 @@ public class HostProcess implements Runnable {
         while (!isStop && getPluginFactory().existPluginToRun()) {
             plugin = getPluginFactory().nextPlugin();
             if (plugin != null) {
+            	plugin.setDelayInMs(this.scannerParam.getDelayInMs());
                 processPlugin(plugin);
             } else {
                 // waiting for dependency - no test ready yet
@@ -159,13 +160,14 @@ public class HostProcess implements Runnable {
         //if (isStop()) return;
 
         try {
-            if (node == null) {
+            if (node == null || node.getHistoryReference() == null) {
                 return;
             }
             msg = node.getHistoryReference().getHttpMessage();
 
             test = (Plugin) plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
+            test.setDelayInMs(plugin.getDelayInMs());
             test.init(msg, this);
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 

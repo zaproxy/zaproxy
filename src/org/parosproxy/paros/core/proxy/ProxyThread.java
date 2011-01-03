@@ -147,6 +147,9 @@ class ProxyThread implements Runnable {
 			} else {
 				processHttp(firstHeader, isSecure);
 			}
+	    } catch (SocketTimeoutException e) {
+        	// ZAP: Log the exception
+        	log.warn("Timeout accessing " + firstHeader.getURI().toString());
 		} catch (IOException e) {
 		    log.warn(e.getMessage(), e);
 
@@ -179,7 +182,7 @@ class ProxyThread implements Runnable {
 
 			    } catch (SocketTimeoutException e) {
 		        	// ZAP: Log the exception
-		        	log.error(e.getMessage(), e);
+		        	log.warn("Timeout reading " + requestHeader.getURI().toString());
 		        return;
 			    }
 			}

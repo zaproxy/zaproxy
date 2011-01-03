@@ -56,6 +56,9 @@ public class Analyser {
 	private TreeMap		mapVisited = new TreeMap();
 	private boolean		isStop = false;
 	
+    // ZAP Added delayInMs
+    private int delayInMs;
+	
 	// ZAP: Added parent
 	HostProcess parent = null;
 	
@@ -88,7 +91,6 @@ public class Analyser {
 	Analyse a single folder entity.  Results are stored into mAnalysedEntityTable.
 	*/
 	private void analyse(SiteNode node) throws Exception {
-
 		// if analysed already, return;
 		// move to host part
 		if (node.getHistoryReference() == null) {
@@ -393,6 +395,14 @@ public class Analyser {
     }
 	
 	private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+		if (this.getDelayInMs() > 0) {
+			try {
+				Thread.sleep(this.getDelayInMs());
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}
+
 	    httpSender.sendAndReceive(msg, true);
 	    // ZAP: Notify parent
 	    if (parent != null) {
@@ -400,6 +410,13 @@ public class Analyser {
 	    }
 	}
 	
+	public int getDelayInMs() {
+		return delayInMs;
+	}
+
+	public void setDelayInMs(int delayInMs) {
+		this.delayInMs = delayInMs;
+	}
 
 	
 }

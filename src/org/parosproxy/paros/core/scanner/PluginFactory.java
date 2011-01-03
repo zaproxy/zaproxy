@@ -117,10 +117,8 @@ public class PluginFactory {
                 if (!plugin.isVisible()) {
                     continue;
                 }
-                if (plugin instanceof AbstractDefaultFilePlugin || 
-                		plugin instanceof TestObsoleteFile ||
-                		plugin instanceof TestObsoleteFileExtended  ) {
-                	// ZAP: ignore all default file and obsolete file plugins
+                if (plugin.isDepreciated()) {
+                	// ZAP: ignore all depreciated plugins
                 	continue;
                 }
 //                plugin.setEnabled(true);

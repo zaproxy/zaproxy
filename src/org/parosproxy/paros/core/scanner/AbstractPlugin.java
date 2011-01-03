@@ -60,6 +60,9 @@ abstract public class AbstractPlugin implements Plugin, Comparable {
     private Log log = LogFactory.getLog(this.getClass());
     private Configuration config = null;
     
+    // ZAP Added delayInMs
+    private int delayInMs;
+    
     public AbstractPlugin() {
     }
 
@@ -170,6 +173,14 @@ abstract public class AbstractPlugin implements Plugin, Comparable {
       msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
       msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
       msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+
+		if (this.getDelayInMs() > 0) {
+			try {
+				Thread.sleep(this.getDelayInMs());
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}
 
         parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
         // ZAP: Notify parent
@@ -482,4 +493,19 @@ abstract public class AbstractPlugin implements Plugin, Comparable {
             setProperty("enabled", "1");        
         }
 	}
+	
+	// ZAP Added isDepreciated
+	@Override
+	public boolean isDepreciated() {
+		return false;
+	}
+
+	public int getDelayInMs() {
+		return delayInMs;
+	}
+
+	public void setDelayInMs(int delayInMs) {
+		this.delayInMs = delayInMs;
+	}
+	
 }
