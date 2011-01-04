@@ -62,7 +62,7 @@ public class CookieSecureFlagScanner implements PassiveScanner {
 		    	    "A cookie has been set without the secure flag, which means that the cookie can be accessed via unencrypted connections.", 
 		    	    msg.getRequestHeader().getURI().toString(),
 		    	    cookie, "", 
-		    	    "Whenever a cookie contains sensitive information or is a session token, then it should always be passed using an encrypted tunnel." +
+		    	    "Whenever a cookie contains sensitive information or is a session token, then it should always be passed using an encrypted tunnel. " +
                             "Ensure that the secure flag is set for cookies containing such sensitive information.", 
 		            "http://www.owasp.org/index.php/Testing_for_cookies_attributes_(OWASP-SM-002)", 
 		            msg);

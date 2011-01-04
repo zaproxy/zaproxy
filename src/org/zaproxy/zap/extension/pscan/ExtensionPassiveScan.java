@@ -25,6 +25,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.pscan.scanner.CookieHttpOnlyScanner;
+import org.zaproxy.zap.extension.pscan.scanner.CookieSecureFlagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.WeakAuthenticationScanner;
@@ -82,6 +83,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
     		scannerList.add(new PasswordAutocompleteScanner());
     		scannerList.add(new CookieHttpOnlyScanner());
     		scannerList.add(new WeakAuthenticationScanner());
+    		scannerList.add(new CookieSecureFlagScanner());
 
 		}
 		return scannerList;
