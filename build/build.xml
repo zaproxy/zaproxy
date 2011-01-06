@@ -43,9 +43,6 @@
 
     <copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties"/> 
 
-    <copy todir="${build}">
-      <fileset dir="${src}" includes="*.properties"/>
-    </copy>
     <copy todir="${build}/resource">
 		<fileset dir="${src}/resource"/>
     </copy>
