@@ -57,12 +57,13 @@ public class PasswordAutocompleteScanner implements PassiveScanner {
 							String type = inputElement.getAttributeValue("TYPE");
 							if (type != null && type.equalsIgnoreCase("PASSWORD")) {
 								
-							    Alert alert = new Alert(getId(), Alert.RISK_MEDIUM, Alert.WARNING, 
+							    Alert alert = new Alert(getId(), Alert.RISK_LOW, Alert.WARNING, 
 							    	"Password Autocomplete in browser");
 							    	alert.setDetail(
 							    		"AUTOCOMPLETE attribute is not disabled in HTML FORM/INPUT element containing password type input.  Passwords may be stored in browsers and retrieved.", 
 							    		msg.getRequestHeader().getURI().toString(),
-							    		inputElement.getName(), "otherInfo", 
+							    		inputElement.getName(), 
+							    		"", 
 							    		"Turn off AUTOCOMPLETE attribute in form or individual input elements containing password by using AUTOCOMPLETE='OFF'", 
 							            "http://msdn.microsoft.com/library/default.asp?url=/workshop/author/forms/autocomplete_ovr.asp", 
 							            msg);
