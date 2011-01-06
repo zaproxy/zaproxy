@@ -22,6 +22,7 @@
 package org.parosproxy.paros;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -32,8 +33,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
+import org.parosproxy.paros.model.SiteNode;
 
 /**
  *
@@ -45,15 +48,18 @@ public final class Constant {
     public static final String PROGRAM_NAME     = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
     
-    //FIXME Remove old program name definition
-    public static final String OLD_PROGRAM_NAME     = "ZAP";
-    
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
     public static final String PROGRAM_VERSION = "1.1.1";
     public static final long VERSION_TAG = 1001001;
+    
+    // Old version numbers - for upgrade
+    private static final long V_1_1_0_TAG = 1001000;
+    private static final long V_1_0_0_TAG = 1000000;
+    private static final long V_PAROS_TAG = 30020013;
+    
 //  ************************************************************
 //  note the above
 //  ************************************************************
@@ -65,22 +71,23 @@ public final class Constant {
 //  public static final String FOLDER_PLUGIN = "plugin";
 //  public static final String FOLDER_FILTER = "filter";
 //  public static final String FOLDER_SESSION = "session";
-//    public static final String DBNAME_TEMPLATE = "db/parosdb";
+//  public static final String DBNAME_TEMPLATE = "db/parosdb";
 //  public static final String DBNAME_UNTITLED = FOLDER_SESSION + "/untitled";
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
-    public String FILE_CONFIG = "config.xml";
+    public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     public static final String FOLDER_FILTER = "filter";
     public static final String FOLDER_SESSION_DEFAULT = "session";
-    public String FOLDER_SESSION = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
     public static final String MESSAGES_PREFIX = "Messages";
 
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
+    public String FILE_CONFIG = FILE_CONFIG_NAME;
+    public String FOLDER_SESSION = "session";
     public String DBNAME_UNTITLED = FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
@@ -104,6 +111,12 @@ public final class Constant {
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
+
+	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
+	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
+	public static URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png");		// Yellow
+	public static URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png");		// Orange
+	public static URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png");	// Red
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -133,77 +146,64 @@ public final class Constant {
         Log log = null;
         
         String userhome = System.getProperty("user.home");
+        String zaphome = userhome;
         
         // default to use application directory 'log'
         System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
-        if (userhome != null && !userhome.equals("")) {
+        if (zaphome != null && !zaphome.equals("")) {
             
             if (isLinux()) {
             	// Linux: Hidden Zap directory in the user's home directory
-				userhome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
+				zaphome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
 			} else if (isMacOsX()) {
 				// Mac Os X: Support for writing the configuration into the users Library 
-				userhome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
+				zaphome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
 					+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
 			} else {
 				// Windows: Zap directory in the user's home directory
-				userhome += FILE_SEPARATOR + PROGRAM_NAME;
+				zaphome += FILE_SEPARATOR + PROGRAM_NAME;
 			}
 			
-			f = new File(userhome);
-			userhome += FILE_SEPARATOR;
-			FILE_CONFIG = userhome + FILE_CONFIG;
-			FOLDER_SESSION = userhome + FOLDER_SESSION;
-			DBNAME_UNTITLED = userhome + DBNAME_UNTITLED;
-			ACCEPTED_LICENSE = userhome + ACCEPTED_LICENSE;
+			f = new File(zaphome);
+			zaphome += FILE_SEPARATOR;
+			FILE_CONFIG = zaphome + FILE_CONFIG;
+			FOLDER_SESSION = zaphome + FOLDER_SESSION;
+			DBNAME_UNTITLED = zaphome + DBNAME_UNTITLED;
+			ACCEPTED_LICENSE = zaphome + ACCEPTED_LICENSE;
 
             try {
-                
-                System.setProperty(SYSTEM_PAROS_USER_LOG, userhome);
-                System.setProperty("log4j.configuration","xml/log4j.properties");
+                System.setProperty(SYSTEM_PAROS_USER_LOG, zaphome);
                 
                 if (!f.isDirectory()) {
                     if (! f.mkdir() ) {
                     	// ZAP: report failure to create directory
                     	System.out.println("Failed to create directory " + f.getAbsolutePath());
                     }
-                    log = LogFactory.getLog(Constant.class);
-                    log.info("Created directory "+userhome);
-
-                } else {
-                    log = LogFactory.getLog(Constant.class);
-                    
                 }
                 
-                f=new File(FILE_CONFIG);
+                // Setup the logging
+                File logFile = new File(zaphome + "/log4j.properties");
+                if (!logFile.exists()) {
+                	copier.copy(new File("xml/log4j.properties"),logFile);
+                }
+                System.setProperty("log4j.configuration", logFile.getAbsolutePath());
+                PropertyConfigurator.configure(logFile.getAbsolutePath());
+                log = LogFactory.getLog(Constant.class);
+                
+                f = new File(FILE_CONFIG);
                 if (!f.isFile()) {
-                    log.info("Copying defaults from "+FILE_CONFIG_DEFAULT+" to "+FILE_CONFIG);
-                    copier.copy(new File(FILE_CONFIG_DEFAULT),f);
-
-                } else {
-                    try {
-                        
-                        XMLConfiguration config = new XMLConfiguration(FILE_CONFIG);
-                        config.setAutoSave(false);
-                        config.load();
-
-                        long ver = config.getLong("version");
-                        if (VERSION_TAG > ver) {
-                            // overwrite previous configuration file
-                            copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
-                        }
-                    } catch (ConfigurationException e) {
-                        //  if there is any error in config file (eg config file not exist),
-                        //  overwrite previous configuration file 
-                        copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
-
-                    } catch (NoSuchElementException e) {
-                        //  overwrite previous configuration file if config file corrupted
-                        copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
-                        
-                    }
-
+                	// try old location
+                	File oldf = new File (userhome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+                	
+                	if (oldf.exists()) {
+                		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+                		copier.copy(oldf,f);
+                		
+                	} else {
+                		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT+" to " + FILE_CONFIG);
+                		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
+                	}
                 }
                 
                 f=new File(FOLDER_SESSION);
@@ -231,6 +231,55 @@ public final class Constant {
             
         }
         
+        // Upgrade actions
+        try {
+	        try {
+	            
+	            XMLConfiguration config = new XMLConfiguration(FILE_CONFIG);
+	            config.setAutoSave(false);
+	            config.load();
+	
+	            long ver = config.getLong("version");
+	            if (ver == VERSION_TAG) {
+	            	// Nothing to do
+	            	
+	            } else if (ver == V_1_0_0_TAG) {
+	            	log.info("Upgrading from " + ver);
+            		upgradeFrom1_0_0(config);
+            		upgradeFrom1_1_0(config);
+            		
+	            } else if (ver == V_PAROS_TAG) {
+	            	log.info("Upgrading from Paros file " + ver);
+            		upgradeFrom1_0_0(config);
+            		upgradeFrom1_1_0(config);
+            		
+            	} else if (ver == V_1_1_0_TAG) {
+	            	log.info("Upgrading from " + ver);
+            		upgradeFrom1_1_0(config);
+            		
+            	} else {
+            		// No idea what this is, replace it
+            		f = new File(FILE_CONFIG);
+	            	log.info("Replacing configuration file " + f.getAbsolutePath());
+	                copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+            	}
+
+	        } catch (ConfigurationException e) {
+	            //  if there is any error in config file (eg config file not exist),
+	            //  overwrite previous configuration file 
+	            copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+	
+	        } catch (NoSuchElementException e) {
+	            //  overwrite previous configuration file if config file corrupted
+	            copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+	            
+	        }
+        } catch (Exception e) {
+            System.err.println("Unable to upgrade config file " + FILE_CONFIG + " " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+        
         // ZAP: Init i18n
         
         String lang = null;
@@ -251,7 +300,31 @@ public final class Constant {
 	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
     }
     
-    public static void setLocale (String loc) {
+    private void copyProperty(XMLConfiguration fromConfig, XMLConfiguration toConfig, String key) {
+    	toConfig.setProperty(key, fromConfig.getProperty(key));
+    }
+    
+	private void upgradeFrom1_0_0(XMLConfiguration config) throws ConfigurationException {
+		// The upgrade code was only added post 1.1.0 so all actions for this version are in the 1.1.0 method
+	}
+
+    private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
+		// Upgrade the regexs
+        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
+        newConfig.setAutoSave(false);
+        newConfig.load();
+
+        copyProperty(newConfig, config, "pscans.html_type_password.resBodyRegex");
+        copyProperty(newConfig, config, "pscans.html_type_hidden.resBodyRegex");
+        copyProperty(newConfig, config, "pscans.html_type_upload.resBodyRegex");
+        copyProperty(newConfig, config, "pscans.html_mailto.resBodyRegex");
+		
+		// Update the version
+		config.setProperty("version", VERSION_TAG);
+		config.save();
+	}
+
+	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         Locale locale = new Locale(langArray[0], langArray[1]);
 	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
