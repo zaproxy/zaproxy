@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 
 /**
  *
@@ -38,7 +39,9 @@ import org.apache.log4j.Logger;
  */
 public class HttpPanelTabularModel extends AbstractTableModel {
 
-    private static final String[] columnNames = {"Parameter Name", "Value"};
+    private static final String[] columnNames = {
+    	Constant.messages.getString("http.panel.table.paramName"),
+    	Constant.messages.getString("http.panel.table.paramValue")};	// ZAP: i18n
     private static final Pattern pSeparator	= Pattern.compile("([^=&]+)[=]([^=&]*)"); 
     private Vector listPair = new Vector();
     private boolean editable = true;
@@ -103,7 +106,6 @@ public class HttpPanelTabularModel extends AbstractTableModel {
       	  	    value = URLDecoder.decode(matcher.group(2),"8859_1");
       	  	    cell[0] = name;
       	  	    cell[1] = value;
-      	  	    //System.out.println("name:" + name + " value:" + value);
       	  	    listPair.add(cell);
             } catch (UnsupportedEncodingException e) {
             	// ZAP: Log the exception
@@ -113,6 +115,8 @@ public class HttpPanelTabularModel extends AbstractTableModel {
             	logger.error(e.getMessage(), e);
             }
   	  	}
+  	  	// Make sure user can always add a param at the end
+  	  	listPair.add(new String[] {"", ""});
 
   	  	fireTableDataChanged();
     }
@@ -120,10 +124,19 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     public synchronized String getText() {
         StringBuffer sb = new StringBuffer();
         for (int i=0; i<listPair.size(); i++) {
-            if (i > 0) sb.append('&');
             String[] cell = (String[]) listPair.get(i);
             try {
-                sb.append(URLEncoder.encode(cell[0],"UTF8") + "=" + URLEncoder.encode(cell[1],"UTF8"));
+            	String name = URLEncoder.encode(cell[0],"UTF8");
+            	String value = URLEncoder.encode(cell[1],"UTF8");
+            	// ZAP: Ignore if name is not set
+            	if (name.length() > 0) {
+                    if (i > 0) {
+                    	sb.append('&');
+                    }
+                    sb.append(name);
+                	sb.append('=');
+                    sb.append(value);
+            	}
             } catch (UnsupportedEncodingException e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
@@ -144,7 +157,7 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     
     public void setValueAt(Object value, int row, int col) {
         String[] cell = null;
-        while (row >= listPair.size()) {
+        while (row >= listPair.size()-1) {
             cell = new String[2];
             cell[0] = "";
             cell[1] = "";

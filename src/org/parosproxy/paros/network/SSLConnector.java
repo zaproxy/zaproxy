@@ -43,6 +43,7 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.ReflectionSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.log4j.Logger;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
 
@@ -58,6 +59,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static ServerSocketFactory serverSSLSockFactory = null;
 	private static SSLSocketFactory tunnelSSLFactory = null;
 
+	// ZAP: Added logger
+	private Logger logger = Logger.getLogger(this.getClass());
 	
 	private static SSLContextManager sslContextManager = null;
 
@@ -116,20 +119,11 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	public void setEnableClientCert(boolean enabled) {
 		if (enabled) {
-
 			clientSSLSockFactory = clientSSLSockCertFactory;
-
-			System.out.println();
-			System.out.println("ClientCert enabled");
-			System.out.println("using: " + sslContextManager.getDefaultKey());
-			System.out.println();
-
+			logger.info("ClientCert enabled using: " + sslContextManager.getDefaultKey());
 		} else {
 			clientSSLSockFactory = getClientSocketFactory(SSL);
-
-			System.out.println();
-			System.out.println("ClientCert disabled");
-			System.out.println();
+			logger.info("ClientCert disabled");
 		}
 	}
 
@@ -138,11 +132,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		SSLContext sslcont = sslContextManager.getSSLContext(sslContextManager
 				.getDefaultKey());
 		clientSSLSockCertFactory = sslcont.getSocketFactory();
-
-		System.out.println();
-		System.out.println("ActiveCertificate set to:");
-		System.out.println(sslContextManager.getDefaultKey());
-		System.out.println();
+		logger.info("ActiveCertificate set to: " + sslContextManager.getDefaultKey());
 	}
 
 	public ServerSocket listen(int portNum) throws IOException {
