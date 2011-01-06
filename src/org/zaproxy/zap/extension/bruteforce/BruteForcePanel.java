@@ -617,7 +617,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			String site = node.toString();
+			String site = node.getNodeName();
 			if (site.indexOf("//") >= 0) {
 				site = site.substring(site.indexOf("//") + 2);
 			}
