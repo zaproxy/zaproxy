@@ -408,21 +408,21 @@ public class AlertViewPanel extends AbstractPanel {
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
 	    	switch (alert.getRisk()) {
 	    	case Alert.RISK_INFO:	// blue flag
-				alertRisk.setIcon(new ImageIcon(getClass().getResource("/resource/icon/10/073.png")));
+				alertRisk.setIcon(new ImageIcon(Constant.INFO_FLAG_IMAGE_URL));
 	    		break;
 	    	case Alert.RISK_LOW:	// yellow flag
-				alertRisk.setIcon(new ImageIcon(getClass().getResource("/resource/icon/10/074.png")));
+				alertRisk.setIcon(new ImageIcon(Constant.LOW_FLAG_IMAGE_URL));
 	    		break;
 	    	case Alert.RISK_MEDIUM:	// Orange flag
-				alertRisk.setIcon(new ImageIcon(getClass().getResource("/resource/icon/10/076.png")));
+				alertRisk.setIcon(new ImageIcon(Constant.MED_FLAG_IMAGE_URL));
 	    		break;
 	    	case Alert.RISK_HIGH:	// Red flag
-				alertRisk.setIcon(new ImageIcon(getClass().getResource("/resource/icon/10/071.png")));
+				alertRisk.setIcon(new ImageIcon(Constant.HIGH_FLAG_IMAGE_URL));
 	    		break;
 	    	}
 	    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
 	    		// Special case - theres no risk - use the green flag
-				alertRisk.setIcon(new ImageIcon(getClass().getResource("/resource/icon/10/072.png")));
+				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
 	    	}
 			
 			alertReliability.setText(Alert.MSG_RELIABILITY[alert.getReliability()]);

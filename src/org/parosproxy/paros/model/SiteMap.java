@@ -268,23 +268,15 @@ public class SiteMap extends DefaultTreeModel {
         
     }
     
-    private String cleanName(String name) {
-    	int i = name.lastIndexOf(" (");
-    	if (i > 0) {
-    		return name.substring(0, i);
-    	}
-    	return name;
-    }
-    
     private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, SQLException {
     	// ZAP: Added debug
-    	log.debug("findAndAddChild " + parent.toString() + " / " + nodeName);    	
+    	log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);    	
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
             SiteNode newNode = new SiteNode(nodeName);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
-                if (nodeName.compareTo(cleanName(parent.getChildAt(i).toString())) < 0) {
+                if (nodeName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
                     pos = i;
                     break;
                 }
@@ -303,10 +295,10 @@ public class SiteMap extends DefaultTreeModel {
     
     private SiteNode findChild(SiteNode parent, String nodeName) {
     	// ZAP: Added debug
-    	log.debug("findChild " + parent.toString() + " / " + nodeName);    	
+    	log.debug("findChild " + parent.getNodeName() + " / " + nodeName);    	
         for (int i=0; i<parent.getChildCount(); i++) {
             SiteNode child = (SiteNode) parent.getChildAt(i);
-            if (cleanName(child.toString()).equals(nodeName)) {
+            if (child.getNodeName().equals(nodeName)) {
                 return child;
             }
         }
@@ -315,7 +307,7 @@ public class SiteMap extends DefaultTreeModel {
     
     private SiteNode findAndAddLeaf(SiteNode parent, String nodeName, HistoryReference ref, HttpMessage msg) {
     	// ZAP: Added debug
-    	log.debug("findAndAddLeaf " + parent.toString() + " / " + nodeName);    	
+    	log.debug("findAndAddLeaf " + parent.getNodeName() + " / " + nodeName);    	
 
         String leafName = getLeafName(nodeName, msg);
         SiteNode node = findChild(parent, leafName);
@@ -324,7 +316,7 @@ public class SiteMap extends DefaultTreeModel {
             node.setHistoryReference(ref);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
-                if (leafName.compareTo(cleanName(parent.getChildAt(i).toString())) < 0) {
+                if (leafName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
                     pos = i;
                     break;
                 }
@@ -406,13 +398,9 @@ public class SiteMap extends DefaultTreeModel {
         StringBuffer sb = new StringBuffer();
         String nodeName;
         for (int i=1; i<path.length; i++) {
-        	// ZAP Cope with error counds in the node names
-        	nodeName = path[i].toString();
-        	if (nodeName.indexOf(" (") > -1) {
-                sb.append(nodeName.substring(0, nodeName.indexOf(" (")));
-        	} else {
-                sb.append(nodeName);
-        	}
+        	// ZAP Cope with error counts in the node names
+        	nodeName = ((SiteNode)path[i]).getNodeName();
+            sb.append(nodeName);
             if (i<path.length-1) {
                 sb.append('/');
             }

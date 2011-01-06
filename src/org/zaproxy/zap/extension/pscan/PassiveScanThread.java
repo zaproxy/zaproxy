@@ -88,8 +88,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 						historyRecord.getHistoryType() == HistoryReference.TYPE_SPIDER)) {
 					// Note that scanning TYPE_SCANNER records will result in a loop ;)
 					// Parse the record
-					System.out.println("Got " + historyRecord.getHistoryId() + " type=" + historyRecord.getHistoryType() + " " + 
-							historyRecord.getHttpMessage().getRequestHeader().getURI().toString());
 					String response = historyRecord.getHttpMessage().getResponseHeader().toString() + 
 						historyRecord.getHttpMessage().getResponseBody().toString();
 					Source src = new Source(response);

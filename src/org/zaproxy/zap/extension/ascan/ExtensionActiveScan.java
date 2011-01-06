@@ -366,11 +366,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
         // ZAP: Reset the alert counts
-	    tree.resetAlertCounts();
+	    tree.recalcAlertCounts();
 	    
 	    try {
             refreshAlert(session);
-            // ZAP: this prevent the UI getting corruted
+            // ZAP: this prevent the UI getting corrupted
             tree.nodeStructureChanged(root);
         } catch (SQLException e) {
         	// ZAP: Print stack trace to Output tab
@@ -414,7 +414,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
-			manualRequestEditorDialog.setSize(500, 600);
+			manualRequestEditorDialog.setSize(700, 800);
 		}
 		return manualRequestEditorDialog;
 	}

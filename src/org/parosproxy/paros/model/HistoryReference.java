@@ -279,17 +279,18 @@ public class HistoryReference {
 		}
    }
    
-   public synchronized void addAlert(Alert alert) {
+   public synchronized boolean addAlert(Alert alert) {
 	   for (Alert a : alerts) {
 		   if (a.equals(alert)) {
 			   // We've already recorded it
-			   return;
+			   return false;
 		   }
 	   }
 	   this.alerts.add(alert);
 	   if (this.siteNode != null) {
 		   siteNode.addAlert(alert);
 	   }
+	   return true;
    }
    
    public synchronized void updateAlert(Alert alert) {

@@ -457,7 +457,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			return this.cleanSiteName(node.toString());
+			return this.cleanSiteName(node.getNodeName());
 		}
 		return null;
 	}

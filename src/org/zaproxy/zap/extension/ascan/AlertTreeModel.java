@@ -20,8 +20,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.net.URL;
-
 import javax.swing.tree.DefaultTreeModel;
 
 import org.parosproxy.paros.Constant;
@@ -47,87 +45,54 @@ class AlertTreeModel extends DefaultTreeModel {
         
     }
     
-    // ZAP: Added resetAlertCounts
-    public void resetAlertCounts() {
+    public void recalcAlertCounts() {
+    	AlertNode parent = (AlertNode) getRoot();
     	totalInfo = 0;
     	totalLow = 0;
     	totalMedium = 0;
     	totalHigh = 0;
-
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(0);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(0);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(0);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(0);
-
-    	AlertNode parent = (AlertNode) getRoot();
     	if (parent != null) {
-    		parent.resetErrorCount();
+            for (int i=0; i<parent.getChildCount(); i++) {
+                AlertNode child = (AlertNode) parent.getChildAt(i);
+                
+            	switch (child.getRisk()) {
+            	case Alert.RISK_INFO:
+                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(++totalInfo);
+                    break;
+            	case Alert.RISK_LOW:
+                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(++totalLow);
+                    break;
+            	case Alert.RISK_MEDIUM:
+                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(++totalMedium);
+                    break;
+            	case Alert.RISK_HIGH:
+                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(++totalHigh);
+                    break;
+            	}
+            }
     	}
+        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(totalInfo);
+        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(totalLow);
+        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(totalMedium);
+        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(totalHigh);
     }
     
- // Zap: Added icons to tree
     private String getRiskString (Alert alert) {
     	// Note that the number comments are to ensure the right ordering in the tree :)
-		URL url = null;
     	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-    		url = getClass().getResource("/resource/icon/16/072.png"); // Green
-    		return "<html><!--5--><img src=\"" + url + "\">&nbsp;" + alert.getAlert() + "<html>";
+    		return "<html><!--5--><img src=\"" + Constant.OK_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	}
     	switch (alert.getRisk()) {
     	case Alert.RISK_INFO:
-    		url = getClass().getResource("/resource/icon/10/073.png"); // Blue
-    		return "<html><!--4--><img src=\"" + url + "\">&nbsp;" + alert.getAlert() + "<html>";
+    		return "<html><!--4--><img src=\"" + Constant.INFO_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	case Alert.RISK_LOW:
-    		url = getClass().getResource("/resource/icon/10/074.png"); // Yellow
-    		return "<html><!--3--><img src=\"" + url + "\">&nbsp;" + alert.getAlert() + "<html>";
+    		return "<html><!--3--><img src=\"" + Constant.LOW_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	case Alert.RISK_MEDIUM:
-    		url = getClass().getResource("/resource/icon/10/076.png"); // Orange
-    		return "<html><!--2--><img src=\"" + url + "\">&nbsp;" + alert.getAlert() + "<html>";
+    		return "<html><!--2--><img src=\"" + Constant.MED_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	case Alert.RISK_HIGH:
-    		url = getClass().getResource("/resource/icon/10/071.png"); // Red
-    		return "<html><!--1--><img src=\"" + url + "\">&nbsp;" + alert.getAlert() + "<html>";
+    		return "<html><!--1--><img src=\"" + Constant.HIGH_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
         default:
         	return alert.getAlert();
-    	}
-    }
-    
-    private synchronized void incAlertCount (Alert alert) {
-    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-    		return;
-    	}
-    	switch (alert.getRisk()) {
-    	case Alert.RISK_INFO:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(++totalInfo);
-            break;
-    	case Alert.RISK_LOW:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(++totalLow);
-            break;
-    	case Alert.RISK_MEDIUM:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(++totalMedium);
-            break;
-    	case Alert.RISK_HIGH:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(++totalHigh);
-            break;
-    	}
-    }
-    
-    private synchronized void decAlertCount (Alert alert) {
-    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-    		return;
-    	}
-    	switch (alert.getRisk()) {
-    	case Alert.RISK_INFO:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(--totalInfo);
-            break;
-    	case Alert.RISK_LOW:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(--totalLow);
-            break;
-    	case Alert.RISK_MEDIUM:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(--totalMedium);
-            break;
-    	case Alert.RISK_HIGH:
-            View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(--totalHigh);
-            break;
     	}
     }
     
@@ -142,7 +107,7 @@ class AlertTreeModel extends DefaultTreeModel {
         String alertNodeName = getRiskString(alert);;
         
         try {
-            parent = findAndAddChild(parent, alertNodeName, null);
+            parent = findAndAddChild(parent, alertNodeName, alert);
             parent = findAndAddLeaf(parent, alert.getUri().toString(), alert);
             
         } catch (Exception e) {
@@ -173,30 +138,24 @@ class AlertTreeModel extends DefaultTreeModel {
     
     synchronized void updatePath(Alert originalAlert, Alert alert) {
 
-    	if (originalAlert !=null) {
-    		// Correct the global counts
-    		this.decAlertCount(originalAlert);
-    	}
-
         AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
         if (node != null) {
         	
         	// Remove the old version
         	AlertNode parent = (AlertNode) node.getParent();
-        	if (originalAlert.getReliability() != Alert.FALSE_POSITIVE) {
-            	parent.decErrorCount();
-        	}
 
         	this.removeNodeFromParent(node);
-            // TODO need to call this.valueForPathChanged(path, newValue) ??
+            nodeStructureChanged(parent);
         	
         	if (parent.getChildCount() == 0) {
         		// Parent has no other children, remove it also
         		this.removeNodeFromParent(parent);
+                nodeStructureChanged((AlertNode) this.getRoot());
         	}
         }
         // Add it back in again
         this.addPath(alert);
+        recalcAlertCounts();
     }
     
  
@@ -204,7 +163,7 @@ class AlertTreeModel extends DefaultTreeModel {
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
         AlertNode result = findChild(parent, nodeName);
         if (result == null) {
-            AlertNode newNode = new AlertNode(-1, nodeName);
+            AlertNode newNode = new AlertNode(alert.getRisk(), nodeName);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
                 if (nodeName.compareToIgnoreCase(parent.getChildAt(i).toString()) <= 0) {
@@ -237,15 +196,9 @@ class AlertTreeModel extends DefaultTreeModel {
             insertNodeInto(newNode, parent, pos);
             result = newNode;
             result.setUserObject(alert);
-
-            // Zap: Increment the error counts in alerts the tree
-        	if (alert.getReliability() != Alert.FALSE_POSITIVE) {
-                newNode.incErrorCount();
-                this.incAlertCount(alert);
-        	}
         	this.nodeChanged(newNode);
-            
         }
+        recalcAlertCounts();
         return result;
     }
 

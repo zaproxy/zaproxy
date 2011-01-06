@@ -20,12 +20,14 @@
  */
 package org.parosproxy.paros.model;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
 /**
@@ -40,17 +42,51 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector pastHistoryList = new Vector(10);
 	// ZAP: Support for linking Alerts to SiteNodes
 	private List<Alert> alerts = new ArrayList<Alert>();
-    
+	
     public SiteNode(String nodeName) {
         super();
         this.nodeName = nodeName;
     }
     
-    public String toString() {
-    	if (alerts.size() > 0) {
-    		return nodeName + " (" + alerts.size() + ")";
+    private String getMaxAlertString() {
+    	if (alerts.size() == 0) {
+    		return "";
     	}
-        return nodeName;
+    	int highest = 0;
+    	for (Alert alert : alerts) {
+    		if (alert.getRisk() > highest) {
+    			highest = alert.getRisk();
+    		}
+    	}
+    	switch (highest) {
+    	case Alert.RISK_INFO:
+    		return "&nbsp;<img src=\"" + Constant.INFO_FLAG_IMAGE_URL + "\">";
+    	case Alert.RISK_LOW:
+    		return "&nbsp;<img src=\"" + Constant.LOW_FLAG_IMAGE_URL + "\">";
+    	case Alert.RISK_MEDIUM:
+    		return "&nbsp;<img src=\"" + Constant.MED_FLAG_IMAGE_URL + "\">";
+    	case Alert.RISK_HIGH:
+    		return "&nbsp;<img src=\"" + Constant.HIGH_FLAG_IMAGE_URL + "\">";
+    	}
+    	return "";
+    }
+    
+    public String toString() {
+    	return "<html>" + nodeName + getMaxAlertString() + "</html>";
+    }
+    
+    public static String cleanName(String name) {
+    	String cname = name;
+    	if (cname.startsWith("<html>")) {
+    		cname = cname.substring(6);
+    	}
+    	if (cname.indexOf("&nbsp;") > 0) {
+    		cname = cname.substring(0, cname.indexOf("&nbsp;"));
+    	}
+    	if (cname.indexOf("</html>") > 0) {
+    		cname = cname.substring(0, cname.indexOf("</html>"));
+    	}
+    	return cname;
     }
     
     public String getNodeName() {

@@ -149,7 +149,7 @@ public class Scanner implements Runnable {
 	            curNode = parent;
 	            parent = (SiteNode) curNode.getParent();
 	        }
-	        result = curNode.toString();
+	        result = curNode.getNodeName();
 	    }
 	    return result;
 	}
