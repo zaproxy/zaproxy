@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-	<version>1001001</version>
+	<version>1002000</version>
 	<userDir></userDir>
 	<connection>
 		<proxyChain>
@@ -27,9 +27,6 @@
 	<view>
 		<processImages>0</processImages>
 		<locale>en_GB</locale>
-		<locales>en_GB</locales>
-		<locales>de_DE</locales>
-		<locales>es_ES</locales>
 	</view>
     <start>
         <checkForUpdates>0</checkForUpdates>

@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
-import org.parosproxy.paros.model.SiteNode;
 
 /**
  *
@@ -52,8 +51,8 @@ public final class Constant {
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.1.1";
-    public static final long VERSION_TAG = 1001001;
+    public static final String PROGRAM_VERSION = "1.2.0";
+    public static final long VERSION_TAG = 1002000;
     
     // Old version numbers - for upgrade
     private static final long V_1_1_0_TAG = 1001000;
