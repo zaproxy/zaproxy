@@ -123,38 +123,25 @@ public class ReportLastScan {
         return sb.toString();
     }
     
-    public File generate(String fileName, Model model) throws Exception {
+    public File generate(String fileName, Model model, String xslFile) throws Exception {
         
 	    StringBuffer sb = new StringBuffer(500);
 	    // ZAP: Dont require scan to have been run
-	    /*
-	    RecordScan scan = null;
-	        
-	    scan = model.getDb().getTableScan().getLatestScan();
-	    if (scan == null) {
-	        // view.showMessageDialog("Scan result is not available.  No report is generated.");
-	        return null;
-	    }
-	    */
+
 	    sb.append("<?xml version=\"1.0\"?>");
 	    sb.append("<report>\r\n");
 	    sb.append("Report generated at " + ReportGenerator.getCurrentDateTimeString() + ".\r\n");
 	    sb.append(getAlertXML(model.getDb(), null));
 	    sb.append("</report>");	
 	    
-	    if (!fileName.toLowerCase().endsWith(".htm") && !fileName.toLowerCase().endsWith(".html")) {
-	        fileName = fileName + ".html";		        
-	    }
-	    
-	    File report = ReportGenerator.stringToHtml(sb.toString(), "xml" + File.separator + "reportLatestScan.xsl", fileName);
+	    File report = ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
 	    
 	    
 	    return report;
     }
     
-	public void generate(ViewDelegate view, Model model) {		
+	public void generateHtml(ViewDelegate view, Model model) {		
 
-	    RecordScan scan = null;
 	    // ZAP: Allow scan report file name to be specified
 	    try{
 		    JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
@@ -190,8 +177,7 @@ public class ReportLastScan {
 		    		}
 	    		}
     		
-	    		//String output = model.getSession().getSessionFolder() + File.separator + "LatestScannedReport.htm";
-	    		File report = generate(file.getAbsolutePath(), model);
+	    		File report = generate(file.getAbsolutePath(), model, "xml/report.html.xsl");
 	    		if (report == null) {
 	    		    return;
 	    		}
@@ -209,6 +195,50 @@ public class ReportLastScan {
     	}
 	}
 	
+	public void generateXml(ViewDelegate view, Model model) {		
+
+	    // ZAP: Allow scan report file name to be specified
+	    try{
+		    JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+		    chooser.setFileFilter(new FileFilter() {
+		           public boolean accept(File file) {
+		                if (file.isDirectory()) {
+		                    return true;
+		                } else if (file.isFile() && 
+		                		file.getName().toLowerCase().endsWith(".xml")) {
+		                    return true;
+		                }
+		                return false;
+		            }
+		           public String getDescription() {
+		               return Constant.messages.getString("file.format.xml");
+		           }
+		    });
+		    
+			File file = null;
+		    int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
+		    if(rc == JFileChooser.APPROVE_OPTION) {
+	    		file = chooser.getSelectedFile();
+	    		if (file != null) {
+		            Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
+		    		String fileName = file.getAbsolutePath().toLowerCase();
+		    		if (! fileName.endsWith(".xml")) {
+		    		    fileName += ".xml";
+		    		    file = new File(fileName);
+		    		}
+	    		}
+    		
+	    		File report = generate(file.getAbsolutePath(), model, "xml/report.xml.xsl");
+	    		if (report == null) {
+	    		    return;
+	    		}
+		    }
+  			
+    	} catch (Exception e){
+    	    e.printStackTrace();
+      		view.showWarningDialog("File creation error."); 
+    	}
+	}
 
 		
     

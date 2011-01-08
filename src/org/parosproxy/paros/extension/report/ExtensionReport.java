@@ -20,7 +20,6 @@
  */
 package org.parosproxy.paros.extension.report;
 
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
@@ -29,8 +28,6 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookMenu;
-import org.parosproxy.paros.model.SiteMap;
 
 /**
  *
@@ -40,12 +37,10 @@ import org.parosproxy.paros.model.SiteMap;
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;
-    
-	private ExtensionHookMenu pluginMenu = null;
-	private SiteMap siteTree = null;
-	
-	private JMenu menuReport = null;
-	private JMenuItem menuItemLastScanReport = null;
+
+    // ZAP: Changed to support XML reports as well
+	private JMenuItem menuItemHtmlReport = null;
+	private JMenuItem menuItemXmlReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 	// ZAP Added logger
 	private Logger logger = Logger.getLogger(ExtensionReport.class);
@@ -78,55 +73,48 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	    super.hook(extensionHook);
 	    if (getView() != null) {
 	        //extensionHook.getHookMenu().addNewMenu(getMenuReport());
-	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemLastScanReport());
+	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemHtmlReport());
+	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemXmlReport());
 
 	    }
         extensionHook.addCommandLine(getCommandLineArguments());
 
 	}
-	
-	
-	/**
-	 * This method initializes menuReport	
-	 * 	
-	 * @return javax.swing.JMenu	
-	 */    
-	private JMenu getMenuReport() {
-		if (menuReport == null) {
-			menuReport = new JMenu();
-			menuReport.setText("Reports");
-			menuReport.add(getMenuItemLastScanReport());
-			menuReport.addSeparator();
-		}
-		return menuReport;
-	}
 
-
-	
-    /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.ScannerListener#ScannerProgress(java.lang.String, com.proofsecure.paros.network.HttpMessage, int)
-     */
-	/**
-	 * This method initializes menuItemLastScanReport	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private JMenuItem getMenuItemLastScanReport() {
-		if (menuItemLastScanReport == null) {
-			menuItemLastScanReport = new JMenuItem();
-			menuItemLastScanReport.setText(Constant.messages.getString("menu.report.generate"));	// ZAP: i18n
-			menuItemLastScanReport.addActionListener(new java.awt.event.ActionListener() { 
+	private JMenuItem getMenuItemHtmlReport() {
+		if (menuItemHtmlReport == null) {
+			menuItemHtmlReport = new JMenuItem();
+			menuItemHtmlReport.setText(Constant.messages.getString("menu.report.html.generate"));	// ZAP: i18n
+			menuItemHtmlReport.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    ReportLastScan report = new ReportLastScan();
-				    report.generate(getView(), getModel());
+				    report.generateHtml(getView(), getModel());
 	                
 				}
 			});
 
 		}
-		return menuItemLastScanReport;
+		return menuItemHtmlReport;
+	}
+	
+	private JMenuItem getMenuItemXmlReport() {
+		if (menuItemXmlReport == null) {
+			menuItemXmlReport = new JMenuItem();
+			menuItemXmlReport.setText(Constant.messages.getString("menu.report.xml.generate"));
+			menuItemXmlReport.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+
+				    ReportLastScan report = new ReportLastScan();
+				    report.generateXml(getView(), getModel());
+	                
+				}
+			});
+
+		}
+		return menuItemXmlReport;
 	}
 	
     /* (non-Javadoc)
@@ -139,7 +127,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             ReportLastScan report = new ReportLastScan();
             String fileName = (String) arg.getArguments().get(0);
             try {
-                report.generate(fileName, getModel());
+                report.generate(fileName, getModel(), "xml/report.html.xsl");
                 System.out.println("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
             	// ZAP: Log the exception
