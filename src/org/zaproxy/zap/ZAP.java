@@ -43,6 +43,7 @@ import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.view.AboutWindow;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
@@ -91,7 +92,30 @@ public class ZAP {
 	 * @param args
 	 */
 	private void init(String[] args) {
-
+		try {
+			// lang directory includes all of the language files
+			File langDir = new File ("lang");
+			if (langDir.exists() && langDir.isDirectory()) {
+				ClassLoaderUtil.addFile("lang");
+			} else {
+				System.out.println("Warning: failed to load language files from " + langDir.getAbsolutePath());
+			}
+			// Load all of the jars in the lib directory
+			File libDir = new File("lib");
+			if (libDir.exists() && libDir.isDirectory()) {
+				File[] files = libDir.listFiles();
+				for (File file : files) {
+					if (file.getName().toLowerCase().endsWith("jar")) {
+						ClassLoaderUtil.addFile(file);
+					}
+				}
+			} else {
+				System.out.println("Warning: failed to load jar files from " + libDir.getAbsolutePath());
+			}
+		} catch (Exception e) {
+			System.out.println("Failed loading jars: " + e);
+		}
+		
 	    //HttpSender.setUserAgent(Constant.USER_AGENT);
 	    try {
 	        cmdLine = new CommandLine(args);
@@ -133,7 +157,6 @@ public class ZAP {
 	}
 	
 	private void run() throws Exception {
-	    
 	    AboutWindow aboutWindow = null;
 	    boolean firstTime = false;
 	    if (cmdLine.isGUI()) {

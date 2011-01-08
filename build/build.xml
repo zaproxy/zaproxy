@@ -65,6 +65,9 @@
     <copy todir="${dist}/session">
     	<fileset dir="${src}/session"/>
     </copy>
+    <copy todir="${dist}/lang">
+      <fileset dir="${src}/lang"/>
+    </copy>
     <copy todir="${dist}/license">
 	<fileset dir="${src}/license"/>
     </copy>
