@@ -44,7 +44,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 public class OptionsScannerPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel panelSpider = null; 
+	private JPanel panelScanner = null; 
 	private JSlider sliderHostPerScan = null;
 	private JSlider sliderThreadsPerHost = null;
 	private JSlider sliderDelayInMs = null;
@@ -65,15 +65,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("ascan.options.title"));
         this.setSize(314, 245);
-        this.add(getPanelSpider(), getPanelSpider().getName());
+        this.add(getPanelScanner(), getPanelScanner().getName());
 	}
-	/**
-	 * This method initializes panelSpider	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getPanelSpider() {
-		if (panelSpider == null) {
+
+	private JPanel getPanelScanner() {
+		if (panelScanner == null) {
 			java.awt.GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints5b = new GridBagConstraints();
@@ -83,10 +79,10 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-			panelSpider = new JPanel();
-			panelSpider.setLayout(new GridBagLayout());
-			panelSpider.setSize(114, 132);
-			panelSpider.setName("");
+			panelScanner = new JPanel();
+			panelScanner.setLayout(new GridBagLayout());
+			panelScanner.setSize(114, 132);
+			panelScanner.setName("");
 			
 			javax.swing.JLabel jLabel = new JLabel();
 			javax.swing.JLabel jLabel1 = new JLabel();
@@ -176,19 +172,19 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraintsx.weighty = 1.0D;
 			gridBagConstraintsx.gridwidth = 2;
 		
-			panelSpider.add(jLabel, gridBagConstraints1);
-			panelSpider.add(getSliderHostPerScan(), gridBagConstraints2);
-			panelSpider.add(jLabel1, gridBagConstraints3);
-			panelSpider.add(getSliderThreadsPerHost(), gridBagConstraints4);
+			panelScanner.add(jLabel, gridBagConstraints1);
+			panelScanner.add(getSliderHostPerScan(), gridBagConstraints2);
+			panelScanner.add(jLabel1, gridBagConstraints3);
+			panelScanner.add(getSliderThreadsPerHost(), gridBagConstraints4);
 			
-			panelSpider.add(jLabel2, gridBagConstraints5a);
-			panelSpider.add(getLabelDelayInMsValue(), gridBagConstraints5b);
-			panelSpider.add(getSliderDelayInMs(), gridBagConstraints6);
+			panelScanner.add(jLabel2, gridBagConstraints5a);
+			panelScanner.add(getLabelDelayInMsValue(), gridBagConstraints5b);
+			panelScanner.add(getSliderDelayInMs(), gridBagConstraints6);
 
-			panelSpider.add(jLabelx, gridBagConstraintsx);
+			panelScanner.add(jLabelx, gridBagConstraintsx);
 
 		}
-		return panelSpider;
+		return panelScanner;
 	}
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
