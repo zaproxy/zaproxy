@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.MainToolbarPanel;
 
 
@@ -48,12 +47,15 @@ public class MainFrame extends AbstractFrame {
 	private MainToolbarPanel mainToolbarPanel = null;
 	private MainFooterPanel mainFooterPanel = null;
 
+	private int displayOption;
+
 	/**
 	 * This method initializes
 	 * 
 	 */
-	public MainFrame() {
+	public MainFrame(int displayOption) {
 		super();
+		this.displayOption = displayOption;
 		initialize();
 	}
 
@@ -105,7 +107,7 @@ public class MainFrame extends AbstractFrame {
 	 */
 	org.parosproxy.paros.view.WorkbenchPanel getWorkbench() {
 		if (paneStandard == null) {
-			paneStandard = new org.parosproxy.paros.view.WorkbenchPanel();
+			paneStandard = new org.parosproxy.paros.view.WorkbenchPanel(displayOption);
 			paneStandard.setLayout(new CardLayout());
 			paneStandard.setName("paneStandard");
 		}

@@ -51,12 +51,15 @@ public class WorkbenchPanel extends JPanel {
 	private org.parosproxy.paros.view.TabbedPanel tabbedStatus = null;
 	private org.parosproxy.paros.view.TabbedPanel tabbedWork = null;
 	private org.parosproxy.paros.view.TabbedPanel tabbedSelect = null;
+	
+	private int displayOption;
 
 	/**
 	 * This is the default constructor
 	 */
-	public WorkbenchPanel() {
+	public WorkbenchPanel(int displayOption) {
 		super();
+		this.displayOption = displayOption;
 		initialize();
 	}
 
@@ -76,7 +79,15 @@ public class WorkbenchPanel extends JPanel {
 		consGridBagConstraints1.weightx = 1.0;
 		consGridBagConstraints1.weighty = 1.0;
 		consGridBagConstraints1.fill = GridBagConstraints.BOTH;
-		this.add(getSplitHoriz(), consGridBagConstraints1);
+		switch (displayOption) {
+		case View.DISPLAY_OPTION_LEFT_FULL:
+			this.add(getSplitHoriz(), consGridBagConstraints1);
+			break;
+		case View.DISPLAY_OPTION_BOTTOM_FULL:
+		default:
+			this.add(getSplitVert(), consGridBagConstraints1);
+			break;
+		}
 	}
 
 	/**
@@ -93,7 +104,15 @@ public class WorkbenchPanel extends JPanel {
 			splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitVert.setResizeWeight(0.5D);
 			splitVert.setPreferredSize(new Dimension(800, 400));
-			splitVert.setTopComponent(getPaneWork());
+			switch (displayOption) {
+			case View.DISPLAY_OPTION_LEFT_FULL:
+				splitVert.setTopComponent(getPaneWork());
+				break;
+			case View.DISPLAY_OPTION_BOTTOM_FULL:
+			default:
+				splitVert.setTopComponent(getSplitHoriz());
+				break;
+			}
 			splitVert.setBottomComponent(getPaneStatus());
 			splitVert.setContinuousLayout(false);
 			splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -112,8 +131,16 @@ public class WorkbenchPanel extends JPanel {
 		if (splitHoriz == null) {
 			splitHoriz = new JSplitPane();
 			splitHoriz.setLeftComponent(getPaneSelect());
-			splitHoriz.setRightComponent(getSplitVert());
-			splitHoriz.setDividerLocation(280);
+			switch (displayOption) {
+			case View.DISPLAY_OPTION_LEFT_FULL:
+				splitHoriz.setRightComponent(getSplitVert());
+				break;
+			case View.DISPLAY_OPTION_BOTTOM_FULL:
+			default:
+				splitHoriz.setRightComponent(getPaneWork());
+				break;
+			}
+			splitHoriz.setDividerLocation(350);	// 280
 			splitHoriz.setDividerSize(3);
 			splitHoriz.setResizeWeight(0.3D);
 			splitHoriz.setPreferredSize(new Dimension(800, 400));

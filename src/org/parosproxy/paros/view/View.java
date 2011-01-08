@@ -42,6 +42,9 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
  */
 public class View implements ViewDelegate {
 	
+	public static final int DISPLAY_OPTION_LEFT_FULL = 0;
+	public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
+	
 	private static View view = null;
 //	private FindDialog findDialog = null;
 	private SessionDialog sessionDialog = null;
@@ -54,6 +57,8 @@ public class View implements ViewDelegate {
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
 	private Vector popupList = new Vector();
+	
+	private static int displayOption = DISPLAY_OPTION_LEFT_FULL;
 	
 	/**
 	 * @return Returns the mainFrame.
@@ -74,9 +79,12 @@ public class View implements ViewDelegate {
 	//	return responsePanel;
 	//}
 
+	public static void setDisplayOption(int displayOption) {
+		View.displayOption = displayOption;
+	}
 	
 	public void init() {
-		mainFrame = new MainFrame();
+		mainFrame = new MainFrame(displayOption);
 
 		siteMapPanel = new SiteMapPanel();
 		outputPanel = new OutputPanel();

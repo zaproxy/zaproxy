@@ -39,6 +39,7 @@ public class OptionsParamView extends AbstractParam {
 	// ZAP: Added support fr selecting the locale
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
+	public static final String DISPLAY_OPTION = "view.displayOption";
 
 	public static final String DEFAULT_LOCALE = "en_GB";
 	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
@@ -46,6 +47,7 @@ public class OptionsParamView extends AbstractParam {
 	private int processImages = 0;
 	private String configLocale = "";
 	private String locale = "";
+	private int displayOption = 0;
 	
     /**
      * @param rootElementName
@@ -61,6 +63,7 @@ public class OptionsParamView extends AbstractParam {
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
+	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
     }
 
 	/**
@@ -94,6 +97,15 @@ public class OptionsParamView extends AbstractParam {
 
 	public String getConfigLocale() {
 		return configLocale;
+	}
+
+	public int getDisplayOption() {
+		return displayOption;
+	}
+
+	public void setDisplayOption(int displayOption) {
+		this.displayOption = displayOption;
+		getConfig().setProperty(DISPLAY_OPTION, Integer.toString(displayOption));
 	}
 	
 }

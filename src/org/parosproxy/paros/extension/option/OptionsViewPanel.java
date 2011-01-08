@@ -51,6 +51,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel localeLabel = null;
 	private JLabel localeRestartLabel = null;
 	private Map<String, String> localeMap = new HashMap<String, String>();
+	private JLabel displayLabel = null;
+	private JComboBox displaySelect = null;
 	
     public OptionsViewPanel() {
         super();
@@ -88,7 +90,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc0 = new GridBagConstraints();
 			GridBagConstraints gbc1_0 = new GridBagConstraints();
 			GridBagConstraints gbc1_1 = new GridBagConstraints();
-			GridBagConstraints gbc2 = new GridBagConstraints();
+			GridBagConstraints gbc2_0 = new GridBagConstraints();
+			GridBagConstraints gbc2_1 = new GridBagConstraints();
+			GridBagConstraints gbc3 = new GridBagConstraints();
 			GridBagConstraints gbcX = new GridBagConstraints();
 			
 			gbc0.gridx = 0;
@@ -119,19 +123,37 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc1_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc1_1.weightx = 1.0D;
 
-			gbc2.gridx = 0;
-			gbc2.gridy = 2;
-			gbc2.ipadx = 0;
-			gbc2.ipady = 0;
-			gbc2.insets = new java.awt.Insets(2,2,2,2);
-			gbc2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc2.weightx = 1.0D;
-			gbc2.weighty = 1.0D;
-			gbc2.gridwidth = 2;
+			gbc2_0.gridx = 0;
+			gbc2_0.gridy = 2;
+			gbc2_0.ipadx = 0;
+			gbc2_0.ipady = 0;
+			gbc2_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc2_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc2_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc2_0.weightx = 1.0D;
+
+			gbc2_1.gridx = 1;
+			gbc2_1.gridy = 2;
+			gbc2_1.ipadx = 0;
+			gbc2_1.ipady = 0;
+			gbc2_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc2_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc2_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc2_1.weightx = 1.0D;
+
+			gbc3.gridx = 0;
+			gbc3.gridy = 3;
+			gbc3.ipadx = 0;
+			gbc3.ipady = 0;
+			gbc3.insets = new java.awt.Insets(2,2,2,2);
+			gbc3.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc3.weightx = 1.0D;
+			gbc3.weighty = 1.0D;
+			gbc3.gridwidth = 2;
 
 			gbcX.gridx = 0;
-			gbcX.gridy = 3;
+			gbcX.gridy = 4;
 			gbcX.ipadx = 0;
 			gbcX.ipady = 0;
 			gbcX.insets = new java.awt.Insets(2,2,2,2);
@@ -141,12 +163,15 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbcX.weighty = 1.0D;
 
 			localeLabel = new JLabel(Constant.messages.getString("view.options.label.language"));
+			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			localeRestartLabel = new JLabel(Constant.messages.getString("view.options.label.restart"));
 
 			panelMisc.add(getChkProcessImages(), gbc0);
 			panelMisc.add(localeLabel, gbc1_0);
 			panelMisc.add(getLocaleSelect(), gbc1_1);
-			panelMisc.add(localeRestartLabel, gbc2);
+			panelMisc.add(displayLabel, gbc2_0);
+			panelMisc.add(getDisplaySelect(), gbc2_1);
+			panelMisc.add(localeRestartLabel, gbc3);
 			panelMisc.add(new JLabel(), gbcX);
 
 		}
@@ -174,6 +199,15 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return localeSelect;
 	}
 	
+	private JComboBox getDisplaySelect() {
+		if (displaySelect == null) {
+			displaySelect = new JComboBox();
+			displaySelect.addItem(Constant.messages.getString("view.options.label.display.left"));
+			displaySelect.addItem(Constant.messages.getString("view.options.label.display.bottom"));
+		}
+		return displaySelect;
+	}
+	
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
@@ -188,6 +222,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 	    String locale = LocaleUtils.getLocalDisplayName(options.getViewParam().getLocale());
 	    localeSelect.setSelectedItem(locale);
+	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	}
 	
 	public void validateParam(Object obj) {
@@ -202,6 +237,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    if (locale != null) {
 		    options.getViewParam().setLocale(locale);
 	    }
+	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    
 	}
 	

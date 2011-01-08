@@ -163,6 +163,7 @@ public class ZAP {
 	    }
 		
 		if (Model.getSingleton().getOptionsParam().isGUI()) {
+			View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 		    runGUI();
 		    aboutWindow.dispose();
 		    
