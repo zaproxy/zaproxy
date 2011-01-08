@@ -95,7 +95,7 @@ public class HttpPanel extends AbstractPanel {
 		this.setLayout(new GridBagLayout());
 		this.setSize(403, 296);
 		gridBagConstraints1.gridx = 0;
-		gridBagConstraints1.gridy = 0;
+		gridBagConstraints1.gridy = 1;
 		gridBagConstraints1.weightx = 1.0;
 		gridBagConstraints1.weighty = 1.0;
 		gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
@@ -104,10 +104,11 @@ public class HttpPanel extends AbstractPanel {
 		gridBagConstraints4.anchor = java.awt.GridBagConstraints.SOUTHWEST;
 		gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints4.gridx = 0;
-		gridBagConstraints4.gridy = 1;
+		gridBagConstraints4.gridy = 0;
 		gridBagConstraints4.weightx = 1.0D;
-		this.add(getSplitVert(), gridBagConstraints1);
+		// ZAP: Moved the 'toolbar' to the top
 		this.add(getJPanel(), gridBagConstraints4);
+		this.add(getSplitVert(), gridBagConstraints1);
 	}
 	/**
 
