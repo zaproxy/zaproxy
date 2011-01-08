@@ -154,7 +154,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	@Override
 	public void alertFound(Alert alert) {
-		((ExtensionActiveScan)this.getExtension()).alertFound(alert);
+		((ExtensionActiveScan)this.getExtension()).alertFound(alert, alert.getHistoryRef());
 	}
 
 

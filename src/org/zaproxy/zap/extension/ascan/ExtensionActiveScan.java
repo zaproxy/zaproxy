@@ -28,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -214,21 +215,35 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
     
-    public void alertFound(Alert alert) {
+    public void alertFound(Alert alert, HistoryReference ref) {
 
         try {
-            HistoryReference ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
+        	if (ref == null) {
+        		ref = alert.getHistoryRef();
+        	}
+        	if (ref == null) {
+        		ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
+        	}
             
             writeAlertToDB(alert, ref);
             addAlertToDisplay(alert, ref);
             
-    		SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
-
+            // The node node may have a new alert flag...
+        	this.nodeChanged(ref.getSiteNode());
+        	
         } catch (Exception e) {
         	// ZAP: Print stack trace to Output tab
         	getView().getOutputPanel().append(e);
         }
+    }
+    
+    private void nodeChanged(TreeNode node) {
+    	if (node == null) {
+    		return;
+    	}
+    	SiteMap siteTree = this.getModel().getSession().getSiteTree();
+    	siteTree.nodeChanged(node);
+    	nodeChanged(node.getParent());
     }
 
     private void addAlertToDisplay(final Alert alert, final HistoryReference ref) {
@@ -321,8 +336,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         alert.setAlertId(recordAlert.getAlertId());
         
 	}
+	public void updateAlert(Alert alert) throws HttpMalformedHeaderException, SQLException {
+		updateAlertInDB(alert);
+		if (alert.getHistoryRef() != null) {
+			this.nodeChanged(alert.getHistoryRef().getSiteNode());
+		}
+	}
 
-	public void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
+	private void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
 
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
 	    tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(), 
@@ -337,6 +358,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	public void updateAlertInTree(Alert originalAlert, Alert alert) {
 		this.getTreeModel().updatePath(originalAlert, alert);
+		
 	}
 
 	public void sessionChanged(final Session session)  {

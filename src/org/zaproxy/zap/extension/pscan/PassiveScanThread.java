@@ -122,6 +122,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 		
 	public void raiseAlert(int id, Alert alert) {
+		HistoryReference href = null;
 		if (extHist == null) {
 			init();
 		}
@@ -132,7 +133,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		alert.setSourceHistoryId(historyRecord.getHistoryId());
 		
 		try {
-			HistoryReference href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
+			href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
 			if (href != null) {
 				href.addAlert(alert);
 				extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
@@ -142,7 +143,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 	    // Raise the alert
 		if (extAScan != null) {
-			extAScan.alertFound(alert);
+			extAScan.alertFound(alert, href);
 		}
 		if (extScan != null) {
 			extScan.alertFound(alert);

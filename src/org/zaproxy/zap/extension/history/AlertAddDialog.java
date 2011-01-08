@@ -115,8 +115,8 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jPanel.setPreferredSize(new java.awt.Dimension(400,600));
-			jPanel.setMinimumSize(new java.awt.Dimension(400,600));
+			jPanel.setPreferredSize(new java.awt.Dimension(450,650));
+			jPanel.setMinimumSize(new java.awt.Dimension(450,650));
 			gridBagConstraints2.gridx = 1;
 			gridBagConstraints2.gridy = 5;
 			gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
@@ -172,12 +172,12 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 						    if (extScan == null) {
 								extScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
 						    }
-							extScan.updateAlertInDB(alert);
+							extScan.updateAlert(alert);
 
 							// Update alert display
 							extScan.displayAlert(alert);
 							
-							// TODO Update alert tree
+							// Update alert tree
 							extScan.updateAlertInTree(alertViewPanel.getOriginalAlert(), alert);
 
 							// Update history tree
@@ -193,7 +193,7 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 						    if (extScan == null) {
 								extScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
 						    }
-							extScan.alertFound(alert);
+							extScan.alertFound(alert, historyRef);
 						}
 					} catch (Exception e1) {
 						e1.printStackTrace();
@@ -248,7 +248,11 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 	
 	public void setAlert(Alert alert) {
 		this.getAlertViewPanel().displayAlert(alert);
-		this.setHistoryRef(alert.getMessage().getHistoryRef());
+		if (alert.getHistoryRef() != null) {
+			this.setHistoryRef(alert.getHistoryRef());
+		} else {
+			this.setHistoryRef(alert.getMessage().getHistoryRef());
+		}
 	}
 	
 	/**
