@@ -269,7 +269,6 @@ public class SearchPanel extends AbstractPanel {
 			regEx.setPreferredSize(new java.awt.Dimension(250,25));
 			regEx.setText("");
 			regEx.setMinimumSize(new java.awt.Dimension(250,25));
-			//regEx.addActionListener(this);
 			
 			regEx.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -315,6 +314,9 @@ public class SearchPanel extends AbstractPanel {
 	
 	public void addSearchResult(SearchResult str) {
 		resultsModel.addElement(str);
+		if (resultsModel.size() == 1) {
+			this.highlightFirstResult();
+		}
 	}
 
     public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
@@ -397,10 +399,17 @@ public class SearchPanel extends AbstractPanel {
     private void highlightFirstResult (SearchResult sr) {
     	highlightMatch(sr.getFirstMatch(requestPanel, responsePanel));
     }
+    
+    protected void highlightFirstResult() {
+		if (resultsList.getModel().getSize() > 0) {
+			resultsList.setSelectedIndex(0);
+			resultsList.requestFocus();
+		}
+    }
 
     protected void highlightNextResult () {
     	if (resultsList.getSelectedValue() == null) {
-        	searchFocus();
+    		this.highlightFirstResult();
     		return;
     	}
     	
@@ -438,7 +447,7 @@ public class SearchPanel extends AbstractPanel {
 	        	}
 	    	}
     	} else {
-        	searchFocus();
+    		this.highlightFirstResult();
     	}
     }
 
