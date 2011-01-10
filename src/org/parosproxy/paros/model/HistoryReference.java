@@ -309,9 +309,9 @@ public class HistoryReference {
    }
    
    public int getHighestAlert() {
-	   int i = Alert.RISK_INFO;
+	   int i = -1;
 	   for (Alert a : alerts) {
-		   if (a.getRisk() > i) {
+		   if (a.getReliability() != Alert.FALSE_POSITIVE && a.getRisk() > i) {
 			   i = a.getRisk();
 		   }
 	   }

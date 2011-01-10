@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.CardLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -104,7 +104,7 @@ class AlertTreeModel extends DefaultTreeModel {
     synchronized void addPath(Alert alert) {
         
         AlertNode parent = (AlertNode) getRoot();
-        String alertNodeName = getRiskString(alert);;
+        String alertNodeName = getRiskString(alert);
         
         try {
             parent = findAndAddChild(parent, alertNodeName, alert);
@@ -164,6 +164,10 @@ class AlertTreeModel extends DefaultTreeModel {
         AlertNode result = findChild(parent, nodeName);
         if (result == null) {
             AlertNode newNode = new AlertNode(alert.getRisk(), nodeName);
+            if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+            	// Special case!
+            	newNode.setRisk(-1);
+            }
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
                 if (nodeName.compareToIgnoreCase(parent.getChildAt(i).toString()) <= 0) {
@@ -183,6 +187,10 @@ class AlertTreeModel extends DefaultTreeModel {
         
         if (result == null) {
             AlertNode newNode = new AlertNode(alert.getRisk(), nodeName);
+            if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+            	// Special case!
+            	newNode.setRisk(-1);
+            }
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
             	String childName = ((AlertNode)parent.getChildAt(i)).getNodeName();

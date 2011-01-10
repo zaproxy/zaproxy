@@ -17,7 +17,7 @@ public class LocaleUtils {
 
 	public static List<String> getAvailableLocales() {
 		List<String> locales = new ArrayList<String>();
-		File dir = new File(".");
+		File dir = new File("lang");
 		FilenameFilter filter = new FilenameExtensionFilter("properties", true);
 		String[] files = dir.list(filter );
 

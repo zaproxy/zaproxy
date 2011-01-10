@@ -52,9 +52,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     	if (alerts.size() == 0) {
     		return "";
     	}
-    	int highest = 0;
+    	int highest = -1;
     	for (Alert alert : alerts) {
-    		if (alert.getRisk() > highest) {
+    		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
     			highest = alert.getRisk();
     		}
     	}
