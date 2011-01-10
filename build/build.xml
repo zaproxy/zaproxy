@@ -37,6 +37,9 @@
   </target>
 
   <target name="dist" depends="compile" description="generate the distribution" >
+  	<!-- Update the version.txt file with the new version name before generating the distribution -->
+  	<loadfile property="version" srcfile="version.txt"></loadfile>
+
     <!-- Create the distribution directory -->
     <mkdir dir="${dist}"/>
     <!--copy file="lib.jar" tofile="${dist}/lib.jar"/--> 
@@ -79,15 +82,27 @@
 			<include name="**/*.jar"/>
 		</fileset>
     </copy>
+  	<!-- Copy any scripts, and give execute perms -->
     <copy todir="${dist}">
-    	<!-- TODO change this! -->
-      <fileset dir="${src}" includes="*.exe *.so *.dll mozembed* *.bat *.sh *.properties"/>
+      <fileset dir="${src}" includes="*.sh"/>
     </copy>
+    <chmod perm="ug+x">
+        <!-- This only has any effect on Linux -->
+        <fileset dir="${dist}">
+            <include name="*.sh"/>
+        </fileset>
+    </chmod>
 
     <!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
 
   	<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
-		<classpath refid="dist.classpath" />
+		<!--classpath refid="dist.classpath" /-->
+    	<classpath>
+			<fileset dir="${dist}/lib">
+				<include name="**/*.jar"/>
+			</fileset>
+    		<!--path location="lang"/-->
+    	</classpath>
 	</manifestclasspath>
 
     <jar jarfile="${dist}/zap.jar" update="true" compress="false">
@@ -95,8 +110,16 @@
     	<manifest>
    			<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
    			<attribute name="Class-Path" value="${dist.manifest.classpath}"/>
+    		<attribute name="Implementation-Version" value="${version}"/>
     	</manifest>
     </jar>
+  	
+  	<!-- Tar up the release -->
+  	<delete file="ZAP_${version}_Linux.tar.gz"/>
+  	<tar compression="gzip" 
+  		destfile="ZAP_${version}_Linux.tar.gz" 
+  		basedir="${dist}" excludes="**/.svn"/>
+  	
   </target>
 
 
