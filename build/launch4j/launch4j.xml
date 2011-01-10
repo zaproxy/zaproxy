@@ -1,7 +1,7 @@
 <launch4jConfig>
-  <dontWrapJar>false</dontWrapJar>
+  <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>..\zap\zap.jar</jar>
+  <jar>zap.jar</jar>
   <outfile>..\zap\ZAP.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -15,24 +15,7 @@
   <icon>..\..\src\resource\zap48x48.ico</icon>
   <classPath>
     <mainClass>org.zaproxy.zap.ZAP</mainClass>
-    <cp>.</cp>
-    <cp>lib/commons-codec-1.2.jar</cp>
-    <cp>lib/commons-collections-3.1.jar</cp>
-    <cp>lib/commons-configuration-1.1.jar</cp>
-    <cp>lib/commons-httpclient-3.0.jar</cp>
-    <cp>lib/commons-lang-2.0.jar</cp>
-    <cp>lib/commons-logging-api.jar</cp>
-    <cp>lib/commons-logging.jar</cp>
-    <cp>lib/hsqldb.jar</cp>
-    <cp>lib/java-getopt-1.0.13.jar</cp>
-    <cp>lib/jdom.jar</cp>
-    <cp>lib/jericho-html-3.1.jar</cp>
-    <cp>lib/jh.jar</cp>
-    <cp>lib/js.jar</cp>
-    <cp>lib/log4j-1.2.8.jar</cp>
-    <cp>lib/looks-2.2.0.jar</cp>
-    <cp>lib/swing-layout-1.0.3.jar</cp>
-    <cp>lib/zaphelp.jar</cp>
+    <cp>zap.jar</cp>
   </classPath>
   <jre>
     <path></path>
