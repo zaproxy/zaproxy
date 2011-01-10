@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -162,6 +163,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints1.weightx = 1.0D;
+			
 			gridBagConstraints2.gridx = 0;
 			gridBagConstraints2.gridy = 1;
 			gridBagConstraints2.weightx = 1.0;
@@ -200,6 +202,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+			//Dummy
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 
 			gridBagConstraints1.gridx = 0;
@@ -239,26 +242,31 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			gridBagConstraints8.gridx = 7;
 			gridBagConstraints8.gridy = 0;
-			gridBagConstraints8.insets = new java.awt.Insets(0,3,0,0);	// Slight indent
+			gridBagConstraints8.weightx = 1.0;
+			gridBagConstraints8.weighty = 1.0;
+			gridBagConstraints8.insets = new java.awt.Insets(0,5,0,5);	// Slight indent
 			gridBagConstraints8.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
 			gridBagConstraints9.gridx = 8;
 			gridBagConstraints9.gridy = 0;
 			gridBagConstraints9.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints9.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints9.anchor = java.awt.GridBagConstraints.EAST;
+			
 
 			gridBagConstraints10.gridx = 9;
 			gridBagConstraints10.gridy = 0;
 			gridBagConstraints10.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints10.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints10.anchor = java.awt.GridBagConstraints.EAST;
+			
 
 			gridBagConstraintsx.gridx = 10;
 			gridBagConstraintsx.gridy = 0;
-			gridBagConstraintsx.weightx = 1.0;
-			gridBagConstraintsx.weighty = 1.0;
+			//gridBagConstraintsx.weightx = 1.0;
+			//gridBagConstraintsx.weighty = 1.0;
 			gridBagConstraintsx.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraintsx.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.WEST;
+			
 
 			JLabel t1 = new JLabel();
 

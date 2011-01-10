@@ -21,6 +21,7 @@ package org.zaproxy.zap.view;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -200,8 +201,11 @@ public abstract class ScanPanel extends AbstractPanel {
 
 			gridBagConstraints6.gridx = 5;
 			gridBagConstraints6.gridy = 0;
-			gridBagConstraints6.insets = new java.awt.Insets(0,3,0,0);	// Slight indent
+			gridBagConstraints6.weightx = 1.0;
+			gridBagConstraints6.weighty = 1.0;
+			gridBagConstraints6.insets = new java.awt.Insets(0,5,0,5);	// Slight indent
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
 			gridBagConstraints7.gridx = 6;
 			gridBagConstraints7.gridy = 0;
@@ -218,8 +222,9 @@ public abstract class ScanPanel extends AbstractPanel {
 			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.weighty = 1.0;
 			gridBagConstraintsx.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraintsx.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			
 
 			JLabel t1 = new JLabel();
 
@@ -227,8 +232,8 @@ public abstract class ScanPanel extends AbstractPanel {
 			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
 			
 			panelToolbar.add(getStartScanButton(), gridBagConstraints3);
-			panelToolbar.add(getStopScanButton(), gridBagConstraints4);
-			panelToolbar.add(getPauseScanButton(), gridBagConstraints5);
+			panelToolbar.add(getPauseScanButton(), gridBagConstraints4);
+			panelToolbar.add(getStopScanButton(), gridBagConstraints5);
 			panelToolbar.add(getProgressBar(), gridBagConstraints6);
 			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints7);
 			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints8);
@@ -276,6 +281,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (progressBar == null) {
 			progressBar = new JProgressBar(0, 100);
 			progressBar.setValue(0);
+			progressBar.setSize(new Dimension(80,20));
 			progressBar.setStringPainted(true);
 			progressBar.setEnabled(false);
 		}
