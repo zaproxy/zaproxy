@@ -99,10 +99,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 				break;
 			}
 		}
-		// TODO what if node not found??
+		if (startNode != null) {
+			st.setStartNode(startNode);
+			return st;
+		} else {
+			log.error("Failed to find site " + site + " when starting spider");
+			return null;
+		}
 
-		st.setStartNode(startNode);
-		return st;
 	}
 	
 	@Override

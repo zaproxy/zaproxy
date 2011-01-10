@@ -143,7 +143,11 @@ public class ExtensionSpider extends ExtensionAdaptor
 	@Override
 	public void onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
-		this.getSpiderPanel().addSite(msg.getRequestHeader().getHostName());
+		String site = msg.getRequestHeader().getHostName();
+		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
+			site += ":" + msg.getRequestHeader().getHostPort();
+		}
+		this.getSpiderPanel().addSite(site);
 	}
 
 	@Override

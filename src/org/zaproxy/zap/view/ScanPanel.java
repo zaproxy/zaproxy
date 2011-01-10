@@ -491,7 +491,10 @@ public abstract class ScanPanel extends AbstractPanel {
 			scanThread = this.newScanThread(currentSite, scanParam);
 			scanMap.put(currentSite, scanThread);
 		}
-		scanThread.setStartNode(startNode);
+		if (scanThread.getStartNode() == null) {
+			// Quick fix - need to look at this again
+			scanThread.setStartNode(startNode);
+		}
 		scanThread.start();
 		scanMap.put(currentSite, scanThread);
 		setActiveScanLabels();
