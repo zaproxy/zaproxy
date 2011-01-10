@@ -178,7 +178,6 @@ public class MainMenuBar extends JMenuBar {
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileProperties());
 			menuFile.addSeparator();
-			menuFile.addSeparator();
 			menuFile.add(getMenuFileExit());
 		}
 		return menuFile;

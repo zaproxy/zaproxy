@@ -159,8 +159,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		    getLogPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 		    
 
-//            extensionHook.getHookMenu().addViewMenuItem(getPopupMenuEmbeddedBrowser2());
-            extensionHook.getHookMenu().addViewMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+		    //extensionHook.getHookMenu().addViewMenuItem(getPopupMenuEmbeddedBrowser2());
+            // Removed the separator in the View menu
+		    //extensionHook.getHookMenu().addViewMenuItem(extensionHook.getHookMenu().getMenuSeparator());
             // ZAP Removed 'Filter History by..' menu iteams - replaced by filter plus
 	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByRequest());
 	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByResponse());
