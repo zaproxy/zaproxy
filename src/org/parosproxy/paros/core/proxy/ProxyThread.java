@@ -149,7 +149,11 @@ class ProxyThread implements Runnable {
 			}
 	    } catch (SocketTimeoutException e) {
         	// ZAP: Log the exception
-        	log.warn("Timeout accessing " + firstHeader.getURI().toString());
+	    	if (firstHeader != null) {
+	    		log.warn("Timeout accessing " + firstHeader.getURI());
+	    	} else {
+	    		log.warn("Timeout ", e);
+	    	}
 		} catch (IOException e) {
 		    log.warn(e.getMessage(), e);
 
