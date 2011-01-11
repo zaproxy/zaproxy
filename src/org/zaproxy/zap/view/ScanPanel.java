@@ -26,6 +26,7 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner;
@@ -464,6 +466,25 @@ public abstract class ScanPanel extends AbstractPanel {
 				node = (SiteNode) node.getParent();
 			}
 			return this.cleanSiteName(node.getNodeName());
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected SiteNode getSiteNode (String siteName) {
+		SiteMap siteTree = this.getExtension().getModel().getSession().getSiteTree();
+		SiteNode rootNode = (SiteNode) siteTree.getRoot();
+		
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			String nodeName = sn.getNodeName();
+			if (nodeName.indexOf("//") >= 0) {
+				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
+			}
+			if (siteName.equals(nodeName)) {
+				return sn;
+			}
 		}
 		return null;
 	}

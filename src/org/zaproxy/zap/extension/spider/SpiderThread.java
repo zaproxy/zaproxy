@@ -47,7 +47,6 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private ExtensionSpider extension;
 
 	private Spider spider = null;
-	private SiteMap siteTree = null;
 	private SiteNode startNode = null;
 	
 	private int spiderDone = 0;
@@ -139,16 +138,11 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	}
 	
 	public void startSpider() {
-        siteTree = extension.getModel().getSession().getSiteTree();
+		if (startNode == null) {
+			log.error("Spider: No start node set for site " + site);
+			return;
+		}
 
-	    if (startNode == null) {
-	        startNode = (SiteNode) siteTree.getRoot();
-	    }
-        startSpider(startNode);
-
-	}
-	
-	private void startSpider(SiteNode startNode) {
 	    if (spider == null) {
 	        try {
 	        	extension.getModel().getDb().getTableHistory().deleteHistoryType(

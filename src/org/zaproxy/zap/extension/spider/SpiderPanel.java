@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
-import java.util.Enumeration;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -36,7 +35,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanListenner;
@@ -77,36 +75,13 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
         super("spider", new ImageIcon(extension.getClass().getResource("/resource/icon/spider.png")), extension, portScanParam);
     }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider)this.getExtension(), site, this, 
 				(org.parosproxy.paros.core.spider.SpiderParam) params);
 		
-		SiteMap siteTree = this.getExtension().getModel().getSession().getSiteTree();
-		SiteNode rootNode = (SiteNode) siteTree.getRoot();
-		SiteNode startNode = null;
-		
-		Enumeration<SiteNode> en = rootNode.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
-			String nodeName = sn.getNodeName();
-			if (nodeName.indexOf("//") >= 0) {
-				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
-			}
-			if (site.equals(nodeName)) {
-				startNode = sn;
-				break;
-			}
-		}
-		if (startNode != null) {
-			st.setStartNode(startNode);
-			return st;
-		} else {
-			log.error("Failed to find site " + site + " when starting spider");
-			return null;
-		}
-
+		st.setStartNode(this.getSiteNode(site));
+		return st;
 	}
 	
 	@Override
