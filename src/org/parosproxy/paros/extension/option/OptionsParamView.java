@@ -40,10 +40,11 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
-
+	public static final String EDITORVIEW_OPTION = "view.editorView";
 	public static final String DEFAULT_LOCALE = "en_GB";
 	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
 
+	private int editorViewOption;
 	private int processImages = 0;
 	private String configLocale = "";
 	private String locale = "";
@@ -64,6 +65,7 @@ public class OptionsParamView extends AbstractParam {
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
+	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
     }
 
 	/**
@@ -99,6 +101,15 @@ public class OptionsParamView extends AbstractParam {
 		return configLocale;
 	}
 
+	public int getEditorViewOption() {
+		return editorViewOption;
+	}
+	
+	public void setEditorViewOption(int idx) {
+		editorViewOption = idx;
+		getConfig().setProperty(EDITORVIEW_OPTION, Integer.toString(editorViewOption));
+	}
+	
 	public int getDisplayOption() {
 		return displayOption;
 	}

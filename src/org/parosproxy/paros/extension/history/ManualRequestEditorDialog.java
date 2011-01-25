@@ -20,6 +20,8 @@
 */
 package org.parosproxy.paros.extension.history;
 
+import org.parosproxy.paros.model.Model;
+
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -32,8 +34,10 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.commons.httpclient.URI;
@@ -51,13 +55,14 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.HttpPanel;
 /**
 *
 * To change the template for this generated type comment go to
 * Window - Preferences - Java - Code Generation - Code and Comments
 */
-public class ManualRequestEditorDialog extends AbstractDialog {
+public class ManualRequestEditorDialog extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -68,7 +73,8 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	private JPanel panelCommand = null;
 	private JButton btnSend = null;
 	private JLabel jLabel = null;  //  @jve:decl-index=0:
-	private JTabbedPane panelTab = null;
+	// ZAP: Changed panelTab to JSplitPane
+	private JComponent panelMain = null;
 	private HttpPanel responsePanel = null;
 	private Extension extension = null;
 	private HttpSender httpSender = null;
@@ -87,7 +93,6 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	public ManualRequestEditorDialog() throws HeadlessException {
 	   super();
 	   initialize();
-       
    }
 
    /**
@@ -96,7 +101,8 @@ public class ManualRequestEditorDialog extends AbstractDialog {
     * @throws HeadlessException
     */
    public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension) throws HeadlessException {
-       super(parent, modal);
+       //super(parent, modal);
+	   super();
        this.isSendEnabled = isSendEnabled;
        this.extension = extension;
        initialize();
@@ -208,15 +214,35 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	 * 	
 	 * @return javax.swing.JTabbedPane	
 	 */    
-	private JTabbedPane getPanelTab() {
-		if (panelTab == null) {
-			panelTab = new JTabbedPane();
-			panelTab.setDoubleBuffered(true);
-			panelTab.addTab(Constant.messages.getString("manReq.tab.request"), null, getRequestPanel(), null);
-			panelTab.addTab(Constant.messages.getString("manReq.tab.response"), null, getResponsePanel(), null);
+	private JComponent getPanelTab() {
+		if (panelMain == null) {
+			switch(Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption()) {
+			case 0:
+				this.panelMain = (JComponent) new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
+				panelMain.setDoubleBuffered(true);
+				break;
+				
+			case 1:
+				this.panelMain = (JComponent) new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getRequestPanel(), getResponsePanel());
+				panelMain.setDoubleBuffered(true);
+				break;
+				
+			case 2:
+				JTabbedPane tabbedPane = new JTabbedPane(); 
+				tabbedPane.addTab(Constant.messages.getString("manReq.tab.request"), null, getRequestPanel(), null);
+				tabbedPane.addTab(Constant.messages.getString("manReq.tab.response"), null, getResponsePanel(), null);
+				this.panelMain = (JComponent) tabbedPane;
+				break;
+				
+			default:
+				this.panelMain = (JComponent) new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
+				panelMain.setDoubleBuffered(true);
+			}
 		}
-		return panelTab;
+		
+		return panelMain;
 	}
+	
 	/**
 	 * This method initializes httpPanel	
 	 * 	
@@ -248,7 +274,6 @@ public class ManualRequestEditorDialog extends AbstractDialog {
         	   // ZAP: Log exceptions
         	   log.error(e.getMessage(), e);
            }
-           getPanelTab().setSelectedIndex(0);
        }
 
        boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
@@ -266,7 +291,6 @@ public class ManualRequestEditorDialog extends AbstractDialog {
    }
    
    public void setMessage(HttpMessage msg) {
-       getPanelTab().setSelectedIndex(0);
        getRequestPanel().setMessage(msg, true);
        getResponsePanel().setMessage("", "", false);
        getBtnSend().setEnabled(true);
@@ -338,7 +362,6 @@ public class ManualRequestEditorDialog extends AbstractDialog {
 	                            });
 	                            t.start();
 	                        }
-                        getPanelTab().setSelectedIndex(1);
                         }
                     });
                 } catch (NullPointerException npe) {
