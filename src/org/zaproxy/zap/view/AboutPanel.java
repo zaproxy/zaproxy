@@ -53,12 +53,13 @@ public class AboutPanel extends JPanel {
     private static final String OTHER_LICENSE =
         "<html><body>"
         
-        + "<p>ZAP is a fork of the open source Paros product developed by Chinotec Technologies Company.</p>"
+        + "<p>" + PRODUCT + " is a fork of the open source Paros product developed by Chinotec Technologies Company.</p>"
         + "<p>The Paros code is Copyright (C) 2003-2005 Chinotec Technologies Company</p>"
         + "<p>and is licenced under the Clarified Artistic License as published by the Free Software Foundation.</p>"
         + "<p/>"
         + "<p>This product includes softwares developed by the Apache Software Foundation <A>http://www.apache.org</A> licensed under Apache License 2.0.  "
         + "HSQLDB is licensed under BSD license.  JDIC is licensed by Sun Microsystems, Inc under the LGPL license.  "
+        + PRODUCT + " also contains BeanShell, which is lisenced unter LGPL.  "
         + "The Copyrights of these softwares belong to their respective owners."
         + "</body></html>";
 	private static final String HOMEPAGE = "<html><body><p>http://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</body></html>";

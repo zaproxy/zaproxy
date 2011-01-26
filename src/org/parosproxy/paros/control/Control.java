@@ -35,6 +35,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
+import org.zaproxy.zap.extension.beanshell.ExtensionBeanShell;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
@@ -45,6 +46,7 @@ import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
+
 
 
 /**
@@ -129,6 +131,7 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionPortScan());
         
         getExtensionLoader().addExtension(new ExtensionManualRequestEditor());
+        getExtensionLoader().addExtension(new ExtensionBeanShell());
         // This is now the ZAP autoupdate extension
         getExtensionLoader().addExtension(new ExtensionAutoUpdate());
 
