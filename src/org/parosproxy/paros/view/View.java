@@ -92,8 +92,8 @@ public class View implements ViewDelegate {
         ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
 
 		// do not allow editable in request panel
-		getWorkbench().getTabbedWork().add(getRequestPanel());
-		getWorkbench().getTabbedWork().add(getResponsePanel());
+		getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel());
+		getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel());
 		
 		//logPanel.setDisplayPanel(requestPanel, responsePanel);
 		//getWorkbench().getTabbedStatus().add(logPanel, "URLs");
@@ -161,6 +161,8 @@ public class View implements ViewDelegate {
     public HttpPanel getRequestPanel() {
         if (requestPanel == null) {
             requestPanel = new HttpPanel(false);
+    		// ZAP: Added 'right arrow' icon
+    		requestPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("request.panel.title"));	// ZAP: i18n
         }
         return requestPanel;
@@ -169,6 +171,8 @@ public class View implements ViewDelegate {
     public HttpPanel getResponsePanel() {
         if (responsePanel == null) {
             responsePanel = new HttpPanel(false);
+    		// ZAP: Added 'left arrow' icon
+            responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
             responsePanel.setMessage("","",false);
         }

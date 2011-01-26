@@ -80,7 +80,7 @@ public class BreakPointsPanel extends AbstractPanel {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("brk.panel.title"));
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/151.png")));	// 'red circle' icon
+		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101.png")));	// 'red X' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 	/**

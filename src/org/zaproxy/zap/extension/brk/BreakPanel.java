@@ -20,14 +20,13 @@
 
 package org.zaproxy.zap.extension.brk;
 
-import java.awt.GridBagConstraints;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.HttpPanel;
+import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 /**
  *
@@ -37,51 +36,74 @@ import org.parosproxy.paros.view.View;
 public class BreakPanel extends HttpPanel {
 	private static final long serialVersionUID = 1L;
 	private javax.swing.JPanel panelCommand = null;
-	private javax.swing.JCheckBox chkTrapRequest = null;
-	private javax.swing.JCheckBox chkTrapResponse = null;
+	
+	// Button notes
+	// BreakRequest button, if set all requests trapped
+	// BreakResponse button, ditto for responses
+	// If break point hit, Break tab gets focus and icon goes red
+	// Step button, only if break point hit, submits just this req/resp, breaks on next
+	// Continue button, only if break point hit, submits this req/resp and continues until next break point hit
+	// If BreakReq & Resp both selected Step and Continue buttons have same effect
+	// 
+	
 	private javax.swing.JButton btnContinue = null;
 	private javax.swing.JButton btnStep = null;
-
-	private javax.swing.JToggleButton btnBreak = null;
-
-	private boolean isContinue = false;
-	private boolean isBreak = false;
-	
-	public boolean isBreak() {
-		return isBreak;
-	}
-
-	private void setBreak(boolean isBreak) {
-		this.isBreak = isBreak;
-
-		chkTrapRequest.setSelected(isBreak);
-		chkTrapResponse.setSelected(isBreak);
-
-		if (isBreak) {
-			btnBreak.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/151.png")));
-			btnBreak.setToolTipText(Constant.messages.getString("brk.toolbar.button.unset"));
-		} else {
-			btnBreak.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/152.png")));
-			btnBreak.setToolTipText(Constant.messages.getString("brk.toolbar.button.set"));
-		}
-	}
-	
-	private void setBreakButton(boolean on) {
-		if (on) {
-			if (! isBreak) {
-				// Set the 'global' break 
-				btnBreak.doClick();
-			}
-			
-		} else {
-			if (isBreak) {
-				// Unset the 'global' break 
-				btnBreak.doClick();
-			}
-		}
-	}
-
 	private JButton btnDrop = null;
+
+	private javax.swing.JToggleButton btnBreakRequest = null;
+	private javax.swing.JToggleButton btnBreakResponse = null;
+
+	private boolean cont = false;
+	private boolean step = false;
+	private boolean stepping = false;
+	
+	public boolean isBreakRequest() {
+		return this.btnBreakRequest.isSelected();
+	}
+	
+	public boolean isBreakResponse() {
+		return this.btnBreakResponse.isSelected();
+	}
+	
+	private void resetRequestSerialization (boolean forceSerialize) {
+		if (Control.getSingleton() == null) {
+			// Still in setup
+			return;
+		}
+		// If forces or either break buttons are pressed force the proxy to submit requests and responses serially 
+		if (forceSerialize || btnBreakRequest.isSelected() || btnBreakResponse.isSelected()) {
+		    Control.getSingleton().getProxy().setSerialize(true);
+		} else {
+		    Control.getSingleton().getProxy().setSerialize(true);
+		}
+	}
+	
+	private void setBreakRequest() {
+
+		resetRequestSerialization(false);
+		
+		if (btnBreakRequest.isSelected()) {
+			btnBreakRequest.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105r.png")));
+			btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
+		} else {
+			btnBreakRequest.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
+			btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
+		}
+	}
+	
+	private void setBreakResponse() {
+
+		resetRequestSerialization(false);
+		
+		if (btnBreakResponse.isSelected()) {
+			btnBreakResponse.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106r.png")));
+			btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
+		} else {
+			btnBreakResponse.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
+			btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
+		}
+	}
+
     /**
      * 
      */
@@ -99,28 +121,68 @@ public class BreakPanel extends HttpPanel {
     }
 	
 	/**
-	 * @return Returns the isContinue.
+	 * @return Returns the true if the message (request or response) should be held (ie not submited)
 	 */
+	public boolean isHoldMessage() {
+		if (step) {
+			// Only works one time, until its pressed again
+			stepping = true;
+			step = false;
+			return false;
+		}
+		if (cont) {
+			// They've pressed the continue button, stop stepping
+			stepping = false;
+			resetRequestSerialization(false);
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean isContinue() {
-		return isContinue;
+		return cont;
 	}
 	
 	/**
 	 * @param isContinue The isContinue to set.
 	 */
-	public void setContinue(boolean isContinue) {
-		this.isContinue = isContinue;
+	private void setContinue(boolean isContinue) {
+		this.cont = isContinue;
 		
-		// How to do this if fn moved to a BreakControl??
-		// Tight coupling, but maybe not TOO bad ;)
 		btnStep.setEnabled( ! isContinue);
 		btnContinue.setEnabled( ! isContinue);
 		btnDrop.setEnabled( ! isContinue);
+		if (isContinue) {
+			this.setActiveIcon(false);
+		}
+	}
+	
+	private void setActiveIcon(boolean active) {
+		if (this.getParent() instanceof TabbedPanel) {
+			TabbedPanel parent = (TabbedPanel) this.getParent();
+			if (active) {
+				parent.setIconAt(
+						parent.indexOfComponent(this),
+						new ImageIcon(getClass().getResource("/resource/icon/16/101.png")));	// Red X
+			} else {
+				parent.setIconAt(
+						parent.indexOfComponent(this), 
+						new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// Grey X
+			}
+		}
 	}
 	
 	public void breakPointHit () {
-		setBreakButton(true);
-		// Select this 'Break' tab
+		// This could have been via a break point, so force the serialisation
+		resetRequestSerialization(true);
+
+		// Set the active icon and reset the continue button
+		this.setActiveIcon(true);
+		setContinue(false);
+	}
+
+	protected void breakPointDisplayed () {
+		// Grab the focus
 		this.setTabFocus();
 	}
 
@@ -133,6 +195,7 @@ public class BreakPanel extends HttpPanel {
 //		this.setLayout(new java.awt.GridBagLayout());
 //		this.setSize(600, 400);
 //		this.setPreferredSize(new java.awt.Dimension(600,400));
+		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		getPanelOption().add(getPanelCommand(), "");
 	}
 	/**
@@ -146,66 +209,14 @@ public class BreakPanel extends HttpPanel {
 	 */    
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
-			java.awt.GridBagConstraints consGridBagConstraints11 = new java.awt.GridBagConstraints();
-
-			java.awt.GridBagConstraints consGridBagConstraints3 = new java.awt.GridBagConstraints();
-
-			java.awt.GridBagConstraints consGridBagConstraints2 = new java.awt.GridBagConstraints();
-
-			java.awt.GridBagConstraints consGridBagConstraints1 = new java.awt.GridBagConstraints();
 
 			panelCommand = new javax.swing.JPanel();
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			panelCommand.setLayout(new java.awt.GridBagLayout());
-			consGridBagConstraints1.gridx = 0;
-			consGridBagConstraints1.gridy = 0;
-			consGridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
-			consGridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			
-			consGridBagConstraints2.gridx = 1;
-			consGridBagConstraints2.gridy = 0;
-			consGridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-			consGridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-			
-			// Adding a stop button
-			java.awt.GridBagConstraints consGridBagConstraints4 = new java.awt.GridBagConstraints();
-			consGridBagConstraints4.gridx = 2;
-			consGridBagConstraints4.gridy = 0;
-			consGridBagConstraints4.insets = new java.awt.Insets(0,2,0,2);
-			consGridBagConstraints4.anchor = java.awt.GridBagConstraints.EAST;
-			consGridBagConstraints4.ipady = 0;
-			
-			// Adding a step button
-			java.awt.GridBagConstraints consGridBagConstraints5 = new java.awt.GridBagConstraints();
-			consGridBagConstraints5.gridx = 3;
-			consGridBagConstraints5.gridy = 0;
-			consGridBagConstraints5.insets = new java.awt.Insets(0,2,0,2);
-			consGridBagConstraints5.anchor = java.awt.GridBagConstraints.EAST;
-			consGridBagConstraints5.ipady = 0;
-			
-			consGridBagConstraints3.gridx = 5; //3;
-			consGridBagConstraints3.gridy = 0;
-			consGridBagConstraints3.insets = new java.awt.Insets(0,2,0,2);
-
-			consGridBagConstraints3.anchor = java.awt.GridBagConstraints.EAST;
-			consGridBagConstraints3.ipady = 0;
 			panelCommand.setPreferredSize(new java.awt.Dimension(600,30));
 			panelCommand.setName("Command");
-			consGridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			consGridBagConstraints11.anchor = java.awt.GridBagConstraints.WEST;
-			consGridBagConstraints11.gridx = 7; // 2;
-			consGridBagConstraints11.gridy = 0;
-			consGridBagConstraints11.weightx = 1.0D;
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHEAST;
-			gridBagConstraints1.gridx = 6; //4;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,2,0,2);
 			
-			// Otherwise they will be null ;)
-			getChkTrapRequest();
-			getChkTrapResponse();
-
-	        View.getSingleton().addMainToolbarButton(this.getBtnBreak());
+	        View.getSingleton().addMainToolbarButton(this.getBtnBreakRequest());
+	        View.getSingleton().addMainToolbarButton(this.getBtnBreakResponse());
 	        View.getSingleton().addMainToolbarButton(this.getBtnStep());
 	        View.getSingleton().addMainToolbarButton(this.getBtnContinue());
 	        View.getSingleton().addMainToolbarButton(this.getBtnDrop());
@@ -215,62 +226,6 @@ public class BreakPanel extends HttpPanel {
 		return panelCommand;
 	}
 
-	/**
-	 * This method initializes chkTrapRequest	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */    
-	public javax.swing.JCheckBox getChkTrapRequest() {
-		if (chkTrapRequest == null) {
-			chkTrapRequest = new javax.swing.JCheckBox();
-			chkTrapRequest.setText("Trap request");
-			chkTrapRequest.addItemListener(new java.awt.event.ItemListener() { 
-
-				public void itemStateChanged(java.awt.event.ItemEvent e) {    
-
-					if (!chkTrapRequest.isSelected() && !chkTrapResponse.isSelected()) {
-					    Control.getSingleton().getProxy().setSerialize(false);
-					} else {
-					    Control.getSingleton().getProxy().setSerialize(true);
-					}
-					
-				}
-			});
-		}
-		return chkTrapRequest;
-	}
-
-	/**
-	 * This method initializes chkTrapResponse	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */    
-	public javax.swing.JCheckBox getChkTrapResponse() {
-		if (chkTrapResponse == null) {
-			chkTrapResponse = new javax.swing.JCheckBox();
-			chkTrapResponse.setText("Trap response");
-			chkTrapResponse.addItemListener(new java.awt.event.ItemListener() { 
-
-				public void itemStateChanged(java.awt.event.ItemEvent e) {    
-
-					if (!chkTrapRequest.isSelected() && !chkTrapResponse.isSelected()) {
-					    Control.getSingleton().getProxy().setSerialize(false);
-					} else {
-					    Control.getSingleton().getProxy().setSerialize(true);
-					}							
-
-				}
-			});
-
-		}
-		return chkTrapResponse;
-	}
-
-	/**
-	 * This method initializes btnContinue	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
 	private javax.swing.JButton getBtnStep() {
 		if (btnStep == null) {
 			btnStep = new javax.swing.JButton();
@@ -279,11 +234,7 @@ public class BreakPanel extends HttpPanel {
 			btnStep.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-					setContinue(true);
-					// Could have been hit via a break point
-					setBreakButton(true);
-
+					step = true;
 				}
 			});
 			// Default to disabled
@@ -306,10 +257,7 @@ public class BreakPanel extends HttpPanel {
 			btnContinue.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
 					setContinue(true);
-					setBreakButton(false);
-
 				}
 			});
 			// Default to disabled
@@ -346,19 +294,43 @@ public class BreakPanel extends HttpPanel {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */    
-	private javax.swing.JToggleButton getBtnBreak() {
-		if (btnBreak == null) {
-			btnBreak = new javax.swing.JToggleButton();
-			setBreak(false);
-			btnBreak.addActionListener(new java.awt.event.ActionListener() { 
+	private javax.swing.JToggleButton getBtnBreakRequest() {
+		if (btnBreakRequest == null) {
+			btnBreakRequest = new javax.swing.JToggleButton();
+			setBreakRequest();
+			btnBreakRequest.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					// Toggle button
-					setBreak(!isBreak());
+					setBreakRequest();
 				}
 			});
 
 		}
-		return btnBreak;
+		return btnBreakRequest;
+	}
+	/**
+	 * This method initializes btnContinue	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */    
+	private javax.swing.JToggleButton getBtnBreakResponse() {
+		if (btnBreakResponse == null) {
+			btnBreakResponse = new javax.swing.JToggleButton();
+			setBreakResponse();
+			btnBreakResponse.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					// Toggle button
+					setBreakResponse();
+				}
+			});
+
+		}
+		return btnBreakResponse;
+	}
+
+	public boolean isStepping() {
+		return stepping;
 	}
 }

@@ -74,27 +74,29 @@ public class ProxyListenerBreak implements ProxyListener {
 	 */
 	public void onHttpRequestSend(HttpMessage msg) {
 	    
-	    
-		if (!getBreakPanel().getChkTrapRequest().isSelected()) {
-			return;
-		}
-		
 		if (isSkipImage(msg.getRequestHeader())) {
 			return;
 		}
 
-		if (isSkipFilter(msg)) return;
+		if ( ! isBreakPoint(msg, true)) {
+			return;
+		}
+		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
+		// but be reset when the next break pooint is hit
+		getBreakPanel().breakPointHit();
 
 		synchronized(semaphore) {
-			getBreakPanel().breakPointHit();
-			setBreakDisplay(msg, true);
-			waitUntilContinue(msg, true);
+			if (getBreakPanel().isHoldMessage()) {
+				setBreakDisplay(msg, true);
+				waitUntilContinue(msg, true);
+			}
 		}
 	}
 	
 
 	private void setBreakDisplay(final HttpMessage msg, boolean isRequest) {
 		setHttpDisplay(getBreakPanel(), msg, isRequest);
+		getBreakPanel().breakPointDisplayed();
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
@@ -120,8 +122,10 @@ public class ProxyListenerBreak implements ProxyListener {
 	}
 	
 	private void waitUntilContinue(final HttpMessage msg, final boolean isRequest) {
-		getBreakPanel().setContinue(false);
-		while (!getBreakPanel().isContinue()) {
+		// Note that multiple requests and responses can get built up, so pressing continue only
+		// releases the current break, not all of them.
+		//getBreakPanel().setContinue(false);
+		while (getBreakPanel().isHoldMessage()) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -152,12 +156,20 @@ public class ProxyListenerBreak implements ProxyListener {
 			return;
 		}
 
-		if (isSkipFilter(msg)) return;
+		if (! isBreakPoint(msg, false)) {
+			return;
+		}
         
+		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
+		// but be reset when the next break pooint is hit
+		getBreakPanel().breakPointHit();
+
 		synchronized(semaphore) {
-			getBreakPanel().breakPointHit();
-			setBreakDisplay(msg, false);
-			waitUntilContinue(msg, false);
+			//getBreakPanel().breakPointHit();
+			if (getBreakPanel().isHoldMessage()) {
+				setBreakDisplay(msg, false);
+				waitUntilContinue(msg, false);
+			}
 		}
 		
 	}
@@ -183,21 +195,32 @@ public class ProxyListenerBreak implements ProxyListener {
 			
 	}
 
-	private boolean isSkipFilter(HttpMessage msg) {
-	    
-		if (getBreakPanel().isBreak()) {
-			// Break on everything
-			return false;
+	private boolean isBreakPoint(HttpMessage msg, boolean request) {
+
+		if (request && getBreakPanel().isBreakRequest()) {
+			// Break on all requests
+			return true;
+		} else if ( ! request && getBreakPanel().isBreakResponse()) {
+			// Break on all responses
+			return true;
+		} else if (getBreakPanel().isStepping()) {
+			// Stopping through all requests and responses
+			return true;
 		}
 		
+		
 	    try {
+		    ListModel lm = extension.getBreakPointsModel();
+		    if (lm.getSize() == 0) {
+		    	// No break points
+		    	return false;
+		    }
+		    
 			URI uri = (URI) msg.getRequestHeader().getURI().clone();
 		    uri.setQuery(null);
 		    String sUri = uri.toString();
 		    
 		    // match against the break points
-		    
-		    ListModel lm = extension.getBreakPointsModel();
 		    
 		    for (int i=0; i < lm.getSize(); i++) {
 		    	String str = (String) lm.getElementAt(i);
@@ -208,7 +231,7 @@ public class ProxyListenerBreak implements ProxyListener {
 				Pattern p = Pattern.compile(str, Pattern.CASE_INSENSITIVE);
 				Matcher m = p.matcher(sUri);
 				if (m.find()) {
-					return false;
+					return true;
 				}
 		    }
     		
@@ -216,7 +239,7 @@ public class ProxyListenerBreak implements ProxyListener {
 			log.warn(e.getMessage(), e);
         }
 
-        return true;
+        return false;
 	}
 	
 		
