@@ -20,11 +20,19 @@
 
 package org.zaproxy.zap.extension.brk;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
@@ -35,7 +43,7 @@ import org.parosproxy.paros.view.View;
  */
 public class BreakPanel extends HttpPanel {
 	private static final long serialVersionUID = 1L;
-	private javax.swing.JPanel panelCommand = null;
+	private JPanel panelCommand = null;
 	
 	// Button notes
 	// BreakRequest button, if set all requests trapped
@@ -46,12 +54,12 @@ public class BreakPanel extends HttpPanel {
 	// If BreakReq & Resp both selected Step and Continue buttons have same effect
 	// 
 	
-	private javax.swing.JButton btnContinue = null;
-	private javax.swing.JButton btnStep = null;
+	private JButton btnContinue = null;
+	private JButton btnStep = null;
 	private JButton btnDrop = null;
 
-	private javax.swing.JToggleButton btnBreakRequest = null;
-	private javax.swing.JToggleButton btnBreakResponse = null;
+	private JToggleButton btnBreakRequest = null;
+	private JToggleButton btnBreakResponse = null;
 
 	private boolean cont = false;
 	private boolean step = false;
@@ -192,54 +200,75 @@ public class BreakPanel extends HttpPanel {
 	 * @return void
 	 */
 	private  void initialize() {
-//		this.setLayout(new java.awt.GridBagLayout());
-//		this.setSize(600, 400);
-//		this.setPreferredSize(new java.awt.Dimension(600,400));
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
-		getPanelOption().add(getPanelCommand(), "");
+		
+		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
+			case 0:
+				getPanelMainToolbarCommand();
+				break;
+			case 1:
+				getPanelOption().add(getPanelCommand(), "");
+				break;
+			/*
+			 * TODO Currently, buttons cannot be display in toolbar and break panel, as the first initalization of the buttons wins
+			case 2:
+				getPanelOption().add(getPanelCommand(), "");
+				getPanelMainToolbarCommand();
+				break;
+			*/
+			default:
+				getPanelMainToolbarCommand();
+		}
 	}
+	
 	/**
-
-	 * This method initializes panelCommand	
-
-	 * 	
-
-	 * @return javax.swing.JPanel	
-
-	 */    
+	 * This method initializes panelCommand
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
-
-			panelCommand = new javax.swing.JPanel();
-			panelCommand.setLayout(new java.awt.GridBagLayout());
-			panelCommand.setPreferredSize(new java.awt.Dimension(600,30));
+			panelCommand = new JPanel();
+			panelCommand.setLayout(new BoxLayout(panelCommand,BoxLayout.X_AXIS));
 			panelCommand.setName("Command");
 			
-	        View.getSingleton().addMainToolbarButton(this.getBtnBreakRequest());
-	        View.getSingleton().addMainToolbarButton(this.getBtnBreakResponse());
-	        View.getSingleton().addMainToolbarButton(this.getBtnStep());
-	        View.getSingleton().addMainToolbarButton(this.getBtnContinue());
-	        View.getSingleton().addMainToolbarButton(this.getBtnDrop());
-	        View.getSingleton().addMainToolbarSeparator();
-
+			Box box = Box.createHorizontalBox();
+		
+			box.add(Box.createGlue());
+			box.add(getBtnBreakRequest());
+			box.add(getBtnBreakResponse());
+			box.add(getBtnStep());
+			box.add(getBtnContinue());
+			box.add(getBtnDrop());
+			
+			panelCommand.add(box);
 		}
 		return panelCommand;
 	}
+	
+	private void getPanelMainToolbarCommand() {
+		View.getSingleton().addMainToolbarButton(this.getBtnBreakRequest());
+        View.getSingleton().addMainToolbarButton(this.getBtnBreakResponse());
+        View.getSingleton().addMainToolbarButton(this.getBtnStep());
+        View.getSingleton().addMainToolbarButton(this.getBtnContinue());
+        View.getSingleton().addMainToolbarButton(this.getBtnDrop());
+        //View.getSingleton().addMainToolbarSeparator();
+	}
+	
+	
 
-	private javax.swing.JButton getBtnStep() {
+	private JButton getBtnStep() {
 		if (btnStep == null) {
-			btnStep = new javax.swing.JButton();
+			btnStep = new JButton();
 			btnStep.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/143.png")));
 			btnStep.setToolTipText(Constant.messages.getString("brk.toolbar.button.step"));
-			btnStep.addActionListener(new java.awt.event.ActionListener() { 
-
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			btnStep.addActionListener(new ActionListener() { 
+				public void actionPerformed(ActionEvent e) {    
 					step = true;
 				}
 			});
 			// Default to disabled
 			btnStep.setEnabled(false);
-
 		}
 		return btnStep;
 	}
@@ -249,20 +278,18 @@ public class BreakPanel extends HttpPanel {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */    
-	private javax.swing.JButton getBtnContinue() {
+	private JButton getBtnContinue() {
 		if (btnContinue == null) {
-			btnContinue = new javax.swing.JButton();
+			btnContinue = new JButton();
 			btnContinue.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
 			btnContinue.setToolTipText(Constant.messages.getString("brk.toolbar.button.cont"));
-			btnContinue.addActionListener(new java.awt.event.ActionListener() { 
-
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			btnContinue.addActionListener(new ActionListener() { 
+				public void actionPerformed(ActionEvent e) {    
 					setContinue(true);
 				}
 			});
 			// Default to disabled
 			btnContinue.setEnabled(false);
-
 		}
 		return btnContinue;
 	}
@@ -277,8 +304,8 @@ public class BreakPanel extends HttpPanel {
 			btnDrop = new JButton();
 			btnDrop.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/150.png")));
 			btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
-			btnDrop.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+			btnDrop.addActionListener(new ActionListener() { 
+				public void actionPerformed(ActionEvent e) {
 				    BreakPanel.this.setMessage("","", false);
 				    setContinue(true);
 				}
@@ -294,38 +321,35 @@ public class BreakPanel extends HttpPanel {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */    
-	private javax.swing.JToggleButton getBtnBreakRequest() {
+	private JToggleButton getBtnBreakRequest() {
 		if (btnBreakRequest == null) {
-			btnBreakRequest = new javax.swing.JToggleButton();
+			btnBreakRequest = new JToggleButton();
 			setBreakRequest();
-			btnBreakRequest.addActionListener(new java.awt.event.ActionListener() { 
-
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			btnBreakRequest.addActionListener(new ActionListener() { 
+				public void actionPerformed(ActionEvent e) {    
 					// Toggle button
 					setBreakRequest();
 				}
 			});
-
 		}
 		return btnBreakRequest;
 	}
+	
 	/**
 	 * This method initializes btnContinue	
 	 * 	
 	 * @return javax.swing.JButton	
 	 */    
-	private javax.swing.JToggleButton getBtnBreakResponse() {
+	private JToggleButton getBtnBreakResponse() {
 		if (btnBreakResponse == null) {
-			btnBreakResponse = new javax.swing.JToggleButton();
+			btnBreakResponse = new JToggleButton();
 			setBreakResponse();
-			btnBreakResponse.addActionListener(new java.awt.event.ActionListener() { 
-
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			btnBreakResponse.addActionListener(new ActionListener() { 
+				public void actionPerformed(ActionEvent e) {    
 					// Toggle button
 					setBreakResponse();
 				}
 			});
-
 		}
 		return btnBreakResponse;
 	}

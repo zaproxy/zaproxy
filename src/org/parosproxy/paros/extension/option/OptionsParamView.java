@@ -41,6 +41,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
 	public static final String EDITORVIEW_OPTION = "view.editorView";
+	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
 	public static final String DEFAULT_LOCALE = "en_GB";
 	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
 
@@ -49,6 +50,7 @@ public class OptionsParamView extends AbstractParam {
 	private String configLocale = "";
 	private String locale = "";
 	private int displayOption = 0;
+	private int brkPanelViewOption = 0;
 	
     /**
      * @param rootElementName
@@ -66,6 +68,7 @@ public class OptionsParamView extends AbstractParam {
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
 	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
+	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
     }
 
 	/**
@@ -108,6 +111,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setEditorViewOption(int idx) {
 		editorViewOption = idx;
 		getConfig().setProperty(EDITORVIEW_OPTION, Integer.toString(editorViewOption));
+	}
+	
+	public int getBrkPanelViewOption() {
+		return brkPanelViewOption;
+	}
+	
+	public void setBrkPanelViewOption(int brkPanelViewIdx) {
+		brkPanelViewOption = brkPanelViewIdx;
+		getConfig().setProperty(BRK_PANEL_VIEW_OPTION, Integer.toString(brkPanelViewOption));
 	}
 	
 	public int getDisplayOption() {

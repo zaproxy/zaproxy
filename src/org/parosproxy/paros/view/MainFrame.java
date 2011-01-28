@@ -91,6 +91,8 @@ public class MainFrame extends AbstractFrame {
 			paneContent.setLayout(new BoxLayout(getPaneContent(), BoxLayout.Y_AXIS));
 			paneContent.setEnabled(true);
 			paneContent.setPreferredSize(new Dimension(800, 600));
+			
+			//TODO Optional MainToolbarPanel
 			paneContent.add(getMainToolbarPanel(), null);
 			
 			paneContent.add(getPaneDisplay(), null);

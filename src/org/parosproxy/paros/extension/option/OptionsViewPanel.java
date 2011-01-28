@@ -45,14 +45,18 @@ import org.zaproxy.zap.utils.LocaleUtils;
  */
 public class OptionsViewPanel extends AbstractParamPanel {
 
-	private JPanel panelMisc = null;  //  @jve:decl-index=0:visual-constraint="520,10"
+	private static final long serialVersionUID = 1L;
+	
+	private JPanel panelMisc = null;
 	private JCheckBox chkProcessImages = null;
 	// ZAP: Added locale selector
 	private JComboBox localeSelect = null;
 	private JComboBox editorViewSelect = null;
+	private JComboBox brkPanelViewSelect = null;
 	private JLabel localeLabel = null;
 	private JLabel localeRestartLabel = null;
 	private JLabel editorViewLabel = null;
+	private JLabel brkPanelViewLabel = null;
 	private Map<String, String> localeMap = new HashMap<String, String>();
 	private JLabel displayLabel = null;
 	private JComboBox displaySelect = null;
@@ -97,6 +101,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc2_1 = new GridBagConstraints();
 			GridBagConstraints gbc3_0 = new GridBagConstraints();
 			GridBagConstraints gbc3_1 = new GridBagConstraints();
+			GridBagConstraints gbc4_0 = new GridBagConstraints();
+			GridBagConstraints gbc4_1 = new GridBagConstraints();
 			
 			
 			GridBagConstraints gbcY = new GridBagConstraints();
@@ -167,9 +173,27 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc3_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc3_1.weightx = 1.0D;
 			
+			gbc4_0.gridx = 0;
+			gbc4_0.gridy = 4;
+			gbc4_0.ipadx = 0;
+			gbc4_0.ipady = 0;
+			gbc4_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc4_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc4_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc4_0.weightx = 1.0D;
+
+			gbc4_1.gridx = 1;
+			gbc4_1.gridy = 4;
+			gbc4_1.ipadx = 0;
+			gbc4_1.ipady = 0;
+			gbc4_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc4_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc4_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc4_1.weightx = 1.0D;
+			
 			
 			gbcY.gridx = 0;
-			gbcY.gridy = 4;
+			gbcY.gridy = 5;
 			gbcY.ipadx = 0;
 			gbcY.ipady = 0;
 			gbcY.insets = new java.awt.Insets(2,2,2,2);
@@ -180,7 +204,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbcY.gridwidth = 2;
 
 			gbcX.gridx = 0;
-			gbcX.gridy = 5;
+			gbcX.gridy = 6;
 			gbcX.ipadx = 0;
 			gbcX.ipady = 0;
 			gbcX.insets = new java.awt.Insets(2,2,2,2);
@@ -192,6 +216,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			localeLabel = new JLabel(Constant.messages.getString("view.options.label.language"));
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			editorViewLabel = new JLabel(Constant.messages.getString("view.options.label.editorView"));
+			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
 			localeRestartLabel = new JLabel(Constant.messages.getString("view.options.label.restart"));
 
 			panelMisc.add(getChkProcessImages(), gbc0);
@@ -202,6 +227,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			
 			panelMisc.add(editorViewLabel, gbc3_0);
 			panelMisc.add(getEditorViewSelect(), gbc3_1);
+			
+			panelMisc.add(brkPanelViewLabel, gbc4_0);
+			panelMisc.add(getBrkPanelViewSelect(), gbc4_1);
 			
 			panelMisc.add(localeRestartLabel, gbcY);
 			panelMisc.add(new JLabel(), gbcX);
@@ -251,6 +279,18 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return editorViewSelect; 
 	}
 	
+	private JComboBox getBrkPanelViewSelect() {
+		if (brkPanelViewSelect == null) {
+			brkPanelViewSelect = new JComboBox();
+			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.toolbaronly"));
+			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.breakonly"));
+			//TODO Currently this is not possible. Has to be fixed some day ;)
+			//brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.both"));
+		}
+		return brkPanelViewSelect; 
+	}
+	
+	
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
@@ -267,6 +307,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    localeSelect.setSelectedItem(locale);
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    editorViewSelect.setSelectedIndex(options.getViewParam().getEditorViewOption());
+	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
 	}
 	
 	public void validateParam(Object obj) {
@@ -283,6 +324,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    }
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setEditorViewOption(editorViewSelect.getSelectedIndex());
+	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
 	}
 	
      }  //  @jve:decl-index=0:visual-constraint="10,10"

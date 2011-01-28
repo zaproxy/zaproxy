@@ -51,10 +51,11 @@ public final class Constant {
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.2.0";
-    public static final long VERSION_TAG = 1002000;
+    public static final String PROGRAM_VERSION = "1.2.1";
+    public static final long VERSION_TAG = 1002001;
     
     // Old version numbers - for upgrade
+    private static final long V_1_2_0_TAG = 1002000;
     private static final long V_1_1_0_TAG = 1001000;
     private static final long V_1_0_0_TAG = 1000000;
     private static final long V_PAROS_TAG = 30020013;
@@ -256,6 +257,10 @@ public final class Constant {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_1_0(config);
             		
+            	} else if (ver == V_1_2_0_TAG) {
+	            	log.info("Upgrading from " + ver);
+            		upgradeFrom1_2_0(config);
+            		
             	} else {
             		// No idea what this is, replace it
             		f = new File(FILE_CONFIG);
@@ -322,6 +327,21 @@ public final class Constant {
 		config.setProperty("version", VERSION_TAG);
 		config.save();
 	}
+    
+    private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
+		// Upgrade the regexs
+        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
+        newConfig.setAutoSave(false);
+        newConfig.load();
+
+        copyProperty(newConfig, config, "view.editorView");
+        copyProperty(newConfig, config, "view.brkPanelView");
+		
+		// Update the version
+		config.setProperty("version", VERSION_TAG);
+		config.save();
+	}
+
 
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");

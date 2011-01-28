@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-	<version>1002000</version>
+	<version>1002001</version>
 	<userDir></userDir>
 	<connection>
 		<proxyChain>
@@ -27,6 +27,8 @@
 	<view>
 		<processImages>0</processImages>
 		<locale>en_GB</locale>
+		<editorView>2</editorView>
+		<brkPanelView>0</brkPanelView>
 	</view>
     <start>
         <checkForUpdates>0</checkForUpdates>
