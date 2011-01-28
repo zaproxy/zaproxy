@@ -164,12 +164,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	}
 
 	public SSLSocketFactory getClientSocketFactory(String type) {
-		// KeyManager[] keyMgr = null;
-		TrustManager[] trustMgr = new TrustManager[] { new RelaxedX509TrustManager() }; // Trust
-																						// all
-																						// invalid
-																						// server
-																						// certificate
+		// Trust all invalid server certificate
+		TrustManager[] trustMgr = new TrustManager[] { new RelaxedX509TrustManager() }; 
 
 		try {
 			SSLContext sslContext = SSLContext.getInstance(type);
@@ -196,7 +192,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				SSLContext ctx;
 				KeyManagerFactory kmf;
 				KeyStore ks;
-				char[] passphrase = "!@#$%^&*()".toCharArray();
+				char[] passphrase = "0w45P.Z4p".toCharArray();
 
 				ctx = SSLContext.getInstance(type);
 				kmf = KeyManagerFactory.getInstance("SunX509");
@@ -205,9 +201,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				java.security.SecureRandom x = new java.security.SecureRandom();
 				x.setSeed(System.currentTimeMillis());
 
-				// ks.load(new FileInputStream("paroskey"), passphrase);
-				ks.load(this.getClass().getClassLoader().getResourceAsStream(
-						"resource/paroskey"), passphrase);
+				ks.load(this.getClass().getClassLoader().getResourceAsStream("resource/owasp_zap.jks"), passphrase);
 
 				kmf.init(ks, passphrase);
 				ctx.init(kmf.getKeyManagers(), null, x);
