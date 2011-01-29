@@ -336,6 +336,7 @@ public final class Constant {
 
         copyProperty(newConfig, config, "view.editorView");
         copyProperty(newConfig, config, "view.brkPanelView");
+        copyProperty(newConfig, config, "view.showMainToolbar");
 		
 		// Update the version
 		config.setProperty("version", VERSION_TAG);

@@ -21,19 +21,9 @@
 
 package org.parosproxy.paros.extension.option;
 
-import java.util.List;
-
 import org.parosproxy.paros.common.AbstractParam;
-import org.zaproxy.zap.utils.LocaleUtils;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsParamView extends AbstractParam {
-
-	private static final String ROOT = "view";
 
 	private static final String PROCESS_IMAGES = "view.processImages";
 	// ZAP: Added support fr selecting the locale
@@ -42,11 +32,13 @@ public class OptionsParamView extends AbstractParam {
 	public static final String DISPLAY_OPTION = "view.displayOption";
 	public static final String EDITORVIEW_OPTION = "view.editorView";
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
+	public static final String SHOW_MAIN_TOOLBAR_OPTION = "view.showMainToolbar";
 	public static final String DEFAULT_LOCALE = "en_GB";
 	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
 
 	private int editorViewOption;
 	private int processImages = 0;
+	private int showMainToolbar = 1;
 	private String configLocale = "";
 	private String locale = "";
 	private int displayOption = 0;
@@ -69,6 +61,7 @@ public class OptionsParamView extends AbstractParam {
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
 	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
+	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
     }
 
 	/**
@@ -89,6 +82,15 @@ public class OptionsParamView extends AbstractParam {
 	
 	public boolean isProcessImages() {
 		return !(processImages == 0);
+	}
+	
+	public int getShowMainToolbar() {
+		return showMainToolbar;
+	}
+	
+	public void setShowMainToolbar(int showMainToolbar) {
+		this.showMainToolbar = showMainToolbar;
+		getConfig().setProperty(SHOW_MAIN_TOOLBAR_OPTION, Integer.toString(showMainToolbar));
 	}
 
 	public String getLocale() {

@@ -204,7 +204,13 @@ public class BreakPanel extends HttpPanel {
 		
 		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
 			case 0:
-				getPanelMainToolbarCommand();
+				// If the user decided to disable the main toolbar, the break
+				// buttons have to be force to be displayed in the break panel
+				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
+					getPanelOption().add(getPanelCommand(), "");
+				} else {
+					getPanelMainToolbarCommand();
+				}
 				break;
 			case 1:
 				getPanelOption().add(getPanelCommand(), "");

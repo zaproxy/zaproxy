@@ -21,7 +21,6 @@
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
@@ -49,6 +48,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private JPanel panelMisc = null;
 	private JCheckBox chkProcessImages = null;
+	private JCheckBox chkShowMainToolbar = null;
 	// ZAP: Added locale selector
 	private JComboBox localeSelect = null;
 	private JComboBox editorViewSelect = null;
@@ -65,10 +65,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
         super();
  		initialize();
    }
-
-    private static final String[] ROOT = {};
-    private static final String[] GENERAL = {"General"};
-    private static final String[] MISCELLENOUS = {"Miscellaneous"};
     
 	/**
 	 * This method initializes this
@@ -103,6 +99,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc3_1 = new GridBagConstraints();
 			GridBagConstraints gbc4_0 = new GridBagConstraints();
 			GridBagConstraints gbc4_1 = new GridBagConstraints();
+			GridBagConstraints gbc5 = new GridBagConstraints();
 			
 			
 			GridBagConstraints gbcY = new GridBagConstraints();
@@ -191,9 +188,19 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc4_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc4_1.weightx = 1.0D;
 			
+			gbc5.gridx = 0;
+			gbc5.gridy = 5;
+			gbc5.ipadx = 0;
+			gbc5.ipady = 0;
+			gbc5.insets = new java.awt.Insets(2,2,2,2);
+			gbc5.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc5.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc5.weightx = 1.0D;
+			gbc5.gridwidth = 2;
+			
 			
 			gbcY.gridx = 0;
-			gbcY.gridy = 5;
+			gbcY.gridy = 6;
 			gbcY.ipadx = 0;
 			gbcY.ipady = 0;
 			gbcY.insets = new java.awt.Insets(2,2,2,2);
@@ -204,7 +211,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbcY.gridwidth = 2;
 
 			gbcX.gridx = 0;
-			gbcX.gridy = 6;
+			gbcX.gridy = 7;
 			gbcX.ipadx = 0;
 			gbcX.ipady = 0;
 			gbcX.insets = new java.awt.Insets(2,2,2,2);
@@ -231,6 +238,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(brkPanelViewLabel, gbc4_0);
 			panelMisc.add(getBrkPanelViewSelect(), gbc4_1);
 			
+			panelMisc.add(getChkShowMainToolbar(), gbc5);
+			
 			panelMisc.add(localeRestartLabel, gbcY);
 			panelMisc.add(new JLabel(), gbcX);
 
@@ -251,6 +260,16 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			chkProcessImages.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
 		return chkProcessImages;
+	}
+	
+	private JCheckBox getChkShowMainToolbar() {
+		if (chkShowMainToolbar == null) {
+			chkShowMainToolbar = new JCheckBox();
+			chkShowMainToolbar.setText(Constant.messages.getString("view.options.label.showMainToolbar"));
+			chkShowMainToolbar.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkShowMainToolbar.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkShowMainToolbar;
 	}
 	
 	private JComboBox getLocaleSelect() {
@@ -308,6 +327,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    editorViewSelect.setSelectedIndex(options.getViewParam().getEditorViewOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
+	    getChkShowMainToolbar().setSelected(options.getViewParam().getShowMainToolbar() > 0);
 	}
 	
 	public void validateParam(Object obj) {
@@ -325,6 +345,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setEditorViewOption(editorViewSelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
+	    options.getViewParam().setShowMainToolbar((getChkShowMainToolbar().isSelected()) ? 1 : 0);
 	}
 	
      }  //  @jve:decl-index=0:visual-constraint="10,10"

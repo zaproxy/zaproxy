@@ -29,6 +29,7 @@
 		<locale>en_GB</locale>
 		<editorView>2</editorView>
 		<brkPanelView>0</brkPanelView>
+		<showMainToolbar>1</showMainToolbar>
 	</view>
     <start>
         <checkForUpdates>0</checkForUpdates>

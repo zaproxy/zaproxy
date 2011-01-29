@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.MainToolbarPanel;
 
 
@@ -92,8 +93,9 @@ public class MainFrame extends AbstractFrame {
 			paneContent.setEnabled(true);
 			paneContent.setPreferredSize(new Dimension(800, 600));
 			
-			//TODO Optional MainToolbarPanel
-			paneContent.add(getMainToolbarPanel(), null);
+			if (Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 1) {
+				paneContent.add(getMainToolbarPanel(), null);
+			}
 			
 			paneContent.add(getPaneDisplay(), null);
 			paneContent.add(getMainFooterPanel(), null);
