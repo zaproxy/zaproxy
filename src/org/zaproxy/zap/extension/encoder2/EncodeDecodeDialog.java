@@ -222,10 +222,10 @@ public class EncodeDecodeDialog extends AbstractDialog {
 				}
 
 				public void keyReleased(KeyEvent e) {
+					updateEncodeDecodeFields();
 				}
 
 				public void keyTyped(KeyEvent e) {
-					updateEncodeDecodeFields();
 				}
 				
 			});
