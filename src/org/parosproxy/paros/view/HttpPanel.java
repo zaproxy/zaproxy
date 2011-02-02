@@ -24,6 +24,8 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -37,6 +39,8 @@ import javax.swing.JTextArea;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.HttpPanelManager;
+import org.zaproxy.zap.view.HttpPanelView;
 
 /**
  *
@@ -47,7 +51,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class HttpPanel extends AbstractPanel {
     
-    private static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView");	// ZAP: i18n
+	private static final long serialVersionUID = 1L;
+	private static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView");	// ZAP: i18n
     private static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView");	// ZAP: i18n
     private static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView");	// ZAP: i18n
     
@@ -65,7 +70,11 @@ public class HttpPanel extends AbstractPanel {
 	private HttpPanelTabularModel httpPanelTabularModel = null;  //  @jve:decl-index=0:parse,visual-constraint="425,147"
 	private JScrollPane scrollTxtBody = null;
 	private String currentView = VIEW_RAW;
-	
+
+	// ZAP: Support plugable views
+	private List <HttpPanelView> views = new ArrayList<HttpPanelView>();
+	private boolean editable = false;
+
 	
 	private JScrollPane scrollImage = null;
 	/**
@@ -74,10 +83,12 @@ public class HttpPanel extends AbstractPanel {
 	public HttpPanel() {
 		super();
 		initialize();
+		HttpPanelManager.getInstance().addPanel(this);
 	}
 	
 	public HttpPanel(boolean isEditable) {
 		this();
+		this.editable = isEditable;
 		getTxtHeader().setEditable(isEditable);
 		getTxtBody().setEditable(isEditable);
 		getHttpPanelTabularModel().setEditable(isEditable);	
@@ -316,10 +327,28 @@ public class HttpPanel extends AbstractPanel {
                             // set only if model is not empty because binary data not work for tabularModel
                             txtBody.setText(s);
                         }
+				    } else {
+				    	// ZAP: Support plugable views
+				    	for (HttpPanelView view : views) {
+				    		if (currentView.equals(view.getName())) {
+				    			if (view.hasChanged()) {
+		                            txtBody.setText(view.getContent());
+				    			}
+				    			break;
+				    		}
+				    	}
 				    }
 				    
 				    if (item.equals(VIEW_TABULAR)) {
 				        getHttpPanelTabularModel().setText(getTxtBody().getText());
+				    } else {
+				    	// ZAP: Support plugable views
+				    	for (HttpPanelView view : views) {
+				    		if (item.equals(view.getName())) {
+				    			view.setContent(getTxtBody().getText());
+				    			break;
+				    		}
+				    	}
 				    }
 				    
 				    currentView = item;
@@ -468,7 +497,16 @@ public class HttpPanel extends AbstractPanel {
         txtBody.setCaretPosition(0);
 
         getComboView().addItem(VIEW_TABULAR);
-	    getComboView().setEnabled(true);
+        
+        // ZAP: Support plugable views
+        for (HttpPanelView view : views) {
+        	if (view.isEnabled(msg)) {
+        		view.setEditable(editable);
+                getComboView().addItem(view.getName());
+        	}
+        }
+
+        getComboView().setEnabled(true);
 
 	}
 	
@@ -497,6 +535,14 @@ public class HttpPanel extends AbstractPanel {
 
         getComboView().removeAllItems();
         getComboView().addItem(VIEW_RAW);
+
+        // ZAP: Support plugable views
+        for (HttpPanelView view : views) {
+        	if (view.isEnabled(msg)) {
+        		view.setEditable(editable);
+                getComboView().addItem(view.getName());
+        	}
+        }
 
 	    getComboView().setEnabled(true);
 
@@ -584,5 +630,16 @@ public class HttpPanel extends AbstractPanel {
 	    ImageIcon image = new ImageIcon(msg.getResponseBody().getBytes());
 	    return image;
 	}
+
+	// ZAP: Support plugable views
+	public void addView (HttpPanelView view) {
+		view.setEditable(editable);
+		this.views.add(view);
+		panelView.add(view.getPane(), view.getPane().getName());
+	}
+
+	public boolean isEditable() {
+		return editable;
+	}
 	
-  }  //  @jve:decl-index=0:visual-constraint="10,10"
+}
