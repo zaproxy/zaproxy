@@ -10,7 +10,7 @@
 			<realm></realm>
 			<userName></userName>
 			<password></password>		
-			<prompt></prompt>		
+			<prompt>false</prompt>		
 		</proxyChain>
 		<auth></auth>
 	</connection>

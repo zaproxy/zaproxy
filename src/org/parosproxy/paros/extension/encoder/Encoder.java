@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Vector;
 
 /**
  *
@@ -121,4 +122,41 @@ public class Encoder {
 		}
 		return result;
 	}
+	
+	public String getIllegalUTF8Encode(String msg, int bytes) {
+		char [] input_array = msg.toCharArray();
+		Vector<String> output_array = new Vector<String>();
+		
+		for(char c : input_array) {
+			
+			String char_in_hex = "";
+			
+			if (bytes == 4) {
+				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) 0xf0))
+							+ "%" + Integer.toHexString(0xff & ((byte) 0x80))
+							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6))))
+							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
+			} else if (bytes == 3) {
+				
+				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) 0xe0))
+							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6))))
+							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
+			} else {
+				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) (0xc0 | ((c & 0x7f)>>6))))
+							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
+			}
+			
+			output_array.add(char_in_hex);
+		}
+		
+		String result = "";
+        for(int i = 0; i < output_array.size(); i++)
+        {
+            result += output_array.get(i);
+        }
+		
+		return result;
+	}
+	
+	
 }

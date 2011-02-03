@@ -180,7 +180,12 @@ public class HttpMethodHelper {
 			httpMethod = new GenericMethod(method);
 		}
 
-		httpMethod.setURI(uri);
+		try {
+			httpMethod.setURI(uri);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		HttpMethodParams httpParams = httpMethod.getParams();
 		// default to use HTTP 1.0
 		httpParams.setVersion(HttpVersion.HTTP_1_0);

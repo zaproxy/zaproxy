@@ -57,6 +57,9 @@ public class EncodeDecodeDialog extends AbstractDialog {
 	private JTextArea asciiHexDecodeField = null;
 	private JTextArea sha1HashField = null;
 	private JTextArea md5HashField = null;
+	private JTextArea illegalUTF82ByteField = null;
+	private JTextArea illegalUTF83ByteField = null;
+	private JTextArea illegalUTF84ByteField = null;
 	
 	private Encoder encoder = null;
 
@@ -144,8 +147,12 @@ public class EncodeDecodeDialog extends AbstractDialog {
 			jPanel2.setLayout(new GridBagLayout());
 
 			JPanel jPanel3 = new JPanel();
+			
 			//jPanel3.setPreferredSize(new java.awt.Dimension(800,500));
 			jPanel3.setLayout(new GridBagLayout());
+			
+			JPanel jPanel4 = new JPanel();
+			jPanel4.setLayout(new GridBagLayout());
 
 			// 3 tabs - Encode, Decode, Hash??
 			addField(jPanel1, 1, getBase64EncodeField(), Constant.messages.getString("enc2.label.b64Enc"));
@@ -158,10 +165,19 @@ public class EncodeDecodeDialog extends AbstractDialog {
 			
 			addField(jPanel3, 1, getSha1HashField(), Constant.messages.getString("enc2.label.sha1Hash"));
 			addField(jPanel3, 2, getMd5HashField(), Constant.messages.getString("enc2.label.md5Hash"));
+			
+			addField(jPanel4, 1, getIllegalUTF82ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.2byte"));
+			addField(jPanel4, 2, getIllegalUTF83ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.3byte"));
+			addField(jPanel4, 3, getIllegalUTF84ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.4byte"));
+			
+			
+			
 
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.encode"), jPanel1);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.decode"), jPanel2);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.hash"), jPanel3);
+			jTabbed.addTab(Constant.messages.getString("enc2.tab.illegalUTF8"), jPanel4);
+			
 
 			java.awt.GridBagConstraints gbc1 = new GridBagConstraints();
 			gbc1.gridx = 0;
@@ -288,6 +304,27 @@ public class EncodeDecodeDialog extends AbstractDialog {
 		}
 		return md5HashField;
 	}
+	
+	private JTextArea getIllegalUTF82ByteField() {
+		if (illegalUTF82ByteField == null) {
+			illegalUTF82ByteField = newField(false);
+		}
+		return illegalUTF82ByteField;
+	}
+	
+	private JTextArea getIllegalUTF83ByteField() {
+		if (illegalUTF83ByteField == null) {
+			illegalUTF83ByteField = newField(false);
+		}
+		return illegalUTF83ByteField;
+	}
+	
+	private JTextArea getIllegalUTF84ByteField() {
+		if (illegalUTF84ByteField == null) {
+			illegalUTF84ByteField = newField(false);
+		}
+		return illegalUTF84ByteField;
+	}
 
 	private Encoder getEncoder() {
 	    if (encoder == null) {
@@ -370,6 +407,29 @@ public class EncodeDecodeDialog extends AbstractDialog {
 		} catch (Exception e) {
 			md5HashField.setText("");
 		}
+		
+		//Illegal UTF8
+		try {
+			illegalUTF82ByteField.setText(getEncoder().getIllegalUTF8Encode(getInputField().getText(), 2));
+		} catch (Exception e) {
+			// Not unexpected
+			illegalUTF82ByteField.setText("");
+		}
+		
+		try {
+			illegalUTF83ByteField.setText(getEncoder().getIllegalUTF8Encode(getInputField().getText(), 3));
+		} catch (Exception e) {
+			// Not unexpected
+			illegalUTF83ByteField.setText("");
+		}
+		
+		try {
+			illegalUTF84ByteField.setText(getEncoder().getIllegalUTF8Encode(getInputField().getText(), 4));
+		} catch (Exception e) {
+			// Not unexpected
+			illegalUTF84ByteField.setText("");
+		}
+		
 		
 	}
 
