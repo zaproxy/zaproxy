@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -159,7 +158,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		    getLogPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 		    
 
-		    //extensionHook.getHookMenu().addViewMenuItem(getPopupMenuEmbeddedBrowser2());
+		    extensionHook.getHookMenu().addViewMenuItem(getPopupMenuEmbeddedBrowser2());
             // Removed the separator in the View menu
 		    //extensionHook.getHookMenu().addViewMenuItem(extensionHook.getHookMenu().getMenuSeparator());
             // ZAP Removed 'Filter History by..' menu iteams - replaced by filter plus
@@ -171,9 +170,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert());
-
-            // ZAP: Disabled embedded browser
-            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEmbeddedBrowser());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEmbeddedBrowser());
 
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
@@ -187,10 +184,12 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
 
+            /*
             if (isEnableForNativePlatform()) {
                 // preload for faster loading
                 getBrowserDialog();
             }
+            */
             
             // ZAP added resend popup
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendSites());
@@ -677,6 +676,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      *  
      * @return org.parosproxy.paros.extension.history.BrowserDialog 
      */
+    /*
     BrowserDialog getBrowserDialog() {
         if (browserDialog == null) {
             browserDialog = new BrowserDialog(getView().getMainFrame(), false);
@@ -697,6 +697,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
       return false;
 
     }
+    */
     
     // ZAP added
 	private PopupMenuResendSites getPopupMenuResendSites () {

@@ -317,6 +317,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private void readAndDisplay(final HistoryReference historyRef) {
 
         synchronized(displayQueue) {
+        	/*
+        	// ZAP: Disabled the platform specific browser
             if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
                 // truncate queue if browser dialog is displayed to have better response
                 if (displayQueue.size()>0) {
@@ -325,6 +327,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
                     displayQueue.clear();
                 }
             }
+            */
             displayQueue.add(historyRef);
 
         }
@@ -402,11 +405,13 @@ public class LogPanel extends AbstractPanel implements Runnable {
     }
     
     private void checkAndShowBrowser(HistoryReference ref, HttpMessage msg) {
+    	/*
+        // ZAP: Disabled the platform specific browser
         if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
             return;
         }
-        // ZAP: Disabled the platform specific browser
-        // extension.browserDisplay(ref, msg);
+        extension.browserDisplay(ref, msg);
+        */
     }
     /**
      * This method initializes logPanelCellRenderer	

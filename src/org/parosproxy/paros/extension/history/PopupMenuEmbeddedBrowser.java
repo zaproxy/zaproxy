@@ -21,18 +21,19 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JTree;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+
+import edu.stanford.ejalbert.BrowserLauncher;
+import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
+import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
 
 /**
@@ -42,8 +43,12 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
 
-    private ExtensionHistory extension = null;
+	private static final long serialVersionUID = 1L;
+	private ExtensionHistory extension = null;
     private Component lastInvoker = null;
+    // ZAP: Changed to support BrowserLauncher
+    private BrowserLauncher launcher = null;
+    private boolean supported = true;
 
 	/**
      * 
@@ -67,10 +72,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText("View in Browser");
-        if (!ExtensionHistory.isEnableForNativePlatform()) {
-            this.setEnabled(false);
-        }
+        this.setText(Constant.messages.getString("history.browser.popup"));
 
         this.setActionCommand("");
         
@@ -83,14 +85,9 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
                 }
                 if (lastInvoker.getName().equalsIgnoreCase("ListLog")) {
                     JList listLog = extension.getLogPanel().getListLog();
-                    if (listLog.getSelectedValues().length != 1) {
-                        extension.getView().showWarningDialog("Please select a message in History panel first.");
-                        return;
-                    }
                     
                     ref = (HistoryReference) listLog.getSelectedValue();
                     showBrowser(ref);                                   
-                        
 
                 } else if (lastInvoker.getName().equals("treeSite")) {
                     JTree tree = (JTree) lastInvoker;
@@ -100,22 +97,36 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
                 }
         	}
         });
-
 			
 	}
 	
+	private BrowserLauncher getBrowserLauncher() {
+		if (! supported) {
+			return null;
+		}
+		if (launcher == null) {
+			try {
+				launcher = new BrowserLauncher();
+			} catch (BrowserLaunchingInitializingException e) {
+				supported = false;
+			} catch (UnsupportedOperatingSystemException e) {
+				supported = false;
+			}
+		}
+		return launcher;
+	}
+	
     private void showBrowser(HistoryReference ref) {
+    	if (! supported) {
+    		return;
+    	}
         HttpMessage msg = null;
         try {
             msg = ref.getHttpMessage();
-            // ZAP: Disabled the platform specific browser
-            /*
-            if (!extension.browserDisplay(ref, msg)) {
-                extension.getView().showWarningDialog("Selecetd HTTP message type cannot be shown.");
-            }
-            */
+            this.getBrowserLauncher().openURLinBrowser(msg.getRequestHeader().getURI().toString());
+
         } catch (Exception e) {
-            e.printStackTrace();
+            extension.getView().showWarningDialog(Constant.messages.getString("history.browser.warning"));
         }
         
     }
@@ -123,8 +134,9 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
     
     public boolean isEnableForComponent(Component invoker) {
         lastInvoker = null;
-        if (!ExtensionHistory.isEnableForNativePlatform()) {
-            return false;
+
+        if ( ! supported) {
+        	return false;
         }
         
         if (invoker.getName() == null) {
@@ -132,22 +144,20 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
         }
         
         if (invoker.getName().equalsIgnoreCase("ListLog")) {
-            try {
-                JList list = (JList) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-                lastInvoker = invoker;
-            } catch (Exception e) {
-                
+            JList list = (JList) invoker;
+            if (list.getSelectedIndex() >= 0) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
             }
+            lastInvoker = invoker;
             return true;
         } else if (invoker.getName().equals("treeSite")) {
-                JTree tree = (JTree) invoker;
-                lastInvoker = tree;
-                return true;
+        	JTree tree = (JTree) invoker;
+        	lastInvoker = tree;
+            SiteNode node = (SiteNode) tree.getLastSelectedPathComponent();
+            this.setEnabled(node.getHistoryReference() != null);
+            return true;
         }
         return false;
     }
@@ -155,6 +165,5 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }
-    
 	
 }
