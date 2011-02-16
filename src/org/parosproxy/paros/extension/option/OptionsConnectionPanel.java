@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -45,13 +46,13 @@ import org.zaproxy.zap.view.ProxyDialog;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class OptionsConnectionPanel extends AbstractParamPanel {
-
-    private static final String[] ROOT = {};
+	// ZAP: i18n	
+	private static final long serialVersionUID = 1L;
 	private JCheckBox chkUseProxyChain = null;
 	private JPanel jPanel = null;
 	private JPanel panelProxyAuth = null;
 	private JScrollPane jScrollPane = null;
-	private OptionsParam optionsParam = null;
+	//private OptionsParam optionsParam = null;
 	private JPanel panelProxyChain = null;
 	private JTextField txtProxyChainName = null;
 	private JTextField txtProxyChainPort = null;
@@ -60,8 +61,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JTextField txtProxyChainUserName = null;
 	private JTextField txtProxyChainPassword = null;
 	private JCheckBox chkProxyChainAuth = null;
-	// ZAP: Added prompt option
+	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
+	private JTextField txtTimeoutInSecs = null;
+	private JPanel panelGeneral = null;
 	
     public OptionsConnectionPanel() {
         super();
@@ -76,7 +79,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox getChkUseProxyChain() {
 		if (chkUseProxyChain == null) {
 			chkUseProxyChain = new JCheckBox();
-			chkUseProxyChain.setText("Use an outgoing proxy server");
+			chkUseProxyChain.setText(Constant.messages.getString("conn.options.useProxy"));
 			chkUseProxyChain.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -116,9 +119,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jLabel5.setText("Address/Domain Name:");
-			jLabel6.setText("Port (eg 8080):");
-			jLabel7.setText("<html><p>Skip IP address or domain names below (* for wildcard characters, names separate by ;):</p></html>");
+			jLabel5.setText(Constant.messages.getString("conn.options.proxy.address"));
+			jLabel6.setText(Constant.messages.getString("conn.options.proxy.port"));
+			jLabel7.setText(Constant.messages.getString("conn.options.proxy.skipAddresses"));
 			gridBagConstraints15.gridx = 0;
 			gridBagConstraints15.gridy = 0;
 			gridBagConstraints15.insets = new java.awt.Insets(2,2,2,2);
@@ -168,7 +171,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints71.anchor = java.awt.GridBagConstraints.NORTHEAST;
 			gridBagConstraints71.gridwidth = 2;
 			gridBagConstraints71.ipady = 20;
-			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Use proxy chain", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("conn.options.proxy.useProxyChain"), 
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
 			jPanel.add(getChkUseProxyChain(), gridBagConstraints15);
 			jPanel.add(jLabel5, gridBagConstraints2);
 			jPanel.add(getTxtProxyChainName(), gridBagConstraints3);
@@ -210,10 +217,14 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 			panelProxyAuth = new JPanel();
 			panelProxyAuth.setLayout(new GridBagLayout());
-			jLabel9.setText("Realm:");
-			jLabel10.setText("User name:");
-			jLabel11.setText("Password (stored in clear-text):");
-			panelProxyAuth.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Proxy authentication", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			jLabel9.setText(Constant.messages.getString("conn.options.proxy.auth.realm"));
+			jLabel10.setText(Constant.messages.getString("conn.options.proxy.auth.username"));
+			jLabel11.setText(Constant.messages.getString("conn.options.proxy.auth.password"));
+			panelProxyAuth.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("conn.options.proxy.auth.auth"), 
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
 			panelProxyAuth.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.gridy = 0;
@@ -300,34 +311,42 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JPanel getPanelProxyChain() {
 		if (panelProxyChain == null) {
 			panelProxyChain = new JPanel();
+			panelProxyChain.setLayout(new GridBagLayout());
+			panelProxyChain.setName("ProxyChain");
+
+			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
-
 			java.awt.GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
-
+			java.awt.GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
 			javax.swing.JLabel jLabel8 = new JLabel();
 
-			java.awt.GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
+			gridBagConstraints72.gridx = 0;
+			gridBagConstraints72.gridy = 0;
+			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints72.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gridBagConstraints72.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-			panelProxyChain.setLayout(new GridBagLayout());
 			gridBagConstraints82.gridx = 0;
-			gridBagConstraints82.gridy = 0;
+			gridBagConstraints82.gridy = 1;
 			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints82.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints82.weightx = 1.0D;
+			
 			gridBagConstraints92.gridx = 0;
-			gridBagConstraints92.gridy = 1;
+			gridBagConstraints92.gridy = 2;
 			gridBagConstraints92.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints92.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints92.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			panelProxyChain.setName("Proxy Chain");
 			jLabel8.setText("");
 			gridBagConstraints102.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints102.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints102.gridx = 0;
-			gridBagConstraints102.gridy = 2;
+			gridBagConstraints102.gridy = 3;
 			gridBagConstraints102.weightx = 1.0D;
 			gridBagConstraints102.weighty = 1.0D;
+
+			panelProxyChain.add(getPanelGeneral(), gridBagConstraints72);
 			panelProxyChain.add(getJPanel(), gridBagConstraints82);
 			panelProxyChain.add(getPanelProxyAuth(), gridBagConstraints92);
 			panelProxyChain.add(jLabel8, gridBagConstraints102);
@@ -377,7 +396,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("Connection");
+        this.setName(Constant.messages.getString("conn.options.title"));
         this.add(getPanelProxyChain(), getPanelProxyChain().getName());
 
 
@@ -387,6 +406,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
+	    
+	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
 	    
 	    // set Proxy Chain parameters
 	    if (connectionParam.getProxyChainName().equals("")) {
@@ -476,14 +497,20 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	}
 	
 	public void validateParam(Object obj) throws Exception {
-	    int proxyChainPort = 8080;
+
+        try {
+            Integer.parseInt(txtTimeoutInSecs.getText());
+        } catch (NumberFormatException nfe) {
+        	txtTimeoutInSecs.requestFocus();
+            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
+        }
 
 	    if (chkUseProxyChain.isSelected()) {
             try {
-                proxyChainPort = Integer.parseInt(txtProxyChainPort.getText());
+                Integer.parseInt(txtProxyChainPort.getText());
             } catch (NumberFormatException nfe) {
                 txtProxyChainPort.requestFocus();
-                throw new Exception("Invalid proxy chain port number.");
+                throw new Exception(Constant.messages.getString("conn.options.proxy.port.invalid"));
             }
 
         }
@@ -494,14 +521,22 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
+	    int timeout;
 	    int proxyChainPort = 8080;
+
+        try {
+            timeout = Integer.parseInt(txtTimeoutInSecs.getText());
+        } catch (NumberFormatException nfe) {
+        	txtTimeoutInSecs.requestFocus();
+            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
+        }
 
 	    if (chkUseProxyChain.isSelected()) {
             try {
                 proxyChainPort = Integer.parseInt(txtProxyChainPort.getText());
             } catch (NumberFormatException nfe) {
                 txtProxyChainPort.requestFocus();
-                throw new Exception("Invalid proxy chain port number.");
+                throw new Exception(Constant.messages.getString("conn.options.proxy.port.invalid"));
             }
  
         }
@@ -524,6 +559,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    	connectionParam.setProxyChainPrompt(false);
 		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
 	    }
+	    connectionParam.setTimeoutInSecs(timeout);
 	    
 	}
 	/**
@@ -567,7 +603,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox getChkProxyChainAuth() {
 		if (chkProxyChainAuth == null) {
 			chkProxyChainAuth = new JCheckBox();
-			chkProxyChainAuth.setText("Outgoing proxy server requires authentication");
+			chkProxyChainAuth.setText(Constant.messages.getString("conn.options.proxy.auth.required"));
 			chkProxyChainAuth.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -582,7 +618,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox getChkProxyChainPrompt() {
 		if (chkProxyChainPrompt == null) {
 			chkProxyChainPrompt = new JCheckBox();
-			chkProxyChainPrompt.setText("Prompt for proxy credentials on start up");
+			chkProxyChainPrompt.setText(Constant.messages.getString("conn.options.proxy.auth.prompt"));
 			chkProxyChainPrompt.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -592,5 +628,52 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			});
 		}
 		return chkProxyChainPrompt;
+	}
+
+	private JPanel getPanelGeneral() {
+		if (panelGeneral == null) {
+			java.awt.GridBagConstraints gridBagConstraints01 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints00 = new GridBagConstraints();
+
+			javax.swing.JLabel jLabel = new JLabel();
+
+			panelGeneral = new JPanel();
+			panelGeneral.setLayout(new GridBagLayout());
+			jLabel.setText(Constant.messages.getString("conn.options.timeout"));
+			
+			panelGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("conn.options.general"), 
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			panelGeneral.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+
+			gridBagConstraints00.gridx = 0;
+			gridBagConstraints00.gridy = 0;
+			gridBagConstraints00.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints00.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints00.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints00.weightx = 0.5D;
+
+			gridBagConstraints01.gridx = 1;
+			gridBagConstraints01.gridy = 0;
+			gridBagConstraints01.weightx = 0.5D;
+			gridBagConstraints01.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints01.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints01.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints01.ipadx = 50;
+
+			panelGeneral.add(jLabel, gridBagConstraints00);
+			panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
+		}
+		return panelGeneral;
+	}
+
+	
+	private JTextField getTxtTimeoutInSecs() {
+		if (txtTimeoutInSecs == null) {
+			txtTimeoutInSecs = new JTextField();
+		}
+		return txtTimeoutInSecs;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"

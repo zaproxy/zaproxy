@@ -27,13 +27,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-//import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
-//import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.db.RecordHistory;
@@ -58,7 +56,6 @@ import org.parosproxy.paros.network.HttpUtil;
 
 class ProxyThread implements Runnable {
 
-	private static final int		TIME_OUT = 60000;
 //	private static final int		BUFFEREDSTREAM_SIZE = 4096;
 	private static final String		CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\nProxy-connection: Keep-alive\r\n\r\n";
 //	private static ArrayList 		processForwardList = new ArrayList();
@@ -88,11 +85,15 @@ class ProxyThread implements Runnable {
     private static Vector proxyThreadList = new Vector();
     
 	ProxyThread(ProxyServer server, Socket socket) {
+		parentServer = server;
+		proxyParam = parentServer.getProxyParam();
+		connectionParam = parentServer.getConnectionParam();
 
 		inSocket = socket;
     	try {
 			inSocket.setTcpNoDelay(true);
-    		inSocket.setSoTimeout(60000);
+			// ZAP: Set timeout
+    		inSocket.setSoTimeout(connectionParam.getTimeoutInSecs() * 1000);
 		} catch (SocketException e) {
 			// ZAP: Log exceptions
 			log.warn(e.getMessage(), e);
@@ -101,10 +102,6 @@ class ProxyThread implements Runnable {
 		thread = new Thread(this);
 		thread.setDaemon(true);
 		thread.setPriority(Thread.NORM_PRIORITY-1);
-		parentServer = server;
-		proxyParam = parentServer.getProxyParam();
-		connectionParam = parentServer.getConnectionParam();
-		
 	}
 
 	public void start() {
@@ -169,6 +166,12 @@ class ProxyThread implements Runnable {
 		boolean isFirstRequest = true;
 		HttpMessage msg = null;
         
+		// TODO testing WebUI
+		/*
+        if (WebUI.getInstance().handleWebUIRequest(requestHeader, httpOut)) {
+        	return;
+        }
+        */
         if (isRecursive(requestHeader)) {
             throw new IOException("Recursive request to proxy itself stopped.");
         }
@@ -187,7 +190,7 @@ class ProxyThread implements Runnable {
 			    } catch (SocketTimeoutException e) {
 		        	// ZAP: Log the exception
 		        	log.warn("Timeout reading " + requestHeader.getURI().toString());
-		        return;
+		        	return;
 			    }
 			}
 
@@ -200,7 +203,7 @@ class ProxyThread implements Runnable {
 			}
             
 			modifyHeader(msg);
-            
+
             if (isProcessCache(msg)) {
                 continue;
             }
@@ -592,4 +595,5 @@ class ProxyThread implements Runnable {
 //	protected void setForwardThread(Thread forwardThread) {
 //	    this.forwardThread = forwardThread;
 //	}
+
 }

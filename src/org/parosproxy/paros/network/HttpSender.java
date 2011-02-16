@@ -37,7 +37,6 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.view.View;
 
 
 /**
@@ -355,7 +354,8 @@ public class HttpSender {
     }
     
     private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
-        mgr.getParams().setSoTimeout(40000);
+    	// ZAP: set timeout
+        mgr.getParams().setSoTimeout(this.param.getTimeoutInSecs() * 1000);
         mgr.getParams().setStaleCheckingEnabled(true);
         
         mgr.getParams().setDefaultMaxConnectionsPerHost((Constant.MAX_HOST_CONNECTION > 5) ? 10 : 5*Constant.MAX_HOST_CONNECTION);

@@ -50,10 +50,18 @@ public class ConnectionParam extends AbstractParam {
 	private static final String PROXY_CHAIN_REALM = "connection.proxyChain.realm";
 	private static final String PROXY_CHAIN_USER_NAME = "connection.proxyChain.userName";
 	private static final String PROXY_CHAIN_PASSWORD = "connection.proxyChain.password";
-	// ZAP: Added prompt option
-	private static final String PROXY_CHAIN_PROMPT = "connection.proxyChain.prompt";
 
-	
+    private static final String AUTH = "connection.auth";
+    private static final String AUTH_HOST_NAME = "hostName";
+    private static final String AUTH_PORT = "port";
+    private static final String AUTH_USER_NAME = "userName";
+    private static final String AUTH_PASSWORD = "password";
+    private static final String AUTH_REALM = "realm";
+    
+    // ZAP: Added prompt option and timeout
+	private static final String PROXY_CHAIN_PROMPT = "connection.proxyChain.prompt";
+	private static final String TIMEOUT_IN_SECS = "connection.timeoutInSecs";
+
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
 	private String proxyChainSkipName = "";
@@ -63,10 +71,12 @@ public class ConnectionParam extends AbstractParam {
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
 	private Vector listAuth = new Vector();
-	// ZAP: Added prompt option
+	
+	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
+	private int timeoutInSecs = 120;
 
-	private Pattern					patternSkip = null;
+	private Pattern	patternSkip = null;
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -108,6 +118,7 @@ public class ConnectionParam extends AbstractParam {
 			setProxyChainPrompt(false);
 			setProxyChainPassword(getConfig().getString(PROXY_CHAIN_PASSWORD, ""));
 		}
+		setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
 		
 		parseAuthentication();
 	}
@@ -274,14 +285,6 @@ public class ConnectionParam extends AbstractParam {
         
     }
 
-    private static final String AUTH = "connection.auth";
-    private static final String AUTH_HOST_NAME = "hostName";
-    private static final String AUTH_PORT = "port";
-    private static final String AUTH_USER_NAME = "userName";
-    private static final String AUTH_PASSWORD = "password";
-    private static final String AUTH_REALM = "realm";
-    
-    
     private String getAuth(int i, String name) {
         return AUTH + ".A" + i + "." + name;
     }
@@ -327,4 +330,11 @@ public class ConnectionParam extends AbstractParam {
     public void setHttpState(HttpState httpState) {
         this.httpState = httpState;
     }
+	public int getTimeoutInSecs() {
+		return timeoutInSecs;
+	}
+	public void setTimeoutInSecs(int timeoutInSecs) {
+		this.timeoutInSecs = timeoutInSecs;
+		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
+	}
 }
