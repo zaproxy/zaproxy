@@ -80,8 +80,6 @@ public class HttpPanelResponse extends HttpPanel {
 		} else {
 			getComboView().setSelectedItem(VIEW_RAW);	        	        
 		}
-
-
 	}
 
 }

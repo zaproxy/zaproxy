@@ -116,7 +116,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
    public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension) throws HeadlessException {
 	   super();
        this.isSendEnabled = isSendEnabled;
-       System.out.println("SEND: " + isSendEnabled);
        this.extension = extension;
        initialize();
    }
@@ -137,7 +136,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	    });
 
 	    this.setContentPane(getWindowPanel());
-	    //this.setVisible(true);
 	    
 	    this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
@@ -170,10 +168,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			panelHeader.setLayout(new GridBagLayout());
 			panelHeader.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints0.gridx = 1;
 			gridBagConstraints0.gridy = 0;
 			gridBagConstraints0.ipadx = 0;
@@ -181,18 +175,26 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			gridBagConstraints0.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints0.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints0.weightx = 1.0D;
+			
+			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints1.gridx = 0;
+			gridBagConstraints1.gridy = 0;
+			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
+			
 			gridBagConstraints1b.anchor = java.awt.GridBagConstraints.EAST;
 			gridBagConstraints1b.gridx = 2;
 			gridBagConstraints1b.gridy = 0;
 			gridBagConstraints1b.insets = new java.awt.Insets(0,0,0,0);
+			
 			gridBagConstraints2.gridx = 3;
 			gridBagConstraints2.gridy = 0;
+			
 			gridBagConstraints3.gridx = 4;
 			gridBagConstraints3.gridy = 0;
 			gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHEAST;
 			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
 			
-			panelHeader.add(getChkUseTrackingSessionState(), gridBagConstraints1b);
+			panelHeader.add(getChkUseTrackingSessionState(), gridBagConstraints1);
 			panelHeader.add(getChkFollowRedirect(), gridBagConstraints2);
 			panelHeader.add(getBtnSend(), gridBagConstraints3);
 		}

@@ -107,12 +107,12 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	private Extension extension = null;
 
 	private JPanel panelHeader;
-//	protected ManualRequestEditorDialog requestEditor;
+	//	protected ManualRequestEditorDialog requestEditor;
 
 	private HttpSender httpSender = null;
 
 	/*** Constructors ***/
-	
+
 	/**
 	 * This is the default constructor
 	 */
@@ -149,7 +149,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	}
 
 	/*** View Functions ***/
-	
+
 	/**
 	 * This method initializes the header, aka toolbar
 	 * 	
@@ -157,36 +157,36 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	 */    
 	private JPanel getPanelHeader() {
 		if (panelHeader == null) {
-		java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-		java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-		java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 
-		javax.swing.JLabel jLabel = new JLabel();
-		panelHeader = new JPanel();
-		panelHeader.setLayout(new GridBagLayout());
-		gridBagConstraints5.gridx = 0;
-		gridBagConstraints5.gridy = 0;
-		gridBagConstraints5.weightx = 0.0D;
-		gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
-		gridBagConstraints5.ipadx = 0;
-		gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-		gridBagConstraints5.insets = new java.awt.Insets(2,0,2,0);
-		gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-		gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints6.gridx = 2;
-		gridBagConstraints6.gridy = 0;
-		gridBagConstraints6.weightx = 1.0D;
-		jLabel.setText("      ");
-		gridBagConstraints7.gridx = 1;
-		gridBagConstraints7.gridy = 0;
-		gridBagConstraints7.insets = new java.awt.Insets(2,2,2,2);
-		gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+			javax.swing.JLabel jLabel = new JLabel();
+			panelHeader = new JPanel();
+			panelHeader.setLayout(new GridBagLayout());
+			gridBagConstraints5.gridx = 0;
+			gridBagConstraints5.gridy = 0;
+			gridBagConstraints5.weightx = 0.0D;
+			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
+			gridBagConstraints5.ipadx = 0;
+			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints5.insets = new java.awt.Insets(2,0,2,0);
+			gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints6.gridx = 2;
+			gridBagConstraints6.gridy = 0;
+			gridBagConstraints6.weightx = 1.0D;
+			jLabel.setText("      ");
+			gridBagConstraints7.gridx = 1;
+			gridBagConstraints7.gridy = 0;
+			gridBagConstraints7.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
 
-		panelHeader.add(getComboView(), gridBagConstraints5);
-		panelHeader.add(jLabel, gridBagConstraints7);
-		panelHeader.add(getPanelOption(), gridBagConstraints6);
+			panelHeader.add(getComboView(), gridBagConstraints5);
+			panelHeader.add(jLabel, gridBagConstraints7);
+			panelHeader.add(getPanelOption(), gridBagConstraints6);
 		}
-		
+
 		return panelHeader;
 	}
 
@@ -197,17 +197,17 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	 */    
 	private JSplitPane getSplitPane() {
 		if (contentSplit == null) {
-		contentSplit = new javax.swing.JSplitPane();
-		contentSplit.setDividerLocation(220);
-		contentSplit.setDividerSize(3);
-		contentSplit.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-		//splitVert.setPreferredSize(new java.awt.Dimension(400,400));
-		contentSplit.setResizeWeight(0.5D);
-		contentSplit.setContinuousLayout(false);
-		contentSplit.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+			contentSplit = new javax.swing.JSplitPane();
+			contentSplit.setDividerLocation(220);
+			contentSplit.setDividerSize(3);
+			contentSplit.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+			//splitVert.setPreferredSize(new java.awt.Dimension(400,400));
+			contentSplit.setResizeWeight(0.5D);
+			contentSplit.setContinuousLayout(false);
+			contentSplit.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-		contentSplit.setTopComponent(getScrollHeader());			
-		contentSplit.setBottomComponent(getPanelView());
+			contentSplit.setTopComponent(getScrollHeader());			
+			contentSplit.setBottomComponent(getPanelView());
 		}
 		return contentSplit;
 	}
@@ -375,7 +375,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	protected void setCurrentView(String view) {
 		currentView = view;
 	}
-	
+
 	/**
 	 * This method initializes panelOption	
 	 * 	
@@ -384,7 +384,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	public JPanel getPanelOption() {
 		if (panelOption == null) {
 			panelOption = new JPanel();
-			panelOption.setLayout(new CardLayout());
+			//panelOption.setLayout(new CardLayout());
 		}
 		return panelOption;
 	}
@@ -449,7 +449,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 			}
 		}
 	}
-	
+
 	/**
 	 * This method initializes scrollImage	
 	 * 	
@@ -475,15 +475,15 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 		}
 		return lblIcon;
 	}
-	
+
 	protected ImageIcon getImageIcon(HttpMessage msg) {
 		ImageIcon image = new ImageIcon(msg.getResponseBody().getBytes());
 		return image;
 	}
 
-	
+
 	/*** Data Functions ***/
-	
+
 	protected String getHeaderFromJTextArea(JTextArea txtArea) {
 		String msg = txtArea.getText();
 		String result = msg.replaceAll("\\n", "\r\n");
@@ -494,7 +494,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	protected String replaceHeaderForJTextArea(String msg) {
 		return msg.replaceAll("\\r\\n", "\n");
 	}
-	
+
 	abstract public void getMessage(HttpMessage msg, boolean isRequest);
 	abstract protected void setDisplay(HttpMessage msg);
 
@@ -541,18 +541,18 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 			getComboView().setSelectedItem(VIEW_RAW);
 			setCurrentView(VIEW_RAW);
 			show(VIEW_RAW);
-			
+
 			getHttpPanelTabularModel().setText("");
 			return;
 		}
 
 		setDisplay(msg);
-		
+
 		this.validate();
 
 		//TODO        getBtnSend().setEnabled(true);
 	}
-	
+
 	// ZAP: Support plugable views
 	public void addView (HttpPanelView view) {
 		view.setEditable(editable);

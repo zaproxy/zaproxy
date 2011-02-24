@@ -36,8 +36,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.AbstractFrame;
-import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -97,7 +95,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * @return void
 	 */
 	private void initialize() {
-		//this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
+		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new CardLayout());
 		
 		requestPanel = new HttpPanelRequest(false);
@@ -111,12 +109,16 @@ public class BreakPanel extends AbstractPanel implements Tab {
 				// If the user decided to disable the main toolbar, the break
 				// buttons have to be force to be displayed in the break panel
 				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
+					requestPanel.getPanelOption().add(getPanelCommand(), "");
+					responsePanel.getPanelOption().add(getPanelCommand(), "");
 					//getPanelOption().add(getPanelCommand(), "");
 				} else {
 					getPanelMainToolbarCommand();
 				}
 				break;
 			case 1:
+				requestPanel.getPanelOption().add(getPanelCommand(), "");
+				responsePanel.getPanelOption().add(getPanelCommand(), "");
 				//getPanelOption().add(getPanelCommand(), "");
 				break;
 			/*

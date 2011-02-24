@@ -39,7 +39,6 @@ public class HttpPanelRequest extends HttpPanel {
 	public HttpPanelRequest() {
 		super();
 		init();
-		
 	}
 	
 	public HttpPanelRequest(boolean isEditable) {
