@@ -26,6 +26,8 @@ import org.parosproxy.paros.view.MainPopupMenu;
 import org.parosproxy.paros.view.OutputPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
  *
@@ -54,8 +56,8 @@ public interface ViewDelegate {
     
     public void setStatus(String msg);
     
-    public HttpPanel getRequestPanel();
+    public HttpPanelRequest getRequestPanel();
     
-    public HttpPanel getResponsePanel();
+    public HttpPanelResponse getResponsePanel();
     
 }

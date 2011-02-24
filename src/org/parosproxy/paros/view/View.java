@@ -32,7 +32,8 @@ import javax.swing.JToggleButton;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 
 /**
@@ -52,8 +53,8 @@ public class View implements ViewDelegate {
 	
 	//private LogPanel logPanel = null;
 	private MainFrame mainFrame = null;
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
 	private Vector popupList = new Vector();
@@ -145,7 +146,6 @@ public class View implements ViewDelegate {
 //	    
 //	    findDialog.setVisible(true);
 //	}
-
 	
     /**
      * @return Returns the siteTreePanel.
@@ -158,9 +158,9 @@ public class View implements ViewDelegate {
         return outputPanel;
     }
 
-    public HttpPanel getRequestPanel() {
+    public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
-            requestPanel = new HttpPanel(false);
+            requestPanel = new HttpPanelRequest(false);
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("request.panel.title"));	// ZAP: i18n
@@ -168,9 +168,9 @@ public class View implements ViewDelegate {
         return requestPanel;
     }
     
-    public HttpPanel getResponsePanel() {
+    public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
-            responsePanel = new HttpPanel(false);
+            responsePanel = new HttpPanelResponse(false);
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
@@ -204,7 +204,6 @@ public class View implements ViewDelegate {
 //            optionsDialog.addParamPanel(ROOT, new OptionsCertificatePanel());
 //            optionsDialog.addParamPanel(ROOT, new OptionsViewPanel());
 //            optionsDialog.addParamPanel(ROOT, new OptionsTrapPanel());
-
         }
         
         optionsDialog.setTitle(title);

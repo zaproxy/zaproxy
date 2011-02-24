@@ -58,17 +58,19 @@ public class ProxyListenerBreak implements ProxyListener {
 	}
 	
 	/**
-	 * @return Returns the trapPanel.
+	 * @return Returns the breakPanel.
 	 */
 	public BreakPanel getBreakPanel() {
 		return breakPanel;
 	}
+	
 	/**
-	 * @param trapPanel The trapPanel to set.
+	 * @param breakPanel The breakPanel to set.
 	 */
-	public void setBreakPanel(BreakPanel trapPanel) {
-		this.breakPanel = trapPanel;
+	public void setBreakPanel(BreakPanel breakPanel) {
+		this.breakPanel = breakPanel;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
 	 */
@@ -92,7 +94,6 @@ public class ProxyListenerBreak implements ProxyListener {
 			}
 		}
 	}
-	
 
 	private void setBreakDisplay(final HttpMessage msg, boolean isRequest) {
 		setHttpDisplay(getBreakPanel(), msg, isRequest);
@@ -108,11 +109,11 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 	}
 	
-	private void setHttpDisplay(final HttpPanel httpPanel, final HttpMessage msg, final boolean isRequest) {
+	private void setHttpDisplay(final BreakPanel breakPanel, final HttpMessage msg, final boolean isRequest) {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-					httpPanel.setMessage(msg, isRequest);
+					breakPanel.setMessage(msg, isRequest);
 				}
 			});
 		} catch (Exception e) {
@@ -151,7 +152,6 @@ public class ProxyListenerBreak implements ProxyListener {
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(com.proofsecure.paros.network.HttpMessage)
 	 */
 	public void onHttpResponseReceive(HttpMessage msg) {
-
 		if (isSkipImage(msg.getRequestHeader())|| isSkipImage(msg.getResponseHeader())) {
 			return;
 		}
@@ -175,7 +175,6 @@ public class ProxyListenerBreak implements ProxyListener {
 	}
 	
 	public String getHeaderFromJTextArea(JTextArea txtArea) {
-		
 		String msg = txtArea.getText();
 		String result = msg.replaceAll("\\n", "\r\n");
 		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
@@ -196,7 +195,6 @@ public class ProxyListenerBreak implements ProxyListener {
 	}
 
 	private boolean isBreakPoint(HttpMessage msg, boolean request) {
-
 		if (request && getBreakPanel().isBreakRequest()) {
 			// Break on all requests
 			return true;
@@ -207,7 +205,6 @@ public class ProxyListenerBreak implements ProxyListener {
 			// Stopping through all requests and responses
 			return true;
 		}
-		
 		
 	    try {
 		    ListModel lm = extension.getBreakPointsModel();
@@ -242,5 +239,4 @@ public class ProxyListenerBreak implements ProxyListener {
         return false;
 	}
 	
-		
 }

@@ -163,8 +163,8 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
-
-	    getBreakPanel().setMessage("","", false);
+	    getBreakPanel().setMessage(null, true);
+	    getBreakPanel().setMessage(null, false);
 	}
 	
 	

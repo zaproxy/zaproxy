@@ -97,7 +97,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 		    	        try {
 		    	            URI uri = new URI("http://www.any_domain_name.org/path", true);
                             msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
-                            dialog.getRequestPanel().setMessage(msg, true);
+                            dialog.getRequestPanel().setMessage(msg);
                         } catch (Exception e1) {
                         	// ZAP: Log the exception
                         	logger.error(e1.getMessage(), e1);

@@ -57,6 +57,8 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.FilenameExtensionFilter;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanStatus;
@@ -100,8 +102,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JProgressBar progressBar = null;
 	private Map <String, BruteForce> bruteForceMap = new HashMap <String, BruteForce>();
 
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 
 	private ScanStatus scanStatus = null;
 
@@ -486,15 +488,15 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		try {
 			msg = new HistoryReference(sr.getHistoryId()).getHttpMessage();
 	        if (msg.getRequestHeader().isEmpty()) {
-	            requestPanel.setMessage(null, true);
+	            requestPanel.setMessage(null);
 	        } else {
-	            requestPanel.setMessage(msg, true);
+	            requestPanel.setMessage(msg);
 	        }
 	        
 	        if (msg.getResponseHeader().isEmpty()) {
-	            responsePanel.setMessage(null, false);
+	            responsePanel.setMessage(null);
 	        } else {
-	            responsePanel.setMessage(msg, false);
+	            responsePanel.setMessage(msg);
 	        }
 		} catch (Exception e) {
 			log.error("Failed to access message id " + sr.getHistoryId(), e);
@@ -792,10 +794,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		
 	}
 
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
-
     }
 
 	public boolean isScanning(SiteNode node) {

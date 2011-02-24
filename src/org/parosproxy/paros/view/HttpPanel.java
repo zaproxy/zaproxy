@@ -20,25 +20,44 @@
  */
 package org.parosproxy.paros.view;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.border.EtchedBorder;
 
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.tab.Tab;
+import org.zaproxy.zap.httputils.RequestUtils;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelView;
 
@@ -48,22 +67,31 @@ import org.zaproxy.zap.view.HttpPanelView;
  * 
  * Future: to support different view.
  * 
+ * This creates:
+ * +---------------------+
+ * | panelHeader         |
+ * +---------------------+
+ * | contentSplit        |
+ * | ------------------- |
+ * |                     |
+ * +---------------------+
+ * 
+ * 
  */
-public class HttpPanel extends AbstractPanel {
-    
+abstract public class HttpPanel extends AbstractPanel implements Tab {
 	private static final long serialVersionUID = 1L;
-	private static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView");	// ZAP: i18n
-    private static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView");	// ZAP: i18n
-    private static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView");	// ZAP: i18n
-    
-	private javax.swing.JSplitPane splitVert = null;  //
+	protected static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView");	// ZAP: i18n
+	protected static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView");	// ZAP: i18n
+	protected static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView");	// ZAP: i18n
+
+	private javax.swing.JSplitPane contentSplit = null;  //
 	private javax.swing.JScrollPane scrollHeader = null;
 	private javax.swing.JScrollPane scrollTableBody = null;
 	private javax.swing.JTextArea txtHeader = null;
 	private javax.swing.JTextArea txtBody = null;
+
 	private JLabel lblIcon = null;
 	private JPanel panelView = null;
-	private JPanel jPanel = null;
 	private JComboBox comboView = null;
 	private JPanel panelOption = null;
 	private JTable tableBody = null;
@@ -75,86 +103,119 @@ public class HttpPanel extends AbstractPanel {
 	private List <HttpPanelView> views = new ArrayList<HttpPanelView>();
 	private boolean editable = false;
 
-	
 	private JScrollPane scrollImage = null;
+	private Extension extension = null;
+
+	private JPanel panelHeader;
+//	protected ManualRequestEditorDialog requestEditor;
+
+	private HttpSender httpSender = null;
+
+	/*** Constructors ***/
+	
 	/**
 	 * This is the default constructor
 	 */
 	public HttpPanel() {
 		super();
 		initialize();
+
 		HttpPanelManager.getInstance().addPanel(this);
 	}
-	
+
 	public HttpPanel(boolean isEditable) {
 		this();
 		this.editable = isEditable;
+
 		getTxtHeader().setEditable(isEditable);
 		getTxtBody().setEditable(isEditable);
-		getHttpPanelTabularModel().setEditable(isEditable);	
+		getHttpPanelTabularModel().setEditable(isEditable);
 	}
+
+	public HttpPanel(boolean isEditable, Extension extension) {
+		this(isEditable);
+		this.extension = extension;
+	}
+
 	/**
-	 * This method initializes this
+	 * This method initializes this Window.
 	 * 
 	 * @return void
 	 */
 	private  void initialize() {
-		java.awt.GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-
-		java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-		this.setLayout(new GridBagLayout());
-		this.setSize(403, 296);
-		gridBagConstraints1.gridx = 0;
-		gridBagConstraints1.gridy = 1;
-		gridBagConstraints1.weightx = 1.0;
-		gridBagConstraints1.weighty = 1.0;
-		gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints1.ipadx = 0;
-		gridBagConstraints1.ipady = 0;
-		gridBagConstraints4.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-		gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints4.gridx = 0;
-		gridBagConstraints4.gridy = 0;
-		gridBagConstraints4.weightx = 1.0D;
-		// ZAP: Moved the 'toolbar' to the top
-		this.add(getJPanel(), gridBagConstraints4);
-		this.add(getSplitVert(), gridBagConstraints1);
+		this.setLayout(new BorderLayout());
+		this.add(getPanelHeader(), BorderLayout.NORTH);
+		this.add(getSplitPane(), BorderLayout.CENTER);
 	}
+
+	/*** View Functions ***/
+	
 	/**
-
-	 * This method initializes jSplitPane	
-
+	 * This method initializes the header, aka toolbar
 	 * 	
-
-	 * @return javax.swing.JSplitPane	
-
+	 * @return javax.swing.JPanel	
 	 */    
-	private javax.swing.JSplitPane getSplitVert() {
-		if (splitVert == null) {
-			splitVert = new javax.swing.JSplitPane();
-			splitVert.setDividerLocation(220);
-			splitVert.setDividerSize(3);
-			splitVert.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-			splitVert.setPreferredSize(new java.awt.Dimension(400,400));
-			splitVert.setResizeWeight(0.5D);
-			splitVert.setTopComponent(getScrollHeader());
-			splitVert.setContinuousLayout(false);
-			splitVert.setBottomComponent(getPanelView());
-			// Removed unnecessary border
-			splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+	private JPanel getPanelHeader() {
+		if (panelHeader == null) {
+		java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+		java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+		java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+
+		javax.swing.JLabel jLabel = new JLabel();
+		panelHeader = new JPanel();
+		panelHeader.setLayout(new GridBagLayout());
+		gridBagConstraints5.gridx = 0;
+		gridBagConstraints5.gridy = 0;
+		gridBagConstraints5.weightx = 0.0D;
+		gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
+		gridBagConstraints5.ipadx = 0;
+		gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
+		gridBagConstraints5.insets = new java.awt.Insets(2,0,2,0);
+		gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+		gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints6.gridx = 2;
+		gridBagConstraints6.gridy = 0;
+		gridBagConstraints6.weightx = 1.0D;
+		jLabel.setText("      ");
+		gridBagConstraints7.gridx = 1;
+		gridBagConstraints7.gridy = 0;
+		gridBagConstraints7.insets = new java.awt.Insets(2,2,2,2);
+		gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+
+		panelHeader.add(getComboView(), gridBagConstraints5);
+		panelHeader.add(jLabel, gridBagConstraints7);
+		panelHeader.add(getPanelOption(), gridBagConstraints6);
 		}
-		return splitVert;
+		
+		return panelHeader;
 	}
 
 	/**
-
-	 * This method initializes scrollHeader	
-
+	 * This method initializes jSplitPane, the content
 	 * 	
+	 * @return javax.swing.JSplitPane	
+	 */    
+	private JSplitPane getSplitPane() {
+		if (contentSplit == null) {
+		contentSplit = new javax.swing.JSplitPane();
+		contentSplit.setDividerLocation(220);
+		contentSplit.setDividerSize(3);
+		contentSplit.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+		//splitVert.setPreferredSize(new java.awt.Dimension(400,400));
+		contentSplit.setResizeWeight(0.5D);
+		contentSplit.setContinuousLayout(false);
+		contentSplit.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
+		contentSplit.setTopComponent(getScrollHeader());			
+		contentSplit.setBottomComponent(getPanelView());
+		}
+		return contentSplit;
+	}
+
+	/**
+	 * This method initializes scrollHeader	
+	 * 	
 	 * @return javax.swing.JScrollPane	
-
 	 */    
 	private javax.swing.JScrollPane getScrollHeader() {
 		if (scrollHeader == null) {
@@ -165,13 +226,9 @@ public class HttpPanel extends AbstractPanel {
 	}
 
 	/**
-
 	 * This method initializes scrollTableBody	
-
 	 * 	
-
 	 * @return javax.swing.JScrollPane	
-
 	 */    
 	private javax.swing.JScrollPane getScrollTableBody() {
 		if (scrollTableBody == null) {
@@ -183,13 +240,9 @@ public class HttpPanel extends AbstractPanel {
 	}
 
 	/**
-
 	 * This method initializes txtHeader	
-
 	 * 	
-
 	 * @return javax.swing.JTextArea	
-
 	 */    
 	public javax.swing.JTextArea getTxtHeader() {
 		if (txtHeader == null) {
@@ -199,9 +252,9 @@ public class HttpPanel extends AbstractPanel {
 			txtHeader.setName("");
 			txtHeader.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }				
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}				
 				}
 			});
 		}
@@ -209,13 +262,9 @@ public class HttpPanel extends AbstractPanel {
 	}
 
 	/**
-
 	 * This method initializes txtBody	
-
 	 * 	
-
 	 * @return javax.swing.JTextArea	
-
 	 */    
 	public javax.swing.JTextArea getTxtBody() {
 		if (txtBody == null) {
@@ -225,22 +274,22 @@ public class HttpPanel extends AbstractPanel {
 			txtBody.setName("");
 			txtBody.setTabSize(4);
 			txtBody.setVisible(true);
-		    txtBody.addMouseListener(new java.awt.event.MouseAdapter() { 
-		    	public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }			    	
+			txtBody.addMouseListener(new java.awt.event.MouseAdapter() { 
+				public void mousePressed(java.awt.event.MouseEvent e) {    
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}			    	
 				}
-		    });
+			});
 		}
-		
-	    if (currentView.equals(VIEW_TABULAR)) {
-            String s = getHttpPanelTabularModel().getText();
-            if (s != null && s.length() > 0) {
-                txtBody.setText(s);
-            }
+
+		if (currentView.equals(VIEW_TABULAR)) {
+			String s = getHttpPanelTabularModel().getText();
+			if (s != null && s.length() > 0) {
+				txtBody.setText(s);
+			}
 		}
-		
+
 		return txtBody;
 	}
 
@@ -261,52 +310,13 @@ public class HttpPanel extends AbstractPanel {
 		}
 		return panelView;
 	}
-	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel() {
-		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 
-			javax.swing.JLabel jLabel = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.weightx = 0.0D;
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
-			gridBagConstraints5.ipadx = 0;
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints5.insets = new java.awt.Insets(2,0,2,0);
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints6.gridx = 2;
-			gridBagConstraints6.gridy = 0;
-			gridBagConstraints6.weightx = 1.0D;
-			jLabel.setText("      ");
-			gridBagConstraints7.gridx = 1;
-			gridBagConstraints7.gridy = 0;
-			gridBagConstraints7.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
-			jPanel.add(getComboView(), gridBagConstraints5);
-			jPanel.add(jLabel, gridBagConstraints7);
-			jPanel.add(getPanelOption(), gridBagConstraints6);
-		}
-		return jPanel;
-	}
 	/**
 	 * This method initializes comboView	
 	 * 	
 	 * @return javax.swing.JComboBox	
 	 */    
-	private JComboBox getComboView() {
+	protected JComboBox getComboView() {
 		if (comboView == null) {
 			comboView = new JComboBox();
 			comboView.setSelectedIndex(-1);
@@ -314,56 +324,58 @@ public class HttpPanel extends AbstractPanel {
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
-				    String item = (String) comboView.getSelectedItem();
-				    if (item == null || item.equals(currentView)) {
-				        // no change
-				        return;
-				    }
-				    
-			        if (currentView.equals(VIEW_TABULAR)) {
-			            // do not use getTxtBody() here to avoid setting text
-                        String s = getHttpPanelTabularModel().getText();
-				        if (s != null && s.length() > 0) {
-                            // set only if model is not empty because binary data not work for tabularModel
-                            txtBody.setText(s);
-                        }
-				    } else {
-				    	// ZAP: Support plugable views
-				    	for (HttpPanelView view : views) {
-				    		if (currentView.equals(view.getName())) {
-				    			if (view.hasChanged()) {
-		                            txtBody.setText(view.getContent());
-				    			}
-				    			break;
-				    		}
-				    	}
-				    }
-				    
-				    if (item.equals(VIEW_TABULAR)) {
-				        getHttpPanelTabularModel().setText(getTxtBody().getText());
-				    } else {
-				    	// ZAP: Support plugable views
-				    	for (HttpPanelView view : views) {
-				    		if (item.equals(view.getName())) {
-				    			view.setContent(getTxtBody().getText());
-				    			break;
-				    		}
-				    	}
-				    }
-				    
-				    currentView = item;
-				    show(item);
+					String item = (String) comboView.getSelectedItem();
+					if (item == null || item.equals(currentView)) {
+						// no change
+						return;
+					}
+
+					if (currentView.equals(VIEW_TABULAR)) {
+						// do not use getTxtBody() here to avoid setting text
+						String s = getHttpPanelTabularModel().getText();
+						if (s != null && s.length() > 0) {
+							// set only if model is not empty because binary data not work for tabularModel
+							txtBody.setText(s);
+						}
+					} else {
+						// ZAP: Support plugable views
+						for (HttpPanelView view : views) {
+							if (currentView.equals(view.getName())) {
+								if (view.hasChanged()) {
+									txtBody.setText(view.getContent());
+								}
+								break;
+							}
+						}
+					}
+
+					if (item.equals(VIEW_TABULAR)) {
+						getHttpPanelTabularModel().setText(getTxtBody().getText());
+					} else {
+						// ZAP: Support plugable views
+						for (HttpPanelView view : views) {
+							if (item.equals(view.getName())) {
+								view.setContent(getTxtBody().getText());
+								break;
+							}
+						}
+					}
+
+					currentView = item;
+					show(item);
 				}
 			});
 
 			comboView.addItem(VIEW_RAW);
 			comboView.addItem(VIEW_TABULAR);
-
-			
-
 		}
 		return comboView;
 	}
+
+	protected void setCurrentView(String view) {
+		currentView = view;
+	}
+	
 	/**
 	 * This method initializes panelOption	
 	 * 	
@@ -376,6 +388,7 @@ public class HttpPanel extends AbstractPanel {
 		}
 		return panelOption;
 	}
+
 	/**
 	 * This method initializes tableBody	
 	 * 	
@@ -393,17 +406,19 @@ public class HttpPanel extends AbstractPanel {
 		}
 		return tableBody;
 	}
+
 	/**
 	 * This method initializes httpPanelTabularModel	
 	 * 	
 	 * @return com.proofsecure.paros.view.HttpPanelTabularModel	
 	 */    
-	private HttpPanelTabularModel getHttpPanelTabularModel() {
+	protected HttpPanelTabularModel getHttpPanelTabularModel() {
 		if (httpPanelTabularModel == null) {
 			httpPanelTabularModel = new HttpPanelTabularModel();
 		}
 		return httpPanelTabularModel;
 	}
+
 	/**
 	 * This method initializes scrollTxtBody	
 	 * 	
@@ -418,188 +433,22 @@ public class HttpPanel extends AbstractPanel {
 		}
 		return scrollTxtBody;
 	}
-	
-	private void show(String viewName) {
+
+	protected void show(String viewName) {
 		CardLayout card = (CardLayout) getPanelView().getLayout();
 		card.show(getPanelView(), viewName);
-	    
-	}
-	
-	public void setMessage(String header, String body, boolean enableViewSelect) {
-	    getComboView().setEnabled(enableViewSelect);
-
-        javax.swing.JTextArea txtBody = getTxtBody();
-        
-        this.validate();
-        if (enableViewSelect) {
-	        getHttpPanelTabularModel().setText(body);
-	    } else {
-		    getComboView().setSelectedItem(VIEW_RAW);
-		    currentView = VIEW_RAW;
-
-	        show(VIEW_RAW);
-	        getHttpPanelTabularModel().setText("");
-	    }
-
-	    getTxtHeader().setText(header);
-        getTxtHeader().setCaretPosition(0);
-
-        txtBody.setText(body);
-        txtBody.setCaretPosition(0);
 
 	}
-	
-	public void setMessage(HttpMessage msg, boolean isRequest) {
 
-	    javax.swing.JTextArea txtBody = getTxtBody();
-
-	    getComboView().removeAllItems();
-	    getComboView().setEnabled(false);
-	    getComboView().addItem(VIEW_RAW);
-	    
-	    if (msg == null) {
-	        // perform clear display
-		    getTxtHeader().setText("");
-		    getTxtHeader().setCaretPosition(0);
-
-	        txtBody.setText("");
-	        txtBody.setCaretPosition(0);
-
-	        getComboView().setSelectedItem(VIEW_RAW);
-		    currentView = VIEW_RAW;
-
-	        show(VIEW_RAW);
-	        getHttpPanelTabularModel().setText("");
-	        return;
-	    }
-	    
-	    if (isRequest) {
-	        setDisplayRequest(msg);
-	        
-	    } else {
-	        setDisplayResponse(msg);
-	    }
-        this.validate();
-	    
+	protected void pluggableView(HttpMessage msg) {
+		// ZAP: Support plugable views
+		for (HttpPanelView view : views) {
+			if (view.isEnabled(msg)) {
+				view.setEditable(editable);
+				getComboView().addItem(view.getName());
+			}
+		}
 	}
-
-	private void setDisplayRequest(HttpMessage msg) {
-
-	    String header = replaceHeaderForJTextArea(msg.getRequestHeader().toString());
-	    String body = msg.getRequestBody().toString();
-	    
-	    getHttpPanelTabularModel().setText(msg.getRequestBody().toString());
-
-	    getTxtHeader().setText(header);
-        getTxtHeader().setCaretPosition(0);
-
-        txtBody.setText(body);
-        txtBody.setCaretPosition(0);
-
-        getComboView().addItem(VIEW_TABULAR);
-        
-        // ZAP: Support plugable views
-        for (HttpPanelView view : views) {
-        	if (view.isEnabled(msg)) {
-        		view.setEditable(editable);
-                getComboView().addItem(view.getName());
-        	}
-        }
-
-        getComboView().setEnabled(true);
-
-	}
-	
-	private void setDisplayResponse(HttpMessage msg) {
-	    
-	    
-	    if (msg.getResponseHeader().isEmpty()) {
-		    getTxtHeader().setText("");
-		    getTxtHeader().setCaretPosition(0);
-
-	        txtBody.setText("");
-	        txtBody.setCaretPosition(0);
-	        
-	        getLblIcon().setIcon(null);
-	        return;
-	    }
-	    
-	    String header = replaceHeaderForJTextArea(msg.getResponseHeader().toString());
-	    String body = msg.getResponseBody().toString();
-
-	    getTxtHeader().setText(header);
-	    getTxtHeader().setCaretPosition(0);
-        
-        txtBody.setText(body);
-        txtBody.setCaretPosition(0);
-
-        getComboView().removeAllItems();
-        getComboView().addItem(VIEW_RAW);
-
-        // ZAP: Support plugable views
-        for (HttpPanelView view : views) {
-        	if (view.isEnabled(msg)) {
-        		view.setEditable(editable);
-                getComboView().addItem(view.getName());
-        	}
-        }
-
-	    getComboView().setEnabled(true);
-
-	    if (msg.getResponseHeader().isImage()) {
-	        getComboView().addItem(VIEW_IMAGE);
-	        getLblIcon().setIcon(getImageIcon(msg));
-
-	    }
-	    
-	    if (msg.getResponseHeader().isImage()) {
-		    getComboView().setSelectedItem(VIEW_IMAGE);	        
-	    } else {
-		    getComboView().setSelectedItem(VIEW_RAW);	        	        
-	    }
-
-	    
-	}
-	
-	private String getHeaderFromJTextArea(JTextArea txtArea) {
-		
-		String msg = txtArea.getText();
-		String result = msg.replaceAll("\\n", "\r\n");
-		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
-		return result;
-	}
-	
-	private String replaceHeaderForJTextArea(String msg) {
-		return msg.replaceAll("\\r\\n", "\n");
-	}
-	
-	public void getMessage(HttpMessage msg, boolean isRequest) {
-	    try {
-	        if (isRequest) {
-	            if (getTxtHeader().getText().length() == 0) {
-	                msg.getRequestHeader().clear();
-	                msg.getRequestBody().setBody("");
-	            } else {
-	                msg.getRequestHeader().setMessage(getHeaderFromJTextArea(getTxtHeader()));
-	                msg.getRequestBody().setBody(getTxtBody().getText());
-	                msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-	            }
-	        } else {
-	            if (getTxtHeader().getText().length() == 0) {
-	                msg.getResponseHeader().clear();
-	                msg.getResponseBody().setBody("");
-	            } else {
-	                msg.getResponseHeader().setMessage(getHeaderFromJTextArea(getTxtHeader()));
-	                String txt = getTxtBody().getText();
-	                msg.getResponseBody().setBody(txt);
-	                msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
-	            }
-	        }
-	    } catch (Exception e) {
-	    }
-
-	}
-	
 	
 	/**
 	 * This method initializes scrollImage	
@@ -608,29 +457,102 @@ public class HttpPanel extends AbstractPanel {
 	 */    
 	private JScrollPane getScrollImage() {
 		if (scrollImage == null) {
-			
+
 			scrollImage = new JScrollPane();
 			scrollImage.setName(VIEW_IMAGE);
 			scrollImage.setViewportView(getLblIcon());
 		}
 		return scrollImage;
 	}
-	
-	private JLabel getLblIcon() {
-	    if (lblIcon == null) {
+
+	protected JLabel getLblIcon() {
+		if (lblIcon == null) {
 			lblIcon = new JLabel();
 			lblIcon.setText("");
 
 			lblIcon.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 			lblIcon.setBackground(java.awt.SystemColor.text);
-	    }
-	    return lblIcon;
+		}
+		return lblIcon;
 	}
-	private ImageIcon getImageIcon(HttpMessage msg) {
-	    ImageIcon image = new ImageIcon(msg.getResponseBody().getBytes());
-	    return image;
+	
+	protected ImageIcon getImageIcon(HttpMessage msg) {
+		ImageIcon image = new ImageIcon(msg.getResponseBody().getBytes());
+		return image;
 	}
 
+	
+	/*** Data Functions ***/
+	
+	protected String getHeaderFromJTextArea(JTextArea txtArea) {
+		String msg = txtArea.getText();
+		String result = msg.replaceAll("\\n", "\r\n");
+		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
+		return result;
+	}
+
+	protected String replaceHeaderForJTextArea(String msg) {
+		return msg.replaceAll("\\r\\n", "\n");
+	}
+	
+	abstract public void getMessage(HttpMessage msg, boolean isRequest);
+	abstract protected void setDisplay(HttpMessage msg);
+
+	public void setMessage(String header, String body, boolean enableViewSelect) {
+		getComboView().setEnabled(enableViewSelect);
+
+		javax.swing.JTextArea txtBody = getTxtBody();
+
+		this.validate();
+		if (enableViewSelect) {
+			getHttpPanelTabularModel().setText(body);
+		} else {
+			getComboView().setSelectedItem(VIEW_RAW);
+			currentView = VIEW_RAW;
+
+			show(VIEW_RAW);
+			getHttpPanelTabularModel().setText("");
+		}
+
+		getTxtHeader().setText(header);
+		getTxtHeader().setCaretPosition(0);
+
+		txtBody.setText(body);
+		txtBody.setCaretPosition(0);
+
+		//TODO        getBtnSend().setEnabled(true);
+	}
+
+	public void setMessage(HttpMessage msg) {
+		javax.swing.JTextArea txtBody = getTxtBody();
+
+		getComboView().removeAllItems();
+		getComboView().setEnabled(false);
+		getComboView().addItem(VIEW_RAW);
+
+		if (msg == null) {
+			// perform clear display
+			getTxtHeader().setText("");
+			getTxtHeader().setCaretPosition(0);
+
+			txtBody.setText("");
+			txtBody.setCaretPosition(0);
+
+			getComboView().setSelectedItem(VIEW_RAW);
+			setCurrentView(VIEW_RAW);
+			show(VIEW_RAW);
+			
+			getHttpPanelTabularModel().setText("");
+			return;
+		}
+
+		setDisplay(msg);
+		
+		this.validate();
+
+		//TODO        getBtnSend().setEnabled(true);
+	}
+	
 	// ZAP: Support plugable views
 	public void addView (HttpPanelView view) {
 		view.setEditable(editable);
@@ -641,5 +563,13 @@ public class HttpPanel extends AbstractPanel {
 	public boolean isEditable() {
 		return editable;
 	}
-	
+
+	public void setExtension(Extension extension) {
+		this.extension = extension;
+	}
+
+	public Extension getExtention() {
+		return extension;
+	}
+
 }

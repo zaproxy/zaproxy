@@ -43,6 +43,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 /**
  *
  * To change the template for this generated type comment go to
@@ -69,8 +71,8 @@ public class SearchPanel extends AbstractPanel {
 	private JList resultsList = new JList();
 	private DefaultListModel resultsModel;
 
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
     private static Log log = LogFactory.getLog(SearchPanel.class);
@@ -319,7 +321,7 @@ public class SearchPanel extends AbstractPanel {
 		}
 	}
 
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 
@@ -343,15 +345,15 @@ public class SearchPanel extends AbstractPanel {
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.setMessage(null);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.setMessage(null);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg);
         }
         highlightFirstResult(sr);
     }

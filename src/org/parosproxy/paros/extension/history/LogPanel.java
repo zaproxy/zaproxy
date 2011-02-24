@@ -38,6 +38,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
  *
@@ -54,8 +56,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
 	
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
     private ExtensionHistory extension = null;
 	
 	/**
@@ -343,7 +345,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     }
     
     
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 
@@ -352,15 +354,15 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private void displayMessage(HttpMessage msg) {
         
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.setMessage(null);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.setMessage(null);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg);
         }
     }
 

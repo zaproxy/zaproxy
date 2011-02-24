@@ -33,6 +33,8 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.view.ScanPanel;
@@ -51,8 +53,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
 	private static JList messageList = null;
 
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 
     //private static Log log = LogFactory.getLog(ActiveScanPanel.class);
 
@@ -111,15 +113,15 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     		return;
     	}
         if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.setMessage(null);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader() != null && msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.setMessage(null);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg);
         }
     }
 
@@ -185,7 +187,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	public void notifyNewMessage(HttpMessage msg) {
 	}
 
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 

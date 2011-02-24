@@ -22,71 +22,84 @@ package org.parosproxy.paros.extension.history;
 
 import org.parosproxy.paros.model.Model;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.border.EtchedBorder;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
-import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.tab.Tab;
+
+
 /**
 *
-* To change the template for this generated type comment go to
-* Window - Preferences - Java - Code Generation - Code and Comments
+* Creates:
+* 
+* +----------------------------+
+* | panelHeader                |
+* +----------------------------+
+* | panelContent               |
+* |                            |
+* |                            |
+* +----------------------------+
+* 
 */
-public class ManualRequestEditorDialog extends AbstractFrame {
-
+public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
 
 	// ZAP: Added logger
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
-	private HttpPanel requestPanel = null;
+    // Window
+    private JPanel panelWindow = null; // ZAP
+    private JPanel panelHeader = null;
+    //private JPanel panelContent = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 	private JPanel panelCommand = null;
-	private JButton btnSend = null;
-	private JLabel jLabel = null;  //  @jve:decl-index=0:
 	// ZAP: Changed panelTab to JSplitPane
 	private JComponent panelMain = null;
-	private HttpPanel responsePanel = null;
-	private Extension extension = null;
+	private JPanel panelContent = null;
+	
+	private JCheckBox chkFollowRedirect = null;
+	private JCheckBox chkUseTrackingSessionState = null;
+	
+	private JButton btnSend = null;
+
+	
+	// Other
 	private HttpSender httpSender = null;
 	private boolean isSendEnabled = true;
 	// ZAP: Add request to the history pane, c/o Andiparos
 	private HistoryList historyList = null;
-
-	private JPanel jPanel = null;
-	private JCheckBox chkFollowRedirect = null;
-	private JCheckBox chkUseTrackingSessionState = null;
-	// ZAP: Change method pulldown 
-	private JComboBox comboChangeMethod = null;
+	private Extension extension = null;
+	
+	
    /**
     * @throws HeadlessException
     */
@@ -101,12 +114,11 @@ public class ManualRequestEditorDialog extends AbstractFrame {
     * @throws HeadlessException
     */
    public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension) throws HeadlessException {
-       //super(parent, modal);
 	   super();
        this.isSendEnabled = isSendEnabled;
+       System.out.println("SEND: " + isSendEnabled);
        this.extension = extension;
        initialize();
-
    }
 
 	/**
@@ -115,7 +127,7 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 	 * @return void
 	 */
 	private void initialize() {
-	    getRequestPanel().getPanelOption().add(getPanelCommand(), "");
+	    this.requestPanel = getRequestPanel();
 
 	    this.addWindowListener(new java.awt.event.WindowAdapter() { 
 	    	public void windowClosing(java.awt.event.WindowEvent e) {
@@ -124,39 +136,40 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 	    	}
 	    });
 
-	    this.setContentPane(getJPanel());
+	    this.setContentPane(getWindowPanel());
 	    //this.setVisible(true);
 	    
 	    this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
-	
-	/**
-	 * This method initializes requestPanel	
-	 * 	
-	 * @return org.parosproxy.paros.view.HttpPanel	
-	 */    
-	public HttpPanel getRequestPanel() {
-		if (requestPanel == null) {
-			requestPanel = new HttpPanel(true);
+		
+	public JPanel getWindowPanel() {
+		if (panelWindow == null) {
+			panelWindow = new JPanel();
+			panelWindow.setLayout(new BorderLayout());
+			
+			panelHeader = getPanelHeader();
+			panelWindow.add(panelHeader, BorderLayout.NORTH);
+			
+			panelContent = getPanelContent();
+			panelWindow.add(panelContent);
 		}
-		return requestPanel;
+		
+		return panelWindow;
 	}
-	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getPanelCommand() {
-		if (panelCommand == null) {
-			panelCommand = new JPanel();
+	
+	public JPanel getPanelHeader() {
+		if (panelHeader == null) {
+			panelHeader = new JPanel();
+
 			GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
-			jLabel = new JLabel();
-			panelCommand.setLayout(new GridBagLayout());
-			jLabel.setText("");
+			
+			panelHeader.setLayout(new GridBagLayout());
+			panelHeader.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
@@ -178,51 +191,57 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 			gridBagConstraints3.gridy = 0;
 			gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHEAST;
 			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
-			panelCommand.add(jLabel, gridBagConstraints0);
-			panelCommand.add(getComboChangeMethod(), gridBagConstraints1);
-			panelCommand.add(getChkUseTrackingSessionState(), gridBagConstraints1b);
-			panelCommand.add(getChkFollowRedirect(), gridBagConstraints2);
-			panelCommand.add(getBtnSend(), gridBagConstraints3);
+			
+			panelHeader.add(getChkUseTrackingSessionState(), gridBagConstraints1b);
+			panelHeader.add(getChkFollowRedirect(), gridBagConstraints2);
+			panelHeader.add(getBtnSend(), gridBagConstraints3);
 		}
-		return panelCommand;
+		
+		return panelHeader;
 	}
+	
 	/**
-	 * This method initializes jButton	
+	 * This method initializes requestPanel	
 	 * 	
-	 * @return javax.swing.JButton	
+	 * @return org.parosproxy.paros.view.HttpPanel	
 	 */    
-	private JButton getBtnSend() {
-		if (btnSend == null) {
-			btnSend = new JButton();
-			btnSend.setText(Constant.messages.getString("manReq.button.send"));		// ZAP: i18n
-			btnSend.setEnabled(isSendEnabled);
-			btnSend.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-                    btnSend.setEnabled(false);
-			        HttpMessage msg = new HttpMessage();
-			        getRequestPanel().getMessage(msg, true);
-			        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-			        send(msg);
-				    
-				}
-			});
+	public HttpPanelRequest getRequestPanel() {
+		if (requestPanel == null) {
+
+			requestPanel = new HttpPanelRequest(true, extension);
 		}
-		return btnSend;
+		return requestPanel;
 	}
+	
 	/**
 	 * This method initializes jTabbedPane	
 	 * 	
 	 * @return javax.swing.JTabbedPane	
 	 */    
 	private JComponent getPanelTab() {
+		JSplitPane splitPane = null;
+		Dimension frameSize = null;
+		
 		if (panelMain == null) {
 			switch(Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption()) {
 			case 0:
-				this.panelMain = (JComponent) new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
+				splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
+				this.panelMain = (JComponent) splitPane;
 				panelMain.setDoubleBuffered(true);
+				
+				frameSize = this.getSize();
+				splitPane.setDividerLocation(frameSize.height / 2);
+				
 				break;
 				
 			case 1:
+				splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getRequestPanel(), getResponsePanel());
+				this.panelMain = (JComponent) splitPane;
+				panelMain.setDoubleBuffered(true);
+				
+				frameSize = this.getSize();
+				splitPane.setDividerLocation(frameSize.width / 2);
+				
 				this.panelMain = (JComponent) new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getRequestPanel(), getResponsePanel());
 				panelMain.setDoubleBuffered(true);
 				break;
@@ -248,19 +267,16 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 	 * 	
 	 * @return org.parosproxy.paros.view.HttpPanel	
 	 */    
-	public HttpPanel getResponsePanel() {
+	public HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
-			responsePanel = new HttpPanel(false);
+			responsePanel = new HttpPanelResponse(false, extension);
 		}
 		return responsePanel;
 	}
 
    public void setExtension(Extension extension) {
-       this.extension = extension;
-   }
-   
-   private Extension getExtention() {
-       return extension;
+	   requestPanel.setExtension(extension);
+	   responsePanel.setExtension(extension);
    }
    
    public void setVisible(boolean show) {
@@ -275,10 +291,12 @@ public class ManualRequestEditorDialog extends AbstractFrame {
         	   log.error(e.getMessage(), e);
            }
        }
-
+       
+       switchToTab(0);
+       
        boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
        getChkUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
-       super.setVisible(show);       
+       super.setVisible(show);
 
    }
 	
@@ -291,10 +309,9 @@ public class ManualRequestEditorDialog extends AbstractFrame {
    }
    
    public void setMessage(HttpMessage msg) {
-       getRequestPanel().setMessage(msg, true);
+       getRequestPanel().setMessage(msg);
        getResponsePanel().setMessage("", "", false);
-       getBtnSend().setEnabled(true);
-       
+       switchToTab(0);
    }
    
 	/**
@@ -302,27 +319,28 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getJPanel() {
-		if (jPanel == null) {
+	private JPanel getPanelContent() {
+		if (panelContent == null) {
 			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
+			panelContent = new JPanel();
+			panelContent.setLayout(new GridBagLayout());
 			gridBagConstraints31.gridx = 0;
 			gridBagConstraints31.gridy = 0;
 			gridBagConstraints31.weightx = 1.0;
 			gridBagConstraints31.weighty = 1.0;
 			gridBagConstraints31.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			jPanel.add(getPanelTab(), gridBagConstraints31);
+			panelContent.add(getPanelTab(), gridBagConstraints31);
 		}
-		return jPanel;
+		return panelContent;
 	}
+	
 	/**
 	 * This method initializes chkFollowRedirect	
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */    
-	private JCheckBox getChkFollowRedirect() {
+	public JCheckBox getChkFollowRedirect() {
 		if (chkFollowRedirect == null) {
 			chkFollowRedirect = new JCheckBox();
 			chkFollowRedirect.setText(Constant.messages.getString("manReq.checkBox.followRedirect"));
@@ -330,12 +348,13 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 		}
 		return chkFollowRedirect;
 	}
+	
 	/**
 	 * This method initializes jCheckBox	
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */    
-	private JCheckBox getChkUseTrackingSessionState() {
+	public JCheckBox getChkUseTrackingSessionState() {
 		if (chkUseTrackingSessionState == null) {
 			chkUseTrackingSessionState = new JCheckBox();
 			chkUseTrackingSessionState.setText(Constant.messages.getString("manReq.checkBox.useSession"));
@@ -343,46 +362,7 @@ public class ManualRequestEditorDialog extends AbstractFrame {
 		return chkUseTrackingSessionState;
 	}
     
-    private void send(final HttpMessage msg) {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    getHttpSender().sendAndReceive(msg, getChkFollowRedirect().isSelected());
-                    
-                    EventQueue.invokeAndWait(new Runnable() {
-                        public void run() {
-	                        if (!msg.getResponseHeader().isEmpty()) {
-	                            getResponsePanel().setMessage(msg, false);
-	                            
-	                            final int finalType = HistoryReference.TYPE_MANUAL;
-	                            Thread t = new Thread(new Runnable() {
-	                            	public void run() {
-	                            		addHistory(msg, finalType);
-	                            	}
-	                            });
-	                            t.start();
-	                        }
-                        }
-                    });
-                } catch (NullPointerException npe) {
-                    getExtention().getView().showWarningDialog("Malformed header error.");                      
-                } catch (HttpMalformedHeaderException mhe) {
-                    getExtention().getView().showWarningDialog("Malformed header error.");                      
-                } catch (IOException ioe) {
-                    getExtention().getView().showWarningDialog("IO error in sending request.");
-                } catch (Exception e) {
-                	// ZAP: Log exceptions
-                	log.error(e.getMessage(), e);
-                } finally {
-                    btnSend.setEnabled(true);
-                }
-            }
-        });
-        t.setPriority(Thread.NORM_PRIORITY);
-        t.start();
-    }
-    
-    private void addHistory(HttpMessage msg, int type) {
+    public void addHistory(HttpMessage msg, int type) {
         HistoryReference historyRef = null;
         try {
 	        historyRef = new HistoryReference(Model.getSingleton().getSession(), type, msg);
@@ -397,7 +377,7 @@ public class ManualRequestEditorDialog extends AbstractFrame {
         }
     }
 
-    private void addHistoryInEventQueue(final HistoryReference ref) {
+    public void addHistoryInEventQueue(final HistoryReference ref) {
         if (EventQueue.isDispatchThread()) {
                 historyList.addElement(ref);
         } else {
@@ -413,104 +393,75 @@ public class ManualRequestEditorDialog extends AbstractFrame {
         }
     }
     
-    private JComboBox getComboChangeMethod() {
-    	if (comboChangeMethod == null) {
-    		comboChangeMethod = new JComboBox();
-    		comboChangeMethod.setEditable(false);
-    		comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
-    		comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
-    		comboChangeMethod.addItem(HttpRequestHeader.DELETE);
-    		comboChangeMethod.addItem(HttpRequestHeader.GET);
-    		comboChangeMethod.addItem(HttpRequestHeader.HEAD);
-    		comboChangeMethod.addItem(HttpRequestHeader.OPTIONS);
-    		comboChangeMethod.addItem(HttpRequestHeader.POST);
-    		comboChangeMethod.addItem(HttpRequestHeader.PUT);
-    		comboChangeMethod.addItem(HttpRequestHeader.TRACE);
-    		comboChangeMethod.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (comboChangeMethod.getSelectedIndex() > 0) {
-						changeMethod((String) comboChangeMethod.getSelectedItem());
-						comboChangeMethod.setSelectedIndex(0);
-					}
-				}});
-    	}
-    	
-    	return this.comboChangeMethod;
-    }
-    
-    private void changeMethod(String method) {
-    	HttpPanel reqPanel = getRequestPanel();
-    	String header = reqPanel.getTxtHeader().getText();
-    	try {
-			HttpRequestHeader hrh = new HttpRequestHeader(header);
-			URI uri = hrh.getURI();
-			String body = reqPanel.getTxtBody().getText();
-			String prevMethod = hrh.getMethod();
-			if (prevMethod.equalsIgnoreCase(method)) {
-				return;
-			}
-			if (prevMethod.equals(HttpRequestHeader.POST)) {
-				// Was POST, move all params onto the URL
-				if (body != null && body.length() > 0) {
-					StringBuffer sb = new StringBuffer();
-					if (uri.getQuery() != null) {
-						sb.append(uri.getQuery());
-					}
-					
-					String [] params = body.split("&");
-					for (String param : params) {
-						if (sb.length() > 0) {
-							sb.append("&");
-						}
-						String[] nv = param.split("=");
-						if (nv.length == 1) {
-							// This effectively strips out the equals if theres no value 
-							sb.append(nv[0]);
-						} else {
-							sb.append(param);
-						}
-					}
-					uri.setQuery(sb.toString());
-
+	/**
+	 * This method initializes jButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */    
+	private JButton getBtnSend() {
+		if (btnSend == null) {
+			btnSend = new JButton();
+			btnSend.setText(Constant.messages.getString("manReq.button.send"));		// ZAP: i18n
+			btnSend.setEnabled(isSendEnabled);
+			btnSend.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+                    btnSend.setEnabled(false);
+			        HttpMessage msg = new HttpMessage();
+			        requestPanel.getMessage(msg, true);
+			        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+			        send(msg);
+				    
 				}
-				hrh.setURI(uri);
-				// Clear the body
-				body = "";
-				
-			} else if (method.equals(HttpRequestHeader.POST)) {
-				// To be a port, move all URL query params into the body
-				String query = uri.getQuery();
-				if (query != null) {
-					StringBuffer sb = new StringBuffer();
-					String [] params = query.split("&");
-					for (String param : params) {
-						if (sb.length() > 0) {
-							sb.append("&");
-						}
-						sb.append(param);
-						String[] nv = param.split("=");
-						if (nv.length == 1) {
-							// Cope with URL params with no values e.g. http://www.example.com/test?key
-							sb.append("=");
-						}
-					}
-					body = sb.toString();
-					uri.setQuery(null);
-					hrh.setURI(uri);
-				}
-			}
-			hrh.setMethod(method);
-			
-			reqPanel.setMessage(hrh.toString(), body, true);
-			
-		} catch (HttpMalformedHeaderException e) {
-			// Ignore?
-			log.error(e.getMessage(), e);
-		} catch (URIException e) {
-			log.error(e.getMessage(), e);
+			});
 		}
-    	
-    	
+		return btnSend;
+	}
+	
+    private void send(final HttpMessage msg) {
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    getHttpSender().sendAndReceive(msg, getChkFollowRedirect().isSelected());
+                    
+                    EventQueue.invokeAndWait(new Runnable() {
+                        public void run() {
+	                        if (!msg.getResponseHeader().isEmpty()) {
+	                            getResponsePanel().setMessage(msg);
+	                            
+	                            final int finalType = HistoryReference.TYPE_MANUAL;
+	                            Thread t = new Thread(new Runnable() {
+	                            	public void run() {
+	                            		addHistory(msg, finalType);
+	                            	}
+	                            });
+	                            t.start();
+	                        }
+                        }
+                    });
+                    
+                    switchToTab(1);
+                } catch (NullPointerException npe) {
+                    requestPanel.getExtention().getView().showWarningDialog("Malformed header error.");                      
+                } catch (HttpMalformedHeaderException mhe) {
+                	requestPanel.getExtention().getView().showWarningDialog("Malformed header error.");                      
+                } catch (IOException ioe) {
+                	requestPanel.getExtention().getView().showWarningDialog("IO error in sending request.");
+                } catch (Exception e) {
+                	// ZAP: Log exceptions
+                	log.error(e.getMessage(), e);
+                } finally {
+                    btnSend.setEnabled(true);
+                }
+            }
+        });
+        t.setPriority(Thread.NORM_PRIORITY);
+        t.start();
     }
+
+	public void switchToTab(int i) {
+        if (Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption() == 2) {
+     	   JTabbedPane tab = (JTabbedPane) getPanelTab();
+     	   tab.setSelectedIndex(i);
+        }
+	}
 }
