@@ -71,14 +71,14 @@ public class PopupMenuResend extends ExtensionPopupMenu {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-        	    
         	    ManualRequestEditorDialog dialog = extension.getResendDialog();
         	    
         	    JList listLog = extension.getLogPanel().getListLog();
         	    HistoryReference ref = (HistoryReference) listLog.getSelectedValue();
         	    HttpMessage msg = null;
         	    try {
-                    msg = ref.getHttpMessage().cloneRequest();
+        	    	// Dont clone. ManualRequestEditor will do it.
+        	    	msg = ref.getHttpMessage();
                     dialog.setMessage(msg);
                     dialog.setVisible(true);
                 } catch (HttpMalformedHeaderException e1) {
@@ -86,14 +86,8 @@ public class PopupMenuResend extends ExtensionPopupMenu {
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
-                
-        	    
-        	    
-        	    
         	}
         });
-
-			
 	}
 	
     public boolean isEnableForComponent(Component invoker) {
@@ -114,7 +108,5 @@ public class PopupMenuResend extends ExtensionPopupMenu {
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }
-    
-
 	
 }

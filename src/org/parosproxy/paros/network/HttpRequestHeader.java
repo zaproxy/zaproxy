@@ -436,5 +436,4 @@ public class HttpRequestHeader extends HttpHeader {
 		return uri;
 	}
 
-
 }

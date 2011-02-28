@@ -218,12 +218,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
-	    
-
 	    getHistoryList().clear();
 	    getLogPanel().getListLog().setModel(getHistoryList());
-		getView().getRequestPanel().setMessage("","", true);
-		getView().getResponsePanel().setMessage("","", false);
+		getView().getRequestPanel().clearView(true);
+		getView().getResponsePanel().clearView(false);
 
 		try {
 		    List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);

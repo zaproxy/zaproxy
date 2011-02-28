@@ -98,7 +98,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	// ZAP: Add request to the history pane, c/o Andiparos
 	private HistoryList historyList = null;
 	private Extension extension = null;
-	
+	private HttpMessage httpMessage = null;
 	
    /**
     * @throws HeadlessException
@@ -131,7 +131,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	    this.addWindowListener(new java.awt.event.WindowAdapter() { 
 	    	public void windowClosing(java.awt.event.WindowEvent e) {
 	    	    getHttpSender().shutdown();
-	    	    getResponsePanel().setMessage("","", false);
+	    	    getResponsePanel().clearView(false);
 	    	}
 	    });
 
@@ -140,7 +140,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	    this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
 		
-	public JPanel getWindowPanel() {
+	private JPanel getWindowPanel() {
 		if (panelWindow == null) {
 			panelWindow = new JPanel();
 			panelWindow.setLayout(new BorderLayout());
@@ -155,7 +155,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		return panelWindow;
 	}
 	
-	public JPanel getPanelHeader() {
+	private JPanel getPanelHeader() {
 		if (panelHeader == null) {
 			panelHeader = new JPanel();
 
@@ -207,7 +207,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * 	
 	 * @return org.parosproxy.paros.view.HttpPanel	
 	 */    
-	public HttpPanelRequest getRequestPanel() {
+	private HttpPanelRequest getRequestPanel() {
 		if (requestPanel == null) {
 
 			requestPanel = new HttpPanelRequest(true, extension);
@@ -269,7 +269,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * 	
 	 * @return org.parosproxy.paros.view.HttpPanel	
 	 */    
-	public HttpPanelResponse getResponsePanel() {
+	private HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
 			responsePanel = new HttpPanelResponse(false, extension);
 		}
@@ -310,9 +310,21 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
        return httpSender;
    }
    
+   /* Set new HttpMessage
+    * this means ManualRequestEditor does show another HttpMessage.
+    * Copy the message (this is not a viewer. User will modify it),
+    * and update Request/Response views.
+    */
    public void setMessage(HttpMessage msg) {
-       getRequestPanel().setMessage(msg);
-       getResponsePanel().setMessage("", "", false);
+	   if (msg == null) {
+		   System.out.println("Manual: set message NULL");
+		   return;
+	   }
+	   
+	   this.httpMessage = msg.cloneAll();
+	   
+       getRequestPanel().setMessage(httpMessage);
+       getResponsePanel().setMessage(httpMessage);
        switchToTab(0);
    }
    
@@ -342,7 +354,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */    
-	public JCheckBox getChkFollowRedirect() {
+	private JCheckBox getChkFollowRedirect() {
 		if (chkFollowRedirect == null) {
 			chkFollowRedirect = new JCheckBox();
 			chkFollowRedirect.setText(Constant.messages.getString("manReq.checkBox.followRedirect"));
@@ -356,7 +368,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * 	
 	 * @return javax.swing.JCheckBox	
 	 */    
-	public JCheckBox getChkUseTrackingSessionState() {
+	private JCheckBox getChkUseTrackingSessionState() {
 		if (chkUseTrackingSessionState == null) {
 			chkUseTrackingSessionState = new JCheckBox();
 			chkUseTrackingSessionState.setText(Constant.messages.getString("manReq.checkBox.useSession"));
@@ -364,7 +376,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		return chkUseTrackingSessionState;
 	}
     
-    public void addHistory(HttpMessage msg, int type) {
+    private void addHistory(HttpMessage msg, int type) {
         HistoryReference historyRef = null;
         try {
 	        historyRef = new HistoryReference(Model.getSingleton().getSession(), type, msg);
@@ -379,7 +391,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
         }
     }
 
-    public void addHistoryInEventQueue(final HistoryReference ref) {
+    private void addHistoryInEventQueue(final HistoryReference ref) {
         if (EventQueue.isDispatchThread()) {
                 historyList.addElement(ref);
         } else {
@@ -407,16 +419,28 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			btnSend.setEnabled(isSendEnabled);
 			btnSend.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-                    btnSend.setEnabled(false);
-			        HttpMessage msg = new HttpMessage();
-			        requestPanel.getMessage(msg, true);
-			        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-			        send(msg);
-				    
+					btnSendAction();
 				}
 			});
 		}
 		return btnSend;
+	}
+	
+	private void btnSendAction() {
+        btnSend.setEnabled(false);
+        
+        // Get current HttpMessage
+        requestPanel.saveData();
+        HttpMessage msg = requestPanel.getHttpMessage();
+        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+        
+        // Send Request, Receive Response
+        send(msg);
+        
+        // redraw request, as it could have changed 
+        requestPanel.updateContent();
+        
+        btnSend.setEnabled(true);
 	}
 	
     private void send(final HttpMessage msg) {
@@ -428,7 +452,9 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
                     EventQueue.invokeAndWait(new Runnable() {
                         public void run() {
 	                        if (!msg.getResponseHeader().isEmpty()) {
-	                            getResponsePanel().setMessage(msg);
+	                        	// Indicate UI new response arrived
+	                            switchToTab(1);
+	                        	responsePanel.updateContent();
 	                            
 	                            final int finalType = HistoryReference.TYPE_MANUAL;
 	                            Thread t = new Thread(new Runnable() {
@@ -440,14 +466,12 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	                        }
                         }
                     });
-                    
-                    switchToTab(1);
                 } catch (NullPointerException npe) {
-                    requestPanel.getExtention().getView().showWarningDialog("Malformed header error.");                      
+                    requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");                      
                 } catch (HttpMalformedHeaderException mhe) {
-                	requestPanel.getExtention().getView().showWarningDialog("Malformed header error.");                      
+                	requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");                      
                 } catch (IOException ioe) {
-                	requestPanel.getExtention().getView().showWarningDialog("IO error in sending request.");
+                	requestPanel.getExtension().getView().showWarningDialog("IO error in sending request.");
                 } catch (Exception e) {
                 	// ZAP: Log exceptions
                 	log.error(e.getMessage(), e);
@@ -460,7 +484,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
         t.start();
     }
 
-	public void switchToTab(int i) {
+	private void switchToTab(int i) {
         if (Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption() == 2) {
      	   JTabbedPane tab = (JTabbedPane) getPanelTab();
      	   tab.setSelectedIndex(i);

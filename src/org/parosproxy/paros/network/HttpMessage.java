@@ -504,6 +504,34 @@ public class HttpMessage {
 		return this.getParamsSet(HtmlParameter.Type.form, query);
 	}
 	
+	public void setCookieParamsAsString(String data) {
+		this.getRequestHeader().setHeader(HttpHeader.COOKIE, data);
+	}
+	
+	public String getCookieParamsAsString() {
+		String cookie = "";
+		
+		Vector<String> cookies = null;
+        if (! this.getRequestHeader().isEmpty()) {
+        	cookies = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+        } else if (! this.getResponseHeader().isEmpty()) {
+        	cookies = this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE);
+        	cookies.addAll(this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE2));
+        } else {
+        	return cookie;
+        }
+		
+        // Fix error requesting cookies, but there are none
+        if (cookies == null) {
+        	return cookie;
+        }
+        
+        for (String header: cookies) {
+        	cookie += header;
+        }
+        return cookie;
+	}
+	
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
@@ -644,4 +672,5 @@ public class HttpMessage {
     public void setNote(String note) {
         this.note = note;
     }
+
 }

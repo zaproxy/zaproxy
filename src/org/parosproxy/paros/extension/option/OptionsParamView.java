@@ -34,8 +34,10 @@ public class OptionsParamView extends AbstractParam {
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
 	public static final String SHOW_MAIN_TOOLBAR_OPTION = "view.showMainToolbar";
 	public static final String DEFAULT_LOCALE = "en_GB";
+	public static final String ADVANCED_UI = "view.options.label.advancedview";
 	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
 
+	private int advancedViewEnabled = 0;
 	private int editorViewOption;
 	private int processImages = 0;
 	private int showMainToolbar = 1;
@@ -62,6 +64,7 @@ public class OptionsParamView extends AbstractParam {
 	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
 	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
+	    advancedViewEnabled = getConfig().getInt(ADVANCED_UI, 0);
     }
 
 	/**
@@ -131,6 +134,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setDisplayOption(int displayOption) {
 		this.displayOption = displayOption;
 		getConfig().setProperty(DISPLAY_OPTION, Integer.toString(displayOption));
+	}
+	
+	public int getAdvancedViewOption() {
+		return advancedViewEnabled;
+	}
+	
+	public void setAdvancedViewOption(int isEnabled) {
+		advancedViewEnabled = isEnabled;
+		getConfig().setProperty(ADVANCED_UI, Integer.toString(isEnabled));
 	}
 	
 }

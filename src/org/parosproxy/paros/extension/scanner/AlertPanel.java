@@ -219,14 +219,16 @@ public class AlertPanel extends AbstractPanel {
 	private void setMessage(HttpMessage msg) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
-	    requestPanel.setMessage("","", true);
+	    requestPanel.clearView(true);
+	    HttpMessage newMsg = msg.cloneAll();
+	    
 	    if (!msg.getRequestHeader().isEmpty()) {
-	        requestPanel.setMessage(msg.getRequestHeader().toString(), msg.getRequestBody().toString(), true);
+	    	requestPanel.setMessage(newMsg, true);
 	    }
 
-	    responsePanel.setMessage("","", false);
+	    responsePanel.clearView(false);
 	    if (!msg.getResponseHeader().isEmpty()) {
-	        responsePanel.setMessage(msg.getResponseHeader().toString(), msg.getResponseBody().toString(), false);
+	        responsePanel.setMessage(newMsg, false);
 	    }
 
 	}

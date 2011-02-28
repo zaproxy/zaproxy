@@ -44,21 +44,21 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	private JMenuItem menuManualRequestEditor = null;
 	// ZAP Added logger
 	private Logger logger = Logger.getLogger(ExtensionManualRequestEditor.class);
-	
-    /**
-     * 
-     */
-    public ExtensionManualRequestEditor() {
-        super();
- 		initialize();
-    }
 
-    /**
-     * @param name
-     */
-    public ExtensionManualRequestEditor(String name) {
-        super(name);
-    }
+	/**
+	 * 
+	 */
+	public ExtensionManualRequestEditor() {
+		super();
+		initialize();
+	}
+
+	/**
+	 * @param name
+	 */
+	public ExtensionManualRequestEditor(String name) {
+		super(name);
+	}
 
 	/**
 	 * This method initializes this
@@ -66,20 +66,20 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionManualRequest");
-			
-	}
-	
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-	    if (getView() != null) {
-	        ExtensionHookView pv = extensionHook.getHookView();
-	        
-	        extensionHook.getHookMenu().addToolsMenuItem(getMenuManualRequestEditor());
-	    }
+		this.setName("ExtensionManualRequest");
+
 	}
 
-	
+	public void hook(ExtensionHook extensionHook) {
+		super.hook(extensionHook);
+		if (getView() != null) {
+			ExtensionHookView pv = extensionHook.getHookView();
+
+			extensionHook.getHookMenu().addToolsMenuItem(getMenuManualRequestEditor());
+		}
+	}
+
+
 	/**
 	 * This method initializes menuManualRequest
 	 * 	
@@ -87,29 +87,29 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	 */    
 	private JMenuItem getMenuManualRequestEditor() {
 		if (menuManualRequestEditor == null) {
-		    menuManualRequestEditor = new JMenuItem();
-		    menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
-		    menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
-		    	public void actionPerformed(java.awt.event.ActionEvent e) {
-		    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
-		    	    if (dialog.getRequestPanel().getTxtHeader().getText().equals("")) {
-		    	        HttpMessage msg = new HttpMessage();
-		    	        try {
-		    	            URI uri = new URI("http://www.any_domain_name.org/path", true);
-                            msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
-                            dialog.getRequestPanel().setMessage(msg);
-                        } catch (Exception e1) {
-                        	// ZAP: Log the exception
-                        	logger.error(e1.getMessage(), e1);
-                        }
-                        
-		    	    }
-		    	    dialog.setVisible(true);
-		    	}
-		    });
+			menuManualRequestEditor = new JMenuItem();
+			menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
+			menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					//		    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
+					//		    	    if (dialog.getRequestPanel().getTxtHeader().getText().equals("")) {
+					//		    	        HttpMessage msg = new HttpMessage();
+					//		    	        try {
+					//		    	            URI uri = new URI("http://www.any_domain_name.org/path", true);
+					//                            msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+					//                            dialog.getRequestPanel().setMessage(msg);
+					//                        } catch (Exception e1) {
+					//                        	// ZAP: Log the exception
+					//                        	logger.error(e1.getMessage(), e1);
+					//                        }
+					//                        
+					//		    	    }
+					//		    	    dialog.setVisible(true);
+				}
+			});
 		}
 		return menuManualRequestEditor;
-		
+
 	}
 
 	/**
@@ -125,6 +125,5 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 		}
 		return manualRequestEditorDialog;
 	}
-	
 
-       }
+}

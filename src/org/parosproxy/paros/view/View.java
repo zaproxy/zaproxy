@@ -174,7 +174,7 @@ public class View implements ViewDelegate {
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
-            responsePanel.setMessage("","",false);
+            responsePanel.clearView(false);
         }
         return responsePanel;
     }

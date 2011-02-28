@@ -106,14 +106,11 @@ public class SearchPanel extends AbstractPanel {
         this.add(getPanelCommand(), getPanelCommand().getName());
 
 	}
+	
 	/**
-
 	 * This method initializes panelCommand	
-
 	 * 	
-
 	 * @return javax.swing.JPanel	
-
 	 */    
 	/**/
 	private javax.swing.JPanel getPanelCommand() {
@@ -365,37 +362,28 @@ public class SearchPanel extends AbstractPanel {
     	}
     	
     	switch (sm.getLocation()) {
-    	case REQUEST_HEAD:	
-    		txtArea = requestPanel.getTxtHeader();
+    	case REQUEST_HEAD:
+    		requestPanel.highlightHeader(sm);
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case REQUEST_BODY:	
-    		txtArea = requestPanel.getTxtBody();
+    		requestPanel.highlightBody(sm);
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case RESPONSE_HEAD:	
-    		txtArea = responsePanel.getTxtHeader();
+    		responsePanel.highlightHeader(sm);
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
-    	case RESPONSE_BODY:	
-    		txtArea = responsePanel.getTxtBody();
+    	case RESPONSE_BODY:
+    		responsePanel.highlightBody(sm);
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
     	}
-        
-        Highlighter hilite = txtArea.getHighlighter();
-        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
-        try {
-			hilite.removeAllHighlights();
-			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
-			txtArea.setCaretPosition(sm.getStart());
-		} catch (BadLocationException e) {
-			log.error(e.getMessage(), e);
-		}
+
     }
     
     private void highlightFirstResult (SearchResult sr) {

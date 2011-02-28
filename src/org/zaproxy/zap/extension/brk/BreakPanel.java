@@ -109,16 +109,16 @@ public class BreakPanel extends AbstractPanel implements Tab {
 				// If the user decided to disable the main toolbar, the break
 				// buttons have to be force to be displayed in the break panel
 				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
-					requestPanel.getPanelOption().add(getPanelCommand(), "");
-					responsePanel.getPanelOption().add(getPanelCommand(), "");
+					requestPanel.getPanelSpecial().add(getPanelCommand(), "");
+					responsePanel.getPanelSpecial().add(getPanelCommand(), "");
 					//getPanelOption().add(getPanelCommand(), "");
 				} else {
 					getPanelMainToolbarCommand();
 				}
 				break;
 			case 1:
-				requestPanel.getPanelOption().add(getPanelCommand(), "");
-				responsePanel.getPanelOption().add(getPanelCommand(), "");
+				requestPanel.getPanelSpecial().add(getPanelCommand(), "");
+				responsePanel.getPanelSpecial().add(getPanelCommand(), "");
 				//getPanelOption().add(getPanelCommand(), "");
 				break;
 			/*
@@ -329,9 +329,8 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
 			btnDrop.addActionListener(new ActionListener() { 
 				public void actionPerformed(ActionEvent e) {
-					// TODO correct?
-					responsePanel.setMessage("", "", false);
-					requestPanel.setMessage("", "", false);
+					responsePanel.clearView(false);
+					requestPanel.clearView(false);
 				    setContinue(true);
 				}
 			});
@@ -364,7 +363,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * This method initializes btnContinue	
 	 * 	
 	 * @return javax.swing.JButton	
-	 */    
+	 */ 
 	private JToggleButton getBtnBreakResponse() {
 		if (btnBreakResponse == null) {
 			btnBreakResponse = new JToggleButton();
