@@ -1,38 +1,22 @@
 package org.zaproxy.zap.extension.httppanel;
 
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.Highlighter.HighlightPainter;
-import javax.xml.ws.Service.Mode;
 
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.httputils.RequestUtils;
 
 /*
  *
@@ -184,18 +168,24 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 			CardLayout cl = (CardLayout)(getPanelContent().getLayout());
 			cl.show(getPanelContent(), "split");
 			currentView = View.SPLIT;
-		} else if (e.getSource() == btnAll) {
-			changeView(View.ALL);
-		} else if (e.getSource() == btnGet) {
-			changeView(View.GET);
-		} else if (e.getSource() == btnPost) {
-			changeView(View.POST);
-		} else if (e.getSource() == btnHeader) {
-			changeView(View.HEADER);
-		} else if (e.getSource() == btnCookies) {
-			changeView(View.COOKIES);
-		} else if (e.getSource() == jComboView) {
-			changeCard();
+		} else {
+			if (currentView == View.SPLIT) {
+				changeCard();
+			}
+			
+			if (e.getSource() == btnAll) {
+				changeView(View.ALL);
+			} else if (e.getSource() == btnGet) {
+				changeView(View.GET);
+			} else if (e.getSource() == btnPost) {
+				changeView(View.POST);
+			} else if (e.getSource() == btnHeader) {
+				changeView(View.HEADER);
+			} else if (e.getSource() == btnCookies) {
+				changeView(View.COOKIES);
+			} else if (e.getSource() == jComboView) {
+				changeCard();
+			}
 		}
 		
 		loadData();

@@ -155,16 +155,22 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 			CardLayout cl = (CardLayout)(getPanelContent().getLayout());
 			cl.show(getPanelContent(), "split");
 			currentView = View.SPLIT;
-		} else if (e.getSource() == btnContent) {
-			changeView(View.CONTENT);
-		} else if (e.getSource() == btnAll) {
-			changeView(View.ALL);
-		} else if (e.getSource() == btnHeader) {
-			changeView(View.HEADER);
-		} else if (e.getSource() == btnCookies) {
-			changeView(View.COOKIES);
-		} else if (e.getSource() == jComboView) {
-			changeCard();
+		} else {
+			if (currentView == View.SPLIT) {
+				changeCard();
+			}
+			
+			if (e.getSource() == btnContent) {
+				changeView(View.CONTENT);
+			} else if (e.getSource() == btnAll) {
+				changeView(View.ALL);
+			} else if (e.getSource() == btnHeader) {
+				changeView(View.HEADER);
+			} else if (e.getSource() == btnCookies) {
+				changeView(View.COOKIES);
+			} else if (e.getSource() == jComboView) {
+				changeCard();
+			}
 		}
 		
 		loadData();
