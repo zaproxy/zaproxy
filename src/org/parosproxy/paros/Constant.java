@@ -92,6 +92,11 @@ public final class Constant {
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
     
+	// Accelerator keys - Default: Windows
+	public static String ACCELERATOR_UNDO = "control Z";
+	public static String ACCELERATOR_REDO = "control Y";
+	public static String ACCELERATOR_TRIGGER_KEY = "Control";
+    
     private static Constant instance = null;
     
     public static final int MAX_HOST_CONNECTION = 5;
@@ -137,6 +142,7 @@ public final class Constant {
 
     public Constant() {
     	initializeFilesAndDirectories();
+    	setAcceleratorKeys();
     }
     	
     private void initializeFilesAndDirectories() {
@@ -357,6 +363,20 @@ public final class Constant {
         return instance;
 
     }
+    
+    private void setAcceleratorKeys() {
+
+		// Undo/Redo
+		if (Constant.isMacOsX()) {
+			ACCELERATOR_UNDO = "meta Z";
+			ACCELERATOR_REDO = "meta shift Z";
+			ACCELERATOR_TRIGGER_KEY = "Meta";
+		} else {
+			ACCELERATOR_UNDO = "control Z";
+			ACCELERATOR_REDO = "control Y";
+			ACCELERATOR_TRIGGER_KEY = "Control";
+		}
+	}
     
     
     // Determine Windows Operating System
