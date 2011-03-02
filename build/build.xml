@@ -47,49 +47,53 @@
     <copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties"/> 
 
     <copy todir="${build}/resource">
-		<fileset dir="${src}/resource"/>
+    	<fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
     </copy>
 
   <copy todir="${dist}/xml">
-    <fileset dir="${src}/xml"/>
+  	<fileset dir="${src}/xml" excludes="**/.svn/** **/_svn/**" />
   </copy>
   <copy todir="${dist}/db">
-    <fileset dir="${src}/db"/>
+  	<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
   </copy>
-    <copy todir="${dist}/dirbuster">
-      <fileset dir="${src}/dirbuster"/>
-    </copy>
+  <copy todir="${dist}/dirbuster">
+    <fileset dir="${src}/dirbuster" excludes="**/.svn/** **/_svn/**" />
+  </copy>
   <copy todir="${dist}/filter">
-    <fileset dir="${src}/filter"/>
+  	<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
   </copy>
-    <copy todir="${dist}/plugin">
-    	<fileset dir="${src}/plugin"/>
-    </copy>
-    <copy todir="${dist}/session">
-    	<fileset dir="${src}/session"/>
-    </copy>
-    <copy todir="${dist}/lang">
-      <fileset dir="${src}/lang"/>
-    </copy>
-    <copy todir="${dist}/license">
-	<fileset dir="${src}/license"/>
-    </copy>
+  <copy todir="${dist}/plugin">
+  	<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
+  </copy>
+  <copy todir="${dist}/session">
+  	<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
+  </copy>
+  <copy todir="${dist}/lang">
+  	<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
+  </copy>
+  <copy todir="${dist}/license">
+  	<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
+  </copy>
     <copy todir="${dist}/log">
-      <fileset dir="${src}/log"/>
-    </copy>
-    <copy todir="${dist}/lib">
-		<fileset dir="${dist.lib.dir}">
-			<include name="**/*.jar"/>
-		</fileset>
-    </copy>
+      <fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
+  </copy>
+  <copy todir="${dist}/lib">
+	<fileset dir="${dist.lib.dir}">
+	  <include name="**/*.jar"/>
+      <exclude name="**/.svn/**" />
+      <exclude name="**/_svn/**" />
+	</fileset>
+  </copy>
   	<!-- Copy any scripts, and give execute perms -->
     <copy todir="${dist}">
-      <fileset dir="${src}" includes="*.sh"/>
+      <fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
     </copy>
     <chmod perm="ug+x">
         <!-- This only has any effect on Linux -->
         <fileset dir="${dist}">
             <include name="*.sh"/>
+        	<exclude name="**/.svn/**" />
+        	<exclude name="**/_svn/**" />
         </fileset>
     </chmod>
 
@@ -118,7 +122,7 @@
   	<delete file="ZAP_${version}_Linux.tar.gz"/>
   	<tar compression="gzip" 
   		destfile="ZAP_${version}_Linux.tar.gz" 
-  		basedir="${dist}" excludes="**/.svn"/>
+  		basedir="${dist}" excludes="**/.svn/** **/_svn/**"/>
   	
   </target>
 
