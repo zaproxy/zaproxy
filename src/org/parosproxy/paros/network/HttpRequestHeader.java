@@ -23,6 +23,8 @@ package org.parosproxy.paros.network;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -65,11 +67,13 @@ public class HttpRequestHeader extends HttpHeader {
 	private int		mHostPort = 80;
 	private boolean	mIsSecure = false;
 
+	private Log log = null;
 	/**
 	 * Constructor for an empty header.
 	 *
 	 */
 	public HttpRequestHeader() {
+		log = LogFactory.getLog(this.getClass());
 	    clear();
 	}
 
@@ -329,9 +333,11 @@ public class HttpRequestHeader extends HttpHeader {
 	public String getHostName() {
 		String hostName = mHostName;
 		try {
-			hostName = mUri.getHost();
+			hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
 		} catch (URIException e) {
-			e.printStackTrace();
+			if (log.isWarnEnabled()) {
+				log.warn(e);
+			}
 		}
 		return hostName;
 	}
@@ -381,7 +387,7 @@ public class HttpRequestHeader extends HttpHeader {
 	private static final String DELIM = "<>#\"";
 	private static final String UNWISE = "{}|\\^[]`";
 	private static final String DELIM_UNWISE = DELIM + UNWISE;
-	
+
 	public static URI parseURI(String sUri) throws URIException {
 	    URI uri = null;
 	    

@@ -26,13 +26,19 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -44,6 +50,8 @@ import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.ReflectionSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
+import org.parosproxy.paros.security.SslCertificateService;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
 
@@ -56,8 +64,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static SSLSocketFactory clientSSLSockCertFactory = null;
 
 	// server related socket factories
-	private static ServerSocketFactory serverSSLSockFactory = null;
-	private static SSLSocketFactory tunnelSSLFactory = null;
+	// FIXME: really needed?
+//	private static ServerSocketFactory serverSSLSockFactory = null;
+//	private static SSLSocketFactory tunnelSSLFactory = null;
 
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -68,9 +77,10 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		if (clientSSLSockFactory == null) {
 			clientSSLSockFactory = getClientSocketFactory(SSL);
 		}
-		if (serverSSLSockFactory == null) {
-			serverSSLSockFactory = getServerSocketFactory(SSL);
-		}
+		// FIXME: really needed?
+//		if (serverSSLSockFactory == null) {
+//			serverSSLSockFactory = getServerSocketFactory(SSL);
+//		}
 		if (sslContextManager == null) {
 			sslContextManager = new SSLContextManager();
 		}
@@ -135,32 +145,37 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		logger.info("ActiveCertificate set to: " + sslContextManager.getDefaultKey());
 	}
 
-	public ServerSocket listen(int portNum) throws IOException {
-		ServerSocket sslServerPort = null;
-		sslServerPort = serverSSLSockFactory.createServerSocket(portNum);
-		return sslServerPort;
-	}
+	//FIXME: really needed?
+//	public ServerSocket listen(int portNum) throws IOException {
+//		ServerSocket sslServerPort = null;
+//		sslServerPort = serverSSLSockFactory.createServerSocket(portNum);
+//		return sslServerPort;
+//	}
 
-	public ServerSocket listen() throws IOException {
-		ServerSocket sslServerPort = null;
-		sslServerPort = serverSSLSockFactory.createServerSocket();
-		return sslServerPort;
-	}
+	//FIXME: really needed?
+//	public ServerSocket listen() throws IOException {
+//		ServerSocket sslServerPort = null;
+//		sslServerPort = serverSSLSockFactory.createServerSocket();
+//		return sslServerPort;
+//	}
 
-	public ServerSocket listen(int portNum, int maxConnection)
-			throws IOException {
-		ServerSocket sslServerPort = null;
-		sslServerPort = serverSSLSockFactory.createServerSocket(portNum,
-				maxConnection);
-		return sslServerPort;
-	}
+	//FIXME: really needed?
+//	public ServerSocket listen(int portNum, int maxConnection)
+//			throws IOException {
+//		ServerSocket sslServerPort = null;
+//		sslServerPort = serverSSLSockFactory.createServerSocket(portNum,
+//				maxConnection);
+//		return sslServerPort;
+//	}
 
+	//FIXME: really needed?
 	public ServerSocket listen(int paramPortNum, int maxConnection,
 			InetAddress ip) throws IOException {
 
-		ServerSocket sslServerPort = serverSSLSockFactory.createServerSocket(
-				paramPortNum, maxConnection, ip);
-		return sslServerPort;
+//		ServerSocket sslServerPort = serverSSLSockFactory.createServerSocket(
+//				paramPortNum, maxConnection, ip);
+//		return sslServerPort;
+		throw new UnsupportedOperationException("this code is probably not needed any more, SSL server sockets are not \"static\", they're created on the fly");
 	}
 
 	public SSLSocketFactory getClientSocketFactory(String type) {
@@ -183,44 +198,45 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	}
 
-	public ServerSocketFactory getServerSocketFactory(String type) {
-
-		if (type.equals("SSL") || type.equals("SSLv3")) {
-			SSLServerSocketFactory ssf = null;
-			try {
-				// set up key manager to do server authentication
-				SSLContext ctx;
-				KeyManagerFactory kmf;
-				KeyStore ks;
-				char[] passphrase = "0w45P.Z4p".toCharArray();
-
-				ctx = SSLContext.getInstance(type);
-				kmf = KeyManagerFactory.getInstance("SunX509");
-				ks = KeyStore.getInstance("JKS");
-
-				java.security.SecureRandom x = new java.security.SecureRandom();
-				x.setSeed(System.currentTimeMillis());
-
-				ks.load(this.getClass().getClassLoader().getResourceAsStream("resource/owasp_zap.jks"), passphrase);
-
-				kmf.init(ks, passphrase);
-				ctx.init(kmf.getKeyManagers(), null, x);
-
-				ssf = ctx.getServerSocketFactory();
-			
-
-				tunnelSSLFactory = ctx.getSocketFactory();
-
-				return ssf;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			return ServerSocketFactory.getDefault();
-		}
-		return null;
-
-	}
+	//FIXME: really needed?
+//	public ServerSocketFactory getServerSocketFactory(String type) {
+//
+//		if (type.equals("SSL") || type.equals("SSLv3")) {
+//			SSLServerSocketFactory ssf = null;
+//			try {
+//				// set up key manager to do server authentication
+//				SSLContext ctx;
+//				KeyManagerFactory kmf;
+//				KeyStore ks;
+//				char[] passphrase = "0w45P.Z4p".toCharArray();
+//
+//				ctx = SSLContext.getInstance(type);
+//				kmf = KeyManagerFactory.getInstance("SunX509");
+//				ks = KeyStore.getInstance("JKS");
+//
+//				java.security.SecureRandom x = new java.security.SecureRandom();
+//				x.setSeed(System.currentTimeMillis());
+//
+//				ks.load(this.getClass().getClassLoader().getResourceAsStream("resource/owasp_zap.jks"), passphrase);
+//
+//				kmf.init(ks, passphrase);
+//				ctx.init(kmf.getKeyManagers(), null, x);
+//
+//				ssf = ctx.getServerSocketFactory();
+//			
+//
+//				tunnelSSLFactory = ctx.getSocketFactory();
+//
+//				return ssf;
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		} else {
+//			return ServerSocketFactory.getDefault();
+//		}
+//		return null;
+//
+//	}
 
 
 	/**
@@ -276,18 +292,17 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		int timeout = params.getConnectionTimeout();
 		if (timeout == 0) {
 			return createSocket(host, port, localAddress, localPort);
-		} else {
-			// To be eventually deprecated when migrated to Java 1.4 or above
-			Socket socket = ReflectionSocketFactory.createSocket(
-					"javax.net.ssl.SSLSocketFactory", host, port, localAddress,
-					localPort, timeout);
-			if (socket == null) {
-				socket = ControllerThreadSocketFactory.createSocket(this, host,
-						port, localAddress, localPort, timeout);
-			}
-			
-			return socket;
 		}
+		// To be eventually deprecated when migrated to Java 1.4 or above
+		Socket socket = ReflectionSocketFactory.createSocket(
+				"javax.net.ssl.SSLSocketFactory", host, port, localAddress,
+				localPort, timeout);
+		if (socket == null) {
+			socket = ControllerThreadSocketFactory.createSocket(this, host,
+					port, localAddress, localPort, timeout);
+		}
+		
+		return socket;
 	}
 
 	/**
@@ -311,12 +326,13 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 * such as a tunneled SSL proxy socket (eg when a CONNECT request is
 	 * received). This SSLSocket will start server side handshake immediately.
 	 * 
+	 * @param targethost the host where you want to connect to 
 	 * @param socket
 	 * @return
 	 * @throws IOException
 	 */
-	public Socket createTunnelServerSocket(Socket socket) throws IOException {
-		SSLSocket s = (SSLSocket) tunnelSSLFactory.createSocket(socket, socket
+	public Socket createTunnelServerSocket(String targethost, Socket socket) throws IOException {
+		SSLSocket s = (SSLSocket) getTunnelSSLSocketFactory(targethost).createSocket(socket, socket
 				.getInetAddress().getHostAddress(), socket.getPort(), true);
 		
 		s.setUseClientMode(false);
@@ -324,6 +340,61 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		return s;
 	}
 
+
+	public SSLSocketFactory getTunnelSSLSocketFactory(String hostname) {
+
+		//	SSLServerSocketFactory ssf = null;
+		// set up key manager to do server authentication
+
+		//	KeyStore ks;
+		try {
+			SSLContext ctx = SSLContext.getInstance("SSL");
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+
+			SslCertificateService scs = CachedSslCertifificateServiceImpl.getService();
+			KeyStore ks = scs.createCertForHost(hostname);
+
+			kmf.init(ks, SslCertificateService.PASSPHRASE);
+			java.security.SecureRandom x = new java.security.SecureRandom();
+			x.setSeed(System.currentTimeMillis());
+			ctx.init(kmf.getKeyManagers(), null, x);
+
+			SSLSocketFactory tunnelSSLFactory = ctx.getSocketFactory();
+
+			return tunnelSSLFactory;
+
+		} catch (NoSuchAlgorithmException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (KeyStoreException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (CertificateException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+			//	} catch (IOException e) {
+			//		// Turn into RuntimeException. How to handle this error in a user friendly way?
+			//		throw new RuntimeException(e);
+		} catch (UnrecoverableKeyException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (KeyManagementException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (InvalidKeyException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (NoSuchProviderException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (SignatureException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			// Turn into RuntimeException. How to handle this error in a user friendly way?
+			throw new RuntimeException(e);
+		}
+	}
 }
 
 class RelaxedX509TrustManager implements X509TrustManager {

@@ -108,13 +108,17 @@ class ProxyThread implements Runnable {
 		thread.start();
         
 	}
-
-	private void beginSSL() throws IOException {
+	
+	/**
+	 * @param targethost the host where you want to connect to
+	 * @throws IOException
+	 */
+	private void beginSSL(String targethost) throws IOException {
 
         boolean isSecure = true;
         HttpRequestHeader firstHeader = null;
 
-        inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(inSocket);
+        inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
         
         httpIn = new HttpInputStream(inSocket);
         httpOut = new HttpOutputStream(inSocket.getOutputStream());
@@ -138,7 +142,8 @@ class ProxyThread implements Runnable {
 				httpOut.write(CONNECT_HTTP_200);
                 httpOut.flush();
 				
-                beginSSL();
+                String hostName = firstHeader.getHostName();
+				beginSSL(hostName);
                 //processForwardPort();
 				
 			} else {
