@@ -145,8 +145,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
                 }
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
-                        
-                        if (Constant.PROGRAM_VERSION.equals(latestVersionName)) {
+                        // based on simple String compare, works in many cases
+                    	// breaks, in cases of 1.2.13 vs. 1.2.1
+                        if (Constant.PROGRAM_VERSION.compareTo(latestVersionName) >= 0) {
                         	if (ExtensionAutoUpdate.manual) {
                         		getView().showMessageDialog(
                         			Constant.messages.getString("cfu.check.latest"));
