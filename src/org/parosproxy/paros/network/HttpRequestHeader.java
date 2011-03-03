@@ -73,6 +73,7 @@ public class HttpRequestHeader extends HttpHeader {
 	 *
 	 */
 	public HttpRequestHeader() {
+		// ZAP: added local log variable
 		log = LogFactory.getLog(this.getClass());
 	    clear();
 	}
@@ -333,6 +334,7 @@ public class HttpRequestHeader extends HttpHeader {
 	public String getHostName() {
 		String hostName = mHostName;
 		try {
+			// ZAP: fixed cases, where host name is null
 			hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
 		} catch (URIException e) {
 			if (log.isWarnEnabled()) {

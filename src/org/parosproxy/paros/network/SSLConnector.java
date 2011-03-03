@@ -64,10 +64,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static SSLSocketFactory clientSSLSockCertFactory = null;
 
 	// server related socket factories
-	// FIXME: really needed?
-//	private static ServerSocketFactory serverSSLSockFactory = null;
-//	private static SSLSocketFactory tunnelSSLFactory = null;
-
+	
+	// ZAP: removed ServerSocketFaktory
+	
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(this.getClass());
 	
@@ -77,10 +76,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		if (clientSSLSockFactory == null) {
 			clientSSLSockFactory = getClientSocketFactory(SSL);
 		}
-		// FIXME: really needed?
-//		if (serverSSLSockFactory == null) {
-//			serverSSLSockFactory = getServerSocketFactory(SSL);
-//		}
+		// ZAP: removed ServerSocketFaktory
 		if (sslContextManager == null) {
 			sslContextManager = new SSLContextManager();
 		}
@@ -145,33 +141,12 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		logger.info("ActiveCertificate set to: " + sslContextManager.getDefaultKey());
 	}
 
-	//FIXME: really needed?
-//	public ServerSocket listen(int portNum) throws IOException {
-//		ServerSocket sslServerPort = null;
-//		sslServerPort = serverSSLSockFactory.createServerSocket(portNum);
-//		return sslServerPort;
-//	}
-
-	//FIXME: really needed?
-//	public ServerSocket listen() throws IOException {
-//		ServerSocket sslServerPort = null;
-//		sslServerPort = serverSSLSockFactory.createServerSocket();
-//		return sslServerPort;
-//	}
-
-	//FIXME: really needed?
-//	public ServerSocket listen(int portNum, int maxConnection)
-//			throws IOException {
-//		ServerSocket sslServerPort = null;
-//		sslServerPort = serverSSLSockFactory.createServerSocket(portNum,
-//				maxConnection);
-//		return sslServerPort;
-//	}
+	// ZAP: removed server socket methods
 
 	//FIXME: really needed?
 	public ServerSocket listen(int paramPortNum, int maxConnection,
 			InetAddress ip) throws IOException {
-
+	// ZAP: removed ServerSocketFaktory
 //		ServerSocket sslServerPort = serverSSLSockFactory.createServerSocket(
 //				paramPortNum, maxConnection, ip);
 //		return sslServerPort;
@@ -198,45 +173,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	}
 
-	//FIXME: really needed?
-//	public ServerSocketFactory getServerSocketFactory(String type) {
-//
-//		if (type.equals("SSL") || type.equals("SSLv3")) {
-//			SSLServerSocketFactory ssf = null;
-//			try {
-//				// set up key manager to do server authentication
-//				SSLContext ctx;
-//				KeyManagerFactory kmf;
-//				KeyStore ks;
-//				char[] passphrase = "0w45P.Z4p".toCharArray();
-//
-//				ctx = SSLContext.getInstance(type);
-//				kmf = KeyManagerFactory.getInstance("SunX509");
-//				ks = KeyStore.getInstance("JKS");
-//
-//				java.security.SecureRandom x = new java.security.SecureRandom();
-//				x.setSeed(System.currentTimeMillis());
-//
-//				ks.load(this.getClass().getClassLoader().getResourceAsStream("resource/owasp_zap.jks"), passphrase);
-//
-//				kmf.init(ks, passphrase);
-//				ctx.init(kmf.getKeyManagers(), null, x);
-//
-//				ssf = ctx.getServerSocketFactory();
-//			
-//
-//				tunnelSSLFactory = ctx.getSocketFactory();
-//
-//				return ssf;
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		} else {
-//			return ServerSocketFactory.getDefault();
-//		}
-//		return null;
-//
-//	}
+	// ZAP: removed ServerSocketFaktory
 
 
 	/**
@@ -332,6 +269,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 * @throws IOException
 	 */
 	public Socket createTunnelServerSocket(String targethost, Socket socket) throws IOException {
+		// ZAP: added host name parameter
 		SSLSocket s = (SSLSocket) getTunnelSSLSocketFactory(targethost).createSocket(socket, socket
 				.getInetAddress().getHostAddress(), socket.getPort(), true);
 		
@@ -340,7 +278,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		return s;
 	}
 
-
+	// ZAP: added new ServerSocketFaktory with support of dynamic SSL certificates
 	public SSLSocketFactory getTunnelSSLSocketFactory(String hostname) {
 
 		//	SSLServerSocketFactory ssf = null;

@@ -117,7 +117,7 @@ class ProxyThread implements Runnable {
 
         boolean isSecure = true;
         HttpRequestHeader firstHeader = null;
-
+		// ZAP: added parameter 'targethost'
         inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
         
         httpIn = new HttpInputStream(inSocket);
@@ -142,6 +142,7 @@ class ProxyThread implements Runnable {
 				httpOut.write(CONNECT_HTTP_200);
                 httpOut.flush();
 				
+				// ZAP: added host name variable
                 String hostName = firstHeader.getHostName();
 				beginSSL(hostName);
                 //processForwardPort();
