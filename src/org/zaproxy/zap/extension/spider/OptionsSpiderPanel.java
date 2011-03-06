@@ -27,8 +27,6 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
@@ -37,7 +35,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 public class OptionsSpiderPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel panelPortScan = null;
+	private JPanel panelSpiderScan = null;
     public OptionsSpiderPanel() {
         super();
  		initialize();
@@ -45,7 +43,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     
 	private JSlider sliderMaxPort = null;
 	private JSlider sliderThreadsPerScan = null;
-	private JLabel labelMaxPortValue = null;
 	/**
 	 * This method initializes this
 	 * 
@@ -53,7 +50,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(Constant.messages.getString("ports.options.title"));
+        this.setName(Constant.messages.getString("spider.options.title"));
         this.setSize(314, 245);
         this.add(getPanelPortScan(), getPanelPortScan().getName());
 	}
@@ -63,7 +60,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	 * @return javax.swing.JPanel	
 	 */    
 	private JPanel getPanelPortScan() {
-		if (panelPortScan == null) {
+		if (panelSpiderScan == null) {
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 
 			JLabel jLabel2 = new JLabel();
@@ -77,19 +74,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
 
-			panelPortScan = new JPanel();
+			panelSpiderScan = new JPanel();
 			JLabel jLabel1 = new JLabel();
 
-			JLabel jLabel = new JLabel();
-			
-			labelMaxPortValue = new JLabel();
-			labelMaxPortValue.setText(""+getSliderMaxPort().getValue());
-
-			panelPortScan.setLayout(new GridBagLayout());
-			panelPortScan.setSize(114, 132);
-			panelPortScan.setName("");
-			jLabel.setText(Constant.messages.getString("ports.options.label.maxPort"));
-			jLabel1.setText(Constant.messages.getString("ports.options.label.threads"));
+			panelSpiderScan.setLayout(new GridBagLayout());
+			panelSpiderScan.setSize(114, 132);
+			panelSpiderScan.setName("");
+			jLabel1.setText(Constant.messages.getString("spider.options.label.threads"));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.ipadx = 0;
@@ -148,23 +139,18 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			gridBagConstraints6.gridwidth = 2;
 			
 			jLabel2.setText("");
-			panelPortScan.add(jLabel, gridBagConstraints1);
-			panelPortScan.add(labelMaxPortValue, gridBagConstraints1b);
-			panelPortScan.add(getSliderMaxPort(), gridBagConstraints2);
-			panelPortScan.add(jLabel1, gridBagConstraints3);
-			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
-			panelPortScan.add(jLabel2, gridBagConstraints6);
+			panelSpiderScan.add(jLabel1, gridBagConstraints3);
+			panelSpiderScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
+			panelSpiderScan.add(jLabel2, gridBagConstraints6);
 		}
-		return panelPortScan;
+		return panelSpiderScan;
 	}
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 	    if (param == null) {
-		    getSliderMaxPort().setValue(SpiderParam.DEFAULT_MAX_PORT);
 		    getSliderThreadsPerScan().setValue(SpiderParam.DEFAULT_THREAD_PER_SCAN);
 	    } else {
-		    getSliderMaxPort().setValue(param.getMaxPort());
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
 	    }
 	}
@@ -180,38 +166,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    	param = new SpiderParam();
 	    	options.addParamSet(param);
 	    }
-	    param.setMaxPort(getSliderMaxPort().getValue());
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
 	}
 	
-	/**
-	 * This method initializes sliderHostPerScan	
-	 * 	
-	 * @return JSlider	
-	 */    
-	private JSlider getSliderMaxPort() {
-		if (sliderMaxPort == null) {
-			sliderMaxPort = new JSlider();
-			sliderMaxPort.setMaximum(65536);
-			sliderMaxPort.setMinimum(1024);
-			sliderMaxPort.setMinorTickSpacing(1024);
-			sliderMaxPort.setPaintTicks(true);
-			sliderMaxPort.setPaintLabels(true);
-			sliderMaxPort.setName("");
-			sliderMaxPort.setMajorTickSpacing(8192);
-			sliderMaxPort.setSnapToTicks(true);
-			sliderMaxPort.setPaintTrack(true);
-			
-			sliderMaxPort.addChangeListener(new ChangeListener () {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					labelMaxPortValue.setText("" + sliderMaxPort.getValue());
-					
-				}});
-		}
-		return sliderMaxPort;
-	}
 	/**
 	 * This method initializes sliderThreadsPerHost	
 	 * 	
