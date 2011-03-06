@@ -42,7 +42,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 
 /**
- *
+ * 
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
@@ -215,16 +215,14 @@ public class AlertPanel extends AbstractPanel {
 	private void setMessage(HttpMessage msg) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
-	    requestPanel.clearView(true);
-	    HttpMessage newMsg = msg.cloneAll();
-	    
+	    requestPanel.setMessage("","", true);
 	    if (!msg.getRequestHeader().isEmpty()) {
-	        requestPanel.setMessage(newMsg, true);
+	        requestPanel.setMessage(msg.getRequestHeader().toString(), msg.getRequestBody().toString(), true);
 	    }
 
-	    responsePanel.clearView(false);
+	    responsePanel.setMessage("","", false);
 	    if (!msg.getResponseHeader().isEmpty()) {
-	        responsePanel.setMessage(newMsg, false);
+	        responsePanel.setMessage(msg.getResponseHeader().toString(), msg.getResponseBody().toString(), false);
 	    }
 
 	}

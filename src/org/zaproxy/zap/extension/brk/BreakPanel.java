@@ -15,12 +15,11 @@
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ * limitations under the License.
  */
 
 package org.zaproxy.zap.extension.brk;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -33,21 +32,16 @@ import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
-import org.zaproxy.zap.extension.tab.Tab;
-
 /**
  *
- * Break Panel UI Element
- * 
+ * To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class BreakPanel extends AbstractPanel implements Tab {
+public class BreakPanel extends HttpPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelCommand = null;
 	
@@ -71,68 +65,6 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private boolean step = false;
 	private boolean stepping = false;
 	
-	private HttpPanelRequest requestPanel;
-	private HttpPanelResponse responsePanel;
-
-	/**
-     * 
-     */
-    public BreakPanel() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param isEditable
-     */
-    public BreakPanel(boolean isEditable) {
- 		initialize();
-    }
-    
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
-		this.setLayout(new CardLayout());
-		
-		requestPanel = new HttpPanelRequest(false);
-		responsePanel = new HttpPanelResponse(false);
-		
-		this.add(requestPanel, "request");
-		this.add(responsePanel, "response");
-		
-		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
-			case 0:
-				// If the user decided to disable the main toolbar, the break
-				// buttons have to be force to be displayed in the break panel
-				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
-					requestPanel.getPanelSpecial().add(getPanelCommand(), "");
-					responsePanel.getPanelSpecial().add(getPanelCommand(), "");
-					//getPanelOption().add(getPanelCommand(), "");
-				} else {
-					getPanelMainToolbarCommand();
-				}
-				break;
-			case 1:
-				requestPanel.getPanelSpecial().add(getPanelCommand(), "");
-				responsePanel.getPanelSpecial().add(getPanelCommand(), "");
-				//getPanelOption().add(getPanelCommand(), "");
-				break;
-			/*
-			 * TODO Currently, buttons cannot be display in toolbar and break panel, as the first initalization of the buttons wins
-			case 2:
-				getPanelOption().add(getPanelCommand(), "");
-				getPanelMainToolbarCommand();
-				break;
-			*/
-			default:
-				getPanelMainToolbarCommand();
-		}
-	}
-	
 	public boolean isBreakRequest() {
 		return this.btnBreakRequest.isSelected();
 	}
@@ -155,6 +87,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	}
 	
 	private void setBreakRequest() {
+
 		resetRequestSerialization(false);
 		
 		if (btnBreakRequest.isSelected()) {
@@ -167,6 +100,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	}
 	
 	private void setBreakResponse() {
+
 		resetRequestSerialization(false);
 		
 		if (btnBreakResponse.isSelected()) {
@@ -178,7 +112,23 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		}
 	}
 
- 	/**
+    /**
+     * 
+     */
+    public BreakPanel() {
+        super();
+ 		initialize();
+    }
+
+    /**
+     * @param isEditable
+     */
+    public BreakPanel(boolean isEditable) {
+        super(isEditable);
+ 		initialize();
+    }
+	
+	/**
 	 * @return Returns the true if the message (request or response) should be held (ie not submited)
 	 */
 	public boolean isHoldMessage() {
@@ -242,6 +192,39 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	protected void breakPointDisplayed () {
 		// Grab the focus
 		this.setTabFocus();
+	}
+
+	/**
+	 * This method initializes this
+	 * 
+	 * @return void
+	 */
+	private  void initialize() {
+		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
+		
+		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
+			case 0:
+				// If the user decided to disable the main toolbar, the break
+				// buttons have to be force to be displayed in the break panel
+				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
+					getPanelOption().add(getPanelCommand(), "");
+				} else {
+					getPanelMainToolbarCommand();
+				}
+				break;
+			case 1:
+				getPanelOption().add(getPanelCommand(), "");
+				break;
+			/*
+			 * TODO Currently, buttons cannot be display in toolbar and break panel, as the first initalization of the buttons wins
+			case 2:
+				getPanelOption().add(getPanelCommand(), "");
+				getPanelMainToolbarCommand();
+				break;
+			*/
+			default:
+				getPanelMainToolbarCommand();
+		}
 	}
 	
 	/**
@@ -329,8 +312,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
 			btnDrop.addActionListener(new ActionListener() { 
 				public void actionPerformed(ActionEvent e) {
-					responsePanel.clearView(false);
-					requestPanel.clearView(false);
+				    BreakPanel.this.setMessage("","", false);
 				    setContinue(true);
 				}
 			});
@@ -363,7 +345,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * This method initializes btnContinue	
 	 * 	
 	 * @return javax.swing.JButton	
-	 */ 
+	 */    
 	private JToggleButton getBtnBreakResponse() {
 		if (btnBreakResponse == null) {
 			btnBreakResponse = new JToggleButton();
@@ -381,29 +363,4 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	public boolean isStepping() {
 		return stepping;
 	}
-
-	public void setMessage(HttpMessage msg, boolean isRequest) {
-	    CardLayout cl = (CardLayout)(this.getLayout());
-		
-		if (isRequest) {
-		    cl.show(this, "request");
-			requestPanel.setMessage(msg);
-		} else {
-			cl.show(this, "response");
-			responsePanel.setMessage(msg);
-		}
-	}
-
-	public void getMessage(HttpMessage msg, boolean isRequest) {
-	    CardLayout cl = (CardLayout)(this.getLayout());
-		
-		if (isRequest) {
-			cl.show(this, "request");
-			requestPanel.setMessage(msg);
-		} else {
-			cl.show(this, "response");
-			responsePanel.setMessage(msg);
-		}
-	}
-
 }

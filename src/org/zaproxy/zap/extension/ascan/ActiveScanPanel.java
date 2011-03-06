@@ -15,7 +15,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ * limitations under the License.  
  */
 package org.zaproxy.zap.extension.ascan;
 
@@ -33,8 +33,6 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.view.ScanPanel;
@@ -53,8 +51,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
 	private static JList messageList = null;
 
-	private HttpPanelRequest requestPanel = null;
-	private HttpPanelResponse responsePanel = null;
+	private HttpPanel requestPanel = null;
+	private HttpPanel responsePanel = null;
 
     //private static Log log = LogFactory.getLog(ActiveScanPanel.class);
 
@@ -113,15 +111,15 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     		return;
     	}
         if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null);
+            requestPanel.setMessage(null, true);
         } else {
-            requestPanel.setMessage(msg);
+            requestPanel.setMessage(msg, true);
         }
         
         if (msg.getResponseHeader() != null && msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null);
+            responsePanel.setMessage(null, false);
         } else {
-            responsePanel.setMessage(msg);
+            responsePanel.setMessage(msg, false);
         }
     }
 
@@ -187,7 +185,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	public void notifyNewMessage(HttpMessage msg) {
 	}
 
-    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
+    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 

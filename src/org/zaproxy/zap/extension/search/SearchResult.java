@@ -15,7 +15,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ * limitations under the License.
  */
 
 package org.zaproxy.zap.extension.search;
@@ -120,27 +120,56 @@ public class SearchResult {
 		matches = new ArrayList<SearchMatch>();
 
 		Pattern p = Pattern.compile(regEx, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
+		Matcher m;
 		
-		// URL
 		if (ExtensionSearch.Type.URL.equals(type)) {
 			// TODO: handle multiple matches in the url?
-			reqPanel.headerSearch(p, matches);
+			m = p.matcher(reqPanel.getTxtHeader().getText());
+			if (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+							m.start(), m.end()));
+			}
 			return;
 		}
-		// Request Header
 		if (ExtensionSearch.Type.Header.equals(type)) {
-			reqPanel.headerSearch(p, matches);
+			m = p.matcher(reqPanel.getTxtHeader().getText());
+			if (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+							m.start(), m.end()));
+			}
 			return;
 		}
-		// All or Request
-		if (ExtensionSearch.Type.All.equals(type) || ExtensionSearch.Type.Request.equals(type)) {
-			reqPanel.headerSearch(p, matches);
-			reqPanel.bodySearch(p, matches);
+		if (ExtensionSearch.Type.All.equals(type) ||
+				ExtensionSearch.Type.Request.equals(type)) {
+			m = p.matcher(reqPanel.getTxtHeader().getText());
+			while (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+							m.start(), m.end()));
+			}
+			m = p.matcher(reqPanel.getTxtBody().getText());
+			while (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.REQUEST_BODY,
+							m.start(), m.end()));
+			}
 		}
-		// All or response
-		if (ExtensionSearch.Type.All.equals(type) || ExtensionSearch.Type.Response.equals(type)) {
-			resPanel.headerSearch(p, matches);
-			resPanel.bodySearch(p, matches);
+		if (ExtensionSearch.Type.All.equals(type) ||
+				ExtensionSearch.Type.Response.equals(type)) {
+			m = p.matcher(resPanel.getTxtHeader().getText());
+			while (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.RESPONSE_HEAD,
+							m.start(), m.end()));
+			}
+			m = p.matcher(resPanel.getTxtBody().getText());
+			while (m.find()) {
+				matches.add(
+					new SearchMatch(SearchMatch.Locations.RESPONSE_BODY,
+							m.start(), m.end()));
+			}
 		}
 	}
 }

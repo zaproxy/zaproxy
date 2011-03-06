@@ -15,7 +15,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.search;
 
@@ -43,8 +43,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 /**
  *
  * To change the template for this generated type comment go to
@@ -71,8 +69,8 @@ public class SearchPanel extends AbstractPanel {
 	private JList resultsList = new JList();
 	private DefaultListModel resultsModel;
 
-	private HttpPanelRequest requestPanel = null;
-	private HttpPanelResponse responsePanel = null;
+	private HttpPanel requestPanel = null;
+	private HttpPanel responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
     private static Log log = LogFactory.getLog(SearchPanel.class);
@@ -106,11 +104,14 @@ public class SearchPanel extends AbstractPanel {
         this.add(getPanelCommand(), getPanelCommand().getName());
 
 	}
-	
 	/**
+
 	 * This method initializes panelCommand	
+
 	 * 	
+
 	 * @return javax.swing.JPanel	
+
 	 */    
 	/**/
 	private javax.swing.JPanel getPanelCommand() {
@@ -318,7 +319,7 @@ public class SearchPanel extends AbstractPanel {
 		}
 	}
 
-    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
+    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 
@@ -342,15 +343,15 @@ public class SearchPanel extends AbstractPanel {
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null);
+            requestPanel.setMessage(null, true);
         } else {
-            requestPanel.setMessage(msg);
+            requestPanel.setMessage(msg, true);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null);
+            responsePanel.setMessage(null, false);
         } else {
-            responsePanel.setMessage(msg);
+            responsePanel.setMessage(msg, false);
         }
         highlightFirstResult(sr);
     }
@@ -362,28 +363,37 @@ public class SearchPanel extends AbstractPanel {
     	}
     	
     	switch (sm.getLocation()) {
-    	case REQUEST_HEAD:
-    		requestPanel.highlightHeader(sm);
+    	case REQUEST_HEAD:	
+    		txtArea = requestPanel.getTxtHeader();
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case REQUEST_BODY:	
-    		requestPanel.highlightBody(sm);
+    		txtArea = requestPanel.getTxtBody();
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case RESPONSE_HEAD:	
-    		responsePanel.highlightHeader(sm);
+    		txtArea = responsePanel.getTxtHeader();
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
-    	case RESPONSE_BODY:
-    		responsePanel.highlightBody(sm);
+    	case RESPONSE_BODY:	
+    		txtArea = responsePanel.getTxtBody();
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
     	}
-
+        
+        Highlighter hilite = txtArea.getHighlighter();
+        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+        try {
+			hilite.removeAllHighlights();
+			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
+			txtArea.setCaretPosition(sm.getStart());
+		} catch (BadLocationException e) {
+			log.error(e.getMessage(), e);
+		}
     }
     
     private void highlightFirstResult (SearchResult sr) {
