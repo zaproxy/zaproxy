@@ -26,13 +26,11 @@ import org.parosproxy.paros.view.MainPopupMenu;
 import org.parosproxy.paros.view.OutputPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
  *
  * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * Window - Preferences - Java - Code Generation - Code and Comments 
  */
 public interface ViewDelegate {
 
@@ -56,8 +54,8 @@ public interface ViewDelegate {
     
     public void setStatus(String msg);
     
-    public HttpPanelRequest getRequestPanel();
+    public HttpPanel getRequestPanel();
     
-    public HttpPanelResponse getResponsePanel();
+    public HttpPanel getResponsePanel();
     
 }
