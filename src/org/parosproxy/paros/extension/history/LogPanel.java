@@ -38,8 +38,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
  *
@@ -56,8 +54,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
 	
-	private HttpPanelRequest requestPanel = null;
-	private HttpPanelResponse responsePanel = null;
+	private HttpPanel requestPanel = null;
+	private HttpPanel responsePanel = null;
     private ExtensionHistory extension = null;
 	
 	/**
@@ -345,7 +343,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     }
     
     
-    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
+    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
 
@@ -354,15 +352,15 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private void displayMessage(HttpMessage msg) {
         
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null);
+            requestPanel.setMessage(null, true);
         } else {
-            requestPanel.setMessage(msg);
+            requestPanel.setMessage(msg, true);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null);
+            responsePanel.setMessage(null, false);
         } else {
-            responsePanel.setMessage(msg);
+            responsePanel.setMessage(msg, false);
         }
     }
 
@@ -407,6 +405,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     }
     
     private void checkAndShowBrowser(HistoryReference ref, HttpMessage msg) {
+    	// TODO reenable??
     	/*
         // ZAP: Disabled the platform specific browser
         if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {

@@ -55,7 +55,7 @@ public class AlertPanel extends AbstractPanel {
 	
 	private JScrollPane paneScroll = null;
 
-	// ZAP Added split pane panels
+	// ZAP Added split pane panels 
 	private JSplitPane splitPane = null;
 	private AlertViewPanel alertViewPanel = null;
 
@@ -219,17 +219,15 @@ public class AlertPanel extends AbstractPanel {
 	private void setMessage(HttpMessage msg) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
-	    requestPanel.clearView(true);
-	    HttpMessage newMsg = msg.cloneAll();
-	    
+	    requestPanel.setMessage("","", true);
 	    if (!msg.getRequestHeader().isEmpty()) {
-	    	requestPanel.setMessage(newMsg, true);
+	        requestPanel.setMessage(msg.getRequestHeader().toString(), msg.getRequestBody().toString(), true);
 	    }
 
-	    responsePanel.clearView(false);
+	    responsePanel.setMessage("","", false);
 	    if (!msg.getResponseHeader().isEmpty()) {
-	        responsePanel.setMessage(newMsg, false);
+	        responsePanel.setMessage(msg.getResponseHeader().toString(), msg.getResponseBody().toString(), false);
 	    }
 
 	}
-    }  //  @jve:decl-index=0:visual-constraint="10,10"
+}  //  @jve:decl-index=0:visual-constraint="10,10"

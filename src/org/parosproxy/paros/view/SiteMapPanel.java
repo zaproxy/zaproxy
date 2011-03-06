@@ -34,11 +34,8 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.view.SiteMapListener;
 
 /**
@@ -144,6 +141,7 @@ public class SiteMapPanel extends JPanel {
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
+
 				    HttpMessage msg = null;
 				    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
 				    if (node == null) {
@@ -159,10 +157,10 @@ public class SiteMapPanel extends JPanel {
                             
                         }
 
-                        HttpPanelRequest reqPanel = getView().getRequestPanel();
-				        HttpPanelResponse resPanel = getView().getResponsePanel();
-				        reqPanel.setMessage(msg);
-			            resPanel.setMessage(msg);
+                        HttpPanel reqPanel = getView().getRequestPanel();
+				        HttpPanel resPanel = getView().getResponsePanel();
+				        reqPanel.setMessage(msg, true);
+			            resPanel.setMessage(msg, false);
 
 			        	// ZAP: Call SiteMapListenners
 			            for (SiteMapListener listener : listenners) {

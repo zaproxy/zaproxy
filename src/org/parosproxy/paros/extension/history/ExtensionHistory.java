@@ -24,8 +24,6 @@ import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -218,10 +216,12 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
+	    
+
 	    getHistoryList().clear();
 	    getLogPanel().getListLog().setModel(getHistoryList());
-		getView().getRequestPanel().clearView(true);
-		getView().getResponsePanel().clearView(false);
+		getView().getRequestPanel().setMessage("","", true);
+		getView().getResponsePanel().setMessage("","", false);
 
 		try {
 		    List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
@@ -508,8 +508,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
-			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
-			//resendDialog.setSize(700, 800);
+			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
+			resendDialog.setSize(700, 800);
 			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return resendDialog;
