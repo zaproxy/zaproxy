@@ -156,7 +156,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
         	JTree tree = (JTree) invoker;
         	lastInvoker = tree;
             SiteNode node = (SiteNode) tree.getLastSelectedPathComponent();
-            this.setEnabled(node.getHistoryReference() != null);
+            this.setEnabled(node != null && node.getHistoryReference() != null);
             return true;
         }
         return false;
