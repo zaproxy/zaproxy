@@ -40,6 +40,7 @@ import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
+import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.hexview.ExtensionHexView;
 import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
@@ -140,6 +141,7 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionCompare());
         getExtensionLoader().addExtension(new ExtensionInvoke());
         getExtensionLoader().addExtension(new ExtensionHexView());
+        getExtensionLoader().addExtension(new ExtensionFuzz());
 
         // Params extension not fully implemented
         //getExtensionLoader().addExtension(new ExtensionParams());
