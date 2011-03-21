@@ -512,10 +512,14 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			System.out.println("slot: " + slot);
 			if (slot < 0) return;
 			
+			Integer slotIndex = driverConfig.getSlotIndexes().get(driverComboBox.getSelectedIndex());
+			System.out.println("slotIndex: " + slotIndex);
+			if (slotIndex < 0) return;
+			
 			String kspass = new String(pkcs11PasswordField.getPassword());
 			if (kspass.equals("")) kspass = null;
 			
-			int ksIndex = contextManager.initPKCS11(name, library, slot, kspass);
+			int ksIndex = contextManager.initPKCS11(name, library, slot, slotIndex, kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, new String[] {"Error accessing key store.","Maybe your password or driver is wrong."}, "Error", JOptionPane.ERROR_MESSAGE);

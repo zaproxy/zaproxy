@@ -276,7 +276,7 @@ public class SSLContextManager {
     }
     */
     
-    public int initPKCS11(String name, String library, int slot, String kspassword)
+    public int initPKCS11(String name, String library, int slot, int slotIndex, String kspassword)
     throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         
             if (!isProviderAvailable("PKCS11")) return -1;
@@ -286,6 +286,7 @@ public class SSLContextManager {
             cardConfig.append("name=").append(name).append("\n");
             cardConfig.append("library=").append(library).append("\n");
             cardConfig.append("slot=").append(slot).append("\n");
+            cardConfig.append("slotIndex=").append(slotIndex).append("\n");
             InputStream is = new ByteArrayInputStream(cardConfig.toString().getBytes());
             
             // create the provider

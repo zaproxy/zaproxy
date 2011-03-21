@@ -4,20 +4,24 @@
 		<name>Axalto</name>
 		<path>C:\Program Files\Axalto\Access Client\v5\xltCk.dll</path>
 		<slot>0</slot>
+		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
 		<name>ActivIdentity</name>
 		<path>C:\WINDOWS\System32\acpks211.dll</path>
 		<slot>0</slot>
+		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
 		<name>SuisseID</name>
 		<path>C:\WINDOWS\System32\siecap11.dll</path>
 		<slot>3</slot>
+		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
 		<name>Aladdin eToken</name>
 		<path>C:\WINDOWS\System32\eTPKCS11.dll</path>
 		<slot>0</slot>
+		<slotIndex>0</slotIndex>
 	</driver>
 </driverConfiguration>

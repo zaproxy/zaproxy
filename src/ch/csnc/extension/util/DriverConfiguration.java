@@ -39,12 +39,14 @@ public class DriverConfiguration extends Observable {
 	private Vector<String> names;
 	private Vector<String> paths;
 	private Vector<Integer> slots;
+	private Vector<Integer> slotIndexes;
 
 	public DriverConfiguration() {
 		names = new Vector<String>();
 		paths = new Vector<String>();
 		slots = new Vector<Integer>();
-
+		slotIndexes = new Vector<Integer>();
+		
 		try {
 			Document doc = new SAXBuilder().build(filename);
 			Element root = doc.getRootElement();
@@ -57,6 +59,9 @@ public class DriverConfiguration extends Observable {
 
 				Element slotElement = ((Element) o).getChild("slot");
 				slots.add(Integer.parseInt(slotElement.getValue()));
+				
+				Element slotIndex = ((Element) o).getChild("slotIndex");
+				slotIndexes.add(Integer.parseInt(slotIndex.getValue()));
 			}
 
 		} catch (JDOMException e) {
@@ -71,7 +76,7 @@ public class DriverConfiguration extends Observable {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
-					"Error slot id is not a number: ", e.toString() }, "Error",
+					"Error slot or slot index is not a number: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
@@ -98,6 +103,10 @@ public class DriverConfiguration extends Observable {
 			Element slot = new Element("slot");
 			driver.addContent(slot);
 			slot.addContent(slots.get(i).toString());
+			
+			Element slotIndex = new Element("slotIndex");
+			driver.addContent(slotIndex);
+			slot.addContent(slotIndexes.get(i).toString());
 		}
 
 		try {
@@ -141,6 +150,14 @@ public class DriverConfiguration extends Observable {
 
 	public void setSlots(Vector<Integer> slots) {
 		this.slots = slots;
+	}
+	
+	public Vector<Integer> getSlotIndexes() {
+		return slotIndexes;
+	}
+
+	public void setSlotIndexes(Vector<Integer> slotIndexes) {
+		this.slotIndexes = slotIndexes;
 	}
 
 }

@@ -60,6 +60,9 @@ public class DriversView extends javax.swing.JFrame {
 	private JLabel slotLabel;
 	private JTextField slotTextField;
 	
+	private JLabel slotIndexLabel;
+	private JTextField slotIndexTextField;
+	
 	
 	/**
 	 * Creates new form Drivers
@@ -85,6 +88,8 @@ public class DriversView extends javax.swing.JFrame {
 		nameTextField = new JTextField();
 		slotLabel = new JLabel();
 		slotTextField = new JTextField();
+		slotIndexLabel = new JLabel();
+		slotIndexTextField = new JTextField();
 		addButton = new JButton();
 		deleteButton = new JButton();
 		closeButton = new JButton();
@@ -104,6 +109,8 @@ public class DriversView extends javax.swing.JFrame {
 		nameLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.name"));
 
 		slotLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slot"));
+		
+		slotIndexLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slotIndex"));
 
 		addButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.add"));
 		addButton.addActionListener(new ActionListener() {
@@ -142,6 +149,7 @@ public class DriversView extends javax.swing.JFrame {
 												.addComponent(fileLabel)
 												.addComponent(nameLabel)
 												.addComponent(slotLabel)
+												.addComponent(slotIndexLabel)
 												.addGroup(
 														layout.createSequentialGroup()
 																.addGroup(
@@ -153,6 +161,9 @@ public class DriversView extends javax.swing.JFrame {
 																						GroupLayout.Alignment.LEADING)
 																				.addComponent(
 																						slotTextField,
+																						GroupLayout.Alignment.LEADING)
+																				.addComponent(
+																						slotIndexTextField,
 																						GroupLayout.Alignment.LEADING)
 																				.addComponent(
 																						fileTextField,
@@ -236,6 +247,19 @@ public class DriversView extends javax.swing.JFrame {
 														slotTextField,
 														GroupLayout.PREFERRED_SIZE,
 														GroupLayout.DEFAULT_SIZE,
+														GroupLayout.PREFERRED_SIZE))
+								.addGap(28, 28, 28)
+								
+								.addComponent(slotIndexLabel)
+								.addPreferredGap(
+										LayoutStyle.ComponentPlacement.RELATED)
+								.addGroup(
+										layout.createParallelGroup(
+												GroupLayout.Alignment.BASELINE)
+												.addComponent(
+														slotTextField,
+														GroupLayout.PREFERRED_SIZE,
+														GroupLayout.DEFAULT_SIZE,
 														GroupLayout.PREFERRED_SIZE)
 												.addComponent(
 														addButton,
@@ -269,14 +293,14 @@ public class DriversView extends javax.swing.JFrame {
 		fc.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
-				return "DLL";
+				return "DLL/dylib";
 			}
 			
 			//FIXME: Support so and dynlib files as well
 
 			@Override
 			public boolean accept(java.io.File f) {
-				return f.isDirectory() || f.getName().toLowerCase().endsWith(".dll");
+				return f.isDirectory() || f.getName().toLowerCase().endsWith(".dll") || f.getName().toLowerCase().endsWith(".dylib");
 			}
 		});
 
@@ -288,19 +312,26 @@ public class DriversView extends javax.swing.JFrame {
 	}
 
 	private void addButtonActionPerformed(ActionEvent evt) {
-		// TODO: Implement error handling for slot ID in case of non-numbers.
-		driverTableModel.addDriver(nameTextField.getText(), fileTextField
-				.getText(), Integer.parseInt(slotTextField.getText()));
+		// TODO: Implement error handling for slot ID / slot Indexes in case of non-numbers.
+		driverTableModel.addDriver(
+				nameTextField.getText(),
+				fileTextField.getText(),
+				Integer.parseInt(slotTextField.getText()),
+				Integer.parseInt(slotIndexTextField.getText()));
+		
 		nameTextField.setText("");
 		fileTextField.setText("");
 		slotTextField.setText("0");
+		slotIndexTextField.setText("0");
 	}
 
 	private void deleteButtonActionPerformed(ActionEvent evt) {
 		driverTableModel.deleteDriver(driverTable.getSelectedRow());
+		
 		nameTextField.setText("");
 		fileTextField.setText("");
 		slotTextField.setText("0");
+		slotIndexTextField.setText("0");
 	}
 
 	private void closeButtonActionPerformed(ActionEvent evt) {
