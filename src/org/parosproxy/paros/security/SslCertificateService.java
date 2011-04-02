@@ -43,7 +43,7 @@ public interface SslCertificateService {
 	/**
 	 * The alias name used in key stores.
 	 */
-	public static final String ZAPROXY_JKS_ALIAS = "owasp zap";
+	public static final String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
 
 	/**
 	 * Generate a certificate signed by our CA's intermediate certificate.
@@ -61,10 +61,21 @@ public interface SslCertificateService {
 	 * @throws KeyStoreException
 	 * @throws IOException
 	 * @throws UnrecoverableKeyException
+	 * @throws IllegalStateException when it wasn't initialized.
 	 */
 	public abstract KeyStore createCertForHost(String hostname)
 			throws NoSuchAlgorithmException, InvalidKeyException,
 			CertificateException, NoSuchProviderException, SignatureException,
 			KeyStoreException, IOException, UnrecoverableKeyException;
+
+	/**
+	 * Loads CA's private key, public key and X.509 certificate into this bean.
+	 *
+	 * @param keystore
+	 * @throws KeyStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws UnrecoverableKeyException
+	 */
+	public abstract void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException;
 
 }

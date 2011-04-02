@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.security;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -44,6 +42,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -63,22 +62,22 @@ import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
  * If you want to have a cached solution, have a look at {@link CachedSslCertifificateServiceImpl}.
  * This class is designed to be thread safe.
  *
+ * A word about serial numbers ... There have to be different serial numbers
+ * generated, cause if multiple certificates with different finger prints
+ * do have the same serial from the same CA, the browser gets crazy.
+ * At least, Firefox v3.x does.
+ *
  * @author MaWoKi
  * @see {@link org.bouncycastle.x509.examples.AttrCertExample} how to manage CAs and stuff
  * @see {@link CachedSslCertifificateServiceImpl} for a cached {@link SslCertificateService}
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
 
-	/**
-	 * where to find the .JKS file in classpath
-	 */
-	private static final String RESOURCE_CA = "resource/owasp_zap.jks";
-	
 	private X509Certificate caCert = null;
 	private PublicKey caPubKey = null;
 	private PrivateKey caPrivKey = null;
 
-	private long serial = 0;
+	private final AtomicLong serial;
 
 	private static final SslCertificateService singleton = new SslCertificateServiceImpl();
 
@@ -88,33 +87,24 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 		rnd.setSeed(System.currentTimeMillis());
 		// prevent browser certificate caches, cause of doubled serial numbers
 		// using 48bit random number
-		this.serial = ((long)rnd.nextInt()) << 32 | (rnd.nextInt() & 0xFFFFFFFFL);
+		long sl = ((long)rnd.nextInt()) << 32 | (rnd.nextInt() & 0xFFFFFFFFL);
 		// let reserve of 16 bit for increasing, serials have to be positive
-		this.serial = this.serial & 0x0000FFFFFFFFFFFFL;
+		sl = sl & 0x0000FFFFFFFFFFFFL;
+		this.serial = new AtomicLong(sl);
 	}
 
-	/**
-	 * Loads CA's private key, public key and X.509 certificate into this bean.
-	 * This method automatically closes the {@link InputStream};
-	 *
-	 * @param inputstream
-	 * @throws KeyStoreException
-	 * @throws IOException
-	 * @throws CertificateException
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnrecoverableKeyException
-	 */
-	private synchronized final void loadCA() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream(RESOURCE_CA);
-		if (is == null) {
-			throw new FileNotFoundException("Error, couldn't find the root CA key store '"+RESOURCE_CA+"' in classpath!");
+
+	@Override
+	public synchronized final void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
+		if (keystore == null) {
+			this.caCert = null;
+			this.caPrivKey = null;
+			this.caPubKey = null;
+		} else {
+			this.caCert = (X509Certificate)keystore.getCertificate(ZAPROXY_JKS_ALIAS);
+			this.caPrivKey = (RSAPrivateKey) keystore.getKey(ZAPROXY_JKS_ALIAS, SslCertificateService.PASSPHRASE);
+			this.caPubKey = this.caCert.getPublicKey();
 		}
-		final KeyStore ks = KeyStore.getInstance("JKS");
-		ks.load(is, SslCertificateService.PASSPHRASE);
-		this.caCert = (X509Certificate)ks.getCertificate(ZAPROXY_JKS_ALIAS);
-		this.caPrivKey = (RSAPrivateKey) ks.getKey(ZAPROXY_JKS_ALIAS, SslCertificateService.PASSPHRASE);
-		this.caPubKey = this.caCert.getPublicKey();
-		is.close();
 	}
 
 	/* (non-Javadoc)
@@ -128,8 +118,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     	}
 
     	if (this.caCert == null || this.caPrivKey == null || this.caPubKey == null) {
-    		// lazy loading
-    		loadCA();
+    		throw new IllegalStateException(this.getClass() + " wasn't initialized! Got to options 'Dynamic SSL Certs' and create one.");
     	}
 
         final KeyPair mykp = this.createKeyPair();
@@ -160,7 +149,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         final X509V3CertificateGenerator  v3CertGen = new X509V3CertificateGenerator();
         v3CertGen.reset();
 
-        v3CertGen.setSerialNumber(BigInteger.valueOf(getNextSerial()));
+        v3CertGen.setSerialNumber(BigInteger.valueOf(serial.getAndIncrement()));
         v3CertGen.setIssuerDN(PrincipalUtil.getSubjectX509Principal(caCert));
         v3CertGen.setNotBefore(new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30));
         v3CertGen.setNotAfter(new Date(System.currentTimeMillis() + 100*(1000L * 60 * 60 * 24 * 30)));
@@ -201,19 +190,8 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     }
 
 	/**
-	 * Generates increasing serial numbers, cause if multiple certificates
-	 * with different finger prints do have the same serial from the same CA,
-	 * the browser gets crazy. At least, Firefox v3.x does.
-	 *
-	 * @return
-	 */
-	private synchronized final long getNextSerial() {
-		return serial++;
-	}
-
-	/**
 	 * Generates an 1024 bit RSA key pair using SHA1PRNG.
-	 * 
+	 *
 	 * Thoughts: 2048 takes much longer time on older CPUs.
 	 * And for almost every client, 1024 is sufficient.
 	 *

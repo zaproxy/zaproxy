@@ -118,7 +118,12 @@ class ProxyThread implements Runnable {
         boolean isSecure = true;
         HttpRequestHeader firstHeader = null;
 		// ZAP: added parameter 'targethost'
-        inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
+        try {
+			inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
+		} catch (Exception e) {
+			// ZAP: transform for further processing 
+			throw new IOException("Error while establishing SSL connection!", e);
+		}
         
         httpIn = new HttpInputStream(inSocket);
         httpOut = new HttpOutputStream(inSocket.getOutputStream());

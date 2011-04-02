@@ -67,47 +67,16 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 	}
 
 	/**
-	 * Appends the certificate, private key and public key to the user's
-	 * key store. The users key store is located in the user's home directory
-	 * and a file called "paros_certs.jks".
-	 * Any existing file under that name will be overwritten.
-	 *
-	 * @param hostCertBundle
-	 * @throws KeyStoreException
-	 * @throws IOException
-	 * @throws CertificateException
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnrecoverableKeyException
-	 */
-
-	/*
-	 * Sample code, to implement persistence .... HostBundle is an alias container for keystore
-	 */
-
-//	protected final void saveUserCerts(HostCertBundle hostCertBundle, char[] passphrase) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-//		String userkeystore = System.getProperty("user.home", ".") + File.pathSeparator + "paros_certs.jks";
-//		KeyStore store = KeyStore.getInstance("JKS");
-//		try {
-//			FileInputStream fis = new FileInputStream(userkeystore);
-//			store.load(fis, passphrase);
-//			fis.close();
-//		} catch (Exception e) {
-//			store.load(null, null);
-//		}
-//        Certificate[] chain = new Certificate[2];
-//        chain[1] = this.getCaCert();
-//        chain[0] = hostCertBundle.getCert();
-//        store.setKeyEntry(URLEncoder.encode(hostCertBundle.getHostName(), "UTF-8"), hostCertBundle.getPrivKey(), passphrase, chain);
-//        FileOutputStream fOut = new FileOutputStream("id.jks");
-//        store.store(fOut, passphrase);
-//        fOut.close();
-//
-//	}
-
-	/**
 	 * @return return the current {@link SslCertificateService}
 	 */
 	public final static SslCertificateService getService() {
 		return singleton;
 	}
+
+	@Override
+	public void initializeRootCA(KeyStore keystore) throws KeyStoreException,
+			UnrecoverableKeyException, NoSuchAlgorithmException {
+		this.delegate.initializeRootCA(keystore);
+	}
+
 }
