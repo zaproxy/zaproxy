@@ -27,6 +27,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 
 
 
@@ -123,6 +124,9 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
 		    return;
 		} else if (msg.getResponseBody().length() == 0) {
 		    return;
+		} else if (HttpStatusCode.isClientError(msg.getResponseHeader().getStatusCode())) {
+			// These typically dont return 'real' data, so can be ignored
+			return;
 		}
 		
 		if (!matchHeaderPattern(msg, HttpHeader.CACHE_CONTROL, patternNoCache)
