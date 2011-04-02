@@ -48,6 +48,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -279,7 +280,24 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			if (logger.isInfoEnabled()) {
 				logger.info("Loading Root CA certificate from " + f);
 			}
-			JOptionPane.showMessageDialog(this, "Not yet implemented!");
+			KeyStore ks = null;
+			try {
+				final XMLConfiguration conf = new XMLConfiguration(f);
+				final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
+				ks = SslCertificateUtils.String2Keystore(rootcastr);
+			} catch (final Exception e) {
+				logger.error("Error importing foreign Root CA!", e);
+				JOptionPane.showMessageDialog(this,
+						"The file couldn't be loaded."
+						+ "\n"
+						+ "Please see log file for details.",
+						"Import error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			if (ks != null) {
+				setRootca(ks);
+			}
+
 		}
 	}
 

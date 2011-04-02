@@ -19,19 +19,25 @@
  */
 package org.zaproxy.zap.extension.dynssl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
@@ -41,7 +47,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 /**
  * @author MaWoKi
  */
-public class SslCertificateUtils {
+/*default*/ final class SslCertificateUtils {
 
 	private static final long DEFAULT_VALID_DAYS = 365L;
 
@@ -98,6 +104,39 @@ public class SslCertificateUtils {
 		} catch (final Exception e) {
 			throw new IllegalStateException("Errors during assembling root CA.", e);
 		}
+		return ks;
+	}
+
+	/**
+	 * @param keystore
+	 * @return
+	 * @throws KeyStoreException
+	 * @throws IOException
+	 * @throws CertificateException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public final static String keyStore2String(KeyStore keystore) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		keystore.store(baos, SslCertificateService.PASSPHRASE);
+		final byte[] bytes = baos.toByteArray();
+		baos.close();
+		return Base64.encodeBase64URLSafeString(bytes);
+	}
+
+	/**
+	 * @param str
+	 * @return
+	 * @throws KeyStoreException
+	 * @throws IOException
+	 * @throws CertificateException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public final static KeyStore String2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		final byte[] bytes = Base64.decodeBase64(str);
+		final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+		ks.load(bais, SslCertificateService.PASSPHRASE);
+		bais.close();
 		return ks;
 	}
 
