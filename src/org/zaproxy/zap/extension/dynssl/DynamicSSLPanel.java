@@ -52,6 +52,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.security.SslCertificateServiceImpl;
@@ -76,14 +77,14 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	public DynamicSSLPanel() {
 		super();
 
-		setName("Dynamic SSL Certs");
+		setName(Constant.messages.getString("dynssl.options.name"));
 		setLayout(new BorderLayout(0, 0));
 
 		final JPanel panel = new JPanel();
 		panel.setBorder(new EmptyBorder(2, 2, 2, 2));
 		add(panel);
 
-		final JLabel lbl_Cert = new JLabel("Root CA Certificate");
+		final JLabel lbl_Cert = new JLabel(Constant.messages.getString("dynssl.label.rootca"));
 
 		txt_PubCert = new JTextArea();
 		txt_PubCert.setFont(new Font("Monospaced", Font.PLAIN, 11));
@@ -108,7 +109,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 
 		final JScrollPane pubCertScrollPane = new JScrollPane(txt_PubCert);
 
-		final JButton bt_generate = new JButton("Generate");
+		final JButton bt_generate = new JButton(Constant.messages.getString("dynssl.button.generate"));
 		bt_generate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -117,7 +118,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		});
 		bt_generate.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
 
-		bt_save = new JButton("Save");
+		bt_save = new JButton(Constant.messages.getString("menu.file.save"));
 		checkAndEnableSaveButton();
 		bt_save.addActionListener(new ActionListener() {
 			@Override
@@ -127,7 +128,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		});
 		bt_save.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/096.png")));
 
-		bt_view = new JButton("View");
+		bt_view = new JButton(Constant.messages.getString("menu.view"));
 		checkAndEnableViewButton();
 		bt_view.addActionListener(new ActionListener() {
 			@Override
@@ -137,7 +138,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		});
 		bt_view.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));
 
-		final JButton bt_import = new JButton("Import");
+		final JButton bt_import = new JButton(Constant.messages.getString("dynssl.button.import"));
 		bt_import.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -154,7 +155,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(lbl_Cert, GroupLayout.PREFERRED_SIZE, 99, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lbl_Cert, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
 								.addGroup(gl_panel.createSequentialGroup()
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(bt_generate)))
@@ -287,11 +288,12 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				ks = SslCertificateUtils.String2Keystore(rootcastr);
 			} catch (final Exception e) {
 				logger.error("Error importing foreign Root CA!", e);
+				// Constant.messages.getString("dynssl.label.rootca")
 				JOptionPane.showMessageDialog(this,
-						"The file couldn't be loaded."
+						Constant.messages.getString("dynssl.message1.filecouldnloaded")
 						+ "\n"
-						+ "Please see log file for details.",
-						"Import error",
+						+ Constant.messages.getString("dynssl.message1.seelogfiles"),
+						Constant.messages.getString("dynssl.message1.title"),
 						JOptionPane.ERROR_MESSAGE);
 			}
 			if (ks != null) {
@@ -352,12 +354,12 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		boolean alreadyexists = txt_PubCert.getDocument().getLength() > MIN_CERT_LENGTH;
 		if (alreadyexists) {
 			final int result = JOptionPane.showConfirmDialog(this,
-					"A Root CA certificate already exists."
+					Constant.messages.getString("dynssl.message2.caalreadyexists")
 					+ "\n"
-					+ "Creating a new certificate, will replace the existing one."
+					+ Constant.messages.getString("dynssl.message2.willreplace")
 					+ "\n\n"
-					+ "Do you want to overwrite the current certificate?",
-					"Overwrite existing certificate?",
+					+ Constant.messages.getString("dynssl.message2.wanttooverwrite"),
+					Constant.messages.getString("dynssl.message2.title"),
 					JOptionPane.YES_NO_OPTION);
 			alreadyexists = !(result == JOptionPane.YES_OPTION);
 		}
