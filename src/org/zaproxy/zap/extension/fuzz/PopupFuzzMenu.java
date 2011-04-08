@@ -23,22 +23,23 @@ import java.awt.Component;
 import java.awt.Container;
 
 import javax.swing.JFrame;
-import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
-import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
 
 public class PopupFuzzMenu extends ExtensionPopupMenu {
 
 	private static final long serialVersionUID = 1L;
-	private JTextComponent lastInvoker = null;
+	private Component lastInvoker = null;
     private JFrame parentFrame = null;
     
 	/**
      * @return Returns the lastInvoker.
      */
-    public JTextComponent getLastInvoker() {
+    public Component getLastInvoker() {
         return lastInvoker;
     }
     
@@ -50,6 +51,7 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 		super();
 		initialize();
 	}
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -61,13 +63,11 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 
 	public boolean isEnableForComponent(Component invoker) {
 		boolean visible = false;
-        if (invoker instanceof JTextComponent) {
-        	JTextComponent txt = (JTextComponent) invoker;
-        	// Only enable for request tab
-			//Component parent = invoker.getParent();
-			// TODO the commented out code will probably be needed when the HttpPanel changes are reapplied
+
+		if (invoker instanceof HttpPanelTextArea) {
 			visible = true;
-			/*
+
+			Component parent = invoker.getParent();
 			while (parent != null) {
 				if (parent instanceof HttpPanelRequest) {
 					visible = true;
@@ -78,20 +78,11 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 				}
 				parent = parent.getParent();
 			}
-			*/
-        	visible = txt.equals(View.getSingleton().getRequestPanel().getTxtBody()) ||
-            		txt.equals(View.getSingleton().getRequestPanel().getTxtHeader());
 
         	if (visible) {
-        		
-            	String sel = txt.getSelectedText();
-            	if (sel == null || sel.length() == 0) {
-            		this.setEnabled(false);
-            	} else {
-            		this.setEnabled(true);
-            	}
+           		this.setEnabled(true);
             	
-                setLastInvoker((JTextComponent) invoker);
+                setLastInvoker( invoker);
                 Container c = getLastInvoker().getParent();
                 while (!(c instanceof JFrame)) {
                     c = c.getParent();
@@ -125,9 +116,8 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
     /**
      * @param lastInvoker The lastInvoker to set.
      */
-    public void setLastInvoker(JTextComponent lastInvoker) {
+    public void setLastInvoker(Component lastInvoker) {
         this.lastInvoker = lastInvoker;
     }
-
     
 }

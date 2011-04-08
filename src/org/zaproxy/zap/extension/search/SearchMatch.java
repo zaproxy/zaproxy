@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.extension.search;
 
+import org.parosproxy.paros.network.HttpMessage;
 
 public class SearchMatch {
 
@@ -28,6 +29,12 @@ public class SearchMatch {
 	private Locations location;
 	private int start;
 	private int end;
+	private HttpMessage message;
+	
+	public SearchMatch(HttpMessage message, Locations location, int start, int end) {
+		this(location, start, end);
+		this.message = message;
+	}
 	
 	public SearchMatch(Locations location, int start, int end) {
 		super();
@@ -35,7 +42,7 @@ public class SearchMatch {
 		this.start = start;
 		this.end = end;
 	}
-	
+		
 	public Locations getLocation() {
 		return location;
 	}
@@ -53,6 +60,10 @@ public class SearchMatch {
 	}
 	public void setEnd(int end) {
 		this.end = end;
+	}
+
+	public HttpMessage getMessage() {
+		return message;
 	}
 	
 }

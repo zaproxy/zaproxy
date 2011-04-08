@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.fuzz;
 
+import java.awt.Component;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,6 +47,10 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelSplitUi;
+import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
+import org.zaproxy.zap.extension.search.SearchMatch;
 public class FuzzDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -62,10 +67,8 @@ public class FuzzDialog extends AbstractDialog {
 	private int selectionStart = -1;
 	private int selectionEnd = -1;
 	private boolean fuzzHeader = true;
+	private HttpMessage httpMessage;
 
-	//private HttpPanelRequest requestPanel = View.getSingleton().getRequestPanel();
-	private HttpPanel requestPanel = View.getSingleton().getRequestPanel();
-	
 	private Database fuzzDB = new Database();
 
     /**
@@ -95,7 +98,6 @@ public class FuzzDialog extends AbstractDialog {
         this.setContentPane(getJTabbed());
         this.setTitle(Constant.messages.getString("fuzz.title"));
         this.setSize(500, 250);
-	
 	}
 	
 	/**
@@ -148,9 +150,6 @@ public class FuzzDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-			        HttpMessage msg = new HttpMessage();
-			        requestPanel.getMessage(msg, true);
-			        
 			        Object [] names = fuzzersField.getSelectedValues();
 			        if (names != null && names.length > 0) {
 				        try {
@@ -159,7 +158,7 @@ public class FuzzDialog extends AbstractDialog {
 						        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
 				        	}
 	
-							extension.startFuzzers(msg, fuzzers, fuzzHeader, selectionStart, selectionEnd);
+							extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, selectionStart, selectionEnd);
 							
 						} catch (NoSuchFuzzerException e) {
 							// TODO Auto-generated catch block
@@ -242,31 +241,41 @@ public class FuzzDialog extends AbstractDialog {
 			fuzzersField.setModel(fuzzerModel);
 			setFuzzerNames();
 			fuzzersField.addListSelectionListener(new ListSelectionListener() {
-
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
 			        Object [] names = fuzzersField.getSelectedValues();
 			        getStartButton().setEnabled(names != null && names.length > 0);
-
 				}});
 		}
 		return fuzzersField;
 	}
-	
 
 	public void reset() {
 	}
 
-	public void setSelection(JTextArea source) {
+	public void setSelection(Component source) {
 		if (source != null) {
-			selectionStart = source.getSelectionStart();
-			selectionEnd = source.getSelectionEnd();
-			if (source.getSelectedText() != null && source.getSelectedText().length() > 50) {
-				getSelectionField().setText(source.getSelectedText().substring(0, 50) + "...");
+			SearchMatch sm = null;
+			
+			if (source instanceof HttpPanelTextArea) {
+				HttpPanelTextArea ta = (HttpPanelTextArea) source;
+				sm = ta.getTextSelection();
 			} else {
-				getSelectionField().setText(source.getSelectedText());
+				System.out.println("FAIL");
 			}
-			fuzzHeader = source.equals(requestPanel.getTxtHeader());
+
+			selectionStart = sm.getStart();
+			selectionEnd = sm.getEnd();
+			getSelectionField().setText(sm.getMessage().getRequestHeader().toString());
+			httpMessage = sm.getMessage();
+			
+			if (sm.getLocation().equals(SearchMatch.Locations.REQUEST_HEAD)) {
+				fuzzHeader = true;
+			} else {
+				fuzzHeader = false;
+			}
+		} else {
+			System.out.println("error");
 		}
 	}
 

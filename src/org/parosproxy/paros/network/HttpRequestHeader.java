@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/04 Changed to support Logging
+ 
 package org.parosproxy.paros.network;
 
 import org.apache.commons.httpclient.URI;
@@ -68,6 +70,7 @@ public class HttpRequestHeader extends HttpHeader {
 	private boolean	mIsSecure = false;
 
 	private Log log = null;
+
 	/**
 	 * Constructor for an empty header.
 	 *
@@ -389,7 +392,7 @@ public class HttpRequestHeader extends HttpHeader {
 	private static final String DELIM = "<>#\"";
 	private static final String UNWISE = "{}|\\^[]`";
 	private static final String DELIM_UNWISE = DELIM + UNWISE;
-
+	
 	public static URI parseURI(String sUri) throws URIException {
 	    URI uri = null;
 	    

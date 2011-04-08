@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/04 Changed to support new HttpPanel interface
+
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.view.HttpPanel;
@@ -26,6 +28,8 @@ import org.parosproxy.paros.view.MainPopupMenu;
 import org.parosproxy.paros.view.OutputPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
  *
@@ -54,8 +58,8 @@ public interface ViewDelegate {
     
     public void setStatus(String msg);
     
-    public HttpPanel getRequestPanel();
+    public HttpPanelRequest getRequestPanel();
     
-    public HttpPanel getResponsePanel();
+    public HttpPanelResponse getResponsePanel();
     
 }

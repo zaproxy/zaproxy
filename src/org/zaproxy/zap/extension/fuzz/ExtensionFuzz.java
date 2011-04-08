@@ -19,10 +19,9 @@
  */
 package org.zaproxy.zap.extension.fuzz;
 
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
+import java.awt.Component;
 
+import javax.swing.JFrame;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -69,7 +68,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-	    if (getView() != null) {	        
+	    if (getView() != null) {
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuFuzz());
 	        extensionHook.getHookView().addStatusPanel(getFuzzerPanel());
 	        this.getFuzzerPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
@@ -117,11 +116,11 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 		fuzzerThread.resume();		
 	}
 
-    protected void showFuzzDialog(JTextComponent invoker) {
+    protected void showFuzzDialog(Component invoker) {
         showFuzzDialog(getView().getMainFrame(), invoker);
     }
 
-    private void showFuzzDialog(JFrame frame, JTextComponent invoker) {
+    private void showFuzzDialog(JFrame frame, Component invoker) {
         if (fuzzDialog == null || fuzzDialog.getParent() != frame) {
             fuzzDialog = new FuzzDialog(frame, false);            
             fuzzDialog.setExtension(this);
@@ -129,10 +128,11 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
         
         fuzzDialog.reset();
         fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
-        fuzzDialog.setSelection((JTextArea) invoker);
+        fuzzDialog.setSelection(invoker);
         fuzzDialog.setVisible(true);
         
     }
+    
     private PopupFuzzMenu getPopupMenuFuzz() {
         if (popupFuzzMenu== null) {
             popupFuzzMenu = new PopupFuzzMenu();
@@ -141,9 +141,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                 	Object source = e.getSource();
                 	if (source != null && source instanceof PopupFuzzMenu) {
-                		JTextComponent invoker = ((PopupFuzzMenu)source).getLastInvoker();
+                		Component invoker = ((PopupFuzzMenu)source).getLastInvoker();
                         showFuzzDialog(invoker);
-                		
                 	}
                 }
             });

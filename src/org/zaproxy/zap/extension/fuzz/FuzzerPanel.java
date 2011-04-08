@@ -356,19 +356,8 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
     private void displayMessage(HttpMessage msg) {
 		try {
-		    //requestPanel.setMessage(msg);
-		    /**/
-		    requestPanel.setMessage("","", true);
-		    if (!msg.getRequestHeader().isEmpty()) {
-		        requestPanel.setMessage(msg.getRequestHeader().toString(), msg.getRequestBody().toString(), true);
-		    }
-
-		    responsePanel.setMessage("","", false);
-		    if (!msg.getResponseHeader().isEmpty()) {
-		        responsePanel.setMessage(msg.getResponseHeader().toString(), msg.getResponseBody().toString(), false);
-		    }
-		    /**/
-	        
+			requestPanel.setMessage(msg);
+			responsePanel.setMessage(msg);
 		} catch (Exception e) {
 			log.error("Failed to access message ", e);
 		}

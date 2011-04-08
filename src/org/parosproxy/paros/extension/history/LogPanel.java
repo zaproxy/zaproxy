@@ -434,4 +434,3 @@ public class LogPanel extends AbstractPanel implements Runnable {
     	filterStatus.setToolTipText(filter.toLongString());
     }
 }
-

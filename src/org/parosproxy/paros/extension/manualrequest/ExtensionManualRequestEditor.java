@@ -18,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+// ZAP: 2011/08/04 Changed for cleanup
+ 
 package org.parosproxy.paros.extension.manualrequest;
 
 import javax.swing.JMenuItem;
@@ -91,7 +94,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 			menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
 			menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					//		    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
+							    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
 					//		    	    if (dialog.getRequestPanel().getTxtHeader().getText().equals("")) {
 					//		    	        HttpMessage msg = new HttpMessage();
 					//		    	        try {
@@ -104,7 +107,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 					//                        }
 					//                        
 					//		    	    }
-					//		    	    dialog.setVisible(true);
+							    	    dialog.setVisible(true);
 				}
 			});
 		}

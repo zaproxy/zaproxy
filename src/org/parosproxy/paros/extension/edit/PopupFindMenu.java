@@ -30,15 +30,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupFindMenu extends ExtensionPopupMenu {
-
-
     private JTextComponent lastInvoker = null;
     private JFrame parentFrame = null;
     
@@ -57,6 +49,7 @@ public class PopupFindMenu extends ExtensionPopupMenu {
 		super();
 		initialize();
 	}
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -64,10 +57,8 @@ public class PopupFindMenu extends ExtensionPopupMenu {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
-
-
-			
 	}
+	
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
             setLastInvoker((JTextComponent) invoker);

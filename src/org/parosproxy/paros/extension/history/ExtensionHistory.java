@@ -18,12 +18,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+ 
+// ZAP: 2011/08/04 Changed to support clearview() in HttpPanels
+ 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -216,12 +221,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
-	    
-
 	    getHistoryList().clear();
 	    getLogPanel().getListLog().setModel(getHistoryList());
-		getView().getRequestPanel().setMessage("","", true);
-		getView().getResponsePanel().setMessage("","", false);
+		getView().getRequestPanel().clearView(true);
+		getView().getResponsePanel().clearView(false);
 
 		try {
 		    List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
@@ -508,8 +511,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
-			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
-			resendDialog.setSize(700, 800);
+			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
+			//resendDialog.setSize(700, 800);
 			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return resendDialog;

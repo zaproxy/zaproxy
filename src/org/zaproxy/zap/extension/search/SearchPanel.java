@@ -15,7 +15,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
- * limitations under the License.
+ * limitations under the License. 
  */
 package org.zaproxy.zap.extension.search;
 
@@ -43,6 +43,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 /**
  *
  * To change the template for this generated type comment go to
@@ -69,8 +71,8 @@ public class SearchPanel extends AbstractPanel {
 	private JList resultsList = new JList();
 	private DefaultListModel resultsModel;
 
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
+	private HttpPanelRequest requestPanel = null;
+	private HttpPanelResponse responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
     private static Log log = LogFactory.getLog(SearchPanel.class);
@@ -104,14 +106,11 @@ public class SearchPanel extends AbstractPanel {
         this.add(getPanelCommand(), getPanelCommand().getName());
 
 	}
+	
 	/**
-
 	 * This method initializes panelCommand	
-
 	 * 	
-
 	 * @return javax.swing.JPanel	
-
 	 */    
 	/**/
 	private javax.swing.JPanel getPanelCommand() {
@@ -319,10 +318,9 @@ public class SearchPanel extends AbstractPanel {
 		}
 	}
 
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
-
     }
     
     private void doSearch() {
@@ -342,16 +340,17 @@ public class SearchPanel extends AbstractPanel {
     
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
+        // TODO fix?
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.setMessage(null);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.setMessage(null);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg);
         }
         highlightFirstResult(sr);
     }
@@ -363,37 +362,28 @@ public class SearchPanel extends AbstractPanel {
     	}
     	
     	switch (sm.getLocation()) {
-    	case REQUEST_HEAD:	
-    		txtArea = requestPanel.getTxtHeader();
+    	case REQUEST_HEAD:
+    		requestPanel.highlightHeader(sm);
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case REQUEST_BODY:	
-    		txtArea = requestPanel.getTxtBody();
+    		requestPanel.highlightBody(sm);
     		requestPanel.setTabFocus();
     		requestPanel.requestFocus(); 
     		break;
     	case RESPONSE_HEAD:	
-    		txtArea = responsePanel.getTxtHeader();
+    		responsePanel.highlightHeader(sm);
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
-    	case RESPONSE_BODY:	
-    		txtArea = responsePanel.getTxtBody();
+    	case RESPONSE_BODY:
+    		responsePanel.highlightBody(sm);
     		responsePanel.setTabFocus();
     		responsePanel.requestFocus(); 
     		break;
     	}
-        
-        Highlighter hilite = txtArea.getHighlighter();
-        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
-        try {
-			hilite.removeAllHighlights();
-			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
-			txtArea.setCaretPosition(sm.getStart());
-		} catch (BadLocationException e) {
-			log.error(e.getMessage(), e);
-		}
+
     }
     
     private void highlightFirstResult (SearchResult sr) {
