@@ -20,13 +20,17 @@
  */
 package org.parosproxy.paros.extension.filter;
 
+import java.util.List;
+
 import javax.swing.JMenuItem;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -36,6 +40,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
+	private static final Logger LOG = Logger.getLogger(ExtensionFilter.class);
+	
 	private JMenuItem menuToolsFilter = null;
 	private FilterFactory filterFactory = new FilterFactory();
 	private boolean isStop = false;
@@ -51,27 +57,38 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     
     public void init() {
         filterFactory.loadAllFilter();
-        Filter filter = null;
-        for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-            filter = (Filter) filterFactory.getAllFilter().get(i);
-            try {
-                filter.init();
-            } catch (Exception e) {}
-        }
-        
+        // ZAP: changed to init(Model)
         Thread t = new Thread(this);
         t.setDaemon(true);
         t.start();
     }
 
-    public void initView(ViewDelegate view) {
+    @Override
+	public void initModel(Model model) {
+    	// ZAP: changed to init(Model)
+		super.initModel(model);
+        Filter filter = null;
+        List filters = filterFactory.getAllFilter();
+		for (int i=0; i<filters.size(); i++) {
+            filter = (Filter) filters.get(i);
+            try {
+                filter.init(model);
+            } catch (Exception ignore) {
+            	LOG.warn("Error initializing filter. Continuing.", ignore);
+            }
+        }
+	}
+
+	public void initView(ViewDelegate view) {
         super.initView(view);
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
             filter = (Filter) filterFactory.getAllFilter().get(i);
             try {
                 filter.initView(view);
-            } catch (Exception e) {}
+            } catch (Exception ignore) {
+            	LOG.warn("Error initializing view for filter. Continuing.", ignore);
+            }
         }
     }
     

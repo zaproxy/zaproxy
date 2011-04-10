@@ -50,6 +50,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	public static final String CACHE_CONTROL	= "Cache-control";
 	public static final String PRAGMA			= "Pragma";
 	public static final String REFERER			= "Referer";
+	public static final String X_ZAP_REQUESTID  = "X-ZAP-RequestID";
 	// ZAP: Added cookie headers
 	public static final String COOKIE			= "Cookie";
 	public static final String SET_COOKIE		= "Set-Cookie";

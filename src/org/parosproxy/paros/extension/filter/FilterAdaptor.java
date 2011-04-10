@@ -21,6 +21,7 @@
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -34,7 +35,7 @@ abstract public class FilterAdaptor implements Filter {
     private boolean enabled = false;
     private ViewDelegate view = null;
     
-    public void init() {
+    public void init(Model model) {
     }
     
     public void initView(ViewDelegate view) {

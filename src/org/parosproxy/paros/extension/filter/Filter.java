@@ -21,6 +21,7 @@
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -31,7 +32,10 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface Filter {
 
-    public void init();
+    /**
+     * @param model
+     */
+    public void init(Model model);
     
     public void initView(ViewDelegate view);
 
