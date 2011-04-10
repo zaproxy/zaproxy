@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -62,7 +63,7 @@ public class FilterZapRequestId extends FilterAdaptor {
 	 */
 	@Override
 	public String getName() {
-		return "Send ZAP session request ID";
+		return Constant.messages.getString("filter.request.header.send.id");
 	}
 
 	/* (non-Javadoc)
