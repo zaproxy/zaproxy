@@ -58,6 +58,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.tab.Tab;
 
+// ZAP: 2011/08/04 Changed to support new interface
 
 /**
 *
@@ -75,17 +76,15 @@ import org.zaproxy.zap.extension.tab.Tab;
 public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
 
-	// ZAP: Added logger
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
     // Window
     private JPanel panelWindow = null; // ZAP
     private JPanel panelHeader = null;
-    //private JPanel panelContent = null;
+
 	private HttpPanelRequest requestPanel = null;
 	private HttpPanelResponse responsePanel = null;
-	private JPanel panelCommand = null;
-	// ZAP: Changed panelTab to JSplitPane
+
 	private JComponent panelMain = null;
 	private JPanel panelContent = null;
 	
@@ -94,11 +93,10 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	
 	private JButton btnSend = null;
 
-	
 	// Other
 	private HttpSender httpSender = null;
 	private boolean isSendEnabled = true;
-	// ZAP: Add request to the history pane, c/o Andiparos
+
 	private HistoryList historyList = null;
 	private Extension extension = null;
 	private HttpMessage httpMessage = null;
@@ -329,6 +327,11 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
        getResponsePanel().setMessage(httpMessage);
        switchToTab(0);
    }
+   
+   public HttpMessage getHttpMessage() {
+	   return httpMessage;
+   }
+   
    
 	/**
 	 * This method initializes jPanel	
