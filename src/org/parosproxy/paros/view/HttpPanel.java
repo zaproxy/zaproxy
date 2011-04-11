@@ -40,6 +40,8 @@ import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelView;
 
+// ZAP: 2011/08/04 Changed to support new interface
+
 /**
  *
  * Panel to display HTTP request/response with header and body.

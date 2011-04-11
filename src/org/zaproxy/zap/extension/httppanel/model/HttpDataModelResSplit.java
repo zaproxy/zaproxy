@@ -14,11 +14,11 @@ public class HttpDataModelResSplit {
 	}
 		
 	public void loadData() {
-		splitUi.setMessage(httpPanel.getHttpMessage(), true);
+		splitUi.setMessage(httpPanel.getHttpMessage(), false);
 	}
 
 	public void saveData() {
-		splitUi.getMessage(httpPanel.getHttpMessage(), true);
+		splitUi.getMessage(httpPanel.getHttpMessage(), false);
 	}
 	
 }

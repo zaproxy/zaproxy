@@ -31,8 +31,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	
-	// ZAP: Added logger
+
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
     private JComboBox jComboView;
@@ -93,17 +92,17 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		initHeader();
 		initContent();
 
-		
 		if (isEditable()) {
 		}
 		
-		// Set initial window
+		// Set initial window to: split
 		CardLayout cl = (CardLayout)(getPanelContent().getLayout());
 		cl.show(getPanelContent(), "split");
 		currentView = View.SPLIT;
-		
+		// Change view to: split
 		changeView(View.SPLIT);
-		//changeCard();
+				
+		loadData();
 	}
 	
 	private void initHeader() {

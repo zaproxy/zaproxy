@@ -13,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModel;
@@ -50,7 +49,6 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	private View currentView = View.ALL;
 	private HttpDataModel currentHttpDataModel;
 	
-	// ZAP: Added logger
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
 	private enum View {
@@ -86,11 +84,17 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 		initHeader();
 		initContent();
 		
-		changeCard();
-		changeView(View.ALL);
-		
 		if (isEditable()) {
 		}
+
+		// Set initial window to: split
+		CardLayout cl = (CardLayout)(getPanelContent().getLayout());
+		cl.show(getPanelContent(), "split");
+		currentView = View.SPLIT;
+		// Change view to: split
+		changeView(View.SPLIT);
+		
+		loadData();
 	}
 
 	private void initHeader() {
