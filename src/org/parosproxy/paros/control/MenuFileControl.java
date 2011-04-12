@@ -182,6 +182,13 @@ public class MenuFileControl implements SessionListener {
 	    Session session = model.getSession();
 
 	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+	    // ZAP: set session name as file name proposal
+	    File fileproposal = new File(session.getSessionName());
+	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
+	    	// if there is already a file name, use it
+	    	fileproposal = new File(session.getFileName());
+	    }
+		chooser.setSelectedFile(fileproposal);
 	    chooser.setFileFilter(new FileFilter() {
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
