@@ -21,7 +21,6 @@ package org.parosproxy.paros.extension.filter;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +38,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  */
 public class FilterZapRequestId extends FilterAdaptor {
 
-	private static final AtomicLong requestCounter = new AtomicLong(1);
 	private static final Log LOG = LogFactory.getLog(FilterZapRequestId.class);
 	
 	private Model model = null;
@@ -79,7 +77,7 @@ public class FilterZapRequestId extends FilterAdaptor {
 			} catch (UnsupportedEncodingException e) {
 				LOG.error("UTF8 is not supported?! Using fallback session name.", e);
 			}
-			rhead.addHeader(HttpHeader.X_ZAP_REQUESTID, sessname + "-" + Long.toString(requestCounter.getAndIncrement()));
+			rhead.addHeader(HttpHeader.X_ZAP_REQUESTID, sessname + "-" + Long.toString(model.getSession().getSessionId()));
 		}
 	}
 
