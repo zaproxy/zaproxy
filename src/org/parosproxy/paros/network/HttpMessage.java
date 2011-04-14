@@ -741,8 +741,6 @@ public class HttpMessage {
 			}
 			hrh.setMethod(method);
 
-			System.out.println("BODY: " + body);
-			
 			getRequestHeader().setMessage(hrh.toString());
 			getRequestBody().setBody(body);
 		} catch (HttpMalformedHeaderException e) {

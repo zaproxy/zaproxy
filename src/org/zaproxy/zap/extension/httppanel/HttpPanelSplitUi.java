@@ -313,9 +313,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			comboView = new JComboBox();
 			comboView.setSelectedIndex(-1);
 			comboView.addActionListener(new java.awt.event.ActionListener() {
-
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-
 					String item = (String) comboView.getSelectedItem();
 					if (item == null || item.equals(currentView)) {
 						// no change
@@ -362,7 +360,6 @@ public class HttpPanelSplitUi extends AbstractPanel {
 
 			comboView.addItem(VIEW_RAW);
 			comboView.addItem(VIEW_TABULAR);
-
 		}
 		return comboView;
 	}
@@ -682,5 +679,23 @@ public class HttpPanelSplitUi extends AbstractPanel {
 						m.start(), m.end()));
 		}
 	}
+
+	public void addView(HttpPanelView view) {
+		view.setEditable(editable);
+		this.views.add(view);
+		getPanelView().add(view.getPane(), view.getPane().getName());
+		
+		pluggableView();
+	}
+	
+    protected void pluggableView() {
+        // ZAP: Support plugable views
+        for (HttpPanelView view : views) {
+                if (view.isEnabled(httpMessage)) {
+                        view.setEditable(editable);
+                        getComboView().addItem(view.getName());
+                }
+        }
+}
 	
 }

@@ -65,9 +65,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	protected static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView");	// ZAP: i18n
 	protected static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView");	// ZAP: i18n
 
-	// ZAP: Support plugable views
-	private List <HttpPanelView> views = new ArrayList<HttpPanelView>();
-	private boolean editable = false;
+	protected boolean editable = false;
 
 	private Extension extension = null;
 
@@ -187,15 +185,10 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 //		saveData();
 		return httpMessage;
 	}
-	
-	// ZAP: Support plugable views
-	public void addView (HttpPanelView view) {
-		view.setEditable(editable);
-		this.views.add(view);
-		System.out.println(view.getPane().getName());
-		//getPanelSpecial().add(view.getPane(), view.getPane().getName());
-	}
 
+	// ZAP: Support plugable views
+	abstract public void addView (HttpPanelView view);
+	
 	public boolean isEditable() {
 		return editable;
 	}

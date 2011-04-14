@@ -3,6 +3,7 @@ package org.zaproxy.zap.extension.httppanel;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,7 @@ import org.zaproxy.zap.extension.httppanel.model.HttpDataModelReqHeader;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModelReqPost;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModelReqSplit;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.view.HttpPanelView;
 
 /*
  *
@@ -59,7 +61,7 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	
 	private View currentView = View.ALL;
 	private HttpDataModel currentHttpDataModel;
-	
+
 	private enum View {
 		SPLIT,
 		ALL,
@@ -162,12 +164,6 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		httpDataModelSplit = new HttpDataModelReqSplit(this, httpPanelSplitUi);
 	}
 	
-	// For sending it
-//	public void getMessage(HttpMessage msg, boolean isRequest) {
-//		System.out.println("fail get message");
-//		saveData();
-//	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		saveData();
@@ -287,6 +283,14 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	
 	public void clearView(boolean enableViewSelect) {
 		
+	}
+	
+	public void addView (HttpPanelView view) {
+		if (httpPanelSplitUi == null || view == null) {
+			return;
+		}
+		
+		httpPanelSplitUi.addView(view);
 	}
 	
 	/*** Search Functions - for SearchPanel and SearchResult 

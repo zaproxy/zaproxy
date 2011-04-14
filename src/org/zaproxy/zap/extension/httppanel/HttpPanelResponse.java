@@ -3,6 +3,7 @@ package org.zaproxy.zap.extension.httppanel;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,7 @@ import org.zaproxy.zap.extension.httppanel.model.HttpDataModelResCookies;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModelResHeader;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModelResSplit;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.view.HttpPanelView;
 
 
 public class HttpPanelResponse extends HttpPanel implements ActionListener  {
@@ -48,6 +50,8 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	
 	private View currentView = View.ALL;
 	private HttpDataModel currentHttpDataModel;
+
+	private List <HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
@@ -264,6 +268,14 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 		return ViewMode.TEXT;
 	}
 
+	public void addView (HttpPanelView view) {
+		if (httpPanelSplitUi == null || view == null) {
+			return;
+		}
+		
+		httpPanelSplitUi.addView(view);
+	}
+	
 	/*** Search Functions - for SearchPanel and SearchResult 
 	 * We'll only use the Text card for finding and displaying search results. 
 	 * highlight* and *Search belong together.
