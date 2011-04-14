@@ -11,10 +11,12 @@ import javax.swing.JComboBox;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModel;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModelReqAll;
@@ -93,6 +95,7 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		initContent();
 
 		if (isEditable()) {
+
 		}
 		
 		// Set initial window to: split
@@ -135,7 +138,6 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		jComboView.addActionListener(this);
 		
 		getPanelHeader().add(jComboView);
-
 	}
 	
 	private void initContent() {
@@ -286,7 +288,6 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	public void clearView(boolean enableViewSelect) {
 		
 	}
-	
 	
 	/*** Search Functions - for SearchPanel and SearchResult 
 	 * We'll only use the Text card for finding and displaying search results. 

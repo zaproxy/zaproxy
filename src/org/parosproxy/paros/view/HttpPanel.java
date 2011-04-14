@@ -192,6 +192,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	public void addView (HttpPanelView view) {
 		view.setEditable(editable);
 		this.views.add(view);
+		System.out.println(view.getPane().getName());
 		//getPanelSpecial().add(view.getPane(), view.getPane().getName());
 	}
 

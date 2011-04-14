@@ -110,7 +110,6 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 			});
 		}
 		return menuManualRequestEditor;
-
 	}
 
 	/**

@@ -32,11 +32,14 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -52,6 +55,7 @@ import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -90,6 +94,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	
 	private JCheckBox chkFollowRedirect = null;
 	private JCheckBox chkUseTrackingSessionState = null;
+	private JComboBox comboChangeMethod = null;
 	
 	private JButton btnSend = null;
 
@@ -163,6 +168,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
 			
 			panelHeader.setLayout(new GridBagLayout());
@@ -191,12 +197,17 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			
 			gridBagConstraints3.gridx = 4;
 			gridBagConstraints3.gridy = 0;
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHEAST;
-			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
+
+			
+			gridBagConstraints4.gridx = 5;
+			gridBagConstraints4.gridy = 0;
+			gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHEAST;
+			gridBagConstraints4.insets = new java.awt.Insets(2,2,2,2);
 			
 			panelHeader.add(getChkUseTrackingSessionState(), gridBagConstraints1);
 			panelHeader.add(getChkFollowRedirect(), gridBagConstraints2);
-			panelHeader.add(getBtnSend(), gridBagConstraints3);
+			panelHeader.add(getComboChangeMethod());
+			panelHeader.add(getBtnSend(), gridBagConstraints4);
 		}
 		
 		return panelHeader;
@@ -492,6 +503,37 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
         t.setPriority(Thread.NORM_PRIORITY);
         t.start();
     }
+    
+
+
+
+	private JComboBox getComboChangeMethod() {
+		if (comboChangeMethod == null) {
+			comboChangeMethod = new JComboBox();
+			comboChangeMethod.setEditable(false);
+			comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
+			comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
+			comboChangeMethod.addItem(HttpRequestHeader.DELETE);
+			comboChangeMethod.addItem(HttpRequestHeader.GET);
+			comboChangeMethod.addItem(HttpRequestHeader.HEAD);
+			comboChangeMethod.addItem(HttpRequestHeader.OPTIONS);
+			comboChangeMethod.addItem(HttpRequestHeader.POST);
+			comboChangeMethod.addItem(HttpRequestHeader.PUT);
+			comboChangeMethod.addItem(HttpRequestHeader.TRACE);
+			comboChangeMethod.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (comboChangeMethod.getSelectedIndex() > 0) {
+						requestPanel.saveData();
+				    	getHttpMessage().mutateHttpMethod((String) comboChangeMethod.getSelectedItem());
+						comboChangeMethod.setSelectedIndex(0);
+						requestPanel.updateContent();
+					}
+				}});
+		}
+
+		return this.comboChangeMethod;
+	}
 
 	private void switchToTab(int i) {
         if (Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption() == 2) {
