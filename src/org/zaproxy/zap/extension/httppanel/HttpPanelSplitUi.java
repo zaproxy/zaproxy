@@ -72,7 +72,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		initialize();
 		this.editable = isEditable;
 		this.httpMessage = httpMessage;
-
+		
 		getTxtHeader().setEditable(isEditable);
 		getTxtBody().setEditable(isEditable);
 		getHttpPanelTabularModel().setEditable(isEditable);
@@ -186,9 +186,9 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			//txtHeader = new javax.swing.JTextArea();
 			txtHeader = new HttpPanelTextArea(httpMessage, HttpPanelTextArea.MessageType.Header);
 			txtHeader.setLineWrap(true);
-			txtHeader.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN,
-					12));
+			txtHeader.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN,	12));
 			txtHeader.setName("");
+			txtHeader.setEditable(this.editable);
 			
 			final HttpPanelTextArea t = txtHeader; 
 			

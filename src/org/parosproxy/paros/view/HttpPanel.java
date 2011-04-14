@@ -116,7 +116,6 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	protected JPanel getPanelContent() {
 		if (panelContent == null) {
 			panelContent = new JPanel();
-
 			panelContent.setLayout(new CardLayout());
 		}
 		
@@ -129,7 +128,6 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	 */    
 	protected JPanel getPanelHeader() {
 		if (panelHeader == null) {
-
 			panelHeader = new JPanel();
 			
 			panelView = new JPanel();

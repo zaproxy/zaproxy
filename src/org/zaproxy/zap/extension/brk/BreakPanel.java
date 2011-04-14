@@ -98,8 +98,8 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new CardLayout());
 		
-		requestPanel = new HttpPanelRequest(false, null);
-		responsePanel = new HttpPanelResponse(false, null);
+		requestPanel = new HttpPanelRequest(true, null);
+		responsePanel = new HttpPanelResponse(true, null);
 		
 		this.add(requestPanel, "request");
 		this.add(responsePanel, "response");
@@ -278,8 +278,6 @@ public class BreakPanel extends AbstractPanel implements Tab {
         //View.getSingleton().addMainToolbarSeparator();
 	}
 	
-	
-
 	private JButton getBtnStep() {
 		if (btnStep == null) {
 			btnStep = new JButton();
@@ -396,11 +394,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 
 	public void getMessage(HttpMessage msg, boolean isRequest) {
 	    CardLayout cl = (CardLayout)(this.getLayout());
-		
+	    		
 		if (isRequest) {
+			requestPanel.saveData();
 			cl.show(this, "request");
 			requestPanel.setMessage(msg);
 		} else {
+			responsePanel.saveData();
 			cl.show(this, "response");
 			responsePanel.setMessage(msg);
 		}

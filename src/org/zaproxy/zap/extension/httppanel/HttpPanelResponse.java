@@ -213,7 +213,21 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	}
 	
 	public void saveData() {
+		if (getHttpMessage() == null) {
+			return;
+		}
 		
+		ViewMode view = getView();
+		if (currentView.equals(View.SPLIT)) {
+			// Split is special
+			httpDataModelSplit.saveData();
+		} else if (view.equals(ViewMode.TEXT)) {
+			currentHttpDataModel.textDataFromView();
+		} else if (view.equals(ViewMode.TABLE)) {
+			currentHttpDataModel.tableDataFromView();
+		} else if (view.equals(ViewMode.HEX)) {
+			currentHttpDataModel.hexDataFromView();
+		}	
 	}
 	
 	public void clearView(boolean enableViewSelect) {
