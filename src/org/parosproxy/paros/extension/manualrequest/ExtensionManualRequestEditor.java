@@ -20,7 +20,7 @@
  */
 
 // ZAP: 2011/08/04 Changed for cleanup
- 
+
 package org.parosproxy.paros.extension.manualrequest;
 
 import javax.swing.JMenuItem;
@@ -94,20 +94,18 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 			menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
 			menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-							    	    ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
-					//		    	    if (dialog.getRequestPanel().getTxtHeader().getText().equals("")) {
-					//		    	        HttpMessage msg = new HttpMessage();
-					//		    	        try {
-					//		    	            URI uri = new URI("http://www.any_domain_name.org/path", true);
-					//                            msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
-					//                            dialog.getRequestPanel().setMessage(msg);
-					//                        } catch (Exception e1) {
-					//                        	// ZAP: Log the exception
-					//                        	logger.error(e1.getMessage(), e1);
-					//                        }
-					//                        
-					//		    	    }
-							    	    dialog.setVisible(true);
+					ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
+					if (dialog.getHttpMessage() == null || dialog.getHttpMessage().getRequestHeader().isEmpty()) {
+						HttpMessage msg = new HttpMessage();
+						try {
+							URI uri = new URI("http://www.any_domain_name.org/path", true);
+							msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+							dialog.setHttpMessage(msg);
+						} catch (Exception e1) {
+							logger.error(e1.getMessage(), e1);
+						}
+					}
+					dialog.setVisible(true);
 				}
 			});
 		}

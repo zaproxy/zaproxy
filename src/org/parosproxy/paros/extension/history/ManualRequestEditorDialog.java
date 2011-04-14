@@ -332,6 +332,10 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	   return httpMessage;
    }
    
+   public void setHttpMessage(HttpMessage httpMessage) {
+	   setMessage(httpMessage);
+   }
+   
    
 	/**
 	 * This method initializes jPanel	
