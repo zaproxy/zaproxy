@@ -163,51 +163,20 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private JPanel getPanelHeader() {
 		if (panelHeader == null) {
 			panelHeader = new JPanel();
-
-			GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
+			panelHeader.setLayout(new BorderLayout());
 			
-			panelHeader.setLayout(new GridBagLayout());
-			panelHeader.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
-			gridBagConstraints0.gridx = 1;
-			gridBagConstraints0.gridy = 0;
-			gridBagConstraints0.ipadx = 0;
-			gridBagConstraints0.ipady = 0;
-			gridBagConstraints0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints0.weightx = 1.0D;
+			JPanel panelLeft = new JPanel();
+			JPanel panelMiddle = new JPanel();
+			JPanel panelRight = new JPanel();
 			
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
+			panelLeft.add(getBtnSend());
+			panelRight.add(getChkUseTrackingSessionState());
+			panelRight.add(getChkFollowRedirect());
+			panelRight.add(getComboChangeMethod());
 			
-			gridBagConstraints1b.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints1b.gridx = 2;
-			gridBagConstraints1b.gridy = 0;
-			gridBagConstraints1b.insets = new java.awt.Insets(0,0,0,0);
-			
-			gridBagConstraints2.gridx = 3;
-			gridBagConstraints2.gridy = 0;
-			
-			gridBagConstraints3.gridx = 4;
-			gridBagConstraints3.gridy = 0;
-
-			
-			gridBagConstraints4.gridx = 5;
-			gridBagConstraints4.gridy = 0;
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHEAST;
-			gridBagConstraints4.insets = new java.awt.Insets(2,2,2,2);
-			
-			panelHeader.add(getChkUseTrackingSessionState(), gridBagConstraints1);
-			panelHeader.add(getChkFollowRedirect(), gridBagConstraints2);
-			panelHeader.add(getComboChangeMethod());
-			panelHeader.add(getBtnSend(), gridBagConstraints4);
+			panelHeader.add(panelLeft, BorderLayout.LINE_START);
+			panelHeader.add(panelMiddle, BorderLayout.CENTER);
+			panelHeader.add(panelRight, BorderLayout.LINE_END);
 		}
 		
 		return panelHeader;
