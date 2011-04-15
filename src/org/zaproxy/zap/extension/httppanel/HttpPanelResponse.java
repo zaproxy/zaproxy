@@ -50,8 +50,6 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	
 	private View currentView = View.ALL;
 	private HttpDataModel currentHttpDataModel;
-
-	private List <HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
@@ -134,7 +132,7 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 		httpPanelTextUi = new HttpPanelTextUi();
 		httpPanelTableUi = new HttpPanelTableUi();
 		httpPanelHexUi = new HttpPanelHexUi();
-		httpPanelSplitUi = new HttpPanelSplitUi(isEditable(), httpMessage);
+		httpPanelSplitUi = new HttpPanelSplitUi(isEditable(), httpMessage, views);
 		
 		getPanelContent().setLayout(new CardLayout());
 		
@@ -269,12 +267,12 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	}
 
 	public void addView (HttpPanelView view) {
-		if (httpPanelSplitUi == null || view == null) {
-			return;
+		views.add(view);
+		if (httpPanelSplitUi != null) {
+			httpPanelSplitUi.pluggableView();
 		}
-		
-		httpPanelSplitUi.addView(view);
 	}
+	
 	
 	/*** Search Functions - for SearchPanel and SearchResult 
 	 * We'll only use the Text card for finding and displaying search results. 
@@ -284,7 +282,6 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	public void highlightHeader(SearchMatch sm) {
 		changeView(View.HEADER);
 		httpPanelTextUi.highlight(sm);
-		
 	}
 
 	public void highlightBody(SearchMatch sm) {

@@ -34,7 +34,6 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.view.HttpPanelView;
 
 public class HttpPanelSplitUi extends AbstractPanel {
-	private javax.swing.JSplitPane contentSplit = null; //
 	private javax.swing.JScrollPane scrollHeader = null;
 	private javax.swing.JScrollPane scrollTableBody = null;
 	private HttpPanelTextArea txtHeader = null;
@@ -61,29 +60,22 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	private JPanel jPanel = null;
 	private JPanel panelView = null;
 	private JPanel panelOption = null;
-	private List<HttpPanelView> views = new ArrayList<HttpPanelView>();
 
+	private List<HttpPanelView> views = null;
 	private HttpMessage httpMessage;
 	
     private static Log log = LogFactory.getLog(HttpPanelTextUi.class);
-
 	
-	public HttpPanelSplitUi(boolean isEditable, HttpMessage httpMessage) {
-		initialize();
+	public HttpPanelSplitUi(boolean isEditable, HttpMessage httpMessage, List<HttpPanelView> views) {
 		this.editable = isEditable;
 		this.httpMessage = httpMessage;
+		this.views = views;
+		
+		initialize();
 		
 		getTxtHeader().setEditable(isEditable);
 		getTxtBody().setEditable(isEditable);
 		getHttpPanelTabularModel().setEditable(isEditable);
-	}
-
-	public void setData(String data) {
-	}
-
-	public String getData() {
-		System.out.println("Hmm");
-		return "";
 	}
 
 	/**
@@ -92,8 +84,11 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	 * @return void
 	 */
 	private void initialize() {
+        for (HttpPanelView view : views) {
+			getPanelView().add(view.getPane(), view.getPane().getName());
+        }
+		
 		java.awt.GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-
 		java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
@@ -110,16 +105,13 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		gridBagConstraints4.gridx = 0;
 		gridBagConstraints4.gridy = 0;
 		gridBagConstraints4.weightx = 1.0D;
-		// ZAP: Moved the 'toolbar' to the top
+
 		this.add(getJPanel(), gridBagConstraints4);
 		this.add(getSplitVert(), gridBagConstraints1);
 	}
 
 	/**
-	 * 
 	 * This method initializes jSplitPane
-	 * 
-	 * 
 	 * 
 	 * @return javax.swing.JSplitPane
 	 */
@@ -141,10 +133,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	/**
-	 * 
 	 * This method initializes scrollHeader
-	 * 
-	 * 
 	 * 
 	 * @return javax.swing.JScrollPane
 	 */
@@ -157,10 +146,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	/**
-	 * 
 	 * This method initializes scrollTableBody
-	 * 
-	 * 
 	 * 
 	 * @return javax.swing.JScrollPane
 	 */
@@ -174,11 +160,8 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	/**
-	 * 
 	 * This method initializes txtHeader
-	 * 
-	 * 
-	 * 
+	 *
 	 * @return javax.swing.JTextArea
 	 */
 	public javax.swing.JTextArea getTxtHeader() {
@@ -204,10 +187,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	/**
-	 * 
 	 * This method initializes txtBody
-	 * 
-	 * 
 	 * 
 	 * @return javax.swing.JTextArea
 	 */
@@ -680,22 +660,15 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		}
 	}
 
-	public void addView(HttpPanelView view) {
-		view.setEditable(editable);
-		this.views.add(view);
-		getPanelView().add(view.getPane(), view.getPane().getName());
-		
-		pluggableView();
-	}
-	
-    protected void pluggableView() {
+    public void pluggableView() {
         // ZAP: Support plugable views
         for (HttpPanelView view : views) {
+    			getPanelView().add(view.getPane(), view.getPane().getName());
                 if (view.isEnabled(httpMessage)) {
                         view.setEditable(editable);
                         getComboView().addItem(view.getName());
                 }
         }
-}
+    }
 	
 }

@@ -504,9 +504,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
         t.start();
     }
     
-
-
-
 	private JComboBox getComboChangeMethod() {
 		if (comboChangeMethod == null) {
 			comboChangeMethod = new JComboBox();

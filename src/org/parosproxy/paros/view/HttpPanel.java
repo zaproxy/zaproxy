@@ -76,7 +76,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	private JPanel panelView = null;
 	
 	protected HttpMessage httpMessage;
-
+	protected List<HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
 	/*** Constructors ***/
 
@@ -127,7 +127,6 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	protected JPanel getPanelHeader() {
 		if (panelHeader == null) {
 			panelHeader = new JPanel();
-			
 			panelView = new JPanel();
 			panelSpecial = new JPanel();
 			
