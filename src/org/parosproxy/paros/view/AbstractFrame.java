@@ -24,18 +24,15 @@ package org.parosproxy.paros.view;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import org.parosproxy.paros.Constant;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public abstract class AbstractFrame extends JFrame {
+
+
+	private static final long serialVersionUID = 7658476500356416014L;
+
 	/**
 	 * This is the default constructor
 	 */

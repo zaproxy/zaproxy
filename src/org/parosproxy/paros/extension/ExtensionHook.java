@@ -28,21 +28,16 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionHook {
 
     private ExtensionHookMenu hookMenu = new ExtensionHookMenu();
     private ExtensionHookView hookView = new ExtensionHookView();
     private Model model = null;    
-    private Vector optionsListenerList = new Vector();
+    private Vector<OptionsChangedListener> optionsListenerList = new Vector<OptionsChangedListener>();
 
-    private Vector proxyListenerList = new Vector();
-    private Vector sessionListenerList = new Vector();
-    private Vector optionsParamSetList = new Vector();
+    private Vector<ProxyListener> proxyListenerList = new Vector<ProxyListener>();
+    private Vector<SessionChangedListener> sessionListenerList = new Vector<SessionChangedListener>();
+    private Vector<AbstractParam> optionsParamSetList = new Vector<AbstractParam>();
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<SiteMapListener>();
     
@@ -98,25 +93,25 @@ public class ExtensionHook {
     /**
      * @return Returns the optionsListenerList.
      */
-    public Vector getOptionsChangedListenerList() {
+    public Vector<OptionsChangedListener> getOptionsChangedListenerList() {
         return optionsListenerList;
     }
 
-    public Vector getOptionsParamSetList() {
+    public Vector<AbstractParam> getOptionsParamSetList() {
         return optionsParamSetList;
     }
 
     /**
      * @return Returns the proxyListenerList.
      */
-    public Vector getProxyListenerList() {
+    public Vector<ProxyListener> getProxyListenerList() {
         return proxyListenerList;
     }
     
     /**
      * @return Returns the sessionListenerList.
      */
-    public Vector getSessionListenerList() {
+    public Vector<SessionChangedListener> getSessionListenerList() {
         return sessionListenerList;
     }
     

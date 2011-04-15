@@ -52,20 +52,19 @@ public class Spider {
     private static Log log = LogFactory.getLog(Spider.class);
 
     private HttpSender httpSender = null;
-    private boolean isSubmitForm = true;
-    private Vector listenerList = new Vector();
+    private Vector<SpiderListener> listenerList = new Vector<SpiderListener>();
     private ConnectionParam connectionParam = null;
-    private Vector queue = new Vector();
+    private Vector<QueueItem> queue = new Vector<QueueItem>();
     private SpiderThread[] spiderThread = null;
     private SpiderParam spiderParam = null;
-    private HashSet seedHostNameSet = new HashSet();
+    private HashSet<String> seedHostNameSet = new HashSet<String>();
     private int[] depthQueueCount = null;
     private Session session = null;
     private Model model = null;
     private boolean isStop = false;
-    private TreeSet visitedGetMethod = null;
-    private TreeSet queuedGetMethod = null;
-    private Vector visitedPostMethod = new Vector();
+    private TreeSet<String> visitedGetMethod = null;
+    private TreeSet<String> queuedGetMethod = null;
+    private Vector<QueueItem> visitedPostMethod = new Vector<QueueItem>();
     
     public Spider(SpiderParam spiderParam, ConnectionParam param, Model model) {
         this.connectionParam = param;
@@ -74,8 +73,8 @@ public class Spider {
         this.session = model.getSession();
         spiderThread = new SpiderThread[spiderParam.getThread()];
         depthQueueCount = new int[spiderParam.getMaxDepth()+1];
-        visitedGetMethod = new TreeSet();
-        queuedGetMethod = new TreeSet();
+        visitedGetMethod = new TreeSet<String>();
+        queuedGetMethod = new TreeSet<String>();
     }
 
     public void addSpiderListener(SpiderListener listener) {
@@ -213,7 +212,7 @@ public class Spider {
     /**
      * @return Returns the queue.
      */
-    public Vector getQueue() {
+    public Vector<QueueItem> getQueue() {
         return queue;
     }
     
@@ -352,8 +351,6 @@ public class Spider {
     }
     
     public boolean isSeedScope(URI uri) {
-        boolean result = false;
-        
         String hostName = null;
         try {
             hostName = uri.getHost();
@@ -482,8 +479,6 @@ public class Spider {
      * 
      */
     private boolean isNeglectFound(HttpMessage msg) throws URIException {
-        boolean result = false;
-
         URI uri = msg.getRequestHeader().getURI();
         
         // check correct protocol

@@ -25,19 +25,13 @@ import java.util.List;
 import org.parosproxy.paros.common.FileXML;
 import org.w3c.dom.Element;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PolicyParam extends FileXML {
 
 	private static final String POLICY = "policy";
 
 	private static final String ENABLED = "enabled";
 	
-	private static final String[] PATH_ENABLED = {POLICY, ENABLED};
+	//private static final String[] PATH_ENABLED = {POLICY, ENABLED};
 	
 	
 	/**
@@ -61,7 +55,7 @@ public class PolicyParam extends FileXML {
     
     public void setEnabledTest() {
         
-        List listTest = PluginFactory.getAllPlugin();
+        List<Plugin> listTest = PluginFactory.getAllPlugin();
         Element root = getElement(POLICY);
         removeElement(root, ENABLED);
         for (int i=0; i<listTest.size(); i++) {
@@ -85,7 +79,6 @@ public class PolicyParam extends FileXML {
             if (getValue(element, ENABLED).equals("")) {
                 continue;
             }
-            int id = Integer.parseInt(getValue(element, ENABLED));
             PluginFactory.getPlugin(i).setEnabled(true);            
         }
     }

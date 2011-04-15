@@ -33,7 +33,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 
@@ -53,7 +52,7 @@ public class Analyser {
 	private static final String[] staticSuffixList = { ".cfm", ".jsp", ".php", ".asp", ".aspx", ".dll", ".exe", ".pl"};
 
 	private HttpSender	httpSender = null;
-	private TreeMap		mapVisited = new TreeMap();
+	private TreeMap<String, SampleResponse>		mapVisited = new TreeMap<String, SampleResponse>();
 	private boolean		isStop = false;
 	
     // ZAP Added delayInMs

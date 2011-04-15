@@ -24,6 +24,9 @@ package org.parosproxy.paros.network;
 import java.io.IOException;
 
 public class HttpMalformedHeaderException extends IOException {
+	
+	private static final long serialVersionUID = 2328568976708794693L;
+
 	public HttpMalformedHeaderException() {
 		super();
 	}

@@ -32,18 +32,14 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpPanelTabularModel extends AbstractTableModel {
 
-    private static final String[] columnNames = {
+	private static final long serialVersionUID = -3239987476977015394L;
+	private static final String[] columnNames = {
     	Constant.messages.getString("http.panel.table.paramName"),
     	Constant.messages.getString("http.panel.table.paramValue")};	// ZAP: i18n
     private static final Pattern pSeparator	= Pattern.compile("([^=&]+)[=]([^=&]*)"); 
-    private Vector listPair = new Vector();
+    private Vector<String[]> listPair = new Vector<String[]>();
     private boolean editable = true;
     // ZAP: Added logger
     private Logger logger = Logger.getLogger(HttpPanelTabularModel.class);
@@ -98,7 +94,7 @@ public class HttpPanelTabularModel extends AbstractTableModel {
         String name = null;
         String value = null;
         Matcher matcher = pSeparator.matcher(body);
-        int row = 0;
+        //int row = 0;
   	  	while (matcher.find()){
   	  	    String[] cell = new String[2];
   	  	    try {

@@ -41,7 +41,7 @@ public class Img extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static Img[] getImgs(String doc) {
 
-		Vector imgs = new Vector();
+		Vector<Img> imgs = new Vector<Img>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

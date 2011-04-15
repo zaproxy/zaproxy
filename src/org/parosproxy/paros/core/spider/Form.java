@@ -42,7 +42,7 @@ public class Form extends Tag {
 
 	public static Form[] getForms(String doc) {
 
-		Vector forms = new Vector();
+		Vector<Form> forms = new Vector<Form>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

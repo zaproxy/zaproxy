@@ -24,15 +24,9 @@ import java.util.Vector;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpMessageList {
 
-    private Vector list = new Vector();
+    private Vector<HttpMessage> list = new Vector<HttpMessage>();
     public synchronized boolean add(HttpMessage msg) {
         return list.add(msg);
     }

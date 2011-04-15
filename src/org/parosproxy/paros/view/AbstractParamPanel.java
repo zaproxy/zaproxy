@@ -22,12 +22,9 @@ package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class AbstractParamPanel extends JPanel {
+
+	private static final long serialVersionUID = 3245127348676340802L;
 
 	/**
 	 * This is the default constructor

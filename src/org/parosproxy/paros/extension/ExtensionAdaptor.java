@@ -49,12 +49,14 @@ public class ExtensionAdaptor implements Extension {
     public String getName() {
         return name;
     }
+    
     /**
      * @param name The name to set.
      */
     public void setName(String name) {
         this.name = name;
     }
+    
     /* (non-Javadoc)
      * @see com.proofsecure.paros.plugin.Plugin#initPlugin()
      */

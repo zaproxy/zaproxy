@@ -30,7 +30,7 @@ public class Select extends Tag {
 
 	static Select[] getSelects(String doc) {
 
-		Vector selects = new Vector();
+		Vector<Select> selects = new Vector<Select>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();
@@ -41,7 +41,7 @@ public class Select extends Tag {
 			selects.addElement(select);
 		}
 
-		Select[]	result	= new Select[selects.size()];
+		Select[] result	= new Select[selects.size()];
 		result = (Select[]) selects.toArray(result);
 		return result;
 	}

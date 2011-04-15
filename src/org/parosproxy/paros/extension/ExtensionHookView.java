@@ -25,18 +25,13 @@ import java.util.Vector;
 
 import org.parosproxy.paros.view.AbstractParamPanel;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionHookView {
 
-    private Vector workPanelList = new Vector();
-    private Vector statusPanelList = new Vector();
-    private Vector selectPanelList = new Vector();
-    private Vector sessionPanelList = new Vector();
-    private Vector optionPanelList = new Vector();
+    private Vector<AbstractPanel> workPanelList = new Vector<AbstractPanel>();
+    private Vector<AbstractPanel> statusPanelList = new Vector<AbstractPanel>();
+    private Vector<AbstractPanel> selectPanelList = new Vector<AbstractPanel>();
+    private Vector<AbstractPanel> sessionPanelList = new Vector<AbstractPanel>();
+    private Vector<AbstractParamPanel> optionPanelList = new Vector<AbstractParamPanel>();
     
     public ExtensionHookView() {
     }
@@ -61,23 +56,23 @@ public class ExtensionHookView {
         optionPanelList.add(panel);
     }
     
-    List getWorkPanel() {
+    List<AbstractPanel> getWorkPanel() {
         return workPanelList;
     }
         
-    List getSelectPanel() {
+    List<AbstractPanel> getSelectPanel() {
         return selectPanelList;
     }
     
-    List getStatusPanel() {
+    List<AbstractPanel> getStatusPanel() {
         return statusPanelList;
     }
 
-    List getSessionPanel() {
+    List<AbstractPanel> getSessionPanel() {
         return sessionPanelList;
     }
     
-    List getOptionsPanel() {
+    List<AbstractParamPanel> getOptionsPanel() {
         return optionPanelList;
     }
     

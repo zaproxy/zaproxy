@@ -24,14 +24,12 @@ import java.awt.Component;
 
 import javax.swing.JMenuItem;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class ExtensionPopupMenu extends JMenuItem {
 
-    public ExtensionPopupMenu() {
+	private static final long serialVersionUID = -5454473736753550528L;
+
+	public ExtensionPopupMenu() {
         super();
     }
     

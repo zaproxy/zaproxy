@@ -21,8 +21,6 @@
  */
 package org.parosproxy.paros.core.proxy;
 
-//import java.io.BufferedInputStream;
-//import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -46,13 +44,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 
-
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 
 class ProxyThread implements Runnable {
 
@@ -82,7 +73,7 @@ class ProxyThread implements Runnable {
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
     
-    private static Vector proxyThreadList = new Vector();
+    private static Vector<Thread> proxyThreadList = new Vector<Thread>();
     
 	ProxyThread(ProxyServer server, Socket socket) {
 		parentServer = server;
@@ -461,7 +452,7 @@ class ProxyThread implements Runnable {
 	 */
 	private void notifyListenerRequestSend(HttpMessage httpMessage) {
 		ProxyListener listener = null;
-		List listenerList = parentServer.getListenerList();
+		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
 			listener = (ProxyListener) listenerList.get(i);
 			try {
@@ -480,7 +471,7 @@ class ProxyThread implements Runnable {
 	 */
 	private void notifyListenerResponseReceive(HttpMessage httpMessage) {
 		ProxyListener listener = null;
-		List listenerList = parentServer.getListenerList();
+		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
 			listener = (ProxyListener) listenerList.get(i);
 			try {

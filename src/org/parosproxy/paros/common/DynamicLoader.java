@@ -31,6 +31,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -42,8 +43,7 @@ import java.util.zip.ZipEntry;
 public class DynamicLoader extends URLClassLoader {
 
     private String directory = "";
-    private Vector listClassName = new Vector();
-//    private String packageName = "";
+    private Vector<String> listClassName = new Vector<String>();
     
     public DynamicLoader(String directory, String packageName) {
         super(new URL[0]);
@@ -105,15 +105,13 @@ public class DynamicLoader extends URLClassLoader {
                 e.printStackTrace();
             }
         }
-        //jar:file:/C:/eclipse/workspace/parosng_make/paros/paros.jar!/com/proofsecure/paros/
-        //file:/C:/eclipse/workspace/parosng/output/com/proofsecure/paros/
     }
     
     
-    public Vector getFilteredObject (Class classType) {
+    public Vector<Object> getFilteredObject (Class classType) {
         String className = "";
         Class cls = null;
-        Vector listClass = new Vector();
+        Vector<Object> listClass = new Vector<Object>();
         for (int i=0; i<listClassName.size(); i++) {
             className = (String) listClassName.get(i);
             try {
@@ -166,7 +164,7 @@ public class DynamicLoader extends URLClassLoader {
         String className = "";
         try {
             jarFile = new JarFile(file);
-            Enumeration entries = jarFile.entries();
+            Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 entry = (ZipEntry) entries.nextElement();
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
@@ -186,7 +184,7 @@ public class DynamicLoader extends URLClassLoader {
             }
         }
         try {
-            this.addURL(file.toURL());
+            this.addURL(file.toURI().toURL());
         } catch (MalformedURLException e1) {
         }
     }

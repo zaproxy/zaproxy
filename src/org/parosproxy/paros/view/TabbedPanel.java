@@ -21,14 +21,11 @@ package org.parosproxy.paros.view;
 
 import javax.swing.JTabbedPane;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TabbedPanel extends JTabbedPane {
 
-    private java.awt.Container originalParent = null;
+	private static final long serialVersionUID = 8927990541854169615L;
+
+	private java.awt.Container originalParent = null;
     private java.awt.Container alternativeParent = null;
     private java.awt.Component backupChild = null;
     

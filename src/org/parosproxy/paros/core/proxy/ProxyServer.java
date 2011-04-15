@@ -30,31 +30,11 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ProxyServer implements Runnable {
-
-//	static {
-//	    ProtocolSocketFactory sslFactory = null;
-//	    try {
-//	        Protocol protocol = Protocol.getProtocol("https");
-//		    sslFactory = protocol.getSocketFactory();
-//	    } catch (Exception e) {}
-//	    if (sslFactory == null || !(sslFactory instanceof SSLConnector)) {
-//	        Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new SSLConnector(), 443));
-//	    }
-//	}
 	
 	protected Thread	thread = null;
 
@@ -63,12 +43,11 @@ public class ProxyServer implements Runnable {
 	protected boolean isProxyRunning = false;
 	protected ProxyParam proxyParam = new ProxyParam();
 	protected ConnectionParam connectionParam = new ConnectionParam();
-	protected Vector listenerList = new Vector();
+	protected Vector<ProxyListener> listenerList = new Vector<ProxyListener>();
 	protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
-    protected Vector cacheProcessingList = new Vector();
+    protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<CacheProcessingItem>();
     
-//	protected int forwardPort = 0;
 	
     /**
      * @return Returns the enableCacheProcessing.
@@ -232,7 +211,7 @@ public class ProxyServer implements Runnable {
 		listenerList.remove(listener);
 	}
 	
-	synchronized List getListenerList() {
+	synchronized List<ProxyListener> getListenerList() {
 		return listenerList;
 	}
 
@@ -251,21 +230,8 @@ public class ProxyServer implements Runnable {
         cacheProcessingList.add(item);
     }
     
-    Vector getCacheProcessingList() {
+    Vector<CacheProcessingItem> getCacheProcessingList() {
         return cacheProcessingList;
     }
     
-    
-//    /**
-//     * @return Returns the forwardPort.
-//     */
-//    public int getForwardPort() {
-//        return forwardPort;
-//    }
-//    /**
-//     * @param forwardPort The forwardPort to set.
-//     */
-//    public void setForwardPort(int forwardPort) {
-//        this.forwardPort = forwardPort;
-//    }
 }

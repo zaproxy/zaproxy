@@ -50,9 +50,11 @@ import org.parosproxy.paros.extension.AbstractDialog;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class AbstractParamDialog extends AbstractDialog {
-    
-    private Object paramObject = null;
-    private Hashtable tablePanel = new Hashtable();
+
+	private static final long serialVersionUID = -5223178126156052670L;
+
+	private Object paramObject = null;
+    private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<String, AbstractParamPanel>();
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
 	private javax.swing.JPanel jContentPane = null;
@@ -446,7 +448,7 @@ public class AbstractParamDialog extends AbstractDialog {
 
 	public void initParam(Object obj) {
 	    paramObject = obj;
-	    Enumeration en = tablePanel.elements();
+	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
 	        panel = (AbstractParamPanel) en.nextElement();
@@ -460,7 +462,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	 *
 	 */
 	public void validateParam() throws Exception {
-	    Enumeration en = tablePanel.elements();
+	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
 	        panel = (AbstractParamPanel) en.nextElement();
@@ -474,7 +476,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	 *
 	 */
 	public void saveParam() throws Exception {
-	    Enumeration en = tablePanel.elements();
+	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
 	        panel = (AbstractParamPanel) en.nextElement();

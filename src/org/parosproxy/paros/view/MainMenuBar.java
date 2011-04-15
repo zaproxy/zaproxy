@@ -30,12 +30,10 @@ import org.parosproxy.paros.control.MenuFileControl;
 import org.parosproxy.paros.control.MenuToolsControl;
 import org.zaproxy.zap.view.AboutDialog;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class MainMenuBar extends JMenuBar {
+
+	private static final long serialVersionUID = 8580116506279095244L;
+
 	private javax.swing.JMenu menuEdit = null;
 	private javax.swing.JMenu menuTools = null;
 	private javax.swing.JMenu menuView = null;

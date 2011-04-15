@@ -50,7 +50,7 @@ public class GenericMethod extends EntityEnclosingMethod {
     /** 
      * The buffered request body consisting of <code>NameValuePair</code>s. 
      */
-    private Vector params = new Vector();
+    private Vector<NameValuePair> params = new Vector<NameValuePair>();
     private String method = null;
 
     public GenericMethod(String method) {
@@ -167,7 +167,7 @@ public class GenericMethod extends EntityEnclosingMethod {
             return null;
         }
 
-        Iterator iter = this.params.iterator();
+        Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
             NameValuePair parameter = (NameValuePair) iter.next();
@@ -290,7 +290,7 @@ public class GenericMethod extends EntityEnclosingMethod {
                 "Argument passed to removeParameter(String) cannot be null");
         }
         boolean removed = false;
-        Iterator iter = this.params.iterator();
+        Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
             NameValuePair pair = (NameValuePair) iter.next();
@@ -328,7 +328,7 @@ public class GenericMethod extends EntityEnclosingMethod {
             throw new IllegalArgumentException("Parameter value may not be null");
         }
 
-        Iterator iter = this.params.iterator();
+        Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
             NameValuePair pair = (NameValuePair) iter.next();

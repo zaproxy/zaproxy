@@ -33,12 +33,9 @@ import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Respresent a HTTP request header.  A request header begins with
- * method uri http-version
- */
 public class HttpRequestHeader extends HttpHeader {
 
+	private static final long serialVersionUID = 4156598327921777493L;
 	// method list
 	public final static String OPTIONS	= "OPTIONS";
 	public final static String GET 		= "GET";
@@ -56,8 +53,8 @@ public class HttpRequestHeader extends HttpHeader {
 
 	private static final Pattern patternRequestLine
 		= Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
-	private static final Pattern patternHostHeader
-		= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
+	// private static final Pattern patternHostHeader
+	//	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
 	private static final Pattern patternImage
 		= Pattern.compile("\\.(jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
 	private static final Pattern patternPartialRequestLine
@@ -384,10 +381,12 @@ public class HttpRequestHeader extends HttpHeader {
 		return getMethod() + " " + getURI().toString() + " " + getVersion();
 	}
 	
+	/*
 	private static final char[] DELIM_UNWISE_CHAR = {
-	        '<', '>', '#', '"', ' ',
-	        '{', '}', '|', '\\', '^', '[', ']', '`'
+        '<', '>', '#', '"', ' ',
+        '{', '}', '|', '\\', '^', '[', ']', '`'
 	};
+	*/
 
 	private static final String DELIM = "<>#\"";
 	private static final String UNWISE = "{}|\\^[]`";

@@ -30,13 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.parosproxy.paros.core.scanner.Alert;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TableAlert extends AbstractTable {
 
 	private static final String	ALERTID		= "ALERTID";
@@ -59,7 +53,7 @@ public class TableAlert extends AbstractTable {
     private CallableStatement psInsert2 = null;
 
     private PreparedStatement psDeleteAlert = null;
-    private PreparedStatement psDeleteScan = null;
+    //private PreparedStatement psDeleteScan = null;
 
     private PreparedStatement psUpdate = null;
     private PreparedStatement psUpdateHistoryIds = null;
@@ -173,10 +167,10 @@ public class TableAlert extends AbstractTable {
 	
 	}
 	
-	public Vector getAlertListByScan(int scanId) throws SQLException {
+	public Vector<Integer> getAlertListByScan(int scanId) throws SQLException {
 	    PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM ALERT WHERE " + SCANID + " = ?");
         
-	    Vector v = new Vector();
+	    Vector<Integer> v = new Vector<Integer>();
 		psReadScan.setInt(1, scanId);
 		ResultSet rs = psReadScan.executeQuery();
 		while (rs.next()) {
@@ -187,11 +181,11 @@ public class TableAlert extends AbstractTable {
 		return v;
 	}
 
-	public Vector getAlertListBySession(long sessionId) throws SQLException {
+	public Vector<Integer> getAlertListBySession(long sessionId) throws SQLException {
 
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM ALERT INNER JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SESSIONID = ?");
         
-	    Vector v = new Vector();
+	    Vector<Integer> v = new Vector<Integer>();
 		psReadSession.setLong(1, sessionId);
 		ResultSet rs = psReadSession.executeQuery();
 		while (rs.next()) {

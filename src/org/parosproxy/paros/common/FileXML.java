@@ -191,9 +191,9 @@ abstract public class FileXML {
 		return getValue(element, tag);		
 	}
 
-	protected List getValues(String tag) {
+	protected List<String> getValues(String tag) {
 		NodeList nodeList = (NodeList) doc.getElementsByTagName(tag);
-		ArrayList resultList = new ArrayList();
+		ArrayList<String> resultList = new ArrayList<String>();
 		Element element = null;
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			element = (Element) nodeList.item(i);

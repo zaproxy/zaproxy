@@ -24,16 +24,10 @@ import java.util.Vector;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
 
 
-    private Vector listVariant = new Vector();
+    private Vector<VariantAbstractQuery> listVariant = new Vector<VariantAbstractQuery>();
     
     private Variant variant = null;
     private NameValuePair originalPair = null;

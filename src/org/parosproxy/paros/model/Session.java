@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.swing.JTree;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
@@ -36,11 +34,6 @@ import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Session extends FileXML {
 	
     // ZAP: Added logger
@@ -171,7 +164,7 @@ public class Session extends FileXML {
 		siteTree.setRoot(newRoot);
 
 		// update history reference
-		List list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_MANUAL);
+		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_MANUAL);
 		HistoryReference historyRef = null;
 		
 		for (int i=0; i<list.size(); i++) {

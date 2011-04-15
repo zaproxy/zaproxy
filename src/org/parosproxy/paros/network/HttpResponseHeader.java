@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 public class HttpResponseHeader extends HttpHeader {
 
+	private static final long serialVersionUID = 2812716126742059785L;
+	
 	public static final String HTTP_CLIENT_BAD_REQUEST = "HTTP/1.0 400 Bad request" + CRLF + CRLF;
 	private static final String _CONTENT_TYPE_IMAGE = "image";
 	private static final String _CONTENT_TYPE_TEXT = "text";

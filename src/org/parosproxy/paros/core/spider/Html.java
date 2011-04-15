@@ -23,8 +23,6 @@ package org.parosproxy.paros.core.spider;
 
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-
 
 /**
  *	An html used for spider/collector

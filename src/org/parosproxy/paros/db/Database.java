@@ -47,7 +47,7 @@ public class Database {
 	// ZAP: Added TableTag
 	private TableTag tableTag = null;
 	
-	private Vector listenerList = new Vector();
+	private Vector<DatabaseListener> listenerList = new Vector<DatabaseListener>();
 
 	public Database() {
 	    tableHistory = new TableHistory();

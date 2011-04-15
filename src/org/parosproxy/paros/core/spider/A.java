@@ -40,7 +40,7 @@ public class A extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static A[] getAs(String doc) {
 
-		Vector as = new Vector();
+		Vector<A> as = new Vector<A>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

@@ -56,7 +56,7 @@ public class OptionsParam extends AbstractParam {
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
 
-	private Vector paramSetList = new Vector();
+	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private XMLConfiguration config = null;
 	private boolean gui = true;
 	private File userDirectory = null;

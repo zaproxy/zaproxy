@@ -70,7 +70,7 @@ public class TableHistory extends AbstractTable {
     private PreparedStatement psDelete = null;
     private PreparedStatement psDeleteTemp = null;
     private PreparedStatement psContainsURI = null;
-    private PreparedStatement psAlterTable = null;
+    //private PreparedStatement psAlterTable = null;
     private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
     private PreparedStatement psLastIndex = null;
@@ -235,10 +235,10 @@ public class TableHistory extends AbstractTable {
 	
 	}
 	
-	public Vector getHistoryList(long sessionId, int histType) throws SQLException {
+	public Vector<Integer> getHistoryList(long sessionId, int histType) throws SQLException {
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
         
-	    Vector v = new Vector();
+	    Vector<Integer> v = new Vector<Integer>();
 	    psReadSession.setLong(1, sessionId);
 	    psReadSession.setInt(2, histType);
 	    ResultSet rs = psReadSession.executeQuery();
@@ -253,13 +253,13 @@ public class TableHistory extends AbstractTable {
 		return v;
 	}
 
-	public List getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {
+	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {
         PreparedStatement psReadSearch = getConnection().prepareStatement("SELECT * FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
 
 	    Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		Matcher matcher = null;
 
-		Vector v = new Vector();
+		Vector<Integer> v = new Vector<Integer>();
 		psReadSearch.setLong(1, sessionId);
 		psReadSearch.setInt(2, histType);
 		ResultSet rs = psReadSearch.executeQuery();
@@ -294,41 +294,6 @@ public class TableHistory extends AbstractTable {
 
 	    return v;
 	}
-
-//	public List getHistoryList(long sessionId, int histType, String filter) throws SQLException {
-//	    Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
-//		Matcher matcher = null;
-//
-//		Vector v = new Vector();
-//		psReadSearch.setLong(1, sessionId);
-//		psReadSearch.setInt(2, histType);
-//		psReadSearch.executeQuery();
-//		ResultSet rs = psReadSearch.getResultSet();
-//		while (rs.next()) {
-//		    matcher = pattern.matcher(rs.getString(REQHEADER));
-//		    if (matcher.find()) {
-//				v.add(new Integer(rs.getInt(HISTORYID)));
-//				continue;
-//		    }
-//		    matcher = pattern.matcher(rs.getString(REQBODY));
-//		    if (matcher.find()) {
-//				v.add(new Integer(rs.getInt(HISTORYID)));
-//				continue;
-//		    }
-//		    matcher = pattern.matcher(rs.getString(RESHEADER));
-//		    if (matcher.find()) {
-//				v.add(new Integer(rs.getInt(HISTORYID)));
-//				continue;
-//		    }
-//		    matcher = pattern.matcher(rs.getString(RESBODY));
-//		    if (matcher.find()) {
-//				v.add(new Integer(rs.getInt(HISTORYID)));
-//				continue;
-//		    }
-//		    
-//		}
-//	    return v;
-//	}
 	
 	public void deleteHistorySession(long sessionId) throws SQLException {
         Statement stmt = getConnection().createStatement();

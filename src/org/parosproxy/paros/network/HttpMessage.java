@@ -34,7 +34,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.view.HttpPanel;
 
 
 /**
@@ -336,8 +335,8 @@ public class HttpMessage {
 	    String query1 = "";
 	    String query2 = "";
 
-	    SortedSet set1 = null;
-	    SortedSet set2 = null;
+	    SortedSet<String> set1 = null;
+	    SortedSet<String> set2 = null;
 
         // compare the URI query part.  2 msg is consider same param set here.
         if (uri1.getQuery() != null) query1 = uri1.getQuery();
@@ -372,8 +371,8 @@ public class HttpMessage {
 	    return result;
 	}
 	
-	public TreeSet getParamNameSet(String params) {
-	    TreeSet set = new TreeSet();
+	public TreeSet<String> getParamNameSet(String params) {
+	    TreeSet<String> set = new TreeSet<String>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
 		String value = null;
@@ -536,7 +535,7 @@ public class HttpMessage {
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
-		Vector cookies = null;
+		Vector<String> cookies = null;
         if (! this.getRequestHeader().isEmpty()) {
         	cookies = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
         } else if (! this.getResponseHeader().isEmpty()) {

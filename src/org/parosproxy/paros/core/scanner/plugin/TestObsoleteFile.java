@@ -21,7 +21,6 @@
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.AbstractAppPlugin;
@@ -47,16 +46,11 @@ public class TestObsoleteFile extends AbstractAppPlugin {
             ".old", 
             ".bak", 
             ".inc"
-            //			,".class"
-            //			,".backup", ".BACKUP", ".Backup",
-            //			".pl", ".c", ".cpp"
     };
     
     private static final String[] staticAppendixList = {
             "~"
     };
-    
-    private static final Pattern patternNotFound = Pattern.compile("(\\bNot\\sfound\\b)|(\\b404\\b)", PATTERN_PARAM);
     
     public int getId() {
         return 00002;

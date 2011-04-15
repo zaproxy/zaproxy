@@ -26,17 +26,13 @@ import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.network.HostAuthentication;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsAuthenticationTableModel extends AbstractTableModel {
 
-    private static final String[] columnNames = {"Host", "Port", "User name", "Password", "Realm"};
+	private static final long serialVersionUID = -7596331927341748685L;
+
+	private static final String[] columnNames = {"Host", "Port", "User name", "Password", "Realm"};
     
-    private Vector listAuth = new Vector();
+    private Vector<HostAuthentication> listAuth = new Vector<HostAuthentication>();
     
     /**
      * 
@@ -88,7 +84,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
         
         HostAuthentication auth = (HostAuthentication) listAuth.get(row);
-        Object result = null;
+        //Object result = null;
         switch (col) {
         	case 0:	auth.setHostName((String) value);
         			break;
@@ -108,7 +104,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     /**
      * @return Returns the listAuth.
      */
-    public Vector getListAuth() {
+    public Vector<HostAuthentication> getListAuth() {
         HostAuthentication auth = null;
         for (int i=0; i<listAuth.size();) {
             auth = (HostAuthentication) listAuth.get(i);
@@ -119,14 +115,14 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
             i++;
         }
         
-        Vector newList = new Vector(listAuth);
+        Vector<HostAuthentication> newList = new Vector<HostAuthentication>(listAuth);
         return newList;
     }
     /**
      * @param listAuth The listAuth to set.
      */
-    public void setListAuth(Vector listAuth) {
-        this.listAuth = new Vector(listAuth);
+    public void setListAuth(Vector<HostAuthentication> listAuth) {
+        this.listAuth = new Vector<HostAuthentication>(listAuth);
         checkAndAppendNewRow();
   	  	fireTableDataChanged();
     }

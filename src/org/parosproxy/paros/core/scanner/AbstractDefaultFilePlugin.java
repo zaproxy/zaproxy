@@ -28,11 +28,6 @@ import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
     
 	private static final Pattern patternItems = Pattern.compile(",");
@@ -44,7 +39,7 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
     
 
     private URI baseURI = null;    
-    private Vector listURI = new Vector();
+    private Vector<URI> listURI = new Vector<URI>();
 		
 	protected void addTest(String directories, String files) {
 		String[] 	dirList = null,
@@ -104,7 +99,7 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
     /**
      * @return Returns the listURI.
      */
-    public Vector getListURI() {
+    public Vector<URI> getListURI() {
         return listURI;
     }
 

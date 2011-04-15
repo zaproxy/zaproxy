@@ -42,14 +42,13 @@ public class Scanner implements Runnable {
     private static Log log = LogFactory.getLog(Scanner.class);
 	private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
-	private Vector listenerList = new Vector();
+	private Vector<ScannerListener> listenerList = new Vector<ScannerListener>();
 	private ScannerParam scannerParam = null;
 	private ConnectionParam connectionParam = null;
 	//private HttpSender httpSender = null;
 	private boolean isStop = false;
 	private ThreadPool pool = null;
 	private SiteNode startNode = null;
-	private Analyser analyser = null;
 	private long startTimeMillis = 0;
 
 	// ZAP: Added scanner pause option

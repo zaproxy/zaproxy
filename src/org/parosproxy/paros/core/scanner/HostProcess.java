@@ -31,12 +31,6 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HostProcess implements Runnable {
 
     private static Log log = LogFactory.getLog(HostProcess.class);
@@ -54,7 +48,7 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     
     // time related 
-    private HashMap mapPluginStartTime = new HashMap();
+    private HashMap<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
     private long hostProcessStartTime = 0;
 
 

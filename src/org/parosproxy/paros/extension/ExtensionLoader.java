@@ -42,16 +42,10 @@ import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.SiteMapListener;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionLoader {
 
-    private Vector extensionList = new Vector();
-    private Vector hookList = new Vector();
+    private Vector<Extension> extensionList = new Vector<Extension>();
+    private Vector<ExtensionHook> hookList = new Vector<ExtensionHook>();
     private Model model = null;
 
     private View view = null;
@@ -100,7 +94,7 @@ public class ExtensionLoader {
     public void hookProxyListener(Proxy proxy) {
         for (int i=0; i<getExtensionCount(); i++) {
             ExtensionHook hook = (ExtensionHook) hookList.get(i);
-            List listenerList = hook.getProxyListenerList();
+            List<ProxyListener> listenerList = hook.getProxyListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
                     ProxyListener listener = (ProxyListener) listenerList.get(j);
@@ -139,7 +133,7 @@ public class ExtensionLoader {
     public void optionsChangedAllPlugin(OptionsParam options) {
         for (int i=0; i<getExtensionCount(); i++) {
             ExtensionHook hook = (ExtensionHook) hookList.get(i);
-            List listenerList = hook.getOptionsChangedListenerList();
+            List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
                     OptionsChangedListener listener = (OptionsChangedListener) listenerList.get(j);
@@ -171,7 +165,7 @@ public class ExtensionLoader {
     public void sessionChangedAllPlugin(Session session) {
         for (int i=0; i<getExtensionCount(); i++) {
             ExtensionHook hook = (ExtensionHook) hookList.get(i);
-            List listenerList = hook.getSessionListenerList();
+            List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
                     SessionChangedListener listener = (SessionChangedListener) listenerList.get(j);
@@ -228,7 +222,7 @@ public class ExtensionLoader {
         
     }
     
-    private void addTabPanel(List panelList, TabbedPanel tab) {
+    private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel tab) {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
             try {
@@ -277,7 +271,7 @@ public class ExtensionLoader {
      * @param cmdLine
      */
     public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
-        Vector allCommandLineList = new Vector();
+        Vector<CommandLineArgument[]> allCommandLineList = new Vector<CommandLineArgument[]>();
         for (int i=0; i<hookList.size(); i++) {
             ExtensionHook hook = (ExtensionHook) hookList.get(i);
             CommandLineArgument[] arg = hook.getCommandLineArgument();
@@ -302,7 +296,7 @@ public class ExtensionLoader {
         ExtensionHookMenu hookMenu = hook.getHookMenu();
         
         // init menus
-        List list = null;
+        List<JMenuItem> list = null;
         JMenuItem item = null;
         JMenu menu = null;
         JMenu menuFile = view.getMainFrame().getMainMenuBar().getMenuFile();
@@ -434,10 +428,10 @@ public class ExtensionLoader {
     }
     
     private void hookOptions(ExtensionHook hook) {
-        Vector list = hook.getOptionsParamSetList();
+        Vector<AbstractParam> list = hook.getOptionsParamSetList();
         for (int i=0; i<list.size(); i++) {
             try {
-                AbstractParam paramSet = (AbstractParam) list.get(i);
+                AbstractParam paramSet = list.get(i);
                 model.getOptionsParam().addParamSet(paramSet);
             } catch (Exception e) {
             	// ZAP: Log the exception

@@ -23,16 +23,9 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
-import org.parosproxy.paros.model.Session;
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SessionDialog extends AbstractParamDialog {
 
-	private Session session = null;
+	private static final long serialVersionUID = 2078860056416521552L;
 	
     public SessionDialog() {
         super();
@@ -64,4 +57,4 @@ public class SessionDialog extends AbstractParamDialog {
 
 
 	}
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}

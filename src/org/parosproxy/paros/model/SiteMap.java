@@ -38,15 +38,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SiteMap extends DefaultTreeModel {
 
-    private Model model = null;
+	private static final long serialVersionUID = 2311091007687218751L;
+
+	private Model model = null;
 
     // ZAP: Added log
     private static Log log = LogFactory.getLog(SiteMap.class);
@@ -373,9 +369,9 @@ public class SiteMap extends DefaultTreeModel {
         
     }
     
-    private String getQueryParamString(SortedSet querySet) {
+    private String getQueryParamString(SortedSet<String> querySet) {
         StringBuffer sb = new StringBuffer();
-        Iterator iterator = querySet.iterator();
+        Iterator<String> iterator = querySet.iterator();
         for (int i=0; iterator.hasNext(); i++) {
             String name = (String) iterator.next();
             if (name == null)

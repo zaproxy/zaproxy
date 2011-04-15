@@ -42,7 +42,7 @@ public class Base extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static Base[] getBases(String doc) {
 
-		Vector bases = new Vector();
+		Vector<Base> bases = new Vector<Base>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

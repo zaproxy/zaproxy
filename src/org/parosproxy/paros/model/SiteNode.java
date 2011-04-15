@@ -20,7 +20,6 @@
  */
 package org.parosproxy.paros.model;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -30,16 +29,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SiteNode extends DefaultMutableTreeNode {
 
-    private String nodeName = null;
+	private static final long serialVersionUID = 7987615016786179150L;
+
+	private String nodeName = null;
     private HistoryReference historyReference = null;
-    private Vector pastHistoryList = new Vector(10);
+    private Vector<HistoryReference> pastHistoryList = new Vector<HistoryReference>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
 	private List<Alert> alerts = new ArrayList<Alert>();
 	
@@ -123,7 +119,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         this.historyReference.setSiteNode(this);
     }    
     
-    public Vector getPastHistoryReference() {
+    public Vector<HistoryReference> getPastHistoryReference() {
         return pastHistoryList;
     }
     

@@ -25,19 +25,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpOutputStream extends BufferedOutputStream {
 
     private static final int	BUFFER_SIZE = 4096;
 	private static final String CODEPAGE = "8859_1";
-	private static final String CRLF2 = "\r\n\r\n";
-	private static final String LF2 = "\n\n";
-	//private BufferedOutputStream out = null;
 		
 	public HttpOutputStream(OutputStream out) {
 		//this.out = BufferedOutputStream(out);

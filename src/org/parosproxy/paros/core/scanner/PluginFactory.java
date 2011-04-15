@@ -30,26 +30,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
-import org.parosproxy.paros.core.scanner.plugin.TestObsoleteFile;
-import org.parosproxy.paros.core.scanner.plugin.TestObsoleteFileExtended;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PluginFactory {
 
     private static Log log = LogFactory.getLog(PluginFactory.class);
 
-    private static Vector listAllPlugin = new Vector();
-    private static TreeMap mapAllPlugin = new TreeMap();
-    private static TreeMap mapAllPluginOrderCodeName = new TreeMap();
+    private static Vector<Plugin> listAllPlugin = new Vector<Plugin>();
+    private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<Integer, Plugin>();
+    private static TreeMap<String, Plugin> mapAllPluginOrderCodeName = new TreeMap<String, Plugin>();
     private static DynamicLoader loader = null;
-    private Vector listPending = new Vector();
-    private Vector listRunning = new Vector();
-    private Vector listCompleted = new Vector();
+    private Vector<Plugin> listPending = new Vector<Plugin>();
+    private Vector<Plugin> listRunning = new Vector<Plugin>();
+    private Vector<Plugin> listCompleted = new Vector<Plugin>();
     private int	totalPluginToRun = 0;
     
     /**
@@ -57,7 +49,7 @@ public class PluginFactory {
      */
     public PluginFactory() {
         super();
-        Iterator iterator = null;
+        Iterator<Plugin> iterator = null;
         Plugin plugin = null;
         synchronized (mapAllPlugin) {
 
@@ -105,7 +97,7 @@ public class PluginFactory {
         if (loader == null) {
             loader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
         }
-        List listTest = loader.getFilteredObject(AbstractPlugin.class);
+        List<Object> listTest = loader.getFilteredObject(AbstractPlugin.class);
 
         synchronized (mapAllPlugin) {
             
@@ -126,7 +118,7 @@ public class PluginFactory {
                 mapAllPlugin.put(new Integer(plugin.getId()), plugin);
                 mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
             }
-            Iterator iterator = mapAllPlugin.values().iterator();
+            Iterator<Plugin> iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
                 listAllPlugin.add(iterator.next());
             }
@@ -134,7 +126,7 @@ public class PluginFactory {
                 
     }
     
-    public static List getAllPlugin() {
+    public static List<Plugin> getAllPlugin() {
         return listAllPlugin;
     }
     

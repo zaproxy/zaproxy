@@ -29,14 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.common.AbstractParam;
 
-
-
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ConnectionParam extends AbstractParam {
 
     // ZAP: Added logger
@@ -70,7 +62,7 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-	private Vector listAuth = new Vector();
+	private Vector<HostAuthentication> listAuth = new Vector<HostAuthentication>();
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
@@ -254,13 +246,13 @@ public class ConnectionParam extends AbstractParam {
     /**
      * @return Returns the listAuth.
      */
-    public Vector getListAuth() {
+    public Vector<HostAuthentication> getListAuth() {
         return listAuth;
     }
     /**
      * @param listAuth The listAuth to set.
      */
-    public void setListAuth(Vector listAuth) {
+    public void setListAuth(Vector<HostAuthentication> listAuth) {
         this.listAuth = listAuth;
         HostAuthentication auth = null;
         

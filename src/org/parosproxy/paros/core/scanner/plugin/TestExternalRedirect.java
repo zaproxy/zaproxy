@@ -20,8 +20,6 @@
  */
 package org.parosproxy.paros.core.scanner.plugin;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
@@ -31,21 +29,11 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TestExternalRedirect extends AbstractAppParamPlugin {
 
 	// ZAP: Changed to use owasp.org
 	private String redirect1 = "http://www.owasp.org";
 	private String redirect2 = "www.owasp.org";
-	
-	
-	private Pattern patternRedirect = Pattern.compile(redirect1, PATTERN_PARAM);
-
 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()

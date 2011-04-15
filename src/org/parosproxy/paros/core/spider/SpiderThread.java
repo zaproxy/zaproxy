@@ -34,11 +34,6 @@ import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SpiderThread extends Thread {
 
     private static final String[] NEGLECT_SUFFIXES = {"gif", "jpg", "bmp", "mp3", "arj", "doc", "swf", "pdf", "mpg", "wmv", "zip", "exe", "cab", "iso", "avi"};
@@ -48,7 +43,7 @@ public class SpiderThread extends Thread {
     // ZAP: Allow the spider to be paused
     private boolean pause = false;
     private boolean resume = false;
-    private List queue = null;
+    private List<QueueItem> queue = null;
     private boolean completed = false;
     private Collector collector = null;
     private boolean emptyQueue = false;

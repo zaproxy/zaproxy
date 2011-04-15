@@ -31,12 +31,11 @@ import org.parosproxy.paros.extension.AbstractDialog;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
+
 public class AboutDialog extends AbstractDialog {
+
+	private static final long serialVersionUID = -3404620776843070107L;
 
 	private JPanel jPanel = null;
 	private AboutPanel aboutPanel = null;

@@ -38,14 +38,11 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.SiteMapListener;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SiteMapPanel extends JPanel {
 
-    // ZAP: Added logger
+	private static final long serialVersionUID = -3161729504065679088L;
+
+	// ZAP: Added logger
     private static Log log = LogFactory.getLog(SiteMapPanel.class);
 
 	private JScrollPane jScrollPane = null;

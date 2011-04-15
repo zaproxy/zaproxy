@@ -27,48 +27,43 @@ import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionHookMenu {
     
     public static final JMenuItem MENU_SEPARATOR = new JMenuItem();
     public static final ExtensionPopupMenu POPUP_MENU_SEPARATOR = new ExtensionPopupMenu();
     
-    private Vector newMenuList = new Vector();
-    private Vector fileMenuItemList = new Vector();
-    private Vector editMenuItemList = new Vector();
-    private Vector viewMenuItemList = new Vector();
-    private Vector analyseMenuItemList = new Vector();
-    private Vector toolsMenuItemList = new Vector();
-    private Vector popupMenuList = new Vector();
+    private Vector<JMenuItem> newMenuList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> fileMenuItemList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> editMenuItemList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> viewMenuItemList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> analyseMenuItemList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> toolsMenuItemList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> popupMenuList = new Vector<JMenuItem>();
     // ZAP: Added help and reports menu extension hook
-    private Vector helpMenuList = new Vector();
-    private Vector reportMenuList = new Vector();
+    private Vector<JMenuItem> helpMenuList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> reportMenuList = new Vector<JMenuItem>();
     
-    List getNewMenus() {
+    List<JMenuItem> getNewMenus() {
         return newMenuList;
     }
 
-    List getFile() {
+    List<JMenuItem> getFile() {
         return fileMenuItemList;
     }
 
-    List getEdit() {
+    List<JMenuItem> getEdit() {
         return editMenuItemList;
     }
 
-    List getView() {
+    List<JMenuItem> getView() {
         return viewMenuItemList;
     }
 
-    List getAnalyse() {
+    List<JMenuItem> getAnalyse() {
         return analyseMenuItemList;
     }
     
-    List getTools() {
+    List<JMenuItem> getTools() {
         return toolsMenuItemList;
     }
     
@@ -78,15 +73,15 @@ public class ExtensionHookMenu {
      * Get the plugin popup menu used for the whole workbench.
      * @return
      */
-    List getPopupMenus() {
+    List<JMenuItem> getPopupMenus() {
         return popupMenuList;
     }
 
-    List getHelpMenus() {
+    List<JMenuItem> getHelpMenus() {
         return helpMenuList;
     }
 
-    List getReportMenus() {
+    List<JMenuItem> getReportMenus() {
         return reportMenuList;
     }
 

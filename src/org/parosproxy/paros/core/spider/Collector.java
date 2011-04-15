@@ -32,12 +32,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Collector {
 
     private SpiderThread parent = null;
@@ -63,7 +57,7 @@ public class Collector {
         return msg;
     }
 
-    private boolean isDuplicateInSameHtml(Vector list, HttpMessage msg) {
+    private boolean isDuplicateInSameHtml(Vector<HttpMessage> list, HttpMessage msg) {
         
         if (list.contains(msg)) {
             return true;
@@ -74,9 +68,9 @@ public class Collector {
     }
     
 	void collect(Html html, int currentDepth) {
-	    Vector previousFoundList = new Vector();
+	    Vector<HttpMessage> previousFoundList = new Vector<HttpMessage>();
 
-	    URI uri = null;
+	    //URI uri = null;
 	    A[] as = html.getAs();
 	    Frame[] frames = html.getFrames();
 //	    Img[] imgs = html.getImgs();
@@ -132,7 +126,7 @@ public class Collector {
 	    
 	    // process forms
         
-	    Vector formQueryList = getFormsQuery(html);
+	    Vector<HttpMessage> formQueryList = getFormsQuery(html);
 	    for (int i=0; i<formQueryList.size(); i++) {
 	        msg = (HttpMessage) formQueryList.get(i);
 	        try {
@@ -173,20 +167,20 @@ public class Collector {
 	    
 	}
 	
-	public Vector getFormsQuery(Html html) {
-		Vector qryList = new Vector();
+	public Vector<HttpMessage> getFormsQuery(Html html) {
+		Vector<HttpMessage> qryList = new Vector<HttpMessage>();
 		Form[] forms = html.getForms();
 		for (int i=0; i<forms.length; i++) {
 			Form form = forms[i];
-			Vector oneForm = getFormQuery(form, html.getURI());
+			Vector<HttpMessage> oneForm = getFormQuery(form, html.getURI());
 			qryList.addAll(oneForm);
 		}
 		return qryList;
 	}
 
-	private Vector getFormQuery(Form form, URI baseURI) {
-		Vector qryStrList	= new Vector();
-		Vector qryList		= new Vector();
+	private Vector<HttpMessage> getFormQuery(Form form, URI baseURI) {
+		Vector<String> qryStrList	= new Vector<String>();
+		Vector<HttpMessage> qryList		= new Vector<HttpMessage>();
 		String queryString = "";
 		HttpRequestHeader reqHeader = null;
 		HttpBody reqBody = null;
@@ -283,8 +277,8 @@ public class Collector {
 
 	}
 
-	private Vector addSelectField(Vector qry, Select select) {
-		Vector newQryList = new Vector();
+	private Vector<String> addSelectField(Vector<String> qry, Select select) {
+		Vector<String> newQryList = new Vector<String>();
 		String queryString = null;
 		if (select.getOption() == null) {
 			return newQryList;

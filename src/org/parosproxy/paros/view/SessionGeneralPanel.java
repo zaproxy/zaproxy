@@ -31,33 +31,20 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 
 import java.awt.CardLayout;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class SessionGeneralPanel extends AbstractParamPanel {
+
+	private static final long serialVersionUID = -8337361808959321380L;
 
 	private JPanel panelSession = null;  //  @jve:decl-index=0:visual-constraint="10,320"
 	private JTextField txtSessionName = null;
 	private JTextArea txtDescription = null;
-	private Session session = null;
 	
     public SessionGeneralPanel() {
         super();
  		initialize();
    }
-    /**
-     * @param parent
-     * @param modal
-     * @param title
-     * @throws HeadlessException
-     */
 
-
-    private static final String[] ROOT = {};
-    private static final String[] GENERAL = {"General"};
-    private static final String[] MISCELLENOUS = {"Miscellenous"};
     
 	/**
 	 * This method initializes this

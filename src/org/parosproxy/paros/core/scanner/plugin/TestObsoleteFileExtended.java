@@ -21,7 +21,6 @@
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.AbstractAppPlugin;
@@ -29,11 +28,6 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TestObsoleteFileExtended extends AbstractAppPlugin {
 
 	// ZAP Depreciated by Brute Force scanner
@@ -47,16 +41,11 @@ public class TestObsoleteFileExtended extends AbstractAppPlugin {
             ".BAK", ".Bak",
             ".java",
             ".INC", ".Inc"
-            //			,".class"
-            //			,".backup", ".BACKUP", ".Backup",
-            //			".pl", ".c", ".cpp"
     };
     
     private static final String[] staticAppendixList = {
             "~"
     };
-    
-    private static final Pattern patternNotFound = Pattern.compile("(\\bNot\\sfound\\b)|(\\b404\\b)", PATTERN_PARAM);
     
     public int getId() {
         return 00005;

@@ -21,21 +21,14 @@
 
 package org.parosproxy.paros.core.spider;
 
-import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.common.AbstractParam;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
-public class SpiderParam extends AbstractParam {
 
-	private static final String SPIDER = "spider";
+public class SpiderParam extends AbstractParam {
 
 	private static final String SPIDER_MAX_DEPTH = "spider.maxDepth";
 	private static final String SPIDER_THREAD = "spider.thread";

@@ -36,18 +36,9 @@ import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.TraceMethod;
-//import org.apache.commons.httpclient.methods.TraceMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 
-
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpMethodHelper {
 
 	private static final String OPTIONS	= "OPTIONS";
@@ -57,29 +48,17 @@ public class HttpMethodHelper {
 	private static final String PUT		= "PUT";
 	private static final String DELETE	= "DELETE";
 	private static final String TRACE	= "TRACE";
-	private static final String CONNECT	= "CONNECT";
-	private static final String HTTP11	= "HTTP/1.1";
-	private static final String HTTP10	= "HTTP/1.0";
-	private static final String HTTP	= "http";
-	private static final String HTTPS	= "https";
+	// TODO: What's up with the CONNECT method?
+	//private static final String CONNECT	= "CONNECT";
+	
 	
 	private static final String CRLF	=	"\r\n";
 	private static final String LF		=	"\n";
 	private static final Pattern patternCRLF	= Pattern.compile("\\r\\n", Pattern.MULTILINE);
 	private static final Pattern patternLF		= Pattern.compile("\\n", Pattern.MULTILINE);
 	
-	private static final String p_TEXT		= "[^\\x00-\\x1f\\r\\n]*"; 
-	private static final String p_METHOD	= "(\\w+)";
-	private static final String p_SP		= " +";
-	private static final String p_URI		= "(\\S+)";
-	private static final String p_VERSION	= "(HTTP/\\d+\\.\\d+)";
-	
-	private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
-	private static final Pattern patternHostHeader = Pattern.compile("([^:]+)\\s*:?\\s*(\\d*)");
-
-	private static final String HEADER_HOST = "Host";
-	
 	private String mUserAgent = "";
+	
 	public void setUserAgent(String userAgent) {
 		mUserAgent = userAgent;
 	}
@@ -123,7 +102,7 @@ public class HttpMethodHelper {
 		String token = null;
 		String name = null;
 		String value = null;
-		String host = null;
+		//String host = null;
 		
 		for (int i=0; i<split.length; i++) {
 			token = split[i];

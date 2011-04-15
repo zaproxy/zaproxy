@@ -36,7 +36,9 @@ import org.parosproxy.paros.Constant;
  */
 abstract public class AbstractDialog extends JDialog {
  
-    protected AbstractDialog thisDialog = null;
+	private static final long serialVersionUID = -3951504408180103696L;
+
+	protected AbstractDialog thisDialog = null;
     
     /**
 	 * @throws java.awt.HeadlessException

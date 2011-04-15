@@ -22,14 +22,7 @@ package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ScannerParam extends AbstractParam {
-
-	private static final String SCANNER = "scanner";
 
 	private static final String HOST_PER_SCAN = "scanner.hostPerScan";
 	private static final String THREAD_PER_HOST = "scanner.threadPerHost";

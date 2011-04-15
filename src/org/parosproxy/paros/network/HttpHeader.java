@@ -30,6 +30,7 @@ import java.util.regex.PatternSyntaxException;
 
 abstract public class HttpHeader implements java.io.Serializable{
 
+	private static final long serialVersionUID = 7922279497679304778L;
 
 	public static final String CRLF 			= "\r\n";
 	public static final String LF 				= "\n";
@@ -86,7 +87,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	protected String mStartLine = "";
 	protected String mMsgHeader = "";
 	protected boolean mMalformedHeader = false;
-	protected Hashtable mHeaderFields = new Hashtable();
+	protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<String, Vector<String>>();
 	protected int mContentLength = -1;
 	protected String mLineDelimiter = CRLF;
 	protected String mVersion = "";
@@ -110,7 +111,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 * Inititialization.
 	 */
 	private void init() {
-		mHeaderFields = new Hashtable();
+		mHeaderFields = new Hashtable<String, Vector<String>>();
 		mStartLine = "";
 		mMsgHeader = "";
 		mMalformedHeader = false;
@@ -154,7 +155,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 * @return the header value.  null if not found.
 	 */
 	public String getHeader(String name) {
-		Vector v = getHeaders(name);
+		Vector<String> v = getHeaders(name);
 		if (v == null) {
 			return null;
 		}
@@ -167,8 +168,8 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 * @param name
 	 * @return a vector holding the value as string.
 	 */
-    public Vector getHeaders(String name) {
-    	Vector v = (Vector) mHeaderFields.get(name.toUpperCase());
+    public Vector<String> getHeaders(String name) {
+    	Vector<String> v = mHeaderFields.get(name.toUpperCase());
     	return v;
     }
 
@@ -406,9 +407,9 @@ abstract public class HttpHeader implements java.io.Serializable{
      */
 	private void replaceInternalHeaderFields(String name, String value) {
 		String key = name.toUpperCase();
-		Vector v = getHeaders(key);
+		Vector<String> v = getHeaders(key);
 		if (v == null) {
-			v = new Vector();
+			v = new Vector<String>();
 			mHeaderFields.put(key, v);
 		}
 
@@ -427,9 +428,9 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 */
 	private void addInternalHeaderFields(String name, String value) {
 		String key = name.toUpperCase();
-		Vector v = getHeaders(key);
+		Vector<String> v = getHeaders(key);
 		if (v == null) {
-			v = new Vector();
+			v = new Vector<String>();
 			mHeaderFields.put(key, v);
 		}
 

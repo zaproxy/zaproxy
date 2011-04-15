@@ -29,12 +29,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.extension.AbstractDialog;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class WaitMessageDialog extends AbstractDialog {
+
+	private static final long serialVersionUID = 2951228940444340016L;
 
 	private JPanel jPanel = null;
 	private JLabel lblMessage = null;

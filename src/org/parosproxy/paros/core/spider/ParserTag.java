@@ -31,9 +31,9 @@ class ParserTag {
 
 	private Pattern pattern = null;
 	private Matcher matcher = null;
-	private String	doc		= null,
-			attrs	= null,
-			content = null;
+	private String doc = null;
+	private String attrs	= null;
+	private String content = null;
 	private int closingTagType = CLOSING_TAG_YES;
 
 	ParserTag(String tag, int closingTag) {

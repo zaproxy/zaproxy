@@ -28,21 +28,17 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class View implements ViewDelegate {
 	
 	public static final int DISPLAY_OPTION_LEFT_FULL = 0;
@@ -198,14 +194,6 @@ public class View implements ViewDelegate {
         //String[] ROOT = {};
         if (optionsDialog == null) {
             optionsDialog = new OptionsDialog(getMainFrame(), true, title);
-//            optionsDialog.addParamPanel(ROOT, new OptionsConnectionPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsLocalProxyPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsAuthenticationPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsSpiderPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsScannerPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsCertificatePanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsViewPanel());
-//            optionsDialog.addParamPanel(ROOT, new OptionsTrapPanel());
         }
         
         optionsDialog.setTitle(title);
@@ -228,7 +216,7 @@ public class View implements ViewDelegate {
         return popup;
     }
     
-    public Vector getPopupList() {
+    public Vector<JMenuItem> getPopupList() {
         return popupList;
     }
     

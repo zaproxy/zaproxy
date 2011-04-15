@@ -38,12 +38,6 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.parosproxy.paros.Constant;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpSender {
 
 
@@ -142,20 +136,6 @@ public class HttpSender {
         String hostName;
         hostName = method.getURI().getHost();
         method.setDoAuthentication(true);
-
-//        if (client.getState() != null) {
-//            Cookie[] cookie = client.getState().getCookies();
-//            for (int i=0; i<cookie.length;i++) {
-//                System.out.println(cookie[i].getName() + ":" + cookie[i].getValue());
-//            }
-//        }
-//
-//        if (clientViaProxy.getState() != null) {
-//            Cookie[] cookie = clientViaProxy.getState().getCookies();
-//            for (int i=0; i<cookie.length;i++) {
-//                System.out.println(cookie[i].getName() + ":" + cookie[i].getValue());
-//            }
-//        }
         
         if (param.isUseProxy(hostName)) {
             return clientViaProxy.executeMethod(method);
@@ -174,7 +154,7 @@ public class HttpSender {
     }
     
     private void addAuth(HttpClient client) {
-        List list = param.getListAuth();
+        List<HostAuthentication> list = param.getListAuth();
         for (int i=0; i<list.size(); i++) {
             HostAuthentication auth = (HostAuthentication) list.get(i);
             AuthScope authScope = null;
@@ -186,18 +166,7 @@ public class HttpSender {
             } catch (UnknownHostException e1) {
                 e1.printStackTrace();
             }
-            //client.getState().setCredentials(
-            //        new HttpAuthRealm(auth.getHostName(), auth.getPort(), (auth.getRealm().equals("") ? null : auth.getRealm())),
-            //        new UsernamePasswordCredentials(auth.getUserName(), auth.getPassword())
-            //        );
         }
-        
-        /*List authPrefs = new Vector(3);
-        authPrefs.add(AuthPolicy.NTLM);
-        authPrefs.add(AuthPolicy.BASIC);
-        authPrefs.add(AuthPolicy.DIGEST);
-        client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
-        */
     }
 
     public void sendAndReceive(HttpMessage msg) throws HttpException, IOException {

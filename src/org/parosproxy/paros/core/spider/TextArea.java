@@ -30,7 +30,7 @@ class TextArea extends Tag {
 	private static final ParserTag parser = new ParserTag(Tag.TEXTAREA, ParserTag.CLOSING_TAG_YES);
 	
 	static TextArea[] getTextAreas(String doc) {
-		Vector textareas  = new Vector();
+		Vector<TextArea> textareas  = new Vector<TextArea>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

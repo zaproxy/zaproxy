@@ -34,16 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
-
-
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
-
-abstract public class AbstractPlugin implements Plugin, Comparable {
+abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	
     /**
      * Default pattern used in pattern check for most plugins.

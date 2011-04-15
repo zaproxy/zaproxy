@@ -28,12 +28,10 @@ import java.awt.Toolkit;
 import java.awt.Window;
 
 import javax.swing.JWindow;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class AboutWindowOld extends JWindow {
+
+	private static final long serialVersionUID = -5438979254834963853L;
 
 	private javax.swing.JPanel jContentPane = null;  //  @jve:decl-index=0:visual-constraint="19,20"
 

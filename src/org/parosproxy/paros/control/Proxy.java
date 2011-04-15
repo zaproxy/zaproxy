@@ -21,28 +21,19 @@
  */
 package org.parosproxy.paros.control;
  
-import java.util.Vector;
-
 import org.parosproxy.paros.core.proxy.CacheProcessingItem;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.proxy.ProxyServerSSL;
 import org.parosproxy.paros.model.Model;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Proxy {
     
-//	private View view = null;
 	private Model model = null;
 	private ProxyServer proxyServer = null;
 	private ProxyServerSSL proxyServerSSL = null;
 	private boolean reverseProxy = false;
 	private String reverseProxyHost = "";
-    private Vector cacheProcessingList = new Vector();
     
 	public Proxy(Model model) {
 		
@@ -51,8 +42,6 @@ public class Proxy {
 		proxyServer = new ProxyServer();
 		proxyServerSSL = new ProxyServerSSL();
 
-		// add by extension
-		//addProxyListener(new ProxyListenerLog(model, view));
 	}
 	
 	public void startServer() {

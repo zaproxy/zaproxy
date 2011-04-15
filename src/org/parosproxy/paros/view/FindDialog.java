@@ -45,12 +45,9 @@ import javax.swing.JTextField;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FindDialog extends AbstractDialog {
+
+	private static final long serialVersionUID = -3223449799557586758L;
 
 	private JPanel jPanel = null;
 	private JButton btnFind = null;

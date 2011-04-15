@@ -31,16 +31,15 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.event.InputEvent;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class OutputPanel extends AbstractPanel {
+
+	private static final long serialVersionUID = -947074835463140074L;
 
 	private JScrollPane jScrollPane = null;
 	private JTextArea txtOutput = null;
-    /**
+
+	/**
      * 
      */
     public OutputPanel() {

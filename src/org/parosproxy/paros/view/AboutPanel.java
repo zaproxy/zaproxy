@@ -29,14 +29,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
+
 public class AboutPanel extends JPanel {
 
-    private static final String PRODUCT  = Constant.PROGRAM_NAME;
+	private static final long serialVersionUID = 8893525515508199864L;
+	private static final String PRODUCT  = Constant.PROGRAM_NAME;
     private static final String VERSION = "Version " + Constant.PROGRAM_VERSION;
     private static final String COPYRIGHT = "Copyright (C) 2003-2005 Chinotec Technologies Company";
     private static final String LICENSE_DETAIL = 

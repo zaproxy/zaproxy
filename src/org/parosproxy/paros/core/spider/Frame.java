@@ -40,7 +40,7 @@ public class Frame extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static Frame[] getFrames(String doc) {
 
-		Vector frames = new Vector();
+		Vector<Frame> frames = new Vector<Frame>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

@@ -45,8 +45,8 @@ public class CommandLine {
     
     private boolean GUI = true;
     private String[] args = null;
-    private Hashtable keywords = new Hashtable();
-    private Vector commandList = null;
+    private Hashtable<String, String> keywords = new Hashtable<String, String>();
+    private Vector<CommandLineArgument[]> commandList = null;
     
     public CommandLine(String[] args) throws Exception {
         this.args = args;
@@ -89,15 +89,9 @@ public class CommandLine {
 	        
         }
 	        
-//        for (int i=0; i<args.length; i++) {
-//            if (args[i] != null) {
-//                throw new Exception();
-//            }
-//        }
-	        
     }
 
-	public void parse(Vector commandList) throws Exception {
+	public void parse(Vector<CommandLineArgument[]> commandList) throws Exception {
 	    this.commandList = commandList;
 	    CommandLineArgument lastArg = null;
 	    boolean found = false;

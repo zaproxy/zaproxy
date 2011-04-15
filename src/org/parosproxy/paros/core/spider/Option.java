@@ -30,7 +30,7 @@ public class Option extends Tag {
 	private String value = "";
 
 	static Option[] getOptions (String doc) {
-		Vector options = new Vector();
+		Vector<Option> options = new Vector<Option>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

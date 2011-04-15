@@ -27,7 +27,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-public class Alert implements Comparable  {
+public class Alert implements Comparable<Object>  {
 
 	public static final int RISK_INFO 	= 0;
 	public static final int RISK_LOW 	= 1;

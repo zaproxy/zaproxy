@@ -33,16 +33,11 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupDeleteMenu extends ExtensionPopupMenu {
 
-    
-    private Component invoker = null;
+	private static final long serialVersionUID = 2282358266003940700L;
+
+	private Component invoker = null;
     
 	/**
 	 * This method initializes 

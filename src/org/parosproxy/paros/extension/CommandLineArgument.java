@@ -23,16 +23,11 @@ package org.parosproxy.paros.extension;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class CommandLineArgument {
 
     private String name = "";
     private int numOfArguments = 0;
-    private Vector arg = new Vector();
+    private Vector<String> arg = new Vector<String>();
     private boolean enabled = false;
     private Pattern pattern = null;
     private String errorMessage = "";
@@ -77,7 +72,7 @@ public class CommandLineArgument {
         return numOfArguments;
     }
     
-    public Vector getArguments() {
+    public Vector<String> getArguments() {
         return arg;
     }
     

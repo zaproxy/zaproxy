@@ -38,7 +38,7 @@ public class Hyperlink extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static Hyperlink[] getHyperlinks(String doc) {
 
-		Vector links = new Vector();
+		Vector<Hyperlink> links = new Vector<Hyperlink>();
 		Matcher matcher = patternURL.matcher(doc);
 		while (matcher.find()) {
 		    try {

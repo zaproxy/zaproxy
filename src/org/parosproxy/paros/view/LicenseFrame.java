@@ -32,12 +32,10 @@ import java.io.IOException;
 
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class LicenseFrame extends AbstractFrame {
+
+	private static final long serialVersionUID = -8463527680384145499L;
 
 	private JPanel jPanel = null;
 	private JTextPane txtLicense = null;

@@ -29,17 +29,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class MainPopupMenu extends JPopupMenu {
 
-    private List itemList = null;
+	private static final long serialVersionUID = -3021348328961418293L;
+
+	private List<ExtensionPopupMenu> itemList = null;
 //	private PopupFindMenu popupFindMenu = null;  //  @jve:decl-index=0:visual-constraint="125,151"
 	private PopupDeleteMenu popupDeleteMenu = null;
 	private PopupPurgeMenu popupPurgeMenu = null;
@@ -60,7 +57,7 @@ public class MainPopupMenu extends JPopupMenu {
         super(arg0);
     }
     
-    public MainPopupMenu(List itemList) {
+    public MainPopupMenu(List<ExtensionPopupMenu> itemList) {
         this();
         this.itemList = itemList;
     }

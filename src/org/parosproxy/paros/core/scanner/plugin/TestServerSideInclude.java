@@ -28,18 +28,8 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TestServerSideInclude extends AbstractAppParamPlugin {
 
-//  private static final String SSI_UNIX = "<!--#EXEC%20cmd=\"ls%20/\"-->";
-//	private static final String SSI_UNIX2 = "\">" +SSI_UNIX + "<";
-//	private static final String SSI_WIN = "<!--#EXEC%20cmd=\"dir%20\\\"-->";
-//	private static final String SSI_WIN2 = "\">" +SSI_WIN + "<";
 
     private static final String SSI_UNIX = "<!--#EXEC cmd=\"ls /\"-->";
     private static final String SSI_UNIX2 = "\">" +SSI_UNIX + "<";
@@ -114,12 +104,12 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 
     public void scan(HttpMessage msg, String param, String value) {
         
-		String result = null;
+		//String result = null;
 
 		try {
 			setParameter(msg, param, SSI_UNIX);
             sendAndReceive(msg);
-    		result = msg.getResponseBody().toString();
+    		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIUnix, null)) {    		    
     			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
     			return;
@@ -132,7 +122,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 		    msg = getNewMsg();
 			setParameter(msg, param, SSI_UNIX2);
             sendAndReceive(msg);
-    		result = msg.getResponseBody().toString();
+    		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIUnix, null)) {    		    
     			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
     			return;
@@ -146,7 +136,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 		    msg = getNewMsg();
 			setParameter(msg, param, SSI_WIN);
             sendAndReceive(msg);
-    		result = msg.getResponseBody().toString();
+    		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIWin, null)) {    		    
     			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
     			return;
@@ -159,7 +149,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 		    msg = getNewMsg();
 			setParameter(msg, param, SSI_WIN2);
             sendAndReceive(msg);
-    		result = msg.getResponseBody().toString();
+    		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIWin, null)) {    		    
     			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
     			return;

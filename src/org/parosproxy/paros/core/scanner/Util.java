@@ -20,11 +20,6 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 class Util {
     static void sleep(int millis) {
         try {

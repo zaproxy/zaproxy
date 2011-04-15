@@ -21,8 +21,6 @@
 
 package org.parosproxy.paros.db;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -55,49 +53,6 @@ public class DatabaseServer {
 		start(dbname);
 	}
 	
-//	private void start(String dbname) throws ClassNotFoundException, Exception{
-//	    // hsqldb only accept '/' as path;
-//	    dbname = dbname.replaceAll("\\\\", "/");
-//	    String serverProps1 = "database.0=file:" + dbname;
-//
-//	    int port = DEFAULT_SERVER_PORT;
-//	    
-//	    mUrl         = "jdbc:hsqldb:hsql://localhost";
-//		mServer      = new Server();
-//        mServer.setAddress("localhost");
-//			
-//		mServer.putPropertiesFromString(serverProps1);
-//		
-//		mServer.setLogWriter(null);
-//		mServer.setErrWriter(null);
-//		Class.forName("org.hsqldb.jdbcDriver");
-//
-//		// try at most 10 times if there is a server port
-//		
-//		for (int i=0; i<10;i++) {
-//		    ServerSocket socket = null;
-//		    try {
-//		        socket = new ServerSocket(port);
-//		        socket.close();
-//		        mServer.setPort(port);
-//		        break;
-//		    } catch (IOException e) {
-//		        if (port < 65535) {
-//		            port++;
-//		        }
-//		        
-//		    }
-//		}
-//		    
-//	    mServer.start();
-//        if (mServer.getPort() != 9001) {
-//            mUrl = mUrl + ":" + mServer.getPort();
-//            //System.out.println("db server port:" + mServer.getPort());
-//            
-//        }
-//
-//		
-//	}
 
     private void start(String dbname) throws ClassNotFoundException, Exception{
         // hsqldb only accept '/' as path;
@@ -113,41 +68,6 @@ public class DatabaseServer {
         
     }
     
-//	void shutdown(boolean compact) throws SQLException {
-//		Connection conn = getSingletonConnection();
-//		//CallableStatement psCompact = mConn.prepareCall("SHUTDOWN COMPACT");
-//		CallableStatement psCompact = null;
-//		
-//		if (compact) {
-//		    // db is not new and useful for future.  Compact it.
-//		    psCompact = conn.prepareCall("SHUTDOWN COMPACT");
-//
-//		} else {
-//		    // new need to compact database.  just shutdown.
-//		    psCompact = conn.prepareCall("SHUTDOWN");
-//
-//		}
-//		
-//		psCompact.execute();
-//		mServer.signalCloseAllServerConnections();
-//		mServer.stop();
-//
-//		boolean retry = true;
-//		for (int i=0; i<20 && retry; i++) {
-//		    try {
-//		        mServer.checkRunning(false);
-//		        retry = false;
-//		    } catch (RuntimeException e) {
-//		        try {
-//		            Thread.sleep(200);
-//		        } catch (InterruptedException e1) {
-//		            e1.printStackTrace();
-//		        }
-//		    }
-//		}
-//		mServer = null;
-//
-//	}
     
     void shutdown(boolean compact) throws SQLException {
         Connection conn = getSingletonConnection();

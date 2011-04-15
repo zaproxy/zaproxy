@@ -37,7 +37,7 @@ public class TableScan extends AbstractTable {
     private PreparedStatement psInsert1 = null;
     private CallableStatement psInsert2 = null;
 
-    private PreparedStatement psUpdate = null;
+    //private PreparedStatement psUpdate = null;
     
     public TableScan() {
         

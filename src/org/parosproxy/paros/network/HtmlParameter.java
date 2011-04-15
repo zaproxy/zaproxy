@@ -21,7 +21,6 @@ package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class HtmlParameter implements Comparable<HtmlParameter> {

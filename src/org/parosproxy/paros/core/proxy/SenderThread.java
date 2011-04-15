@@ -25,20 +25,15 @@ import java.util.Vector;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class SenderThread implements Runnable {
     
     private HttpMessage msg = null;
     private HttpSender httpSender = null;
-    private Vector listenerList = null;
+    private Vector<SenderThreadListener> listenerList = null;
     public SenderThread(HttpSender httpSender, HttpMessage msg, SenderThreadListener listener) {
         this.httpSender = httpSender;
         this.msg = msg;
-        listenerList = new Vector(1);
+        listenerList = new Vector<SenderThreadListener>(1);
         listenerList.add(listener);
     }   
     

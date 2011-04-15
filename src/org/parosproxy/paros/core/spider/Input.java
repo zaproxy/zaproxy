@@ -39,7 +39,7 @@ class Input extends Tag {
 	private static final ParserAttr	parserAttrType = new ParserAttr(Attr.TYPE);
 
 	static Input[] getInputs (String doc) {
-		Vector inputs = new Vector();
+		Vector<Input> inputs = new Vector<Input>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

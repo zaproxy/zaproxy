@@ -25,17 +25,11 @@ import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class VariantAbstractQuery implements Variant {
     
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
 
-    private Vector listParam = new Vector();
+    private Vector<NameValuePair> listParam = new Vector<NameValuePair>();
     
     public VariantAbstractQuery() {
         
@@ -84,7 +78,7 @@ abstract public class VariantAbstractQuery implements Variant {
 		
     }
     
-    public Vector getParamList() {
+    public Vector<NameValuePair> getParamList() {
         return listParam;
     }
 
@@ -126,7 +120,6 @@ abstract public class VariantAbstractQuery implements Variant {
      * @return true = paretmer changed.
      */
     private boolean paramAppend(StringBuffer sb, String name, String value) {
-        String param = name;
         boolean isEdited = false;
         if (name != null) {
             sb.append(name);

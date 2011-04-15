@@ -23,17 +23,10 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
-import org.parosproxy.paros.model.OptionsParam;
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsDialog extends AbstractParamDialog {
 
-    private static final String[] ROOT = {};
-	private OptionsParam optionsParam = null;
+	private static final long serialVersionUID = -4374132178769109917L;
+
     public OptionsDialog() {
         super();
  		initialize();
@@ -61,4 +54,4 @@ public class OptionsDialog extends AbstractParamDialog {
 	}
 	
 	
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}

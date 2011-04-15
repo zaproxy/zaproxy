@@ -43,7 +43,7 @@ public class Meta extends org.parosproxy.paros.core.spider.Tag {
 	 */
 	public static Meta[] getMetas(String doc) {
 
-		Vector metas = new Vector();
+		Vector<Meta> metas = new Vector<Meta>();
 		parser.parse(doc);
 		while (parser.nextTag()) {
 			String content	= parser.getContent();

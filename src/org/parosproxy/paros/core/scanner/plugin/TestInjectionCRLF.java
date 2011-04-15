@@ -30,11 +30,6 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TestInjectionCRLF extends AbstractAppParamPlugin {
 
     private static Random   staticRandomGenerator =     new Random();
@@ -122,9 +117,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     
     public void scan(HttpMessage msg, String param, String value) {
 
-        String bingoQuery = null;
-        String displayURI = null;
-        String newQuery = null;     
+        String bingoQuery = null;   
         
         // loop parameters
 

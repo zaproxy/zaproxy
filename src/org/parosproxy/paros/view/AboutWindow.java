@@ -20,12 +20,9 @@
  */
 package org.parosproxy.paros.view;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class AboutWindow extends AbstractFrame {
+
+	private static final long serialVersionUID = 8137677407478367715L;
 
 	private AboutPanel aboutPanel = null;
     /**

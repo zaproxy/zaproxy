@@ -39,23 +39,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 
     private static final String[] dependency = {"TestInjectionSQLFingerprint", "TestInjectionSQL"};
-    
-    private static final int TIME_SPREAD = 15000;
-
-	
-//	private static final String SQL_DELAY_1 = "';waitfor%20delay%20'0:0:15';--";
-//	private static final String SQL_DELAY_2 = ";waitfor%20delay%20'0:0:15';--";
-//
-//	private static final String SQL_BLIND_MS_INSERT = ");waitfor%20delay%20'0:0:15';--";
-    private static final String SQL_DELAY_1 = "';waitfor delay '0:0:15';--";
-    private static final String SQL_DELAY_2 = ";waitfor delay '0:0:15';--";
-
-    private static final String SQL_BLIND_MS_INSERT = ");waitfor delay '0:0:15';--";
-
-    private static final String SQL_BLIND_INSERT = ");--";
-	
-	
-	private static final String SQL_CHECK_ERR = "'INJECTED_PARAM";		// invalid statement to trigger SQL exception. Make sure the pattern below does not appear here
 	
 	private static final Pattern patternErrorODBC1 = Pattern.compile("Microsoft OLE DB Provider for ODBC Drivers.*error", PATTERN_PARAM);
 	private static final Pattern patternErrorODBC2 = Pattern.compile("ODBC.*Drivers.*error", PATTERN_PARAM);
@@ -63,9 +46,6 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	private static final Pattern patternErrorODBCMSSQL = Pattern.compile("ODBC SQL Server Driver", PATTERN_PARAM);
 	
 	private String mResBodyNormal 	= "";		// normal response for comparison
-	private String mResBodyError	= "";	// error response for comparison
-
-
 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
@@ -150,22 +130,10 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
      */
     public void scanSQL(HttpMessage baseMsg, String param, String value) throws HttpException, IOException {
 
-        //protected void check(boolean isBody, String paramKey, String paramValue, String query, int insertPos) throws IOException {
-
-		String bingoQuery = null;
-		String displayURI = null;
-		String newQuery = null;
-		
-		String resBodyAND = null;
-		
-		int pos = 0;
-		long defaultTimeUsed = 0;
-
 		HttpMessage msg = getNewMsg();
 		
 		// always try normal query first
 		sendAndReceive(msg);
-		defaultTimeUsed = msg.getTimeElapsedMillis();
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
 			return;
 		}

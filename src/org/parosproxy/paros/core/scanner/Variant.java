@@ -24,16 +24,10 @@ import java.util.Vector;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public interface Variant {
 
     public void setMessage(HttpMessage msg);
-    public Vector getParamList();
+    public Vector<NameValuePair> getParamList();
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
     
 }
