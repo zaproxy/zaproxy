@@ -1,5 +1,6 @@
 package org.zaproxy.zap.extension.httppanel;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -34,32 +35,31 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.view.HttpPanelView;
 
 public class HttpPanelSplitUi extends AbstractPanel {
+	protected static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView"); // ZAP: i18n
+	protected static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView"); // ZAP: i18n
+	protected static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView"); // ZAP: i18n
+
+	private String currentView = VIEW_RAW;
+	private boolean editable = false;
+
 	private javax.swing.JScrollPane scrollHeader = null;
 	private javax.swing.JScrollPane scrollTableBody = null;
 	private HttpPanelTextArea txtHeader = null;
 	private HttpPanelTextArea txtBody = null;
 	
 	private javax.swing.JSplitPane splitVert = null;
-
-	protected static final String VIEW_RAW = Constant.messages
-			.getString("http.panel.rawView"); // ZAP: i18n
-	protected static final String VIEW_TABULAR = Constant.messages
-			.getString("http.panel.tabularView"); // ZAP: i18n
-	protected static final String VIEW_IMAGE = Constant.messages
-			.getString("http.panel.imageView"); // ZAP: i18n
-
 	private JLabel lblIcon = null;
 	private JComboBox comboView = null;
 	private JTable tableBody = null;
 	private HttpPanelTabularModel httpPanelTabularModel = null; // @jve:decl-index=0:parse,visual-constraint="425,147"
 	private JScrollPane scrollTxtBody = null;
-	private String currentView = VIEW_RAW;
 	private JScrollPane scrollImage = null;
-	private boolean editable = false;
 
-	private JPanel jPanel = null;
+	private JPanel panelHeader = null;
 	private JPanel panelView = null;
-	private JPanel panelOption = null;
+	private JPanel panelLeft = null;
+	private JPanel panelMiddle = null;
+	private JPanel panelRight = null;
 
 	private List<HttpPanelView> views = null;
 	private HttpMessage httpMessage;
@@ -106,7 +106,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		gridBagConstraints4.gridy = 0;
 		gridBagConstraints4.weightx = 1.0D;
 
-		this.add(getJPanel(), gridBagConstraints4);
+		this.add(getPanelHeader(), gridBagConstraints4);
 		this.add(getSplitVert(), gridBagConstraints1);
 	}
 
@@ -164,9 +164,8 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	 *
 	 * @return javax.swing.JTextArea
 	 */
-	public javax.swing.JTextArea getTxtHeader() {
+	private javax.swing.JTextArea getTxtHeader() {
 		if (txtHeader == null) {
-			//txtHeader = new javax.swing.JTextArea();
 			txtHeader = new HttpPanelTextArea(httpMessage, HttpPanelTextArea.MessageType.Header);
 			txtHeader.setLineWrap(true);
 			txtHeader.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN,	12));
@@ -191,12 +190,11 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	 * 
 	 * @return javax.swing.JTextArea
 	 */
-	public javax.swing.JTextArea getTxtBody() {
+	private javax.swing.JTextArea getTxtBody() {
 		if (txtBody == null) {
 			txtBody = new HttpPanelTextArea(httpMessage, HttpPanelTextArea.MessageType.Body);
 			txtBody.setLineWrap(true);
-			txtBody.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN,
-					12));
+			txtBody.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			txtBody.setName("");
 			txtBody.setTabSize(4);
 			txtBody.setVisible(true);
@@ -247,40 +245,22 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	 * 
 	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJPanel() {
-		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.weightx = 0.0D;
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
-			gridBagConstraints5.ipadx = 0;
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints5.insets = new java.awt.Insets(2, 0, 2, 0);
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints6.gridx = 2;
-			gridBagConstraints6.gridy = 0;
-			gridBagConstraints6.weightx = 1.0D;
-			jLabel.setText("      ");
-			gridBagConstraints7.gridx = 1;
-			gridBagConstraints7.gridy = 0;
-			gridBagConstraints7.insets = new java.awt.Insets(2, 2, 2, 2);
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
-			jPanel.add(getComboView(), gridBagConstraints5);
-			jPanel.add(jLabel, gridBagConstraints7);
-			jPanel.add(getPanelOption(), gridBagConstraints6);
+	private JPanel getPanelHeader() {
+		if (panelHeader == null) {
+			panelHeader = new JPanel(new BorderLayout());
+			
+			panelLeft = new JPanel();
+			panelMiddle = new JPanel();
+			panelRight = new JPanel();
+			
+			panelLeft.add(getComboView());
+			
+			panelHeader.add(panelLeft, BorderLayout.LINE_START);
+			panelHeader.add(panelMiddle, BorderLayout.CENTER);
+			panelHeader.add(panelRight, BorderLayout.LINE_END);
 		}
-		return jPanel;
+		
+		return panelHeader;
 	}
 
 	/**
@@ -342,19 +322,6 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			comboView.addItem(VIEW_TABULAR);
 		}
 		return comboView;
-	}
-
-	/**
-	 * This method initializes panelOption
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	public JPanel getPanelOption() {
-		if (panelOption == null) {
-			panelOption = new JPanel();
-			panelOption.setLayout(new CardLayout());
-		}
-		return panelOption;
 	}
 
 	/**
@@ -443,12 +410,10 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			setDisplayResponse(msg);
 		}
 		this.validate();
-
 	}
 
 	private void setDisplayRequest(HttpMessage msg) {
-		String header = replaceHeaderForJTextArea(msg.getRequestHeader()
-				.toString());
+		String header = replaceHeaderForJTextArea(msg.getRequestHeader().toString());
 		String body = msg.getRequestBody().toString();
 
 		getHttpPanelTabularModel().setText(msg.getRequestBody().toString());
@@ -485,8 +450,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			return;
 		}
 
-		String header = replaceHeaderForJTextArea(msg.getResponseHeader()
-				.toString());
+		String header = replaceHeaderForJTextArea(msg.getResponseHeader().toString());
 		String body = msg.getResponseBody().toString();
 
 		getTxtHeader().setText(header);
@@ -562,7 +526,6 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		} catch (Exception e) {
 			System.out.println("Argh");
 		}
-
 	}
 
 	/**
@@ -669,6 +632,10 @@ public class HttpPanelSplitUi extends AbstractPanel {
                         getComboView().addItem(view.getName());
                 }
         }
+    }
+    
+    public void addHeaderPanel(JPanel aPanel) {
+    	panelLeft.add(aPanel);
     }
 	
 }

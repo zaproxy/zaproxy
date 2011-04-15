@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -297,6 +298,11 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	@Override
 	public void headerSearch(Pattern p, List<SearchMatch> matches) {
 		httpDataModelContent.search(p, matches);		
+	}
+
+	@Override
+	public void addHeaderPanel(JPanel aPanel) {
+		httpPanelSplitUi.addHeaderPanel(aPanel);
 	}
 	
 }

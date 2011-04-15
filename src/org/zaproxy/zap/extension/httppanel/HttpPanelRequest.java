@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -329,6 +330,11 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		} else {
 			httpDataModelPost.search(p, matches);
 		}
+	}
+
+	@Override
+	public void addHeaderPanel(JPanel aPanel) {
+		httpPanelSplitUi.addHeaderPanel(aPanel);
 	}
 	
 }

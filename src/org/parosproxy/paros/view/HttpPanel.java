@@ -25,6 +25,7 @@ package org.parosproxy.paros.view;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.swing.JPanel;
@@ -137,6 +138,8 @@ abstract public class HttpPanel extends AbstractPanel implements Tab {
 	 * Called if this.httpMessage was modified external.
 	 */
 	abstract public void updateContent();
+	
+	abstract public void addHeaderPanel(JPanel aPanel);
 	
 	/* Set new HttpMessage
 	 * Update UI accordingly.

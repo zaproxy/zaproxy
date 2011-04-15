@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.extension.brk;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,7 +50,9 @@ import org.zaproxy.zap.extension.tab.Tab;
  */
 public class BreakPanel extends AbstractPanel implements Tab {
 	private static final long serialVersionUID = 1L;
+	
 	private JPanel panelCommand = null;
+	private JPanel panelContent;
 	
 	// Button notes
 	// BreakRequest button, if set all requests trapped
@@ -96,30 +99,32 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 */
 	private void initialize() {
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
-		this.setLayout(new CardLayout());
+		
+		this.setLayout(new BorderLayout());
+		
+		panelContent = new JPanel(new CardLayout());
+		this.add(panelContent, BorderLayout.CENTER);
 		
 		requestPanel = new HttpPanelRequest(true, null);
 		responsePanel = new HttpPanelResponse(true, null);
 		
-		this.add(requestPanel, "request");
-		this.add(responsePanel, "response");
+		panelContent.add(requestPanel, "request");
+		panelContent.add(responsePanel, "response");
 		
 		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
 			case 0:
 				// If the user decided to disable the main toolbar, the break
 				// buttons have to be force to be displayed in the break panel
 				if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
-					requestPanel.getPanelSpecial().add(getPanelCommand(), "");
-					responsePanel.getPanelSpecial().add(getPanelCommand(), "");
-					//getPanelOption().add(getPanelCommand(), "");
+					panelCommand = getPanelCommand();
+					this.add(panelCommand, BorderLayout.NORTH);
 				} else {
 					getPanelMainToolbarCommand();
 				}
 				break;
 			case 1:
-				requestPanel.getPanelSpecial().add(getPanelCommand(), "");
-				responsePanel.getPanelSpecial().add(getPanelCommand(), "");
-				//getPanelOption().add(getPanelCommand(), "");
+				panelCommand = getPanelCommand();
+				this.add(panelCommand, BorderLayout.NORTH);
 				break;
 			/*
 			 * TODO Currently, buttons cannot be display in toolbar and break panel, as the first initalization of the buttons wins
@@ -252,7 +257,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 			panelCommand = new JPanel();
-			panelCommand.setLayout(new BoxLayout(panelCommand,BoxLayout.X_AXIS));
+/*			panelCommand.setLayout(new BoxLayout(panelCommand,BoxLayout.X_AXIS));
 			panelCommand.setName("Command");
 			
 			Box box = Box.createHorizontalBox();
@@ -264,7 +269,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			box.add(getBtnContinue());
 			box.add(getBtnDrop());
 			
-			panelCommand.add(box);
+			panelCommand.add(box);*/
+			
+			panelCommand.add(getBtnBreakRequest());
+			panelCommand.add(getBtnBreakResponse());
+			panelCommand.add(getBtnStep());
+			panelCommand.add(getBtnContinue());
+			panelCommand.add(getBtnDrop());
 		}
 		return panelCommand;
 	}
@@ -381,27 +392,27 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	}
 
 	public void setMessage(HttpMessage msg, boolean isRequest) {
-	    CardLayout cl = (CardLayout)(this.getLayout());
+	    CardLayout cl = (CardLayout)(panelContent.getLayout());
 		
 		if (isRequest) {
-		    cl.show(this, "request");
+		    cl.show(panelContent, "request");
 			requestPanel.setMessage(msg);
 		} else {
-			cl.show(this, "response");
+			cl.show(panelContent, "response");
 			responsePanel.setMessage(msg);
 		}
 	}
 
 	public void getMessage(HttpMessage msg, boolean isRequest) {
-	    CardLayout cl = (CardLayout)(this.getLayout());
+	    CardLayout cl = (CardLayout)(panelContent.getLayout());
 	    		
 		if (isRequest) {
 			requestPanel.saveData();
-			cl.show(this, "request");
+			cl.show(panelContent, "request");
 			requestPanel.setMessage(msg);
 		} else {
 			responsePanel.saveData();
-			cl.show(this, "response");
+			cl.show(panelContent, "response");
 			responsePanel.setMessage(msg);
 		}
 	}
