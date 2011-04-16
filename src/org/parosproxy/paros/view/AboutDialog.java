@@ -18,19 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 
-
-import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 
 
 public class AboutDialog extends AbstractDialog {
@@ -119,7 +120,7 @@ public class AboutDialog extends AbstractDialog {
 	private JButton getBtnOK() {
 		if (btnOK == null) {
 			btnOK = new JButton();
-			btnOK.setText("OK");
+			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
