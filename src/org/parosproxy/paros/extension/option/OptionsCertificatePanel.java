@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.option;
 
 //TODO: Buttons should be gray
@@ -37,6 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.filechooser.FileFilter;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -112,7 +115,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		aliasTableModel = new AliasTableModel(contextManager);
 
 		this.setLayout(new CardLayout());
-		this.setName("Certificate");
+		this.setName(Constant.messages.getString("options.cert.title.cert"));
 
 		JPanel certificatePanel = getPanelCertificate();
 		this.add(certificatePanel, certificatePanel.getName());
@@ -182,7 +185,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			certificatejTabbedPane.setEnabled(false);
 
-			setActiveButton.setText("Set Active");
+			setActiveButton.setText(Constant.messages.getString("options.cert.button.setactive"));
 			setActiveButton.setEnabled(false);
 			setActiveButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -203,7 +206,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			aliasTable.setTableHeader(null);
 			aliasScrollPane.setViewportView(aliasTable);
 
-			deleteButton.setText("Delete");
+			deleteButton.setText(Constant.messages.getString("options.cert.button.delete"));
 			deleteButton.setEnabled(false);
 			deleteButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -250,20 +253,20 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			keyStorePanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {deleteButton, setActiveButton, showAliasButton});
 
-			certificatejTabbedPane.addTab("KeyStore", keyStorePanel);
+			certificatejTabbedPane.addTab(Constant.messages.getString("options.cert.tab.keystore"), keyStorePanel);
 
-			fileLabel.setText("File");
+			fileLabel.setText(Constant.messages.getString("options.cert.label.file"));
 
-			browseButton.setText("Browse");
+			browseButton.setText(Constant.messages.getString("options.cert.button.browse"));
 			browseButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					browseButtonActionPerformed(evt);
 				}
 			});
 
-			passwordPkcs12Label.setText("Password");
+			passwordPkcs12Label.setText(Constant.messages.getString("options.cert.label.password"));
 
-			addPkcs12Button.setText("Add to keystore");
+			addPkcs12Button.setText(Constant.messages.getString("options.cert.button.keystore"));
 			addPkcs12Button.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					addPkcs12ButtonActionPerformed(evt);
@@ -314,9 +317,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			pkcs12PanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {addPkcs12Button, browseButton, fileTextField, pkcs12PasswordField});
 
-			certificatejTabbedPane.addTab("PKCS#12", pkcs12Panel);
+			certificatejTabbedPane.addTab(Constant.messages.getString("options.cert.tab.pkcs"), pkcs12Panel);
 
-			driverLabel.setText("Driver");
+			driverLabel.setText(Constant.messages.getString("options.cert.label.driver"));
 
 			driverButton.setText("...");
 			driverButton.setMargin(new java.awt.Insets(2, 5, 2, 5));
@@ -326,9 +329,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				}
 			});
 
-			passwordPkcs11Label.setText("PIN Code");
+			passwordPkcs11Label.setText(Constant.messages.getString("options.cert.label.pincode"));
 
-			addPkcs11Button.setText("Add to keystore");
+			addPkcs11Button.setText(Constant.messages.getString("options.cert.button.pkcs11"));
 			addPkcs11Button.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					addPkcs11ButtonActionPerformed(evt);
@@ -371,11 +374,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			pkcs11PanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {addPkcs11Button, driverButton, driverComboBox, pkcs11PasswordField});
 
-			certificatejTabbedPane.addTab("PKCS#11", pkcs11Panel);
+			certificatejTabbedPane.addTab(Constant.messages.getString("options.cert.tab.pkcs11"), pkcs11Panel);
 
 			javax.swing.GroupLayout cryptoApiPanelLayout = new javax.swing.GroupLayout(cryptoApiPanel);
 			cryptoApiPanel.setLayout(cryptoApiPanelLayout);
-			cryptoApiLabel.setText("Crypto API is not working yet - Sorry");
+			cryptoApiLabel.setText(Constant.messages.getString("options.cert.error.crypto"));
 			cryptoApiPanelLayout.setHorizontalGroup(
 					cryptoApiPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 					.addGap(0, 389, Short.MAX_VALUE)
@@ -388,9 +391,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					.addComponent(cryptoApiLabel)
 			);
 
-			certificatejTabbedPane.addTab("CrytoAPI", cryptoApiPanel);
+			certificatejTabbedPane.addTab(Constant.messages.getString("options.cert.tab.cryptoapi"), cryptoApiPanel);
 
-			useClientCertificateCheckBox.setText("Use client certificate");
+			useClientCertificateCheckBox.setText(Constant.messages.getString("options.cert.label.useclientcert"));
 			useClientCertificateCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			useClientCertificateCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 			useClientCertificateCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -399,9 +402,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				}
 			});
 
-			textLabel.setText("<html><body><p> Add your keystore and select the desired certificate. </p> <p>Certificate setting will not be stored in options and you will  need to enable certificate next time you restart Paros. </p></body></html>");
+			textLabel.setText(Constant.messages.getString("options.cert.label.addkeystore"));
 
-			certificateLabel.setText("Active certificate");
+			certificateLabel.setText(Constant.messages.getString("options.cert.label.activecerts"));
 
 			certificateTextField.setEnabled(false);
 
@@ -486,7 +489,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		try {
 			aliasTableModel.setKeystore(keystore);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {"Error accessing key store: ", e.toString()}, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error"), e.toString()}, 
+					Constant.messages.getString("options.cert.error.accesskeystore"), JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 	}//GEN-LAST:event_keyStoreListMouseClicked
@@ -502,27 +507,41 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 		try {
 			String name = driverConfig.getNames().get(driverComboBox.getSelectedIndex());;
-			if (name.equals("")) return;
+			if (name.equals("")) {
+				return;
+			}
 
 			String library = driverConfig.getPaths().get(driverComboBox.getSelectedIndex());
-			System.out.println("library: " +library);
-			if (library.equals("")) return;
+			//System.out.println("library: ") +library);
+			if (library.equals("")) {
+				return;
+			}
 			
 			Integer slot = driverConfig.getSlots().get(driverComboBox.getSelectedIndex());
-			System.out.println("slot: " + slot);
-			if (slot < 0) return;
+			//System.out.println("slot: ") + slot);
+			if (slot < 0) {
+				return;
+			}
 			
 			Integer slotIndex = driverConfig.getSlotIndexes().get(driverComboBox.getSelectedIndex());
-			System.out.println("slotIndex: " + slotIndex);
-			if (slotIndex < 0) return;
+			//System.out.println("slotindex: ") + slotIndex);
+			if (slotIndex < 0) {
+				return;
+			}
 			
 			String kspass = new String(pkcs11PasswordField.getPassword());
-			if (kspass.equals("")) kspass = null;
+			if (kspass.equals("")){
+				kspass = null;
+			}
 			
 			int ksIndex = contextManager.initPKCS11(name, library, slot, slotIndex, kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {"Error accessing key store.","Maybe your password or driver is wrong."}, "Error", JOptionPane.ERROR_MESSAGE);
+			// TODO what was label.2?
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error"),
+					Constant.messages.getString("options.cert.error.password")}, 
+					Constant.messages.getString("options.cert.label.2"), JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 			return;
 		}
@@ -541,11 +560,16 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 
 	private void addPkcs12ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPkcs12ButtonActionPerformed
-		if (fileTextField.getText().equals("")) return;
+		if (fileTextField.getText().equals("")) {
+			return;
+		}
 		String kspass = new String(pkcs12PasswordField.getPassword());
 		if (kspass.equals("")){
 			//pcks#12 file with empty password is not supported by java
-			JOptionPane.showMessageDialog(null, new String[] {"PKCS#12 files with empty passwords are not supported.", "Please usa a password protected file."}, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error.pkcs12nopass"), 
+					Constant.messages.getString("options.cert.error.usepassfile")}, 
+					Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -553,7 +577,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			int ksIndex = contextManager.loadPKCS12Certificate(fileTextField.getText(), kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {"Error accessing key store.", "May be your password is wrong."}, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error.accesskeystore"), 
+					Constant.messages.getString("options.cert.error.password")}, 
+					Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 			return;
 		}
@@ -573,7 +600,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			@Override
 			public String getDescription()
 			{
-				return "Client certificate";
+				return Constant.messages.getString("options.cert.label.clientcert");
 			}
 			@Override
 			public boolean accept(File f) {
@@ -611,18 +638,24 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 						String password = getPassword();
 
 						if(!contextManager.unlockKey(ks, alias, password)){
-							JOptionPane.showMessageDialog(null, new String[] {"Could not access key store."}, "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null, new String[] {
+									Constant.messages.getString("options.cert.error.accesskeystore")}, 
+									Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, new String[] {"Error accessing key store: ", e.toString()}, "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, new String[] {
+							Constant.messages.getString("options.cert.error.accesskeystore"), e.toString()}, 
+							Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 			Certificate cert = contextManager.getCertificate(ks, alias);
 			try {
 				contextManager.getFingerPrint(cert);
 			} catch (KeyStoreException kse) {
-				JOptionPane.showMessageDialog(null, new String[] {"Error calculating key fingerprint: ", kse.toString()}, "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, new String[] {
+						Constant.messages.getString("options.cert.error.fingerprint"), kse.toString()}, 
+						Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
 			}
 
 			try {
@@ -643,7 +676,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	public String getPassword() {
 		JPasswordField askPasswordField = new JPasswordField();
-		int result = JOptionPane.showConfirmDialog(this, askPasswordField, "Enter password", JOptionPane.OK_CANCEL_OPTION);
+		int result = JOptionPane.showConfirmDialog(this, askPasswordField, 
+				Constant.messages.getString("options.cert.label.enterpassword"), JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			return new String(askPasswordField.getPassword());
 		} else return null;

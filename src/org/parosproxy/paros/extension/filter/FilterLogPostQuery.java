@@ -18,11 +18,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Hashtable;
 
 import org.apache.commons.httpclient.URI;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
@@ -45,7 +48,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
     public String getName() {
-        return "Log unique POST queries into file (" + getLogFileName() + ")";
+        return Constant.messages.getString("filter.logposts.name") + getLogFileName();
         
     }
 

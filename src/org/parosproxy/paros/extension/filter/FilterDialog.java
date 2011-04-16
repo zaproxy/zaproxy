@@ -18,12 +18,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.util.List;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamDialog;
 
 
@@ -48,8 +51,8 @@ public class FilterDialog extends AbstractParamDialog {
     }
 
     private void initialize() {
-                this.setTitle("Filters");
-                this.setSize(640, 480);
+        this.setTitle(Constant.messages.getString("filter.title.filters"));
+        this.setSize(640, 480);
         addParamPanel(ROOT, getAllFilterPanel());
         getBtnCancel().setEnabled(false);
     }

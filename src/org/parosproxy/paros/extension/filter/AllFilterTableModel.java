@@ -18,12 +18,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
+
+import org.parosproxy.paros.Constant;
 
 /**
  *
@@ -32,7 +36,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class AllFilterTableModel extends DefaultTableModel {
 
-    private static final String[] columnNames = {"Filter Name", "Enabled", ""};
+    private static final String[] columnNames = {
+    	Constant.messages.getString("filter.table.name"), Constant.messages.getString("filter.table.enabled"), ""};
     private List allFilters = null;
     
     /**

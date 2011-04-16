@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.GridBagConstraints;
@@ -28,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
 /**
@@ -151,7 +154,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	private JButton getBtnEnableAll() {
 		if (btnEnableAll == null) {
 			btnEnableAll = new JButton();
-			btnEnableAll.setText("Enable All");
+			btnEnableAll.setText(Constant.messages.getString("filter.button.enableall"));
 			btnEnableAll.setEnabled(false);
 			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -172,7 +175,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	private JButton getBtnDisableAll() {
 		if (btnDisableAll == null) {
 			btnDisableAll = new JButton();
-			btnDisableAll.setText("Disable All");
+			btnDisableAll.setText(Constant.messages.getString("filter.button.disableall"));
 			btnDisableAll.setEnabled(false);
 			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
 

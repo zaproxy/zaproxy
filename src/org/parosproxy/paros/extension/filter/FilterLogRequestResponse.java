@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.io.BufferedWriter;
@@ -26,6 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -58,7 +61,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
     public String getName() {
-        return "Log request and response into file (" + logFile + ")";
+        return Constant.messages.getString("filter.logreqresp.name") + logFile;
     }
 
     /* (non-Javadoc)

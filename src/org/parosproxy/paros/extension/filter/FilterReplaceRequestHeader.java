@@ -18,10 +18,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.regex.Matcher;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -44,7 +47,7 @@ public class FilterReplaceRequestHeader extends FilterAbstractReplace {
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getName()
      */
     public String getName() {
-        return "Replace HTTP request header using defined pattern.";
+        return Constant.messages.getString("filter.replacereqheader.name");
     }
 
     /* (non-Javadoc)

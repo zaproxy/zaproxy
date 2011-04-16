@@ -20,6 +20,7 @@
  */
 package org.parosproxy.paros.extension.filter;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -42,7 +43,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
     public String getName() {
-        return "Avoid browser cache (strip off IfModifiedSince)";
+        return Constant.messages.getString("filter.nocache.name");
         
     }
 

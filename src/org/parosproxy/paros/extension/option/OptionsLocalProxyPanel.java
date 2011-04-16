@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
@@ -122,8 +124,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			gridBagConstraints7.ipady = 0;
 			gridBagConstraints7.anchor = java.awt.GridBagConstraints.EAST;
 			gridBagConstraints7.insets = new java.awt.Insets(2,2,2,2);
-			jLabel1.setText("Port (eg 8080)");
-			jLabel6.setText("<html><body><br><p>Set your browser proxy setting using the above.  The http port and https port must be the same port as above.</p></body></html>");
+			jLabel1.setText(Constant.messages.getString("options.proxy.local.label.port"));
+			jLabel6.setText(Constant.messages.getString("options.proxy.local.label.browser"));
 			gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints15.gridx = 0;
 			gridBagConstraints15.gridy = 4;
@@ -166,8 +168,11 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
 			panelReverseProxy.setLayout(new GridBagLayout());
 			panelReverseProxy.setSize(114, 132);
-			panelReverseProxy.setName("Miscellaneous");	// ZAP: Fixed typo
-			panelReverseProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Reverse proxy", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			panelReverseProxy.setName(Constant.messages.getString("options.proxy.local.label.misc"));
+			panelReverseProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("options.proxy.local.label.reverse"), 
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
 			panelReverseProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints101.gridx = 0;
 			gridBagConstraints101.gridy = 0;
@@ -199,8 +204,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			gridBagConstraints13.ipadx = 50;
 			gridBagConstraints13.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints13.anchor = java.awt.GridBagConstraints.WEST;
-			jLabel2.setText("Address (eg 192.168.0.1)");
-			jLabel3.setText("HTTP Port (eg 80)");
+			jLabel2.setText(Constant.messages.getString("options.proxy.local.label.rev.address"));
+			jLabel3.setText(Constant.messages.getString("options.proxy.local.label.rev.port"));
 			panelReverseProxy.add(jLabel2, gridBagConstraints101);
 			panelReverseProxy.add(getTxtReverseProxyIp(), gridBagConstraints11);
 			panelReverseProxy.add(getTxtReverseProxyHttpPort(), gridBagConstraints13);
@@ -219,7 +224,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			gridBagConstraints41.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints41.weightx = 0.5D;
 			gridBagConstraints41.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			jLabel7.setText("<html><body><p>The address should not be \"localhost\" because a reverse proxy should be accessed by browser from another computer.</p></body></html>");
+			jLabel7.setText(Constant.messages.getString("options.proxy.local.label.rev.local"));
 			gridBagConstraints51.gridx = 0;
 			gridBagConstraints51.gridy = 3;
 			gridBagConstraints51.insets = new java.awt.Insets(2,2,2,2);
@@ -280,7 +285,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints1.weightx = 1.0;
 			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			panelProxy.setName("Local Proxy");
+			panelProxy.setName(Constant.messages.getString("options.proxy.local.label.local"));
 			panelProxy.setSize(303, 177);
 			panelProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints81.gridx = 0;
@@ -375,7 +380,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("Local proxy");
+        this.setName(Constant.messages.getString("options.proxy.local.title"));
         this.setSize(391, 320);
         this.add(getPanelProxy(), getPanelProxy().getName());
         
@@ -412,21 +417,21 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	        proxyPort = Integer.parseInt(txtProxyPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtProxyPort.requestFocus();
-	        throw new Exception("Invalid proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.port"));
 	    }
 
 	    try {
 	        reverseProxyHttpPort = Integer.parseInt(txtReverseProxyHttpPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtReverseProxyHttpPort.requestFocus();
-	        throw new Exception("Invalid reverse proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
 	    }
 	    
 	    try {
 	        reverseProxyHttpsPort = Integer.parseInt(txtReverseProxyHttpsPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtReverseProxyHttpsPort.requestFocus();
-	        throw new Exception("Invalid reverse proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
 	    }
 
 	}
@@ -443,21 +448,21 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	        proxyPort = Integer.parseInt(txtProxyPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtProxyPort.requestFocus();
-	        throw new Exception("Invalid proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.port"));
 	    }
 
 	    try {
 	        reverseProxyHttpPort = Integer.parseInt(txtReverseProxyHttpPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtReverseProxyHttpPort.requestFocus();
-	        throw new Exception("Invalid reverse proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
 	    }
 
 	    try {
 	        reverseProxyHttpsPort = Integer.parseInt(txtReverseProxyHttpsPort.getText());
 	    } catch (NumberFormatException nfe) {
 	        txtReverseProxyHttpsPort.requestFocus();
-	        throw new Exception("Invalid reverse proxy port number.");
+	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
 	    }
 
 	    
@@ -479,7 +484,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	private JCheckBox getChkReverseProxy() {
 		if (chkReverseProxy == null) {
 			chkReverseProxy = new JCheckBox();
-			chkReverseProxy.setText("Use reverse proxy");
+			chkReverseProxy.setText(Constant.messages.getString("options.proxy.local.label.userev"));
 			chkReverseProxy.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {  
 				    setReverseProxyEnabled(getChkReverseProxy().isSelected());

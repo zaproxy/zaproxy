@@ -18,21 +18,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 
-import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.ViewDelegate;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.extension.ViewDelegate;
 /**
  *
  * To change the template for this generated type comment go to
@@ -81,7 +84,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setTitle("Change User Agent");
+        this.setTitle(Constant.messages.getString("filter.changeua.title"));
         this.setContentPane(getJPanel());
         this.setSize(375, 173);
         
@@ -105,7 +108,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jLabel.setText("Select user agent to be used:");
+			jLabel.setText(Constant.messages.getString("filter.changeua.label.selectua"));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.insets = new java.awt.Insets(20,5,2,5);
@@ -157,7 +160,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	private JButton getBtnOK() {
 		if (btnOK == null) {
 			btnOK = new JButton();
-			btnOK.setText("OK");
+			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) { 
@@ -177,7 +180,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    FilterChangeUserAgentDialog.this.dispose();

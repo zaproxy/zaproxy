@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.core.proxy;
  
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Vector;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
@@ -118,7 +121,7 @@ public class ProxyServer implements Runnable {
    	        } catch (Exception e) {
    	            if (!isDynamicPort) {
    	            	// ZAP: Warn the user if we cant listen on the static port
-   	            	View.getSingleton().showWarningDialog("Cannot listen on port " + port);
+   	            	View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
    	                e.printStackTrace();
    	                return -1;
    	            } else {

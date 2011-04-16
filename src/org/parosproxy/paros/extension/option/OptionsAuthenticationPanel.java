@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.option;
 
 import java.awt.GridBagConstraints;
@@ -28,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -64,8 +67,8 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 
         this.setLayout(new GridBagLayout());
         this.setSize(409, 268);
-        this.setName("Authentication");
-        jLabel.setText("<html><body><p>Enter the HTTP authentication of various hosts into the table below.</p><p>Currently basic authentication is supported.  NTLM support works in some hosts but not extensively tested.</p><p>To delete an entry, just leave the host name blank.</p></body></html>");
+        this.setName(Constant.messages.getString("options.auth.title"));
+        jLabel.setText(Constant.messages.getString("options.auth.label.hosts"));
         jLabel.setPreferredSize(new java.awt.Dimension(494,80));
         jLabel.setMinimumSize(new java.awt.Dimension(494,16));
         gridBagConstraints1.gridx = 0;

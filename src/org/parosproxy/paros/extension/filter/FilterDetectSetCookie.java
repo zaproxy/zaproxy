@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Vector;
@@ -26,6 +28,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 
@@ -56,7 +59,7 @@ public class FilterDetectSetCookie extends FilterAdaptor {
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
     public String getName() {
-        return "Detect and alert 'Set-cookie' attempt in HTTP response for modification.";
+        return Constant.messages.getString("filter.setcookie.name");
         
     }
 

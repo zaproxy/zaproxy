@@ -18,10 +18,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.extension.filter;
 
 import javax.swing.JOptionPane;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -77,7 +80,7 @@ public class FilterChangeUserAgent extends FilterAdaptor {
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getName()
      */
     public String getName() {
-        return "Change user agent to other browsers.";
+        return Constant.messages.getString("filter.changeua.name");
     }
     
 	/**
