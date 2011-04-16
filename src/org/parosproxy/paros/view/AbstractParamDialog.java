@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.view;
  
 import java.awt.CardLayout;
@@ -43,6 +45,7 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 /**
  *
@@ -173,7 +176,7 @@ public class AbstractParamDialog extends AbstractDialog {
 		if (btnOK == null) {
 			btnOK = new JButton();
 			btnOK.setName("btnOK");
-			btnOK.setText("OK");
+			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -205,7 +208,7 @@ public class AbstractParamDialog extends AbstractDialog {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
 			btnCancel.setName("btnCancel");
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -291,7 +294,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			treeParam.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
-
+					
 			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
 			        if (node == null) return;
 			        String name = (String) node.getUserObject();

@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -85,10 +86,14 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 			panelProxyAuth = new JPanel();
 			panelProxyAuth.setLayout(new GridBagLayout());
-			jLabel9.setText("Realm:");
-			jLabel10.setText("User name:");
-			jLabel11.setText("Password (not stored):");
-			panelProxyAuth.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Proxy authentication", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+			jLabel9.setText(Constant.messages.getString("conn.options.proxy.auth.realm"));
+			jLabel10.setText(Constant.messages.getString("conn.options.proxy.auth.username"));
+			jLabel11.setText(Constant.messages.getString("conn.options.proxy.auth.password"));
+			panelProxyAuth.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("conn.options.proxy.auth.auth"), 
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
 			panelProxyAuth.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.gridy = 0;
@@ -185,7 +190,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("Connection");
+        this.setName(Constant.messages.getString("conn.options.title"));
         this.add(getPanelProxyChain(), getPanelProxyChain().getName());
 
 
@@ -267,4 +272,4 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 	}
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}

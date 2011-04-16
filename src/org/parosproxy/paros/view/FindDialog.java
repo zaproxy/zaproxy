@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 i18n
+
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -43,6 +45,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 
 public class FindDialog extends AbstractDialog {
@@ -89,7 +92,7 @@ public class FindDialog extends AbstractDialog {
 	private void initialize() {
         this.setVisible(false);
         this.setResizable(false);
-        this.setTitle("Find");
+        this.setTitle(Constant.messages.getString("edit.find.title"));
         this.setContentPane(getJPanel());
         this.setSize(261, 111);
         centreDialog();
@@ -150,7 +153,7 @@ public class FindDialog extends AbstractDialog {
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jLabel.setText("Find what:");
+			jLabel.setText(Constant.messages.getString("edit.find.label.what"));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.insets = new java.awt.Insets(2,10,2,10);
@@ -181,7 +184,7 @@ public class FindDialog extends AbstractDialog {
 	private JButton getBtnFind() {
 		if (btnFind == null) {
 			btnFind = new JButton();
-			btnFind.setText("Find");
+			btnFind.setText(Constant.messages.getString("edit.find.button.find"));
 			btnFind.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -202,7 +205,7 @@ public class FindDialog extends AbstractDialog {
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("edit.find.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {

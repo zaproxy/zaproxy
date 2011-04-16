@@ -27,6 +27,7 @@ import java.awt.HeadlessException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.OptionsParam;
 /**
@@ -142,7 +143,7 @@ public class ProxyDialog extends AbstractDialog {
 	private JButton getBtnOK() {
 		if (btnOK == null) {
 			btnOK = new JButton();
-			btnOK.setText("OK");
+			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    

@@ -28,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.extension.option.OptionsLocalePanel;
@@ -134,7 +135,7 @@ public class LocaleDialog extends AbstractDialog {
 	private JButton getBtnOK() {
 		if (btnOK == null) {
 			btnOK = new JButton();
-			btnOK.setText("OK");
+			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
