@@ -167,26 +167,27 @@ public class ZAP {
 	    
 	    Model.getSingleton().init();
 	    Model.getSingleton().getOptionsParam().setGUI(cmdLine.isGUI());
-	    
-	    // Prompt for language if not set
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
-        	// Dont use a parent of the MainFrame - that will initialise it with English! 
-			LocaleDialog dialog = new LocaleDialog(null, true);
-			dialog.init(Model.getSingleton().getOptionsParam());
-			dialog.setVisible(true);
-			Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
-			Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
-	    }
-
-	    // Prompt for proxy details if set
-	    if (Model.getSingleton().getOptionsParam().getConnectionParam().isProxyChainPrompt()) {
-			ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
-			dialog.init(Model.getSingleton().getOptionsParam());
-			dialog.setVisible(true);
-	    }
 		
 		if (Model.getSingleton().getOptionsParam().isGUI()) {
-			View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
+		    
+		    // Prompt for language if not set
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
+	        	// Dont use a parent of the MainFrame - that will initialise it with English! 
+				LocaleDialog dialog = new LocaleDialog(null, true);
+				dialog.init(Model.getSingleton().getOptionsParam());
+				dialog.setVisible(true);
+				Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
+				Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
+		    }
+
+		    // Prompt for proxy details if set
+		    if (Model.getSingleton().getOptionsParam().getConnectionParam().isProxyChainPrompt()) {
+				ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
+				dialog.init(Model.getSingleton().getOptionsParam());
+				dialog.setVisible(true);
+		    }
+
+		    View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 		    runGUI();
 		    aboutWindow.dispose();
 		    
@@ -200,6 +201,8 @@ public class ZAP {
 			    	eau.checkForUpdates(false);
 			    }
 		    }
+	    } else if (cmdLine.isDaemon()) {
+	    	runDaemon();
 	    } else {
 	        runCommandLine();
 	    }
@@ -253,6 +256,12 @@ public class ZAP {
 	    view.setStatus("");
 
 	    control.getMenuFileControl().newSession(false);
+
+	}
+	
+	private void runDaemon() throws ClassNotFoundException, Exception {
+		// TODO start in a background thread
+	    Control.initSingletonWithoutView();
 
 	}
 	

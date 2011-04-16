@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 Support for running ZAP as a daemon
 package org.parosproxy.paros;
 
 import java.util.Hashtable;
@@ -37,6 +38,7 @@ public class CommandLine {
 	// ZAP: Made public
     public static final String SESSION = "-session";
     public static final String NEW_SESSION = "-newsession";
+    public static final String DAEMON = "-daemon";
     public static final String HELP = "-help";
     public static final String HELP2 = "-h";
     
@@ -44,6 +46,7 @@ public class CommandLine {
     static final String SP = "-sp";
     
     private boolean GUI = true;
+    private boolean daemon = false;
     private String[] args = null;
     private Hashtable<String, String> keywords = new Hashtable<String, String>();
     private Vector<CommandLineArgument[]> commandList = null;
@@ -172,6 +175,9 @@ public class CommandLine {
         } else if (checkSwitch(args, SP, i)) {
             Constant.setSP(true);
             result = true;
+        } else if (checkSwitch(args, DAEMON, i)) {
+        	setDaemon(true);
+            setGUI(false);
         } else if (checkSwitch(args, HELP, i)) {
             result = true;
             setGUI(false);
@@ -209,7 +215,15 @@ public class CommandLine {
         this.GUI = GUI;
     }
     
-    public String getArgument(String keyword) {
+    public boolean isDaemon() {
+		return daemon;
+	}
+
+	public void setDaemon(boolean daemon) {
+		this.daemon = daemon;
+	}
+
+	public String getArgument(String keyword) {
         return (String) keywords.get(keyword);
     }
 
@@ -228,7 +242,7 @@ public class CommandLine {
     public String getHelp() {
         StringBuffer sb = new StringBuffer(getHelpGeneral());        
         sb.append("Command line usage:\r\n");
-        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options}\r\n");
+        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} (-daemon)\r\n");
         sb.append("options:\r\n\r\n");
 
         for (int i=0; i<commandList.size(); i++) {

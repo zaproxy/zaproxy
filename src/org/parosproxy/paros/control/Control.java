@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/16 Support for running ZAP as a daemon
+
 package org.parosproxy.paros.control;
 
 import org.apache.commons.logging.Log;
@@ -78,18 +80,16 @@ public class Control extends AbstractControl {
 		// start plugin loading
 		loadExtension();
 		
+		// ZAP: Start proxy even if no view
+	    getProxy();
+	    getExtensionLoader().hookProxyListener(getProxy());
+		
 		if (view != null) {
-		    // no need to start proxy if no view
-		    getProxy();
-		    getExtensionLoader().hookProxyListener(getProxy());
-
 		    // ZAP: Add site map listeners
 		    getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
-
-		    // post-init
-		    getProxy().startServer();
-		    
 		}
+		
+		getProxy().startServer();
     }
     
     public Proxy getProxy() {
@@ -143,6 +143,8 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionInvoke());
         getExtensionLoader().addExtension(new ExtensionHexView());
         getExtensionLoader().addExtension(new ExtensionFuzz());
+        //getExtensionLoader().addExtension(new ExtensionAntiCSRF());
+        
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());
 
