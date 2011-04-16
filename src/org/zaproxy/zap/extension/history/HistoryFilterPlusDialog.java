@@ -45,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.HistoryFilter;
@@ -58,10 +59,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
-	private static final String MSG = 
-		"<html><p>Select the required filters below.  " +
-		"You can select multiple rows in each element.  " +
-		"An element is not used for filtering if none of the rows in it are selected.</p></html>";
+	private static final String MSG = Constant.messages.getString("history.filter.label.desc"); 
 
 	private JPanel jPanel = null;
 	private JButton btnApply = null;
@@ -115,7 +113,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         this.setContentPane(getJPanel());
         this.setVisible(false);
         this.setResizable(false);
-        this.setTitle("Filter history");
+        this.setTitle(Constant.messages.getString("history.filter.title"));
         //this.setSize(400, 188);
         centreDialog();
         this.getRootPane().setDefaultButton(btnApply);
@@ -210,7 +208,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JButton getBtnApply() {
 		if (btnApply == null) {
 			btnApply = new JButton();
-			btnApply.setText("Apply");
+			btnApply.setText(Constant.messages.getString("history.filter.button.apply"));
 			btnApply.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -237,7 +235,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -279,7 +277,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JButton getBtnReset() {
 		if (btnReset == null) {
 			btnReset = new JButton();
-			btnReset.setText("Clear");
+			btnReset.setText(Constant.messages.getString("history.filter.button.clear"));
 			btnReset.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -383,10 +381,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			gbc31.anchor = java.awt.GridBagConstraints.WEST;
 			gbc31.gridwidth = 2;
 
-			jPanel2.add(new JLabel("Methods:"), gbc00);
-			jPanel2.add(new JLabel("Codes:"), gbc01);
-			jPanel2.add(new JLabel("Tags:"), gbc02);
-			jPanel2.add(new JLabel("Alerts:"), gbc03);
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.methods")), gbc00);
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.codes")), gbc01);
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.tags")), gbc02);
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.alerts")), gbc03);
 			
 			jPanel2.add(getMethodScroller(), gbc10);
 			jPanel2.add(getCodeScroller(), gbc11);
@@ -395,11 +393,9 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			
 			jPanel2.add(getReliabilityScroller(), gbc23);
 
-			//jPanel2.add(new JLabel("Notes:"), gbc30);
-			//jPanel2.add(getNotesComboBox(), gbc31);
 			JPanel jPanel3 = new JPanel();
 			jPanel3.setLayout(new BoxLayout(jPanel3, BoxLayout.X_AXIS));
-			jPanel3.add(new JLabel("Notes: "));
+			jPanel3.add(new JLabel(Constant.messages.getString("history.filter.label.notes")));
 			jPanel3.add(getNotesComboBox());
 			jPanel2.add(jPanel3, gbc30);
 

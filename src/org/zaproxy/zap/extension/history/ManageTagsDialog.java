@@ -37,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.TreeSelectionListener;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -92,7 +93,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	 * @return void
 	 */
 	private void initialize() {
-        this.setTitle("Manage Tags");
+        this.setTitle(Constant.messages.getString("history.managetags.title"));
         this.setContentPane(getJPanel());
         this.setSize(panelWidth, panelHeight);
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
@@ -174,10 +175,10 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 			gridBagConstraints41.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints41.anchor = java.awt.GridBagConstraints.EAST;
 
-			jPanel.add(new JLabel("Add Tag:"), gridBagConstraints00);
+			jPanel.add(new JLabel(Constant.messages.getString("history.managetags.label.addtag")), gridBagConstraints00);
 			jPanel.add(this.getTxtTagAdd(), gridBagConstraints10);
 			jPanel.add(getBtnAdd(), gridBagConstraints11);
-			jPanel.add(new JLabel("Current Tags:"), gridBagConstraints20);
+			jPanel.add(new JLabel(Constant.messages.getString("history.managetags.label.currenttags")), gridBagConstraints20);
 			jPanel.add(getJScrollPane(), gridBagConstraints30);
 			jPanel.add(getBtnDelete(), gridBagConstraints31);
 			jPanel.add(getBtnCancel(), gridBagConstraints40);
@@ -275,7 +276,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	private JButton getBtnAdd() {
 		if (btnAdd == null) {
 			btnAdd = new JButton();
-			btnAdd.setText("Add");
+			btnAdd.setText(Constant.messages.getString("history.managetags.button.add"));
 			btnAdd.setMinimumSize(new java.awt.Dimension(75,30));
 			btnAdd.setPreferredSize(new java.awt.Dimension(75,30));
 			btnAdd.setMaximumSize(new java.awt.Dimension(100,40));
@@ -298,7 +299,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	private JButton getBtnDelete() {
 		if (btnDelete == null) {
 			btnDelete = new JButton();
-			btnDelete.setText("Delete");
+			btnDelete.setText(Constant.messages.getString("history.managetags.button.delete"));
 			btnDelete.setMinimumSize(new java.awt.Dimension(75,30));
 			btnDelete.setPreferredSize(new java.awt.Dimension(75,30));
 			btnDelete.setMaximumSize(new java.awt.Dimension(100,40));
@@ -317,7 +318,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	private JButton getBtnSave() {
 		if (btnSave == null) {
 			btnSave = new JButton();
-			btnSave.setText("Save");
+			btnSave.setText(Constant.messages.getString("history.managetags.button.save"));
 			btnSave.setMinimumSize(new java.awt.Dimension(75,30));
 			btnSave.setPreferredSize(new java.awt.Dimension(75,30));
 			btnSave.setMaximumSize(new java.awt.Dimension(100,40));
@@ -337,7 +338,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.setMinimumSize(new java.awt.Dimension(75,30));
 			btnCancel.setPreferredSize(new java.awt.Dimension(75,30));
 			btnCancel.setMaximumSize(new java.awt.Dimension(100,40));

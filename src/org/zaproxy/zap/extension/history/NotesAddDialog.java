@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.event.TreeSelectionListener;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -76,7 +77,7 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 	 * @return void
 	 */
 	private void initialize() {
-        this.setTitle("Add Note");
+        this.setTitle(Constant.messages.getString("history.addnote.title"));
         this.setContentPane(getJPanel());
         this.setSize(407, 407);
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
@@ -163,7 +164,7 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 	private JButton getBtnOk() {
 		if (btnOk == null) {
 			btnOk = new JButton();
-			btnOk.setText("Save");
+			btnOk.setText(Constant.messages.getString("all.button.save"));
 			btnOk.setMinimumSize(new java.awt.Dimension(75,30));
 			btnOk.setPreferredSize(new java.awt.Dimension(75,30));
 			btnOk.setMaximumSize(new java.awt.Dimension(100,40));
@@ -187,7 +188,7 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
-			btnCancel.setText("Cancel");
+			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.setMaximumSize(new java.awt.Dimension(100,40));
 			btnCancel.setMinimumSize(new java.awt.Dimension(70,30));
 			btnCancel.setPreferredSize(new java.awt.Dimension(70,30));
