@@ -59,7 +59,9 @@ public class MenuFileControl implements SessionListener {
     
 	public void exit() {
 	    boolean isNewState = model.getSession().isNewState();
-	    if (isNewState) {
+	    boolean askOnExit = Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
+	    
+	    if (isNewState && askOnExit) {
 	    	// ZAP: i18n
 			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
 				return;
