@@ -37,6 +37,8 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
 
+// ZAP: 2011: added more configuration options
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -50,7 +52,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkProcessImages = null;
 	private JCheckBox chkShowMainToolbar = null;
 	private JCheckBox chkAdvancedView = null;
-	// ZAP: Added locale selector
+	private JCheckBox chkAskOnExit = null;
+	private JCheckBox chkWmUiHandling = null;
 	private JComboBox localeSelect = null;
 	private JComboBox editorViewSelect = null;
 	private JComboBox brkPanelViewSelect = null;
@@ -59,6 +62,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel editorViewLabel = null;
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
+	private JLabel wmUiHandlingLabel = null;
+	private JLabel askOnExitLabel = null;
 	private Map<String, String> localeMap = new HashMap<String, String>();
 	private JLabel displayLabel = null;
 	private JComboBox displaySelect = null;
@@ -103,6 +108,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc4_1 = new GridBagConstraints();
 			GridBagConstraints gbc5_0 = new GridBagConstraints();
 			GridBagConstraints gbc5_1 = new GridBagConstraints();
+			GridBagConstraints gbc6_0 = new GridBagConstraints();
+			GridBagConstraints gbc6_1 = new GridBagConstraints();
+			GridBagConstraints gbc7_0 = new GridBagConstraints();
+			GridBagConstraints gbc7_1 = new GridBagConstraints();
 						
 			GridBagConstraints gbc9 = new GridBagConstraints();
 						
@@ -210,8 +219,45 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc5_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc5_1.weightx = 1.0D;
 			
+			gbc6_0.gridx = 0;
+			gbc6_0.gridy = 6;
+			gbc6_0.ipadx = 0;
+			gbc6_0.ipady = 0;
+			gbc6_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc6_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc6_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc6_0.weightx = 1.0D;
+
+			gbc6_1.gridx = 1;
+			gbc6_1.gridy = 6;
+			gbc6_1.ipadx = 0;
+			gbc6_1.ipady = 0;
+			gbc6_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc6_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc6_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc6_1.weightx = 1.0D;
+			
+			gbc7_0.gridx = 0;
+			gbc7_0.gridy = 7;
+			gbc7_0.ipadx = 0;
+			gbc7_0.ipady = 0;
+			gbc7_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc7_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc7_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc7_0.weightx = 1.0D;
+
+			gbc7_1.gridx = 1;
+			gbc7_1.gridy = 7;
+			gbc7_1.ipadx = 0;
+			gbc7_1.ipady = 0;
+			gbc7_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc7_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc7_1.weightx = 1.0D;
+			
+			
 			gbc9.gridx = 0;
-			gbc9.gridy = 6;
+			gbc9.gridy = 8;
 			gbc9.ipadx = 0;
 			gbc9.ipady = 0;
 			gbc9.insets = new java.awt.Insets(2,2,2,2);
@@ -222,7 +268,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			
 			
 			gbcY.gridx = 0;
-			gbcY.gridy = 7;
+			gbcY.gridy = 9;
 			gbcY.ipadx = 0;
 			gbcY.ipady = 0;
 			gbcY.insets = new java.awt.Insets(2,2,2,2);
@@ -233,7 +279,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbcY.gridwidth = 2;
 
 			gbcX.gridx = 0;
-			gbcX.gridy = 8;
+			gbcX.gridy = 10;
 			gbcX.ipadx = 0;
 			gbcX.ipady = 0;
 			gbcX.insets = new java.awt.Insets(2,2,2,2);
@@ -248,13 +294,15 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
 			localeRestartLabel = new JLabel(Constant.messages.getString("view.options.label.restart"));
 			advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
-
+			wmUiHandlingLabel = new JLabel(Constant.messages.getString("view.options.label.wmuihandler"));
+			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
+			
 			panelMisc.add(getChkProcessImages(), gbc0);
 			panelMisc.add(localeLabel, gbc1_0);
 			panelMisc.add(getLocaleSelect(), gbc1_1);
 			panelMisc.add(displayLabel, gbc2_0);
 			panelMisc.add(getDisplaySelect(), gbc2_1);
-			
+
 			panelMisc.add(editorViewLabel, gbc3_0);
 			panelMisc.add(getEditorViewSelect(), gbc3_1);
 			
@@ -263,6 +311,12 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 			panelMisc.add(advancedViewLabel, gbc5_0);
 			panelMisc.add(getChkAdvancedView(), gbc5_1);
+			
+			panelMisc.add(wmUiHandlingLabel, gbc6_0);
+			panelMisc.add(getChkWmUiHandling(), gbc6_1);
+
+			panelMisc.add(askOnExitLabel, gbc7_0);
+			panelMisc.add(getChkAskOnExit(), gbc7_1);
 			
 			panelMisc.add(getChkShowMainToolbar(), gbc9);
 			
@@ -296,6 +350,24 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			chkShowMainToolbar.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
 		return chkShowMainToolbar;
+	}
+
+	private JCheckBox getChkWmUiHandling() {
+		if (chkWmUiHandling == null) {
+			chkWmUiHandling = new JCheckBox();
+			chkWmUiHandling.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkWmUiHandling.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkWmUiHandling;
+	}
+
+	private JCheckBox getChkAskOnExit() {
+		if (chkAskOnExit == null) {
+			chkAskOnExit = new JCheckBox();
+			chkAskOnExit.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkAskOnExit.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkAskOnExit;
 	}
 	
 	private JComboBox getLocaleSelect() {
@@ -337,7 +409,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox getChkAdvancedView() {
 		if (chkAdvancedView == null) {
 			chkAdvancedView = new JCheckBox();
-//			chkProcessImages.setText(Constant.messages.getString("view.options.label.processImages"));
 			chkAdvancedView.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 			chkAdvancedView.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
@@ -365,6 +436,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
 	    getChkShowMainToolbar().setSelected(options.getViewParam().getShowMainToolbar() > 0);
 	    chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
+	    chkAskOnExit.setSelected(options.getViewParam().getAskOnExitOption() > 0);
+	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
 	}
 	
 	public void validateParam(Object obj) {
@@ -384,6 +457,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
 	    options.getViewParam().setShowMainToolbar((getChkShowMainToolbar().isSelected()) ? 1 : 0);
 	    options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
+	    options.getViewParam().setAskOnExitOption(getChkAskOnExit().isSelected() ? 1 : 0);
+	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
 	}
 	
      }  //  @jve:decl-index=0:visual-constraint="10,10"

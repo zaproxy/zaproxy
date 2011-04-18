@@ -23,10 +23,11 @@ package org.parosproxy.paros.extension.option;
 
 import org.parosproxy.paros.common.AbstractParam;
 
+// ZAP: Added support for selecting the locale
+
 public class OptionsParamView extends AbstractParam {
 
 	private static final String PROCESS_IMAGES = "view.processImages";
-	// ZAP: Added support fr selecting the locale
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
@@ -34,8 +35,9 @@ public class OptionsParamView extends AbstractParam {
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
 	public static final String SHOW_MAIN_TOOLBAR_OPTION = "view.showMainToolbar";
 	public static final String DEFAULT_LOCALE = "en_GB";
-	public static final String ADVANCED_UI = "view.options.label.advancedview";
-	//private static final String[] DEFAULT_LOCALES = {"en_GB", "de_DE", "es_ES", "pt_BR", "pl_PL"};
+	public static final String ADVANCEDUI_OPTION = "view.advancedview";
+	public static final String WMUIHANDLING_OPTION = "view.uiWmHandling";
+	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 
 	private int advancedViewEnabled = 0;
 	private int editorViewOption;
@@ -45,6 +47,8 @@ public class OptionsParamView extends AbstractParam {
 	private String locale = "";
 	private int displayOption = 0;
 	private int brkPanelViewOption = 0;
+	private int askOnExitEnabled = 1;
+	private int wmUiHandlingEnabled = 0;
 	
     /**
      * @param rootElementName
@@ -64,7 +68,9 @@ public class OptionsParamView extends AbstractParam {
 	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
 	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
-	    advancedViewEnabled = getConfig().getInt(ADVANCED_UI, 0);
+	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
+	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
+	    askOnExitEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 1);
     }
 
 	/**
@@ -142,7 +148,25 @@ public class OptionsParamView extends AbstractParam {
 	
 	public void setAdvancedViewOption(int isEnabled) {
 		advancedViewEnabled = isEnabled;
-		getConfig().setProperty(ADVANCED_UI, Integer.toString(isEnabled));
+		getConfig().setProperty(ADVANCEDUI_OPTION, Integer.toString(isEnabled));
+	}
+
+	public void setAskOnExitOption(int isEnabled) {
+		askOnExitEnabled = isEnabled;
+		getConfig().setProperty(ASKONEXIT_OPTION, Integer.toString(isEnabled));
+	}
+
+	public int getAskOnExitOption() {
+		return askOnExitEnabled;
+	}
+
+	public void setWmUiHandlingOption(int isEnabled) {
+		wmUiHandlingEnabled = isEnabled;
+		getConfig().setProperty(WMUIHANDLING_OPTION, Integer.toString(isEnabled));
+	}
+	
+	public int getWmUiHandlingOption() {
+		return wmUiHandlingEnabled;
 	}
 	
 }
