@@ -329,8 +329,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			brkPanelViewSelect = new JComboBox();
 			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.toolbaronly"));
 			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.breakonly"));
-			//TODO Currently this is not possible. Has to be fixed some day ;)
-			//brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.both"));
+			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.both"));
 		}
 		return brkPanelViewSelect; 
 	}
