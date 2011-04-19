@@ -39,24 +39,23 @@ import org.zaproxy.zap.utils.LocaleUtils;
 
 // ZAP: 2011: added more configuration options
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsViewPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	
 	private JPanel panelMisc = null;
+	
 	private JCheckBox chkProcessImages = null;
 	private JCheckBox chkShowMainToolbar = null;
 	private JCheckBox chkAdvancedView = null;
 	private JCheckBox chkAskOnExit = null;
 	private JCheckBox chkWmUiHandling = null;
+	
 	private JComboBox localeSelect = null;
 	private JComboBox editorViewSelect = null;
 	private JComboBox brkPanelViewSelect = null;
+	private JComboBox displaySelect = null;
+	
 	private JLabel localeLabel = null;
 	private JLabel localeRestartLabel = null;
 	private JLabel editorViewLabel = null;
@@ -64,9 +63,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel advancedViewLabel = null;
 	private JLabel wmUiHandlingLabel = null;
 	private JLabel askOnExitLabel = null;
-	private Map<String, String> localeMap = new HashMap<String, String>();
 	private JLabel displayLabel = null;
-	private JComboBox displaySelect = null;
+	private JLabel showMainToolbarLabel = null;
+	private JLabel processImagesLabel = null;
+	
+	private Map<String, String> localeMap = new HashMap<String, String>();
 	
     public OptionsViewPanel() {
         super();
@@ -84,6 +85,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
         this.add(getPanelMisc(), getPanelMisc().getName());
 
 	}
+	
 	/**
 	 * This method initializes panelMisc	
 	 * 	
@@ -97,7 +99,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.setSize(114, 132);
 			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
-			GridBagConstraints gbc0 = new GridBagConstraints();
+			
 			GridBagConstraints gbc1_0 = new GridBagConstraints();
 			GridBagConstraints gbc1_1 = new GridBagConstraints();
 			GridBagConstraints gbc2_0 = new GridBagConstraints();
@@ -112,24 +114,16 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc6_1 = new GridBagConstraints();
 			GridBagConstraints gbc7_0 = new GridBagConstraints();
 			GridBagConstraints gbc7_1 = new GridBagConstraints();
-						
-			GridBagConstraints gbc9 = new GridBagConstraints();
+			GridBagConstraints gbc8_0 = new GridBagConstraints();
+			GridBagConstraints gbc8_1 = new GridBagConstraints();
+			GridBagConstraints gbc9_0 = new GridBagConstraints();
+			GridBagConstraints gbc9_1 = new GridBagConstraints();
 						
 			GridBagConstraints gbcY = new GridBagConstraints();
 			GridBagConstraints gbcX = new GridBagConstraints();
-			
-			gbc0.gridx = 0;
-			gbc0.gridy = 0;
-			gbc0.ipadx = 0;
-			gbc0.ipady = 0;
-			gbc0.insets = new java.awt.Insets(2,2,2,2);
-			gbc0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc0.weightx = 1.0D;
-			gbc0.gridwidth = 2;
 
 			gbc1_0.gridx = 0;
-			gbc1_0.gridy = 1;
+			gbc1_0.gridy = 0;
 			gbc1_0.ipadx = 0;
 			gbc1_0.ipady = 0;
 			gbc1_0.insets = new java.awt.Insets(2,2,2,2);
@@ -138,7 +132,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc1_0.weightx = 1.0D;
 
 			gbc1_1.gridx = 1;
-			gbc1_1.gridy = 1;
+			gbc1_1.gridy = 0;
 			gbc1_1.ipadx = 0;
 			gbc1_1.ipady = 0;
 			gbc1_1.insets = new java.awt.Insets(2,2,2,2);
@@ -147,7 +141,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc1_1.weightx = 1.0D;
 
 			gbc2_0.gridx = 0;
-			gbc2_0.gridy = 2;
+			gbc2_0.gridy = 1;
 			gbc2_0.ipadx = 0;
 			gbc2_0.ipady = 0;
 			gbc2_0.insets = new java.awt.Insets(2,2,2,2);
@@ -156,7 +150,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc2_0.weightx = 1.0D;
 
 			gbc2_1.gridx = 1;
-			gbc2_1.gridy = 2;
+			gbc2_1.gridy = 1;
 			gbc2_1.ipadx = 0;
 			gbc2_1.ipady = 0;
 			gbc2_1.insets = new java.awt.Insets(2,2,2,2);
@@ -166,7 +160,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 			
 			gbc3_0.gridx = 0;
-			gbc3_0.gridy = 3;
+			gbc3_0.gridy = 2;
 			gbc3_0.ipadx = 0;
 			gbc3_0.ipady = 0;
 			gbc3_0.insets = new java.awt.Insets(2,2,2,2);
@@ -175,7 +169,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc3_0.weightx = 1.0D;
 
 			gbc3_1.gridx = 1;
-			gbc3_1.gridy = 3;
+			gbc3_1.gridy = 2;
 			gbc3_1.ipadx = 0;
 			gbc3_1.ipady = 0;
 			gbc3_1.insets = new java.awt.Insets(2,2,2,2);
@@ -184,7 +178,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc3_1.weightx = 1.0D;
 			
 			gbc4_0.gridx = 0;
-			gbc4_0.gridy = 4;
+			gbc4_0.gridy = 3;
 			gbc4_0.ipadx = 0;
 			gbc4_0.ipady = 0;
 			gbc4_0.insets = new java.awt.Insets(2,2,2,2);
@@ -193,7 +187,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc4_0.weightx = 1.0D;
 
 			gbc4_1.gridx = 1;
-			gbc4_1.gridy = 4;
+			gbc4_1.gridy = 3;
 			gbc4_1.ipadx = 0;
 			gbc4_1.ipady = 0;
 			gbc4_1.insets = new java.awt.Insets(2,2,2,2);
@@ -202,7 +196,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc4_1.weightx = 1.0D;
 		
 			gbc5_0.gridx = 0;
-			gbc5_0.gridy = 5;
+			gbc5_0.gridy = 4;
 			gbc5_0.ipadx = 0;
 			gbc5_0.ipady = 0;
 			gbc5_0.insets = new java.awt.Insets(2,2,2,2);
@@ -211,7 +205,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc5_0.weightx = 1.0D;
 
 			gbc5_1.gridx = 1;
-			gbc5_1.gridy = 5;
+			gbc5_1.gridy = 4;
 			gbc5_1.ipadx = 0;
 			gbc5_1.ipady = 0;
 			gbc5_1.insets = new java.awt.Insets(2,2,2,2);
@@ -220,7 +214,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc5_1.weightx = 1.0D;
 			
 			gbc6_0.gridx = 0;
-			gbc6_0.gridy = 6;
+			gbc6_0.gridy = 5;
 			gbc6_0.ipadx = 0;
 			gbc6_0.ipady = 0;
 			gbc6_0.insets = new java.awt.Insets(2,2,2,2);
@@ -229,7 +223,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc6_0.weightx = 1.0D;
 
 			gbc6_1.gridx = 1;
-			gbc6_1.gridy = 6;
+			gbc6_1.gridy = 5;
 			gbc6_1.ipadx = 0;
 			gbc6_1.ipady = 0;
 			gbc6_1.insets = new java.awt.Insets(2,2,2,2);
@@ -238,7 +232,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc6_1.weightx = 1.0D;
 			
 			gbc7_0.gridx = 0;
-			gbc7_0.gridy = 7;
+			gbc7_0.gridy = 6;
 			gbc7_0.ipadx = 0;
 			gbc7_0.ipady = 0;
 			gbc7_0.insets = new java.awt.Insets(2,2,2,2);
@@ -247,7 +241,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc7_0.weightx = 1.0D;
 
 			gbc7_1.gridx = 1;
-			gbc7_1.gridy = 7;
+			gbc7_1.gridy = 6;
 			gbc7_1.ipadx = 0;
 			gbc7_1.ipady = 0;
 			gbc7_1.insets = new java.awt.Insets(2,2,2,2);
@@ -255,16 +249,41 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc7_1.weightx = 1.0D;
 			
+			gbc8_0.gridx = 0;
+			gbc8_0.gridy = 7;
+			gbc8_0.ipadx = 0;
+			gbc8_0.ipady = 0;
+			gbc8_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc8_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc8_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc8_0.weightx = 1.0D;
 			
-			gbc9.gridx = 0;
-			gbc9.gridy = 8;
-			gbc9.ipadx = 0;
-			gbc9.ipady = 0;
-			gbc9.insets = new java.awt.Insets(2,2,2,2);
-			gbc9.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc9.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc9.weightx = 1.0D;
-			gbc9.gridwidth = 2;
+			gbc8_1.gridx = 1;
+			gbc8_1.gridy = 7;
+			gbc8_1.ipadx = 0;
+			gbc8_1.ipady = 0;
+			gbc8_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc8_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc8_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc8_1.weightx = 1.0D;
+			
+			gbc9_0.gridx = 0;
+			gbc9_0.gridy = 8;
+			gbc9_0.ipadx = 0;
+			gbc9_0.ipady = 0;
+			gbc9_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc9_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc9_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc9_0.weightx = 1.0D;
+			
+			gbc9_1.gridx = 1;
+			gbc9_1.gridy = 8;
+			gbc9_1.ipadx = 0;
+			gbc9_1.ipady = 0;
+			gbc9_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc9_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc9_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc9_1.weightx = 1.0D;
 			
 			
 			gbcY.gridx = 0;
@@ -296,10 +315,12 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
 			wmUiHandlingLabel = new JLabel(Constant.messages.getString("view.options.label.wmuihandler"));
 			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
+			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
+			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
 			
-			panelMisc.add(getChkProcessImages(), gbc0);
 			panelMisc.add(localeLabel, gbc1_0);
 			panelMisc.add(getLocaleSelect(), gbc1_1);
+			
 			panelMisc.add(displayLabel, gbc2_0);
 			panelMisc.add(getDisplaySelect(), gbc2_1);
 
@@ -318,7 +339,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(askOnExitLabel, gbc7_0);
 			panelMisc.add(getChkAskOnExit(), gbc7_1);
 			
-			panelMisc.add(getChkShowMainToolbar(), gbc9);
+			panelMisc.add(showMainToolbarLabel, gbc8_0);
+			panelMisc.add(getChkShowMainToolbar(), gbc8_1);
+			
+			panelMisc.add(processImagesLabel, gbc9_0);
+			panelMisc.add(getChkProcessImages(), gbc9_1);
 			
 			panelMisc.add(localeRestartLabel, gbcY);
 			panelMisc.add(new JLabel(), gbcX);
@@ -327,15 +352,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return panelMisc;
 	}
 
-	/**
-	 * This method initializes chkProcessImages	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */    
+
 	private JCheckBox getChkProcessImages() {
 		if (chkProcessImages == null) {
 			chkProcessImages = new JCheckBox();
-			chkProcessImages.setText(Constant.messages.getString("view.options.label.processImages"));
 			chkProcessImages.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 			chkProcessImages.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
@@ -345,7 +365,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox getChkShowMainToolbar() {
 		if (chkShowMainToolbar == null) {
 			chkShowMainToolbar = new JCheckBox();
-			chkShowMainToolbar.setText(Constant.messages.getString("view.options.label.showMainToolbar"));
 			chkShowMainToolbar.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 			chkShowMainToolbar.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
@@ -461,4 +480,4 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
 	}
 	
-     }  //  @jve:decl-index=0:visual-constraint="10,10"
+}
