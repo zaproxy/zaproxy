@@ -28,7 +28,7 @@ import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 
 public class FuzzerThread implements Runnable {
 
@@ -46,6 +46,8 @@ public class FuzzerThread implements Runnable {
 	private boolean fuzzHeader;
 	private int startOffset;
 	private int endOffset;
+	private AntiCsrfToken acsrfToken;
+	private boolean showTokenRequests;
 
 	private boolean pause = false;
 
@@ -90,12 +92,15 @@ public class FuzzerThread implements Runnable {
 	}
 
 
-	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, int startOffset, int endOffset) {
+	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
+			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
 		this.msg = msg;
 		this.fuzzers = fuzzers;
 		this.fuzzHeader = fuzzHeader;
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
+		this.acsrfToken = acsrfToken;
+		this.showTokenRequests = showTokenRequests;
 	}
 
     public void run() {
@@ -135,7 +140,8 @@ public class FuzzerThread implements Runnable {
 				}
 				
 				String fuzz = fuzzer.next();
-				FuzzProcess fp = new FuzzProcess(new HttpSender(connectionParam, true), msg, fuzzHeader, startOffset, endOffset, fuzz);
+				FuzzProcess fp = new FuzzProcess(connectionParam, 
+						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests);
 				for (FuzzerListener listener : listenerList) {
 					fp.addFuzzerListener(listener);
 				}

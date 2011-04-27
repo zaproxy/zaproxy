@@ -20,23 +20,29 @@
 package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.Component;
+import java.util.List;
 
 import javax.swing.JFrame;
+
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
 
 public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
-    private FuzzDialog fuzzDialog = null;
     private PopupFuzzMenu popupFuzzMenu = null;
     private FuzzerThread fuzzerThread = null;
     private FuzzerParam fuzzerParam = null;
     private FuzzerPanel fuzzerPanel = null;
     private OptionsFuzzerPanel optionsFuzzerPanel = null;
+    private boolean fuzzing = false;
     
 	/**
      * 
@@ -94,11 +100,12 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 
 
-	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, int startOffset, int endOffset) {
+	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
+			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
 		this.getFuzzerPanel().scanStarted();
 
 		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(msg, fuzzers, fuzzHeader, startOffset, endOffset);
+		fuzzerThread.setTarget(msg, fuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests);
 		fuzzerThread.addFuzzerListener(this);
 		fuzzerThread.start();
 
@@ -121,21 +128,37 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
     }
 
     private void showFuzzDialog(JFrame frame, Component invoker) {
-        if (fuzzDialog == null || fuzzDialog.getParent() != frame) {
-            fuzzDialog = new FuzzDialog(frame, false);            
-            fuzzDialog.setExtension(this);
-        }
-        
-        fuzzDialog.reset();
-        fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
-        fuzzDialog.setSelection(invoker);
-        fuzzDialog.setVisible(true);
+		List<AntiCsrfToken> tokens = null;
+
+		ExtensionAntiCSRF extAntiCSRF = 
+			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+
+		if (extAntiCSRF != null) {
+			if (invoker instanceof HttpPanelTextArea) {
+				HttpPanelTextArea ta = (HttpPanelTextArea) invoker;
+				tokens = extAntiCSRF.getTokens(ta.getHttpMessage());
+			}
+		}
+		
+		FuzzDialog fuzzDialog;
+		
+		if (tokens == null || tokens.size() == 0) {
+			fuzzDialog = new FuzzDialog(frame, false, false);            
+			fuzzDialog.setExtension(this);
+		} else {
+			fuzzDialog = new FuzzDialog(frame, false, true);            
+			fuzzDialog.setExtension(this);
+			fuzzDialog.setAntiCsrfTokens(tokens);
+		}
+		fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
+		fuzzDialog.setSelection(invoker);
+		fuzzDialog.setVisible(true);
         
     }
     
     private PopupFuzzMenu getPopupMenuFuzz() {
         if (popupFuzzMenu== null) {
-            popupFuzzMenu = new PopupFuzzMenu();
+            popupFuzzMenu = new PopupFuzzMenu(this);
             popupFuzzMenu.setText(Constant.messages.getString("fuzz.tools.menu.fuzz"));
             popupFuzzMenu.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -166,17 +189,27 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	@Override
 	public void notifyFuzzProcessComplete(FuzzProcess fp) {
+		if (fp.isShowTokenRequests()) {
+			for (HttpMessage tokenMsg : fp.getTokenRequests()) {
+				addFuzzResult(tokenMsg);
+			}
+		}
 		addFuzzResult(fp.getHttpMessage());
 	}
 
 	@Override
 	public void notifyFuzzProcessStarted(FuzzProcess fp) {
+		this.fuzzing = true;
 	}
 
 	@Override
 	public void notifyFuzzerComplete() {
 		this.getFuzzerPanel().scanFinshed();
-		
+		this.fuzzing = false;
+	}
+
+	public boolean isFuzzing() {
+		return fuzzing;
 	}
 
 }

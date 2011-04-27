@@ -35,6 +35,7 @@ import org.parosproxy.paros.extension.state.ExtensionState;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.beanshell.ExtensionBeanShell;
@@ -143,7 +144,7 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionInvoke());
         getExtensionLoader().addExtension(new ExtensionHexView());
         getExtensionLoader().addExtension(new ExtensionFuzz());
-        //getExtensionLoader().addExtension(new ExtensionAntiCSRF());
+        getExtensionLoader().addExtension(new ExtensionAntiCSRF());
         
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());

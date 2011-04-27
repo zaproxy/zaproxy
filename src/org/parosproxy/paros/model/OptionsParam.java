@@ -32,6 +32,7 @@ import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 
@@ -55,6 +56,7 @@ public class OptionsParam extends AbstractParam {
 	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
+	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private XMLConfiguration config = null;
@@ -176,6 +178,7 @@ public class OptionsParam extends AbstractParam {
 		getViewParam().load(getConfig());
 		getCheckForUpdatesParam().load(getConfig());
 		getInvokeParam().load(getConfig());
+		getAntiCsrfParam().load(getConfig());
 		
 		String userDir = getConfig().getString(USER_DIR);
 		if (userDir != null) {
@@ -219,6 +222,10 @@ public class OptionsParam extends AbstractParam {
 
 	public InvokeParam getInvokeParam() {
 		return invokeParam;
+	}
+
+	public AntiCsrfParam getAntiCsrfParam() {
+		return antiCsrfParam;
 	}
     
 }

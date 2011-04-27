@@ -27,33 +27,36 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
-import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelSplitUi;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
 import org.zaproxy.zap.extension.search.SearchMatch;
+
 public class FuzzDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
+	private static final int selectionFieldLength = 40;
 	private JPanel jPanel = null;
 	
 	private ExtensionFuzz extension;
@@ -62,6 +65,8 @@ public class FuzzDialog extends AbstractDialog {
 	private JLabel selectionField = null;
 	private JComboBox categoryField = null;
 	private JList fuzzersField = null;
+	private JCheckBox enableTokens = null;
+	private JCheckBox showTokenRequests = null;
 	private JButton cancelButton = null;
 	private JButton startButton = null;
 	private int selectionStart = -1;
@@ -69,7 +74,12 @@ public class FuzzDialog extends AbstractDialog {
 	private boolean fuzzHeader = true;
 	private HttpMessage httpMessage;
 
+	private boolean incAcsrfToken = false;
+	private FuzzerDialogTokenPane tokenPane = new FuzzerDialogTokenPane();
+	
 	private Database fuzzDB = new Database();
+
+	private static Log log = LogFactory.getLog(FuzzDialog.class);
 
     /**
      * @throws HeadlessException
@@ -84,8 +94,9 @@ public class FuzzDialog extends AbstractDialog {
      * @param arg1
      * @throws HeadlessException
      */
-    public FuzzDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
+    public FuzzDialog(Frame arg0, boolean modal, boolean incAcsrfToken) throws HeadlessException {
+        super(arg0, modal);
+        this.incAcsrfToken = incAcsrfToken;
  		initialize();
     }
 
@@ -97,7 +108,11 @@ public class FuzzDialog extends AbstractDialog {
 	private void initialize() {
         this.setContentPane(getJTabbed());
         this.setTitle(Constant.messages.getString("fuzz.title"));
-        this.setSize(500, 250);
+		if (incAcsrfToken) {
+			this.setSize(500, 450);
+		} else {
+			this.setSize(500, 350);
+		}
 	}
 	
 	/**
@@ -110,22 +125,57 @@ public class FuzzDialog extends AbstractDialog {
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.selection")), getGBC(0, 0, 1, 0.25D));
-			jPanel.add(getSelectionField(), getGBC(1, 0, 3, 0.75D));
+			jPanel.add(getSelectionField(), getGBC(1, 0, 3, 0.0D));
 
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 2, 1, 0.25D));
-			jPanel.add(getCategoryField(), getGBC(1, 2, 3, 0.75D));
-
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 3, 1, 0.25D));
+			if (incAcsrfToken) {
+				jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.anticsrf")), getGBC(0, 1, 3, 1.0D));
+				jPanel.add(getEnableTokens(), getGBC(1, 1, 1, 0.0D));
+				jPanel.add(getTokensPane(), getGBC(0, 2, 4, 1.0D, 0.0D));
+				
+				jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.showtokens")), getGBC(0, 3, 3, 1.0D));
+				jPanel.add(getShowTokenRequests(), getGBC(1, 3, 1, 0.0D));
+				
+			}
 			
-			JScrollPane fuzzersPane = new JScrollPane(getFuzzersField());
-			jPanel.add(fuzzersPane, getGBC(1, 3, 3, 1.0D, 0.75D));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 4, 1, 0.25D));
+			jPanel.add(getCategoryField(), getGBC(1, 4, 3, 0.75D));
 
-			jPanel.add(new JLabel(""), getGBC(1, 4, 1, 0.50));
-			jPanel.add(getStartButton(), getGBC(2, 4, 1, 0.25));
-			jPanel.add(getCancelButton(), getGBC(3, 4, 1, 0.25));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 5, 1, 0.25D));
+			
+			jPanel.add(new JScrollPane(getFuzzersField()), getGBC(1, 5, 3, 1.0D, 0.75D));
+
+			jPanel.add(new JLabel(""), getGBC(1, 6, 1, 0.50));
+			jPanel.add(getStartButton(), getGBC(2, 6, 1, 0.25));
+			jPanel.add(getCancelButton(), getGBC(3, 6, 1, 0.25));
 		}
 		return jPanel;
 	}
+	
+	private JComponent getTokensPane() {
+		return tokenPane.getPane();
+	}
+	
+	private JCheckBox getEnableTokens() {
+		if (enableTokens == null) {
+			enableTokens = new JCheckBox();
+			enableTokens.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					tokenPane.setEnabled(enableTokens.isSelected());
+					getShowTokenRequests().setEnabled(enableTokens.isSelected());
+				}});
+		}
+		return enableTokens;
+	}
+
+	
+	public JCheckBox getShowTokenRequests() {
+		if (showTokenRequests == null) {
+			showTokenRequests = new JCheckBox();
+		}
+		return showTokenRequests;
+	}
+
 	
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
@@ -157,12 +207,15 @@ public class FuzzDialog extends AbstractDialog {
 				        	for (int i=0; i < names.length; i++) {
 						        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
 				        	}
-	
-							extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, selectionStart, selectionEnd);
+				        	AntiCsrfToken token = null;
+				        	if (enableTokens.isSelected() && tokenPane.isEnable()) {
+				        		token = tokenPane.getToken();
+				        	}
+			        		extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, 
+			        				selectionStart, selectionEnd, token, getShowTokenRequests().isSelected());
 							
 						} catch (NoSuchFuzzerException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage(), e);
 						}
 						setVisible(false);
 			        }
@@ -259,24 +312,46 @@ public class FuzzDialog extends AbstractDialog {
 			
 			if (source instanceof HttpPanelTextArea) {
 				HttpPanelTextArea ta = (HttpPanelTextArea) source;
+				if (ta.getSelectedText().length() > selectionFieldLength) {
+					getSelectionField().setText(ta.getSelectedText().substring(0, selectionFieldLength) + "...");
+				} else {
+					getSelectionField().setText(ta.getSelectedText());
+				}
 				sm = ta.getTextSelection();
+				selectionStart = sm.getStart();
+				selectionEnd = sm.getEnd();
+				httpMessage = sm.getMessage();
+				
+				if (sm.getLocation().equals(SearchMatch.Locations.REQUEST_HEAD)) {
+					fuzzHeader = true;
+				} else {
+					fuzzHeader = false;
+				}
 			} else {
 				System.out.println("FAIL");
 			}
 
-			selectionStart = sm.getStart();
-			selectionEnd = sm.getEnd();
-			getSelectionField().setText(sm.getMessage().getRequestHeader().toString());
-			httpMessage = sm.getMessage();
-			
-			if (sm.getLocation().equals(SearchMatch.Locations.REQUEST_HEAD)) {
-				fuzzHeader = true;
-			} else {
-				fuzzHeader = false;
-			}
 		} else {
 			System.out.println("error");
 		}
+	}
+	
+	public void setAntiCsrfTokens(List <AntiCsrfToken> acsrfTokens) {
+		if (acsrfTokens != null && acsrfTokens.size() > 0) {
+			tokenPane.setAll(true, acsrfTokens.get(0), acsrfTokens.get(0).getTargetURL());
+			this.getEnableTokens().setSelected(true);
+			this.getEnableTokens().setEnabled(true);
+			this.getTokensPane().setVisible(true);
+		} else {
+			tokenPane.reset();
+			this.getEnableTokens().setSelected(false);
+			this.getEnableTokens().setEnabled(false);
+			this.getTokensPane().setVisible(false);
+		}
+		jPanel = null;
+        this.setContentPane(getJTabbed());
+        this.repaint();
+
 	}
 
 	public void setExtension(ExtensionFuzz extension) {

@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.pscan.scanner.CookieHttpOnlyScanner;
 import org.zaproxy.zap.extension.pscan.scanner.CookieSecureFlagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner;
@@ -84,6 +85,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
     		scannerList.add(new CookieHttpOnlyScanner());
     		scannerList.add(new WeakAuthenticationScanner());
     		scannerList.add(new CookieSecureFlagScanner());
+    		
+    		scannerList.add(new AntiCsrfDetectScanner());
 
 		}
 		return scannerList;

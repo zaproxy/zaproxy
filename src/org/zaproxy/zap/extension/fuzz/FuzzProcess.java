@@ -26,35 +26,74 @@ import java.util.List;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.encoder.Encoder;
+import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 
 public class FuzzProcess  implements Runnable {
 
-	private HttpSender httpSender;
+	private ConnectionParam connectionParam;
 	private HttpMessage msg;
 	private boolean fuzzHeader;
 	private int startOffset;
 	private int endOffset;
 	private String fuzz;
+	private AntiCsrfToken acsrfToken;
 	private List<FuzzerListener> listenerList = new ArrayList<FuzzerListener>();
     private static Log log = LogFactory.getLog(FuzzProcess.class);
+    private List<HttpMessage> tokenRequests = new ArrayList<HttpMessage>();
+	private Encoder encoder = new Encoder();
+	private boolean showTokenRequests = false;
+	private ExtensionAntiCSRF extAntiCSRF = null; 
 
-	public FuzzProcess(HttpSender httpSender, HttpMessage msg, boolean fuzzHeader, int startOffset,
-			int endOffset, String fuzz) {
-		this.httpSender = httpSender;
+	public FuzzProcess(ConnectionParam connectionParam, HttpMessage msg,
+			boolean fuzzHeader, int startOffset, int endOffset,
+			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
+		this.connectionParam = connectionParam;
 		this.msg = msg.cloneAll();
 		this.fuzzHeader = fuzzHeader;
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
 		this.fuzz = fuzz;
+		this.acsrfToken = acsrfToken;
+		this.showTokenRequests = showTokenRequests;
+		this.extAntiCSRF = 
+			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+
 	}
 
 	@Override
 	public void run() {
+		String tokenValue = null;
 		for (FuzzerListener listener : listenerList) {
 			listener.notifyFuzzProcessStarted(this);
 		}
+		
+		if (this.acsrfToken != null) {
+			// This currently just supports a single token in one page
+			// To support wizards etc need to loop back up the messages for previous tokens
+			try {
+				HttpMessage tokenMsg = this.acsrfToken.getMsg().cloneAll();
+				HttpSender httpSender = new HttpSender(connectionParam, true);
+
+				httpSender.sendAndReceive(tokenMsg);
+
+				// If we've got a token value here then the AntiCSRF extension must have been registered
+				tokenValue = extAntiCSRF.getTokenValue(tokenMsg, acsrfToken.getName());
+
+				this.tokenRequests.add(tokenMsg);
+				
+			} catch (HttpException e) {
+				log.error(e.getMessage(), e);
+			} catch (IOException e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+		
 		// Inject the payload
 		try {
 			String orig;
@@ -63,13 +102,22 @@ public class FuzzProcess  implements Runnable {
 			} else {
 				orig = msg.getRequestBody().toString();
 			}
-			String changed = orig.substring(0, startOffset) + fuzz + orig.substring(endOffset);
+			String changed = orig.substring(0, startOffset) + encoder.getURLEncode(fuzz) + orig.substring(endOffset);
 			if (fuzzHeader) {
 				msg.setRequestHeader(changed);
 			} else {
 				msg.setRequestBody(changed);
-				msg.getRequestHeader().setContentLength(changed.length());
 			}
+			if (tokenValue != null) {
+				// Replace token value - only supported in the body right now
+				String replaced = msg.getRequestBody().toString();
+				replaced = replaced.replace(encoder.getURLEncode(acsrfToken.getValue()), encoder.getURLEncode(tokenValue));
+				msg.setRequestBody(replaced);
+			}
+			// Correct the content length for the above changes
+	        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+			
+			HttpSender httpSender = new HttpSender(connectionParam, true);
 			httpSender.sendAndReceive(msg);
 			
 		} catch (HttpException e) {
@@ -92,6 +140,18 @@ public class FuzzProcess  implements Runnable {
 	
 	public HttpMessage getHttpMessage() {
 		return this.msg;
+	}
+
+	public List<HttpMessage> getTokenRequests() {
+		return tokenRequests;
+	}
+
+	public boolean isShowTokenRequests() {
+		return showTokenRequests;
+	}
+
+	public void setShowTokenRequests(boolean showTokenRequests) {
+		this.showTokenRequests = showTokenRequests;
 	}
 
 }

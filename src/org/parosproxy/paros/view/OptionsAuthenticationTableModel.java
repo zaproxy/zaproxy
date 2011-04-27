@@ -18,19 +18,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/04/26 i18n
+
 package org.parosproxy.paros.view;
 
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HostAuthentication;
 
 public class OptionsAuthenticationTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -7596331927341748685L;
 
-	private static final String[] columnNames = {"Host", "Port", "User name", "Password", "Realm"};
+	private static final String[] columnNames = {
+				Constant.messages.getString("options.auth.label.host"), 
+				Constant.messages.getString("options.auth.label.port"), 
+				Constant.messages.getString("options.auth.label.uname"), 
+				Constant.messages.getString("options.auth.label.password"), 
+				Constant.messages.getString("options.auth.label.realm")};
     
     private Vector<HostAuthentication> listAuth = new Vector<HostAuthentication>();
     

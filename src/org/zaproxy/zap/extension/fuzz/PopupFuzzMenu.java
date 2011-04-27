@@ -35,6 +35,7 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 	private static final long serialVersionUID = 1L;
 	private Component lastInvoker = null;
     private JFrame parentFrame = null;
+    private ExtensionFuzz extension;
     
 	/**
      * @return Returns the lastInvoker.
@@ -47,9 +48,10 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 	 * This method initializes 
 	 * 
 	 */
-	public PopupFuzzMenu() {
+	public PopupFuzzMenu(ExtensionFuzz extension) {
 		super();
 		initialize();
+		this.extension = extension;
 	}
 	
 	/**
@@ -65,6 +67,7 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 		boolean visible = false;
 
 		if (invoker instanceof HttpPanelTextArea) {
+			HttpPanelTextArea txt = (HttpPanelTextArea) invoker;
 			visible = true;
 
 			Component parent = invoker.getParent();
@@ -80,8 +83,13 @@ public class PopupFuzzMenu extends ExtensionPopupMenu {
 			}
 
         	if (visible) {
-           		this.setEnabled(true);
-            	
+        		
+            	String sel = txt.getSelectedText();
+            	if (sel == null || sel.length() == 0 || extension.isFuzzing()) {
+            		this.setEnabled(false);
+            	} else {
+            		this.setEnabled(true);
+            	}
                 setLastInvoker( invoker);
                 Container c = getLastInvoker().getParent();
                 while (!(c instanceof JFrame)) {

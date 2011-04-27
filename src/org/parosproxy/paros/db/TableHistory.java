@@ -253,6 +253,23 @@ public class TableHistory extends AbstractTable {
 		return v;
 	}
 
+	public Vector getHistoryList(long sessionId) throws SQLException {
+	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? ORDER BY " + HISTORYID);
+        
+	    Vector v = new Vector();
+	    psReadSession.setLong(1, sessionId);
+	    ResultSet rs = psReadSession.executeQuery();
+	    
+	    while (rs.next()) {
+	        int last = rs.getInt(HISTORYID);
+	        v.add(new Integer(last));
+	    }
+	    rs.close();
+	    psReadSession.close();
+	    
+		return v;
+	}
+
 	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {
         PreparedStatement psReadSearch = getConnection().prepareStatement("SELECT * FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
 
