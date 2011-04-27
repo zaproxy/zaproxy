@@ -38,6 +38,7 @@
 <LI><A HREF="xss-form-url.jsp">Simple XSS in a form parameter if its converted to a URL parameter</A>
 <LI><A HREF="xss-form-strip-script.jsp">XSS in a form parameter with the script tag being stripped out</A>
 <LI><A HREF="xss-url-strip-script.jsp">XSS in a URL parameter with the script tag being stripped out</A>
+<LI><A HREF="xss-form-anti-csrf.jsp">XSS in a form parameter with an anti CSRF token</A>
 </UL>
 
 <H3>Not yet implemented</H3>
