@@ -48,9 +48,7 @@ public class AntiCsrfParam extends AbstractParam {
 	protected void parse(){
     	try {
     		this.tokens = getConfig().getList(TOKENS);
-System.out.println("SB parse got tokens: " + tokens.size());
     	} catch (Exception e) {
-System.out.println("SB parse failed: " + e);
     		this.tokens = new ArrayList<String>();
     	}
     }
