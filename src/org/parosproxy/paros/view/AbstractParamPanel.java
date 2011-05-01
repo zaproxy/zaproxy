@@ -48,5 +48,12 @@ abstract public class AbstractParamPanel extends JPanel {
 	
 	abstract public void saveParam(Object obj) throws Exception;
 	
-
+	/**
+	 * @return The help index key, as used in JavaHelp.
+	 *         OR use return null, if no help key is available.
+	 *         When a valid key is returned, there will be a help button displayed.
+	 */
+	public String getHelpIndex() {
+		return null;
+	}
 }

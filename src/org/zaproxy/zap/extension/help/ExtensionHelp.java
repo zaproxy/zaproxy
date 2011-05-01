@@ -25,9 +25,11 @@ import java.net.URL;
 import javax.help.CSH;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -47,6 +49,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static HelpSet hs = null;
 	private static HelpBroker hb = null;
 
+	private final static Logger logger = Logger.getLogger(ExtensionHelp.class);
+	
     /**
      * 
      */
@@ -118,7 +122,10 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	}
 	*/
 
-	public static void showHelp () {
+	/**
+	 * @see {@link #showHelp()} using key "zap.intro"
+	 */
+	public static void showHelp() {
 		// TODO this breaks the context sensitive help :((
 		//new CSH.DisplayHelpFromSource(hb);
 		/*
@@ -134,7 +141,41 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		try {
 			getHelpBroker().setCurrentID("zap.intro");
 		} catch (Exception e) {
-System.out.println("Failed " + e);
+			logger.error("error loading help with index: " + "zap.intro", e);
+		}
+	}
+	
+	/**
+	 * @param helpindex
+	 */
+	public static void showHelp(Component parent, String helpindex) {
+		try {
+			hb.showID(helpindex, "javax.help.SecondaryWindow", null);
+		} catch (Exception e) {
+			logger.error("error loading help with index: " + helpindex, e);
+		}
+	}
+	
+	/**
+	 * @param helpindex
+	 */
+	public static void showHelp(String helpindex) {
+		// TODO this breaks the context sensitive help :((
+		//new CSH.DisplayHelpFromSource(hb);
+		/*
+		getHelpBroker();
+		try {
+			Robot robot = new Robot();
+			robot.keyPress(java.awt.event.KeyEvent.VK_F1);
+			robot.keyRelease(java.awt.event.KeyEvent.VK_F1);
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
+		*/
+		try {
+			getHelpBroker().setCurrentID(helpindex);
+		} catch (Exception e) {
+			logger.error("error loading help with index: " + helpindex, e);
 		}
 	}
 
@@ -180,7 +221,7 @@ System.out.println("Failed " + e);
 			helpButton = new JButton();
 			helpButton.setText("Help");
 			helpButton.setToolTipText("Help");
-			//helpButton.setIcon(new ImageIcon("/resource/icon/help.png"));
+			helpButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // TODO: doesn't work?
 			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {

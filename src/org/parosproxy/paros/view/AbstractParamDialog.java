@@ -22,14 +22,20 @@
 
 package org.parosproxy.paros.view;
  
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -47,6 +53,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 /**
  *
  * To change the template for this generated type comment go to
@@ -60,20 +67,24 @@ public class AbstractParamDialog extends AbstractDialog {
     private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<String, AbstractParamPanel>();
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
-	private javax.swing.JPanel jContentPane = null;
+	private JPanel jContentPane = null;
 	private JButton btnOK = null;
 	private JButton btnCancel = null;
+	private JButton btnHelp = null;
 	private JPanel jPanel = null;
 	private JSplitPane jSplitPane = null;
 	private JTree treeParam = null;
 	private JPanel jPanel1 = null;
 	private JPanel panelParam = null;
+	private JPanel panelHeadline = null;
 	private JTextField txtHeadline = null;
 
 	private DefaultTreeModel treeModel = null;  //  @jve:decl-index=0:parse,visual-constraint="14,12"
 	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
 	private JScrollPane jScrollPane = null;
 	private JScrollPane jScrollPane1 = null;
+
+	private ShowHelpAction showHelpAction = null;
 	
 	// ZAP: Added logger
     private static Log log = LogFactory.getLog(AbstractParamDialog.class);
@@ -231,6 +242,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 
 			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+			gridBagConstraints5.gridwidth = 2;
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 
@@ -247,16 +259,20 @@ public class AbstractParamDialog extends AbstractDialog {
 			gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints5.weightx = 1.0D;
 			gridBagConstraints5.weighty = 1.0D;
-			gridBagConstraints5.insets = new java.awt.Insets(2,5,2,5);
+			gridBagConstraints5.insets = new Insets(2, 5, 5, 0);
 			gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints7.weightx = 1.0;
 			gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints7.gridx = 0;
 			gridBagConstraints7.gridy = 0;
-			gridBagConstraints7.insets = new java.awt.Insets(2,5,2,5);
-			jPanel.add(getTxtHeadline(), gridBagConstraints7);
+			gridBagConstraints7.insets = new Insets(2, 5, 5, 0);
+			jPanel.add(getPanelHeadline(), gridBagConstraints7);
 			jPanel.add(getPanelParam(), gridBagConstraints5);
+			GridBagConstraints gbc_button = new GridBagConstraints();
+			gbc_button.insets = new Insets(0, 5, 0, 5);
+			gbc_button.gridx = 1;
+			gbc_button.gridy = 0;
+			jPanel.add(getHelpButton(), gbc_button);
 		}
 		return jPanel;
 	}
@@ -339,6 +355,23 @@ public class AbstractParamDialog extends AbstractDialog {
 		}
 		return panelParam;
 	}
+	/**
+	 * @return
+	 */
+	private JPanel getPanelHeadline() {
+		if (panelHeadline == null) {
+			panelHeadline = new JPanel();
+			panelHeadline.setLayout(new BorderLayout(0, 0));
+			
+			txtHeadline = getTxtHeadline();
+			panelHeadline.add(txtHeadline, BorderLayout.CENTER);
+			
+			JButton button = getHelpButton();
+			panelHeadline.add(button, BorderLayout.EAST);
+		}
+		return panelHeadline;
+	}
+	
 	/**
 	 * This method initializes txtHeadline	
 	 * 	
@@ -438,15 +471,18 @@ public class AbstractParamDialog extends AbstractDialog {
 	// ZAP: Made public so that other classes can specify which panel is displayedf
 	public void showParamPanel(String name) {
 	    if (name == null || name.equals("")) return;
-	    
+
 	    // exit if panel name not found. 
-	    JPanel panel = (JPanel) tablePanel.get(name);
+	    AbstractParamPanel panel = tablePanel.get(name);
 	    if (panel == null) return;
-	    
+
+        getPanelHeadline();
         getTxtHeadline().setText(name);
+        getHelpButton().setVisible(panel.getHelpIndex() != null);
+        getShowHelpAction().setHelpIndex(panel.getHelpIndex());
+
         CardLayout card = (CardLayout) getPanelParam().getLayout();
         card.show(getPanelParam(), name);
-	    
 	}
 
 	public void initParam(Object obj) {
@@ -557,5 +593,51 @@ public class AbstractParamDialog extends AbstractDialog {
 			jScrollPane1.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane1;
+	}
+	/**
+	 * This method initializes the help button, if any button can be applied
+	 * @return
+	 */
+	private JButton getHelpButton() {
+		if (btnHelp == null) {
+			btnHelp = new JButton();
+			btnHelp.setBorder(null);
+			btnHelp.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // help icon
+			btnHelp.addActionListener(getShowHelpAction());
+		}
+		return btnHelp;
+	}
+	
+	private ShowHelpAction getShowHelpAction() {
+		if (showHelpAction == null) {
+			showHelpAction  = new ShowHelpAction(this);
+		}
+		return showHelpAction;
+	}
+	
+	/**
+	 * Displays the current help by index ...
+	 */
+	private static final class ShowHelpAction implements ActionListener {
+
+		private String helpIndex = null;
+		private final Component parent;
+
+		public ShowHelpAction(Component parent) {
+			super();
+			this.parent = parent;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (helpIndex != null) {
+				ExtensionHelp.showHelp(parent, helpIndex);
+			}
+		}
+
+		public void setHelpIndex(String helpIndex) {
+			this.helpIndex = helpIndex;
+		}
+
 	}
 }  //  @jve:decl-index=0:visual-constraint="73,11"

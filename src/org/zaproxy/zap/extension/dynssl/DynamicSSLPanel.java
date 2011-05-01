@@ -211,6 +211,11 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		param.setRootca(rootca);
 		SslCertificateServiceImpl.getService().initializeRootCA(rootca);
 	}
+	
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.dynsslcert";
+	}
 
 	private void setRootca(KeyStore rootca) {
 		this.rootca = rootca;
