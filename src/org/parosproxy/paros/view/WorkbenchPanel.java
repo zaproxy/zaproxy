@@ -76,8 +76,8 @@ public class WorkbenchPanel extends JPanel {
 		this.setLayout(new GridBagLayout());
 		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 			this.setSize(800, 600);
+			this.setPreferredSize(new Dimension(800, 600));
 		}
-		this.setPreferredSize(new Dimension(800, 600));
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;
 		consGridBagConstraints1.weightx = 1.0;
@@ -103,11 +103,14 @@ public class WorkbenchPanel extends JPanel {
 	private JSplitPane getSplitVert() {
 		if (splitVert == null) {
 			splitVert = new JSplitPane();
-			splitVert.setDividerLocation(480);
+			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+				splitVert.setDividerLocation(480);
+				splitVert.setPreferredSize(new Dimension(800, 400));
+			}
 			splitVert.setDividerSize(3);
 			splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitVert.setResizeWeight(0.5D);
-			splitVert.setPreferredSize(new Dimension(800, 400));
+
 			switch (displayOption) {
 			case View.DISPLAY_OPTION_LEFT_FULL:
 				splitVert.setTopComponent(getPaneWork());
@@ -144,10 +147,12 @@ public class WorkbenchPanel extends JPanel {
 				splitHoriz.setRightComponent(getPaneWork());
 				break;
 			}
-			splitHoriz.setDividerLocation(350);	// 280
+			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+				splitHoriz.setDividerLocation(350);	// 280
+				splitHoriz.setPreferredSize(new Dimension(800, 400));
+			}
 			splitHoriz.setDividerSize(3);
 			splitHoriz.setResizeWeight(0.3D);
-			splitHoriz.setPreferredSize(new Dimension(800, 400));
 			splitHoriz.setContinuousLayout(false);
 			splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		}
