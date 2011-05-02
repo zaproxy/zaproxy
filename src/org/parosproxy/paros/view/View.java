@@ -33,17 +33,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
-import org.jdesktop.application.Action;
-import org.jdesktop.application.Application;
-import org.jdesktop.application.ApplicationContext;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
-public class View extends Application implements ViewDelegate {
+public class View implements ViewDelegate {
 	
 	public static final int DISPLAY_OPTION_LEFT_FULL = 0;
 	public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
@@ -109,7 +107,9 @@ public class View extends Application implements ViewDelegate {
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
 
-		mainFrame.pack();
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	mainFrame.pack();
+	    }
 	}
 	
 	public void postInit() {
@@ -243,32 +243,5 @@ public class View extends Application implements ViewDelegate {
 	public void addMainToolbarButton(JToggleButton button) {
     	this.getMainFrame().getMainToolbarPanel().addButton(button);
 	}
-	
-	
-	private String sessionFile = "sessionState.xml";
-	private ApplicationContext ctxt = getContext();
-//	JFrame mainFrame = getMainFrame();
-	
-	@Override
-	protected void startup() {
-		  try {
-			    ctxt.getSessionStorage().restore(mainFrame, sessionFile);
-			    
-			  }
-			  catch (IOException e) {
-				  System.out.println("BLA");
-		//	    logger.log(Level.WARNING, "couldn't restore session", e);
-			  }
-	}
-    
-	@Action
-	public void saveMap() throws IOException {
-		  try {
-			    ctxt.getSessionStorage().save(mainFrame, sessionFile);
-			  }
-			  catch (IOException e) {
-				  System.out.println("BLA");
-			//    logger.log(Level.WARNING, "couldn't save session", e);
-			  }
-	} 
+
 }
