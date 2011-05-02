@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -224,14 +225,12 @@ class ProxyThread implements Runnable {
 			    
 			    
 			    try {
-
 //					bug occur where response cannot be processed by various listener
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
-
 					getHttpSender().sendAndReceive(msg);
 			        notifyListenerResponseReceive(msg);
-			        
+		        
 			        // write out response header and body
 			        httpOut.write(msg.getResponseHeader());
 		            httpOut.flush();
@@ -242,9 +241,26 @@ class ProxyThread implements Runnable {
 			        }
 			        
 //			        notifyWrittenToForwardProxy();
-			        
+			    } catch (HttpException e) {
+			    	System.out.println("HttpException");
+			    	throw e;
 			    } catch (IOException e) {
-			        throw e;
+			    	msg.setResponseBody("ZAP Error: " + e.getLocalizedMessage());
+			    	int len = msg.getResponseBody().length();
+			    	msg.setResponseHeader("HTTP/1.1 504 Gateway Timeout\r\nContent-Length: " + len + "\r\nContent-Type: text/plain;");
+			    	
+			        notifyListenerResponseReceive(msg);
+
+			        httpOut.write(msg.getResponseHeader());
+		            httpOut.flush();
+
+			        if (msg.getResponseBody().length() > 0) {
+			            httpOut.write(msg.getResponseBody().getBytes());
+			            httpOut.flush();
+			        }
+		            
+			    	System.out.println("uargh2: " + e.getLocalizedMessage());
+			        //throw e;
 			    }
 			}	// release semaphore
             
