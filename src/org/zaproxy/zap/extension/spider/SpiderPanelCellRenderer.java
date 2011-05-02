@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 
 public class SpiderPanelCellRenderer extends JPanel implements ListCellRenderer {
 
@@ -92,7 +93,9 @@ public class SpiderPanelCellRenderer extends JPanel implements ListCellRenderer 
         gridBagConstraints1.gridx = 0;
 
         this.setLayout(new GridBagLayout());
-        this.setSize(328, 11);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(328, 11);
+        }
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         this.add(txtPort, gridBagConstraints1);
         this.add(txtDescription, gridBagConstraints2);

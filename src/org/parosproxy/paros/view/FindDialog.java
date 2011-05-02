@@ -47,6 +47,7 @@ import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 
 public class FindDialog extends AbstractDialog {
 
@@ -94,7 +95,9 @@ public class FindDialog extends AbstractDialog {
         this.setResizable(false);
         this.setTitle(Constant.messages.getString("edit.find.title"));
         this.setContentPane(getJPanel());
-        this.setSize(261, 111);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(261, 111);
+	    }
         centreDialog();
         txtFind.requestFocus();
         this.getRootPane().setDefaultButton(btnFind);

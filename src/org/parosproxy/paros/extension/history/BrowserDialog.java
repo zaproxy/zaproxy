@@ -44,6 +44,7 @@ import javax.swing.filechooser.FileFilter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 
 import java.awt.CardLayout;
 
@@ -90,7 +91,9 @@ public class BrowserDialog extends AbstractDialog {
 		    }
 		});
         pack();
-        this.setSize(640,480);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(640,480);
+	    }
 
 	}
 

@@ -25,6 +25,7 @@ import java.awt.HeadlessException;
 
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamDialog;
 
 
@@ -50,8 +51,10 @@ public class PolicyDialog extends AbstractParamDialog {
     }
 
     private void initialize() {
-                this.setTitle("Policy");
+        this.setTitle("Policy");
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
                 this.setSize(550, 400);
+	    }
         addParamPanel(null, getPolicyAllCategoryPanel());
         for (int i=0; i<Category.getAllNames().length; i++) {
             addParamPanel(ROOT, Category.getName(i), getPolicyCategoryPanel());

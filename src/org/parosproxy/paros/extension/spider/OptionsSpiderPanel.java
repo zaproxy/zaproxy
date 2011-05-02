@@ -32,6 +32,7 @@ import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.spider.SpiderParam;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import javax.swing.JCheckBox;
@@ -67,7 +68,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName("Spider");
-        this.setSize(314, 245);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(314, 245);
+	    }
         this.add(getPanelSpider(), getPanelSpider().getName());
 	}
 	/**
@@ -123,7 +126,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			javax.swing.JLabel jLabel = new JLabel();
 
 			panelSpider.setLayout(new GridBagLayout());
-			panelSpider.setSize(114, 132);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	panelSpider.setSize(114, 132);
+		    }
 			panelSpider.setName("");
 			jLabel.setText("Maximum depth to crawl:");
 			jLabel1.setText("Number of threads used:");
@@ -320,7 +325,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         if (txtSkipURL == null) {
             txtSkipURL = new JTextArea();
             txtSkipURL.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 11));
-            txtSkipURL.setSize(new java.awt.Dimension(290,52));
+    	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+    	    	txtSkipURL.setSize(new java.awt.Dimension(290,52));
+    	    }
         }
         return txtSkipURL;
     }

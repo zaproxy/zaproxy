@@ -35,6 +35,7 @@ import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 /**
  *
@@ -67,7 +68,9 @@ public class SpiderPanel extends AbstractPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setSize(700, 214);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(700, 214);
+	    }
         this.setName(Constant.messages.getString("spider.panel.title"));	// ZAP: i18n
         // ZAP: Added Spider icon
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/spider.png")));	// 'spider' icon

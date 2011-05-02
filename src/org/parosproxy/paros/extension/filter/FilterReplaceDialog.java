@@ -20,6 +20,7 @@
  */
 package org.parosproxy.paros.extension.filter;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
@@ -36,6 +37,7 @@ import javax.swing.JButton;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 /**
  *
  * To change the template for this generated type comment go to
@@ -84,8 +86,11 @@ public class FilterReplaceDialog extends AbstractDialog {
 	 */
 	private void initialize() {
         this.setContentPane(getJPanel());
-        this.setSize(346, 156);
-			
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(346, 156);
+	    }
+	    this.setPreferredSize(new Dimension(346, 156));
+		this.pack();
 	}
 	/**
 	 * This method initializes jPanel	

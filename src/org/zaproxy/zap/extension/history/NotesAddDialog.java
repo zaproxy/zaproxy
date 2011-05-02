@@ -35,6 +35,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 /**
  *
  * To change the template for this generated type comment go to
@@ -79,7 +80,9 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 	private void initialize() {
         this.setTitle(Constant.messages.getString("history.addnote.title"));
         this.setContentPane(getJPanel());
-        this.setSize(407, 407);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(407, 407);
+        }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 

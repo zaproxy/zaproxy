@@ -323,7 +323,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    getMenuFileControl().properties();
 				}
 			});

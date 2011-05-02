@@ -22,6 +22,7 @@
 
 package org.parosproxy.paros.extension.filter;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,6 +37,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 /**
  *
  * To change the template for this generated type comment go to
@@ -86,12 +88,15 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	private void initialize() {
         this.setTitle(Constant.messages.getString("filter.changeua.title"));
         this.setContentPane(getJPanel());
-        this.setSize(375, 173);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(375, 173);
+	    }
+	    this.setPreferredSize(new Dimension(375, 173));
         
         for (int i=0; i<FilterChangeUserAgent.userAgentName.length; i++) {
             cmbUserAgent.addItem(FilterChangeUserAgent.userAgentName[i]);
         }
-			
+		this.pack();
 	}
 	/**
 	 * This method initializes jPanel	

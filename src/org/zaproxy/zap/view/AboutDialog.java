@@ -66,6 +66,7 @@ public class AboutDialog extends AbstractDialog {
 	private void initialize() {
         this.setContentPane(getJPanel());
         this.pack();
+        
         //this.setSize(406, 503);
 			
 	}

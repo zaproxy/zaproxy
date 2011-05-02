@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 
 public class WaitMessageDialog extends AbstractDialog {
 
@@ -62,7 +63,9 @@ public class WaitMessageDialog extends AbstractDialog {
 	private void initialize() {
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
         this.setContentPane(getJPanel());
-        this.setSize(282, 118);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(282, 118);
+        }
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setResizable(false);
 			

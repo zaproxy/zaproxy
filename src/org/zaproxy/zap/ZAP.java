@@ -251,7 +251,9 @@ public class ZAP {
 	    Control control = Control.getSingleton();
 	    View view = View.getSingleton();
 	    view.postInit();
-	    view.getMainFrame().setExtendedState(Frame.MAXIMIZED_BOTH);		
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	view.getMainFrame().setExtendedState(Frame.MAXIMIZED_BOTH);
+	    }
 	    view.getMainFrame().setVisible(true);
 	    view.setStatus("");
 

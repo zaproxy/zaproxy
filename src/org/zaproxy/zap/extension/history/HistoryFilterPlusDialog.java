@@ -49,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.HistoryFilter;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 /**
@@ -114,7 +115,9 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         this.setVisible(false);
         this.setResizable(false);
         this.setTitle(Constant.messages.getString("history.filter.title"));
-        //this.setSize(400, 188);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(400, 188);
+        }
         centreDialog();
         this.getRootPane().setDefaultButton(btnApply);
         //  Handle escape key to close the dialog    

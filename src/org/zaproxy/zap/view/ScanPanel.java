@@ -49,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
@@ -102,7 +103,9 @@ public abstract class ScanPanel extends AbstractPanel {
 	 */
 	private  void initialize(ImageIcon icon) {
         this.setLayout(new CardLayout());
-        this.setSize(474, 251);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(474, 251);
+        }
         this.setName(Constant.messages.getString(prefix + ".panel.title"));
 		this.setIcon(icon);
         this.add(getPanelCommand(), prefix + ".panel");

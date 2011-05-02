@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -51,7 +52,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("spider.options.title"));
-        this.setSize(314, 245);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(314, 245);
+        }
         this.add(getPanelPortScan(), getPanelPortScan().getName());
 	}
 	/**
@@ -78,7 +81,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			JLabel jLabel1 = new JLabel();
 
 			panelSpiderScan.setLayout(new GridBagLayout());
-			panelSpiderScan.setSize(114, 132);
+	        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	        	panelSpiderScan.setSize(114, 132);
+	        }
 			panelSpiderScan.setName("");
 			jLabel1.setText(Constant.messages.getString("spider.options.label.threads"));
 			gridBagConstraints1.gridx = 0;

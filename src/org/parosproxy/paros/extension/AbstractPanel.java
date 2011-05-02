@@ -26,6 +26,8 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.parosproxy.paros.model.Model;
+
 public class AbstractPanel extends JPanel {
 
 	private static final long serialVersionUID = 4076608955743534659L;
@@ -52,7 +54,9 @@ public class AbstractPanel extends JPanel {
 	 * @return void
 	 */
 	private  void initialize() {
-		this.setSize(300,200);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(300,200);
+	    }
 	}
 
 	public void setTabFocus() {

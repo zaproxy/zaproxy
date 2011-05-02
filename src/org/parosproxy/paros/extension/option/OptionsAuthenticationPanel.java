@@ -31,6 +31,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -66,7 +67,9 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
         javax.swing.JLabel jLabel = new JLabel();
 
         this.setLayout(new GridBagLayout());
-        this.setSize(409, 268);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(409, 268);
+	    }
         this.setName(Constant.messages.getString("options.auth.title"));
         jLabel.setText(Constant.messages.getString("options.auth.label.hosts"));
         jLabel.setPreferredSize(new java.awt.Dimension(494,80));

@@ -25,6 +25,7 @@ import javax.swing.JMenuItem;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
+import org.parosproxy.paros.model.Model;
 
 /**
  *
@@ -63,8 +64,9 @@ public class ExtensionEncoder extends ExtensionAdaptor {
 		if (encoderDialog == null) {
 	        encoderDialog = new EncoderDialog(getView().getMainFrame(), false);
 	        encoderDialog.setView(getView());
-	        encoderDialog.setSize(480, 360);
-
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	encoderDialog.setSize(480, 360);
+		    }
 		}
 		return encoderDialog;
 	}

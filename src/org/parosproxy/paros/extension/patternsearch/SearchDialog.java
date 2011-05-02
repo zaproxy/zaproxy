@@ -37,6 +37,7 @@ import javax.swing.border.TitledBorder;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 /**
  * 
  * To change the template for this generated type comment go to Window -
@@ -95,8 +96,9 @@ public class SearchDialog extends AbstractDialog {
     private void initialize() {
         this.setTitle("Extract Pattern in Session");
         this.setContentPane(getJPanel());
-        this.setSize(561, 515);
-
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(561, 515);
+	    }
     }
 
     /**

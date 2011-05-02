@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 
 import java.awt.GridBagLayout;
@@ -98,7 +99,9 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 			gridBagConstraints11.insets = new java.awt.Insets(2,0,2,0);
 			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			panelSession.setName("General");
-			panelSession.setSize(180, 101);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	panelSession.setSize(180, 101);
+		    }
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			panelSession.add(jLabel, gridBagConstraints2);
 			panelSession.add(getTxtSessionName(), gridBagConstraints9);

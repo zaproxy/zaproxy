@@ -69,7 +69,9 @@ public class MainFrame extends AbstractFrame {
 		this.setJMenuBar(getMainMenuBar());
 		this.setContentPane(getPaneContent());
 
-		this.setSize(1000, 800);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(1000, 800);
+	    }
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -78,6 +80,7 @@ public class MainFrame extends AbstractFrame {
 		});
 
 		this.setVisible(false);
+		this.pack();
 	}
 
 	/**

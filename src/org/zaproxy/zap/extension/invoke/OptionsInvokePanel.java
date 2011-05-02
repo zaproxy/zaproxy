@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -82,7 +83,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
         JLabel jLabel2 = new JLabel();
 
         this.setLayout(new GridBagLayout());
-        this.setSize(409, 268);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(409, 268);
+        }
         this.setName(Constant.messages.getString("invoke.options.title"));
         
         jLabel1.setText(Constant.messages.getString("invoke.options.desc1"));

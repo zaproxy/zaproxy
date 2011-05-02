@@ -22,6 +22,8 @@ package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
 
+import org.parosproxy.paros.model.Model;
+
 abstract public class AbstractParamPanel extends JPanel {
 
 	private static final long serialVersionUID = 3245127348676340802L;
@@ -39,7 +41,9 @@ abstract public class AbstractParamPanel extends JPanel {
 	 * @return void
 	 */
 	private  void initialize() {
-		this.setSize(500, 375);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(500, 375);
+	    }
 	}
 	
 	abstract public void initParam(Object obj);

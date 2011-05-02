@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
@@ -72,7 +73,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	 */
 	private  void initialize() {
 		this.setLayout(new BorderLayout());
-		this.setSize(600, 200);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(600, 200);
+	    }
 		//this.add(getScrollLog(), java.awt.BorderLayout.CENTER);
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
 	}
@@ -422,7 +425,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private LogPanelCellRenderer getLogPanelCellRenderer() {
         if (logPanelCellRenderer == null) {
             logPanelCellRenderer = new LogPanelCellRenderer();
-            logPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
+    	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+    	    	logPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
+    	    }
             logPanelCellRenderer.setBackground(java.awt.Color.white);
             logPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
         }

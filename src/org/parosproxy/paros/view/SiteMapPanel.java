@@ -34,6 +34,7 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -75,7 +76,9 @@ public class SiteMapPanel extends JPanel {
 	 */
 	private  void initialize() {
 		this.setLayout(new CardLayout());
-		this.setSize(300,200);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(300,200);
+	    }
 		this.add(getJScrollPane(), getJScrollPane().getName());
         expandRoot();
 	}

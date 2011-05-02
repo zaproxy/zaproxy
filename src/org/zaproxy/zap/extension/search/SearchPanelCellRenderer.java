@@ -29,6 +29,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import org.parosproxy.paros.model.Model;
+
 public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
@@ -90,7 +92,9 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         stringFound.setOpaque(true);
 
         this.setLayout(new GridBagLayout());
-        this.setSize(328, 11);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(328, 11);
+        }
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         this.add(url, gridBagConstraints1);
         this.add(stringFound, gridBagConstraints2);

@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanelTabularModel;
 import org.parosproxy.paros.view.View;
@@ -92,7 +93,9 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
-		this.setSize(403, 296);
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(403, 296);
+		}
 		gridBagConstraints1.gridx = 0;
 		gridBagConstraints1.gridy = 1;
 		gridBagConstraints1.weightx = 1.0;

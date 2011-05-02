@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 /**
  *
  * To change the template for this generated type comment go to
@@ -75,7 +76,9 @@ public class ProgressDialog extends AbstractDialog {
         this.setName("ProgressDialog");
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.setContentPane(getJPanel());
-        this.setSize(440, 550);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(440, 550);
+	    }
         this.addWindowListener(new java.awt.event.WindowAdapter() { 
 
         	public void windowClosing(java.awt.event.WindowEvent e) {    

@@ -53,6 +53,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 /**
  *
@@ -112,7 +113,9 @@ public class AbstractParamDialog extends AbstractDialog {
 	 */
 	private void initialize() {
         this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-        this.setSize(500, 375);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(500, 375);
+	    }
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.setContentPane(getJContentPane());
 	}

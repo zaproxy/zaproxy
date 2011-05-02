@@ -22,11 +22,13 @@
 
 package org.parosproxy.paros.extension.filter;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamDialog;
 
 
@@ -52,9 +54,13 @@ public class FilterDialog extends AbstractParamDialog {
 
     private void initialize() {
         this.setTitle(Constant.messages.getString("filter.title.filters"));
-        this.setSize(640, 480);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(640, 480);
+	    }
+	    this.setPreferredSize(new Dimension(640, 480));
         addParamPanel(ROOT, getAllFilterPanel());
         getBtnCancel().setEnabled(false);
+        this.pack();
     }
 
 

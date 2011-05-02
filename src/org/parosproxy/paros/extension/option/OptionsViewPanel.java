@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
@@ -96,7 +97,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc = new JPanel();
 
 			panelMisc.setLayout(new GridBagLayout());
-			panelMisc.setSize(114, 132);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	panelMisc.setSize(114, 132);
+		    }
 			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
 			

@@ -30,6 +30,7 @@ import javax.swing.JSlider;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -56,7 +57,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName("Active Scan");	// ZAP: Rename
-        this.setSize(314, 245);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(314, 245);
+	    }
         this.add(getPanelSpider(), getPanelSpider().getName());
 	}
 	/**

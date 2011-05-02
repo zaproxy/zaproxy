@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 /**
  *
@@ -68,7 +69,9 @@ public class ProxyDialog extends AbstractDialog {
 	private void initialize() {
         this.setContentPane(getJPanel());
         this.pack();
-        this.setSize(406, 193);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(406, 193);
+        }
         
 		getConnPanel().passwordFocus();
 	

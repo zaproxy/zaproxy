@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 /**
@@ -167,7 +168,9 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			java.awt.GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
 
 			panelReverseProxy.setLayout(new GridBagLayout());
-			panelReverseProxy.setSize(114, 132);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	panelReverseProxy.setSize(114, 132);
+		    }
 			panelReverseProxy.setName(Constant.messages.getString("options.proxy.local.label.misc"));
 			panelReverseProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
 					Constant.messages.getString("options.proxy.local.label.reverse"), 
@@ -286,7 +289,9 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			gridBagConstraints1.weightx = 1.0;
 			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			panelProxy.setName(Constant.messages.getString("options.proxy.local.label.local"));
-			panelProxy.setSize(303, 177);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	panelProxy.setSize(303, 177);
+		    }
 			panelProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			gridBagConstraints81.gridx = 0;
 			gridBagConstraints81.gridy = 0;
@@ -381,7 +386,9 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("options.proxy.local.title"));
-        this.setSize(391, 320);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(391, 320);
+	    }
         this.add(getPanelProxy(), getPanelProxy().getName());
         
         getChkReverseProxy().setVisible(Constant.isSP());

@@ -41,6 +41,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 
@@ -79,7 +80,9 @@ public class AlertPanel extends AbstractPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setSize(274, 251);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(274, 251);
+	    }
         this.setName(Constant.messages.getString("alerts.panel.title"));	// ZAP: i18n
         // ZAP: Added Alerts (flag) icon
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/071.png")));	// 'flag' icon

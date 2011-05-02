@@ -32,6 +32,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -102,7 +103,9 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 			searchDialog = new SearchDialog(getView().getMainFrame(), false);
 			searchDialog.setExt(this);
 			searchDialog.setView(getView());
-			searchDialog.setSize(640, 480);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	searchDialog.setSize(640, 480);
+		    }
 		}
 		return searchDialog;
 	}

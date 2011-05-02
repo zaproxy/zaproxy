@@ -23,6 +23,8 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
+import org.parosproxy.paros.model.Model;
+
 public class SessionDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 2078860056416521552L;
@@ -45,6 +47,7 @@ public class SessionDialog extends AbstractParamDialog {
     
     public SessionDialog(Frame parent, boolean modal, String title, String rootName) {
         super(parent, modal, title, rootName);
+        initialize();
     }
     
 	/**
@@ -53,8 +56,9 @@ public class SessionDialog extends AbstractParamDialog {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setSize(500, 375);
-
-
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(500, 375);
+	    }
+	    pack();
 	}
 }

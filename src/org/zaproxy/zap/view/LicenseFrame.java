@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 /**
  *
@@ -68,7 +69,9 @@ public class LicenseFrame extends AbstractFrame {
 	private void initialize() {
         this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         this.setContentPane(getJPanel());
-        this.setSize(550, 375);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(550, 375);
+        }
         this.addWindowListener(new java.awt.event.WindowAdapter() { 
 
         	public void windowClosing(java.awt.event.WindowEvent e) {    

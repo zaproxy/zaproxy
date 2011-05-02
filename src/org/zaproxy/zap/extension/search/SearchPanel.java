@@ -100,7 +100,7 @@ public class SearchPanel extends AbstractPanel {
 	 */
 	private  void initialize() {
         this.setLayout(new CardLayout());
-        this.setSize(474, 251);
+        //this.setSize(474, 251);
         this.setName(Constant.messages.getString("search.panel.title"));
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
@@ -462,7 +462,7 @@ public class SearchPanel extends AbstractPanel {
     private SearchPanelCellRenderer getSearchPanelCellRenderer() {
         if (searchPanelCellRenderer == null) {
         	searchPanelCellRenderer = new SearchPanelCellRenderer();
-            searchPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
+            //searchPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
             searchPanelCellRenderer.setBackground(java.awt.Color.white);
             searchPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
         }

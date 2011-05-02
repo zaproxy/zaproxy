@@ -27,6 +27,7 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 
 public abstract class AbstractFrame extends JFrame {
 
@@ -51,9 +52,14 @@ public abstract class AbstractFrame extends JFrame {
 		
 		this.setVisible(false);
 		this.setTitle(Constant.PROGRAM_NAME);
-		this.setSize(800, 600);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(800, 600);
+	    }
 	    this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-	    centerFrame();
+	    
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	centerFrame();
+	    }
 	}
 	/**
 	 * Centre this frame.

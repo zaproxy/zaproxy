@@ -29,6 +29,7 @@ import java.awt.Toolkit;
 import javax.swing.JDialog;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 
 
 /**
@@ -68,7 +69,9 @@ abstract public class AbstractDialog extends JDialog {
 		this.setVisible(false);
 		this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-		this.setSize(300,200);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(300,200);
+	    }
 		this.setTitle(Constant.PROGRAM_NAME);
 	}
 	/**
@@ -89,7 +92,9 @@ abstract public class AbstractDialog extends JDialog {
 	
 	public void setVisible(boolean show) {
 	    if (show) {
-	        centreDialog();
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	centreDialog();
+		    }
 	    }
 	    super.setVisible(show);
 	}

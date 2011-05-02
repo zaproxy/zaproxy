@@ -50,6 +50,7 @@ import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -355,7 +356,9 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	private ProgressDialog getProgressDialog() {
 		if (progressDialog == null) {
 			progressDialog = new ProgressDialog(getView().getMainFrame(), false);
-			progressDialog.setSize(500, 460);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	progressDialog.setSize(500, 460);
+		    }
 		}
 		return progressDialog;
 	}
@@ -405,7 +408,9 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 		if (alertPanel == null) {
 			alertPanel = new AlertPanel();
 			alertPanel.setView(getView());
-			alertPanel.setSize(345, 122);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	alertPanel.setSize(345, 122);
+		    }
 			alertPanel.getTreeAlert().setModel(getTreeModel());
 		}
 		
@@ -502,7 +507,9 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
-			manualRequestEditorDialog.setSize(700, 800);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	manualRequestEditorDialog.setSize(700, 800);
+		    }
 		}
 		return manualRequestEditorDialog;
 	}

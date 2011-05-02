@@ -32,6 +32,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -120,7 +121,9 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	ManualRequestEditorDialog getManualRequestEditorDialog() {
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
-			manualRequestEditorDialog.setSize(700, 800);
+		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+		    	manualRequestEditorDialog.setSize(700, 800);
+		    }
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;

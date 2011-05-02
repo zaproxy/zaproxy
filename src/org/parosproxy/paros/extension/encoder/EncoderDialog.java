@@ -34,6 +34,7 @@ import javax.swing.JTextArea;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 
 /**
  *
@@ -82,7 +83,9 @@ public class EncoderDialog extends AbstractDialog {
 	private void initialize() {
         this.setTitle("Encode/Hash");
         this.setContentPane(getJPanel());
-        this.setSize(415, 363);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(415, 363);
+	    }
 			
 	}
 	/**

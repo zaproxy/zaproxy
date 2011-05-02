@@ -23,6 +23,8 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
+import org.parosproxy.paros.model.Model;
+
 public class OptionsDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = -4374132178769109917L;
@@ -50,7 +52,9 @@ public class OptionsDialog extends AbstractParamDialog {
 	private void initialize() {
 
 		// ZAP: Increase height of options dialog
-        this.setSize(600, 570);
+	    //if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(650, 570);
+	    //}
 	}
 	
 	

@@ -21,6 +21,8 @@ package org.parosproxy.paros.view;
 
 import javax.swing.JTabbedPane;
 
+import org.parosproxy.paros.model.Model;
+
 public class TabbedPanel extends JTabbedPane {
 
 	private static final long serialVersionUID = 8927990541854169615L;
@@ -42,7 +44,9 @@ public class TabbedPanel extends JTabbedPane {
 	 * @return void
 	 */
 	private  void initialize() {
-		this.setSize(225, 145);
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(225, 145);
+		}
 		this.addMouseListener(new java.awt.event.MouseAdapter() { 
 
 			public void mouseClicked(java.awt.event.MouseEvent e) {    

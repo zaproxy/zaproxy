@@ -34,6 +34,7 @@ import javax.swing.ListCellRenderer;
 
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -225,7 +226,9 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
         txtNote.setOpaque(true);
         
         this.setLayout(new GridBagLayout());
-        this.setSize(328, 11);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(328, 11);
+	    }
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         this.add(txtId, gridBagConstraints);
         this.add(txtMethod, gridBagConstraints1);

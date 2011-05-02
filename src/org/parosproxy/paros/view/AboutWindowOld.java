@@ -29,6 +29,8 @@ import java.awt.Window;
 
 import javax.swing.JWindow;
 
+import org.parosproxy.paros.model.Model;
+
 public class AboutWindowOld extends JWindow {
 
 	private static final long serialVersionUID = -5438979254834963853L;
@@ -89,7 +91,9 @@ public class AboutWindowOld extends JWindow {
 	private void initialize() {
 		this.setContentPane(getJContentPane());
 		this.setVisible(true);
-		this.setSize(405, 317);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(405, 317);
+	    }
 	}
 	/**
 	 * This method initializes jContentPane

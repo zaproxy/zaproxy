@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.model.Model;
 
 import javax.swing.JScrollPane;
 /**
@@ -70,7 +71,9 @@ public class HostProgressMeter extends JPanel {
 		java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
-		this.setSize(380, 76);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(380, 76);
+	    }
 		this.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.SoftBevelBorder.RAISED));
 		gridBagConstraints1.gridx = 1;
 		gridBagConstraints1.gridy = 0;

@@ -37,6 +37,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.scanner.AlertViewPanel;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 /**
  *
@@ -85,7 +86,9 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 	private void initialize() {
         this.setTitle(Constant.messages.getString("alert.add.title"));
         this.setContentPane(getJPanel());
-        //this.setSize(407, 607);
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        	this.setSize(407, 607);
+        }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 

@@ -30,6 +30,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import org.parosproxy.paros.model.Model;
+
 import java.awt.CardLayout;
 
 /**
@@ -72,7 +74,9 @@ public class WorkbenchPanel extends JPanel {
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
-		this.setSize(800, 600);
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(800, 600);
+		}
 		this.setPreferredSize(new Dimension(800, 600));
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;

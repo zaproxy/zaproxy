@@ -22,6 +22,7 @@
 
 package org.parosproxy.paros.extension.filter;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -31,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
 /**
@@ -63,7 +65,10 @@ public class AllFilterPanel extends AbstractParamPanel {
         java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
         this.setLayout(new GridBagLayout());
-        this.setSize(375, 204);
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(375, 204);
+	    }
+	    this.setPreferredSize(new Dimension(375, 204));
         this.setName("categoryPanel");
         gridBagConstraints11.weightx = 1.0;
         gridBagConstraints11.weighty = 1.0;
@@ -84,7 +89,7 @@ public class AllFilterPanel extends AbstractParamPanel {
         this.add(getBtnEnableAll(), gridBagConstraints1);
         this.add(getBtnDisableAll(), gridBagConstraints2);
         this.add(getJScrollPane(), gridBagConstraints11);
-			
+		
 	}
 	private static final int width[] = {400,50, 20};
 	private JButton btnEnableAll = null;
