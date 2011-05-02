@@ -70,7 +70,7 @@ public class OptionsParamView extends AbstractParam {
 	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
 	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
 	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
-	    askOnExitEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 1);
+	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
     }
 
 	/**
