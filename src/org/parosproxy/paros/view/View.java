@@ -107,7 +107,7 @@ public class View implements ViewDelegate {
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
 
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() != 0) {
 	    	mainFrame.pack();
 	    }
 	}

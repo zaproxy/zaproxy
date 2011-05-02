@@ -80,7 +80,9 @@ public class MainFrame extends AbstractFrame {
 		});
 
 		this.setVisible(false);
-		this.pack();
+	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() != 0) {
+	    	this.pack();
+	    }
 	}
 
 	/**
