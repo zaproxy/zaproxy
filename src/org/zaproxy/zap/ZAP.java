@@ -82,7 +82,8 @@ public class ZAP {
 	        zap.run();
 	    } catch (Exception e) {
 	        log.fatal(e.getStackTrace());
-	        throw e;
+	        //throw e;
+	        System.exit(1);
 	    }
 		
 	}
@@ -165,7 +166,21 @@ public class ZAP {
 	        aboutWindow.setVisible(true);
 	    }
 	    
-	    Model.getSingleton().init();
+	    try {
+			Model.getSingleton().init();	    
+	    } catch (java.io.FileNotFoundException e) {
+	    	if (cmdLine.isGUI()) {
+	    		JOptionPane.showMessageDialog(null, "Could not access database\nMaybe another ZAP process is running?\n", "Could not start zap", JOptionPane.ERROR_MESSAGE);
+	    		System.out.println("Could not access database.");
+	    		System.out.println("Maybe another ZAP process is running?");
+	    		System.out.println(e.getLocalizedMessage());
+	    	} else {
+	    		System.out.println("Could not access database.");
+	    		System.out.println(e.getLocalizedMessage());
+	    	}
+	    	
+	    	throw e;
+	    }
 	    Model.getSingleton().getOptionsParam().setGUI(cmdLine.isGUI());
 		
 		if (Model.getSingleton().getOptionsParam().isGUI()) {
