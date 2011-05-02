@@ -242,7 +242,7 @@ class ProxyThread implements Runnable {
 			        
 //			        notifyWrittenToForwardProxy();
 			    } catch (HttpException e) {
-			    	System.out.println("HttpException");
+//			    	System.out.println("HttpException");
 			    	throw e;
 			    } catch (IOException e) {
 			    	msg.setResponseBody("ZAP Error: " + e.getLocalizedMessage());
@@ -258,8 +258,7 @@ class ProxyThread implements Runnable {
 			            httpOut.write(msg.getResponseBody().getBytes());
 			            httpOut.flush();
 			        }
-		            
-			    	System.out.println("uargh2: " + e.getLocalizedMessage());
+
 			        //throw e;
 			    }
 			}	// release semaphore
