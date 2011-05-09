@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -41,6 +43,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 public class SiteMap extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 2311091007687218751L;
+	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 
 	private Model model = null;
 
@@ -185,7 +188,62 @@ public class SiteMap extends DefaultTreeModel {
         
         return resultNode;
     }
-    
+
+    public synchronized SiteNode findNode(URI uri) {
+        SiteNode resultNode = null;
+        
+        String scheme = null;
+        String host = null;
+        String path = null;
+        int port = 80;
+        StringTokenizer tokenizer = null;
+        String folder = "";
+        
+        try {
+            
+            scheme = uri.getScheme();
+            host = scheme + "://" + uri.getHost();
+            port = uri.getPort();
+            if (port != -1) {
+                host = host + ":" + port;
+            }
+            
+            // no host yet
+            resultNode = findChild((SiteNode) getRoot(), host);
+            if (resultNode == null) {
+                return null;
+        	}
+            
+            path = uri.getPath();
+            if (path == null) {
+                path = "";
+            }
+                        
+            tokenizer = new StringTokenizer(path, "/");
+            while (tokenizer.hasMoreTokens()) {
+                
+                folder = tokenizer.nextToken();
+                if (folder != null && !folder.equals("")) {
+                    if (tokenizer.countTokens() == 0) {
+                        String leafName = getLeafName(folder, uri);
+                        resultNode = findChild(resultNode, leafName);
+                    } else {
+                    	resultNode = findChild(resultNode, folder);
+                        if (resultNode == null) {
+                            return null;
+                        }
+                    }
+                    
+                }
+                
+            }
+        } catch (URIException e) {
+            log.error(e.getMessage(), e);
+        }
+        
+        return resultNode;
+    }
+
     /**
      * Add the HistoryReference into the SiteMap.
      * This method will rely on reading message from the History table.
@@ -291,7 +349,8 @@ public class SiteMap extends DefaultTreeModel {
     
     private SiteNode findChild(SiteNode parent, String nodeName) {
     	// ZAP: Added debug
-    	log.debug("findChild " + parent.getNodeName() + " / " + nodeName);    	
+    	log.debug("findChild " + parent.getNodeName() + " / " + nodeName);
+
         for (int i=0; i<parent.getChildCount(); i++) {
             SiteNode child = (SiteNode) parent.getChildAt(i);
             if (child.getNodeName().equals(nodeName)) {
@@ -368,6 +427,65 @@ public class SiteMap extends DefaultTreeModel {
         return leafName;
         
     }
+    
+    private String getLeafName(String nodeName, URI uri) {
+    	// Currently only support GETs
+        String leafName = "GET:"+nodeName;
+        
+        String query = "";
+
+        try {
+            query = uri.getQuery();
+        } catch (URIException e) {
+            // ZAP: Added error
+            log.error(e.getMessage(), e);
+        }
+        if (query == null) {
+            query = "";
+        }
+        leafName = leafName + getQueryParamString(getParamNameSet(query));
+        /*
+        // also handle POST method query in body
+        query = "";
+        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+            query = msg.getRequestBody().toString();
+            leafName = leafName + getQueryParamString(getParamNameSet(query));
+        }
+        */
+        return leafName;
+        
+    }
+    
+	private TreeSet<String> getParamNameSet(String params) {
+	    TreeSet<String> set = new TreeSet<String>();
+	    String[] keyValue = staticPatternParam.split(params);
+		String key = null;
+		int pos = 0;
+		for (int i=0; i<keyValue.length; i++) {
+			key = null;
+			pos = keyValue[i].indexOf('=');
+			try {
+				if (pos > 0) {
+					// param found
+					key = keyValue[i].substring(0,pos);
+
+					//!!! note: this means param not separated by & and = is not parsed
+				} else {
+					key = keyValue[i];
+				}
+				
+				if (key != null) {
+					set.add(key);
+				}
+			} catch (Exception e) {
+				// ZAP: log error
+				log.error(e.getMessage(), e);
+			}
+		}
+		
+		return set;
+	}
+
     
     private String getQueryParamString(SortedSet<String> querySet) {
         StringBuffer sb = new StringBuffer();

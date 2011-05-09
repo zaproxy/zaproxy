@@ -23,6 +23,7 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.AbstractParamDialog;
@@ -37,25 +38,24 @@ public class PolicyDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] ROOT = {};
-	private PolicyCategoryPanel policyCategoryPanel = null;  //  @jve:decl-index=0:visual-constraint="431,185"
+	private PolicyCategoryPanel policyCategoryPanel = null;
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     public PolicyDialog() {
         super();
         initialize();
         
     }
-    
     public PolicyDialog(Frame parent) throws HeadlessException {
-        super(parent, true, "Policy", "Plugin Category");
+        super(parent, true, "Policy", Constant.messages.getString("ascan.policy.title"));
         initialize();
     }
 
     private void initialize() {
                 this.setTitle("Policy");
                 this.setSize(550, 400);
-        addParamPanel(null, getPolicyAllCategoryPanel());
+        addParamPanel(null, getPolicyAllCategoryPanel(), false);
         for (int i=0; i<Category.getAllNames().length; i++) {
-            addParamPanel(ROOT, Category.getName(i), getPolicyCategoryPanel());
+            addParamPanel(ROOT, Category.getName(i), getPolicyCategoryPanel(), true);
         }
         getBtnCancel().setEnabled(false);
     }
@@ -71,7 +71,6 @@ public class PolicyDialog extends AbstractParamDialog {
 		return policyCategoryPanel;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void categorySelected(String name) {
 	    int category = Category.getCategory(name);
 	    getPolicyCategoryPanel().getCategoryTableModel().setTable(category, PluginFactory.getAllPlugin());
@@ -91,7 +90,7 @@ public class PolicyDialog extends AbstractParamDialog {
 	private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
 		if (policyAllCategoryPanel == null) {
 			policyAllCategoryPanel = new PolicyAllCategoryPanel();
-			policyAllCategoryPanel.setName("Plugin Category");
+			policyAllCategoryPanel.setName(Constant.messages.getString("ascan.policy.title"));
 		}
 		return policyAllCategoryPanel;
 	}

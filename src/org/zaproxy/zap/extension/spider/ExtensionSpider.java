@@ -34,6 +34,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -74,6 +75,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 	private void initialize() {
         this.setName("ExtensionSpider");
         
+        API.getInstance().registerApiImplementor(new SpiderAPI(this));
+
         ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 
 	}

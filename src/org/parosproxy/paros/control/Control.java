@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
+// ZAP: 2011/05/09 Support for API
 
 package org.parosproxy.paros.control;
 
@@ -36,6 +37,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.api.ExtensionAPI;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.beanshell.ExtensionBeanShell;
@@ -110,6 +112,7 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionFilter());
         
         // ZAP: Lots of changes here!
+        getExtensionLoader().addExtension(new ExtensionAPI());
 
         // Replaced extensions
         //getExtensionLoader().addExtension(new ExtensionPatternSearch());
@@ -149,6 +152,7 @@ public class Control extends AbstractControl {
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());
 
+        
         // Params extension not fully implemented
         //getExtensionLoader().addExtension(new ExtensionParams());
         // Tech extension not fully implemented 

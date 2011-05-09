@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/09 Support for API
+
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -44,6 +46,7 @@ import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
+import org.zaproxy.zap.extension.api.API;
 
 
 class ProxyThread implements Runnable {
@@ -169,12 +172,11 @@ class ProxyThread implements Runnable {
 		boolean isFirstRequest = true;
 		HttpMessage msg = null;
         
-		// TODO testing WebUI
-		/*
-        if (WebUI.getInstance().handleWebUIRequest(requestHeader, httpOut)) {
+        if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut)) {
+        	// It was an API request
         	return;
         }
-        */
+
         if (isRecursive(requestHeader)) {
             throw new IOException("Recursive request to proxy itself stopped.");
         }

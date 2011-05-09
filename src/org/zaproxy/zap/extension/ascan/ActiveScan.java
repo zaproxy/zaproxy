@@ -26,8 +26,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);
 		this.site = site;
-		this.activeScanPanel = activeScanPanel;
-		this.addScannerListener(activeScanPanel);
+		if (activeScanPanel != null) {
+			this.activeScanPanel = activeScanPanel;
+			this.addScannerListener(activeScanPanel);
+		}
 		// TODO doesnt this make it circular??
 		this.addScannerListener(this);
 	
@@ -113,8 +115,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void hostComplete(String hostAndPort) {
-		this.activeScanPanel.scanFinshed(hostAndPort);
-		this.removeScannerListener(activeScanPanel);
+		if (activeScanPanel != null) {
+			// Probably being run from the API
+			this.activeScanPanel.scanFinshed(hostAndPort);
+			this.removeScannerListener(activeScanPanel);
+		}
 		isAlive = false;
 	}
 

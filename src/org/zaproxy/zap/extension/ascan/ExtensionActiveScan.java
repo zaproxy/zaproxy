@@ -55,6 +55,7 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.SiteMapListener;
 /**
@@ -114,6 +115,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private void initialize() {
         this.setName("ExtensionActiveScan");
 			
+        API.getInstance().registerApiImplementor(new ActiveScanAPI(this));
+
         ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
         ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
 	}
@@ -216,7 +219,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
     
     public void alertFound(Alert alert, HistoryReference ref) {
-
         try {
         	if (ref == null) {
         		ref = alert.getHistoryRef();

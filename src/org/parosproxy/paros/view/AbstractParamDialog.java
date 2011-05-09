@@ -453,11 +453,25 @@ public class AbstractParamDialog extends AbstractDialog {
 	 * @param name
 	 * @param panel
 	 */
-	public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel) {
+	// ZAP: Added sort option
+	public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
 	    if (parentParams != null) {
 	        DefaultMutableTreeNode parent = addParamNode(parentParams);
 	        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
-	        parent.add(newNode);
+
+	        boolean added = false;
+	        if (sort) {
+		        for (int i=0; i < parent.getChildCount(); i++) {
+		        	if (name.compareToIgnoreCase(parent.getChildAt(i).toString()) < 0) {
+		    	        parent.insert(newNode, i);
+		        		added = true;
+		        		break;
+		        	}
+		        }
+	        }
+	        if (! added) {
+	        	parent.add(newNode);
+	        }
 	    } else {
 	        // No need to create node.  This is the root panel.
 	    }
@@ -467,11 +481,11 @@ public class AbstractParamDialog extends AbstractDialog {
 	    
 	}
 	
-	public void addParamPanel(String[] parentParams, AbstractParamPanel panel) {
-	    addParamPanel(parentParams, panel.getName(), panel);
+	public void addParamPanel(String[] parentParams, AbstractParamPanel panel, boolean sort) {
+	    addParamPanel(parentParams, panel.getName(), panel, sort);
 	}
 	
-	// ZAP: Made public so that other classes can specify which panel is displayedf
+	// ZAP: Made public so that other classes can specify which panel is displayed
 	public void showParamPanel(String name) {
 	    if (name == null || name.equals("")) return;
 

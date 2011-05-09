@@ -58,7 +58,7 @@ public class FilterDialog extends AbstractParamDialog {
 	    	this.setSize(640, 480);
 	    }
 	    this.setPreferredSize(new Dimension(640, 480));
-        addParamPanel(ROOT, getAllFilterPanel());
+        addParamPanel(ROOT, getAllFilterPanel(), true);
         getBtnCancel().setEnabled(false);
         this.pack();
     }

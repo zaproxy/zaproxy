@@ -277,9 +277,12 @@ public class ZAP {
 	}
 	
 	private void runDaemon() throws ClassNotFoundException, Exception {
-		// TODO start in a background thread
-	    Control.initSingletonWithoutView();
-
+		// start in a background thread
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+        		Control.initSingletonWithoutView();
+            }});
+        t.run();
 	}
 	
 	private boolean showLicense() {
@@ -307,4 +310,3 @@ public class ZAP {
 	}
     
 }
-

@@ -186,7 +186,7 @@ public class View implements ViewDelegate {
         String[] ROOT = {};
         if (sessionDialog == null) {
             sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
-            sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel());
+            sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
 
         }
         

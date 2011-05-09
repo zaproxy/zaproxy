@@ -213,7 +213,7 @@ public class ExtensionLoader {
         for (int i=0; i<panelList.size(); i++) {
             try {
                 panel = (AbstractParamPanel) panelList.get(i);
-                dialog.addParamPanel(ROOT, panel);
+                dialog.addParamPanel(ROOT, panel, true);
             } catch (Exception e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);

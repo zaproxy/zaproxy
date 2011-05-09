@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/05/09 Support for API
 
 package org.parosproxy.paros.db;
 
@@ -187,6 +188,21 @@ public class TableAlert extends AbstractTable {
         
 	    Vector<Integer> v = new Vector<Integer>();
 		psReadSession.setLong(1, sessionId);
+		ResultSet rs = psReadSession.executeQuery();
+		while (rs.next()) {
+		    int alertId = rs.getInt(ALERTID);
+			v.add(new Integer(alertId));
+		}
+		rs.close();
+		psReadSession.close();
+		return v;
+	}
+
+	public Vector<Integer> getAlertLists() throws SQLException {
+
+	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM ALERT");
+        
+	    Vector<Integer> v = new Vector<Integer>();
 		ResultSet rs = psReadSession.executeQuery();
 		while (rs.next()) {
 		    int alertId = rs.getInt(ALERTID);
