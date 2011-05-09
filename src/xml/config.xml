@@ -148,5 +148,11 @@
 			<enabled>true</enabled>
 		</html_mailto>
 	</pscans>
+	
+	<anticsrf>
+		<tokens>anticsrf</tokens>
+		<tokens>CSRFToken</tokens>
+		<tokens>__RequestVerificationToken</tokens>
+	</anticsrf>
 
 </config>
