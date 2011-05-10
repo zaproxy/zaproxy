@@ -73,7 +73,9 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	private void initialize() {
         this.setName("ExtensionPortScan");
         
-        ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
+	    if (getView() != null) {
+	    	ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
+	    }
 
 	}
 	

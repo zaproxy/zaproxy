@@ -142,6 +142,10 @@ public class View implements ViewDelegate {
 		return view;
 	}
 	
+	public static boolean isInitialised() {
+		return view != null;
+	}
+	
 //	public void showFindDialog() {
 //	    if (findDialog == null) {
 //	        findDialog = new FindDialog(mainFrame, false);

@@ -67,7 +67,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	private void initialize() {
         this.setName("ExtensionFuzz");
 
-        ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
+	    if (getView() != null) {
+	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
+	    }
 
 	}
 	

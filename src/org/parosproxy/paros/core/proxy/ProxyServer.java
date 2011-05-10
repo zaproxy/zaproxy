@@ -121,8 +121,11 @@ public class ProxyServer implements Runnable {
    	        } catch (Exception e) {
    	            if (!isDynamicPort) {
    	            	// ZAP: Warn the user if we cant listen on the static port
-   	            	View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
-   	                e.printStackTrace();
+   	            	if (View.isInitialised()) {
+   	            		View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
+   	            	} else {
+   	            		System.out.println(Constant.messages.getString("proxy.error.port") + " " + port);
+   	            	}
    	                return -1;
    	            } else {
    	                if (port < 65535) {

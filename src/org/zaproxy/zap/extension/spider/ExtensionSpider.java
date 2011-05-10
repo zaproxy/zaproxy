@@ -77,7 +77,9 @@ public class ExtensionSpider extends ExtensionAdaptor
         
         API.getInstance().registerApiImplementor(new SpiderAPI(this));
 
-        ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
+	    if (getView() != null) {
+	    	ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
+	    }
 
 	}
 	

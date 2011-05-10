@@ -71,7 +71,9 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	private void initialize() {
         this.setName("ExtensionPortScan");
         
-        ExtensionHelp.enableHelpKey(getPortScanPanel(), "ui.tabs.portscan");
+	    if (getView() != null) {
+	    	ExtensionHelp.enableHelpKey(getPortScanPanel(), "ui.tabs.portscan");
+	    }
 
 	}
 	
