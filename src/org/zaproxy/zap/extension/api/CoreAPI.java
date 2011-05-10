@@ -182,7 +182,6 @@ public class CoreAPI extends ApiImplementor {
 				result.add(site);
 			}
 		} else if (VIEW_URLS.equals(name)) {
-System.out.println("SBSB View URLs");
 			SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 			this.getURLs(root, result);
 		} else if (VIEW_ALERTS.equals(name)) {
@@ -193,7 +192,6 @@ System.out.println("SBSB View URLs");
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
-System.out.println("SBSB Returning " + result.toString());
 		return result;
 	}
 
@@ -208,7 +206,6 @@ System.out.println("SBSB Returning " + result.toString());
 			}
 			try {
 				children.add(child.getHistoryReference().getHttpMessage().getRequestHeader().getURI().toString());
-System.out.println("SBSB added " + child.getHistoryReference().getHttpMessage().getRequestHeader().getURI().toString());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
