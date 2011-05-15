@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -47,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,7 +83,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel activeScansNameLabel = null;
 	private JLabel activeScansValueLabel = null;
 	private List<String> activeScans = new ArrayList<String>();;
-    private BruteForcePanelCellRenderer portPanelCellRenderer = null;
+    private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
 	private JComboBox fileSelect = null;
 
 	private String fileDirectory = Constant.getInstance().DIRBUSTER_DIR;
@@ -189,7 +191,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			panelToolbar.setName("PortToolbar");
+			panelToolbar.setName("BruteForceToolbar");
 			
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -450,15 +452,15 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		return jScrollPane;
 	}
 
-	private void resetPortList() {
+	private void resetBruteForceList() {
 		getBruteForceList().setModel(new DefaultListModel());
 	}
 
-	private JList getBruteForceList() {
+	protected JList getBruteForceList() {
 		if (bruteForceList == null) {
 			bruteForceList = new JList();
 			bruteForceList.setDoubleBuffered(true);
-			bruteForceList.setCellRenderer(getPortPanelCellRenderer());
+			bruteForceList.setCellRenderer(getBruteForcePanelCellRenderer());
 			bruteForceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 			bruteForceList.setName(PANEL_NAME);
 			bruteForceList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
@@ -476,7 +478,30 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				}
 			});
 			
-			resetPortList();
+			bruteForceList.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    public void mousePressed(java.awt.event.MouseEvent e) {
+					if (SwingUtilities.isRightMouseButton(e)) {
+
+						// Select list item
+					    int Idx = bruteForceList.locationToIndex( e.getPoint() );
+					    if ( Idx >= 0 ) {
+					    	Rectangle Rect = bruteForceList.getCellBounds( Idx, Idx );
+					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
+					    }
+					    if ( Idx < 0 || !bruteForceList.getSelectionModel().isSelectedIndex( Idx ) ) {
+					    	bruteForceList.getSelectionModel().clearSelection();
+					    	if ( Idx >= 0 ) {
+					    		bruteForceList.getSelectionModel().setSelectionInterval( Idx, Idx );
+					    	}
+					    }
+						
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+			        }			    	
+			    }
+			});
+
+			
+			resetBruteForceList();
 		}
 		return bruteForceList;
 	}
@@ -501,14 +526,14 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
     }
 
-	private ListCellRenderer getPortPanelCellRenderer() {
-        if (portPanelCellRenderer == null) {
-            portPanelCellRenderer = new BruteForcePanelCellRenderer();
-            portPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            portPanelCellRenderer.setBackground(java.awt.Color.white);
-            portPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
+	private ListCellRenderer getBruteForcePanelCellRenderer() {
+        if (bfPanelCellRenderer == null) {
+            bfPanelCellRenderer = new BruteForcePanelCellRenderer();
+            bfPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
+            bfPanelCellRenderer.setBackground(java.awt.Color.white);
+            bfPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
         }
-        return portPanelCellRenderer;
+        return bfPanelCellRenderer;
 	}
 
 	private JComboBox getFileSelect() {
@@ -777,7 +802,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
 		siteSelect.setSelectedIndex(0);
 		currentSite = null;
-		resetPortList();
+		resetBruteForceList();
 		setActiveScanLabels();
 		getStartScanButton().setEnabled(false);
 		getStopScanButton().setEnabled(false);

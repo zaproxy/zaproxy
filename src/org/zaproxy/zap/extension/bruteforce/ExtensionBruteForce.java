@@ -46,6 +46,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	private OptionsBruteForcePanel optionsPortScanPanel = null;
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
     private PopupMenuBruteForceDirectory popupMenuBruteForceDirectory = null;
+	private PopupMenuBruteForceCopy popupMenuBruteForceCopy = null;
 
 	private BruteForceParam params = null;
     private Logger logger = Logger.getLogger(ExtensionBruteForce.class);
@@ -91,6 +92,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	        extensionHook.getHookView().addStatusPanel(getBruteForcePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsPortScanPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceSite());
+	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceCopy());
             // Specifying an initial directory doesnt work
             //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
 
@@ -106,7 +108,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		return params;
 	}
 
-	private BruteForcePanel getBruteForcePanel() {
+	protected BruteForcePanel getBruteForcePanel() {
 		if (bruteForcePanel == null) {
 			bruteForcePanel = new BruteForcePanel(this, getPortScanParam());
 		}
@@ -198,7 +200,15 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		return optionsPortScanPanel;
 	}
 	
-    public int getThreadPerScan() {
+	private PopupMenuBruteForceCopy getPopupMenuBruteForceCopy() {
+		if (popupMenuBruteForceCopy == null) {
+			popupMenuBruteForceCopy = new PopupMenuBruteForceCopy();
+			popupMenuBruteForceCopy.setExtension(this);
+		}
+		return popupMenuBruteForceCopy;
+	}
+
+	public int getThreadPerScan() {
     	return this.getOptionsPortScanPanel().getThreadPerScan();
     }
 

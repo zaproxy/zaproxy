@@ -394,6 +394,9 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	private String getSiteFromLabel(String siteLabel) {
+		if (siteLabel == null) {
+			return null;
+		}
 		if (siteLabel.startsWith("<html><b>")) {
 			return siteLabel.substring(9, siteLabel.indexOf("</b>"));
 		} else if (siteLabel.startsWith("<html>")) {

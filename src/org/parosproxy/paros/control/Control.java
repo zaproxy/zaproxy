@@ -46,6 +46,7 @@ import org.zaproxy.zap.extension.beanshell.ExtensionBeanShell;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
 import org.zaproxy.zap.extension.compare.ExtensionCompare;
+import org.zaproxy.zap.extension.copy.ExtensionCopy;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
@@ -110,7 +111,7 @@ public class Control extends AbstractControl {
         // should be the first ext to load
         getExtensionLoader().addExtension(new ExtensionOption());
         getExtensionLoader().addExtension(new ExtensionEdit());
-        //getExtensionLoader().addExtension(new ExtensionCopy());
+        getExtensionLoader().addExtension(new ExtensionCopy());
 
         getExtensionLoader().addExtension(new ExtensionFilter());
         
