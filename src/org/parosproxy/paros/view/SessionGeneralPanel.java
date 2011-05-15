@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 i19n
+
 package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
@@ -25,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 
@@ -54,7 +57,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("General");
+        this.setName(Constant.messages.getString("session.general"));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	/**
@@ -78,8 +81,8 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
 			panelSession.setLayout(new GridBagLayout());
-			jLabel.setText("Session Name");
-			jLabel1.setText("Description");
+			jLabel.setText(Constant.messages.getString("session.label.name"));
+			jLabel1.setText(Constant.messages.getString("session.label.desc"));
 			gridBagConstraints9.gridx = 0;
 			gridBagConstraints9.gridy = 1;
 			gridBagConstraints9.weightx = 1.0;
@@ -98,7 +101,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 			gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints11.insets = new java.awt.Insets(2,0,2,0);
 			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			panelSession.setName("General");
+			panelSession.setName(Constant.messages.getString("session.general"));
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 		    	panelSession.setSize(180, 101);
 		    }
@@ -156,4 +159,4 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    }
 	}
 	
-     }  //  @jve:decl-index=0:visual-constraint="10,10"
+}  //  @jve:decl-index=0:visual-constraint="10,10"
