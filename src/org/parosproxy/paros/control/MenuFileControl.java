@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Improved error logging
+
 package org.parosproxy.paros.control;
  
 import java.io.File;
@@ -150,7 +152,7 @@ public class MenuFileControl implements SessionListener {
 	    		session.open(file, this);
 	    		waitMessageDialog.setVisible(true);
 			} catch (Exception e) {
-			    e.printStackTrace();
+	            log.error(e.getMessage(), e);
 			}
 	    }
 	}
@@ -174,8 +176,7 @@ public class MenuFileControl implements SessionListener {
 		} catch (Exception e) {
 		    view.showWarningDialog(Constant.messages.getString("menu.file.savingSession.error"));	// ZAP: i18n
     	    log.error("error saving session file " + session.getFileName());
-    	    log.error(e.getMessage());
-    	    
+            log.error(e.getMessage(), e);
 		}
 	    
 	}
@@ -224,7 +225,7 @@ public class MenuFileControl implements SessionListener {
         	    log.info("save as session file " + session.getFileName());
         	    waitMessageDialog.setVisible(true);
     		} catch (Exception e) {
-    		    e.printStackTrace();
+                log.error(e.getMessage(), e);
     		}
 	    }
 	}
@@ -264,7 +265,7 @@ public class MenuFileControl implements SessionListener {
         } else {
             view.showWarningDialog("Error opening session file");
             log.error("error opening session file " + file.getAbsolutePath());
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
 
         if (waitMessageDialog != null) {
@@ -286,8 +287,8 @@ public class MenuFileControl implements SessionListener {
         } else {
 		    view.showWarningDialog(Constant.messages.getString("menu.file.savingSession.error"));	// ZAP: i18n
 		    e.printStackTrace();
-    	    log.error("error saving session file " + model.getSession().getFileName());
-    	    log.error(e.getStackTrace());
+    	    log.error("error saving session file " + model.getSession().getFileName(), e);
+            log.error(e.getMessage(), e);
 
         }
         
