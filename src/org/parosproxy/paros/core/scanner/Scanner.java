@@ -18,11 +18,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.common.ThreadPool;
@@ -50,6 +57,7 @@ public class Scanner implements Runnable {
 	private ThreadPool pool = null;
 	private SiteNode startNode = null;
 	private long startTimeMillis = 0;
+    private List<Pattern> excludeUrls = null;
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
@@ -209,11 +217,43 @@ public class Scanner implements Runnable {
 		return pause;
 	}
 
-
 	public void notifyNewMessage(HttpMessage msg) {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        ScannerListener listener = (ScannerListener) listenerList.get(i);
 	        listener.notifyNewMessage(msg);
 	    }
 	}
+	
+	public void setExcludeList(List<String> urls) {
+		excludeUrls = new ArrayList<Pattern>();
+		if (urls != null) {
+		    for (String url : urls) {
+		    	url = url.replaceAll("\\.", "\\\\.");
+		    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
+		    	url = "(" + url.replaceAll(";+", "|") + ")$";
+				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+				excludeUrls.add(p);
+		    }
+		}
+	}
+	
+	public boolean excludeUrl(URI uri) {
+		boolean ignore = false;
+		if (excludeUrls != null) {
+			URI uri2 = (URI)uri.clone();
+		    try {
+				uri2.setQuery(null);
+			} catch (URIException e) {
+                log.error(e.getMessage(), e);
+			}
+			for (Pattern p : excludeUrls) {
+				if (p.matcher(uri2.toString()).find()) {
+					ignore = true;
+					break;
+				}
+			}
+		}
+		return ignore;
+	}
+
 }

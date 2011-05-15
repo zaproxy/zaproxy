@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/09 Support for API
+// ZAP: 2011/05/15 Support for exclusions
 
 package org.parosproxy.paros.core.proxy;
 
@@ -468,6 +469,9 @@ class ProxyThread implements Runnable {
 	 * @param httpMessage
 	 */
 	private void notifyListenerRequestSend(HttpMessage httpMessage) {
+		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
+			return;
+		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
@@ -487,6 +491,10 @@ class ProxyThread implements Runnable {
 	 * @param msg
 	 */
 	private void notifyListenerResponseReceive(HttpMessage httpMessage) {
+		// TODO not if on ignore list
+		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
+			return;
+		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {

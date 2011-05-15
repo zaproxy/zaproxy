@@ -62,7 +62,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
     @Override
     public int getParentMenuIndex() {
-    	return 1;
+    	return INVOKE_MENU_INDEX;
     }
 
     /**

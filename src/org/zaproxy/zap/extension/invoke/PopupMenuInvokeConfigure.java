@@ -51,7 +51,7 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenu {
 
     @Override
     public int getParentMenuIndex() {
-    	return 1;
+    	return INVOKE_MENU_INDEX;
     }
 
     public boolean precedeWithSeparator() {

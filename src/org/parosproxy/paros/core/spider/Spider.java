@@ -18,13 +18,17 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/05/15 Support for exclusions
 
 package org.parosproxy.paros.core.spider;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -65,6 +69,7 @@ public class Spider {
     private TreeSet<String> visitedGetMethod = null;
     private TreeSet<String> queuedGetMethod = null;
     private Vector<QueueItem> visitedPostMethod = new Vector<QueueItem>();
+    private List<Pattern> excludeUrls = null;
     
     public Spider(SpiderParam spiderParam, ConnectionParam param, Model model) {
         this.connectionParam = param;
@@ -493,6 +498,10 @@ public class Spider {
                 return true;
             }
         }
+        // check if its one of the explicitly excluded ones
+        if (this.excludeUrl(uri)) {
+        	return true;
+        }
         
         return false;
         
@@ -510,4 +519,37 @@ public class Spider {
         }
         return true;
     }
+
+	public void setExcludeList(List<String> urls) {
+		excludeUrls = new ArrayList<Pattern>();
+		if (urls != null) {
+		    for (String url : urls) {
+		    	url = url.replaceAll("\\.", "\\\\.");
+		    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
+		    	url = "(" + url.replaceAll(";+", "|") + ")$";
+				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+				excludeUrls.add(p);
+		    }
+		}
+	}
+	
+	public boolean excludeUrl(URI uri) {
+		boolean ignore = false;
+		if (excludeUrls != null) {
+			URI uri2 = (URI)uri.clone();
+		    try {
+				uri2.setQuery(null);
+			} catch (URIException e) {
+                log.error(e.getMessage(), e);
+			}
+			for (Pattern p : excludeUrls) {
+				if (p.matcher(uri2.toString()).find()) {
+					ignore = true;
+					break;
+				}
+			}
+		} 
+
+		return ignore;
+	}
 }

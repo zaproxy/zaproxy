@@ -162,6 +162,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	    }
 	    
 	    extension.getSpiderPanel().setTabFocus();
+	    spider.setExcludeList(extension.getExcludeList());
 
 		try {
 			spider.start();

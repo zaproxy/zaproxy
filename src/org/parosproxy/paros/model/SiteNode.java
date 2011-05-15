@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.model;
 
 import java.util.ArrayList;
@@ -87,6 +89,16 @@ public class SiteNode extends DefaultMutableTreeNode {
     
     public String getNodeName() {
     	return this.nodeName;
+    }
+    
+    public String getHierarchicNodeName() {
+    	if (this.isRoot()) {
+    		return "";
+    	}
+    	if (((SiteNode)this.getParent()).isRoot()) {
+    		return this.getNodeName();
+    	}
+    	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + this.getNodeName();
     }
     
     public HistoryReference getHistoryReference() {

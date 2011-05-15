@@ -20,8 +20,10 @@
  */
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
 // ZAP: 2011/05/09 Support for API
-
+// ZAP: 2011/05/15 Support for exclusions
 package org.parosproxy.paros.control;
+
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -108,6 +110,7 @@ public class Control extends AbstractControl {
         // should be the first ext to load
         getExtensionLoader().addExtension(new ExtensionOption());
         getExtensionLoader().addExtension(new ExtensionEdit());
+        //getExtensionLoader().addExtension(new ExtensionCopy());
 
         getExtensionLoader().addExtension(new ExtensionFilter());
         
@@ -222,7 +225,9 @@ public class Control extends AbstractControl {
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
 		
     }
-    
+
+    public void setExcludeFromProxyUrls(List<String> urls) {
+		this.getProxy().setIgnoreList(urls);
+    }
 
 }
-

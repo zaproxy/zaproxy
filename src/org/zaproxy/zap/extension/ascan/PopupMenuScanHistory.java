@@ -95,14 +95,21 @@ public class PopupMenuScanHistory extends ExtensionPopupMenu {
                 Object[] obj = listLog.getSelectedValues();
 
                 // ZAP: Fixed NPE bugs
-                if (obj.length == 1 && (
-                		extension.getScanner() == null || extension.getScanner().isStop())) {
+                if (obj.length == 1) {
                     HistoryReference ref = (HistoryReference) obj[0];
+                    // TODO this isnt right yet
+                    if (extension.isScanning(ref.getSiteNode())) {
+                        this.setEnabled(false);
+                    } else {
+                    	this.setEnabled(true);
+                    }
+                    /*
                     if (ref.getSiteNode() != null) {
                     	this.setEnabled(true);
                     } else {
                         this.setEnabled(false);
                     }
+                    */
                 } else {
                     this.setEnabled(false);
                 }

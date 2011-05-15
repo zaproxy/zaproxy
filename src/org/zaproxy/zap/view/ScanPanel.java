@@ -632,6 +632,10 @@ public abstract class ScanPanel extends AbstractPanel {
     	return scanMap.get(site);
     }
 
+    protected Map<String, GenericScanner> getScanThreads () {
+    	return scanMap;
+    }
+
     public boolean isCurrentSite(String site) {
     	return currentSite != null && currentSite.equals(site);
     }

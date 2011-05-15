@@ -23,12 +23,9 @@ import java.awt.Component;
 
 import javax.swing.JTree;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
 
 
 /**
@@ -44,8 +41,6 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenu {
     
     private ExtensionBreak extension;
     
-    private static Log log = LogFactory.getLog(PopupMenuAddBreakSites.class);
-
 	/**
      * 
      */
@@ -79,22 +74,14 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenu {
 
                 if (treeSite != null) {
         		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-
-		            HttpMessage msg = null;
 		            if (node == null) {
 		                return;
 		            }
-                    try {
-                        msg = node.getHistoryReference().getHttpMessage();
-                    } catch (Exception e1) {
-                    	log.warn(e1.getMessage(), e1);
-                        return;
+                    String url = node.getHierarchicNodeName();
+                    if (! node.isLeaf()) {
+                    	url += "/*";
                     }
-                    String tmp = msg.getRequestHeader().getURI().toString();
-                    if ( ! node.isLeaf()) {
-                    	tmp += "/*";
-                    }
-                    extension.showBreakAddDialog(tmp);
+                    extension.showBreakAddDialog(url);
                 }
         	}
         });

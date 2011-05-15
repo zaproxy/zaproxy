@@ -19,11 +19,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/04 Changed to support new HttpPanel interface 
+// ZAP: 2011/05/15 Support for exclusions
 
 package org.parosproxy.paros.view;
 
 
-import java.io.IOException;
 import java.util.Vector;
 
 import javax.swing.Icon;
@@ -34,12 +34,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
+import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
+import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
 
 public class View implements ViewDelegate {
 	
@@ -190,12 +193,22 @@ public class View implements ViewDelegate {
         String[] ROOT = {};
         if (sessionDialog == null) {
             sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
+            sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
-
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);
         }
         
-        sessionDialog.setTitle(title);
         return sessionDialog;
+    }
+    
+    public void showSessionDialog(Session session, String panel) {
+    	if (sessionDialog != null) {
+    		sessionDialog.initParam(session);
+    		sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
+    		sessionDialog.showDialog(false, panel);
+    	}
     }
     
     public OptionsDialog getOptionsDialog(String title) {

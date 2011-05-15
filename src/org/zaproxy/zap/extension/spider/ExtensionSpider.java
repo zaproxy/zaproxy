@@ -24,6 +24,7 @@ package org.zaproxy.zap.extension.spider;
 
 import java.awt.EventQueue;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -51,6 +52,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 	private org.parosproxy.paros.core.spider.SpiderParam params = null;
     private Logger logger = Logger.getLogger(ExtensionSpider.class);
+	private List<String> excludeList = null;
+	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
     
 	/**
      * 
@@ -95,10 +98,17 @@ public class ExtensionSpider extends ExtensionAdaptor
 	        extensionHook.getHookView().addStatusPanel(getSpiderPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpider());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu());
 	    }
         extensionHook.addOptionsParamSet(getSpiderParam());
 	}
 	
+	private PopupExcludeFromSpiderMenu getPopupExcludeFromSpiderMenu() {
+		if (popupExcludeFromSpiderMenu == null) {
+			popupExcludeFromSpiderMenu = new PopupExcludeFromSpiderMenu();
+		}
+		return popupExcludeFromSpiderMenu;
+	}
 	protected org.parosproxy.paros.core.spider.SpiderParam getSpiderParam() {
 		if (params == null) {
 			params = new org.parosproxy.paros.core.spider.SpiderParam();
@@ -133,6 +143,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
 		// clear all scans and add new hosts
+		this.getSpiderPanel().clear();
 		this.getSpiderPanel().reset();
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
@@ -195,6 +206,14 @@ public class ExtensionSpider extends ExtensionAdaptor
 
 	public boolean isScanning(SiteNode node) {
 		return this.getSpiderPanel().isScanning(node);
+	}
+
+	public void setExcludeList(List<String> ignoredRegexs) {
+		this.excludeList = ignoredRegexs;
+	}
+
+	public List<String> getExcludeList() {
+		return excludeList;
 	}
 
 }

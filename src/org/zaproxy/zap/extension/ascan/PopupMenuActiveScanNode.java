@@ -60,7 +60,7 @@ public class PopupMenuActiveScanNode extends ExtensionPopupMenu {
 
     @Override
     public int getParentMenuIndex() {
-    	return 0;
+    	return ATTACK_MENU_INDEX;
     }
 
     /**

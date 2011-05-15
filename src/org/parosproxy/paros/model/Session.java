@@ -18,20 +18,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.model;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.spider.ExtensionSpider;
 
 
 public class Session extends FileXML {
@@ -54,6 +61,9 @@ public class Session extends FileXML {
 	private Model model = null;
 	private String fileName = "";
 	private String sessionDesc = "";
+	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
+	private List<String> excludeFromScanRegexs = new ArrayList<String>();
+	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
 	
 	// parameters in XML
 	private long sessionId = 0;
@@ -207,6 +217,28 @@ public class Session extends FileXML {
 		// ZAP: expand root
 	    View.getSingleton().getSiteTreePanel().expandRoot();
 
+	    // Load the session urls
+	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);
+	    List<String> urls = new ArrayList<String>();
+	    for (RecordSessionUrl url : ignoreUrls) {
+	    	urls.add(url.getUrl());
+	    }
+	    this.setExcludeFromProxyRegexs(urls);
+
+	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN);
+	    urls = new ArrayList<String>();
+	    for (RecordSessionUrl url : ignoreUrls) {
+	    	urls.add(url.getUrl());
+	    }
+	    this.setExcludeFromScanRegexs(urls);
+
+	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER);
+	    urls = new ArrayList<String>();
+	    for (RecordSessionUrl url : ignoreUrls) {
+	    	urls.add(url.getUrl());
+	    }
+	    this.setExcludeFromSpiderRegexs(urls);
+
 		System.gc();
 		
 	}
@@ -349,5 +381,43 @@ public class Session extends FileXML {
         }
         return result;
     }
+
+	public List<String> getExcludeFromProxyRegexs() {
+		return excludeFromProxyRegexs;
+	}
+
+	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromProxyRegexs = ignoredRegexs;
+		Control.getSingleton().setExcludeFromProxyUrls(ignoredRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, ignoredRegexs);
+	}
+
+	public List<String> getExcludeFromScanRegexs() {
+		return excludeFromScanRegexs;
+	}
+
+	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromScanRegexs = ignoredRegexs;
+		ExtensionActiveScan extAscan = 
+			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+		if (extAscan != null) {
+			extAscan.setExcludeList(ignoredRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, ignoredRegexs);
+	}
+
+	public List<String> getExcludeFromSpiderRegexs() {
+		return excludeFromSpiderRegexs;
+	}
+
+	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromSpiderRegexs = ignoredRegexs;
+		ExtensionSpider extSpider = 
+			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension("ExtensionSpider");
+		if (extSpider != null) {
+			extSpider.setExcludeList(ignoredRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, ignoredRegexs);
+	}
 
 }

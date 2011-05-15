@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -28,6 +30,10 @@ import javax.swing.JMenuItem;
 public class ExtensionPopupMenu extends JMenuItem {
 
 	private static final long serialVersionUID = -5454473736753550528L;
+	
+	public static final int ATTACK_MENU_INDEX = 0;
+	public static final int EXCLUDE_MENU_INDEX = 1;
+	public static final int INVOKE_MENU_INDEX = 2;
 
 	public ExtensionPopupMenu() {
         super();

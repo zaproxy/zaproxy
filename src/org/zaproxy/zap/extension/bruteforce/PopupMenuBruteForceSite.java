@@ -66,7 +66,7 @@ public class PopupMenuBruteForceSite extends ExtensionPopupMenu {
 
     @Override
     public int getParentMenuIndex() {
-    	return 0;
+    	return ATTACK_MENU_INDEX;
     }
 	/**
 	 * This method initializes this

@@ -31,6 +31,7 @@ import javax.swing.JToolBar;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
 public class MainToolbarPanel extends JPanel {
@@ -40,6 +41,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnNew = null;
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
+	private JButton btnSession = null;
 
 	public MainToolbarPanel () {
 		super();
@@ -77,6 +79,7 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnNew());
 		toolbar.add(getBtnOpen());
 		toolbar.add(getBtnSave());
+		toolbar.add(getBtnSession());
 		
 		toolbar.addSeparator();
 		
@@ -169,6 +172,27 @@ public class MainToolbarPanel extends JPanel {
 			});
 		}
 		return btnSave;
+	}
+
+	private JButton getBtnSession() {
+		if (btnSession == null) {
+			btnSession = new JButton();
+			btnSession.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/024.png")));	// 'spreadsheet' icon
+			btnSession.setToolTipText(Constant.messages.getString("menu.file.sessionProperties"));
+
+			btnSession.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
+					} catch (Exception e1) {
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.SessionSession.error"));
+						e1.printStackTrace();
+					}
+				}
+			});
+		}
+		return btnSession;
 	}
 
 

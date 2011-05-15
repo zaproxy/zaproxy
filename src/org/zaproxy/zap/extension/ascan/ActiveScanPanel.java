@@ -19,6 +19,10 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
@@ -33,8 +37,8 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
-import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.GenericScanner;
+import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.view.ScanPanel;
 /**
  *
@@ -50,7 +54,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private JScrollPane jScrollPane = null;
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
 	private static JList messageList = null;
-
+    private List<String> excludeUrls = null;
+    
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
 
@@ -139,6 +144,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	protected GenericScanner newScanThread(String site, AbstractParam params) {
 		ActiveScan as = new ActiveScan(site, ((ExtensionActiveScan)this.getExtension()).getScannerParam(), 
 				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this);
+		as.setExcludeList(this.excludeUrls);
 		return as;
 	}
 
@@ -195,6 +201,16 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	public void reset() {
 		super.reset();
 		this.resetMessageList();
+	}
+
+	public void setExcludeList(List<String> urls) {
+		this.excludeUrls = urls;
+		Map<String, GenericScanner> threads = getScanThreads();
+		Iterator<GenericScanner> iter = threads.values().iterator();
+		while (iter.hasNext()) {
+			GenericScanner scanner = iter.next();
+			((ActiveScan)scanner).setExcludeList(urls);
+		}
 	}
 
 

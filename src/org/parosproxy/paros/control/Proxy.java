@@ -19,8 +19,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.control;
  
+import java.util.List;
+
 import org.parosproxy.paros.core.proxy.CacheProcessingItem;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
@@ -146,4 +150,15 @@ public class Proxy {
 
         
     }
+
+	public void setIgnoreList(List<String> urls) {
+        if (proxyServer != null) {
+            proxyServer.setExcludeList(urls);
+        }
+
+        if (proxyServerSSL != null) {
+            proxyServerSSL.setExcludeList(urls);
+        }
+		
+	}
 }

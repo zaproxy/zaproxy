@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/05/15 Support for exclusions
 
 package org.parosproxy.paros.db;
 
@@ -46,6 +47,7 @@ public class Database {
 	private TableScan tableScan = null;
 	// ZAP: Added TableTag
 	private TableTag tableTag = null;
+	private TableSessionUrl tableSessionUrl= null;
 	
 	private Vector<DatabaseListener> listenerList = new Vector<DatabaseListener>();
 
@@ -55,11 +57,13 @@ public class Database {
 	    tableAlert = new TableAlert();
 	    tableScan = new TableScan();
 	    tableTag = new TableTag();
+	    tableSessionUrl = new TableSessionUrl();
 	    addDatabaseListener(tableHistory);
 	    addDatabaseListener(tableSession);
 	    addDatabaseListener(tableAlert);
 	    addDatabaseListener(tableScan);
 	    addDatabaseListener(tableTag);
+	    addDatabaseListener(tableSessionUrl);
 
 	}
 	
@@ -180,5 +184,13 @@ public class Database {
 
 	public void setTableTag(TableTag tableTag) {
 		this.tableTag = tableTag;
+	}
+
+	public TableSessionUrl getTableSessionUrl() {
+		return tableSessionUrl;
+	}
+
+	public void setTableSessionUrl(TableSessionUrl tableSessionUrl) {
+		this.tableSessionUrl = tableSessionUrl;
 	}
 }

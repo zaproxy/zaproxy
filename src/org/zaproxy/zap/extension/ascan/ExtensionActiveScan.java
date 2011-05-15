@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JMenuItem;
@@ -36,7 +37,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
-import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordScan;
@@ -68,7 +68,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
     private static final int ARG_SCAN_IDX = 0;
     
-	private Scanner scanner = null;
 	private AlertTreeModel treeAlert = null;
 	
 	private JMenuItem menuItemPolicy = null;
@@ -80,6 +79,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private PopupMenuAlertEdit popupMenuAlertEdit = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
+	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
+	// Shouldnt really be here...
+	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	
 	private OptionsScannerPanel optionsScannerPanel = null;
 	private ActiveScanPanel activeScanPanel = null;
@@ -134,6 +136,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu());
 
             extensionHook.getHookView().addStatusPanel(getAlertPanel());
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
@@ -157,10 +161,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			activeScanPanel = new ActiveScanPanel(this);
 		}
 		return activeScanPanel;
-	}
-
-	private void startScan() {
-        startScan(null);
 	}
 	
 	void startScan(SiteNode startNode) {
@@ -283,14 +283,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			siteTree.addPath(ref);
 	        ref.addAlert(alert);
 		}
-    }
-
-	
-    /**
-     * @return Returns the scanner.
-     */
-    public Scanner getScanner() {
-        return scanner;
     }
 
 	/**
@@ -491,7 +483,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
      */
+	// TODO
     public void execute(CommandLineArgument[] args) {
+    	/*
 
         if (arguments[ARG_SCAN_IDX].isEnabled()) {
             System.out.println("Scanner started...");
@@ -508,6 +502,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
         System.out.println("Scanner completed.");
 
+    */
     }
 
     private CommandLineArgument[] getCommandLineArguments() {
@@ -564,6 +559,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 		return popupMenuActiveScanNode;
 	}
+	
+	private PopupExcludeFromScanMenu getPopupExcludeFromScanMenu() {
+		if (popupExcludeFromScanMenu == null) {
+			popupExcludeFromScanMenu = new PopupExcludeFromScanMenu();
+		}
+		return popupExcludeFromScanMenu;
+	}
+
+	private PopupExcludeFromProxyMenu getPopupExcludeFromProxyMenu() {
+		if (popupExcludeFromProxyMenu == null) {
+			popupExcludeFromProxyMenu = new PopupExcludeFromProxyMenu();
+		}
+		return popupExcludeFromProxyMenu;
+	}
 
 	public HistoryList getHistoryList() {
 	    if (historyList == null) {
@@ -574,5 +583,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	public boolean isScanning(SiteNode node) {
 		return this.getActiveScanPanel().isScanning(node);
+	}
+
+	public void setExcludeList(List<String> urls) {
+		this.getActiveScanPanel().setExcludeList(urls);
 	}
 }

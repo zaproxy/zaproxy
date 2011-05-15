@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/15 Support for exclusions
+
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
@@ -133,7 +135,7 @@ public class HostProcess implements Runnable {
             try {
                 traverse(plugin, (SiteNode) node.getChildAt(i));
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -158,6 +160,10 @@ public class HostProcess implements Runnable {
                 return;
             }
             msg = node.getHistoryReference().getHttpMessage();
+            
+            if (parentScanner.excludeUrl(msg.getRequestHeader().getURI())) {
+				return;
+            }
 
             test = (Plugin) plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
@@ -166,7 +172,7 @@ public class HostProcess implements Runnable {
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 
         } catch (Exception e ) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             return;
         }
         
