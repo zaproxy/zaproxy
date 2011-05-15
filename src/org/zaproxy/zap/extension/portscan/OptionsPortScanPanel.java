@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -38,14 +39,17 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel panelPortScan = null;
+	private JSlider sliderMaxPort = null;
+	private JSlider sliderThreadsPerScan = null;
+	private JSlider sliderTimeoutInMs = null;
+	private JLabel labelMaxPortValue = null;
+	private JCheckBox checkUseProxy = null;
+	
     public OptionsPortScanPanel() {
         super();
  		initialize();
    }
     
-	private JSlider sliderMaxPort = null;
-	private JSlider sliderThreadsPerScan = null;
-	private JLabel labelMaxPortValue = null;
 	/**
 	 * This method initializes this
 	 * 
@@ -64,23 +68,24 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelPortScan() {
 		if (panelPortScan == null) {
+			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints7b = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			JLabel jLabel2 = new JLabel();
-
+			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
 
 			panelPortScan = new JPanel();
-			JLabel jLabel1 = new JLabel();
 
 			JLabel jLabel = new JLabel();
+			JLabel jLabel1 = new JLabel();
+			JLabel jLabel2 = new JLabel();
+			JLabel jLabel3 = new JLabel();
+			JLabel jLabelx = new JLabel();
 			
 			labelMaxPortValue = new JLabel();
 			labelMaxPortValue.setText(""+getSliderMaxPort().getValue());
@@ -90,6 +95,9 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 			panelPortScan.setName("");
 			jLabel.setText(Constant.messages.getString("ports.options.label.maxPort"));
 			jLabel1.setText(Constant.messages.getString("ports.options.label.threads"));
+			jLabel2.setText(Constant.messages.getString("ports.options.label.timeoutInMs"));
+			jLabel3.setText(Constant.messages.getString("ports.options.label.useProxy"));
+			jLabelx.setText("");
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.ipadx = 0;
@@ -138,34 +146,80 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 			gridBagConstraints4.insets = new Insets(2,2,2,2);
 			gridBagConstraints4.gridwidth = 2;
 			
+			gridBagConstraints5.gridx = 0;
+			gridBagConstraints5.gridy = 4;
+			gridBagConstraints5.weightx = 1.0;
+			gridBagConstraints5.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5.ipadx = 0;
+			gridBagConstraints5.ipady = 0;
+			gridBagConstraints5.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5.insets = new Insets(2,2,2,2);
+			gridBagConstraints5.gridwidth = 2;
+			
 			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 10;
+			gridBagConstraints6.gridy = 5;
+			gridBagConstraints6.weightx = 1.0;
+			gridBagConstraints6.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints6.ipadx = 0;
+			gridBagConstraints6.ipady = 0;
 			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints6.fill = GridBagConstraints.BOTH;
 			gridBagConstraints6.insets = new Insets(2,2,2,2);
-			gridBagConstraints6.weightx = 1.0D;
-			gridBagConstraints6.weighty = 1.0D;
 			gridBagConstraints6.gridwidth = 2;
 			
-			jLabel2.setText("");
+			gridBagConstraints7.gridx = 0;
+			gridBagConstraints7.gridy = 6;
+			gridBagConstraints7.ipadx = 0;
+			gridBagConstraints7.ipady = 0;
+			gridBagConstraints7.insets = new Insets(2,2,2,2);
+			gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints7.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints7.weightx = 1.0D;
+			
+			gridBagConstraints7b.gridx = 1;
+			gridBagConstraints7b.gridy = 6;
+			gridBagConstraints7b.ipadx = 0;
+			gridBagConstraints7b.ipady = 0;
+			gridBagConstraints7b.insets = new Insets(2,2,2,2);
+			gridBagConstraints7b.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints7b.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints7b.weightx = 1.0D;
+			
+			gridBagConstraints8.gridx = 0;
+			gridBagConstraints8.gridy = 10;
+			gridBagConstraints8.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints8.fill = GridBagConstraints.BOTH;
+			gridBagConstraints8.insets = new Insets(2,2,2,2);
+			gridBagConstraints8.weightx = 1.0D;
+			gridBagConstraints8.weighty = 1.0D;
+			gridBagConstraints8.gridwidth = 2;
+			
 			panelPortScan.add(jLabel, gridBagConstraints1);
 			panelPortScan.add(labelMaxPortValue, gridBagConstraints1b);
 			panelPortScan.add(getSliderMaxPort(), gridBagConstraints2);
 			panelPortScan.add(jLabel1, gridBagConstraints3);
 			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
-			panelPortScan.add(jLabel2, gridBagConstraints6);
+			panelPortScan.add(jLabel2, gridBagConstraints5);
+			panelPortScan.add(getSliderTimeoutInMs(), gridBagConstraints6);
+			panelPortScan.add(jLabel3, gridBagConstraints7);
+			panelPortScan.add(getCheckUseProxy(), gridBagConstraints7b);
+			panelPortScan.add(jLabelx, gridBagConstraints8);
 		}
 		return panelPortScan;
 	}
+	
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    PortScanParam param = (PortScanParam) options.getParamSet(PortScanParam.class);
 	    if (param == null) {
 		    getSliderMaxPort().setValue(PortScanParam.DEFAULT_MAX_PORT);
 		    getSliderThreadsPerScan().setValue(PortScanParam.DEFAULT_THREAD_PER_SCAN);
+		    getSliderTimeoutInMs().setValue(PortScanParam.DEFAULT_TIMEOUT_IN_MS);
+		    getCheckUseProxy().setSelected(PortScanParam.DEFAULT_USE_PROXY);
 	    } else {
 		    getSliderMaxPort().setValue(param.getMaxPort());
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
+		    getSliderTimeoutInMs().setValue(param.getTimeoutInMs());
+		    getCheckUseProxy().setSelected(param.isUseProxy());
 	    }
 	}
 	
@@ -182,6 +236,8 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 	    }
 	    param.setMaxPort(getSliderMaxPort().getValue());
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
+	   	param.setTimeoutInMs(getSliderTimeoutInMs().getValue());
+	   	param.setUseProxy(getCheckUseProxy().isSelected());
 	}
 	
 	/**
@@ -233,6 +289,22 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 		return sliderThreadsPerScan;
 	}
 
+	private JSlider getSliderTimeoutInMs() {
+		if (sliderTimeoutInMs == null) {
+			sliderTimeoutInMs = new JSlider();
+			sliderTimeoutInMs.setMaximum(1000);
+			sliderTimeoutInMs.setMinimum(0);
+			sliderTimeoutInMs.setValue(200);
+			sliderTimeoutInMs.setPaintTicks(true);
+			sliderTimeoutInMs.setPaintLabels(true);
+			sliderTimeoutInMs.setMinorTickSpacing(20);
+			sliderTimeoutInMs.setMajorTickSpacing(100);
+			sliderTimeoutInMs.setSnapToTicks(true);
+			sliderTimeoutInMs.setPaintTrack(true);
+		}
+		return sliderTimeoutInMs;
+	}
+
     public int getThreadPerScan() {
     	return this.sliderThreadsPerScan.getValue();
     }
@@ -240,5 +312,11 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
     public int getMaxPort() {
     	return this.sliderMaxPort.getValue();
     }
-
+    
+	public JCheckBox getCheckUseProxy() {
+		if (checkUseProxy == null) {
+			checkUseProxy = new JCheckBox();
+		}
+		return checkUseProxy;
+	}
 } 

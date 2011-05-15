@@ -30,13 +30,18 @@ public class PortScanParam extends AbstractParam {
 
 	private static final String MAX_PORT = "portscan.maxPort";
 	private static final String THREAD_PER_SCAN = "portscan.threadPerHost";
-	
+	private static final String TIMEOUT_IN_MS = "portscan.timeoutInMs";
+	private static final String USE_PROXY = "portscan.useProxy";
+		
 	public static final int DEFAULT_MAX_PORT = 9216;
 	public static final int DEFAULT_THREAD_PER_SCAN = 3;
+	public static final int DEFAULT_TIMEOUT_IN_MS = 100;
+	public static final boolean DEFAULT_USE_PROXY = true;
 		
 	private int maxPort = DEFAULT_MAX_PORT;
 	private int threadPerScan = 1;
-	
+	private int timeoutInMs = DEFAULT_TIMEOUT_IN_MS;
+	private boolean useProxy = DEFAULT_USE_PROXY;
 	
     /**
      * @param rootElementName
@@ -49,10 +54,16 @@ public class PortScanParam extends AbstractParam {
      */
     protected void parse(){
 		try {
-			setThreadPerScan(getConfig().getInt(THREAD_PER_SCAN, 1));
+			setThreadPerScan(getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN));
 		} catch (Exception e) {}
 		try {
-			setMaxPort(getConfig().getInt(MAX_PORT, 2));
+			setMaxPort(getConfig().getInt(MAX_PORT, DEFAULT_MAX_PORT));
+		} catch (Exception e) {}
+		try {
+			setTimeoutInMs(getConfig().getInt(TIMEOUT_IN_MS, DEFAULT_TIMEOUT_IN_MS));
+		} catch (Exception e) {}
+		try {
+			setUseProxy(getConfig().getBoolean(USE_PROXY, true));
 		} catch (Exception e) {}
 
     }
@@ -81,5 +92,22 @@ public class PortScanParam extends AbstractParam {
 		getConfig().setProperty(MAX_PORT, Integer.toString(this.maxPort));
 
     }
+
+	public int getTimeoutInMs() {
+		return timeoutInMs;
+	}
+
+	public void setTimeoutInMs(int timeoutInMs) {
+		this.timeoutInMs = timeoutInMs;
+		getConfig().setProperty(TIMEOUT_IN_MS, Integer.toString(this.timeoutInMs));
+	}
+
+	public boolean isUseProxy() {
+		return useProxy;
+	}
+
+	public void setUseProxy(boolean useProxy) {
+		this.useProxy = useProxy;
+	}
 	
 }

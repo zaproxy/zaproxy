@@ -45,6 +45,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	private PortScanPanel portScanPanel = null;
     private PopupMenuPortScan popupMenuPortScan = null;
 	private OptionsPortScanPanel optionsPortScanPanel = null;
+	private PopupMenuPortCopy popupMenuPortCopy = null;
 	private PortScanParam params = null;
     private Logger logger = Logger.getLogger(ExtensionPortScan.class);
 
@@ -89,6 +90,8 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	        extensionHook.getHookView().addStatusPanel(getPortScanPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsPortScanPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPortScan());
+	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPortCopy());
+
 	    }
         extensionHook.addOptionsParamSet(getPortScanParam());
 	}
@@ -100,7 +103,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		return params;
 	}
 
-	private PortScanPanel getPortScanPanel() {
+	protected PortScanPanel getPortScanPanel() {
 		if (portScanPanel == null) {
 			portScanPanel = new PortScanPanel(this, getPortScanParam());
 		}
@@ -173,6 +176,15 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		}
 		return optionsPortScanPanel;
 	}
+	
+	private PopupMenuPortCopy getPopupMenuPortCopy() {
+		if (popupMenuPortCopy == null) {
+			popupMenuPortCopy = new PopupMenuPortCopy();
+			popupMenuPortCopy.setExtension(this);
+		}
+		return popupMenuPortCopy;
+	}
+
 	
 	protected void portScanSite(SiteNode node) {
 		this.getPortScanPanel().scanSite(node);

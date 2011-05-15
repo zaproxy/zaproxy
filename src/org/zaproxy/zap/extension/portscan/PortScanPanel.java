@@ -19,14 +19,18 @@
  */
 package org.zaproxy.zap.extension.portscan;
 
+import java.awt.Rectangle;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
@@ -54,6 +58,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
     public PortScanPanel(ExtensionPortScan extension, PortScanParam portScanParam) {
     	// 'picture list' icon
         super("ports", new ImageIcon(extension.getClass().getResource("/resource/icon/16/187.png")), extension, portScanParam);
+        
     }
 
 
@@ -78,7 +83,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 		getPortList().setModel(new DefaultListModel());
 	}
 
-	private synchronized JList getPortList() {
+	protected synchronized JList getPortList() {
 		if (portList == null) {
 			portList = new JList();
 			portList.setDoubleBuffered(true);
@@ -88,6 +93,29 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 			portList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
 			portList.setFixedCellHeight(16);	// Significantly speeds up rendering
+			
+			portList.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    public void mousePressed(java.awt.event.MouseEvent e) {
+					if (SwingUtilities.isRightMouseButton(e)) {
+
+						// Select list item
+					    int Idx = portList.locationToIndex( e.getPoint() );
+					    if ( Idx >= 0 ) {
+					    	Rectangle Rect = portList.getCellBounds( Idx, Idx );
+					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
+					    }
+					    if ( Idx < 0 || !portList.getSelectionModel().isSelectedIndex( Idx ) ) {
+					    	portList.getSelectionModel().clearSelection();
+					    	if ( Idx >= 0 ) {
+					    		portList.getSelectionModel().setSelectionInterval( Idx, Idx );
+					    	}
+					    }
+						
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+			        }			    	
+			    }
+			});
+
 
 			resetPortList();
 		}
