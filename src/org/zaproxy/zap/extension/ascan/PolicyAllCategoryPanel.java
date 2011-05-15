@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -146,7 +147,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	 * 	
 	 * @return com.proofsecure.paros.plugin.scanner.CategoryTableModel	
 	 */    
-	@SuppressWarnings("unchecked")
 	AllCategoryTableModel getAllCategoryTableModel() {
 		if (allCategoryTableModel == null) {
 			allCategoryTableModel = new AllCategoryTableModel();
@@ -162,7 +162,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JButton getBtnEnableAll() {
 		if (btnEnableAll == null) {
 			btnEnableAll = new JButton();
-			btnEnableAll.setText("Enable All");
+			btnEnableAll.setText(Constant.messages.getString("ascan.policy.button.enableall"));
 			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -183,7 +183,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JButton getBtnDisableAll() {
 		if (btnDisableAll == null) {
 			btnDisableAll = new JButton();
-			btnDisableAll.setText("Disable All");
+			btnDisableAll.setText(Constant.messages.getString("ascan.policy.button.disableall"));
 			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -196,4 +196,4 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		}
 		return btnDisableAll;
 	}
-      }  //  @jve:decl-index=0:visual-constraint="10,10"
+}
