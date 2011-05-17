@@ -202,5 +202,10 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     public int getMaxPort() {
     	return this.sliderMaxPort.getValue();
     }
+    
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.spider";
+	}
 
 } 

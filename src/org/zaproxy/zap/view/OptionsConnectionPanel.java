@@ -272,4 +272,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 	}
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.connection";
+	}
+	
 }

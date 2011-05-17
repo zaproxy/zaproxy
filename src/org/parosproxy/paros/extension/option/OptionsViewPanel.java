@@ -482,5 +482,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setAskOnExitOption(getChkAskOnExit().isSelected() ? 1 : 0);
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
 	}
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index
+		return "ui.dialogs.options.view";
+	}
 	
 }

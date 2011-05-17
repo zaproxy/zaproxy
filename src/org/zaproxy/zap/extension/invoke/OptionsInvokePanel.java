@@ -410,4 +410,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		return tableModel;
 	}
 
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.invokeapp";
+	}
+
 }

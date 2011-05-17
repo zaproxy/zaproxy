@@ -331,4 +331,10 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         }
         return txtSkipURL;
     }
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index 
+		return "ui.dialogs.options.spider";
+	}
+    
  }  //  @jve:decl-index=0:visual-constraint="10,10"

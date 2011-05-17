@@ -303,4 +303,10 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		return labelDelayInMsValue;
 	}
 
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.ascan";
+	}
+
 }

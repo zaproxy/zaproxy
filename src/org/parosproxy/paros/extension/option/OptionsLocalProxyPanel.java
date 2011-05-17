@@ -543,4 +543,11 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	        
 	    }
 	}
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index
+		return "ui.dialogs.options.localproxy";
+	}
+	
   }  //  @jve:decl-index=0:visual-constraint="10,10"

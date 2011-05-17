@@ -161,5 +161,10 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
     public int getThreadPerScan() {
     	return this.sliderThreadsPerScan.getValue();
     }
+    
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.bruteforce";
+	}
 
 } 

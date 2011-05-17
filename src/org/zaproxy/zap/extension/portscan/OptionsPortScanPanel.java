@@ -319,4 +319,10 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 		}
 		return checkUseProxy;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.portscan";
+	}
+	
 } 

@@ -24,7 +24,7 @@ package org.parosproxy.paros.view;
  
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -507,7 +507,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
-	        panel = (AbstractParamPanel) en.nextElement();
+	        panel = en.nextElement();
 	        panel.initParam(obj);
 	    }
 	    
@@ -521,7 +521,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
-	        panel = (AbstractParamPanel) en.nextElement();
+	        panel = en.nextElement();
 	        panel.validateParam(paramObject);
 	    }
 	}
@@ -535,7 +535,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
 	    AbstractParamPanel panel = null;
 	    while(en.hasMoreElements()) {
-	        panel = (AbstractParamPanel) en.nextElement();
+	        panel = en.nextElement();
 	        panel.saveParam(paramObject);
 	    }
 	}
@@ -621,6 +621,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			btnHelp.setBorder(null);
 			btnHelp.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // help icon
 			btnHelp.addActionListener(getShowHelpAction());
+			btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
 		}
 		return btnHelp;
 	}
@@ -638,9 +639,9 @@ public class AbstractParamDialog extends AbstractDialog {
 	private static final class ShowHelpAction implements ActionListener {
 
 		private String helpIndex = null;
-		private final Component parent;
+		private final Dialog parent;
 
-		public ShowHelpAction(Component parent) {
+		public ShowHelpAction(Dialog parent) {
 			super();
 			this.parent = parent;
 		}

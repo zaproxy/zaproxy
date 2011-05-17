@@ -165,4 +165,11 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 		}
 		return authModel;
 	}
-   }  //  @jve:decl-index=0:visual-constraint="10,10"
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index support
+		return "ui.dialogs.options.authentication";
+	}
+
+}  //  @jve:decl-index=0:visual-constraint="10,10"

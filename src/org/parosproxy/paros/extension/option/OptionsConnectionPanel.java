@@ -676,4 +676,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return txtTimeoutInSecs;
 	}
+	
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index
+		return "ui.dialogs.options.connection";
+	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"

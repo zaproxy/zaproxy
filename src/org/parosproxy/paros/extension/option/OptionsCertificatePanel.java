@@ -759,6 +759,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		updateDriverComboBox();
 	}
 
-
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index
+		return "ui.dialogs.options.certificate";
+	}
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

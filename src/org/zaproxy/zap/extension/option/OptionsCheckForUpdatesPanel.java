@@ -103,5 +103,10 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	    options.getCheckForUpdatesParam().setChckOnStart((getChkCheckOnStart().isSelected()) ? 1 : 0);
 	    
 	}
-	
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.checkforupdates";
+	}
+
 }

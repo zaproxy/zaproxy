@@ -197,4 +197,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		}
 		return sliderThreadsPerHost;
 	}
+	
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index
+		return "ui.dialogs.options.ascan";
+	}
+	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
