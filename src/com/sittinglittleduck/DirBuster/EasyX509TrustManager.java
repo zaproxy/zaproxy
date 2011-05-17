@@ -62,11 +62,9 @@ package com.sittinglittleduck.DirBuster;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
@@ -93,9 +91,6 @@ public class EasyX509TrustManager implements X509TrustManager
 {
     private X509TrustManager standardTrustManager = null;
     
-    /** Log object for this class. */
-    //private static final Log LOG = LogFactory.getLog(EasyX509TrustManager.class);
-    
     /**
      * Constructor for EasyX509TrustManager.
      */
@@ -113,7 +108,7 @@ public class EasyX509TrustManager implements X509TrustManager
     }
     
     /**
-     * @see com.sun.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
+     * see com.sun.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
      */
     public java.security.cert.X509Certificate[] getAcceptedIssuers()
     {
