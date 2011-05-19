@@ -68,7 +68,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 40000;
+        return 40004;
     }
 
     /* (non-Javadoc)

@@ -72,7 +72,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 40032;
+        return 40007;
     }
 
     /* (non-Javadoc)
@@ -396,9 +396,9 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 
 	}
     
-    public boolean isVisible() {
-        return Constant.isSP();
-    }
+	public boolean isVisible() {
+		return Constant.isSP();
+	}
 
 
 }

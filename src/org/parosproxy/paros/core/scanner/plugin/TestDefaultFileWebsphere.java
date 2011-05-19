@@ -41,7 +41,7 @@ public class TestDefaultFileWebsphere extends AbstractDefaultFilePlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 20005;
+        return 20006;
     }
 
     /* (non-Javadoc)

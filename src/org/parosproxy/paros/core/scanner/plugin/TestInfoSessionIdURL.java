@@ -66,7 +66,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 00004;
+        return 00003;
     }
 
     /* (non-Javadoc)

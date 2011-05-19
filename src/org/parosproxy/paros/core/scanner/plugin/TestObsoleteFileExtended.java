@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.AbstractAppPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -72,8 +73,9 @@ public class TestObsoleteFileExtended extends AbstractAppPlugin {
     public String getReference() {
         return "";
     }
+
     public int getCategory() {
-        return 0;
+        return Category.INFO_GATHER;
     }
     
     public void init() {

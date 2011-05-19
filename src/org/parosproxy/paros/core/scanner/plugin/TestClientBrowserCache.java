@@ -49,7 +49,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 10002;
+        return 10001;
     }
 
     /* (non-Javadoc)

@@ -49,7 +49,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
 	         + "javascript:alert\\('" + Constant.getEyeCatcher() + "'\\)\\)\".*>");
 	
     public int getId() {
-        return 40004;
+        return 40002;
     }
 
     public String getName() {

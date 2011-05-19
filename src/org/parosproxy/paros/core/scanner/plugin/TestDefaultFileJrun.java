@@ -41,7 +41,7 @@ public class TestDefaultFileJrun extends AbstractDefaultFilePlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 20002;
+        return 20003;
     }
 
     /* (non-Javadoc)

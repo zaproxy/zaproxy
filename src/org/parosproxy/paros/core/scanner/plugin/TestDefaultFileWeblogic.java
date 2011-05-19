@@ -41,7 +41,7 @@ public class TestDefaultFileWeblogic extends AbstractDefaultFilePlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 20004;
+        return 20005;
     }
 
     /* (non-Javadoc)

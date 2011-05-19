@@ -41,7 +41,7 @@ public class TestDefaultFileColdFusion extends AbstractDefaultFilePlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 20001;
+        return 20000;
     }
 
     /* (non-Javadoc)

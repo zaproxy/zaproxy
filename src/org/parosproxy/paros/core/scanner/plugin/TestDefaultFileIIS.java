@@ -41,7 +41,7 @@ public class TestDefaultFileIIS extends AbstractDefaultFilePlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 20000;
+        return 20002;
     }
 
     /* (non-Javadoc)

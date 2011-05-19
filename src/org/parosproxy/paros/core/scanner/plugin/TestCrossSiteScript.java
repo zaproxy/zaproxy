@@ -51,7 +51,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
 
     
     public int getId() {
-        return 40003;
+        return 40000;
     }
 
     public String getName() {

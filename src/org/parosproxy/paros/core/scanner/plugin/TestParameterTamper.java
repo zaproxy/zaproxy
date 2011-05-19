@@ -65,7 +65,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 40010;
+        return 40008;
     }
 
     /* (non-Javadoc)

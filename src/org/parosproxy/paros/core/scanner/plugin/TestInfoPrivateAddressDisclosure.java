@@ -28,23 +28,46 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
 
+	private static final String REGULAR_IP_OCTET = "\\b(25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})";
+	private static final String REGULAR_PORTS = "\\b(6553[0-5]|65[0-5][0-2][0-9]|6[0-4][0-9]{4}|[0-5]?[0-9]{0,4})";
     
-	// check for private IP list
-	public static final Pattern patternPrivateIP = Pattern.compile("(10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.\\d{2,2}\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})", PATTERN_PARAM);
+	// Private IP's including localhost
+	public static final Pattern patternPrivateIP = Pattern.compile(
+			"(10\\.(" + REGULAR_IP_OCTET + "\\.){2}" + REGULAR_IP_OCTET + "|" +
+			"172\\." + "\\b(3[01]|2[0-9]|1[6-9])\\." + REGULAR_IP_OCTET + "\\." + REGULAR_IP_OCTET + "|" +
+			"192\\.168\\." + REGULAR_IP_OCTET + "\\." + REGULAR_IP_OCTET + ")"
+			+ "(\\:"+ REGULAR_PORTS +")?"
+			, PATTERN_PARAM);
+	
+	
+			/*"(10\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])" +
+			"|" +
+			"172\\." +
+			"\\b(1[6-9]|2[0-9]|3[01])\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])" +
+			"|" +
+			"192\\.168\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5])\\." +
+			"\\b((([0-1]?[0-9]?|2[0-4])[0-9])|25[0-5]))"
+			, PATTERN_PARAM);
+			*/
+	
+	//"(10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.\\d{2,2}\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})", PATTERN_PARAM);
+			
 
-    /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getId()
-     */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.proofsecure.paros.core.scanner.Plugin#getId()
+	 */
     public int getId() {
-        return 00003;
+        return 00002;
     }
 
     /* (non-Javadoc)
@@ -66,7 +89,8 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
     public String getDescription() {
-        return "Private IP such as 10.x.x.x, 172.x.x.x, 192.168.x.x is found in the HTTP response body.  This can be used in exploits on internal system.";        
+        return "A private IP such as 10.x.x.x, 172.x.x.x, 192.168.x.x has been found in the HTTP response body.  " +
+        		"This information might be helpful for further attacks targeting internal systems.";        
     }
 
     /* (non-Javadoc)
@@ -80,7 +104,8 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
     public String getSolution() {
-        return "Remove the private IP address from the HTTP response body.  For comments, use jsp/asp comment instead of HTML/javascript comment which can be seen by client browsers.";
+        return "Remove the private IP address from the HTTP response body.  For comments, use JSP/ASP comment instead " +
+        		"of HTML/JavaScript comment which can be seen by client browsers.";
         
     }
 
@@ -105,14 +130,17 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
         
         HttpMessage msg = getBaseMsg();
 		String txtBody = msg.getResponseBody().toString();
-		String txtFound = null;
+		String txtFound = "";
 		Matcher matcher = patternPrivateIP.matcher(txtBody);
+		
 		while (matcher.find()) {
-			txtFound = matcher.group();
-			if (txtFound != null) {
-				bingo(Alert.RISK_LOW, Alert.WARNING, null, null, txtFound, msg);
-			}
-		}	
+			txtFound += matcher.group() + "\n";
+		}
+		
+		if (txtFound != "") {
+			bingo(Alert.RISK_LOW, Alert.WARNING, null, null, txtFound, msg);
+		}
+		
     }
 
 }

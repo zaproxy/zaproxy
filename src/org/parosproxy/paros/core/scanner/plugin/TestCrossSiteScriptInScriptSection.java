@@ -43,7 +43,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 	     = Pattern.compile("<SCRIPT>.*?alert\\('\\{" + Constant.getEyeCatcher() + "\\}'\\);.*?</SCRIPT>", Pattern.DOTALL);
 	
     public int getId() {
-        return 40005;
+        return 40001;
     }
 
     public String getName() {

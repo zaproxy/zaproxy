@@ -51,7 +51,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 40031;
+        return 40006;
     }
 
     /* (non-Javadoc)

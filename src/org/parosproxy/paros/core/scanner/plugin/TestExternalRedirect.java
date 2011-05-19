@@ -63,7 +63,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
      */
     public String getDescription() {
         
-        String msg = "Arbitrary external redirection can be .  A phishing email can make use of this to entice readers to click on the link to redirect readers to bogus sites.";
+        String msg = "Arbitrary external redirection can be.  A phishing email can make use of this to entice readers to click on the link to redirect readers to bogus sites.";
         return msg;
     }
 
@@ -86,9 +86,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
     public String getReference() {
-        String msg = "";
-        
-        return msg;
+        return "";
     }
 
     /* (non-Javadoc)
@@ -178,8 +176,8 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
 		
 	}
 	
-    public boolean isVisible() {
-        return Constant.isSP();
-    }
+	public boolean isVisible() {
+		return Constant.isSP();
+	}
 
 }

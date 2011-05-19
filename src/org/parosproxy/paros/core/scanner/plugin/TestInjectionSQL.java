@@ -108,7 +108,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 40030;
+        return 40005;
     }
 
     /* (non-Javadoc)

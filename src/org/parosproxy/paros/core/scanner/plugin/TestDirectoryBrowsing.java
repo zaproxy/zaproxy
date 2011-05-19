@@ -54,7 +54,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
     public int getId() {
-        return 00001;
+        return 00000;
     }
 
     /* (non-Javadoc)
@@ -82,7 +82,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     }
     
     public int getCategory() {
-        return Category.SERVER;
+        return Category.INFO_GATHER;
     }
 
     public String getSolution() {

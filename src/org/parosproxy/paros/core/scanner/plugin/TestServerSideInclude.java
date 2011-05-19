@@ -41,7 +41,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 	private static Pattern patternSSIWin = Pattern.compile("\\bprogram files\\b.*\\b(WINDOWS|WINNT)\\b", PATTERN_PARAM);
 
     public int getId() {
-        return 40002;
+        return 40009;
     }
 
     public String getName() {

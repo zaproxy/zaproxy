@@ -52,7 +52,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 40001;
+        return 40003;
     }
 
     /* (non-Javadoc)

@@ -62,7 +62,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 10001;
+        return 10000;
     }
 
     /* (non-Javadoc)

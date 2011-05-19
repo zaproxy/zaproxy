@@ -56,7 +56,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
     public int getId() {
-        return 00006;
+        return 00001;
     }
 
     /* (non-Javadoc)
@@ -144,8 +144,8 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
 		
 	}
     
-    public boolean isVisible() {
-        return Constant.isSP();
-    }
+	public boolean isVisible() {
+		return Constant.isSP();
+	}
 
 }
