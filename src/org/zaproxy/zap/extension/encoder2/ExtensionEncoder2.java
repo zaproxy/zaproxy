@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.encoder2;
 
+import java.awt.Frame;
+
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.text.JTextComponent;
@@ -93,16 +95,19 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
 	}
 	
     private void showEncodeDecodeDialog(JFrame frame, JTextComponent lastInvoker) {
-        if (encodeDecodeDialog == null || encodeDecodeDialog.getParent() != frame) {
+        if (encodeDecodeDialog == null) {
             encodeDecodeDialog = new EncodeDecodeDialog();            
-			
             /*
             // TODO doesnt work yet
             ExtensionHelp.enablePopupHelpKey(
             		encodeDecodeDialog, 
                     "ui.tabs.break");
             */
-
+        } else {
+        	if ((encodeDecodeDialog.getState() & Frame.ICONIFIED) == Frame.ICONIFIED ) {
+        		// bring up to front if iconfied
+        		encodeDecodeDialog.setState(Frame.NORMAL);
+        	}
         }
         
         encodeDecodeDialog.setVisible(true);
