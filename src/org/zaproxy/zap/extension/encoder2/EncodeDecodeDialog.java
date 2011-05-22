@@ -72,12 +72,12 @@ public class EncodeDecodeDialog extends AbstractDialog {
     }
 
     /**
-     * @param arg0
-     * @param arg1
+     * @param owner
+     * @param modal
      * @throws HeadlessException
      */
-    public EncodeDecodeDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
+    public EncodeDecodeDialog(Frame owner, boolean modal) throws HeadlessException {
+        super(owner, modal);
  		initialize();
     }
 

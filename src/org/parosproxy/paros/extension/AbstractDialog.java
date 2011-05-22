@@ -50,12 +50,12 @@ abstract public class AbstractDialog extends JDialog {
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param owner
+	 * @param modal
 	 * @throws java.awt.HeadlessException
 	 */
-	public AbstractDialog(Frame arg0, boolean arg1) throws HeadlessException {
-		super(arg0, arg1);
+	public AbstractDialog(Frame owner, boolean modal) throws HeadlessException {
+		super(owner, modal);
 		initialize();
 	}
 
