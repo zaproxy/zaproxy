@@ -600,7 +600,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			@Override
 			public String getDescription()
 			{
-				return Constant.messages.getString("options.cert.label.clientcert");
+				return Constant.messages.getString("options.cert.label.client.cert");
 			}
 			@Override
 			public boolean accept(File f) {
