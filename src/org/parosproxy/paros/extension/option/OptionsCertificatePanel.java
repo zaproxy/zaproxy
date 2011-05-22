@@ -24,7 +24,6 @@ package org.parosproxy.paros.extension.option;
 
 //TODO: Buttons should be gray
 import java.awt.CardLayout;
-import java.awt.Dialog;
 import java.io.File;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -34,6 +33,7 @@ import java.util.Observer;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -499,7 +499,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private void showActiveCertificateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showActiveCertificateButtonActionPerformed
 		Certificate cert = contextManager.getDefaultCertificate();
 		if(cert!=null) {
-			new Dialog(new CertificateView(cert.toString()), false);
+			showCertificate(cert);
 		}
 	}//GEN-LAST:event_showActiveCertificateButtonActionPerformed
 
@@ -623,11 +623,23 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			int alias = aliasTable.getSelectedRow();
 			Certificate cert = contextManager.getCertificate(keystore, alias);
 			if (cert != null) {
-				new Dialog(new CertificateView(cert.toString()), false);
+				showCertificate(cert);
 			}
 		}
 	}//GEN-LAST:event_showAliasButtonActionPerformed
 
+	/**
+	 * Shows a second {@link JFrame} displaying the content of the certificate
+	 * 
+	 * @param cert
+	 */
+	private void showCertificate(Certificate cert) {
+		if (cert != null) {
+			JFrame frame = new CertificateView(cert.toString());
+			frame.setVisible(true);
+		}
+	}
+	
 	private void setActiveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setActiveButtonActionPerformed
 		int ks = keyStoreList.getSelectedIndex();
 		int alias = aliasTable.getSelectedRow();

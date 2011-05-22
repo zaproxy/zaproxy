@@ -24,7 +24,6 @@ package org.parosproxy.paros.view;
  
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -112,6 +111,11 @@ public class AbstractParamDialog extends AbstractDialog {
 	 * @return void
 	 */
 	private void initialize() {
+		// enables the options dialog to be in front, but an modal dialog
+		// stays on top of the main application window, but doesn't block childs
+		// Examples of childs: help window and client certificate viewer
+		this.setModalityType(ModalityType.DOCUMENT_MODAL);
+		
         this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(500, 375);
@@ -628,7 +632,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	
 	private ShowHelpAction getShowHelpAction() {
 		if (showHelpAction == null) {
-			showHelpAction  = new ShowHelpAction(this);
+			showHelpAction  = new ShowHelpAction();
 		}
 		return showHelpAction;
 	}
@@ -639,17 +643,11 @@ public class AbstractParamDialog extends AbstractDialog {
 	private static final class ShowHelpAction implements ActionListener {
 
 		private String helpIndex = null;
-		private final Dialog parent;
-
-		public ShowHelpAction(Dialog parent) {
-			super();
-			this.parent = parent;
-		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (helpIndex != null) {
-				ExtensionHelp.showHelp(parent, helpIndex);
+				ExtensionHelp.showHelp(helpIndex);
 			}
 		}
 

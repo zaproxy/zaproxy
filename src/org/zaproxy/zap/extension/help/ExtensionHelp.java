@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.help;
 
 import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dialog.ModalityType;
 import java.net.URL;
 
 import javax.help.CSH;
@@ -125,37 +123,15 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	*/
 
 	/**
-	 * @see {@link #showHelp()} using key "zap.intro"
+	 * @see {@link #showHelp(String))} using key "zap.intro"
 	 */
 	public static void showHelp() {
-		try {
-			getHelpBroker().setCurrentID("zap.intro");
-		} catch (Exception e) {
-			logger.error("error loading help with index: " + "zap.intro", e);
-		}
+		showHelp("zap.intro");
 	}
 	
 	/**
 	 * Shows a specific help topic
 	 * 
-	 * @param parent
-	 * @param helpindex
-	 */
-	public static void showHelp(Component parent, String helpindex) {
-		if (parent != null && parent instanceof Dialog) {
-			// enables the help to be in front, but an modal dialog 
-			// stays on top of the main application window
-			Dialog dialog = (Dialog)parent;
-			dialog.setModalityType(ModalityType.MODELESS);
-		}
-		try {
-			hb.showID(helpindex, "javax.help.SecondaryWindow", null);
-		} catch (Exception e) {
-			logger.error("error loading help with index: " + helpindex, e);
-		}
-	}
-	
-	/**
 	 * @param helpindex
 	 */
 	public static void showHelp(String helpindex) {
@@ -172,7 +148,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		}
 		*/
 		try {
-			getHelpBroker().setCurrentID(helpindex);
+			getHelpBroker().showID(helpindex, "javax.help.SecondaryWindow", null);
 		} catch (Exception e) {
 			logger.error("error loading help with index: " + helpindex, e);
 		}
