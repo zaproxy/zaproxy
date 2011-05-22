@@ -600,7 +600,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			@Override
 			public String getDescription()
 			{
-				return Constant.messages.getString("options.cert.label.client.cert");
+				return Constant.messages.getString("options.cert.label.client.cert") + " (*.p12)";
 			}
 			@Override
 			public boolean accept(File f) {
@@ -622,7 +622,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		if(keystore>=0) {
 			int alias = aliasTable.getSelectedRow();
 			Certificate cert = contextManager.getCertificate(keystore, alias);
-			new Dialog(new CertificateView(cert.toString()), false);
+			if (cert != null) {
+				new Dialog(new CertificateView(cert.toString()), false);
+			}
 		}
 	}//GEN-LAST:event_showAliasButtonActionPerformed
 
