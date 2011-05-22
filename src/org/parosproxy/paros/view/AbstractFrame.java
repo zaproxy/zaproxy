@@ -29,6 +29,15 @@ import javax.swing.JFrame;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 
+/**
+ * Generic Frame, which handles some basic properties.
+ * <ul>
+ * <li>Sets the icon(s) for the frame, which are the ZAP icons</li>
+ * <li>Centers the frame on screen</li>
+ * <li>Sets the frame to _not_ visible</li>
+ * <li>Sets a common font for the frame</li>
+ * </ul>
+ */
 public abstract class AbstractFrame extends JFrame {
 
 
