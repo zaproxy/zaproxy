@@ -94,7 +94,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
 	
     private void showEncodeDecodeDialog(JFrame frame, JTextComponent lastInvoker) {
         if (encodeDecodeDialog == null || encodeDecodeDialog.getParent() != frame) {
-            encodeDecodeDialog = new EncodeDecodeDialog(frame, false);            
+            encodeDecodeDialog = new EncodeDecodeDialog();            
 			
             /*
             // TODO doesnt work yet

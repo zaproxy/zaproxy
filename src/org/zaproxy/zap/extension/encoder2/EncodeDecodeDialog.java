@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.encoder2;
 
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
@@ -35,14 +34,14 @@ import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.encoder.Encoder;
+import org.parosproxy.paros.view.AbstractFrame;
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class EncodeDecodeDialog extends AbstractDialog {
+public class EncodeDecodeDialog extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTabbedPane jTabbed = null;
@@ -71,27 +70,16 @@ public class EncodeDecodeDialog extends AbstractDialog {
  		initialize();
     }
 
-    /**
-     * @param owner
-     * @param modal
-     * @throws HeadlessException
-     */
-    public EncodeDecodeDialog(Frame owner, boolean modal) throws HeadlessException {
-        super(owner, modal);
- 		initialize();
-    }
-
 	/**
 	 * This method initializes this
 	 * 
 	 * @return void
 	 */
 	private void initialize() {
-        this.setContentPane(getJTabbed());
+		this.setAlwaysOnTop(false);
+		this.setContentPane(getJTabbed());
         this.setTitle(Constant.messages.getString("enc2.title"));
-        //this.pack();
         this.setSize(800, 600);
-	
 	}
 	
 	private void addField (JPanel parent, int index, JComponent c, String title) {
