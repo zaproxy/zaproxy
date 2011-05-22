@@ -36,6 +36,7 @@ import org.parosproxy.paros.model.Model;
  * <li>Centers the frame on screen</li>
  * <li>Sets the frame to _not_ visible</li>
  * <li>Sets a common font for the frame</li>
+ * <li>Sets a default title (ZAP application name)</li>
  * </ul>
  */
 public abstract class AbstractFrame extends JFrame {
