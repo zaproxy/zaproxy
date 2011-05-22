@@ -62,12 +62,10 @@ public abstract class AbstractFrame extends JFrame {
 		
 		this.setVisible(false);
 		this.setTitle(Constant.PROGRAM_NAME);
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(800, 600);
-	    }
 	    this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 	    
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+	    	this.setSize(800, 600);
 	    	centerFrame();
 	    }
 	}
