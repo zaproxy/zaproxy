@@ -3,7 +3,6 @@ package org.zaproxy.zap.extension.httppanel;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -11,10 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModel;
@@ -33,8 +29,6 @@ import org.zaproxy.zap.view.HttpPanelView;
 
 public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
-
-    private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
     private JComboBox jComboView;
     

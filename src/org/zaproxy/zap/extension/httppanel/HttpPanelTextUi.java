@@ -3,9 +3,6 @@ package org.zaproxy.zap.extension.httppanel;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -17,7 +14,6 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.zaproxy.zap.extension.httppanel.model.HttpDataModel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 

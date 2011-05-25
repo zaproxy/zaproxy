@@ -2,16 +2,10 @@ package org.zaproxy.zap.httputils;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.view.HttpPanel;
 
 public class RequestUtils {
-
-	private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 
 	/*
 	 * Change the HTTP Method in header to method.
