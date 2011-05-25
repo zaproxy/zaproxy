@@ -27,8 +27,6 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -103,15 +101,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 	 */
 	private void initialize() {
 	    getBeanShellPanel().getPanelOption().add(getPanelCommand(), "");
-	    
-	    this.addWindowListener(new WindowAdapter() { 
-	    	public void windowClosing(WindowEvent e) {
-	    	    //Don't think we need todo anything here
-	    	}
-	    });
-
 	    this.setContentPane(getJPanel());
-	    
 	}
 	
 	/**
