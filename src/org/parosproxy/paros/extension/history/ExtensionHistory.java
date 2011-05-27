@@ -20,6 +20,7 @@
  */
  
 // ZAP: 2011/08/04 Changed to support clearview() in HttpPanels
+// ZAP: 2011/08/04 Changed to use PopupMenuResendMessage
  
 package org.parosproxy.paros.extension.history;
 
@@ -27,8 +28,6 @@ import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -51,6 +50,7 @@ import org.zaproxy.zap.extension.history.NotesAddDialog;
 import org.zaproxy.zap.extension.history.PopupMenuAlert;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
+import org.zaproxy.zap.extension.history.PopupMenuResendMessage;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
 /**
@@ -83,12 +83,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	private PopupMenuDeleteHistory popupMenuDeleteHistory = null;
 	private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
-	private PopupMenuResend popupMenuResend = null;
+	//private PopupMenuResend popupMenuResend = null;
 	private ManualRequestEditorDialog resendDialog = null;
+	private PopupMenuResendMessage popupMenuResendMessage = null;
 	
-	// ZAP: added resend to history panel
-	private PopupMenuResendSites popupMenuResendSites = null;
-
 	private PopupMenuExportMessage popupMenuExportMessage = null;
 	private PopupMenuExportMessage popupMenuExportMessage2 = null;
     private PopupMenuExportResponse popupMenuExportResponse = null;
@@ -168,7 +166,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByRequest());
 	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByResponse());
 
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResend());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
@@ -193,9 +191,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 getBrowserDialog();
             }
             */
-            
-            // ZAP added resend popup
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendSites());
 	    }
 
 	}
@@ -497,6 +492,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.PopupMenuResend	
 	 */    
+	/*
 	private PopupMenuResend getPopupMenuResend() {
 		if (popupMenuResend == null) {
 			popupMenuResend = new PopupMenuResend();
@@ -504,12 +500,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return popupMenuResend;
 	}
+	*/
 	/**
 	 * This method initializes resendDialog	
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.ResendDialog	
 	 */    
-	ManualRequestEditorDialog getResendDialog() {
+	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
 			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
 			//resendDialog.setSize(700, 800);
@@ -700,15 +697,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
     */
     
-    // ZAP added
-	private PopupMenuResendSites getPopupMenuResendSites () {
-		if (popupMenuResendSites == null) {
-			popupMenuResendSites = new PopupMenuResendSites();
-			popupMenuResendSites.setExtension(this);
-		}
-		return popupMenuResendSites;
-	}
-    
     public void showNotesAddDialog(HistoryReference ref, String note) {
     	dialogNotesAdd = new NotesAddDialog(getView().getMainFrame(), false);
     	dialogNotesAdd.setPlugin(this);
@@ -765,4 +753,12 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return popupMenuExportURLs;
 	}
 
+	private PopupMenuResendMessage getPopupMenuResendMessage() {
+		if (popupMenuResendMessage == null) {
+			popupMenuResendMessage = new PopupMenuResendMessage(Constant.messages.getString("history.resend.popup"));
+			popupMenuResendMessage.setExtension(this);
+		}
+		return popupMenuResendMessage;
+	}
+	
 }
