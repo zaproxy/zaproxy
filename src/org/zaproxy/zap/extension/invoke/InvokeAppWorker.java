@@ -106,6 +106,8 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 				// Somethings been written, switch to the Output tab
 				View.getSingleton().getOutputPanel().setTabFocus();
 			}
+			brOut.close();
+			brErr.close();
 		}
 			
 		return null;
