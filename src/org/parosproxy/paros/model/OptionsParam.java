@@ -183,9 +183,22 @@ public class OptionsParam extends AbstractParam {
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
 		
-		String userDir = getConfig().getString(USER_DIR);
-		if (userDir != null) {
-			this.setUserDirectory(new File(userDir));
+		String userDir = null;
+		try {
+			userDir = getConfig().getString(USER_DIR);
+			if (userDir != null) {
+				this.userDirectory = new File(userDir);
+			}
+		} catch (Exception e) {
+			// In a previous release the userdir was set as a file
+			try {
+				File file = (File) getConfig().getProperty(USER_DIR);
+				if (file != null && file.isDirectory()) {
+					this.userDirectory = file;
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 		
 //		for (int i=0; i<paramSetList.size(); i++) {
@@ -215,7 +228,7 @@ public class OptionsParam extends AbstractParam {
     public void setUserDirectory(File currentDirectory) {
         this.userDirectory = currentDirectory;
     	// ZAP: User directory now stored in the config file
-        getConfig().setProperty(USER_DIR, currentDirectory.getAbsoluteFile());
+        getConfig().setProperty(USER_DIR, currentDirectory.getAbsolutePath());
         try {
 			getConfig().save();
 		} catch (ConfigurationException e) {
