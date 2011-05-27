@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/27 Added tests prefixed with single and double quotes
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import org.parosproxy.paros.Constant;
@@ -44,6 +46,8 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
         "<SCRIPT>alert(" + '"' + Constant.getEyeCatcher() + '"' + ");</SCRIPT>",    // normal XSS
         "<SCRIPT>alert(" + '\'' + Constant.getEyeCatcher() + '\'' + ");</SCRIPT>",    // with single quotes
         "<SCRIPT>alert(" + Constant.getEyeCatcher() + ");</SCRIPT>",                // XSS without double quotes
+        "'\"<SCRIPT>alert(" + '\'' + Constant.getEyeCatcher() + '\'' + ");</SCRIPT>",    // prefix with single then double quotes
+        "\"'<SCRIPT>alert(" + '\'' + Constant.getEyeCatcher() + '\'' + ");</SCRIPT>",    // prefix with double then single quotes
         "bob@<SCRipt>alert('" + Constant.getEyeCatcher() + "')</scrIPT>.example.org",   // XSS to fulfill email check
         "bob@<SCRipt>alert(" + Constant.getEyeCatcher() + ")</scrIPT>.example.org"   // email without quotes
         
