@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 
 package org.parosproxy.paros.db;
 import java.sql.CallableStatement;
@@ -89,6 +90,7 @@ public class TableScan extends AbstractTable {
         if (rs.next()) {
             scan = new RecordScan(rs.getInt(SCANID), rs.getString(SCANNAME), rs.getDate(SCANTIME));            
         }
+        rs.close();
         return scan;
         
     }    

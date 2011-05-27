@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/09 Support for API
+// ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 
 package org.parosproxy.paros.db;
 
@@ -110,9 +111,12 @@ public class TableAlert extends AbstractTable {
 	public synchronized RecordAlert read(int alertId) throws SQLException {
 		psRead.setInt(1, alertId);
 		ResultSet rs = psRead.executeQuery();
-		RecordAlert ra = build(rs);
-		rs.close();
-		return ra;
+		try {
+			RecordAlert ra = build(rs);
+			return ra;
+		} finally {
+			rs.close();
+		}
 	}
 	
 
@@ -163,7 +167,6 @@ public class TableAlert extends AbstractTable {
 					rs.getInt(SOURCEHISTORYID)
 			);
 		}
-		rs.close();
 		return alert;
 	
 	}

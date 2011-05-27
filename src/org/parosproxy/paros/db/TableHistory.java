@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 
 package org.parosproxy.paros.db;
 
@@ -118,6 +119,7 @@ public class TableHistory extends AbstractTable {
         if (!rs.next()) {
             PreparedStatement stmt = conn.prepareStatement("ALTER TABLE HISTORY ADD COLUMN TAG VARCHAR DEFAULT ''");
             stmt.execute();
+            stmt.close();
         }
         rs.close();
         
@@ -141,8 +143,12 @@ public class TableHistory extends AbstractTable {
 	    psRead.setInt(1, historyId);
 		psRead.execute();
 		ResultSet rs = psRead.getResultSet();
-		RecordHistory result = build(rs);
-		rs.close();
+		RecordHistory result = null;
+		try {
+			result = build(rs);
+		} finally {
+			rs.close();
+		}
 
 		return result;
 	}
@@ -206,122 +212,162 @@ public class TableHistory extends AbstractTable {
 		*/
 		
 		ResultSet rs = psWrite2.executeQuery();
-		rs.next();
-		int id = rs.getInt(1);
-		rs.close();
-		return read(id);
+		try {
+			rs.next();
+			int id = rs.getInt(1);
+			return read(id);
+		} finally {
+			rs.close();
+		}
 	}
 	
 	private RecordHistory build(ResultSet rs) throws HttpMalformedHeaderException, SQLException {
 		RecordHistory history = null;
-		if (rs.next()) {
-			history = new RecordHistory(
-					rs.getInt(HISTORYID),
-					rs.getInt(HISTTYPE),
-                    rs.getLong(SESSIONID),
-					rs.getLong(TIMESENTMILLIS),
-					rs.getInt(TIMEELAPSEDMILLIS),
-					rs.getString(REQHEADER),
-					rs.getString(REQBODY),
-					rs.getString(RESHEADER),
-					rs.getString(RESBODY),
-                    rs.getString(TAG),
-                    rs.getString(NOTE)			// ZAP: Added note
-			);
-			
+		try {
+			if (rs.next()) {
+				history = new RecordHistory(
+						rs.getInt(HISTORYID),
+						rs.getInt(HISTTYPE),
+	                    rs.getLong(SESSIONID),
+						rs.getLong(TIMESENTMILLIS),
+						rs.getInt(TIMEELAPSEDMILLIS),
+						rs.getString(REQHEADER),
+						rs.getString(REQBODY),
+						rs.getString(RESHEADER),
+						rs.getString(RESBODY),
+	                    rs.getString(TAG),
+	                    rs.getString(NOTE)			// ZAP: Added note
+				);
+			}
+		} finally {
+			rs.close();
 		}
-		rs.close();
 		return history;
 	
 	}
 	
 	public Vector<Integer> getHistoryList(long sessionId, int histType) throws SQLException {
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
-        
+	    ResultSet rs = null;
 	    Vector<Integer> v = new Vector<Integer>();
-	    psReadSession.setLong(1, sessionId);
-	    psReadSession.setInt(2, histType);
-	    ResultSet rs = psReadSession.executeQuery();
+	    try {
+        
+		    psReadSession.setLong(1, sessionId);
+		    psReadSession.setInt(2, histType);
+		    rs = psReadSession.executeQuery();
 	    
-	    while (rs.next()) {
-	        int last = rs.getInt(HISTORYID);
-	        v.add(new Integer(last));
-	    }
-	    rs.close();
-	    psReadSession.close();
-	    
+		    while (rs.next()) {
+		        int last = rs.getInt(HISTORYID);
+		        v.add(new Integer(last));
+		    }
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
+		    psReadSession.close();
+		}
+
 		return v;
 	}
 
-	public Vector getHistoryList(long sessionId) throws SQLException {
+	public Vector<Integer> getHistoryList(long sessionId) throws SQLException {
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? ORDER BY " + HISTORYID);
-        
-	    Vector v = new Vector();
-	    psReadSession.setLong(1, sessionId);
-	    ResultSet rs = psReadSession.executeQuery();
-	    
-	    while (rs.next()) {
-	        int last = rs.getInt(HISTORYID);
-	        v.add(new Integer(last));
-	    }
-	    rs.close();
-	    psReadSession.close();
-	    
+	    ResultSet rs = null;
+	    Vector<Integer> v = new Vector<Integer>();
+	    try {
+		    psReadSession.setLong(1, sessionId);
+		    rs = psReadSession.executeQuery();
+		    
+		    while (rs.next()) {
+		        int last = rs.getInt(HISTORYID);
+		        v.add(new Integer(last));
+		    }
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
+		    psReadSession.close();
+		}
+
 		return v;
 	}
 
 	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {
         PreparedStatement psReadSearch = getConnection().prepareStatement("SELECT * FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
-
-	    Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
-		Matcher matcher = null;
-
+	    ResultSet rs = null;
 		Vector<Integer> v = new Vector<Integer>();
-		psReadSearch.setLong(1, sessionId);
-		psReadSearch.setInt(2, histType);
-		ResultSet rs = psReadSearch.executeQuery();
-		while (rs.next()) {
-		    if (isRequest) {
-		        matcher = pattern.matcher(rs.getString(REQHEADER));
-		        if (matcher.find()) {
-		            v.add(new Integer(rs.getInt(HISTORYID)));
-		            continue;
-		        }
-		        matcher = pattern.matcher(rs.getString(REQBODY));
-		        if (matcher.find()) {
-		            v.add(new Integer(rs.getInt(HISTORYID)));
-		            continue;
-		        }
-		    } else {
-		        matcher = pattern.matcher(rs.getString(RESHEADER));
-		        if (matcher.find()) {
-		            v.add(new Integer(rs.getInt(HISTORYID)));
-		            continue;
-		        }
-		        matcher = pattern.matcher(rs.getString(RESBODY));
-		        if (matcher.find()) {
-		            v.add(new Integer(rs.getInt(HISTORYID)));
-		            continue;
-		        }
-		    }
-		    
+		try {
+
+		    Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
+			Matcher matcher = null;
+	
+			psReadSearch.setLong(1, sessionId);
+			psReadSearch.setInt(2, histType);
+			rs = psReadSearch.executeQuery();
+			while (rs.next()) {
+			    if (isRequest) {
+			        matcher = pattern.matcher(rs.getString(REQHEADER));
+			        if (matcher.find()) {
+			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            continue;
+			        }
+			        matcher = pattern.matcher(rs.getString(REQBODY));
+			        if (matcher.find()) {
+			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            continue;
+			        }
+			    } else {
+			        matcher = pattern.matcher(rs.getString(RESHEADER));
+			        if (matcher.find()) {
+			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            continue;
+			        }
+			        matcher = pattern.matcher(rs.getString(RESBODY));
+			        if (matcher.find()) {
+			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            continue;
+			        }
+			    }
+			    
+			}
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
+		    psReadSearch.close();
 		}
-		rs.close();
-	    psReadSearch.close();
 
 	    return v;
 	}
 	
 	public void deleteHistorySession(long sessionId) throws SQLException {
         Statement stmt = getConnection().createStatement();
-        stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId);
-        stmt.close();
+        try {
+        	stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId);
+		} finally {
+			stmt.close();
+		}
 	}
 	
 	public void deleteHistoryType(long sessionId, int historyType) throws SQLException {
         Statement stmt = getConnection().createStatement();
-        stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId + " AND " + HISTTYPE + " = " + historyType);
-        stmt.close();
+        try {
+        	stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId + " AND " + HISTTYPE + " = " + historyType);
+		} finally {
+			stmt.close();
+		}
 	}
 
 	public void delete(int historyId) throws SQLException {
@@ -340,13 +386,14 @@ public class TableHistory extends AbstractTable {
 	    psContainsURI.setString(3, body);
 	    psContainsURI.setLong(4, sessionId);
 	    psContainsURI.setInt(5, historyType);
-	    psContainsURI.executeQuery();
-		ResultSet rs = psContainsURI.getResultSet();
-	    if (rs.next()) {
-	    	rs.close();		// ZAP: Fix leak
-	        return true;
-	    }
-	    rs.close();
+	    ResultSet rs = psContainsURI.executeQuery();
+		try {
+		    if (rs.next()) {
+		        return true;
+		    }
+		} finally {
+	    	rs.close();
+		}
 	    return false;
 	    
 	}
@@ -378,8 +425,7 @@ public class TableHistory extends AbstractTable {
         psReadCache.setInt(5, ref.getHistoryId()+200);
         psReadCache.setLong(6, ref.getSessionId());
         
-        psReadCache.executeQuery();
-        ResultSet rs = psReadCache.getResultSet();
+        ResultSet rs = psReadCache.executeQuery();
         RecordHistory rec = null;
        
         try {
@@ -387,7 +433,8 @@ public class TableHistory extends AbstractTable {
                 rec = build(rs);
                 // for retrieval from cache, the message requests nature must be the same.
                 // and the result should NOT be NOT_MODIFIED for rendering by browser
-                if (rec != null && rec.getHttpMessage().equals(reqMsg) && rec.getHttpMessage().getResponseHeader().getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
+                if (rec != null && rec.getHttpMessage().equals(reqMsg) && 
+                		rec.getHttpMessage().getResponseHeader().getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
                     return rec;
                 }
 
@@ -455,10 +502,13 @@ public class TableHistory extends AbstractTable {
     public int lastIndex () throws SQLException {
     	int lastIndex = -1;
 		ResultSet rs = psLastIndex.executeQuery();
-	    if (rs.next()) {
-	        lastIndex = rs.getInt(HISTORYID);
-	    }
-	    rs.close();
+		try {
+		    if (rs.next()) {
+		        lastIndex = rs.getInt(HISTORYID);
+		    }
+		} finally {
+	    	rs.close();
+		}
 	    return lastIndex;
     }
 
