@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.event.InputEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	
 	private static final long serialVersionUID = 1L;
 
-	public static final String PANEL_NAME = "portscan";
+	public static final String PANEL_NAME = "ascan";
 	
 	private JScrollPane jScrollPane = null;
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
