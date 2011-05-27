@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/27 Catch any exception when loading the config file 
+
 package org.parosproxy.paros.common;
 
 import org.apache.commons.configuration.FileConfiguration;
@@ -38,6 +40,11 @@ abstract public class AbstractParam {
     public void load(FileConfiguration config) {
         this.config = config;
         parse();
+        try {
+            parse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     public void load(String fileName) {
@@ -52,6 +59,12 @@ abstract public class AbstractParam {
     public void load() throws Exception {
         config.load();
         parse();
+        try {
+            config.load();
+            parse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     public FileConfiguration getConfig() {
