@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.search;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 
 import javax.swing.DefaultListModel;
@@ -30,19 +29,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 /**
@@ -75,7 +68,7 @@ public class SearchPanel extends AbstractPanel {
 	private HttpPanelResponse responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
-    private static Log log = LogFactory.getLog(SearchPanel.class);
+    //private static Log log = LogFactory.getLog(SearchPanel.class);
 
     /**
      * 
@@ -104,6 +97,16 @@ public class SearchPanel extends AbstractPanel {
         this.setName(Constant.messages.getString("search.panel.title"));
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
+        
+        resultsList.setName("listSearch");
+        resultsList.addMouseListener(new java.awt.event.MouseAdapter() { 
+			public void mousePressed(java.awt.event.MouseEvent e) {    
+			    if (SwingUtilities.isRightMouseButton(e)) { 
+			        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+			    }	
+			}
+		});
+
 
 	}
 	
@@ -324,8 +327,19 @@ public class SearchPanel extends AbstractPanel {
     }
     
     private void doSearch() {
-		extension.search(regEx.getText(), 
-				(ExtensionSearch.Type)searchType.getSelectedItem());
+    	ExtensionSearch.Type type = ExtensionSearch.Type.All;
+    	
+    	if (Constant.messages.getString("search.toolbar.label.type.url").equals(searchType.getSelectedItem())) {
+    		type = ExtensionSearch.Type.URL;
+    	} else if (Constant.messages.getString("search.toolbar.label.type.request").equals(searchType.getSelectedItem())) {
+    		type = ExtensionSearch.Type.Request;
+    	} else if (Constant.messages.getString("search.toolbar.label.type.response").equals(searchType.getSelectedItem())) {
+    		type = ExtensionSearch.Type.Response;
+    	} else if (Constant.messages.getString("search.toolbar.label.type.header").equals(searchType.getSelectedItem())) {
+    		type = ExtensionSearch.Type.Header;
+    	}
+
+    	extension.search(regEx.getText(), type);
 		
 		// Select first result
 		if (resultsList.getModel().getSize() > 0) {
@@ -335,7 +349,13 @@ public class SearchPanel extends AbstractPanel {
     }
     
     protected void setSearchType(ExtensionSearch.Type type) {
-    	this.getSearchType().setSelectedItem(type);
+    	switch (type) {
+    	case All:  	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.all")); break;
+    	case URL:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.url")); break;
+    	case Request:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.request")); break;
+    	case Response:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.response")); break;
+    	case Header:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.header")); break;
+    	}
     }
     
     private void displayMessage(SearchResult sr) {
@@ -356,7 +376,6 @@ public class SearchPanel extends AbstractPanel {
     }
     
     private void highlightMatch (SearchMatch sm) {
-    	JTextArea txtArea = null;
     	if (sm == null) {
     		return;
     	}
@@ -444,11 +463,11 @@ public class SearchPanel extends AbstractPanel {
     private JComboBox getSearchType () {
     	if (searchType == null) {
 	    	searchType = new JComboBox();
-	    	searchType.addItem(ExtensionSearch.Type.All);
-	    	searchType.addItem(ExtensionSearch.Type.URL);
-	    	searchType.addItem(ExtensionSearch.Type.Request);
-	    	searchType.addItem(ExtensionSearch.Type.Response);
-	    	searchType.addItem(ExtensionSearch.Type.Header);
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.all"));
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.url"));
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.request"));
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.response"));
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.header"));
     	}
     	return searchType;
     }

@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.event.InputEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -37,6 +39,7 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.view.ScanPanel;
@@ -97,6 +100,14 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			
 			messageList.setFixedCellHeight(16);	// Significantly speeds up rendering
 			
+			messageList.addMouseListener(new java.awt.event.MouseAdapter() { 
+				public void mousePressed(java.awt.event.MouseEvent e) {    
+				    if (SwingUtilities.isRightMouseButton(e)) {
+				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+				    }	
+				}
+			});
+
 			messageList.addListSelectionListener(new ListSelectionListener() {
 
 				@Override

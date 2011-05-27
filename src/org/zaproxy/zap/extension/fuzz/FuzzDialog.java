@@ -208,7 +208,7 @@ public class FuzzDialog extends AbstractDialog {
 						        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
 				        	}
 				        	AntiCsrfToken token = null;
-				        	if (enableTokens.isSelected() && tokenPane.isEnable()) {
+				        	if (getEnableTokens().isSelected() && tokenPane.isEnable()) {
 				        		token = tokenPane.getToken();
 				        	}
 			        		extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, 

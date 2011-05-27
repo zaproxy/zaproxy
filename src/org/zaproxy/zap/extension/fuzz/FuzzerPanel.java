@@ -37,6 +37,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -337,6 +338,14 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			fuzzResultList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
 			fuzzResultList.setFixedCellHeight(16);	// Significantly speeds up rendering
+
+	        fuzzResultList.addMouseListener(new java.awt.event.MouseAdapter() { 
+				public void mousePressed(java.awt.event.MouseEvent e) {    
+				    if (SwingUtilities.isRightMouseButton(e)) {
+				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+				    }	
+				}
+			});
 
 			fuzzResultList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 

@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -60,7 +61,7 @@ public class SearchThread extends Thread {
 		
         try {
 
-			List list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
+			List list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
@@ -68,59 +69,63 @@ public class SearchThread extends Thread {
 				}
 			    int v = ((Integer)(list.get(index))).intValue();
 			    try {
-			        HttpMessage message = Model.getSingleton().getDb().getTableHistory().read(v).getHttpMessage();
-			
-			        if (Type.URL.equals(reqType)) {
-			            // URL
-			            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group()));
-			            }
-					}
-			        if (Type.Header.equals(reqType)) {
-			            // URL
-			            matcher = pattern.matcher(message.getRequestHeader().toString());
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group()));
-			            }
-					}
-			        if (Type.Request.equals(reqType) ||
-			        		Type.All.equals(reqType)) {
-			            // Request Header 
-			            matcher = pattern.matcher(message.getRequestHeader().toString());    
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group()));
-			            }
-			            // Request Body
-			            matcher = pattern.matcher(message.getRequestBody().toString());    
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group()));
-			            }
-			        }
-			        if (Type.Response.equals(reqType) ||
-			        		Type.All.equals(reqType)) {
-			            // Response header
-			            matcher = pattern.matcher(message.getResponseHeader().toString());    
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group())); 
-			            }
-			            // Response body
-			            matcher = pattern.matcher(message.getResponseBody().toString());    
-			            if (matcher.find()) {
-					        searchPanel.addSearchResult(
-					        		new SearchResult(message, reqType, 
-					        				filter, matcher.group())); 
-			            }
+			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
+			        if (hr.getHistoryType() == HistoryReference.TYPE_MANUAL || 
+			        		hr.getHistoryType() == HistoryReference.TYPE_SPIDER) {
+				        HttpMessage message = Model.getSingleton().getDb().getTableHistory().read(v).getHttpMessage();
+				
+				        if (Type.URL.equals(reqType)) {
+				            // URL
+				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group()));
+				            }
+						}
+				        if (Type.Header.equals(reqType)) {
+				            // URL
+				            matcher = pattern.matcher(message.getRequestHeader().toString());
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group()));
+				            }
+						}
+				        if (Type.Request.equals(reqType) ||
+				        		Type.All.equals(reqType)) {
+				            // Request Header 
+				            matcher = pattern.matcher(message.getRequestHeader().toString());    
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group()));
+				            }
+				            // Request Body
+				            matcher = pattern.matcher(message.getRequestBody().toString());    
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group()));
+				            }
+				        }
+				        if (Type.Response.equals(reqType) ||
+				        		Type.All.equals(reqType)) {
+				            // Response header
+				            matcher = pattern.matcher(message.getResponseHeader().toString());    
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group())); 
+				            }
+				            // Response body
+				            matcher = pattern.matcher(message.getResponseBody().toString());    
+				            if (matcher.find()) {
+						        searchPanel.addSearchResult(
+						        		new SearchResult(message, reqType, 
+						        				filter, matcher.group())); 
+				            }
+				        }
 			        }
 			        
 			    } catch (HttpMalformedHeaderException e1) {
