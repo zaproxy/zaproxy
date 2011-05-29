@@ -49,7 +49,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
@@ -69,7 +70,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 
 	private KeyStore rootca;
 
-	private final Logger logger = Logger.getLogger(DynamicSSLPanel.class);
+	private final Log logger = LogFactory.getLog(DynamicSSLPanel.class);
 
 	/**
 	 * Create the panel.
@@ -231,7 +232,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("New certificate generated.\n" + sw.toString());
+			logger.debug("Certificate defined.\n" + sw.toString());
 		}
 		txt_PubCert.setText(sw.toString());
 	}
