@@ -537,11 +537,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			int ksIndex = contextManager.initPKCS11(name, library, slot, slotIndex, kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
-			// TODO what was label.2?
 			JOptionPane.showMessageDialog(null, new String[] {
 					Constant.messages.getString("options.cert.error"),
 					Constant.messages.getString("options.cert.error.password")}, 
-					Constant.messages.getString("options.cert.label.2"), JOptionPane.ERROR_MESSAGE);
+					Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 			return;
 		}
