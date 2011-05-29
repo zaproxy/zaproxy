@@ -39,6 +39,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -95,7 +97,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private DefaultListModel keyStoreListModel;
 	private AliasTableModel aliasTableModel;
 	private DriverConfiguration driverConfig;
-
+	
+	private final Log logger = LogFactory.getLog(OptionsCertificatePanel.class);
+	
 	public OptionsCertificatePanel() {
 		super();
 		initialize();
@@ -504,9 +508,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	}//GEN-LAST:event_showActiveCertificateButtonActionPerformed
 
 	private void addPkcs11ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPkcs11ButtonActionPerformed
-
+		String name = null;
 		try {
-			String name = driverConfig.getNames().get(driverComboBox.getSelectedIndex());;
+			name = driverConfig.getNames().get(driverComboBox.getSelectedIndex());;
 			if (name.equals("")) {
 				return;
 			}
@@ -541,7 +545,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					Constant.messages.getString("options.cert.error"),
 					Constant.messages.getString("options.cert.error.password")}, 
 					Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn("Couldn't add key from "+name, e);
 			return;
 		}
 
