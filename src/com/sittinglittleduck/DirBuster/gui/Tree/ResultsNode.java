@@ -129,7 +129,7 @@ public class ResultsNode extends DefaultMutableTreeNode
     
     public void clearData()
     {
-        children.removeAll(children);
+        children.removeAllElements();
         result = null;
         name = null;
     }
