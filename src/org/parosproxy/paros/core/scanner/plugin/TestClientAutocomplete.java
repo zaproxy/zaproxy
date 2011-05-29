@@ -52,9 +52,9 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     // check for autocomplete
     public final static Pattern patternAutocomplete = Pattern.compile("AUTOCOMPLETE\\s*=[^>]*OFF[^>]*", PATTERN_PARAM);
 
-    // used reluctant quantifer to make sure the same form and input element is referred 
+    // used reluctant quantifier to make sure the same form and input element is referred 
     //public final static Pattern patternForm = Pattern.compile("(<FORM\\s*[^>]+\\s*>)(.*?)</FORM>", PATTERN_PARAM| Pattern.DOTALL);
-    public final static Pattern patternForm = Pattern.compile("(<FORM\b[^>]*>(.*?)</FORM>", PATTERN_PARAM| Pattern.DOTALL);
+    public final static Pattern patternForm = Pattern.compile("(<FORM\\b[^>]*>(.*?)</FORM>", PATTERN_PARAM| Pattern.DOTALL);
     public final static Pattern patternInput = Pattern.compile("(<INPUT\\s*[^>]+type=[\"']?PASSWORD[\"']?[^>]+\\s*>)", PATTERN_PARAM| Pattern.DOTALL);
 
     
