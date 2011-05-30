@@ -175,13 +175,7 @@ public class CoreAPI extends ApiImplementor {
 			SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 			Enumeration<SiteNode> en = root.children();
 			while (en.hasMoreElements()) {
-				String site = en.nextElement().getNodeName();
-				/*
-				if (site.indexOf("//") >= 0) {
-					site = site.substring(site.indexOf("//") + 2);
-				}
-				*/
-				result.add(site);
+				result.add(en.nextElement().getNodeName());
 			}
 		} else if (VIEW_URLS.equals(name)) {
 			SiteNode root = (SiteNode)session.getSiteTree().getRoot();

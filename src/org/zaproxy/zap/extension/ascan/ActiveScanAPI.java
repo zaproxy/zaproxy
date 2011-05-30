@@ -123,6 +123,16 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	}
 	
 	@Override
+	public String viewResultToXML (String name, JSON result) {
+		XMLSerializer serializer = new XMLSerializer();
+		if (VIEW_STATUS.equals(name)) {
+			serializer.setArrayName("status");
+			serializer.setElementName("percent");
+		}
+		return serializer.write(result);
+	}
+
+	@Override
 	public String actionResultToXML (String name, JSON result) {
 		XMLSerializer serializer = new XMLSerializer();
 		serializer.setArrayName("result");

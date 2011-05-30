@@ -116,7 +116,17 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner {
 		}
 		return result;
 	}
-	
+
+	@Override
+	public String viewResultToXML (String name, JSON result) {
+		XMLSerializer serializer = new XMLSerializer();
+		if (VIEW_STATUS.equals(name)) {
+			serializer.setArrayName("status");
+			serializer.setElementName("percent");
+		}
+		return serializer.write(result);
+	}
+
 	@Override
 	public String actionResultToXML (String name, JSON result) {
 		XMLSerializer serializer = new XMLSerializer();
