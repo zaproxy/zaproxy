@@ -18,9 +18,15 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
@@ -51,7 +57,8 @@ public abstract class ApiImplementor {
 	}
 	
 	public String viewResultToHTML (String name, JSON result) {
-		return viewResultToXML (name, result);
+		//return viewResultToXML (name, result);
+		return jsonToHTML (result);
 	}
 	
 	public String actionResultToXML (String name, JSON result) {
@@ -59,9 +66,59 @@ public abstract class ApiImplementor {
 	}
 	
 	public String actionResultToHTML (String name, JSON result) {
-		return actionResultToXML (name, result);
+		//return actionResultToXML (name, result);
+		return jsonToHTML (result);
 	}
 	
+	private String jsonToHTML (JSON json) {
+		StringBuffer sb = new StringBuffer();
+		jsonToHTML(json, sb);
+		return sb.toString();
+		
+	}
+	@SuppressWarnings("unchecked")
+	private void jsonToHTML (JSON json, StringBuffer sb) {
+		if (json == null || json.isEmpty()) {
+			return;
+		}
+
+		if (json.isArray()) {
+			Object[] oa = ((JSONArray)json).toArray();
+			sb.append("<table border=\"1\">\n");
+			for (Object o : oa) {
+				sb.append("<tr><td>\n");
+				if (o instanceof JSON) {
+					jsonToHTML((JSON)o, sb);
+				} else {
+					sb.append(o);
+				}
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+		} else if (json instanceof JSONObject){
+			JSONObject jo = (JSONObject)json;
+			Set set = jo.entrySet();
+			Iterator<Map.Entry> itor = set.iterator();
+			sb.append("<table border=\"1\">\n");
+			while (itor.hasNext()) {
+				Map.Entry me = itor.next();
+				sb.append("<tr><td>\n");
+				sb.append(StringEscapeUtils.escapeHtml(me.getKey().toString()));
+				sb.append("</td>\n");
+				sb.append("<td>\n");
+				if (me.getValue() instanceof JSON) {
+					jsonToHTML((JSON)me.getValue(), sb);
+				} else {
+					sb.append(StringEscapeUtils.escapeHtml(me.getValue().toString()));
+				}
+				sb.append(me.getValue());
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+			
+		}
+	}
+
 	public abstract String getPrefix();
 	
 	public abstract JSON handleApiView(String name, JSONObject params) throws ApiException ;

@@ -43,6 +43,7 @@ public class ApiException extends Exception {
 	public String toString(API.Format format) {
 		switch(format) {
 		case HTML:
+		case UI:
 			if (detail != null) {
 				return Constant.messages.getString("api.error." + super.getMessage()) +
 					"(" + super.getMessage() + ") : " + detail;

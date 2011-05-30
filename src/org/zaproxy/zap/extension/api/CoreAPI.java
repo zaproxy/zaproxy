@@ -176,9 +176,11 @@ public class CoreAPI extends ApiImplementor {
 			Enumeration<SiteNode> en = root.children();
 			while (en.hasMoreElements()) {
 				String site = en.nextElement().getNodeName();
+				/*
 				if (site.indexOf("//") >= 0) {
 					site = site.substring(site.indexOf("//") + 2);
 				}
+				*/
 				result.add(site);
 			}
 		} else if (VIEW_URLS.equals(name)) {
@@ -237,8 +239,8 @@ public class CoreAPI extends ApiImplementor {
 			serializer.setArrayName("sites");
 			serializer.setElementName("site");
 		} else if (VIEW_URLS.equals(name)) {
-			serializer.setArrayName("sites");
-			serializer.setElementName("site");
+			serializer.setArrayName("urls");
+			serializer.setElementName("url");
 		} else if (VIEW_ALERTS.equals(name)) {
 			serializer.setArrayName("alerts");
 			serializer.setElementName("alert");
