@@ -38,7 +38,10 @@ public class DynSSLParam extends AbstractParam {
 	@Override
 	protected void parse() {
 		try {
-			setRootca(getConfig().getString(PARAM_ROOT_CA, null));
+			String rootcastr = getConfig().getString(PARAM_ROOT_CA, null);
+			if (rootcastr != null) {
+				setRootca(rootcastr);
+			}
 		} catch (final Exception e) {
 			logger.warn("Couldn't load Root CA parameter.", e);
 		}
