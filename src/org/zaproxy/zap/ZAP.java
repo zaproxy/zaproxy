@@ -170,14 +170,13 @@ public class ZAP {
 			Model.getSingleton().init();	    
 	    } catch (java.io.FileNotFoundException e) {
 	    	if (cmdLine.isGUI()) {
-	    		JOptionPane.showMessageDialog(null, "Could not access database\nMaybe another ZAP process is running?\n", "Could not start zap", JOptionPane.ERROR_MESSAGE);
-	    		System.out.println("Could not access database.");
-	    		System.out.println("Maybe another ZAP process is running?");
-	    		System.out.println(e.getLocalizedMessage());
-	    	} else {
-	    		System.out.println("Could not access database.");
-	    		System.out.println(e.getLocalizedMessage());
+	    		JOptionPane.showMessageDialog(null, 
+	    				Constant.messages.getString("start.db.error"), 
+	    				Constant.messages.getString("start.title.error"), 
+	    				JOptionPane.ERROR_MESSAGE);
 	    	}
+    		System.out.println(Constant.messages.getString("start.db.error"));
+    		System.out.println(e.getLocalizedMessage());
 	    	
 	    	throw e;
 	    }
@@ -303,7 +302,8 @@ public class ZAP {
             FileWriter fo = new FileWriter(Constant.getInstance().ACCEPTED_LICENSE);
 	        fo.close();
 	    }catch (IOException ie){
-	        JOptionPane.showMessageDialog(new JFrame(), "Unknown Error. Please report to the author.");
+	        JOptionPane.showMessageDialog(new JFrame(), Constant.messages.getString("start.unknown.error"));
+	        log.error(ie.getMessage(), ie);
 	        System.exit(1);
 	    }
 	    return shown;
