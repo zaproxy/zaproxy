@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -37,8 +36,16 @@ public class SearchResult {
 	private String stringFound;
 	private List<SearchMatch> matches = null;
 	private SearchMatch lastMatch = null;
-	
 
+	public SearchResult(ExtensionSearch.Type type, String regEx, String stringFound, SearchMatch sm) { 
+		this.message = sm.getMessage();
+		this.type = type;
+		this.regEx = regEx;
+		this.stringFound = stringFound;
+		matches = new ArrayList<SearchMatch>();
+		matches.add(sm);
+	}
+	
 	public SearchResult(HttpMessage message, ExtensionSearch.Type type, String regEx, String stringFound) {
 		super();
 		this.message = message;
@@ -71,7 +78,6 @@ public class SearchResult {
 		this.type = type;
 	}
 
-	
 	public SearchMatch getFirstMatch(HttpPanel reqPanel, HttpPanel resPanel) {
 		if (matches == null) {
 			enumerateMatches(reqPanel, resPanel);
@@ -143,4 +149,5 @@ public class SearchResult {
 			resPanel.bodySearch(p, matches);
 		}
 	}
+
 }

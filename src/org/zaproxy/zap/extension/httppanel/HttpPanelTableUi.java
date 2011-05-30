@@ -4,12 +4,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.extension.AbstractPanel;
 
 public class HttpPanelTableUi extends AbstractPanel {
 
+	private static final long serialVersionUID = 1L;
 	private JTable jTable;
 	
 	public HttpPanelTableUi() {

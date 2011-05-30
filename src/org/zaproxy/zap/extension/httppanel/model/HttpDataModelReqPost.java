@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelHexUi;
 import org.zaproxy.zap.extension.httppanel.HttpPanelTableUi;
@@ -62,7 +61,7 @@ public class HttpDataModelReqPost extends HttpDataModel {
 		m = p.matcher(getHttpMessage().getRequestBody().toString());
 		while (m.find()) {
 			matches.add(
-				new SearchMatch(SearchMatch.Locations.REQUEST_BODY,
+				new SearchMatch(SearchMatch.Location.REQUEST_BODY,
 						m.start(), m.end()));
 		}
 	}

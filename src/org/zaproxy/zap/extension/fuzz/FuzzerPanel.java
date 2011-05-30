@@ -24,6 +24,11 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -46,6 +51,8 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.extension.search.SearchResult;
 import org.zaproxy.zap.view.ScanStatus;
 /**
  *
@@ -442,5 +449,28 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
         this.responsePanel = responsePanel;
 
     }
+
+	@SuppressWarnings("unchecked")
+	public List<SearchResult> searchResults(Pattern pattern) {
+		List<SearchResult> results = new ArrayList<SearchResult>();
+		
+		if (resultsModel == null) {
+			return results;
+		}
+		
+		Enumeration<HttpMessage> enumeration = (Enumeration<HttpMessage>) resultsModel.elements();
+		Matcher matcher;
+		while (enumeration.hasMoreElements()) {
+			HttpMessage msg = enumeration.nextElement();
+			if (msg != null && msg.getRequestBody() != null) {
+	            matcher = pattern.matcher(msg.getResponseBody().toString());
+	            if (matcher.find()) {
+	            	results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
+	            			pattern.toString(), matcher.group()));
+	            }
+			}
+		}
+		return results;
+	}
 
 }

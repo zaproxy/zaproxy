@@ -322,7 +322,7 @@ public class FuzzDialog extends AbstractDialog {
 				selectionEnd = sm.getEnd();
 				httpMessage = sm.getMessage();
 				
-				if (sm.getLocation().equals(SearchMatch.Locations.REQUEST_HEAD)) {
+				if (sm.getLocation().equals(SearchMatch.Location.REQUEST_HEAD)) {
 					fuzzHeader = true;
 				} else {
 					fuzzHeader = false;

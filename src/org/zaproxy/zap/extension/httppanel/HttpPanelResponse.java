@@ -275,23 +275,31 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	 ***/
 	
 	public void highlightHeader(SearchMatch sm) {
-		changeView(View.HEADER);
-		httpPanelTextUi.highlight(sm);
+		if (currentView.equals(View.SPLIT)) {
+			httpDataModelSplit.highlightHeader(sm);
+		} else {
+			changeView(View.HEADER);
+			httpPanelTextUi.highlight(sm);
+		}
 	}
 
 	public void highlightBody(SearchMatch sm) {
-		changeView(View.CONTENT);
-		httpPanelTextUi.highlight(sm);
+		if (currentView.equals(View.SPLIT)) {
+			httpDataModelSplit.highlightBody(sm);
+		} else {
+			changeView(View.HEADER);
+			httpPanelTextUi.highlight(sm);
+		}
 	}
 
 	@Override
 	public void bodySearch(Pattern p, List<SearchMatch> matches) {
-		httpDataModelHeader.search(p, matches);		
+		httpDataModelContent.search(p, matches);		
 	}
 
 	@Override
 	public void headerSearch(Pattern p, List<SearchMatch> matches) {
-		httpDataModelContent.search(p, matches);		
+		httpDataModelHeader.search(p, matches);		
 	}
 
 	@Override

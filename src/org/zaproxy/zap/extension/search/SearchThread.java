@@ -26,12 +26,14 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.search.ExtensionSearch.Type;
 
 public class SearchThread extends Thread {
@@ -60,6 +62,17 @@ public class SearchThread extends Thread {
 		Matcher matcher = null;
 		
         try {
+	        // Fuzz results handled differently from the others
+        	if (Type.Fuzz.equals(reqType)) {
+        		ExtensionFuzz extFuzz = (ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.NAME);
+        		if (extFuzz != null) {
+        			List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern);
+        			for (SearchResult sr : fuzzResults) {
+        				searchPanel.addSearchResult(sr);
+        			}
+        		}
+        		return;
+        	}
 
 			List list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
@@ -77,53 +90,60 @@ public class SearchThread extends Thread {
 				        if (Type.URL.equals(reqType)) {
 				            // URL
 				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group()));
+						        		new SearchResult(reqType, filter, matcher.group(), 
+						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+						        						matcher.start(), matcher.end()))); 
+				            	
 				            }
 						}
 				        if (Type.Header.equals(reqType)) {
 				            // URL
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group()));
+						        		new SearchResult(reqType, filter, matcher.group(),
+						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+						        						matcher.start(), matcher.end()))); 
 				            }
 						}
 				        if (Type.Request.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
 				            // Request Header 
 				            matcher = pattern.matcher(message.getRequestHeader().toString());    
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group()));
+						        		new SearchResult(reqType, filter, matcher.group(),
+						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+						        						matcher.start(), matcher.end()))); 
 				            }
 				            // Request Body
 				            matcher = pattern.matcher(message.getRequestBody().toString());    
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group()));
+						        		new SearchResult(reqType, filter, matcher.group(),
+						        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
+						        						matcher.start(), matcher.end()))); 
 				            }
 				        }
 				        if (Type.Response.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
 				            // Response header
 				            matcher = pattern.matcher(message.getResponseHeader().toString());    
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group())); 
+						        		new SearchResult(reqType, filter, matcher.group(),
+						        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
+						        						matcher.start(), matcher.end()))); 
 				            }
 				            // Response body
 				            matcher = pattern.matcher(message.getResponseBody().toString());    
-				            if (matcher.find()) {
+				            while (matcher.find()) {
 						        searchPanel.addSearchResult(
-						        		new SearchResult(message, reqType, 
-						        				filter, matcher.group())); 
+						        		new SearchResult(reqType, filter, matcher.group(),
+						        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
+						        						matcher.start(), matcher.end()))); 
 				            }
 				        }
 			        }

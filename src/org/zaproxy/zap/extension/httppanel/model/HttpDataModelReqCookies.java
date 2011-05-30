@@ -1,9 +1,5 @@
 package org.zaproxy.zap.extension.httppanel.model;
 
-import java.util.TreeSet;
-
-import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelHexUi;
 import org.zaproxy.zap.extension.httppanel.HttpPanelTableUi;

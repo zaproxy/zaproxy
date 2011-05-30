@@ -35,6 +35,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
 
 	private static final long serialVersionUID = 1L;
 	private SearchResult searchResult = null;
+    private JLabel method = null;
     private JLabel url = null;
     private JLabel stringFound = null;
 
@@ -62,7 +63,8 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints2.ipadx = 4;
         gridBagConstraints2.ipady = 1;
-        gridBagConstraints2.gridx = 2;
+        gridBagConstraints2.gridx = 3;
+        
         GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
         gridBagConstraints1.gridy = 0;
@@ -71,8 +73,27 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         gridBagConstraints1.ipadx = 4;
         gridBagConstraints1.ipady = 1;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.gridx = 1;
+        gridBagConstraints1.gridx = 2;
         
+        GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
+        gridBagConstraints0.insets = new java.awt.Insets(0,0,0,0);
+        gridBagConstraints0.gridy = 0;
+        gridBagConstraints0.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints0.weightx = 0.0D;
+        gridBagConstraints0.ipadx = 4;
+        gridBagConstraints0.ipady = 1;
+        gridBagConstraints0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints0.gridx = 1;
+        
+        method = new JLabel();
+        method.setText(" ");
+        method.setBackground(java.awt.SystemColor.text);
+        method.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        method.setPreferredSize(new java.awt.Dimension(40,15));
+        method.setMinimumSize(new java.awt.Dimension(40,15));
+        method.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+        method.setOpaque(true);
+
         url = new JLabel();
         url.setText(" ");
         url.setBackground(java.awt.SystemColor.text);
@@ -81,6 +102,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         url.setMinimumSize(new java.awt.Dimension(420,15));
         url.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         url.setOpaque(true);
+
         stringFound = new JLabel();
         stringFound.setText(" ");
         stringFound.setBackground(java.awt.SystemColor.text);
@@ -96,6 +118,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         	this.setSize(328, 11);
         }
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+        this.add(method, gridBagConstraints0);
         this.add(url, gridBagConstraints1);
         this.add(stringFound, gridBagConstraints2);
     }
@@ -104,10 +127,13 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         
         searchResult = (SearchResult) value;
         
-            url.setText(searchResult.getMessage().getRequestHeader().getURI().toString());
-            stringFound.setText(searchResult.getStringFound());
+        method.setText(searchResult.getMessage().getRequestHeader().getMethod());
+        url.setText(searchResult.getMessage().getRequestHeader().getURI().toString());
+        stringFound.setText(searchResult.getStringFound());
         
         if (isSelected) {
+        	method.setBackground(list.getSelectionBackground());
+        	method.setForeground(list.getSelectionForeground());
         	url.setBackground(list.getSelectionBackground());
         	url.setForeground(list.getSelectionForeground());
         	stringFound.setBackground(list.getSelectionBackground());
@@ -116,9 +142,11 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         } else {
             Color darker = new Color(list.getBackground().getRGB() & 0xFFECECEC);
             
-            url.setBackground(list.getBackground());
+            method.setBackground(list.getBackground());
+            method.setForeground(list.getForeground());
+            url.setBackground(darker);
             url.setForeground(list.getForeground());
-            stringFound.setBackground(darker);
+            stringFound.setBackground(list.getBackground());
             stringFound.setForeground(list.getForeground());
 
         }

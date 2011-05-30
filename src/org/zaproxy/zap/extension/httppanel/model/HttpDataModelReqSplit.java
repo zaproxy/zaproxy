@@ -1,13 +1,7 @@
 package org.zaproxy.zap.extension.httppanel.model;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.Highlighter.HighlightPainter;
 
 import org.parosproxy.paros.view.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelSplitUi;

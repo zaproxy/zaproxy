@@ -24,29 +24,29 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class SearchMatch {
 
-	public enum Locations {REQUEST_HEAD, REQUEST_BODY, RESPONSE_HEAD, RESPONSE_BODY};
+	public enum Location {REQUEST_HEAD, REQUEST_BODY, RESPONSE_HEAD, RESPONSE_BODY};
 	
-	private Locations location;
+	private Location location;
 	private int start;
 	private int end;
 	private HttpMessage message;
 	
-	public SearchMatch(HttpMessage message, Locations location, int start, int end) {
+	public SearchMatch(HttpMessage message, Location location, int start, int end) {
 		this(location, start, end);
 		this.message = message;
 	}
 	
-	public SearchMatch(Locations location, int start, int end) {
+	public SearchMatch(Location location, int start, int end) {
 		super();
 		this.location = location;
 		this.start = start;
 		this.end = end;
 	}
 		
-	public Locations getLocation() {
+	public Location getLocation() {
 		return location;
 	}
-	public void setLocation(Locations location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 	public int getStart() {
@@ -66,4 +66,7 @@ public class SearchMatch {
 		return message;
 	}
 	
+	public String toString() {
+		return "SearchMatch " + location.name() + " " + start + " " + end; 
+	}
 }

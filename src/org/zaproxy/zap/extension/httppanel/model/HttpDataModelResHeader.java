@@ -62,7 +62,7 @@ public class HttpDataModelResHeader extends HttpDataModel {
 		Matcher m;
 		m = p.matcher(getHttpMessage().getRequestBody().toString());
 		while (m.find()) {
-			matches.add(new SearchMatch(SearchMatch.Locations.RESPONSE_HEAD, m.start(), m.end()));
+			matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_HEAD, m.start(), m.end()));
 		}
 	}
 

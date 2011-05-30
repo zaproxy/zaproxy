@@ -61,7 +61,7 @@ public class HttpDataModelResContent extends HttpDataModel {
 		Matcher m;
 		m = p.matcher(getHttpMessage().getRequestBody().toString());
 		while (m.find()) {
-			matches.add(new SearchMatch(SearchMatch.Locations.RESPONSE_BODY, m.start(), m.end()));
+			matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_BODY, m.start(), m.end()));
 		}
 	}
 

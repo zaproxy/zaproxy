@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.Component;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
@@ -34,9 +35,11 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
+import org.zaproxy.zap.extension.search.SearchResult;
 
 public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
+	public final static String NAME = "ExtensionFuzz";
     private PopupFuzzMenu popupFuzzMenu = null;
     private FuzzerThread fuzzerThread = null;
     private FuzzerParam fuzzerParam = null;
@@ -65,7 +68,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionFuzz");
+        this.setName(NAME);
 
 	    if (getView() != null) {
 	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
@@ -123,6 +126,10 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	public void resumeFuzzers() {
 		fuzzerThread.resume();		
+	}
+	
+	public List<SearchResult> searchFuzzResults(Pattern pattern) {
+		return this.getFuzzerPanel().searchResults(pattern);
 	}
 
     protected void showFuzzDialog(Component invoker) {

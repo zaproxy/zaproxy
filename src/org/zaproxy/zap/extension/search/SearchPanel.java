@@ -337,6 +337,8 @@ public class SearchPanel extends AbstractPanel {
     		type = ExtensionSearch.Type.Response;
     	} else if (Constant.messages.getString("search.toolbar.label.type.header").equals(searchType.getSelectedItem())) {
     		type = ExtensionSearch.Type.Header;
+    	} else if (Constant.messages.getString("search.toolbar.label.type.fuzz").equals(searchType.getSelectedItem())) {
+    		type = ExtensionSearch.Type.Fuzz;
     	}
 
     	extension.search(regEx.getText(), type);
@@ -355,6 +357,7 @@ public class SearchPanel extends AbstractPanel {
     	case Request:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.request")); break;
     	case Response:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.response")); break;
     	case Header:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.header")); break;
+    	case Fuzz:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.fuzz")); break;
     	}
     }
     
@@ -468,6 +471,7 @@ public class SearchPanel extends AbstractPanel {
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.request"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.response"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.header"));
+	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.fuzz"));
     	}
     	return searchType;
     }

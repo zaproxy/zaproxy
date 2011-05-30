@@ -37,7 +37,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
  */
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
-	public enum Type {All, URL, Request, Response, Header};
+	public enum Type {All, URL, Request, Response, Header, Fuzz};
 
 	private SearchPanel searchPanel = null;
     private JMenuItem menuSearch = null;

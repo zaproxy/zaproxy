@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +35,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.view.HttpPanelView;
 
 public class HttpPanelSplitUi extends AbstractPanel {
+	private static final long serialVersionUID = 1L;
 	protected static final String VIEW_RAW = Constant.messages.getString("http.panel.rawView"); // ZAP: i18n
 	protected static final String VIEW_TABULAR = Constant.messages.getString("http.panel.tabularView"); // ZAP: i18n
 	protected static final String VIEW_IMAGE = Constant.messages.getString("http.panel.imageView"); // ZAP: i18n
@@ -490,14 +490,20 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	private String getHeaderFromJTextArea(JTextArea txtArea) {
+		// TODO the replaceAll calls mess up the highlighing in the standard 'split' view
+		/*
 		String msg = txtArea.getText();
 		String result = msg.replaceAll("\\n", "\r\n");
 		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
 		return result;
+		*/
+		return txtArea.getText();
 	}
 
 	private String replaceHeaderForJTextArea(String msg) {
-		return msg.replaceAll("\\r\\n", "\n");
+		// TODO the replaceAll calls mess up the highlighing in the standard 'split' view
+		//return msg.replaceAll("\\r\\n", "\n");
+		return msg;
 	}
 
 	public void getMessage(HttpMessage msg, boolean isRequest) {
@@ -527,7 +533,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Argh");
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -570,13 +576,13 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		if (txtHeader.getSelectionStart() != 0) {
 			sm = new SearchMatch(
 				message,
-				SearchMatch.Locations.REQUEST_HEAD, 
+				SearchMatch.Location.REQUEST_HEAD, 
 				txtHeader.getSelectionStart(),
 				txtHeader.getSelectionEnd());
 		} else {
 			sm = new SearchMatch(
 					message,
-					SearchMatch.Locations.REQUEST_BODY, 
+					SearchMatch.Location.REQUEST_BODY, 
 					txtBody.getSelectionStart(),
 					txtBody.getSelectionEnd());
 		}
@@ -614,14 +620,14 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		m = p.matcher(httpMessage.getRequestHeader().toString());
 		while (m.find()) {
 			matches.add(
-				new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+				new SearchMatch(SearchMatch.Location.REQUEST_HEAD,
 						m.start(), m.end()));
 		}
 		
 		m = p.matcher(httpMessage.getRequestBody().toString());
 		while (m.find()) {
 			matches.add(
-				new SearchMatch(SearchMatch.Locations.REQUEST_HEAD,
+				new SearchMatch(SearchMatch.Location.REQUEST_HEAD,
 						m.start(), m.end()));
 		}
 	}

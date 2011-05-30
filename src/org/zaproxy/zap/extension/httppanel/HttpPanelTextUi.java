@@ -14,13 +14,13 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.zaproxy.zap.extension.httppanel.model.HttpDataModel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpPanelTextUi extends AbstractPanel {
 
+	private static final long serialVersionUID = 1L;
+
 	private JTextArea jTextArea;
-	private HttpDataModel httpDataModel;
 	
     private static Log log = LogFactory.getLog(HttpPanelTextUi.class);
 	
