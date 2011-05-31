@@ -21,22 +21,15 @@ package org.zaproxy.zap.view;
 
 import org.parosproxy.paros.view.AbstractFrame;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class AboutWindow extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
 	private AboutPanel aboutPanel = null;
-    /**
-     * 
-     */
-    public AboutWindow() {
-        super();
- 		initialize();
-    }
+
+	public AboutWindow() {
+		super();
+		initialize();
+	}
 
 	/**
 	 * This method initializes this
@@ -44,23 +37,22 @@ public class AboutWindow extends AbstractFrame {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
-        this.setResizable(false);
-        this.setContentPane(getAboutPanel());
-        this.pack();
-        //this.setSize(426, 425);
-        centerFrame();
-			
+		this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+		this.setResizable(false);
+		this.setContentPane(getAboutPanel());
+		this.pack();
+		centerFrame();
 	}
+
 	/**
-	 * This method initializes aboutPanel	
-	 * 	
-	 * @return org.parosproxy.paros.view.AboutPanel	
-	 */    
+	 * This method initializes aboutPanel
+	 * 
+	 * @return org.parosproxy.paros.view.AboutPanel
+	 */
 	private AboutPanel getAboutPanel() {
 		if (aboutPanel == null) {
 			aboutPanel = new AboutPanel();
 		}
 		return aboutPanel;
 	}
- }
+}

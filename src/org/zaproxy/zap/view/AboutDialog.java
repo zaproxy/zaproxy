@@ -23,40 +23,40 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
+
+
 public class AboutDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
 	private AboutPanel aboutPanel = null;
 	private JButton btnOK = null;
-    /**
-     * @throws HeadlessException
-     */
-    public AboutDialog() throws HeadlessException {
-        super();
- 		initialize();
-    }
 
-    /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
-     */
-    public AboutDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
- 		initialize();
-    }
+	/**
+	 * @throws HeadlessException
+	 */
+	public AboutDialog() throws HeadlessException {
+		super();
+		initialize();
+	}
+
+	/**
+	 * @param arg0
+	 * @param arg1
+	 * @throws HeadlessException
+	 */
+	public AboutDialog(Frame arg0, boolean arg1) throws HeadlessException {
+		super(arg0, arg1);
+		initialize();
+	}
 
 	/**
 	 * This method initializes this
@@ -64,73 +64,75 @@ public class AboutDialog extends AbstractDialog {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setContentPane(getJPanel());
-        this.pack();
-        
-        //this.setSize(406, 503);
-			
+		this.setContentPane(getJPanel());
+		this.pack();
+
+		// this.setSize(406, 503);
+
 	}
+
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel() {
 		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints5.weightx = 1.0D;
-			gridBagConstraints5.weighty = 1.0D;
-			gridBagConstraints5.ipady = 2;
-			gridBagConstraints5.gridwidth = 2;
-			gridBagConstraints6.gridx = 1;
-			gridBagConstraints6.gridy = 1;
-			gridBagConstraints6.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-			jPanel.add(getAboutPanel(), gridBagConstraints5);
-			jPanel.add(getBtnOK(), gridBagConstraints6);
+			
+			GridBagConstraints gbcPanel = new GridBagConstraints();
+			GridBagConstraints gbcButtons = new GridBagConstraints();
+			
+			gbcButtons.gridx = 0;
+			gbcButtons.gridy = 0;
+			gbcButtons.insets = new Insets(0, 0, 0, 0);
+			gbcButtons.fill = GridBagConstraints.BOTH;
+			gbcButtons.anchor = GridBagConstraints.NORTHWEST;
+			gbcButtons.weightx = 1.0D;
+			gbcButtons.weighty = 1.0D;
+			gbcButtons.ipady = 2;
+			gbcButtons.gridwidth = 2;
+
+			gbcPanel.gridx = 1;
+			gbcPanel.gridy = 1;
+			gbcPanel.insets = new Insets(2, 2, 2, 2);
+			gbcPanel.anchor = GridBagConstraints.SOUTHEAST;
+			
+			jPanel.add(getAboutPanel(), gbcButtons);
+			jPanel.add(getBtnOK(), gbcPanel);
 		}
 		return jPanel;
 	}
+
 	/**
-	 * This method initializes aboutPanel	
-	 * 	
-	 * @return com.proofsecure.paros.view.AboutPanel	
-	 */    
+	 * This method initializes aboutPanel
+	 * 
+	 * @return com.proofsecure.paros.view.AboutPanel
+	 */
 	private AboutPanel getAboutPanel() {
 		if (aboutPanel == null) {
 			aboutPanel = new AboutPanel();
 		}
 		return aboutPanel;
 	}
+
 	/**
-	 * This method initializes btnOK	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnOK
+	 * 
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnOK() {
 		if (btnOK == null) {
 			btnOK = new JButton();
 			btnOK.setText(Constant.messages.getString("all.button.cancel"));
-			btnOK.addActionListener(new java.awt.event.ActionListener() { 
-
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-				    AboutDialog.this.dispose();
-
+			btnOK.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					AboutDialog.this.dispose();
 				}
 			});
-
 		}
 		return btnOK;
 	}
-   }  //  @jve:decl-index=0:visual-constraint="10,10"
+	
+}

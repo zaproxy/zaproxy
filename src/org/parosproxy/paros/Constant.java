@@ -47,14 +47,17 @@ public final class Constant {
     public static final String PROGRAM_NAME     = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
     
+    public static final String MAINTAINER_MAIL = "psiinon@gmail.com";
+    
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.2.1";
-    public static final long VERSION_TAG = 1002001;
+    public static final String PROGRAM_VERSION = "1.3.0";
+    public static final long VERSION_TAG = 1003000;
     
     // Old version numbers - for upgrade
+    private static final long V_1_2_1_TAG = 1002001;
     private static final long V_1_2_0_TAG = 1002000;
     private static final long V_1_1_0_TAG = 1001000;
     private static final long V_1_0_0_TAG = 1000000;
@@ -267,6 +270,10 @@ public final class Constant {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_2_0(config);
             		
+            	} else if (ver == V_1_2_1_TAG) {
+	            	log.info("Upgrading from " + ver);
+            		upgradeFrom1_2_1(config);
+            		
             	} else {
             		// No idea what this is, replace it
             		f = new File(FILE_CONFIG);
@@ -343,6 +350,19 @@ public final class Constant {
         copyProperty(newConfig, config, "view.editorView");
         copyProperty(newConfig, config, "view.brkPanelView");
         copyProperty(newConfig, config, "view.showMainToolbar");
+		
+		// Update the version
+		config.setProperty("version", VERSION_TAG);
+		config.save();
+	}
+    
+    private void upgradeFrom1_2_1(XMLConfiguration config) throws ConfigurationException {
+		// Upgrade the regexs
+        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
+        newConfig.setAutoSave(false);
+        newConfig.load();
+        
+        //TODO: Add new XML entities here
 		
 		// Update the version
 		config.setProperty("version", VERSION_TAG);
