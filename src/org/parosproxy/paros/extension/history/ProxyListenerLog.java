@@ -38,6 +38,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.parosproxy.paros.view.View;
 
 
 /**
@@ -49,7 +50,6 @@ public class ProxyListenerLog implements ProxyListener {
     
     // ZAP: Added logger
     private static Log log = LogFactory.getLog(ProxyListenerLog.class);
-
 	private ViewDelegate view = null;
 	private Model model = null;
 	private HistoryList historyList = null;
@@ -153,7 +153,7 @@ public class ProxyListenerLog implements ProxyListener {
         if (type != HistoryReference.TYPE_MANUAL && type != HistoryReference.TYPE_HIDDEN) {
             return;
         }
-
+        
         // add history to list (log panel).  Must use event queue because this proxylistener may not be run from event queue.
         synchronized(historyList) {
             if (type == HistoryReference.TYPE_MANUAL) {
@@ -187,7 +187,9 @@ public class ProxyListenerLog implements ProxyListener {
             model.getSession().getSiteTree().addPath(ref, msg);
             if (isFirstAccess) {
                 isFirstAccess = false;
-                view.getSiteTreePanel().expandRoot();
+                if (View.isInitialised()) {
+                	view.getSiteTreePanel().expandRoot();
+                }
             }
             
         } else {
@@ -197,7 +199,9 @@ public class ProxyListenerLog implements ProxyListener {
                         model.getSession().getSiteTree().addPath(ref, finalMsg);
                         if (isFirstAccess) {
                             isFirstAccess = false;
-                            view.getSiteTreePanel().expandRoot();
+                            if (View.isInitialised()) {
+                            	view.getSiteTreePanel().expandRoot();
+                            }
                         }
                     }
                 });

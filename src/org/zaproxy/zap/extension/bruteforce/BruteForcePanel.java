@@ -139,7 +139,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         					getClass().getResource("/resource/icon/16/086.png")),
         					Constant.messages.getString("bruteforce.panel.title"));
        
-        View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
+        if (View.isInitialised()) {
+        	View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
+        }
 
 	}
 	

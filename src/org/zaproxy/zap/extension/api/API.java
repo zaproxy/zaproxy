@@ -86,7 +86,7 @@ public class API {
 		
 		try {
 			// Check API is enabled (its always enabled if run from the cmdline)
-			if (View.getSingleton() == null || !Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
+			if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
 				throw new ApiException(ApiException.Type.DISABLED);
 			}
 			
