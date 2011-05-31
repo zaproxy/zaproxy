@@ -290,6 +290,11 @@ public class DriversView extends AbstractFrame {
 		layout.linkSize(SwingConstants.VERTICAL, new Component[] { addButton,
 				browseButton, closeButton, deleteButton, fileTextField,
 				nameTextField });
+
+		for (int i=0; i<driverTableModel.getColumnCount(); i++) {
+			driverTable.getColumnModel().getColumn(i).setPreferredWidth(driverTableModel.getPreferredWith(i));
+		}
+
 		pack();
 	}
 
@@ -323,8 +328,14 @@ public class DriversView extends AbstractFrame {
 		int slotindex = -1;
 		try {
 			slot = Integer.parseInt(slotTextField.getText());
+		} catch (final Exception e) {
+			slotTextField.setText("0");
+		}
+		try {
 			slotindex = Integer.parseInt(slotIndexTextField.getText());
-		} catch (final Exception e) { /* ignored, because of default values handled later */ }
+		} catch (final Exception e) {
+			slotIndexTextField.setText("0");
+		}
 
 		if (name != null && name.trim().length() > 0
 						&& file != null
