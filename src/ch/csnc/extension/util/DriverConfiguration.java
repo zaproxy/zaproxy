@@ -27,6 +27,8 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -41,6 +43,8 @@ public class DriverConfiguration extends Observable {
 	private Vector<Integer> slots;
 	private Vector<Integer> slotIndexes;
 
+	private final Log logger = LogFactory.getLog(this.getClass());
+	
 	public DriverConfiguration() {
 		names = new Vector<String>();
 		paths = new Vector<String>();
@@ -68,17 +72,17 @@ public class DriverConfiguration extends Observable {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn(e);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn(e);
 		} catch (NumberFormatException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error slot or slot index is not a number: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn(e);
 		}
 	}
 
@@ -117,12 +121,12 @@ public class DriverConfiguration extends Observable {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn(e);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.warn(e);
 		}
 		setChanged();
 		notifyObservers();
