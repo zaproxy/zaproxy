@@ -240,6 +240,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 			listLog.setName("ListLog");
 			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
 			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mousePressed(java.awt.event.MouseEvent e) {    
 				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
