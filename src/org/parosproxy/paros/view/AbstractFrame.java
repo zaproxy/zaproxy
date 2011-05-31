@@ -94,7 +94,9 @@ public abstract class AbstractFrame extends JFrame {
 		if (icons == null) {
 			icons = new ArrayList<Image>();
 			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap16x16.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap32x32.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap48x48.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap64x64.png")));
 		}
 		return icons;
 	}
