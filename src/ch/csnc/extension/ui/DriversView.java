@@ -1,19 +1,19 @@
 /*
  * Copyright (C) 2010, Compass Security AG
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see http://www.gnu.org/copyleft/
- * 
+ *
  */
 
 package ch.csnc.extension.ui;
@@ -34,39 +34,40 @@ import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.AbstractFrame;
 
 import ch.csnc.extension.util.DriverConfiguration;
 
-public class DriversView extends javax.swing.JFrame {
+public class DriversView extends AbstractFrame {
 
-	private static final long serialVersionUID = -4391634667519147940L;
+	private static final long serialVersionUID = -7502331281272992501L;
 
 	private DriverTableModel driverTableModel;
 	private JTable driverTable;
-	
+
 	private JButton addButton;
 	private JButton browseButton;
 	private JButton closeButton;
 	private JButton deleteButton;
-	
+
 	private JScrollPane driverScrollPane;
-	
+
 	private JLabel fileLabel;
 	private JTextField fileTextField;
-	
+
 	private JLabel nameLabel;
 	private JTextField nameTextField;
-	
+
 	private JLabel slotLabel;
 	private JTextField slotTextField;
-	
+
 	private JLabel slotIndexLabel;
 	private JTextField slotIndexTextField;
-	
-	
+
+
 	/**
 	 * Creates new form Drivers
-	 * 
+	 *
 	 * @param driverConfig
 	 */
 	public DriversView(DriverConfiguration driverConfig) {
@@ -101,6 +102,7 @@ public class DriversView extends javax.swing.JFrame {
 
 		browseButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.browse"));
 		browseButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				browseButtonActionPerformed(evt);
 			}
@@ -109,25 +111,28 @@ public class DriversView extends javax.swing.JFrame {
 		nameLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.name"));
 
 		slotLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slot"));
-		
+
 		slotIndexLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slotIndex"));
 
 		addButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.add"));
 		addButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				addButtonActionPerformed(evt);
 			}
 		});
 
-		deleteButton.setText(Constant.messages.getString("pkcs11.drivers.button.delete"));
+		deleteButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.delete"));
 		deleteButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				deleteButtonActionPerformed(evt);
 			}
 		});
 
-		closeButton.setText(Constant.messages.getString("pkcs11.drivers.button.close"));
+		closeButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.close"));
 		closeButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				closeButtonActionPerformed(evt);
 			}
@@ -136,7 +141,7 @@ public class DriversView extends javax.swing.JFrame {
 		driverTable.setModel(driverTableModel);
 		driverScrollPane.setViewportView(driverTable);
 
-		GroupLayout layout = new GroupLayout(getContentPane());
+		final GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout
 				.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -249,7 +254,7 @@ public class DriversView extends javax.swing.JFrame {
 														GroupLayout.DEFAULT_SIZE,
 														GroupLayout.PREFERRED_SIZE))
 								.addGap(28, 28, 28)
-								
+
 								.addComponent(slotIndexLabel)
 								.addPreferredGap(
 										LayoutStyle.ComponentPlacement.RELATED)
@@ -257,7 +262,7 @@ public class DriversView extends javax.swing.JFrame {
 										layout.createParallelGroup(
 												GroupLayout.Alignment.BASELINE)
 												.addComponent(
-														slotTextField,
+														slotIndexTextField,
 														GroupLayout.PREFERRED_SIZE,
 														GroupLayout.DEFAULT_SIZE,
 														GroupLayout.PREFERRED_SIZE)
@@ -289,13 +294,13 @@ public class DriversView extends javax.swing.JFrame {
 	}
 
 	private void browseButtonActionPerformed(ActionEvent evt) {
-		JFileChooser fc = new JFileChooser();
+		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
 				return "DLL/dylib";
 			}
-			
+
 			//FIXME: Support so and dynlib files as well
 
 			@Override
@@ -304,7 +309,7 @@ public class DriversView extends javax.swing.JFrame {
 			}
 		});
 
-		int state = fc.showOpenDialog(null);
+		final int state = fc.showOpenDialog(null);
 
 		if (state == JFileChooser.APPROVE_OPTION) {
 			fileTextField.setText(fc.getSelectedFile().toString());
@@ -312,26 +317,42 @@ public class DriversView extends javax.swing.JFrame {
 	}
 
 	private void addButtonActionPerformed(ActionEvent evt) {
-		// TODO: Implement error handling for slot ID / slot Indexes in case of non-numbers.
-		driverTableModel.addDriver(
-				nameTextField.getText(),
-				fileTextField.getText(),
-				Integer.parseInt(slotTextField.getText()),
-				Integer.parseInt(slotIndexTextField.getText()));
-		
-		nameTextField.setText("");
-		fileTextField.setText("");
-		slotTextField.setText("0");
-		slotIndexTextField.setText("0");
+		final String name = nameTextField.getText();
+		final String file = fileTextField.getText();
+		int slot = -1;
+		int slotindex = -1;
+		try {
+			slot = Integer.parseInt(slotTextField.getText());
+			slotindex = Integer.parseInt(slotIndexTextField.getText());
+		} catch (final Exception e) { /* ignored, because of default values handled later */ }
+
+		if (name != null && name.trim().length() > 0
+						&& file != null
+						&& file.trim().length() > 0
+						&& slot > -1 && slotindex > -1) {
+			driverTableModel.addDriver(
+					name,
+					file,
+					slot,
+					slotindex);
+
+			nameTextField.setText("");
+			fileTextField.setText("");
+			slotTextField.setText("0");
+			slotIndexTextField.setText("0");
+		}
 	}
 
 	private void deleteButtonActionPerformed(ActionEvent evt) {
-		driverTableModel.deleteDriver(driverTable.getSelectedRow());
-		
-		nameTextField.setText("");
-		fileTextField.setText("");
-		slotTextField.setText("0");
-		slotIndexTextField.setText("0");
+		final int selrow = driverTable.getSelectedRow();
+		if (selrow > -1) {
+			driverTableModel.deleteDriver(selrow);
+
+			nameTextField.setText("");
+			fileTextField.setText("");
+			slotTextField.setText("0");
+			slotIndexTextField.setText("0");
+		}
 	}
 
 	private void closeButtonActionPerformed(ActionEvent evt) {
