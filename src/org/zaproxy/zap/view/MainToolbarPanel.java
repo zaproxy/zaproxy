@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -42,6 +43,9 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
 	private JButton btnSession = null;
+
+	private JButton btnExpandSites = null;
+	private JButton btnExpandReports = null;
 
 	public MainToolbarPanel () {
 		super();
@@ -82,7 +86,12 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnSession());
 		
 		toolbar.addSeparator();
+
+		toolbar.add(getBtnExpandSites());
+		toolbar.add(getBtnExpandReports());
 		
+		toolbar.addSeparator();
+
 	}
 	
 	private JToolBar getToolbar() {
@@ -193,6 +202,48 @@ public class MainToolbarPanel extends JPanel {
 			});
 		}
 		return btnSession;
+	}
+
+	private JButton getBtnExpandSites() {
+		if (btnExpandSites == null) {
+			btnExpandSites = new JButton();
+			btnExpandSites.setIcon(new ImageIcon(getClass().getResource("/resource/icon/expand_sites.png")));
+			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
+
+			btnExpandSites.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_LEFT_FULL);
+					try {
+						Model.getSingleton().getOptionsParam().getConfig().save();
+					} catch (ConfigurationException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+		}
+		return btnExpandSites;
+	}
+
+	private JButton getBtnExpandReports() {
+		if (btnExpandReports == null) {
+			btnExpandReports = new JButton();
+			btnExpandReports.setIcon(new ImageIcon(getClass().getResource("/resource/icon/expand_info.png")));
+			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
+
+			btnExpandReports.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_BOTTOM_FULL);
+					try {
+						Model.getSingleton().getOptionsParam().getConfig().save();
+					} catch (ConfigurationException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+		}
+		return btnExpandReports;
 	}
 
 

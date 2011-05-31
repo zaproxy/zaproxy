@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/04 Changed to support new HttpPanel interface 
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/05/31 Added option to dynamically change the display
 
 package org.parosproxy.paros.view;
 
@@ -85,6 +86,11 @@ public class View implements ViewDelegate {
 
 	public static void setDisplayOption(int displayOption) {
 		View.displayOption = displayOption;
+	}
+	
+	public void changeDisplayOption(int displayOption) {
+		View.displayOption = displayOption;
+		mainFrame.changeDisplayOption(displayOption);
 	}
 	
 	public void init() {

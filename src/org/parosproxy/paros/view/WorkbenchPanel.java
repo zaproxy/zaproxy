@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/31 Added option to dynamically change the display
 package org.parosproxy.paros.view;
 
 import java.awt.Cursor;
@@ -74,10 +75,12 @@ public class WorkbenchPanel extends JPanel {
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
+		/*
 		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 			this.setSize(800, 600);
 			this.setPreferredSize(new Dimension(800, 600));
 		}
+		*/
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;
 		consGridBagConstraints1.weightx = 1.0;
@@ -93,6 +96,17 @@ public class WorkbenchPanel extends JPanel {
 			break;
 		}
 	}
+
+	public void changeDisplayOption(int displayOption) {
+		this.displayOption = displayOption;
+		this.removeAll();
+		splitVert = null;
+		splitHoriz = null;
+		initialize();
+		this.validate();
+		this.repaint();
+	}
+
 
 	/**
 	 * This method initializes splitVert

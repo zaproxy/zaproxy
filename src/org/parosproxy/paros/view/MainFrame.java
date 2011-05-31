@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/05/31 Added option to dynamically change the display
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -179,6 +180,14 @@ public class MainFrame extends AbstractFrame {
 			mainFooterPanel = new MainFooterPanel();
 		}
 		return mainFooterPanel;
+	}
+
+	public void changeDisplayOption(int displayOption) {
+		if (this.displayOption != displayOption) {
+			this.displayOption = displayOption;
+			this.getWorkbench().changeDisplayOption(displayOption);
+			Model.getSingleton().getOptionsParam().getViewParam().setDisplayOption(displayOption);
+		}
 	}
 	
 }
