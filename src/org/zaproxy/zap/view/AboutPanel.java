@@ -48,8 +48,7 @@ public class AboutPanel extends JPanel {
 		+ "Version 2.0.  This program is distributed in the hope that it will be useful, but "
 		+ "WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
 		+ "FOR A PARTICULAR PURPOSE.  See the Apache License, Version 2.0 License for more details."
-		+ "</p><p>For queries please contact <a href='mailto:"+ Constant.MAINTAINER_MAIL +"'>"
-		+ Constant.MAINTAINER_MAIL + "</a></p></body></html>";
+		+ "</p></body></html>";
 
 	private static final String OTHER_LICENSE = "<html><body><p>" + PRODUCT + " is a fork of the "
 		+ "open source Paros Proxy product developed by Chinotec Technologies Company.</p>"
@@ -135,7 +134,7 @@ public class AboutPanel extends JPanel {
 		lblDisclaimer.setBackground(Color.white);
 			
 		lblLogo.setText("");
-		lblLogo.setIcon(new ImageIcon(getClass().getResource("/resource/zap48x48.png")));
+		lblLogo.setIcon(new ImageIcon(getClass().getResource("/resource/zap64x64.png")));
 		lblLogo.setName("lblLogo");
 		
 		lblCopyrightDetail.setText(LICENSE_DETAIL);
