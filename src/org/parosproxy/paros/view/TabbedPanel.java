@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
+
 package org.parosproxy.paros.view;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 
 public class TabbedPanel extends JTabbedPane {
@@ -30,6 +37,7 @@ public class TabbedPanel extends JTabbedPane {
 	private java.awt.Container originalParent = null;
     private java.awt.Container alternativeParent = null;
     private java.awt.Component backupChild = null;
+    private Log log = LogFactory.getLog(this.getClass());
     
     /**
 	 * This is the default constructor
@@ -69,6 +77,21 @@ public class TabbedPanel extends JTabbedPane {
 	private void alternateParent() {
 	    if (alternativeParent == null) return;
 
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWarnOnTabDoubleClick()) {
+			if (View.getSingleton().showConfirmDialog(Constant.messages.getString("tab.doubleClick.warning"))  
+					!= JOptionPane.OK_OPTION) {
+				// They cancelled the dialog
+				return;
+			}
+			// Only ever warn once
+			Model.getSingleton().getOptionsParam().getViewParam().setWarnOnTabDoubleClick(false);
+			try {
+				Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
+			} catch (ConfigurationException e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+	    
 	    if (isAlternative) {
 	        
 	        originalParent = this.getParent();
