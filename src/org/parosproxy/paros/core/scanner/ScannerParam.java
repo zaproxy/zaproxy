@@ -28,10 +28,12 @@ public class ScannerParam extends AbstractParam {
 	private static final String THREAD_PER_HOST = "scanner.threadPerHost";
 	// ZAP: Added support for delayInMs
 	private static final String DELAY_IN_MS = "scanner.delayInMs";
+	private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
 		
 	private int hostPerScan = 2;
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
+	private boolean handleAntiCSRFTokens = false;
 	
     /**
      * @param rootElementName
@@ -45,13 +47,16 @@ public class ScannerParam extends AbstractParam {
     protected void parse(){
         
 		try {
-			setThreadPerHost(getConfig().getInt(THREAD_PER_HOST, 1));
+			this.threadPerHost = getConfig().getInt(THREAD_PER_HOST, 1);
 		} catch (Exception e) {}
 		try {
-			setHostPerScan(getConfig().getInt(HOST_PER_SCAN, 2));
+			this.hostPerScan = getConfig().getInt(HOST_PER_SCAN, 2);
 		} catch (Exception e) {}
 		try {
-			setDelayInMs(getConfig().getInt(DELAY_IN_MS, 0));
+			this.delayInMs = getConfig().getInt(DELAY_IN_MS, 0);
+		} catch (Exception e) {}
+		try {
+			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 		} catch (Exception e) {}
 
     }
@@ -88,6 +93,15 @@ public class ScannerParam extends AbstractParam {
 
 	public int getDelayInMs() {
 		return delayInMs;
+	}
+
+	public boolean getHandleAntiCSRFTokens() {
+		return handleAntiCSRFTokens;
+	}
+
+	public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
+		this.handleAntiCSRFTokens = handleAntiCSRFTokens;
+		getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
 	}
 	
 }

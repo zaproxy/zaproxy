@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -49,6 +50,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JSlider sliderThreadsPerHost = null;
 	private JSlider sliderDelayInMs = null;
 	private JLabel labelDelayInMsValue = null;
+	private JCheckBox chkHandleAntiCrsfTokens = null;
 
     public OptionsScannerPanel() {
         super();
@@ -71,6 +73,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JPanel getPanelScanner() {
 		if (panelScanner == null) {
 			java.awt.GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints5b = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints5a = new GridBagConstraints();
@@ -163,6 +166,16 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints6.insets = new Insets(2,2,2,2);
 			gridBagConstraints6.gridwidth = 2;
 
+			gridBagConstraints7.gridx = 0;
+			gridBagConstraints7.gridy = 6;
+			gridBagConstraints7.weightx = 1.0;
+			gridBagConstraints7.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints7.ipadx = 0;
+			gridBagConstraints7.ipady = 0;
+			gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints7.insets = new Insets(2,2,2,2);
+			gridBagConstraints7.gridwidth = 2;
+
 			gridBagConstraintsx.gridx = 0;
 			gridBagConstraintsx.gridy = 10;
 			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -180,6 +193,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			panelScanner.add(jLabel2, gridBagConstraints5a);
 			panelScanner.add(getLabelDelayInMsValue(), gridBagConstraints5b);
 			panelScanner.add(getSliderDelayInMs(), gridBagConstraints6);
+			panelScanner.add(getChkHandleAntiCSRFTokens(), gridBagConstraints7);
 
 			panelScanner.add(jLabelx, gridBagConstraintsx);
 
@@ -193,6 +207,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    getSliderThreadsPerHost().setValue(param.getThreadPerHost());
 	    getSliderDelayInMs().setValue(param.getDelayInMs());
 	    setLabelDelayInMsValue(param.getDelayInMs());
+	    getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
 	}
 	
 	public void validateParam(Object obj) {
@@ -205,6 +220,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    param.setHostPerScan(getSliderHostPerScan().getValue());
 	    param.setThreadPerHost(getSliderThreadsPerHost().getValue());
 	    param.setDelayInMs(getDelayInMs());
+	    param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
 	}
 	
 	/**
@@ -307,6 +323,14 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.options.ascan";
+	}
+
+	private JCheckBox getChkHandleAntiCSRFTokens() {
+		if (chkHandleAntiCrsfTokens == null) {
+			chkHandleAntiCrsfTokens = new JCheckBox();
+			chkHandleAntiCrsfTokens.setText(Constant.messages.getString("ascan.options.anticsrf.label"));
+		}
+		return chkHandleAntiCrsfTokens;
 	}
 
 }

@@ -91,6 +91,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 
 	public void registerAntiCsrfToken(AntiCsrfToken token) {
+		log.debug("registerAntiCsrfToken " + token.getMsg().getRequestHeader().getURI().toString() + " " + token.getValue());
 		valueToToken.put(encoder.getURLEncode(token.getValue()), token);
 		urlToToken.put(token.getMsg().getRequestHeader().getURI().toString(), token);
 	}

@@ -63,7 +63,12 @@ public class HostProcess implements Runnable {
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
         httpSender = new HttpSender(connectionParam, true);
-        threadPool = new ThreadPool(scannerParam.getThreadPerHost());
+        if (scannerParam.getHandleAntiCSRFTokens()) {
+        	// Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
+        	threadPool = new ThreadPool(1);
+        } else {
+        	threadPool = new ThreadPool(scannerParam.getThreadPerHost());
+        }
     }
     
     public void setStartNode(SiteNode startNode) {
@@ -228,6 +233,10 @@ public class HostProcess implements Runnable {
 	        analyser = new Analyser(getHttpSender(), this);
 	    }
 	    return analyser;
+	}
+	
+	public boolean handleAntiCsrfTokens() {
+		return this.scannerParam.getHandleAntiCSRFTokens();
 	}
 	
 	void pluginCompleted(Plugin plugin) {

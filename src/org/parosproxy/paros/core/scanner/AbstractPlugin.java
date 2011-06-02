@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +32,12 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 
 abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	
@@ -53,6 +58,8 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     
     // ZAP Added delayInMs
     private int delayInMs;
+    private ExtensionAntiCSRF extAntiCSRF = null;
+	private Encoder encoder = new Encoder();
     
     public AbstractPlugin() {
     }
@@ -140,13 +147,11 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
      * @throws IOException
      */
     protected void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
-        // always get the fresh copy
-        
         sendAndReceive(msg, true);
-//        msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-//        msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-//        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-//        parent.getHttpSender().sendAndReceive(msg);
+    }
+    
+    protected void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
+        sendAndReceive(msg, true, true);
     }
     
     /**
@@ -158,12 +163,27 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
      * @throws HttpException
      * @throws IOException
      */
-    protected void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
+    protected void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, boolean handleAntiCSRF) throws HttpException, IOException {
+    	
+    	if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
+	    	if (extAntiCSRF == null) {
+	    		extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+	    	}
+			List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(msg);
+			AntiCsrfToken antiCsrfToken = null;
+			if (tokens.size() > 0) {
+				antiCsrfToken = tokens.get(0);
+			}
+			
+			if (antiCsrfToken != null) {
+				regenerateAntiCsrfToken(msg, antiCsrfToken);
+			}
+        }
 
-      // always get the fresh copy
-      msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-      msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-      msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+		// always get the fresh copy
+		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
+		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+		msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 
 		if (this.getDelayInMs() > 0) {
 			try {
@@ -178,40 +198,34 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.notifyNewMessage(msg);
         return;
 
-        // below code moved to httpsender for generic use.
-
-//
-//        if (!isFollowRedirect || !
-//                (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)
-//                 || msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.PUT))
-//           ) {
-//            parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
-//            return;
-//        } else {
-//            parent.getHttpSender().sendAndReceive(msg, false);
-//        }
-//
-//        HttpMessage temp = msg.cloneAll();
-//        // POST/PUT method cannot be redirected by library. Need to follow by code
-//        
-//		// loop 1 time only because httpclient can handle redirect itself after first GET.
-//        for (int i=0; i<1
-//				&& (HttpStatusCode.isRedirection(temp.getResponseHeader().getStatusCode())
-//				&& temp.getResponseHeader().getStatusCode() != HttpStatusCode.NOT_MODIFIED); i++) {
-//			String location = temp.getResponseHeader().getHeader(HttpHeader.LOCATION);
-//			URI baseUri = temp.getRequestHeader().getURI();
-//			URI newLocation = new URI(baseUri, location, false);
-//			temp.getRequestHeader().setURI(newLocation);
-//			
-//			temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-//			temp.getRequestHeader().setContentLength(0);
-//			parent.getHttpSender().sendAndReceive(temp, true);
-//		}
-//		
-//		msg.setResponseHeader(temp.getResponseHeader());
-//		msg.setResponseBody(temp.getResponseBody());
     }
     
+    private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
+    	if (antiCsrfToken == null) {
+    		return;
+    	}
+		String tokenValue = null;
+		try {
+			HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
+
+			// Ensure we dont loop
+	        sendAndReceive(tokenMsg, true, false);
+
+			tokenValue = extAntiCSRF.getTokenValue(tokenMsg, antiCsrfToken.getName());
+
+	    } catch (Exception e) {
+	        log.error(e.getMessage(), e);
+		}
+	    if (tokenValue != null) {
+	    	// Replace token value - only supported in the body right now
+	    	log.debug("regenerateAntiCsrfToken replacing " + antiCsrfToken.getValue() + " with " + encoder.getURLEncode(tokenValue));
+	    	String replaced = msg.getRequestBody().toString();
+	    	replaced = replaced.replace(encoder.getURLEncode(antiCsrfToken.getValue()), encoder.getURLEncode(tokenValue));
+	    	msg.setRequestBody(replaced);
+	    	extAntiCSRF.registerAntiCsrfToken(new AntiCsrfToken(msg, antiCsrfToken.getName(), tokenValue));
+	    }
+    }
+
     public void run() {
         try {
             if (!isStop()) {
@@ -257,6 +271,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	 * @param msg
 	 */
 	protected void bingo(int risk, int reliability, String name, String description, String uri, String param, String otherInfo, String solution, HttpMessage msg) {
+		log.debug("New alert pluginid=" + + this.getId() + " " + name + " uri=" + uri);
 	    Alert alert = new Alert(this.getId(), risk, reliability, name);
 	    if (uri == null || uri.equals("")) {
 	        uri = msg.getRequestHeader().getURI().toString();
