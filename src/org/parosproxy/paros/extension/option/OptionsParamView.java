@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
 
 package org.parosproxy.paros.extension.option;
 
@@ -38,6 +39,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String ADVANCEDUI_OPTION = "view.advancedview";
 	public static final String WMUIHANDLING_OPTION = "view.uiWmHandling";
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
+	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 
 	private int advancedViewEnabled = 0;
 	private int editorViewOption;
@@ -49,6 +51,7 @@ public class OptionsParamView extends AbstractParam {
 	private int brkPanelViewOption = 0;
 	private int askOnExitEnabled = 1;
 	private int wmUiHandlingEnabled = 0;
+	private boolean warnOnTabDoubleClick = false;
 	
     /**
      * @param rootElementName
@@ -71,6 +74,7 @@ public class OptionsParamView extends AbstractParam {
 	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
 	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
+	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
     }
 
 	/**
@@ -167,6 +171,15 @@ public class OptionsParamView extends AbstractParam {
 	
 	public int getWmUiHandlingOption() {
 		return wmUiHandlingEnabled;
+	}
+
+	public boolean getWarnOnTabDoubleClick() {
+		return warnOnTabDoubleClick;
+	}
+
+	public void setWarnOnTabDoubleClick(boolean warnOnTabDoubleClick) {
+		this.warnOnTabDoubleClick = warnOnTabDoubleClick;
+		getConfig().setProperty(WARN_ON_TAB_DOUBLE_CLICK_OPTION, warnOnTabDoubleClick);
 	}
 	
 }
