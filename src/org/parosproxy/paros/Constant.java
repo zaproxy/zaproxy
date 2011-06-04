@@ -47,8 +47,6 @@ public final class Constant {
     public static final String PROGRAM_NAME     = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
     
-    public static final String MAINTAINER_MAIL = "psiinon@gmail.com";
-    
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
