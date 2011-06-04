@@ -141,6 +141,10 @@ public class HttpMethodHelper {
 		URI uri	= header.getURI();
 		String version = header.getVersion();
 		
+		if (method == null || method.trim().length() < 3) {
+			throw new URIException("Invalid HTTP method: " + method);
+		}
+		
 		if (method.equalsIgnoreCase(GET)) {
 			httpMethod = new GetMethod();
 		} else if (method.equalsIgnoreCase(POST)) {
