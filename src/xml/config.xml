@@ -26,7 +26,6 @@
 	</proxy>
 	<view>
 		<processImages>0</processImages>
-		<locale>en_GB</locale>
 		<editorView>2</editorView>
 		<brkPanelView>0</brkPanelView>
 		<showMainToolbar>1</showMainToolbar>
