@@ -202,4 +202,9 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 	    
 	}
 	
+	@Override
+	public String getHelpIndex() {
+		// TODO no help page?
+		return "ui.dialogs.options.locale";
+	}
 }

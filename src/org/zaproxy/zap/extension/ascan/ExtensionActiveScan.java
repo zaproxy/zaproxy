@@ -119,10 +119,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			
         API.getInstance().registerApiImplementor(new ActiveScanAPI(this));
 
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
-	    	ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
-	    }
 	}
 
 	public void hook(ExtensionHook extensionHook) {
@@ -145,6 +141,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	        
 	        this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 
+	    	ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
+	    	ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
 	    }
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);

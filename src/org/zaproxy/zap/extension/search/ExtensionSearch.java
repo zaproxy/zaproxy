@@ -69,7 +69,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	private void initialize() {
         this.setName("ExtensionSearch");
 
-        ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
@@ -82,6 +81,8 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuPrev());
 	        
 	        getSearchPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+
+	        ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
 	    }
 	}
 	

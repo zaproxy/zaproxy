@@ -43,7 +43,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		implements SessionChangedListener, ProxyListener, SiteMapListener {
 
 	private BruteForcePanel bruteForcePanel = null;
-	private OptionsBruteForcePanel optionsPortScanPanel = null;
+	private OptionsBruteForcePanel optionsBruteForcePanel = null;
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
     private PopupMenuBruteForceDirectory popupMenuBruteForceDirectory = null;
 	private PopupMenuBruteForceCopy popupMenuBruteForceCopy = null;
@@ -72,11 +72,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionPortScan");
-        
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
-	    }
+        this.setName("ExtensionBruteForce");
 
 	}
 	
@@ -90,18 +86,20 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	        @SuppressWarnings("unused")
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addStatusPanel(getBruteForcePanel());
-	        extensionHook.getHookView().addOptionPanel(getOptionsPortScanPanel());
+	        extensionHook.getHookView().addOptionPanel(getOptionsBruteForcePanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceSite());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceCopy());
             // Specifying an initial directory doesnt work
             //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
 
 	        this.getBruteForcePanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-	    }
-        extensionHook.addOptionsParamSet(getPortScanParam());
+
+	    	ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
+}
+        extensionHook.addOptionsParamSet(getBruteForceParam());
 	}
 	
-	private BruteForceParam getPortScanParam() {
+	private BruteForceParam getBruteForceParam() {
 		if (params == null) {
 			params = new BruteForceParam();
 		}
@@ -110,7 +108,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	protected BruteForcePanel getBruteForcePanel() {
 		if (bruteForcePanel == null) {
-			bruteForcePanel = new BruteForcePanel(this, getPortScanParam());
+			bruteForcePanel = new BruteForcePanel(this, getBruteForceParam());
 		}
 		return bruteForcePanel;
 	}
@@ -193,11 +191,11 @@ public class ExtensionBruteForce extends ExtensionAdaptor
         return popupMenuBruteForceDirectory;
     }
 
-	private OptionsBruteForcePanel getOptionsPortScanPanel() {
-		if (optionsPortScanPanel == null) {
-			optionsPortScanPanel = new OptionsBruteForcePanel();
+	private OptionsBruteForcePanel getOptionsBruteForcePanel() {
+		if (optionsBruteForcePanel == null) {
+			optionsBruteForcePanel = new OptionsBruteForcePanel();
 		}
-		return optionsPortScanPanel;
+		return optionsBruteForcePanel;
 	}
 	
 	private PopupMenuBruteForceCopy getPopupMenuBruteForceCopy() {
@@ -209,7 +207,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	}
 
 	public int getThreadPerScan() {
-    	return this.getOptionsPortScanPanel().getThreadPerScan();
+    	return this.getOptionsBruteForcePanel().getThreadPerScan();
     }
 
 	public boolean isScanning(SiteNode node) {

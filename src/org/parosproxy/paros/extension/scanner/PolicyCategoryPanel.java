@@ -135,4 +135,10 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 		}
 		return categoryTableModel;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index support
+		return "ui.dialogs.options.ascan";
+	}
     }  //  @jve:decl-index=0:visual-constraint="10,10"

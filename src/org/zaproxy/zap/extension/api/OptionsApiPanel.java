@@ -118,4 +118,8 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	    
 	}
 	
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.api";
+	}
 }

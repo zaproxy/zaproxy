@@ -76,11 +76,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	private void initialize() {
         this.setName("ExtensionBreak");
         
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
-	    	ExtensionHelp.enableHelpKey(getBreakPointsPanel(), "ui.tabs.breakpoints");
-	    }
-
 	}
 	
 	/**
@@ -113,6 +108,9 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
             extensionHook.addProxyListener(getProxyListenerBreak());
             extensionHook.addSessionListener(this);
+
+	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
+	    	ExtensionHelp.enableHelpKey(getBreakPointsPanel(), "ui.tabs.breakpoints");
 	    }
 	}
 	

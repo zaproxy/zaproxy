@@ -211,4 +211,8 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
     	return this.sliderThreadsPerScan.getValue();
     }
 
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.fuzz";
+	}
 } 

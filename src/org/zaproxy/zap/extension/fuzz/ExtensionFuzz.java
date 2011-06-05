@@ -69,11 +69,6 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	 */
 	private void initialize() {
         this.setName(NAME);
-
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
-	    }
-
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
@@ -84,6 +79,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	        extensionHook.getHookView().addStatusPanel(getFuzzerPanel());
 	        this.getFuzzerPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsFuzzerPanel());
+
+	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
 	    }
         extensionHook.addOptionsParamSet(getFuzzerParam());
 

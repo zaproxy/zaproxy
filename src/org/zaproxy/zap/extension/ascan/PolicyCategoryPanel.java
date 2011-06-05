@@ -133,4 +133,9 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 		}
 		return categoryTableModel;
 	}
-    }  //  @jve:decl-index=0:visual-constraint="10,10"
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.scanpolicy";
+	}
+}

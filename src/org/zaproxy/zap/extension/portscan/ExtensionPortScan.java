@@ -71,11 +71,6 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	 */
 	private void initialize() {
         this.setName("ExtensionPortScan");
-        
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getPortScanPanel(), "ui.tabs.portscan");
-	    }
-
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
@@ -92,6 +87,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPortScan());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPortCopy());
 
+	    	ExtensionHelp.enableHelpKey(getPortScanPanel(), "ui.tabs.portscan");
 	    }
         extensionHook.addOptionsParamSet(getPortScanParam());
 	}

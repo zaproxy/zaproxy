@@ -142,4 +142,9 @@ public class SessionExcludeFromSpiderPanel extends AbstractParamPanel {
 		}
 		return model;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.sessprop";
+	}
 }

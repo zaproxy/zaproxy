@@ -80,10 +80,6 @@ public class ExtensionSpider extends ExtensionAdaptor
         
         API.getInstance().registerApiImplementor(new SpiderAPI(this));
 
-	    if (getView() != null) {
-	    	ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
-	    }
-
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
@@ -99,6 +95,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 	        extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpider());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu());
+
+        	ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 	    }
         extensionHook.addOptionsParamSet(getSpiderParam());
 	}

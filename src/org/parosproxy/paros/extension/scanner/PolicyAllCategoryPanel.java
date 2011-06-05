@@ -197,4 +197,10 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		}
 		return btnDisableAll;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index support
+		return "ui.dialogs.scanpolicy";
+	}
       }  //  @jve:decl-index=0:visual-constraint="10,10"

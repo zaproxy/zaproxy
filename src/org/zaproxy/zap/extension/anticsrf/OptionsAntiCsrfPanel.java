@@ -142,4 +142,9 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
 		return antiCsrfModel;
 	}
 
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.options.anticsrf";
+	}
+
 }

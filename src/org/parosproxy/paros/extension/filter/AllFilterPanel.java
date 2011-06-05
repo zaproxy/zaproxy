@@ -204,4 +204,10 @@ public class AllFilterPanel extends AbstractParamPanel {
 		}
 		return allFilterTableModel;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index support
+		return "ui.dialogs.filter";
+	}
        }  //  @jve:decl-index=0:visual-constraint="10,10"

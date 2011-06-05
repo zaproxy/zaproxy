@@ -196,4 +196,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		}
 		return btnDisableAll;
 	}
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.scanpolicy";
+	}
 }

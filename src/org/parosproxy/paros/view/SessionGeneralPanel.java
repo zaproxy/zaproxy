@@ -158,5 +158,12 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    	session.save(session.getFileName());
 	    }
 	}
+
+
+	@Override
+	public String getHelpIndex() {
+		// ZAP: added help index support
+		return "ui.dialogs.sessprop";
+	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"

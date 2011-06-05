@@ -57,7 +57,5 @@ abstract public class AbstractParamPanel extends JPanel {
 	 *         OR use return null, if no help key is available.
 	 *         When a valid key is returned, there will be a help button displayed.
 	 */
-	public String getHelpIndex() {
-		return null;
-	}
+	abstract public String getHelpIndex();
 }
