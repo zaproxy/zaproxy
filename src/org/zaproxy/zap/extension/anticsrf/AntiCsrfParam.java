@@ -51,6 +51,13 @@ public class AntiCsrfParam extends AbstractParam {
     	} catch (Exception e) {
     		this.tokens = new ArrayList<String>();
     	}
+    	if (this.tokens.size() == 0) {
+    		// These are the default ones
+    		this.tokens.add("");
+    		this.tokens.add("anticsrf");
+    		this.tokens.add("CSRFToken");
+    		this.tokens.add("__RequestVerificationToken");
+    	}
     }
 
 	public List<String> getTokens() {
