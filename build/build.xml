@@ -120,9 +120,23 @@
   	
   	<!-- Tar up the release -->
   	<delete file="ZAP_${version}_Linux.tar.gz"/>
-  	<tar compression="gzip" 
-  		destfile="ZAP_${version}_Linux.tar.gz" 
-  		basedir="${dist}" excludes="**/.svn/** **/_svn/**"/>
+  	
+  	<tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip" >
+  	  <tarfileset dir="${dist}"
+		          prefix="ZAP_${version}"
+  	              preserveLeadingSlashes="false">
+  	    <include name="**"/>
+  	    <exclude name="**/.svn/**"/>
+  	    <exclude name="**/_svn/**"/>
+	    <exclude name="zap.sh"/>
+  	  </tarfileset>
+	  <tarfileset dir="${dist}"
+		          prefix="ZAP_${version}"
+	  			  filemode="755"
+	              preserveLeadingSlashes="false">
+	    <include name="zap.sh"/>
+	  </tarfileset>
+  	</tar>
   	
   </target>
 
