@@ -279,6 +279,7 @@ public class SiteMap extends DefaultTreeModel {
         String path = null;
         int port = 80;
         SiteNode parent = (SiteNode) getRoot();
+        SiteNode leaf = null;
         StringTokenizer tokenizer = null;
         String folder = "";
         
@@ -306,8 +307,8 @@ public class SiteMap extends DefaultTreeModel {
                 if (folder != null && !folder.equals("")) {
                     if (tokenizer.countTokens() == 0) {
                         // leaf - path name
-                        SiteNode sn = findAndAddLeaf(parent, folder, ref, msg);
-                        ref.setSiteNode(sn);
+                        leaf = findAndAddLeaf(parent, folder, ref, msg);
+                        ref.setSiteNode(leaf);
                     } else {
                         parent = findAndAddChild(parent, folder, ref, msg);
                     }
@@ -315,6 +316,12 @@ public class SiteMap extends DefaultTreeModel {
                 }
                 
             }
+            if (leaf == null) {
+            	// No leaf found, which means the parent was really the leaf
+            	// The parent will have been added with a 'blank' href, so replace it with the real one
+            	parent.setHistoryReference(ref);
+            }
+            
         } catch (Exception e) {
             // ZAP: Added error
             log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
