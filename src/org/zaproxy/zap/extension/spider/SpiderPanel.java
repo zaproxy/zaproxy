@@ -29,7 +29,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,12 +38,9 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.ScanPanel;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class SpiderPanel extends ScanPanel implements ScanListenner {
 	
 	private static final long serialVersionUID = 1L;
@@ -56,11 +52,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private JPanel rightPanel = null;
 	private JLabel jLabel = null;
     // TODO same hack as port scan??
-	private static JTextArea txtURIFound = null;
+	private static ZapTextArea txtURIFound = null;
 	private JScrollPane jScrollPane = null;
 	private JLabel jLabel1 = null;
     // TODO same hack as port scan??
-	private static JTextArea txtURISkip = null;
+	private static ZapTextArea txtURISkip = null;
 	private JScrollPane jScrollPane1 = null;
 
 	private static Log log = LogFactory.getLog(SpiderPanel.class);
@@ -206,11 +202,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	JTextArea getTxtURIFound() {
+	ZapTextArea getTxtURIFound() {
 		if (txtURIFound == null) {
-			txtURIFound = new JTextArea();
+			txtURIFound = new ZapTextArea();
 			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
@@ -242,11 +238,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	JTextArea getTxtURISkip() {
+	ZapTextArea getTxtURISkip() {
 		if (txtURISkip == null) {
-			txtURISkip = new JTextArea();
+			txtURISkip = new ZapTextArea();
 			txtURISkip.setEditable(false);
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);

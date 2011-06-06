@@ -5,6 +5,7 @@ package org.parosproxy.paros.extension.encoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.zaproxy.zap.utils.ZapTextArea;
 
 /**
  * Encodes and decodes to and from Base64 notation.
@@ -184,7 +185,7 @@ public class Base64
                 }   // end while: terribly inefficient way to read data
                 b64is.close();
                 String s = new String( ebytes );
-                javax.swing.JTextArea jta = new javax.swing.JTextArea( s );
+                ZapTextArea jta = new ZapTextArea( s );
                 javax.swing.JScrollPane jsp = new javax.swing.JScrollPane( jta );
                 jframe = new javax.swing.JFrame();
                 jframe.setTitle( "Read from test.gif_out" );
@@ -250,7 +251,7 @@ public class Base64
                 }   // end while: terribly inefficient way to read data
                 fis.close();
                 String s = new String( rebytes );
-                javax.swing.JTextArea jta = new javax.swing.JTextArea( s );
+                ZapTextArea jta = new ZapTextArea( s );
                 javax.swing.JScrollPane jsp = new javax.swing.JScrollPane( jta );
                 javax.swing.JFrame jframe = new javax.swing.JFrame();
                 jframe.setTitle( "Read from test.gif.b64_out2" );

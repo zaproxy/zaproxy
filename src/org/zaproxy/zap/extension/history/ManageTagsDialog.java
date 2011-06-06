@@ -247,11 +247,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 		}
 	}
 	
-	/**
-	 * This method initializes txtDisplay	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+    
 	private JComboBox getTxtTagAdd() {
 		if (txtTagAdd == null) {
 			txtTagAdd = new JComboBox();

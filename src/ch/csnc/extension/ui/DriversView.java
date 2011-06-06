@@ -28,13 +28,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.zaproxy.zap.utils.ZapTextField;
 
 import ch.csnc.extension.util.DriverConfiguration;
 
@@ -53,16 +53,16 @@ public class DriversView extends AbstractFrame {
 	private JScrollPane driverScrollPane;
 
 	private JLabel fileLabel;
-	private JTextField fileTextField;
+	private ZapTextField fileTextField;
 
 	private JLabel nameLabel;
-	private JTextField nameTextField;
+	private ZapTextField nameTextField;
 
 	private JLabel slotLabel;
-	private JTextField slotTextField;
+	private ZapTextField slotTextField;
 
 	private JLabel slotIndexLabel;
-	private JTextField slotIndexTextField;
+	private ZapTextField slotIndexTextField;
 
 
 	/**
@@ -83,14 +83,14 @@ public class DriversView extends AbstractFrame {
 	 */
 	private void initComponents() {
 		fileLabel = new JLabel();
-		fileTextField = new JTextField();
+		fileTextField = new ZapTextField();
 		browseButton = new JButton();
 		nameLabel = new JLabel();
-		nameTextField = new JTextField();
+		nameTextField = new ZapTextField();
 		slotLabel = new JLabel();
-		slotTextField = new JTextField();
+		slotTextField = new ZapTextField();
 		slotIndexLabel = new JLabel();
-		slotIndexTextField = new JTextField();
+		slotIndexTextField = new ZapTextField();
 		addButton = new JButton();
 		deleteButton = new JButton();
 		closeButton = new JButton();

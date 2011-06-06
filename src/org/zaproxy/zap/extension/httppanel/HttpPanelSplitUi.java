@@ -17,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -32,6 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanelTabularModel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.HttpPanelView;
 
 public class HttpPanelSplitUi extends AbstractPanel {
@@ -165,9 +165,9 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	/**
 	 * This method initializes txtHeader
 	 *
-	 * @return javax.swing.JTextArea
+	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */
-	private javax.swing.JTextArea getTxtHeader() {
+	private ZapTextArea getTxtHeader() {
 		if (txtHeader == null) {
 			txtHeader = new HttpPanelTextArea(httpMessage, HttpPanelTextArea.MessageType.Header);
 			txtHeader.setLineWrap(true);
@@ -191,9 +191,9 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	/**
 	 * This method initializes txtBody
 	 * 
-	 * @return javax.swing.JTextArea
+	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */
-	private javax.swing.JTextArea getTxtBody() {
+	private ZapTextArea getTxtBody() {
 		if (txtBody == null) {
 			txtBody = new HttpPanelTextArea(httpMessage, HttpPanelTextArea.MessageType.Body);
 			txtBody.setLineWrap(true);
@@ -385,7 +385,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		txtHeader.setHttpMessage(msg);
 		txtBody.setHttpMessage(msg);
 		
-		javax.swing.JTextArea txtBody = getTxtBody();
+		ZapTextArea txtBody = getTxtBody();
 
 		getComboView().removeAllItems();
 		getComboView().setEnabled(false);
@@ -416,7 +416,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	private void setDisplayRequest(HttpMessage msg) {
-		String header = replaceHeaderForJTextArea(msg.getRequestHeader().toString());
+		String header = replaceHeaderForZapTextArea(msg.getRequestHeader().toString());
 		String body = msg.getRequestBody().toString();
 
 		getHttpPanelTabularModel().setText(msg.getRequestBody().toString());
@@ -453,7 +453,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			return;
 		}
 
-		String header = replaceHeaderForJTextArea(msg.getResponseHeader().toString());
+		String header = replaceHeaderForZapTextArea(msg.getResponseHeader().toString());
 		String body = msg.getResponseBody().toString();
 
 		getTxtHeader().setText(header);
@@ -489,7 +489,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 
 	}
 
-	private String getHeaderFromJTextArea(JTextArea txtArea) {
+	private String getHeaderFromZapTextArea(ZapTextArea txtArea) {
 		// TODO the replaceAll calls mess up the highlighing in the standard 'split' view
 		/*
 		String msg = txtArea.getText();
@@ -500,7 +500,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		return txtArea.getText();
 	}
 
-	private String replaceHeaderForJTextArea(String msg) {
+	private String replaceHeaderForZapTextArea(String msg) {
 		// TODO the replaceAll calls mess up the highlighing in the standard 'split' view
 		//return msg.replaceAll("\\r\\n", "\n");
 		return msg;
@@ -514,7 +514,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 					msg.getRequestBody().setBody("");
 				} else {
 					msg.getRequestHeader().setMessage(
-							getHeaderFromJTextArea(getTxtHeader()));
+							getHeaderFromZapTextArea(getTxtHeader()));
 					msg.getRequestBody().setBody(getTxtBody().getText());
 					msg.getRequestHeader().setContentLength(
 							msg.getRequestBody().length());
@@ -525,7 +525,7 @@ public class HttpPanelSplitUi extends AbstractPanel {
 					msg.getResponseBody().setBody("");
 				} else {
 					msg.getResponseHeader().setMessage(
-							getHeaderFromJTextArea(getTxtHeader()));
+							getHeaderFromZapTextArea(getTxtHeader()));
 					String txt = getTxtBody().getText();
 					msg.getResponseBody().setBody(txt);
 					msg.getResponseHeader().setContentLength(

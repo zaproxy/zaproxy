@@ -30,11 +30,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.zaproxy.zap.utils.ZapTextArea;
 
 import bsh.util.JConsole;
 
@@ -50,8 +50,8 @@ public class BeanShellPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = -9069040128478670532L;
 	
-	private javax.swing.JSplitPane splitVert = null;  
-	private javax.swing.JTextArea txtEditor = null;
+	private JSplitPane splitVert = null;  
+	private ZapTextArea txtEditor = null;
 	private JPanel panelView = null;
 	private JPanel jPanel = null;
 	private JPanel panelOption = null;
@@ -114,14 +114,9 @@ public class BeanShellPanel extends AbstractPanel {
 		return splitVert;
 	}
 
-	/**
-	 * This method initializes txtEditor	
-	 * 	
-	 * @return javax.swing.JTextArea	
-	 */    
-	public JTextArea getTxtEditor() {
+	public ZapTextArea getTxtEditor() {
 		if (txtEditor == null) {
-			txtEditor = new JTextArea();
+			txtEditor = new ZapTextArea();
 			txtEditor.setLineWrap(false);
 			txtEditor.setName("");
 			txtEditor.setTabSize(4);

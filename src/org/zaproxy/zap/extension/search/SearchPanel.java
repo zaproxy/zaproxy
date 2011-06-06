@@ -29,7 +29,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.Constant;
@@ -38,11 +37,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextField;
+
+
 public class SearchPanel extends AbstractPanel {
 	
 	private static final long serialVersionUID = 1L;
@@ -55,7 +52,7 @@ public class SearchPanel extends AbstractPanel {
 	private javax.swing.JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
 
-	private JTextField regEx = null;
+	private ZapTextField regEx = null;
 	private JButton btnSearch = null;
 	private JComboBox searchType = null;
 	private JButton btnNext = null;
@@ -265,10 +262,10 @@ public class SearchPanel extends AbstractPanel {
 		return btnPrev;
 	}
 
-	protected JTextField getRegExField () {
+	protected ZapTextField getRegExField () {
 		if (regEx == null) {
-			regEx = new JTextField();
-			regEx.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+			regEx = new ZapTextField();
+			regEx.setHorizontalAlignment(ZapTextField.LEFT);
 			regEx.setAlignmentX(0.0F);
 			regEx.setPreferredSize(new java.awt.Dimension(250,25));
 			regEx.setText("");

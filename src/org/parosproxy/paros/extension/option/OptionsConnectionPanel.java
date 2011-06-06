@@ -29,8 +29,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -38,13 +36,11 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ProxyDialog;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class OptionsConnectionPanel extends AbstractParamPanel {
 	// ZAP: i18n	
 	private static final long serialVersionUID = 1L;
@@ -54,16 +50,16 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	//private OptionsParam optionsParam = null;
 	private JPanel panelProxyChain = null;
-	private JTextField txtProxyChainName = null;
-	private JTextField txtProxyChainPort = null;
-	private JTextArea txtProxyChainSkipName = null;
-	private JTextField txtProxyChainRealm = null;
-	private JTextField txtProxyChainUserName = null;
-	private JTextField txtProxyChainPassword = null;
+	private ZapTextField txtProxyChainName = null;
+	private ZapTextField txtProxyChainPort = null;
+	private ZapTextArea txtProxyChainSkipName = null;
+	private ZapTextField txtProxyChainRealm = null;
+	private ZapTextField txtProxyChainUserName = null;
+	private ZapTextField txtProxyChainPassword = null;
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
-	private JTextField txtTimeoutInSecs = null;
+	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
 	
     public OptionsConnectionPanel() {
@@ -356,33 +352,33 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainName	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyChainName() {
+	private ZapTextField getTxtProxyChainName() {
 		if (txtProxyChainName == null) {
-			txtProxyChainName = new JTextField();
+			txtProxyChainName = new ZapTextField();
 		}
 		return txtProxyChainName;
 	}
 	/**
 	 * This method initializes txtProxyChainPort	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyChainPort() {
+	private ZapTextField getTxtProxyChainPort() {
 		if (txtProxyChainPort == null) {
-			txtProxyChainPort = new JTextField();
+			txtProxyChainPort = new ZapTextField();
 		}
 		return txtProxyChainPort;
 	}
 	/**
 	 * This method initializes txtProxyChainSkipName	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	private JTextArea getTxtProxyChainSkipName() {
+	private ZapTextArea getTxtProxyChainSkipName() {
 		if (txtProxyChainSkipName == null) {
-			txtProxyChainSkipName = new JTextArea();
+			txtProxyChainSkipName = new ZapTextArea();
 			txtProxyChainSkipName.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtProxyChainSkipName.setMinimumSize(new java.awt.Dimension(0,32));
 			txtProxyChainSkipName.setRows(2);
@@ -565,33 +561,33 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainRealm	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyChainRealm() {
+	private ZapTextField getTxtProxyChainRealm() {
 		if (txtProxyChainRealm == null) {
-			txtProxyChainRealm = new JTextField();
+			txtProxyChainRealm = new ZapTextField();
 		}
 		return txtProxyChainRealm;
 	}
 	/**
 	 * This method initializes txtProxyChainUserName	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyChainUserName() {
+	private ZapTextField getTxtProxyChainUserName() {
 		if (txtProxyChainUserName == null) {
-			txtProxyChainUserName = new JTextField();
+			txtProxyChainUserName = new ZapTextField();
 		}
 		return txtProxyChainUserName;
 	}
 	/**
 	 * This method initializes txtProxyChainPassword	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyChainPassword() {
+	private ZapTextField getTxtProxyChainPassword() {
 		if (txtProxyChainPassword == null) {
-			txtProxyChainPassword = new JTextField();
+			txtProxyChainPassword = new ZapTextField();
 		}
 		return txtProxyChainPassword;
 	}
@@ -670,9 +666,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	}
 
 	
-	private JTextField getTxtTimeoutInSecs() {
+	private ZapTextField getTxtTimeoutInSecs() {
 		if (txtTimeoutInSecs == null) {
-			txtTimeoutInSecs = new JTextField();
+			txtTimeoutInSecs = new ZapTextField();
 		}
 		return txtTimeoutInSecs;
 	}

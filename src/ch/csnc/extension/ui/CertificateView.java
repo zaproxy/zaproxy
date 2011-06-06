@@ -25,15 +25,17 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+
 import javax.swing.LayoutStyle;
+
+import org.zaproxy.zap.utils.ZapTextArea;
 
 public class CertificateView extends JFrame {
 
 	private static final long serialVersionUID = -7284926693579230812L;
 
 	private JScrollPane certificateScrollPane;
-	private JTextArea certificateTextArea;
+	private ZapTextArea certificateTextArea;
 	private JButton closeButton;
 
 	/** Creates new form Certificate */
@@ -51,7 +53,7 @@ public class CertificateView extends JFrame {
 	private void initComponents() {
 		closeButton = new JButton();
 		certificateScrollPane = new JScrollPane();
-		certificateTextArea = new JTextArea();
+		certificateTextArea = new ZapTextArea();
 
 		//TODO: Constant for messages.properties
 		setTitle("Certificate");

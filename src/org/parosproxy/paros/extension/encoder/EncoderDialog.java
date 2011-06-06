@@ -30,26 +30,22 @@ import java.security.NoSuchAlgorithmException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.ZapTextArea;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class EncoderDialog extends AbstractDialog {
 
+	private static final long serialVersionUID = 2733002714754868517L;
 	private JPanel jPanel = null;
 	private JPanel jPanel1 = null;
 	private JPanel jPanel2 = null;
 	private JScrollPane jScrollPane = null;
 	private JScrollPane jScrollPane1 = null;
-	private JTextArea txtEncode = null;
-	private JTextArea txtDecode = null;
+	private ZapTextArea txtEncode = null;
+	private ZapTextArea txtDecode = null;
 	private JButton btnMD5Hash = null;
 	private JButton btnURLEncode = null;
 	private JButton btnBase64Encode = null;
@@ -212,11 +208,11 @@ public class EncoderDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtEncode	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextArea
 	 */    
-	private JTextArea getTxtEncode() {
+	private ZapTextArea getTxtEncode() {
 		if (txtEncode == null) {
-			txtEncode = new JTextArea();
+			txtEncode = new ZapTextArea();
 			txtEncode.setLineWrap(true);
 			txtEncode.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 			txtEncode.addMouseListener(new java.awt.event.MouseAdapter() {   
@@ -235,11 +231,11 @@ public class EncoderDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtDecode	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextArea
 	 */    
-	private JTextArea getTxtDecode() {
+	private ZapTextArea getTxtDecode() {
 		if (txtDecode == null) {
-			txtDecode = new JTextArea();
+			txtDecode = new ZapTextArea();
 			txtDecode.setLineWrap(true);
 			txtDecode.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 		}

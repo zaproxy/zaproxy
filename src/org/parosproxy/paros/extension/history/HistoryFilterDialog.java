@@ -37,22 +37,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextField;
+
 public class HistoryFilterDialog extends AbstractDialog {
+
+	private static final long serialVersionUID = 7613537948142149634L;
 
 	private JPanel jPanel = null;
 	private JButton btnApply = null;
 	private JButton btnCancel = null;
-	private JTextField txtPattern = null;
+	private ZapTextField txtPattern = null;
 	private JPanel jPanel1 = null;
 	private int exitResult = JOptionPane.CANCEL_OPTION;
 
@@ -231,11 +229,11 @@ public class HistoryFilterDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtPattern	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtPattern() {
+	private ZapTextField getTxtPattern() {
 		if (txtPattern == null) {
-			txtPattern = new JTextField();
+			txtPattern = new ZapTextField();
 		}
 		return txtPattern;
 	}

@@ -30,36 +30,34 @@ import java.awt.GridBagLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextField;
+
 public class OptionsLocalProxyPanel extends AbstractParamPanel {
+
+	private static final long serialVersionUID = -1350537974139536669L;
 
 	private OptionsParam optionsParam = null;
 	private JPanel panelLocalProxy = null;
 	private JPanel panelReverseProxy = null;  //  @jve:decl-index=0:visual-constraint="520,10"
 
 	private JPanel panelProxy = null;  //  @jve:decl-index=0:visual-constraint="10,283"
-	private JTextField txtProxyIp = null;
-	private JTextField txtReverseProxyIp = null;
+	private ZapTextField txtProxyIp = null;
+	private ZapTextField txtReverseProxyIp = null;
     
-	private JTextField txtProxyPort = null;
-	private JTextField txtReverseProxyHttpPort = null;
+	private ZapTextField txtProxyPort = null;
+	private ZapTextField txtReverseProxyHttpPort = null;
 
 	
 	private JLabel jLabel6 = null;
 	private JCheckBox chkReverseProxy = null;
 	private JLabel jLabel5 = null;
-	private JTextField txtReverseProxyHttpsPort = null;
+	private ZapTextField txtReverseProxyHttpsPort = null;
 	private JLabel jLabel7 = null;
     public OptionsLocalProxyPanel() {
         super();
@@ -333,11 +331,11 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyIp	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyIp() {
+	private ZapTextField getTxtProxyIp() {
 		if (txtProxyIp == null) {
-			txtProxyIp = new JTextField();
+			txtProxyIp = new ZapTextField();
 			txtProxyIp.setText("");
 		}
 		return txtProxyIp;
@@ -345,11 +343,11 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyIpSSL	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtReverseProxyIp() {
+	private ZapTextField getTxtReverseProxyIp() {
 		if (txtReverseProxyIp == null) {
-			txtReverseProxyIp = new JTextField();
+			txtReverseProxyIp = new ZapTextField();
 		}
 		return txtReverseProxyIp;
 	}
@@ -359,22 +357,22 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyPort	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtProxyPort() {
+	private ZapTextField getTxtProxyPort() {
 		if (txtProxyPort == null) {
-			txtProxyPort = new JTextField();
+			txtProxyPort = new ZapTextField();
 		}
 		return txtProxyPort;
 	}
 	/**
 	 * This method initializes txtProxyPortSSL	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtReverseProxyHttpPort() {
+	private ZapTextField getTxtReverseProxyHttpPort() {
 		if (txtReverseProxyHttpPort == null) {
-			txtReverseProxyHttpPort = new JTextField();
+			txtReverseProxyHttpPort = new ZapTextField();
 		}
 		return txtReverseProxyHttpPort;
 	}
@@ -501,13 +499,13 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 		return chkReverseProxy;
 	}
 	/**
-	 * This method initializes jTextField	
+	 * This method initializes ZapTextField	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtReverseProxyHttpsPort() {
+	private ZapTextField getTxtReverseProxyHttpsPort() {
 		if (txtReverseProxyHttpsPort == null) {
-			txtReverseProxyHttpsPort = new JTextField();
+			txtReverseProxyHttpsPort = new ZapTextField();
 		}
 		return txtReverseProxyHttpsPort;
 	}

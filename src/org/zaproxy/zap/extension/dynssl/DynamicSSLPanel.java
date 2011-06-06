@@ -41,7 +41,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -58,13 +57,14 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.security.SslCertificateServiceImpl;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextArea;
 
 public class DynamicSSLPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final int MIN_CERT_LENGTH = 10;
 
-	private JTextArea txt_PubCert;
+	private ZapTextArea txt_PubCert;
 	private JButton bt_view;
 	private JButton bt_save;
 
@@ -87,7 +87,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 
 		final JLabel lbl_Cert = new JLabel(Constant.messages.getString("dynssl.label.rootca"));
 
-		txt_PubCert = new JTextArea();
+		txt_PubCert = new ZapTextArea();
 		txt_PubCert.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		txt_PubCert.setEditable(false);
 		txt_PubCert.getDocument().addDocumentListener(new DocumentListener() {

@@ -43,11 +43,11 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.ZapTextField;
 
 public class FindDialog extends AbstractDialog {
 
@@ -56,7 +56,7 @@ public class FindDialog extends AbstractDialog {
 	private JPanel jPanel = null;
 	private JButton btnFind = null;
 	private JButton btnCancel = null;
-	private JTextField txtFind = null;
+	private ZapTextField txtFind = null;
 	private JPanel jPanel1 = null;
     private JTextComponent lastInvoker = null;
     
@@ -223,11 +223,11 @@ public class FindDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtFind	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtFind() {
+	private ZapTextField getTxtFind() {
 		if (txtFind == null) {
-			txtFind = new JTextField();
+			txtFind = new ZapTextField();
 			txtFind.setMinimumSize(new java.awt.Dimension(120,24));
 			txtFind.setPreferredSize(new java.awt.Dimension(120,24));
 		}

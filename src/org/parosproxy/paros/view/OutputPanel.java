@@ -23,11 +23,11 @@ package org.parosproxy.paros.view;
 
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.ZapTextArea;
 
 import java.awt.CardLayout;
 import java.awt.EventQueue;
@@ -38,7 +38,7 @@ public class OutputPanel extends AbstractPanel {
 	private static final long serialVersionUID = -947074835463140074L;
 
 	private JScrollPane jScrollPane = null;
-	private JTextArea txtOutput = null;
+	private ZapTextArea txtOutput = null;
 
 	/**
      * 
@@ -83,11 +83,11 @@ public class OutputPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtOutput	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	private JTextArea getTxtOutput() {
+	private ZapTextArea getTxtOutput() {
 		if (txtOutput == null) {
-			txtOutput = new JTextArea();
+			txtOutput = new ZapTextArea();
 			txtOutput.setEditable(false);
 			txtOutput.setLineWrap(true);
 			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));

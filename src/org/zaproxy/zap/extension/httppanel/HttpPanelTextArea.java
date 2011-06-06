@@ -1,11 +1,10 @@
 package org.zaproxy.zap.extension.httppanel;
 
-import javax.swing.JTextArea;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.ZapTextArea;
 
-public class HttpPanelTextArea extends JTextArea {
+public class HttpPanelTextArea extends ZapTextArea {
 
 	private static final long serialVersionUID = 1L;
 	private HttpMessage httpMessage;

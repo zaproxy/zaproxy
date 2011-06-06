@@ -111,11 +111,7 @@ public class HostProgressMeter extends JPanel {
 		this.add(getBarProgress(), gridBagConstraints2);
 		this.add(getJScrollPane(), gridBagConstraints12);
 	}
-	/**
-	 * This method initializes txtHost	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+
 	JLabel getTxtHost() {
 		if (txtHost == null) {
 			txtHost = new JLabel("    ");
@@ -168,11 +164,7 @@ public class HostProgressMeter extends JPanel {
 	    this.hostProcess = hostThread;
 	}
 	
-	/**
-	 * This method initializes txtDisplay	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+
 	private JLabel getTxtDisplay() {
 		if (txtDisplay == null) {
 			txtDisplay = new JLabel("    ");

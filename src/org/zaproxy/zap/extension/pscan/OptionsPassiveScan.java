@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -45,12 +44,10 @@ import javax.swing.table.TableRowSorter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.utils.FilteredJTextField;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.FilteredZapTextField;
+import org.zaproxy.zap.utils.ZapTextField;
+
+
 public class OptionsPassiveScan extends AbstractParamPanel {
 
 	private static final String NAME_VALID_CHRS = 
@@ -62,13 +59,13 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	private JPanel editPane = null;
 	private PassiveScannerList proxyListenerPassiveScan = null;
 	private OptionsPassiveScanTableModel tableModel = null;
-	private FilteredJTextField editName = null;
-	private JTextField editType = null;
-	private JTextField editConfig = null;
-	private JTextField editRequestUrlRegex = null;
-	private JTextField editRequestHeaderRegex = null;
-	private JTextField editResponseHeaderRegex = null;
-	private JTextField editResponseBodyRegex = null;
+	private FilteredZapTextField editName = null;
+	private ZapTextField editType = null;
+	private ZapTextField editConfig = null;
+	private ZapTextField editRequestUrlRegex = null;
+	private ZapTextField editRequestHeaderRegex = null;
+	private ZapTextField editResponseHeaderRegex = null;
+	private ZapTextField editResponseBodyRegex = null;
 	private JCheckBox editEnabled = null;
 	private JButton newPScan = null;
 	private JButton savePScan = null;
@@ -168,15 +165,15 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 			editPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			editPane.setLayout(new GridBagLayout());
 			
-	        editName = new FilteredJTextField(NAME_VALID_CHRS);
+	        editName = new FilteredZapTextField(NAME_VALID_CHRS);
 	        editName.setEditable(false);
-	        editType = new JTextField();
+	        editType = new ZapTextField();
 	        editType.setEditable(false);		// For now cant change
-	        editConfig = new JTextField();
-	    	editRequestUrlRegex = new JTextField();
-	    	editRequestHeaderRegex = new JTextField();
-	    	editResponseHeaderRegex = new JTextField();
-	    	editResponseBodyRegex = new JTextField();
+	        editConfig = new ZapTextField();
+	    	editRequestUrlRegex = new ZapTextField();
+	    	editRequestHeaderRegex = new ZapTextField();
+	    	editResponseHeaderRegex = new ZapTextField();
+	    	editResponseBodyRegex = new ZapTextField();
 	    	editEnabled = new JCheckBox();
 	    	newPScan = new JButton(Constant.messages.getString("pscan.options.button.new"));
 	    	savePScan = new JButton(Constant.messages.getString("pscan.options.button.save"));

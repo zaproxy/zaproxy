@@ -28,11 +28,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.event.TreeSelectionListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.zaproxy.zap.utils.ZapTextField;
 /**
  *
  * To change the template for this generated type comment go to
@@ -42,7 +42,7 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
-	private JTextField txtDisplay = null;
+	private ZapTextField txtDisplay = null;
 	private JButton btnSave = null;
 	private JButton btnCancel = null;
 	private String currentBreakPoint = null;
@@ -149,12 +149,12 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 	/**
 	 * This method initializes txtDisplay	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
-	JTextField getTxtDisplay() {
+	ZapTextField getTxtDisplay() {
 		if (txtDisplay == null) {
-			txtDisplay = new JTextField("");
-			txtDisplay.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+			txtDisplay = new ZapTextField();
+			txtDisplay.setHorizontalAlignment(ZapTextField.LEFT);
 			txtDisplay.setAlignmentX(0.0F);
 			txtDisplay.setPreferredSize(new java.awt.Dimension(250,20));
 			txtDisplay.setText("");

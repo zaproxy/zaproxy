@@ -31,27 +31,25 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextArea;
+
 public class SpiderPanel extends AbstractPanel {
+
+	private static final long serialVersionUID = -4718208429269240605L;
 
 	private JSplitPane splitPane = null;
 	private JPanel leftPanel = null;
 	private JPanel rightPanel = null;
 	private JLabel jLabel = null;
-	private JTextArea txtURIFound = null;
+	private ZapTextArea txtURIFound = null;
 	private JScrollPane jScrollPane = null;
 	private JLabel jLabel1 = null;
-	private JTextArea txtURISkip = null;
+	private ZapTextArea txtURISkip = null;
 	private JScrollPane jScrollPane1 = null;
     /**
      * 
@@ -162,11 +160,11 @@ public class SpiderPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	JTextArea getTxtURIFound() {
+	ZapTextArea getTxtURIFound() {
 		if (txtURIFound == null) {
-			txtURIFound = new JTextArea();
+			txtURIFound = new ZapTextArea();
 			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
@@ -198,11 +196,11 @@ public class SpiderPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	JTextArea getTxtURISkip() {
+	ZapTextArea getTxtURISkip() {
 		if (txtURISkip == null) {
-			txtURISkip = new JTextArea();
+			txtURISkip = new ZapTextArea();
 			txtURISkip.setEditable(false);
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);

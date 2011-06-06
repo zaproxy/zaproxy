@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JTextArea;
 import javax.swing.ListModel;
 
 import org.apache.commons.httpclient.URI;
@@ -34,16 +33,9 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapTextArea;
 
-
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ProxyListenerBreak implements ProxyListener {
 	
 	private static java.lang.Object semaphore = new java.lang.Object();
@@ -174,14 +166,14 @@ public class ProxyListenerBreak implements ProxyListener {
 		
 	}
 	
-	public String getHeaderFromJTextArea(JTextArea txtArea) {
+	public String getHeaderFromZapTextArea(ZapTextArea txtArea) {
 		String msg = txtArea.getText();
 		String result = msg.replaceAll("\\n", "\r\n");
 		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
 		return result;
 	}
 	
-	public String replaceHeaderForJTextArea(String msg) {
+	public String replaceHeaderForZapTextArea(String msg) {
 		return msg.replaceAll("\\r\\n", "\n");
 	}
 	

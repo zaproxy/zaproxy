@@ -28,22 +28,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.spider.SpiderParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextArea;
+
 import javax.swing.JCheckBox;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsSpiderPanel extends AbstractParamPanel {
 
+	private static final long serialVersionUID = -5623691753271231473L;
 	private JPanel panelSpider = null;  //  @jve:decl-index=0:visual-constraint="520,10"
     public OptionsSpiderPanel() {
         super();
@@ -54,12 +51,12 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     
 	private JSlider sliderMaxDepth = null;
 	private JSlider sliderThreads = null;
-	private JTextArea txtScope = null;
+	private ZapTextArea txtScope = null;
 	private JScrollPane jScrollPane = null;
     private JCheckBox chkPostForm = null;
     private JLabel jLabel5 = null;
     private JScrollPane jScrollPane1 = null;
-    private JTextArea txtSkipURL = null;
+    private ZapTextArea txtSkipURL = null;
 	/**
 	 * This method initializes this
 	 * 
@@ -267,11 +264,11 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtScope	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	private JTextArea getTxtScope() {
+	private ZapTextArea getTxtScope() {
 		if (txtScope == null) {
-			txtScope = new JTextArea();
+			txtScope = new ZapTextArea();
 			txtScope.setLineWrap(true);
 			txtScope.setRows(3);
 			txtScope.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
@@ -317,13 +314,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         return jScrollPane1;
     }
     /**
-     * This method initializes jTextArea	
+     * This method initializes ZapTextArea	
      * 	
-     * @return javax.swing.JTextArea	
+     * @return javax.swing.ZapTextArea	
      */
-    private JTextArea getTxtSkipURL() {
+    private ZapTextArea getTxtSkipURL() {
         if (txtSkipURL == null) {
-            txtSkipURL = new JTextArea();
+            txtSkipURL = new ZapTextArea();
             txtSkipURL.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 11));
     	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
     	    	txtSkipURL.setSize(new java.awt.Dimension(290,52));

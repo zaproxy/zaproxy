@@ -26,12 +26,12 @@ import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextField;
 
 /**
  *
@@ -43,8 +43,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelProxyAuth = null;
 	private JPanel panelProxyChain = null;
-	private JTextField txtProxyChainRealm = null;
-	private JTextField txtProxyChainUserName = null;
+	private ZapTextField txtProxyChainRealm = null;
+	private ZapTextField txtProxyChainUserName = null;
 	private JPasswordField txtProxyChainPassword = null;
 	private ProxyDialog proxyDialog = null;
 	
@@ -225,34 +225,22 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    		new String(txtProxyChainPassword.getPassword()), false);
 	}
 	
-	/**
-	 * This method initializes txtProxyChainRealm	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
-	private JTextField getTxtProxyChainRealm() {
+
+	private ZapTextField getTxtProxyChainRealm() {
 		if (txtProxyChainRealm == null) {
-			txtProxyChainRealm = new JTextField();
+			txtProxyChainRealm = new ZapTextField();
 		}
 		return txtProxyChainRealm;
 	}
-	/**
-	 * This method initializes txtProxyChainUserName	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
-	private JTextField getTxtProxyChainUserName() {
+   
+	private ZapTextField getTxtProxyChainUserName() {
 		if (txtProxyChainUserName == null) {
-			txtProxyChainUserName = new JTextField();
+			txtProxyChainUserName = new ZapTextField();
 		}
 		return txtProxyChainUserName;
 	}
-	/**
-	 * This method initializes txtProxyChainPassword	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
-	private JTextField getTxtProxyChainPassword() {
+   
+	private JPasswordField getTxtProxyChainPassword() {
 		if (txtProxyChainPassword == null) {
 			txtProxyChainPassword = new JPasswordField();
 			txtProxyChainPassword.addActionListener(new java.awt.event.ActionListener() { 

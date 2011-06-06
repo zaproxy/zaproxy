@@ -41,7 +41,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -54,11 +53,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextField;
+
 public class AbstractParamDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = -5223178126156052670L;
@@ -77,7 +73,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	private JPanel jPanel1 = null;
 	private JPanel panelParam = null;
 	private JPanel panelHeadline = null;
-	private JTextField txtHeadline = null;
+	private ZapTextField txtHeadline = null;
 
 	private DefaultTreeModel treeModel = null;  //  @jve:decl-index=0:parse,visual-constraint="14,12"
 	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
@@ -382,11 +378,11 @@ public class AbstractParamDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtHeadline	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtHeadline() {
+	private ZapTextField getTxtHeadline() {
 		if (txtHeadline == null) {
-			txtHeadline = new JTextField();
+			txtHeadline = new ZapTextField();
 			txtHeadline.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 			txtHeadline.setEditable(false);
 			txtHeadline.setEnabled(false);

@@ -32,20 +32,18 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
-/**
- * 
- * To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextArea;
+
 public class SearchDialog extends AbstractDialog {
 
-    private ExtensionPatternSearch ext = null;
+	private static final long serialVersionUID = 7638663946480623619L;
+
+	private ExtensionPatternSearch ext = null;
 
     private JPanel jPanel = null;
 
@@ -57,9 +55,9 @@ public class SearchDialog extends AbstractDialog {
 
     private JScrollPane jScrollPane1 = null;
 
-    private JTextArea txtPattern = null;
+    private ZapTextArea txtPattern = null;
 
-    private JTextArea txtResult = null;
+    private ZapTextArea txtResult = null;
 
     private JButton btnSearch = null;
 
@@ -272,11 +270,11 @@ public class SearchDialog extends AbstractDialog {
     /**
      * This method initializes txtEncode
      * 
-     * @return javax.swing.JTextField
+     * @return javax.swing.ZapTextArea
      */
-    private JTextArea getTxtPattern() {
+    private ZapTextArea getTxtPattern() {
         if (txtPattern == null) {
-            txtPattern = new JTextArea();
+            txtPattern = new ZapTextArea();
             txtPattern.setLineWrap(true);
             txtPattern.setFont(new java.awt.Font("Courier New",
                     java.awt.Font.PLAIN, 12));
@@ -296,14 +294,9 @@ public class SearchDialog extends AbstractDialog {
         return txtPattern;
     }
 
-    /**
-     * This method initializes txtDecode
-     * 
-     * @return javax.swing.JTextField
-     */
-    private JTextArea getTxtResult() {
+    private ZapTextArea getTxtResult() {
         if (txtResult == null) {
-            txtResult = new JTextArea();
+            txtResult = new ZapTextArea();
             txtResult.setLineWrap(true);
             txtResult.setFont(new java.awt.Font("Courier New",
                     java.awt.Font.PLAIN, 12));

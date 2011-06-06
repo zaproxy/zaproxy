@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -43,6 +42,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextField;
 
 public class OptionsInvokePanel extends AbstractParamPanel {
 
@@ -51,9 +51,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	private JPanel editPane = null;
 	private OptionsInvokeTableModel tableModel = null;
-	private JTextField editDisplayName = null;
-	private JTextField editFullCommand = null;
-	private JTextField editParameters = null;
+	private ZapTextField editDisplayName = null;
+	private ZapTextField editFullCommand = null;
+	private ZapTextField editParameters = null;
 	private JCheckBox editOutput = null;
 	private JButton chooseApp = null;
 	private JButton newButton = null;
@@ -171,8 +171,8 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 			editPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			editPane.setLayout(new GridBagLayout());
 			
-	        editDisplayName = new JTextField();
-	        editFullCommand = new JTextField();
+	        editDisplayName = new ZapTextField();
+	        editFullCommand = new ZapTextField();
 	        editFullCommand.setEditable(false);
 	        
 	        chooseApp = new JButton(Constant.messages.getString("invoke.options.label.file")); 
@@ -206,7 +206,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 				}
 			});
 
-	        editParameters = new JTextField();
+	        editParameters = new ZapTextField();
 	        editOutput = new JCheckBox();
 	        
 	    	newButton = new JButton(Constant.messages.getString("invoke.options.button.new"));

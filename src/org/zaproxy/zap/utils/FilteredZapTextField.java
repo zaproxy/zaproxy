@@ -21,15 +21,13 @@ package org.zaproxy.zap.utils;
 
 import java.awt.event.KeyEvent;
 
-import javax.swing.JTextField;
-
-public class FilteredJTextField extends JTextField {
+public class FilteredZapTextField extends ZapTextField {
 
 	private static final long serialVersionUID = 1L;
 	
 	private String validChars;
 
-	public FilteredJTextField (String validChars) {
+	public FilteredZapTextField (String validChars) {
 		super();
 		this.validChars = validChars;
 	}

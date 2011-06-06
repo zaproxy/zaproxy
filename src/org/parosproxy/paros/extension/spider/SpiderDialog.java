@@ -40,13 +40,10 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 
 import javax.swing.JScrollPane;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class SpiderDialog extends AbstractDialog implements TreeSelectionListener {
 
+	private static final long serialVersionUID = -8121709143648036703L;
 	private JPanel jPanel = null;
 	private JLabel txtDisplay = null;
 	private JButton btnStart = null;
@@ -226,12 +223,12 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 	/**
 	 * This method initializes txtDisplay	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.JLabel	
 	 */    
 	JLabel getTxtDisplay() {
 		if (txtDisplay == null) {
 			txtDisplay = new JLabel("");	//JLabel("  ");
-			txtDisplay.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+			txtDisplay.setHorizontalAlignment(JLabel.LEFT);
 			txtDisplay.setAlignmentX(0.0F);
 			txtDisplay.setPreferredSize(new java.awt.Dimension(350,30));
 			//txtDisplay.setEditable(false);
@@ -358,22 +355,14 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 		}
 	}
 	
-	/**
-	 * This method initializes jTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+ 
 	JLabel getTxtNumCrawled() {
 		if (txtNumCrawled == null) {
 			txtNumCrawled = new JLabel("      ");
 		}
 		return txtNumCrawled;
 	}
-	/**
-	 * This method initializes jTextField1	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+    
 	JLabel getTxtOutstandingCrawl() {
 		if (txtOutstandingCrawl == null) {
 			txtOutstandingCrawl = new JLabel("      ");

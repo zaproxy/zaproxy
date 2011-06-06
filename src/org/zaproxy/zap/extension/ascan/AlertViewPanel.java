@@ -41,7 +41,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import org.parosproxy.paros.Constant;
@@ -52,6 +51,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
+import org.zaproxy.zap.utils.ZapTextArea;
 /**
  *
  * To change the template for this generated type comment go to
@@ -62,7 +62,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 	private JScrollPane defaultPane = null;
 	private JScrollPane alertPane = null;
-	private JTextArea defaultOutput = null;
+	private ZapTextArea defaultOutput = null;
 	private JPanel alertDisplay = null;
 	private CardLayout cardLayout = null;
 	
@@ -70,10 +70,10 @@ public class AlertViewPanel extends AbstractPanel {
 	private JLabel alertRisk = null;
 	private JLabel alertReliability = null;
 	private JLabel alertParam = null;
-	private JTextArea alertDescription = null;
-	private JTextArea alertOtherInfo = null;
-	private JTextArea alertSolution = null;
-	private JTextArea alertReference = null;
+	private ZapTextArea alertDescription = null;
+	private ZapTextArea alertOtherInfo = null;
+	private ZapTextArea alertSolution = null;
+	private ZapTextArea alertReference = null;
 	
 	private JComboBox alertEditName = null;
 	private JComboBox alertEditRisk = null;
@@ -128,13 +128,13 @@ public class AlertViewPanel extends AbstractPanel {
 		return alertPane;
 	}
 	
-	private JTextArea createJTextArea() {
-		JTextArea jTextArea = new JTextArea();
-		jTextArea = new JTextArea(3, 30);
-		jTextArea.setLineWrap(true);
-		jTextArea.setWrapStyleWord(true);
-		jTextArea.setEditable(editable);
-		return jTextArea;
+	private ZapTextArea createZapTextArea() {
+		ZapTextArea ZapTextArea = new ZapTextArea();
+		ZapTextArea = new ZapTextArea(3, 30);
+		ZapTextArea.setLineWrap(true);
+		ZapTextArea.setWrapStyleWord(true);
+		ZapTextArea.setEditable(editable);
+		return ZapTextArea;
 	}
 	
 	private JScrollPane createJScrollPane(String name) {
@@ -218,7 +218,7 @@ public class AlertViewPanel extends AbstractPanel {
 				alertParam = new JLabel();
 			}
 			
-			alertDescription = createJTextArea();
+			alertDescription = createZapTextArea();
 			JScrollPane descSp = createJScrollPane("Description");
 			descSp.setViewportView(alertDescription);
 			alertDescription.addKeyListener(new KeyAdapter() {
@@ -230,7 +230,7 @@ public class AlertViewPanel extends AbstractPanel {
 				}
 			});
 
-			alertOtherInfo = createJTextArea();
+			alertOtherInfo = createZapTextArea();
 			JScrollPane otherSp = createJScrollPane("Other Info");
 			otherSp.setViewportView(alertOtherInfo);
 			alertOtherInfo.addKeyListener(new KeyAdapter() {
@@ -242,7 +242,7 @@ public class AlertViewPanel extends AbstractPanel {
 				}
 			});
 
-			alertSolution = createJTextArea();
+			alertSolution = createZapTextArea();
 			JScrollPane solutionSp = createJScrollPane("Solution");
 			solutionSp.setViewportView(alertSolution);
 			alertSolution.addKeyListener(new KeyAdapter() {
@@ -254,7 +254,7 @@ public class AlertViewPanel extends AbstractPanel {
 				}
 			});
 
-			alertReference = createJTextArea();
+			alertReference = createZapTextArea();
 			JScrollPane referenceSp = createJScrollPane("Reference");
 			referenceSp.setViewportView(alertReference);
 			alertReference.addKeyListener(new KeyAdapter() {
@@ -455,14 +455,10 @@ public class AlertViewPanel extends AbstractPanel {
 		}
 		return defaultPane;
 	}
-	/**
-	 * This method initializes txtOutput	
-	 * 	
-	 * @return javax.swing.JTextArea	
-	 */    
-	private JTextArea getDefaultOutput() {
+
+	private ZapTextArea getDefaultOutput() {
 		if (defaultOutput == null) {
-			defaultOutput = new JTextArea();
+			defaultOutput = new ZapTextArea();
 			defaultOutput.setEditable(false);
 			defaultOutput.setLineWrap(true);
 			defaultOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));

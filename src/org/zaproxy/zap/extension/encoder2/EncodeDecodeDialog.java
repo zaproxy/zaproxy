@@ -30,12 +30,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.zaproxy.zap.utils.ZapTextArea;
 /**
  *
  * To change the template for this generated type comment go to
@@ -47,18 +47,18 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private JTabbedPane jTabbed = null;
 	private JPanel jPanel = null;
 	
-	private JTextArea inputField = null;
-	private JTextArea base64EncodeField = null;
-	private JTextArea base64DecodeField = null;
-	private JTextArea urlEncodeField = null;
-	private JTextArea urlDecodeField = null;
-	private JTextArea asciiHexEncodeField = null;
-	private JTextArea asciiHexDecodeField = null;
-	private JTextArea sha1HashField = null;
-	private JTextArea md5HashField = null;
-	private JTextArea illegalUTF82ByteField = null;
-	private JTextArea illegalUTF83ByteField = null;
-	private JTextArea illegalUTF84ByteField = null;
+	private ZapTextArea inputField = null;
+	private ZapTextArea base64EncodeField = null;
+	private ZapTextArea base64DecodeField = null;
+	private ZapTextArea urlEncodeField = null;
+	private ZapTextArea urlDecodeField = null;
+	private ZapTextArea asciiHexEncodeField = null;
+	private ZapTextArea asciiHexDecodeField = null;
+	private ZapTextArea sha1HashField = null;
+	private ZapTextArea md5HashField = null;
+	private ZapTextArea illegalUTF82ByteField = null;
+	private ZapTextArea illegalUTF83ByteField = null;
+	private ZapTextArea illegalUTF84ByteField = null;
 	
 	private Encoder encoder = null;
 
@@ -208,8 +208,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return jPanel;
 	}
 	
-	private JTextArea newField(Boolean editable) {
-		JTextArea field = new JTextArea();
+	private ZapTextArea newField(Boolean editable) {
+		ZapTextArea field = new ZapTextArea();
 		field.setLineWrap(true);
 		field.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 		field.setBorder(BorderFactory.createEtchedBorder());
@@ -217,7 +217,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return field;
 	}
 
-	private JTextArea getInputField() {
+	private ZapTextArea getInputField() {
 		if (inputField == null) {
 			inputField = newField(true);
 			
@@ -237,77 +237,77 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return inputField;
 	}
 
-	private JTextArea getBase64EncodeField() {
+	private ZapTextArea getBase64EncodeField() {
 		if (base64EncodeField == null) {
 			base64EncodeField = newField(false);
 		}
 		return base64EncodeField;
 	}
 
-	private JTextArea getBase64DecodeField() {
+	private ZapTextArea getBase64DecodeField() {
 		if (base64DecodeField == null) {
 			base64DecodeField = newField(false);
 		}
 		return base64DecodeField;
 	}
 
-	private JTextArea getUrlEncodeField() {
+	private ZapTextArea getUrlEncodeField() {
 		if (urlEncodeField == null) {
 			urlEncodeField = newField(false);
 		}
 		return urlEncodeField;
 	}
 
-	private JTextArea getUrlDecodeField() {
+	private ZapTextArea getUrlDecodeField() {
 		if (urlDecodeField == null) {
 			urlDecodeField = newField(false);
 		}
 		return urlDecodeField;
 	}
 
-	private JTextArea getAsciiHexEncodeField() {
+	private ZapTextArea getAsciiHexEncodeField() {
 		if (asciiHexEncodeField == null) {
 			asciiHexEncodeField = newField(false);
 		}
 		return asciiHexEncodeField;
 	}
 
-	private JTextArea getAsciiHexDecodeField() {
+	private ZapTextArea getAsciiHexDecodeField() {
 		if (asciiHexDecodeField == null) {
 			asciiHexDecodeField = newField(false);
 		}
 		return asciiHexDecodeField;
 	}
 
-	private JTextArea getSha1HashField() {
+	private ZapTextArea getSha1HashField() {
 		if (sha1HashField == null) {
 			sha1HashField = newField(false);
 		}
 		return sha1HashField;
 	}
 
-	private JTextArea getMd5HashField() {
+	private ZapTextArea getMd5HashField() {
 		if (md5HashField == null) {
 			md5HashField = newField(false);
 		}
 		return md5HashField;
 	}
 	
-	private JTextArea getIllegalUTF82ByteField() {
+	private ZapTextArea getIllegalUTF82ByteField() {
 		if (illegalUTF82ByteField == null) {
 			illegalUTF82ByteField = newField(false);
 		}
 		return illegalUTF82ByteField;
 	}
 	
-	private JTextArea getIllegalUTF83ByteField() {
+	private ZapTextArea getIllegalUTF83ByteField() {
 		if (illegalUTF83ByteField == null) {
 			illegalUTF83ByteField = newField(false);
 		}
 		return illegalUTF83ByteField;
 	}
 	
-	private JTextArea getIllegalUTF84ByteField() {
+	private ZapTextArea getIllegalUTF84ByteField() {
 		if (illegalUTF84ByteField == null) {
 			illegalUTF84ByteField = newField(false);
 		}

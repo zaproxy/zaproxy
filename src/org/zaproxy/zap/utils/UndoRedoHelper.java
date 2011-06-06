@@ -3,10 +3,10 @@ package org.zaproxy.zap.utils;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.text.JTextComponent;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
@@ -33,9 +33,9 @@ public class UndoRedoHelper {
 	}
 	
 	@SuppressWarnings("serial")
-	public void register(JTextArea ta) {
+	public void register(JTextComponent tc) {
 		// Listen for undo and redo events on the textArea
-		ta.getDocument().addUndoableEditListener(
+		tc.getDocument().addUndoableEditListener(
 				new UndoableEditListener() {
 					public void undoableEditHappened(UndoableEditEvent evt) {
 						undo.addEdit(evt.getEdit());
@@ -43,7 +43,7 @@ public class UndoRedoHelper {
 				});
 
 		// Create undo action and add it to the textArea
-		ta.getActionMap().put("Undo", new AbstractAction("Undo") {
+		tc.getActionMap().put("Undo", new AbstractAction("Undo") {
 			public void actionPerformed(ActionEvent evt) {
 				try {
 					if (undo.canUndo()) {
@@ -55,7 +55,7 @@ public class UndoRedoHelper {
 		});
 
 		// Create redo action and add it to the textArea
-		ta.getActionMap().put("Redo", new AbstractAction("Redo") {
+		tc.getActionMap().put("Redo", new AbstractAction("Redo") {
 			public void actionPerformed(ActionEvent evt) {
 				try {
 					if (undo.canRedo()) {
@@ -67,8 +67,8 @@ public class UndoRedoHelper {
 		});
 
 		// Add key-bindings
-		ta.getInputMap().put(KeyStroke.getKeyStroke(Constant.ACCELERATOR_UNDO), "Undo");
-		ta.getInputMap().put(KeyStroke.getKeyStroke(Constant.ACCELERATOR_REDO), "Redo");
+		tc.getInputMap().put(KeyStroke.getKeyStroke(Constant.ACCELERATOR_UNDO), "Undo");
+		tc.getInputMap().put(KeyStroke.getKeyStroke(Constant.ACCELERATOR_REDO), "Redo");
 	}
 	
 }

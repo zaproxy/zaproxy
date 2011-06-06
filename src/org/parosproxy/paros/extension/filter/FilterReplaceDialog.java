@@ -28,7 +28,6 @@ import java.awt.HeadlessException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.util.regex.Pattern;
@@ -38,16 +37,16 @@ import javax.swing.JButton;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextField;
+
 public class FilterReplaceDialog extends AbstractDialog {
 
+
+	private static final long serialVersionUID = 3953017269494541360L;
+	
 	private JPanel jPanel = null;
-	private JTextField txtPattern = null;
-	private JTextField txtReplaceWith = null;
+	private ZapTextField txtPattern = null;
+	private ZapTextField txtReplaceWith = null;
 	private JPanel jPanel1 = null;
 	private JButton btnOK = null;
 	private JButton btnCancel = null;
@@ -166,22 +165,22 @@ public class FilterReplaceDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtPattern	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	public JTextField getTxtPattern() {
+	public ZapTextField getTxtPattern() {
 		if (txtPattern == null) {
-			txtPattern = new JTextField();
+			txtPattern = new ZapTextField();
 		}
 		return txtPattern;
 	}
 	/**
 	 * This method initializes txtReplaceWith	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	public JTextField getTxtReplaceWith() {
+	public ZapTextField getTxtReplaceWith() {
 		if (txtReplaceWith == null) {
-			txtReplaceWith = new JTextField();
+			txtReplaceWith = new ZapTextField();
 		}
 		return txtReplaceWith;
 	}

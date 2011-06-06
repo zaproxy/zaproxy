@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.event.TreeSelectionListener;
 
 import org.parosproxy.paros.Constant;
@@ -36,16 +35,13 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+import org.zaproxy.zap.utils.ZapTextArea;
+
 public class NotesAddDialog extends AbstractDialog implements TreeSelectionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
-	private JTextArea txtDisplay = null;
+	private ZapTextArea txtDisplay = null;
 	private JButton btnOk = null;
 	private JButton btnCancel = null;
 	
@@ -147,14 +143,10 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 		}
 		return jPanel;
 	}
-	/**
-	 * This method initializes txtDisplay	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
-	public JTextArea getTxtDisplay() {
+
+	public ZapTextArea getTxtDisplay() {
 		if (txtDisplay == null) {
-			txtDisplay = new JTextArea("");
+			txtDisplay = new ZapTextArea();
 			txtDisplay.setText("");
 		}
 		return txtDisplay;

@@ -24,12 +24,12 @@ package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.utils.ZapTextField;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -41,8 +41,8 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = -8337361808959321380L;
 
 	private JPanel panelSession = null;  //  @jve:decl-index=0:visual-constraint="10,320"
-	private JTextField txtSessionName = null;
-	private JTextArea txtDescription = null;
+	private ZapTextField txtSessionName = null;
+	private ZapTextArea txtDescription = null;
 	
     public SessionGeneralPanel() {
         super();
@@ -116,22 +116,22 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtSessionName	
 	 * 	
-	 * @return javax.swing.JTextField	
+	 * @return javax.swing.ZapTextField	
 	 */    
-	private JTextField getTxtSessionName() {
+	private ZapTextField getTxtSessionName() {
 		if (txtSessionName == null) {
-			txtSessionName = new JTextField();
+			txtSessionName = new ZapTextField();
 		}
 		return txtSessionName;
 	}
 	/**
 	 * This method initializes txtDescription	
 	 * 	
-	 * @return javax.swing.JTextArea	
+	 * @return javax.swing.ZapTextArea	
 	 */    
-	private JTextArea getTxtDescription() {
+	private ZapTextArea getTxtDescription() {
 		if (txtDescription == null) {
-			txtDescription = new JTextArea();
+			txtDescription = new ZapTextArea();
 			txtDescription.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 			txtDescription.setLineWrap(true);
 			txtDescription.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));

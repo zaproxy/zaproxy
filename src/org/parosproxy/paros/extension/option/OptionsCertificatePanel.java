@@ -45,6 +45,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextField;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
 import ch.csnc.extension.ui.AliasTableModel;
@@ -67,7 +68,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JButton browseButton;
 	private javax.swing.JLabel certificateLabel;
 	private javax.swing.JPanel certificatePanel;
-	private javax.swing.JTextField certificateTextField;
+	private ZapTextField certificateTextField;
 	private javax.swing.JTabbedPane certificatejTabbedPane;
 	private javax.swing.JPanel cryptoApiPanel;
 	private javax.swing.JLabel cryptoApiLabel;
@@ -76,7 +77,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JComboBox driverComboBox;
 	private javax.swing.JLabel driverLabel;
 	private javax.swing.JLabel fileLabel;
-	private javax.swing.JTextField fileTextField;
+	private ZapTextField fileTextField;
 	private javax.swing.JList keyStoreList;
 	private javax.swing.JPanel keyStorePanel;
 	private javax.swing.JScrollPane keyStoreScrollPane;
@@ -167,7 +168,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			keyStoreList = new javax.swing.JList();
 			pkcs12Panel = new javax.swing.JPanel();
 			fileLabel = new javax.swing.JLabel();
-			fileTextField = new javax.swing.JTextField();
+			fileTextField = new ZapTextField();
 			browseButton = new javax.swing.JButton();
 			passwordPkcs12Label = new javax.swing.JLabel();
 			addPkcs12Button = new javax.swing.JButton();
@@ -184,7 +185,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			useClientCertificateCheckBox = new javax.swing.JCheckBox();
 			textLabel = new javax.swing.JLabel();
 			certificateLabel = new javax.swing.JLabel();
-			certificateTextField = new javax.swing.JTextField();
+			certificateTextField = new ZapTextField();
 			showActiveCertificateButton = new javax.swing.JButton();
 
 			certificatejTabbedPane.setEnabled(false);
