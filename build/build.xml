@@ -87,6 +87,7 @@
   	<!-- Copy any scripts, and give execute perms -->
     <copy todir="${dist}">
       <fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
+      <fileset dir="${src}" includes="*.bat" excludes="**/.svn/** **/_svn/**" />
     </copy>
     <chmod perm="ug+x">
         <!-- This only has any effect on Linux -->
