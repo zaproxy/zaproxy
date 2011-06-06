@@ -24,12 +24,12 @@
     <jdkPreference>preferJdk</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>1.2.0.0</fileVersion>
-    <txtFileVersion>1.2.0</txtFileVersion>
+    <fileVersion>1.3.0.0</fileVersion>
+    <txtFileVersion>1.3.0</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>psiinon@gmail.com</copyright>
-    <productVersion>1.2.0.0</productVersion>
-    <txtProductVersion>1.2.0</txtProductVersion>
+    <productVersion>1.3.0.0</productVersion>
+    <txtProductVersion>1.3.0</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName></companyName>
     <internalName>ZAP</internalName>
