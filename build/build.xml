@@ -1,146 +1,216 @@
-<project name="zap" default="dist" basedir=".">
-    <description>Build ZAP.</description>
-  <!-- set global properties for this build -->
-  <property name="src" location="../src"/>
-  <property name="build" location="build"/>
-  <property name="dist"  location="zap"/>
-  <property name="dist.lib.dir"  location="../lib"/>
-	
+<project name="zap" default="just-build" basedir=".">
+	<description>Build ZAP.</description>
+	<!-- set global properties for this build -->
+	<property name="src" location="../src" />
+	<property name="build" location="build" />
+	<property name="dist" location="zap" />
+	<property name="dist.lib.dir" location="../lib" />
+
+	<!-- make the version accessible globally -->
+	<loadfile property="version" srcfile="version.txt">
+	</loadfile>
+
+	<!-- mac specific properties -->
+	<property name="dist-mac" location="zap-mac" />
+	<property name="mac-skeleton" location="mac_os_x" />
+	<property name="app.name" value="OWASP ZAP.app" />
+	<property name="app.bundle" value="${dist-mac}/${app.name}" />
+	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaApplicationStub" />
+	<property name="app.java" value="${app.bundle}/Contents/Resources/Java" />
+	<property name="apple.appstub" location="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub" />
+
+	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
+	<condition property="isMac">
+		<os family="mac" />
+	</condition>
+	<condition property="isUnix">
+		<os family="unix" />
+	</condition>
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+
+
 	<path id="dist.classpath">
-		 <!--pathelement location="."/-->
+		<!--pathelement location="."/-->
 		<fileset dir="${dist.lib.dir}" includes="**/*.jar" />
 	</path>
-	
-	<echo message = "ClassPath=${dist.classpath}"/>
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <delete dir="${dist}" includeEmptyDirs="true"/>
-    <delete dir="${build}" includeEmptyDirs="true"/>
 
-    <mkdir dir="${build}"/>
-  </target>
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
 
-  <target name="compile" depends="init"
-        description="compile the source " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-    <javac srcdir="${src}" destdir="${build}">
-    	<classpath>
+		<!-- Create the build directory structure used by compile -->
+
+		<delete dir="${dist}" includeEmptyDirs="true" />
+		<delete dir="${build}" includeEmptyDirs="true" />
+
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<echo message="Compiling the source..." />
+		<!-- Compile the java code from ${src} into ${build} -->
+		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath>
+				<fileset dir="${dist.lib.dir}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<echo message="Creating the distribution set..." />
+
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+		<!--copy file="lib.jar" tofile="${dist}/lib.jar"/-->
+
+		<copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties" />
+
+		<copy todir="${build}/resource">
+			<fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+
+		<copy todir="${dist}/xml">
+			<fileset dir="${src}/xml" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/db">
+			<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/dirbuster">
+			<fileset dir="${src}/dirbuster" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/filter">
+			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/plugin">
+			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/session">
+			<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/lang">
+			<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/license">
+			<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/log">
+			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
-				<include name="**/*.jar"/>
+				<include name="**/*.jar" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
 			</fileset>
-    	</classpath>
-    </javac>
+		</copy>
+		<!-- Copy any scripts, and give execute perms -->
+		<copy todir="${dist}">
+			<fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
+			<fileset dir="${src}" includes="*.bat" excludes="**/.svn/** **/_svn/**" />
+		</copy>
 
-  </target>
-
-  <target name="dist" depends="compile" description="generate the distribution" >
-  	<!-- Update the version.txt file with the new version name before generating the distribution -->
-  	<loadfile property="version" srcfile="version.txt"></loadfile>
-
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}"/>
-    <!--copy file="lib.jar" tofile="${dist}/lib.jar"/--> 
-
-    <copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties"/> 
-
-    <copy todir="${build}/resource">
-    	<fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
-    </copy>
-
-  <copy todir="${dist}/xml">
-  	<fileset dir="${src}/xml" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/db">
-  	<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/dirbuster">
-    <fileset dir="${src}/dirbuster" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/filter">
-  	<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/plugin">
-  	<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/session">
-  	<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/lang">
-  	<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/license">
-  	<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-    <copy todir="${dist}/log">
-      <fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
-  </copy>
-  <copy todir="${dist}/lib">
-	<fileset dir="${dist.lib.dir}">
-	  <include name="**/*.jar"/>
-      <exclude name="**/.svn/**" />
-      <exclude name="**/_svn/**" />
-	</fileset>
-  </copy>
-  	<!-- Copy any scripts, and give execute perms -->
-    <copy todir="${dist}">
-      <fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
-      <fileset dir="${src}" includes="*.bat" excludes="**/.svn/** **/_svn/**" />
-    </copy>
-    <chmod perm="ug+x">
-        <!-- This only has any effect on Linux -->
-        <fileset dir="${dist}">
-            <include name="*.sh"/>
-        	<exclude name="**/.svn/**" />
-        	<exclude name="**/_svn/**" />
-        </fileset>
-    </chmod>
-
-    <!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
-
-  	<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
-		<!--classpath refid="dist.classpath" /-->
-    	<classpath>
-			<fileset dir="${dist}/lib">
-				<include name="**/*.jar"/>
+		<chmod perm="ug+x">
+			<!-- This only has any effect on Linux -->
+			<fileset dir="${dist}">
+				<include name="*.sh" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
 			</fileset>
-    		<!--path location="lang"/-->
-    	</classpath>
-	</manifestclasspath>
+		</chmod>
 
-    <jar jarfile="${dist}/zap.jar" update="true" compress="false">
-    	<zipfileset dir="${build}" prefix="" />
-    	<manifest>
-   			<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
-   			<attribute name="Class-Path" value="${dist.manifest.classpath}"/>
-    		<attribute name="Implementation-Version" value="${version}"/>
-    	</manifest>
-    </jar>
-  	
-  	<!-- Tar up the release -->
-  	<delete file="ZAP_${version}_Linux.tar.gz"/>
-  	
-  	<tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip" >
-  	  <tarfileset dir="${dist}"
-		          prefix="ZAP_${version}"
-  	              preserveLeadingSlashes="false">
-  	    <include name="**"/>
-  	    <exclude name="**/.svn/**"/>
-  	    <exclude name="**/_svn/**"/>
-	    <exclude name="zap.sh"/>
-  	  </tarfileset>
-	  <tarfileset dir="${dist}"
-		          prefix="ZAP_${version}"
-	  			  filemode="755"
-	              preserveLeadingSlashes="false">
-	    <include name="zap.sh"/>
-	  </tarfileset>
-  	</tar>
-  	
-  </target>
+		<!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
 
+		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
+			<!--classpath refid="dist.classpath" /-->
+			<classpath>
+				<fileset dir="${dist}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<!--path location="lang"/-->
+			</classpath>
+		</manifestclasspath>
 
+		<jar jarfile="${dist}/zap.jar" update="true" compress="false">
+			<zipfileset dir="${build}" prefix="" />
+			<manifest>
+				<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
+				<attribute name="Class-Path" value="${dist.manifest.classpath}" />
+				<attribute name="Implementation-Version" value="${version}" />
+			</manifest>
+		</jar>
+	</target>
 
+	<target name="package-linux" description="package the Linux build">
+		<echo message="Packaging the Linux build..." />
+
+		<!-- delete previously build packages -->
+		<delete file="ZAP_${version}_Linux.tar.gz" />
+
+		<!-- Tar up the release -->
+		<tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip">
+			<tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
+				<include name="**" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
+				<exclude name="zap.sh" />
+			</tarfileset>
+			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
+				<include name="zap.sh" />
+			</tarfileset>
+		</tar>
+	</target>
+
+	<target name="package-macosx" if="isMac" description="package the Mac OS X release">
+		<echo message="Packaging the Mac OS X build..." />
+
+		<delete dir="${dist-mac}" includeEmptyDirs="true" />
+		<mkdir dir="${dist-mac}" />
+
+		<copy todir="${dist-mac}">
+			<fileset dir="${mac-skeleton}" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+
+		<copy file="${apple.appstub}" toFile="${app.executable}" overwrite="true" />
+		<!-- fix stub permissions -->
+		<chmod perm="755" file="${app.executable}" />
+
+		<copy todir="${app.java}">
+			<fileset dir="${dist}">
+				<include name="**" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
+				<exclude name="zap.sh" />
+				<exclude name="**/*.bat" />
+			</fileset>
+		</copy>
+
+		<replace dir="${app.bundle}" summary="true" encoding="UTF-8">
+			<include name="**/Info.plist" />
+			<replacefilter token="_SHORT_VERSION_STRING_" value="${version}" />
+			<replacefilter token="_VERSION_STRING_" value="${version}" />
+		</replace>
+
+		<echo message="Creating ZIP archive for the Mac OS X release..." />
+		<delete file="ZAP_${version}_Mac_OS_X.zip" />
+		<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
+			<arg line="-y -r ../ZAP_${version}_Mac_OS_X.zip '${app.name}'" />
+		</exec>
+
+		<!-- Housekeeping: Delete the mac distribution directory -->
+		<delete dir="${dist-mac}" includeEmptyDirs="true" />
+
+	</target>
+
+	<target name="just-build">
+		<antcall target="dist" />
+		<antcall target="package-linux" />
+		<antcall target="package-macosx" />
+	</target>
+	
 </project>
