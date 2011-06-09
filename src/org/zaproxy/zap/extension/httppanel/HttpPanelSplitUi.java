@@ -416,10 +416,10 @@ public class HttpPanelSplitUi extends AbstractPanel {
 	}
 
 	private void setDisplayRequest(HttpMessage msg) {
-		String header = replaceHeaderForZapTextArea(msg.getRequestHeader().toString());
-		String body = msg.getRequestBody().toString();
+		final String header = replaceHeaderForZapTextArea(msg.getRequestHeader().toString());
+		final String body = msg.getRequestBody().toString();
 
-		getHttpPanelTabularModel().setText(msg.getRequestBody().toString());
+		getHttpPanelTabularModel().setText(body );
 
 		getTxtHeader().setText(header);
 		getTxtHeader().setCaretPosition(0);
