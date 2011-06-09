@@ -1,25 +1,24 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap;
 
-import java.awt.Frame;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,8 +27,8 @@ import java.util.Locale;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -50,18 +49,18 @@ import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
 
 public class ZAP {
-    
+
     private static Log log = null;
     private CommandLine cmdLine = null;
 
     static {
-	    
+
 	    // set SSLConnector as socketfactory in HttpClient.
 	    ProtocolSocketFactory sslFactory = null;
 	    try {
-	        Protocol protocol = Protocol.getProtocol("https");
+	        final Protocol protocol = Protocol.getProtocol("https");
 	        sslFactory = protocol.getSocketFactory();
-	    } catch (Exception e) {
+	    } catch (final Exception e) {
 			// Print the exception - log not yet initialised
 	    	e.printStackTrace();
 	    }
@@ -69,23 +68,23 @@ public class ZAP {
 	        Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new SSLConnector(), 443));
 	    }
     }
-    
+
 	public static void main(String[] args) throws Exception {
-	    ZAP zap = new ZAP();
+	    final ZAP zap = new ZAP();
 	    zap.init(args);
         Constant.getInstance();
-        String msg = Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " started.";
+        final String msg = Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " started.";
         log = LogFactory.getLog(ZAP.class);
 	    log.info(msg);
-	    
+
 	    try {
 	        zap.run();
-	    } catch (Exception e) {
+	    } catch (final Exception e) {
 	        log.fatal(e.getStackTrace());
 	        //throw e;
 	        System.exit(1);
 	    }
-		
+
 	}
 
 	/**
@@ -95,17 +94,17 @@ public class ZAP {
 	private void init(String[] args) {
 		try {
 			// lang directory includes all of the language files
-			File langDir = new File ("lang");
+			final File langDir = new File ("lang");
 			if (langDir.exists() && langDir.isDirectory()) {
 				ClassLoaderUtil.addFile("lang");
 			} else {
 				System.out.println("Warning: failed to load language files from " + langDir.getAbsolutePath());
 			}
 			// Load all of the jars in the lib directory
-			File libDir = new File("lib");
+			final File libDir = new File("lib");
 			if (libDir.exists() && libDir.isDirectory()) {
-				File[] files = libDir.listFiles();
-				for (File file : files) {
+				final File[] files = libDir.listFiles();
+				for (final File file : files) {
 					if (file.getName().toLowerCase().endsWith("jar")) {
 						ClassLoaderUtil.addFile(file);
 					}
@@ -113,50 +112,50 @@ public class ZAP {
 			} else {
 				System.out.println("Warning: failed to load jar files from " + libDir.getAbsolutePath());
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("Failed loading jars: " + e);
 		}
-		
+
 	    //HttpSender.setUserAgent(Constant.USER_AGENT);
 	    try {
 	        cmdLine = new CommandLine(args);
-	    } catch (Exception e) {
+	    } catch (final Exception e) {
 	        System.out.println(CommandLine.getHelpGeneral());
 	        System.exit(1);
 	    }
 
 	    Locale.setDefault(Locale.ENGLISH);
-	    
+
 	    try {
 	    	// Get the systems Look and Feel
 	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	    	
+
 	    	// Set Nimbus LaF if available and system is not OSX
 	    	if (!Constant.isMacOsX()) {
-		        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		            if ("Nimbus".equals(info.getName())) {
 		                UIManager.setLookAndFeel(info.getClassName());
 		                break;
 		            }
 		        }
 	    	}
-	    } catch (UnsupportedLookAndFeelException e) {
+	    } catch (final UnsupportedLookAndFeelException e) {
 	        // handle exception
-	    } catch (ClassNotFoundException e) {
+	    } catch (final ClassNotFoundException e) {
 	        // handle exception
-	    } catch (InstantiationException e) {
+	    } catch (final InstantiationException e) {
 	        // handle exception
-	    } catch (IllegalAccessException e) {
+	    } catch (final IllegalAccessException e) {
 	        // handle exception
 	    }
-        
+
 //	    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
 //	    System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
 //	    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "error");
 
-	    
+
 	}
-	
+
 	private void run() throws Exception {
 	    AboutWindow aboutWindow = null;
 	    boolean firstTime = false;
@@ -165,29 +164,29 @@ public class ZAP {
 	        aboutWindow = new AboutWindow();
 	        aboutWindow.setVisible(true);
 	    }
-	    
+
 	    try {
-			Model.getSingleton().init();	    
-	    } catch (java.io.FileNotFoundException e) {
+			Model.getSingleton().init();
+	    } catch (final java.io.FileNotFoundException e) {
 	    	if (cmdLine.isGUI()) {
-	    		JOptionPane.showMessageDialog(null, 
-	    				Constant.messages.getString("start.db.error"), 
-	    				Constant.messages.getString("start.title.error"), 
+	    		JOptionPane.showMessageDialog(null,
+	    				Constant.messages.getString("start.db.error"),
+	    				Constant.messages.getString("start.title.error"),
 	    				JOptionPane.ERROR_MESSAGE);
 	    	}
     		System.out.println(Constant.messages.getString("start.db.error"));
     		System.out.println(e.getLocalizedMessage());
-	    	
+
 	    	throw e;
 	    }
 	    Model.getSingleton().getOptionsParam().setGUI(cmdLine.isGUI());
-		
+
 		if (Model.getSingleton().getOptionsParam().isGUI()) {
-		    
+
 		    // Prompt for language if not set
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
-	        	// Dont use a parent of the MainFrame - that will initialise it with English! 
-				LocaleDialog dialog = new LocaleDialog(null, true);
+	        	// Dont use a parent of the MainFrame - that will initialise it with English!
+				final LocaleDialog dialog = new LocaleDialog(null, true);
 				dialog.init(Model.getSingleton().getOptionsParam());
 				dialog.setVisible(true);
 				Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
@@ -196,7 +195,7 @@ public class ZAP {
 
 		    // Prompt for proxy details if set
 		    if (Model.getSingleton().getOptionsParam().getConnectionParam().isProxyChainPrompt()) {
-				ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
+				final ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
 				dialog.init(Model.getSingleton().getOptionsParam());
 				dialog.setVisible(true);
 		    }
@@ -204,12 +203,12 @@ public class ZAP {
 		    View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 		    runGUI();
 		    aboutWindow.dispose();
-		    
+
 		    if (firstTime) {
 		    	ExtensionHelp.showHelp();
 		    } else {
 		    	// Dont auto check for updates the first time, no chance of any proxy having been set
-			    ExtensionAutoUpdate eau = (ExtensionAutoUpdate)
+			    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate)
 		    	Control.getSingleton().getExtensionLoader().getExtension("ExtensionAutoUpdate");
 			    if (eau != null) {
 			    	eau.checkForUpdates(false);
@@ -220,16 +219,16 @@ public class ZAP {
 	    } else {
 	        runCommandLine();
 	    }
-	    
+
 	}
-	
+
 	private void runCommandLine() {
 	    int rc = 0;
 	    String help = "";
-	    
+
 	    Control.initSingletonWithoutView();
-	    Control control = Control.getSingleton();
-	    
+	    final Control control = Control.getSingleton();
+
 	    // no view initialization
 
 	    try {
@@ -238,15 +237,15 @@ public class ZAP {
 	            help = cmdLine.getHelp();
 	            System.out.println(help);
 	        } else {
-	        
+
 	            control.runCommandLineNewSession(cmdLine.getArgument(CommandLine.NEW_SESSION));
-		    
+
 	            try {
 	                Thread.sleep(1000);
-	            } catch (InterruptedException e) {}
+	            } catch (final InterruptedException e) {}
 	        }
 		    rc = 0;
-	    } catch (Exception e) {
+	    } catch (final Exception e) {
 	        log.error(e.getMessage());
 	        System.out.println(e.getMessage());
 	        rc = 1;
@@ -256,57 +255,55 @@ public class ZAP {
 	    }
 	    System.exit(rc);
 	}
-	
-	
-	
+
+
+
 	private void runGUI() throws ClassNotFoundException, Exception {
 
 	    Control.initSingletonWithView();
-	    Control control = Control.getSingleton();
-	    View view = View.getSingleton();
+	    final Control control = Control.getSingleton();
+	    final View view = View.getSingleton();
 	    view.postInit();
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	view.getMainFrame().setExtendedState(Frame.MAXIMIZED_BOTH);
-	    }
 	    view.getMainFrame().setVisible(true);
 	    view.setStatus("");
 
 	    control.getMenuFileControl().newSession(false);
 
 	}
-	
+
 	private void runDaemon() throws ClassNotFoundException, Exception {
 		// start in a background thread
-        Thread t = new Thread(new Runnable() {
-            public void run() {
+        final Thread t = new Thread(new Runnable() {
+            @Override
+			public void run() {
         		Control.initSingletonWithoutView();
             }});
         t.run();
 	}
-	
+
 	private boolean showLicense() {
 		boolean shown = false;
         if (!(new File(Constant.getInstance().ACCEPTED_LICENSE)).exists()){
-	        
-	        LicenseFrame license = new LicenseFrame();
+
+	        final LicenseFrame license = new LicenseFrame();
 	        license.setVisible(true);
 	        while (!license.isAccepted()) {
 	            try {
 	                Thread.sleep(100);
-	            } catch (InterruptedException e) {}
+	            } catch (final InterruptedException e) {}
 	        }
 	        shown = true;
 	    }
-	    
+
 	    try{
-            FileWriter fo = new FileWriter(Constant.getInstance().ACCEPTED_LICENSE);
+            final FileWriter fo = new FileWriter(Constant.getInstance().ACCEPTED_LICENSE);
 	        fo.close();
-	    }catch (IOException ie){
+	    }catch (final IOException ie){
 	        JOptionPane.showMessageDialog(new JFrame(), Constant.messages.getString("start.unknown.error"));
 	        log.error(ie.getMessage(), ie);
 	        System.exit(1);
 	    }
 	    return shown;
 	}
-    
+
 }

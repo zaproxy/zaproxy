@@ -2,19 +2,19 @@
  * Created on May 18, 2004
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -39,13 +39,13 @@ import org.zaproxy.zap.view.MainToolbarPanel;
 
 public class MainFrame extends AbstractFrame {
 	private static final long serialVersionUID = -1430550461546083192L;
-	
+
 	private JPanel paneContent = null;
 	private JLabel txtStatus = null;
 	private org.parosproxy.paros.view.WorkbenchPanel paneStandard = null;
 	private org.parosproxy.paros.view.MainMenuBar mainMenuBar = null;
 	private JPanel paneDisplay = null;
-	
+
 	private MainToolbarPanel mainToolbarPanel = null;
 	private MainFooterPanel mainFooterPanel = null;
 
@@ -53,7 +53,7 @@ public class MainFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes
-	 * 
+	 *
 	 */
 	public MainFrame(int displayOption) {
 		super();
@@ -63,32 +63,28 @@ public class MainFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
 		this.setJMenuBar(getMainMenuBar());
 		this.setContentPane(getPaneContent());
-
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(1000, 800);
-	    }
+    	this.setPreferredSize(new Dimension(1000, 800));
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent e) {
 				getMainMenuBar().getMenuFileControl().exit();
 			}
 		});
 
 		this.setVisible(false);
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() != 0) {
-	    	this.pack();
-	    }
+    	this.pack();
 	}
 
 	/**
 	 * This method initializes paneContent
-	 * 
+	 *
 	 * @return JPanel
 	 */
 	private JPanel getPaneContent() {
@@ -98,21 +94,21 @@ public class MainFrame extends AbstractFrame {
 			paneContent.setLayout(new BoxLayout(getPaneContent(), BoxLayout.Y_AXIS));
 			paneContent.setEnabled(true);
 			paneContent.setPreferredSize(new Dimension(800, 600));
-			
+
 			if (Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 1) {
 				paneContent.add(getMainToolbarPanel(), null);
 			}
-			
+
 			paneContent.add(getPaneDisplay(), null);
 			paneContent.add(getMainFooterPanel(), null);
-			
+
 		}
 		return paneContent;
 	}
-	
+
 	/**
 	 * This method initializes paneStandard
-	 * 
+	 *
 	 * @return com.proofsecure.paros.view.StandardPanel
 	 */
 	org.parosproxy.paros.view.WorkbenchPanel getWorkbench() {
@@ -124,9 +120,9 @@ public class MainFrame extends AbstractFrame {
 		return paneStandard;
 	}
 
-	/** 
+	/**
 	 * This method initializes mainMenuBar
-	 * 
+	 *
 	 * @return com.proofsecure.paros.view.MenuDisplay
 	 */
 	public org.parosproxy.paros.view.MainMenuBar getMainMenuBar() {
@@ -143,17 +139,18 @@ public class MainFrame extends AbstractFrame {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					txtStatus.setText(msg);
 				}
 			});
-		} catch (Exception e) {
+		} catch (final Exception e) {
 		}
 	}
 
 	/**
 	 * This method initializes paneDisplay
-	 * 
+	 *
 	 * @return JPanel
 	 */
 	public JPanel getPaneDisplay() {
@@ -165,7 +162,7 @@ public class MainFrame extends AbstractFrame {
 		}
 		return paneDisplay;
 	}
-	
+
 	// ZAP: Added main toolbar panel
 	public MainToolbarPanel getMainToolbarPanel() {
 		if (mainToolbarPanel == null) {
@@ -173,7 +170,7 @@ public class MainFrame extends AbstractFrame {
 		}
 		return mainToolbarPanel;
 	}
-	
+
 	// ZAP: Added footer toolbar panel
 	public MainFooterPanel getMainFooterPanel() {
 		if (mainFooterPanel == null) {
@@ -189,5 +186,5 @@ public class MainFrame extends AbstractFrame {
 			Model.getSingleton().getOptionsParam().getViewParam().setDisplayOption(displayOption);
 		}
 	}
-	
+
 }

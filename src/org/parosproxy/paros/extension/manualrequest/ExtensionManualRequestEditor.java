@@ -121,9 +121,6 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	ManualRequestEditorDialog getManualRequestEditorDialog() {
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
-		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-		    	manualRequestEditorDialog.setSize(700, 800);
-		    }
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;

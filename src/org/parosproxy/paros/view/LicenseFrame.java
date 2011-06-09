@@ -1,39 +1,39 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package org.parosproxy.paros.view;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.JButton;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.IOException;
 
-import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-
-import org.parosproxy.paros.model.Model;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 
 public class LicenseFrame extends AbstractFrame {
 
@@ -45,13 +45,13 @@ public class LicenseFrame extends AbstractFrame {
 	private JButton btnAccept = null;
 	private JButton btnDecline = null;
 	private JScrollPane jScrollPane = null;
-	
+
 	private int currentPage = 0;
 	private boolean accepted = false;
-	
+
 	private JPanel jPanel2 = null;
     /**
-     * 
+     *
      */
     public LicenseFrame() {
         super();
@@ -60,18 +60,17 @@ public class LicenseFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
         this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         this.setContentPane(getJPanel());
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(500, 375);
-	    }
-        this.addWindowListener(new java.awt.event.WindowAdapter() { 
+        this.setPreferredSize(new Dimension(500, 375));
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
 
-        	public void windowClosing(java.awt.event.WindowEvent e) {    
+        	@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
 
         	    btnDecline.doClick();
         	}
@@ -80,19 +79,19 @@ public class LicenseFrame extends AbstractFrame {
         showLicense(currentPage);
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel() {
 		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			final java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 
-			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+			final java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
-			javax.swing.JLabel jLabel = new JLabel();
+			final javax.swing.JLabel jLabel = new JLabel();
 
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			final java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
@@ -121,10 +120,10 @@ public class LicenseFrame extends AbstractFrame {
 		return jPanel;
 	}
 	/**
-	 * This method initializes txtLicense	
-	 * 	
-	 * @return javax.swing.JTextPane	
-	 */    
+	 * This method initializes txtLicense
+	 *
+	 * @return javax.swing.JTextPane
+	 */
 	private JTextPane getTxtLicense() {
 		if (txtLicense == null) {
 			txtLicense = new JTextPane();
@@ -134,10 +133,10 @@ public class LicenseFrame extends AbstractFrame {
 		return txtLicense;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
 			jPanel1 = new JPanel();
@@ -147,16 +146,17 @@ public class LicenseFrame extends AbstractFrame {
 		return jPanel1;
 	}
 	/**
-	 * This method initializes btnAccept	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnAccept
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnAccept() {
 		if (btnAccept == null) {
 			btnAccept = new JButton();
 			btnAccept.setText("Accept");
-			btnAccept.addActionListener(new java.awt.event.ActionListener() { 
+			btnAccept.addActionListener(new java.awt.event.ActionListener() {
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    accepted = true;
 			        LicenseFrame.this.dispose();
@@ -168,17 +168,18 @@ public class LicenseFrame extends AbstractFrame {
 		return btnAccept;
 	}
 	/**
-	 * This method initializes btnDecline	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnDecline
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnDecline() {
 		if (btnDecline == null) {
 			btnDecline = new JButton();
 			btnDecline.setText("Decline");
-			btnDecline.addActionListener(new java.awt.event.ActionListener() { 
+			btnDecline.addActionListener(new java.awt.event.ActionListener() {
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    accepted = false;
 				    System.exit(1);
 
@@ -189,22 +190,22 @@ public class LicenseFrame extends AbstractFrame {
 		return btnDecline;
 	}
 	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
+	 * This method initializes jScrollPane
+	 *
+	 * @return javax.swing.JScrollPane
+	 */
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getTxtLicense());
 			jScrollPane.setName("jScrollPane");
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
-	
+
 	private void showLicense(int page) {
-	
+
 	    String localUrl = null;
 	    switch (page) {
 	//String remoteUrl = "http://www.statistica.unimib.it/utenti/dellavedova/software/artistic2.html";
@@ -214,26 +215,27 @@ public class LicenseFrame extends AbstractFrame {
 	    }
 	    try{
 	        txtLicense.setPage(localUrl);
-	    } catch (IOException e){
+	    } catch (final IOException e){
 			e.printStackTrace();
       		JOptionPane.showMessageDialog(new JFrame(), "Error: setting file is missing. Program will exit.");
       		System.exit(0);
     	}
     }
-	
+
+	@Override
 	public void setVisible(boolean show) {
 	    centerFrame();
 	    super.setVisible(show);
 	}
-	
+
 	public boolean isAccepted() {
 	    return accepted;
 	}
 	/**
-	 * This method initializes jPanel2	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel2
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
 			jPanel2 = new JPanel();
@@ -243,5 +245,5 @@ public class LicenseFrame extends AbstractFrame {
 		return jPanel2;
 	}
   }
-	
+
 

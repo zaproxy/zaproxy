@@ -20,6 +20,8 @@
 
 package org.zaproxy.zap.extension.beanshell;
 
+import java.awt.Dimension;
+
 import javax.swing.JMenuItem;
 
 import org.parosproxy.paros.Constant;
@@ -90,7 +92,7 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
 		if (beanShellConsoleDialog == null) {
 			beanShellConsoleDialog = new BeanShellConsoleFrame(getView().getMainFrame(), false, this);
 			beanShellConsoleDialog.setView(getView());
-			beanShellConsoleDialog.setSize(600, 600);
+			beanShellConsoleDialog.setPreferredSize(new Dimension(600, 600));
 			beanShellConsoleDialog.setTitle(Constant.messages.getString("beanshell.title"));
 		}
 		return beanShellConsoleDialog;

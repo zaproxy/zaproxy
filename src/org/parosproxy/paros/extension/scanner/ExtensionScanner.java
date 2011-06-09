@@ -507,9 +507,6 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
-		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-		    	manualRequestEditorDialog.setSize(700, 800);
-		    }
 		}
 		return manualRequestEditorDialog;
 	}

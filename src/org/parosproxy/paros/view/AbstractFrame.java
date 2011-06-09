@@ -22,15 +22,24 @@
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 
 /**
  * Generic Frame, which handles some basic properties.
@@ -40,12 +49,32 @@ import org.parosproxy.paros.model.Model;
  * <li>Sets the frame to _not_ visible</li>
  * <li>Sets a common font for the frame</li>
  * <li>Sets a default title (ZAP application name)</li>
+ * <li>Preserves window state, location and size correctly (will survive multiple session)</li>
  * </ul>
+ * Hint for implementers: If you use this class,
+ * don't use {@link #setSize(Dimension)}, but {@link #setPreferredSize(Dimension)}
+ * instead. Also, don't use {@link #setLocation(Point)}. This abstract class
+ * will automatically take care of size and position.
  */
 public abstract class AbstractFrame extends JFrame {
 
 
-	private static final long serialVersionUID = 7658476500356416014L;
+	private static final long serialVersionUID = 6751593232255236597L;
+
+	private static final String PREF_WINDOW_STATE = "window.state";
+	private static final String PREF_WINDOW_SIZE = "window.size";
+	private static final String PREF_WINDOW_POSITION = "window.position";
+
+	private static final int WINDOW_DEFAULT_WIDTH = 800;
+	private static final int WINDOW_DEFAULT_HEIGHT = 600;
+
+	/**
+	 * Hint: Preferences are only saved by package.
+	 * We have to use a prefix for separation.
+	 */
+	private final Preferences preferences;
+	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+	private final Log logger = LogFactory.getLog(AbstractFrame.class);
 
 	private List<Image> icons = null;
 
@@ -54,6 +83,7 @@ public abstract class AbstractFrame extends JFrame {
 	 */
 	public AbstractFrame() {
 		super();
+		this.preferences = Preferences.userNodeForPackage(getClass());
 		initialize();
 	}
 	/**
@@ -69,10 +99,17 @@ public abstract class AbstractFrame extends JFrame {
 		this.setTitle(Constant.PROGRAM_NAME);
 	    this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(800, 600);
-	    	centerFrame();
-	    }
+    	final Dimension dim = restoreWindowSize();
+    	if (dim == null) {
+    		this.setSize(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
+    	}
+    	final Point point = restoreWindowLocation();
+    	if (point == null) {
+    		centerFrame();
+    	}
+    	restoreWindowState();
+    	this.addWindowStateListener(new FrameWindowStateListener());
+    	this.addComponentListener(new FrameResizedListener());
 	}
 	/**
 	 * Centre this frame.
@@ -90,9 +127,144 @@ public abstract class AbstractFrame extends JFrame {
 	    this.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
 	}
 
+	/**
+	 * @param windowstate integer value, see {@link JFrame#getExtendedState()}
+	 */
+	private void saveWindowState(int windowstate) {
+		if ((windowstate & Frame.ICONIFIED) == Frame.ICONIFIED) {
+			preferences.put(prefnzPrefix+PREF_WINDOW_STATE, SimpleWindowState.ICONFIED.toString());
+			if (logger.isDebugEnabled()) logger.debug("Saving preference "+PREF_WINDOW_STATE+"=" + SimpleWindowState.ICONFIED);
+		}
+		if ((windowstate & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
+			preferences.put(prefnzPrefix+PREF_WINDOW_STATE, SimpleWindowState.MAXIMIZED.toString());
+			if (logger.isDebugEnabled()) logger.debug("Saving preference "+PREF_WINDOW_STATE+"=" + SimpleWindowState.MAXIMIZED);
+		}
+		if (windowstate == Frame.NORMAL) { // hint: Frame.NORMAL = 0, thats why no masking
+			preferences.put(prefnzPrefix+PREF_WINDOW_STATE, SimpleWindowState.NORMAL.toString());
+			if (logger.isDebugEnabled()) logger.debug("Saving preference "+PREF_WINDOW_STATE+"=" + SimpleWindowState.NORMAL);
+		}
+	}
+
+	/**
+	 * Loads and sets the last window state of the frame.
+	 * Additionally, the last state will be returned.
+	 *
+	 * @return last window state OR null
+	 */
+	private SimpleWindowState restoreWindowState() {
+		SimpleWindowState laststate = null;
+		final String statestr = preferences.get(prefnzPrefix+PREF_WINDOW_STATE, null);
+		if (logger.isDebugEnabled()) logger.debug("Restoring preference "+PREF_WINDOW_STATE+"=" + statestr);
+		if (statestr != null) {
+			SimpleWindowState state = null;
+			try {
+				state = SimpleWindowState.valueOf(statestr);
+			} catch (final IllegalArgumentException e) {	state = null; }
+			if (state != null) {
+				switch (state) {
+				case ICONFIED: this.setExtendedState(Frame.ICONIFIED);	break;
+				case NORMAL: this.setExtendedState(Frame.NORMAL); break;
+				case MAXIMIZED: this.setExtendedState(Frame.MAXIMIZED_BOTH); break;
+				default:
+					logger.error("Invalid window state (nothing will changed): " + statestr);
+				}
+			}
+			laststate = state;
+		}
+		return laststate;
+	}
+
+	/**
+	 * Saves the size of this frame, but only, if window state is 'normal'.
+	 * If window state is iconfied or maximized, the size is not saved!
+	 *
+	 * @param size
+	 */
+	private final void saveWindowSize(Dimension size) {
+		if (size != null) {
+			if (getExtendedState() == Frame.NORMAL) {
+				if (logger.isDebugEnabled()) logger.debug("Saving preference " + PREF_WINDOW_SIZE + "=" + size.width + "," + size.height);
+				this.preferences.put(prefnzPrefix+PREF_WINDOW_SIZE, size.width + ","	+ size.height);
+			} else {
+				if (logger.isDebugEnabled()) logger.debug("Preference " + PREF_WINDOW_SIZE + " not saved, cause window state is not 'normal'.");
+			}
+		}
+	}
+
+	/**
+	 * Loads and set the saved size preferences for this frame.
+	 *
+	 * @return the size of the frame OR null, if there wasn't any preference.
+	 */
+	private final Dimension restoreWindowSize() {
+		Dimension result = null;
+		final String sizestr = preferences.get(prefnzPrefix+PREF_WINDOW_SIZE, null);
+		if (sizestr != null) {
+			int width = 0;
+			int height = 0;
+			final String[] sizes = sizestr.split("[,]");
+			try {
+				width = Integer.parseInt(sizes[0].trim());
+				height = Integer.parseInt(sizes[1].trim());
+			} catch (final Exception e) {
+				// ignoring, cause is prevented by default values;
+			}
+			if (width > 0 && height > 0) {
+				result = new Dimension(width, height);
+				if (logger.isDebugEnabled()) logger.debug("Restoring preference " + PREF_WINDOW_SIZE + "=" + result.width + "," + result.height);
+				this.setSize(result);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Saves the location of this frame, but only, if window state is 'normal'.
+	 * If window state is iconfied or maximized, the location is not saved!
+	 *
+	 * @param point
+	 */
+	private final void saveWindowLocation(Point point) {
+		if (point != null) {
+			if (getExtendedState() == Frame.NORMAL) {
+				if (logger.isDebugEnabled()) logger.debug("Saving preference " + PREF_WINDOW_POSITION + "=" + point.x + "," + point.y);
+				this.preferences.put(prefnzPrefix+PREF_WINDOW_POSITION, point.x + ","	+ point.y);
+			} else {
+				if (logger.isDebugEnabled()) logger.debug("Preference " + PREF_WINDOW_POSITION + " not saved, cause window state is not 'normal'.");
+			}
+		}
+	}
+
+	/**
+	 * Loads and set the saved position preferences for this frame.
+	 *
+	 * @return the size of the frame OR null, if there wasn't any preference.
+	 */
+	private final Point restoreWindowLocation() {
+		Point result = null;
+		final String sizestr = preferences.get(prefnzPrefix+PREF_WINDOW_POSITION, null);
+		if (sizestr != null) {
+			int x = 0;
+			int y = 0;
+			final String[] sizes = sizestr.split("[,]");
+			try {
+				x = Integer.parseInt(sizes[0].trim());
+				y = Integer.parseInt(sizes[1].trim());
+			} catch (final Exception e) {
+				// ignoring, cause is prevented by default values;
+			}
+			if (x > 0 && y > 0) {
+				result = new Point(x, y);
+				if (logger.isDebugEnabled()) logger.debug("Restoring preference " + PREF_WINDOW_POSITION + "=" + result.x + "," + result.y);
+				this.setLocation(result);
+			}
+		}
+		return result;
+	}
+
 	protected List<Image> loadIconImages() {
 		if (icons == null) {
-			icons = new ArrayList<Image>();
+			icons = new ArrayList<Image>(4);
 			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap16x16.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap32x32.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resource/zap48x48.png")));
@@ -106,6 +278,54 @@ public abstract class AbstractFrame extends JFrame {
 		super.dispose();
 		this.icons.clear(); // free the bounded resources
 		this.icons = null;
+		try {
+			this.preferences.flush();
+		} catch (final BackingStoreException e) {
+			logger.error("Error while saving the preferences", e);
+		}
 	}
 
+	/*
+	 * ========================================================================
+	 */
+
+	private final class FrameWindowStateListener implements WindowStateListener {
+		@Override
+		public void windowStateChanged(WindowEvent e) {
+			saveWindowState(e.getNewState());
+		}
+	}
+
+	private final class FrameResizedListener implements ComponentListener {
+
+		@Override
+		public void componentResized(ComponentEvent e) {
+			if (e.getComponent() != null) {
+				saveWindowSize(e.getComponent().getSize());
+			}
+		}
+
+		@Override
+		public void componentMoved(ComponentEvent e) {
+			if (e.getComponent() != null) {
+				saveWindowLocation(e.getComponent().getLocation());
+			}
+		}
+
+		@Override
+		public void componentShown(ComponentEvent e) { /* nothing to do */ }
+
+		@Override
+		public void componentHidden(ComponentEvent e) { /* nothing to do */ }
+
+	}
+
+	/**
+	 * Simplified version for easier handling of the states ...
+	 */
+	private enum SimpleWindowState {
+		ICONFIED,
+		NORMAL,
+		MAXIMIZED;
+	}
 }  //  @jve:visual-info  decl-index=0 visual-constraint="31,17"
