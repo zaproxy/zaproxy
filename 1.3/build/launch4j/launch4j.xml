@@ -1,0 +1,38 @@
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>zap.jar</jar>
+  <outfile>..\zap\ZAP.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon>..\..\src\resource\zap48x48.ico</icon>
+  <classPath>
+    <mainClass>org.zaproxy.zap.ZAP</mainClass>
+    <cp>zap.jar</cp>
+  </classPath>
+  <jre>
+    <path></path>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJdk</jdkPreference>
+  </jre>
+  <versionInfo>
+    <fileVersion>1.3.0.0</fileVersion>
+    <txtFileVersion>1.3.0</txtFileVersion>
+    <fileDescription>OWASP Zed Attack Proxy</fileDescription>
+    <copyright>psiinon@gmail.com</copyright>
+    <productVersion>1.3.0.0</productVersion>
+    <txtProductVersion>1.3.0</txtProductVersion>
+    <productName>OWASP Zed Attack Proxy</productName>
+    <companyName></companyName>
+    <internalName>ZAP</internalName>
+    <originalFilename>ZAP.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>
