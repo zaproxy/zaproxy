@@ -75,7 +75,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private RecordScan recordScan = null;
 	
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
-	private PopupMenuResend popupMenuResend = null;
 	private PopupMenuAlertEdit popupMenuAlertEdit = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
@@ -126,7 +125,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
 
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResend());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
@@ -435,18 +433,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;
-	}
-	/**
-	 * This method initializes popupMenuResend	
-	 * 	
-	 * @return org.parosproxy.paros.extension.scanner.PopupMenuResend	
-	 */    
-	private PopupMenuResend getPopupMenuResend() {
-		if (popupMenuResend == null) {
-			popupMenuResend = new PopupMenuResend();
-			popupMenuResend.setExtension(this);
-		}
-		return popupMenuResend;
 	}
 	
 	private PopupMenuAlertEdit getPopupMenuAlertEdit() {
