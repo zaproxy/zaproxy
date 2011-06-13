@@ -34,6 +34,8 @@ import org.parosproxy.paros.security.SslCertificateServiceImpl;
  */
 public class ExtensionDynSSL extends ExtensionAdaptor {
 
+	public static final String EXTENSION_ID = "ExtensionDynSSL";
+	
 	private DynSSLParam params;
 	private DynamicSSLPanel optionsPanel;
 
@@ -41,7 +43,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 
 	public ExtensionDynSSL() {
 		super();
-		this.setName("ExtensionDynSSL");
+		this.setName(EXTENSION_ID);
 	}
 
 	@Override
@@ -71,7 +73,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 		return optionsPanel;
 	}
 
-	private DynSSLParam getParams() {
+	public DynSSLParam getParams() {
 		if (params == null) {
 			params = new DynSSLParam();
 		}
