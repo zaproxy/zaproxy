@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -38,16 +37,20 @@ public class LocaleUtils {
 		return locales;
 	}
 	
-	public static String getLocalDisplayName (String locale) {
-		String desc = locale;
-		try {
-			desc = Constant.messages.getString("view.locale." + locale);
-		} catch (MissingResourceException e) {
-			// Try picking up from the java built in ones
-	        String[] langArray = locale.split("_");
-	        Locale loc = new Locale(langArray[0], langArray[1]);
+	/**
+	 * @param locale
+	 * @return the name of the language
+	 */
+	public static String getLocalDisplayName(String locale) {
+		String desc = "" + locale;
+		if (locale != null) {
+			String[] langArray = locale.split("_");
+	        Locale loc = null;
+	        if (langArray.length == 1) loc = new Locale(langArray[0]);
+	        if (langArray.length == 2) loc = new Locale(langArray[0], langArray[1]);
+	        if (langArray.length == 3) loc = new Locale(langArray[0], langArray[1], langArray[3]);
 	        if (loc != null) {
-	        	desc = loc.getDisplayLanguage();
+	        	desc = loc.getDisplayLanguage(loc);
 	        }
 		}
 		return desc;
