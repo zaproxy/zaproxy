@@ -14,6 +14,9 @@ public class LocaleUtils {
 
 	private static Logger logger = Logger.getLogger(LocaleUtils.class);
 
+	/**
+	 * @return The list of available translations, ZAP provides
+	 */
 	public static List<String> getAvailableLocales() {
 		List<String> locales = new ArrayList<String>();
 		File dir = new File("lang");
