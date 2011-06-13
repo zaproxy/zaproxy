@@ -41,6 +41,9 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
+import org.zaproxy.zap.extension.dynssl.DynSSLParam;
+import org.zaproxy.zap.extension.dynssl.DynamicSSLWelcomeDialog;
+import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
@@ -218,6 +221,15 @@ public class ZAP {
 			    if (eau != null) {
 			    	eau.checkForUpdates(false);
 			    }
+		    }
+		    
+		    // check root certificate
+		    ExtensionDynSSL extension = (ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension("ExtensionDynSSL");
+		    DynSSLParam dynsslparam = extension.getParams();
+		    if (dynsslparam.getRootca() == null) {
+		    	DynamicSSLWelcomeDialog dlg = new DynamicSSLWelcomeDialog(View.getSingleton().getMainFrame(), true);
+		    	dlg.setVisible(true);
+		    	dlg.dispose();
 		    }
 	    } else if (cmdLine.isDaemon()) {
 	    	runDaemon();
