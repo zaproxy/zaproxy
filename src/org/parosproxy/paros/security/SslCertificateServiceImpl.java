@@ -118,7 +118,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     	}
 
     	if (this.caCert == null || this.caPrivKey == null || this.caPubKey == null) {
-    		throw new IllegalStateException(this.getClass() + " wasn't initialized! Got to options 'Dynamic SSL Certs' and create one.");
+    		throw new MissingRootCertificateException(this.getClass() + " wasn't initialized! Got to options 'Dynamic SSL Certs' and create one.");
     	}
 
         final KeyPair mykp = this.createKeyPair();
