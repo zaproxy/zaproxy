@@ -159,6 +159,7 @@ public class DynamicSSLWelcomeDialog extends AbstractDialog {
 					@Override
 					public void run() {
 						OptionsDialog optdlg = View.getSingleton().getOptionsDialog("");
+						optdlg.initParam(Model.getSingleton().getOptionsParam());
 						optdlg.showDialog(true, Constant.messages.getString("dynssl.options.name"));
 					}
 				});
