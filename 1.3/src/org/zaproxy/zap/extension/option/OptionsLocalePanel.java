@@ -173,19 +173,6 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 			localeSelect.addItem(desc);
 			localeMap.put(desc, locale);
 		}
-
-		/*
-		// Previously got all of the available languages from the config file 
-	    //OptionsParam options = (OptionsParam) obj;
-	    String [] locales = options.getViewParam().getLocales();
-	    localeSelect.removeAllItems();
-	    for (String locale : locales) {
-			localeSelect.addItem(Constant.messages.getString("view.locale." + locale));
-			localeMap.put(Constant.messages.getString("view.locale." + locale), locale);
-	    }
-	    String locale = Constant.messages.getString("view.locale." + options.getViewParam().getLocale());
-	    localeSelect.setSelectedItem(locale);
-	    */
 	}
 	
 	public void validateParam(Object obj) {

@@ -22,6 +22,8 @@
 
 package org.parosproxy.paros.extension.option;
 
+import java.util.Locale;
+
 import org.parosproxy.paros.common.AbstractParam;
 
 // ZAP: Added support for selecting the locale
@@ -121,6 +123,17 @@ public class OptionsParamView extends AbstractParam {
 	public void setLocale(String locale) {
 		if (locale != null) {
 			this.locale = locale;
+			getConfig().setProperty(LOCALE, locale);
+		}
+	}
+	
+	public void setLocale(Locale locale) {
+		if (locale != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(locale.getLanguage());
+			if (locale.getCountry().length() > 0) sb.append("_").append(locale.getCountry());
+			if (locale.getVariant().length() > 0) sb.append("_").append(locale.getVariant());
+			this.locale = sb.toString();
 			getConfig().setProperty(LOCALE, locale);
 		}
 	}
