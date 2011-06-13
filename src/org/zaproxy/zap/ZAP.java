@@ -237,6 +237,7 @@ public class ZAP {
 	private Locale determineUsersSystemLocale() {
 		Locale userloc = null;
 		final Locale systloc = Locale.getDefault();
+		// first, try full match
 		for (String ls : LocaleUtils.getAvailableLocales()){
 			String[] langArray = ls.split("_");
 		    if (langArray.length == 1) {
@@ -257,6 +258,16 @@ public class ZAP {
 		    		break;
 		    	}
 		    }
+		}
+		if (userloc == null) {
+			// second, try partial language match
+			for (String ls : LocaleUtils.getAvailableLocales()){
+				String[] langArray = ls.split("_");
+				if (systloc.getLanguage().equals(langArray[0])) {
+					userloc = systloc;
+					break;
+				}
+			}
 		}
 		return userloc;
 	}
