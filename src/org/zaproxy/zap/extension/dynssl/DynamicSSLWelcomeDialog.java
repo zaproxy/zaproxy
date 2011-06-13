@@ -69,9 +69,9 @@ public class DynamicSSLWelcomeDialog extends AbstractDialog {
 
 	private void initLayout() {
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(450,300);
+	    	this.setSize(480,300);
 	    }
-	    this.setPreferredSize(new Dimension(450, 300));
+	    this.setPreferredSize(new Dimension(480, 300));
 		JTextArea txtSslWontWork = new JTextArea();
 		txtSslWontWork.setEditable(false);
 		txtSslWontWork.setBackground(SystemColor.control); // XXX: this doesn't work like expected, it should be the same color as the control's background :-/
