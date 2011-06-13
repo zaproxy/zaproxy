@@ -47,6 +47,7 @@ import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
+import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.extension.api.API;
 
 
@@ -116,6 +117,8 @@ class ProxyThread implements Runnable {
 		// ZAP: added parameter 'targethost'
         try {
 			inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
+        } catch (MissingRootCertificateException e) {
+        	throw new MissingRootCertificateException(e); // throw again, cause will be catched later.
 		} catch (Exception e) {
 			// ZAP: transform for further processing 
 			throw new IOException("Error while establishing SSL connection!", e);
@@ -140,14 +143,30 @@ class ProxyThread implements Runnable {
 			firstHeader = httpIn.readRequestHeader(isSecure);
             
 			if (firstHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.CONNECT)) {
-				httpOut.write(CONNECT_HTTP_200);
-                httpOut.flush();
 				
 				// ZAP: added host name variable
                 String hostName = firstHeader.getHostName();
-				beginSSL(hostName);
-                //processForwardPort();
-				
+				try {
+					beginSSL(hostName);
+					httpOut.write(CONNECT_HTTP_200);
+					httpOut.flush();
+				} catch (MissingRootCertificateException e) {
+					// Unluckily Firefox and Internet Explorer will not show this message.
+					// We should find a way to let the browsers display this error message.
+					// May we can redirect to some kind of ZAP custom error page.
+					final HttpMessage errmsg = new HttpMessage();
+					errmsg.setRequestHeader(firstHeader);
+					errmsg.setResponseBody("ZAP SSL Error: " + e.getLocalizedMessage());
+			    	int len = errmsg.getResponseBody().length();
+			    	errmsg.setResponseHeader("HTTP/1.1 504 Gateway Timeout\r\nContent-Length: " + len + "\r\nContent-Type: text/plain;");
+			        httpOut.write(errmsg.getResponseHeader());
+		            httpOut.flush();
+			        if (errmsg.getResponseBody().length() > 0) {
+			            httpOut.write(errmsg.getResponseBody().getBytes());
+			            httpOut.flush();
+			        }
+			        throw new IOException(e);
+				}
 			} else {
 				processHttp(firstHeader, isSecure);
 			}
@@ -160,7 +179,6 @@ class ProxyThread implements Runnable {
 	    	}
 		} catch (IOException e) {
 		    log.warn(e.getMessage(), e);
-
 		} finally {
             proxyThreadList.remove(thread);
 			disconnect();
@@ -265,8 +283,6 @@ class ProxyThread implements Runnable {
 			        //throw e;
 			    }
 			}	// release semaphore
-            
-
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
     }
 	

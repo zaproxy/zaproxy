@@ -61,7 +61,7 @@ public interface SslCertificateService {
 	 * @throws KeyStoreException
 	 * @throws IOException
 	 * @throws UnrecoverableKeyException
-	 * @throws IllegalStateException when it wasn't initialized.
+	 * @throws MissingRootCertificateException when it wasn't initialized.
 	 */
 	public abstract KeyStore createCertForHost(String hostname)
 			throws NoSuchAlgorithmException, InvalidKeyException,
