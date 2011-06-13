@@ -43,6 +43,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
+import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.AboutWindow;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
@@ -124,8 +125,6 @@ public class ZAP {
 	        System.exit(1);
 	    }
 
-	    Locale.setDefault(Locale.ENGLISH);
-
 	    try {
 	    	// Get the systems Look and Feel
 	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -186,9 +185,15 @@ public class ZAP {
 		    // Prompt for language if not set
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
 	        	// Dont use a parent of the MainFrame - that will initialise it with English!
-				final LocaleDialog dialog = new LocaleDialog(null, true);
-				dialog.init(Model.getSingleton().getOptionsParam());
-				dialog.setVisible(true);
+				Locale userloc = determineUsersSystemLocale();
+		    	if (userloc == null) {
+		    		// Only show the dialog, when the user's langauge can't be guessed.
+					final LocaleDialog dialog = new LocaleDialog(null, true);
+					dialog.init(Model.getSingleton().getOptionsParam());
+					dialog.setVisible(true);
+				} else {
+					Model.getSingleton().getOptionsParam().getViewParam().setLocale(userloc);
+				}
 				Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
 				Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
 		    }
@@ -220,6 +225,40 @@ public class ZAP {
 	        runCommandLine();
 	    }
 
+	}
+
+	/**
+	 * Determines the {@link Locale} of the current user's system.
+	 * It will match the {@link Locale#getDefault()} with the available
+	 * locales from ZAPs translation files. It may return null, if the users
+	 * system locale is not in the list of available translations of ZAP.
+	 * @return
+	 */
+	private Locale determineUsersSystemLocale() {
+		Locale userloc = null;
+		final Locale systloc = Locale.getDefault();
+		for (String ls : LocaleUtils.getAvailableLocales()){
+			String[] langArray = ls.split("_");
+		    if (langArray.length == 1) {
+		    	if (systloc.getLanguage().equals(langArray[0])) {
+		    		userloc = systloc;
+		    		break;
+		    	}
+		    }
+		    if (langArray.length == 2) {
+		    	if (systloc.getLanguage().equals(langArray[0]) && systloc.getCountry().equals(langArray[1])) {
+		    		userloc = systloc;
+		    		break;
+		    	}
+		    }
+		    if (langArray.length == 3) {
+		    	if (systloc.getLanguage().equals(langArray[0]) && systloc.getCountry().equals(langArray[1]) &&  systloc.getVariant().equals(langArray[2])) {
+		    		userloc = systloc;
+		    		break;
+		    	}
+		    }
+		}
+		return userloc;
 	}
 
 	private void runCommandLine() {
