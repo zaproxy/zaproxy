@@ -62,7 +62,8 @@ public class OptionsParamView extends AbstractParam {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
-    protected void parse() {
+    @Override
+	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE);	// No default
@@ -106,15 +107,28 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(SHOW_MAIN_TOOLBAR_OPTION, Integer.toString(showMainToolbar));
 	}
 
+	
+	/**
+	 * @return the locale, which should be used. 
+	 *         It will return a default value, if nothing was configured yet. 
+	 *         Never null
+	 * @see {@link #getConfigLocale()}
+	 */
 	public String getLocale() {
 		return locale;
 	}
 
 	public void setLocale(String locale) {
-		this.locale = locale;
-		getConfig().setProperty(LOCALE, locale);
+		if (locale != null) {
+			this.locale = locale;
+			getConfig().setProperty(LOCALE, locale);
+		}
 	}
 
+	/**
+	 * @return The really configured locale, can be null
+	 * @see {@link #getLocale()}
+	 */
 	public String getConfigLocale() {
 		return configLocale;
 	}
