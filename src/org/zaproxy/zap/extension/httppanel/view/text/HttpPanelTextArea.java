@@ -1,12 +1,23 @@
-package org.zaproxy.zap.extension.httppanel;
+package org.zaproxy.zap.extension.httppanel.view.text;
 
+import java.awt.Color;
+
+import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.utils.ZapTextArea;
 
-public class HttpPanelTextArea extends ZapTextArea {
+public class HttpPanelTextArea extends JTextArea {
 
-	private static final long serialVersionUID = 1L;
+	private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
+	
 	private HttpMessage httpMessage;
 	private MessageType messageType;
 	
@@ -15,7 +26,6 @@ public class HttpPanelTextArea extends ZapTextArea {
 		Body,
 		Full
 	};
-	
 	
 	public HttpPanelTextArea(HttpMessage httpMessage, MessageType messageType) {
 		this.httpMessage = httpMessage;
@@ -54,6 +64,18 @@ public class HttpPanelTextArea extends ZapTextArea {
 		}
 		
 		return sm;
+	}
+
+	public void highlight(SearchMatch sm) {
+		Highlighter hilite = this.getHighlighter();
+		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+		try {
+			hilite.removeAllHighlights();
+			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
+			this.setCaretPosition(sm.getStart());
+		} catch (BadLocationException e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 	
 }

@@ -51,7 +51,6 @@ import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.hexview.ExtensionHexView;
 import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
@@ -149,7 +148,7 @@ public class Control extends AbstractControl {
         getExtensionLoader().addExtension(new ExtensionHelp());
         getExtensionLoader().addExtension(new ExtensionCompare());
         getExtensionLoader().addExtension(new ExtensionInvoke());
-        getExtensionLoader().addExtension(new ExtensionHexView());
+//        getExtensionLoader().addExtension(new ExtensionHexView());
         getExtensionLoader().addExtension(new ExtensionFuzz());
         getExtensionLoader().addExtension(new ExtensionAntiCSRF());
         

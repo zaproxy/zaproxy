@@ -25,7 +25,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 
 public class HttpPanelManager {
 	private List<HttpPanel> panels = new ArrayList<HttpPanel> ();
@@ -42,7 +43,8 @@ public class HttpPanelManager {
 	}
 	
 	public void addPanel (HttpPanel panel) {
-		synchronized (this) {
+	// Disabled because views are incorporated into httppanels
+/*		synchronized (this) {
 			this.panels.add(panel);
 			for (HttpPanelView view : views) {
 				try {
@@ -55,9 +57,12 @@ public class HttpPanelManager {
 			}
 			
 		}
+		*/
 	}
 	
 	public void addPanelView (HttpPanelView view) {
+		// Disabled because views are incorporated into httppanels
+		/*
 		synchronized (this) {
 			this.views.add(view);
 			for (HttpPanel panel : panels) {
@@ -69,6 +74,6 @@ public class HttpPanelManager {
 					log.error(e.getMessage(), e);
 				}
 			}
-		}
+		}*/
 	}
 }

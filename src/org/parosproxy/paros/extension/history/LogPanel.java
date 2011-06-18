@@ -1,6 +1,4 @@
 /*
- * Created on 2004�~7��4��
- *
  * Paros and its related class files.
  * 
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
@@ -37,7 +35,7 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.parosproxy.paros.view.View;
 
 /**

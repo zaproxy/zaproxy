@@ -18,18 +18,22 @@
  * limitations under the License. 
  */
 
-package org.zaproxy.zap.view;
+package org.zaproxy.zap.extension.httppanel;
 
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
 import org.parosproxy.paros.network.HttpMessage;
 /**
  * A Plugable view which can display requests and responses in different ways 
  * @author Psiinon
- * @see org.zaproxy.zap.extension.hexview.HttpPanelHexView for an example of how to implement a new view
+ * @see org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView for an example of how to implement a new view
  *
  */
 public interface HttpPanelView {
+
+	public void load();
+	public void save();
 	
 	/**
 	 * The name to be used in the drop down - should be internationalised
@@ -48,7 +52,14 @@ public interface HttpPanelView {
 	 * Sets the content for this view
 	 * @param content
 	 */
-	public void setContent (String content);
+//	public void setModel (String content);
+
+	/**
+	 * Gets the content
+	 * @return a string representation of the content
+	 */
+//	public String getModel();
+
 	
 	/**
 	 * @return true if the content has been changed
@@ -56,16 +67,10 @@ public interface HttpPanelView {
 	public boolean hasChanged();
 	
 	/**
-	 * Gets the content
-	 * @return a string representation of the content
-	 */
-	public String getContent();
-	
-	/**
 	 * Get the scrolling pane which contains the content
 	 * @return
 	 */
-	public JScrollPane getPane();
+	public JComponent getPane();
 	
 	/**
 	 * @return true if this view is editable

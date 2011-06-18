@@ -28,7 +28,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
-import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 
 public class PopupFuzzMenu extends ExtensionPopupMenu {
 

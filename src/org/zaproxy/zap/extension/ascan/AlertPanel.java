@@ -39,7 +39,7 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 
 /**
  *

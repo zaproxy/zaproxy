@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.parosproxy.paros.view;
+package org.zaproxy.zap.extension.httppanel.view.table;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

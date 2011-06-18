@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.hexview;
+package org.zaproxy.zap.extension.httppanel.view.hex;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -25,7 +25,9 @@ import javax.swing.ListSelectionModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.view.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 
 public class HttpPanelHexView implements HttpPanelView {
 
@@ -33,8 +35,14 @@ public class HttpPanelHexView implements HttpPanelView {
     private static final String VIEW_HEX = Constant.messages.getString("http.panel.hexView");
 	private JTable hexTableBody = null;
 	private javax.swing.JScrollPane scrollHexTableBody = null;
-	private boolean editable = false;
-
+	private boolean isEditable = false;
+	private HttpPanelTextModelInterface model;
+	
+	public HttpPanelHexView(HttpPanelTextModelInterface model, MessageType messageType, boolean isEditable) {
+		this.model = model;
+		this.isEditable = isEditable;
+	}
+	
 	@Override
 	public String getName() {
 		return VIEW_HEX;
@@ -88,28 +96,28 @@ public class HttpPanelHexView implements HttpPanelView {
 	}
 
 	@Override
-	public void setContent(String content) {
-		getHttpPanelHexModel().setText(content);
-	}
-
-	@Override
-	public String getContent() {
-		return getHttpPanelHexModel().getText();
-	}
-
-	@Override
 	public boolean hasChanged() {
 		return getHttpPanelHexModel().hasChanged();
 	}
 
 	@Override
 	public boolean isEditable() {
-		return editable;
+		return isEditable;
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		this.editable  = editable;
+		this.isEditable  = editable;
 		getHttpPanelHexModel().setEditable(editable);
+	}
+
+	@Override
+	public void load() {
+		getHttpPanelHexModel().setText( model.getData() );
+	}
+
+	@Override
+	public void save() {
+		model.setData(getHttpPanelHexModel().getText());
 	}
 }

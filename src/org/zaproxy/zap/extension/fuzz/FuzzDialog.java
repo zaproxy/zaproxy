@@ -50,7 +50,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
-import org.zaproxy.zap.extension.httppanel.HttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class FuzzDialog extends AbstractDialog {

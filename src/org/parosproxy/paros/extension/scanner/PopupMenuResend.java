@@ -28,7 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
-import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
+import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 

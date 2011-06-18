@@ -37,7 +37,9 @@ import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.view.SiteMapListener;
+
 
 public class SiteMapPanel extends JPanel {
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 
 public class SearchResult {
 

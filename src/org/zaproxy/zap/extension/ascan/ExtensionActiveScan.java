@@ -47,7 +47,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.extension.history.ManualRequestEditorDialog;
+import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
