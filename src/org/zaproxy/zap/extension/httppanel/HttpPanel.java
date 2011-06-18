@@ -105,9 +105,9 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	private  void initialize() {
 		this.setLayout(new BorderLayout());
 		
-		if (Model.getSingleton().getOptionsParam().getViewParam().getAdvancedViewOption() > 0) {
+//		if (Model.getSingleton().getOptionsParam().getViewParam().getAdvancedViewOption() > 0) {
 			this.add(getPanelHeader(), BorderLayout.NORTH);
-		}
+//		}
 		this.add(getPanelContent(), BorderLayout.CENTER);
 	}
 	
