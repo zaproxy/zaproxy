@@ -324,8 +324,7 @@ public class SSLContextManager {
             Constructor c = pkcs11Class.getConstructor(new Class[] { InputStream.class });
             pkcs11 = (Provider) c.newInstance(new Object[] { is });
         } catch (Exception e) {
-            System.err.println("Error instantiating the PKCS11 provider");
-            e.printStackTrace();
+        	log.error("Error instantiating the PKCS11 provider", e);
         }
         
         Security.addProvider(pkcs11);
