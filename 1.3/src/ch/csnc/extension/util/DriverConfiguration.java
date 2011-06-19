@@ -43,7 +43,7 @@ public class DriverConfiguration extends Observable {
 	private Vector<String> names;
 	private Vector<String> paths;
 	private Vector<Integer> slots;
-	private Vector<Integer> slotIndexes;
+	private Vector<Integer> slotListIndexes;
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -51,7 +51,7 @@ public class DriverConfiguration extends Observable {
 		names = new Vector<String>();
 		paths = new Vector<String>();
 		slots = new Vector<Integer>();
-		slotIndexes = new Vector<Integer>();
+		slotListIndexes = new Vector<Integer>();
 
 		try {
 			final Document doc = new SAXBuilder().build(filename);
@@ -70,11 +70,11 @@ public class DriverConfiguration extends Observable {
 					slots.add(new Integer(0)); // default value
 				}
 
-				final Element slotIndex = ((Element) o).getChild("slotIndex");
+				final Element slotListIndex = ((Element) o).getChild("slotListIndex");
 				try {
-					slotIndexes.add(Integer.parseInt(slotIndex.getValue()));
+					slotListIndexes.add(Integer.parseInt(slotListIndex.getValue()));
 				} catch (final Exception e) {
-					slotIndexes.add(new Integer(0)); // default value
+					slotListIndexes.add(new Integer(0)); // default value
 				}
 			}
 
@@ -82,17 +82,17 @@ public class DriverConfiguration extends Observable {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			logger.warn(e);
+			logger.error(e.getMessage(), e);
 		} catch (final IOException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			logger.warn(e);
+			logger.error(e.getMessage(), e);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
-					"Error slot or slot index is not a number: ", e.toString() }, "Error",
+					"Error slot or slot list index is not a number: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			logger.warn(e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -118,9 +118,9 @@ public class DriverConfiguration extends Observable {
 			driver.addContent(slot);
 			slot.addContent(slots.get(i).toString());
 
-			final Element slotIndex = new Element("slotIndex");
-			driver.addContent(slotIndex);
-			slotIndex.addContent(slotIndexes.get(i).toString());
+			final Element slotListIndex = new Element("slotListIndex");
+			driver.addContent(slotListIndex);
+			slotListIndex.addContent(slotListIndexes.get(i).toString());
 		}
 
 		try {
@@ -132,12 +132,12 @@ public class DriverConfiguration extends Observable {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			logger.warn(e);
+			logger.error(e.getMessage(), e);
 		} catch (final IOException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
 					JOptionPane.ERROR_MESSAGE);
-			logger.warn(e);
+			logger.error(e.getMessage(), e);
 		}
 		setChanged();
 		notifyObservers();
@@ -168,11 +168,11 @@ public class DriverConfiguration extends Observable {
 	}
 
 	public Vector<Integer> getSlotIndexes() {
-		return slotIndexes;
+		return slotListIndexes;
 	}
 
-	public void setSlotIndexes(Vector<Integer> slotIndexes) {
-		this.slotIndexes = slotIndexes;
+	public void setSlotListIndexes(Vector<Integer> slotListIndexes) {
+		this.slotListIndexes = slotListIndexes;
 	}
 
 }

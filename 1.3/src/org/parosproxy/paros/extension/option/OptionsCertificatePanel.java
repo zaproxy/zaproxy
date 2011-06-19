@@ -52,6 +52,7 @@ import ch.csnc.extension.ui.AliasTableModel;
 import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
 import ch.csnc.extension.util.DriverConfiguration;
+import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 /**
  *
  * To change the template for this generated type comment go to
@@ -92,7 +93,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JButton showAliasButton;
 	private javax.swing.JLabel textLabel;
 	private javax.swing.JCheckBox useClientCertificateCheckBox;
-	
+	private javax.swing.JCheckBox usePkcs11ExperimentalSliSupportCheckBox;
 
 	private SSLContextManager contextManager;
 	private DefaultListModel keyStoreListModel;
@@ -187,6 +188,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			certificateLabel = new javax.swing.JLabel();
 			certificateTextField = new ZapTextField();
 			showActiveCertificateButton = new javax.swing.JButton();
+			usePkcs11ExperimentalSliSupportCheckBox = new javax.swing.JCheckBox();
 
 			certificatejTabbedPane.setEnabled(false);
 
@@ -342,7 +344,16 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					addPkcs11ButtonActionPerformed(evt);
 				}
 			});
-
+			
+			usePkcs11ExperimentalSliSupportCheckBox.setText(Constant.messages.getString("certificates.pkcs11.label.experimentalSliSupport"));
+			usePkcs11ExperimentalSliSupportCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+			usePkcs11ExperimentalSliSupportCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+			usePkcs11ExperimentalSliSupportCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(evt);
+				}
+			});
+			
 			javax.swing.GroupLayout pkcs11PanelLayout = new javax.swing.GroupLayout(pkcs11Panel);
 			pkcs11Panel.setLayout(pkcs11PanelLayout);
 			pkcs11PanelLayout.setHorizontalGroup(
@@ -357,6 +368,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 											.addComponent(driverComboBox, 0, 336, Short.MAX_VALUE)
 											.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 											.addComponent(driverButton))
+											.addComponent(usePkcs11ExperimentalSliSupportCheckBox)
 											.addComponent(addPkcs11Button, javax.swing.GroupLayout.Alignment.TRAILING))
 											.addContainerGap())
 			);
@@ -372,6 +384,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 									.addComponent(passwordPkcs11Label)
 									.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 									.addComponent(pkcs11PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+									.addComponent(usePkcs11ExperimentalSliSupportCheckBox)
 									.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 									.addComponent(addPkcs11Button)
 									.addGap(58, 58, 58))
@@ -517,20 +531,17 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			}
 
 			String library = driverConfig.getPaths().get(driverComboBox.getSelectedIndex());
-			//System.out.println("library: ") +library);
 			if (library.equals("")) {
 				return;
 			}
 			
 			Integer slot = driverConfig.getSlots().get(driverComboBox.getSelectedIndex());
-			//System.out.println("slot: ") + slot);
 			if (slot < 0) {
 				return;
 			}
 			
-			Integer slotIndex = driverConfig.getSlotIndexes().get(driverComboBox.getSelectedIndex());
-			//System.out.println("slotindex: ") + slotIndex);
-			if (slotIndex < 0) {
+			Integer slotListIndex = driverConfig.getSlotIndexes().get(driverComboBox.getSelectedIndex());
+			if (slotListIndex < 0) {
 				return;
 			}
 			
@@ -539,7 +550,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				kspass = null;
 			}
 			
-			int ksIndex = contextManager.initPKCS11(name, library, slot, slotIndex, kspass);
+			int ksIndex = contextManager.initPKCS11(name, library, slot, slotListIndex, kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, new String[] {
@@ -715,6 +726,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	}//GEN-LAST:event_deleteButtonActionPerformed
 
 	private void useClientCertificateCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useClientCertificateCheckBoxActionPerformed
+		
 		//keyStore tab
 		certificatejTabbedPane.setEnabled(useClientCertificateCheckBox.isSelected() );
 
@@ -739,6 +751,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		driverButton.setEnabled(useClientCertificateCheckBox.isSelected() );
 		pkcs11PasswordField.setEnabled(useClientCertificateCheckBox.isSelected() );
 		addPkcs11Button.setEnabled(useClientCertificateCheckBox.isSelected() );
+		usePkcs11ExperimentalSliSupportCheckBox.setEnabled(useClientCertificateCheckBox.isSelected());
+		usePkcs11ExperimentalSliSupportCheckBox.setSelected(Model.getSingleton().getOptionsParam().getExperimentalFeaturesParam().isExerimentalSliSupportEnabled());
 
 		//actual certificate fields
 		certificateTextField.setEnabled(useClientCertificateCheckBox.isSelected() );
@@ -746,6 +760,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	}//GEN-LAST:event_useClientCertificateCheckBoxActionPerformed
 
+	private void usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
+		Model.getSingleton().getOptionsParam().getExperimentalFeaturesParam().setSlotListIndexSupport(usePkcs11ExperimentalSliSupportCheckBox.isSelected());
+	}
 
 	// TODO remove
 	private OptionsCertificatePanel getContentPane() {

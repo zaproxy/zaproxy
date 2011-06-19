@@ -21,7 +21,13 @@
 	<driver>
 		<name>Aladdin eToken</name>
 		<path>C:\WINDOWS\System32\eTPKCS11.dll</path>
-		<slot>0</slot>
+		<slot>1</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Aladdin eToken OSX</name>
+		<path>/Library/Frameworks/eToken.framework/Versions/Current/libeToken.dylib</path>
+		<slot>1</slot>
 		<slotIndex>0</slotIndex>
 	</driver>
 </driverConfiguration>

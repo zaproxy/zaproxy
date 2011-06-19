@@ -37,6 +37,8 @@ import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 
+import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
+
 
 
 /**
@@ -59,11 +61,15 @@ public class OptionsParam extends AbstractParam {
 	private InvokeParam invokeParam = new InvokeParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
+	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private XMLConfiguration config = null;
 	private boolean gui = true;
 	private File userDirectory = null;
+	
+	public OptionsParam() {	
+	}
 	
     /**
      * @return Returns the connectionParam.
@@ -78,17 +84,13 @@ public class OptionsParam extends AbstractParam {
 	public ProxyParam getProxyParam() {
 		return proxyParam;
 	}
+	
 	/**
 	 * @param proxyParam The proxyParam to set.
 	 */
 	public void setProxyParam(ProxyParam proxyParam) {
 		this.proxyParam = proxyParam;
 	}
-	
-	public OptionsParam() {
-		
-	}
-
 
     /**
      * @param connectionParam The connectionParam to set.
@@ -182,6 +184,8 @@ public class OptionsParam extends AbstractParam {
 		getInvokeParam().load(getConfig());
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
+		getExperimentalFeaturesParam().load(getConfig());
+		
 		
 		String userDir = null;
 		try {
@@ -246,6 +250,10 @@ public class OptionsParam extends AbstractParam {
 
 	public OptionsParamApi getApiParam() {
 		return apiParam;
+	}
+	
+	public OptionsParamExperimentalSliSupport getExperimentalFeaturesParam() {
+		return experimentalFeatuesParam;
 	}
     
 }
