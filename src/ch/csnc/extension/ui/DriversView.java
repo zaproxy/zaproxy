@@ -33,6 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextField;
 
@@ -61,8 +62,8 @@ public class DriversView extends AbstractFrame {
 	private JLabel slotLabel;
 	private ZapTextField slotTextField;
 
-	private JLabel slotIndexLabel;
-	private ZapTextField slotIndexTextField;
+	private JLabel slotListIndexLabel;
+	private ZapTextField slotListIndexTextField;
 
 
 	/**
@@ -89,8 +90,8 @@ public class DriversView extends AbstractFrame {
 		nameTextField = new ZapTextField();
 		slotLabel = new JLabel();
 		slotTextField = new ZapTextField();
-		slotIndexLabel = new JLabel();
-		slotIndexTextField = new ZapTextField();
+		slotListIndexLabel = new JLabel();
+		slotListIndexTextField = new ZapTextField();
 		addButton = new JButton();
 		deleteButton = new JButton();
 		closeButton = new JButton();
@@ -112,7 +113,7 @@ public class DriversView extends AbstractFrame {
 
 		slotLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slot"));
 
-		slotIndexLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slotIndex"));
+		slotListIndexLabel.setText(Constant.messages.getString("certificates.pkcs11.drivers.label.slotIndex"));
 
 		addButton.setText(Constant.messages.getString("certificates.pkcs11.drivers.button.add"));
 		addButton.addActionListener(new ActionListener() {
@@ -141,6 +142,13 @@ public class DriversView extends AbstractFrame {
 		driverTable.setModel(driverTableModel);
 		driverScrollPane.setViewportView(driverTable);
 
+		// When experimental SlotListIndex support is used, the slotTextField is disabled (and vice versa),
+		// as only one of these parameters is actually used.
+		if (!Model.getSingleton().getOptionsParam().getExperimentalFeaturesParam().isExerimentalSliSupportEnabled()) {
+			slotTextField.setEnabled(false);
+		}
+		
+		
 		final GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout
@@ -154,7 +162,7 @@ public class DriversView extends AbstractFrame {
 												.addComponent(fileLabel)
 												.addComponent(nameLabel)
 												.addComponent(slotLabel)
-												.addComponent(slotIndexLabel)
+												.addComponent(slotListIndexLabel)
 												.addGroup(
 														layout.createSequentialGroup()
 																.addGroup(
@@ -168,7 +176,7 @@ public class DriversView extends AbstractFrame {
 																						slotTextField,
 																						GroupLayout.Alignment.LEADING)
 																				.addComponent(
-																						slotIndexTextField,
+																						slotListIndexTextField,
 																						GroupLayout.Alignment.LEADING)
 																				.addComponent(
 																						fileTextField,
@@ -255,14 +263,14 @@ public class DriversView extends AbstractFrame {
 														GroupLayout.PREFERRED_SIZE))
 								.addGap(28, 28, 28)
 
-								.addComponent(slotIndexLabel)
+								.addComponent(slotListIndexLabel)
 								.addPreferredGap(
 										LayoutStyle.ComponentPlacement.RELATED)
 								.addGroup(
 										layout.createParallelGroup(
 												GroupLayout.Alignment.BASELINE)
 												.addComponent(
-														slotIndexTextField,
+														slotListIndexTextField,
 														GroupLayout.PREFERRED_SIZE,
 														GroupLayout.DEFAULT_SIZE,
 														GroupLayout.PREFERRED_SIZE)
@@ -325,32 +333,32 @@ public class DriversView extends AbstractFrame {
 		final String name = nameTextField.getText();
 		final String file = fileTextField.getText();
 		int slot = -1;
-		int slotindex = -1;
+		int slotListindex = -1;
 		try {
 			slot = Integer.parseInt(slotTextField.getText());
 		} catch (final Exception e) {
 			slotTextField.setText("0");
 		}
 		try {
-			slotindex = Integer.parseInt(slotIndexTextField.getText());
+			slotListindex = Integer.parseInt(slotListIndexTextField.getText());
 		} catch (final Exception e) {
-			slotIndexTextField.setText("0");
+			slotListIndexTextField.setText("0");
 		}
 
 		if (name != null && name.trim().length() > 0
 						&& file != null
 						&& file.trim().length() > 0
-						&& slot > -1 && slotindex > -1) {
+						&& slot > -1 && slotListindex > -1) {
 			driverTableModel.addDriver(
 					name,
 					file,
 					slot,
-					slotindex);
+					slotListindex);
 
 			nameTextField.setText("");
 			fileTextField.setText("");
 			slotTextField.setText("0");
-			slotIndexTextField.setText("0");
+			slotListIndexTextField.setText("0");
 		}
 	}
 
@@ -362,7 +370,7 @@ public class DriversView extends AbstractFrame {
 			nameTextField.setText("");
 			fileTextField.setText("");
 			slotTextField.setText("0");
-			slotIndexTextField.setText("0");
+			slotListIndexTextField.setText("0");
 		}
 	}
 
