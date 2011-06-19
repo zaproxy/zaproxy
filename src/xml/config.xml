@@ -10,7 +10,7 @@
 			<realm></realm>
 			<userName></userName>
 			<password></password>		
-			<prompt>false</prompt>		
+			<prompt>false</prompt>
 		</proxyChain>
 		<auth></auth>
 	</connection>
@@ -33,9 +33,11 @@
     <start>
         <checkForUpdates>0</checkForUpdates>
     </start>
+    
 	<certificate>
 		<use>0</use>
-		<clientCertLocation></clientCertLocation>		
+		<clientCertLocation></clientCertLocation>
+		<experimentalSlotListIndex>false</experimentalSlotListIndex>
 	</certificate>
 	
 	<spider>

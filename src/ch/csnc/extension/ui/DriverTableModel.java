@@ -34,7 +34,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 	private Vector<String> names;
 	private Vector<String> paths;
 	private Vector<Integer> slots;
-	private Vector<Integer> slotIndexes;
+	private Vector<Integer> slotListIndexes;
 
 
 	public DriverTableModel(DriverConfiguration driverConfig){
@@ -44,7 +44,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 		names = driverConfig.getNames();
 		paths = driverConfig.getPaths();
 		slots = driverConfig.getSlots();
-		slotIndexes = driverConfig.getSlotIndexes();
+		slotListIndexes = driverConfig.getSlotIndexes();
 
 	}
 
@@ -70,7 +70,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 			return slots.get(row);
 		}
 		if(column == 3) {
-			return slotIndexes.get(row);
+			return slotListIndexes.get(row);
 		}
 
 		return "";
@@ -92,11 +92,11 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 		return 0;
 	}
 
-	/* default */ void addDriver(String name, String path, int slot, int slotIndex) {
+	/* default */ void addDriver(String name, String path, int slot, int slotListIndex) {
 		names.add(name);
 		paths.add(path);
 		slots.add(slot);
-		slotIndexes.add(slotIndex);
+		slotListIndexes.add(slotListIndex);
 
 		updateConfiguration();
 	}
@@ -107,7 +107,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 		names.remove(index);
 		paths.remove(index);
 		slots.remove(index);
-		slotIndexes.remove(index);
+		slotListIndexes.remove(index);
 
 		updateConfiguration();
 
@@ -118,7 +118,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 		driverConfig.setNames(names);
 		driverConfig.setPaths(paths);
 		driverConfig.setSlots(slots);
-		driverConfig.setSlotIndexes(slotIndexes);
+		driverConfig.setSlotListIndexes(slotListIndexes);
 		driverConfig.write();
 	}
 
@@ -134,7 +134,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 			return "Slot";
 		}
 		else if (columnNumber == 3) {
-			return "SlotIndex";
+			return "SlotListIndex";
 		}
 		else {
 			throw new IllegalArgumentException("Invalid column number: " + columnNumber);
