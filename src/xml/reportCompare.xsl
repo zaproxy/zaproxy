@@ -26,7 +26,7 @@ function showAll() {
 function justSession1() {
   var tb = document.getElementById('table');
   for (var i=1; i &lt; tb.rows.length; i++) {
-    if (tb.rows[i].cells[3].innerHTML != '<font size="2" face="Arial, Helvetica, sans-serif">---</font>') {
+    if (tb.rows[i].cells[3].firstChild.firstChild.textContent != '---') {
       tb.rows[i].style.display='none';
     } else {
       tb.rows[i].style.display='';
@@ -36,7 +36,7 @@ function justSession1() {
 function justSession2() {
   var tb = document.getElementById('table');
   for (var i=1; i &lt; tb.rows.length; i++) {
-    if (tb.rows[i].cells[2].innerHTML != '<font size="2" face="Arial, Helvetica, sans-serif">---</font>') {
+    if (tb.rows[i].cells[2].firstChild.firstChild.textContent != '---') {
       tb.rows[i].style.display='none';
     } else {
       tb.rows[i].style.display='';
@@ -46,9 +46,9 @@ function justSession2() {
 function inBoth() {
   var tb = document.getElementById('table');
   for (var i=1; i &lt; tb.rows.length; i++) {
-    if (tb.rows[i].cells[2].innerHTML == '<font size="2" face="Arial, Helvetica, sans-serif">---</font>') {
+    if (tb.rows[i].cells[2].firstChild.firstChild.textContent == '---') {
       tb.rows[i].style.display='none';
-    } else if (tb.rows[i].cells[3].innerHTML == '<font size="2" face="Arial, Helvetica, sans-serif">---</font>') {
+    } else if (tb.rows[i].cells[3].firstChild.firstChild.textContent == '---') {
       tb.rows[i].style.display='none';
     } else {
       tb.rows[i].style.display='';
