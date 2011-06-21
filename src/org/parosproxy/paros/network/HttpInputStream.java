@@ -60,7 +60,6 @@ public class HttpInputStream extends BufferedInputStream {
 		String msg = "";
         int		oneByte = -1;
         boolean eoh = false;
-        boolean neverReadOnce = true;
         StringBuilder sb = new StringBuilder(200);
         
         do {
@@ -68,13 +67,7 @@ public class HttpInputStream extends BufferedInputStream {
         	
         	if (oneByte == -1) {
         		eoh = true;
-        		if (neverReadOnce) {
-        			HttpUtil.sleep(50);
-        			continue;
-        		}
 				break;
-        	} else {
-        		neverReadOnce = false;
         	}
             sb.append((char) oneByte);
 
@@ -82,7 +75,7 @@ public class HttpInputStream extends BufferedInputStream {
                 eoh = true;
                 msg = sb.toString();
             }
-		} while (!eoh || neverReadOnce);
+		} while (!eoh);
 
         return msg;
 
@@ -93,7 +86,7 @@ public class HttpInputStream extends BufferedInputStream {
 	 * @param sb
 	 * @return true - if end of HTTP header.
 	 */
-	private static final boolean isHeaderEnd(final StringBuilder sb) {
+	private static final boolean isHeaderEnd(StringBuilder sb) {
 		int len = sb.length();
 		if (len > 2) {
 			if (LF2.equals(sb.substring(len-2))) {
