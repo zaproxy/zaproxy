@@ -144,6 +144,9 @@ public class HttpRequestHeader extends HttpHeader {
     	}
 
     	if (mMalformedHeader) {
+    		if (log.isDebugEnabled()) {
+    			log.debug("Malformed header: " + data);
+    		}
     		throw new HttpMalformedHeaderException();
     	}
 
