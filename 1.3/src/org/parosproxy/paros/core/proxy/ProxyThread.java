@@ -147,9 +147,9 @@ class ProxyThread implements Runnable {
 				// ZAP: added host name variable
                 String hostName = firstHeader.getHostName();
 				try {
-					beginSSL(hostName);
 					httpOut.write(CONNECT_HTTP_200);
 					httpOut.flush();
+					beginSSL(hostName);
 				} catch (MissingRootCertificateException e) {
 					// Unluckily Firefox and Internet Explorer will not show this message.
 					// We should find a way to let the browsers display this error message.
