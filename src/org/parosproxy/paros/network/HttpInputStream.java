@@ -61,7 +61,7 @@ public class HttpInputStream extends BufferedInputStream {
         int		oneByte = -1;
         boolean eoh = false;
         boolean neverReadOnce = true;
-        StringBuffer sb = new StringBuffer(200);
+        StringBuilder sb = new StringBuilder(200);
         
         do {
             oneByte = super.read();
@@ -93,7 +93,7 @@ public class HttpInputStream extends BufferedInputStream {
 	 * @param sb
 	 * @return true - if end of HTTP header.
 	 */
-	private boolean isHeaderEnd(StringBuffer sb) {
+	private static final boolean isHeaderEnd(final StringBuilder sb) {
 		int len = sb.length();
 		if (len > 2) {
 			if (LF2.equals(sb.substring(len-2))) {
