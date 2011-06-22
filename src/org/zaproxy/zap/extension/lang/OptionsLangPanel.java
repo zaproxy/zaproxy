@@ -27,12 +27,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -48,11 +54,12 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JPanel panelLang = null;
 	private JLabel languageLabel = null;
 	private JLabel importLabel = null;
-	//private JLabel importNoticeLabel = null;
+	private JLabel restartLabel = null;
 	private JButton selectionButton = null;
 	private JButton importButton = null;
 	private JComboBox localeSelect = null;
 	private ZapTextField fileTextField = null; 
+	private Document fileTextFieldDoc = null;
 	
 	private Map<String, String> localeMap = new HashMap<String, String>();
 	
@@ -79,38 +86,44 @@ public class OptionsLangPanel extends AbstractParamPanel {
 			
 			languageLabel = new JLabel(Constant.messages.getString("options.lang.selector.label"));
 			importLabel = new JLabel(Constant.messages.getString("options.lang.importer.label"));
-			//importNoticeLabel = new JLabel(Constant.messages.getString("options.lang.importer.noticeLabel"));
+			restartLabel = new JLabel(Constant.messages.getString("options.lang.label.restart"));
 			
-			int rowId = 0;
 			
-			panelLang.add(languageLabel, getGridBackConstraints(rowId, 0, 0, 0));
-			panelLang.add(getLocaleSelect(), getGridBackConstraints(rowId++, 1, 1, GridBagConstraints.REMAINDER));
+			panelLang.add(languageLabel, getGridBagConstraints(0, 0, 0.5, 0, 0, 0, 0));
+			panelLang.add(getLocaleSelect(), getGridBagConstraints(1, 0, 0.5, 0, 0, 0, 0));
 			
-			panelLang.add(importLabel, getGridBackConstraints(rowId++, 0, 0, GridBagConstraints.REMAINDER));
+			panelLang.add(importLabel, getGridBagConstraints(0, 1, 1.0, 0, 2, 0, 0));
 			
-			panelLang.add(getFileTextField(), getGridBackConstraints(rowId, 0, 1, GridBagConstraints.RELATIVE));
-			panelLang.add(getSelectionButton(), getGridBackConstraints(rowId++, 1, 0, 0));
+			panelLang.add(getFileTextField(), getGridBagConstraints(0, 2, 1.0, 0, 2, 0, 0));
 			
-			panelLang.add(new JLabel(""), getGridBackConstraints(rowId, 0, 0, GridBagConstraints.RELATIVE));
-			panelLang.add(getImportButton(), getGridBackConstraints(rowId++, 1, 0, 0));
+			JPanel buttons = new JPanel();
+			buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+			buttons.add(Box.createHorizontalGlue());
+			buttons.add(getImportButton());
+			buttons.add(getSelectionButton());
 			
-			//panelLang.add(importNoticeLabel, getGridBackConstraints(rowId++, 0, 0, GridBagConstraints.REMAINDER));
-	        
+			panelLang.add(buttons, getGridBagConstraints(0, 3, 0.5, 0, 2, 0, GridBagConstraints.NORTHEAST));
+			
+			panelLang.add(restartLabel, getGridBagConstraints(0, 4, 1.0, 0, 2, 0, 0));
+			
+			panelLang.add(new JLabel(""), getGridBagConstraints(0, 5, 1.0, 1.0, 2, GridBagConstraints.BOTH, 0));
+
 		}
 		return panelLang;
 	}
 	
-	private GridBagConstraints getGridBackConstraints(int y, int x, double weight, int columnWidth) {
+	private GridBagConstraints getGridBagConstraints(int x, int y, double weightx, double weighty, int columnWidth, int fill, int anchor) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = y;
         gbc.gridx = x;
-        gbc.insets = new java.awt.Insets(0,0,0,0);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = weight;
-		if (columnWidth > 0) {
-			gbc.gridwidth = columnWidth;
-		}
+        gbc.gridy = y;
+        gbc.weightx = weightx;
+		gbc.weighty = weighty;
+        gbc.insets = new java.awt.Insets(2,2,2,2);
+        gbc.gridwidth = (columnWidth > 0) ? columnWidth : 1;
+        gbc.fill = (fill > 0) ? fill : GridBagConstraints.HORIZONTAL;
+        gbc.anchor = (anchor > 0) ? anchor : GridBagConstraints.NORTHWEST;
+		
+		
 		return gbc;
 	}
 
@@ -118,6 +131,27 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private ZapTextField getFileTextField() {
 		if (fileTextField == null) {
 			fileTextField = new ZapTextField();
+			fileTextFieldDoc = fileTextField.getDocument();
+			
+			fileTextFieldDoc.addDocumentListener(new DocumentListener() {
+				public void changedUpdate(DocumentEvent e) {
+					updated(e);
+				}
+				public void insertUpdate(DocumentEvent e) {
+					updated(e);
+				}
+				public void removeUpdate(DocumentEvent e) {
+					updated(e);
+				}
+				private void updated(DocumentEvent e) {
+					try {
+						String inputString = e.getDocument().getText(0, e.getDocument().getLength());
+						importButton.setEnabled(inputString.endsWith(".zaplang"));
+					} catch (BadLocationException e1) {
+						//logger.error(e1.getMessage());
+					}			
+				}
+			});
 		}
 		return fileTextField;
 	}	
@@ -139,6 +173,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JButton getImportButton() {
 		if (importButton == null) {
 			importButton = new JButton();
+			importButton.setEnabled(false);
 			importButton.setText(Constant.messages.getString("options.lang.importer.button"));
 			importButton.addActionListener(new ActionListener() {
 				@Override
@@ -146,6 +181,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 					if (fileTextField.getText() != "") {
 						LangImporter.importLanguagePack(fileTextField.getText());
 						fileTextField.setText("");
+						loadLocales();
 					}
 				}
 			});
@@ -181,18 +217,19 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		}
 	}
 	
-	
-	public void initParam(Object obj) {
-	    OptionsParam options = (OptionsParam) obj;
-	    
-	    localeSelect.removeAllItems();
+	private void loadLocales() {
+		localeSelect.removeAllItems();
 		List <String> locales = LocaleUtils.getAvailableLocales();
 		for (String locale : locales) {
 			String desc = LocaleUtils.getLocalDisplayName(locale);
 			localeSelect.addItem(desc);
 			localeMap.put(desc, locale);
 		}
-
+	}
+	
+	public void initParam(Object obj) {
+	    OptionsParam options = (OptionsParam) obj;
+		loadLocales();
 	    String locale = LocaleUtils.getLocalDisplayName(options.getViewParam().getLocale());
 	    localeSelect.setSelectedItem(locale);
 	    
