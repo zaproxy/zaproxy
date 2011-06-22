@@ -279,12 +279,17 @@ public class SearchDialog extends AbstractDialog {
             txtPattern.setFont(new java.awt.Font("Courier New",
                     java.awt.Font.PLAIN, 12));
             txtPattern.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mousePressed(java.awt.event.MouseEvent e) {
-                    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // right
-                                                                             // mouse
-                                                                             // button
-                        view.getPopupMenu().show(e.getComponent(), e.getX(),
-                                e.getY());
+            	public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+                        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
 

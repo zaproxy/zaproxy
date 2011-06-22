@@ -119,8 +119,16 @@ public class AlertPanel extends AbstractPanel {
 			treeAlert.setShowsRootHandles(true);
 			treeAlert.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
 			treeAlert.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {    
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 				        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 				    }	
 				    if (e.getClickCount() > 1) {

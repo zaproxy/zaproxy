@@ -21,6 +21,10 @@
 package org.parosproxy.paros.view;
 
 
+import java.awt.CardLayout;
+import java.awt.EventQueue;
+import java.awt.event.InputEvent;
+
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 
@@ -28,10 +32,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
-
-import java.awt.CardLayout;
-import java.awt.EventQueue;
-import java.awt.event.InputEvent;
 
 public class OutputPanel extends AbstractPanel {
 
@@ -93,11 +93,21 @@ public class OutputPanel extends AbstractPanel {
 			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			txtOutput.setName("");
 			txtOutput.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }	
+
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseAction(e);
 				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseAction(e);
+				}
+				
+				public void mouseAction(java.awt.event.MouseEvent e) {
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}
+				}
+				
 			});
 		}
 		return txtOutput;

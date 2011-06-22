@@ -40,12 +40,19 @@ public class HttpPanelTextView implements HttpPanelView {
 		httpPanelTextArea.setEditable(isEditable);
         httpPanelTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
         	
-            public void mousePressed(java.awt.event.MouseEvent e) {
-            	//save();
-                    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // right mouse button
-                            View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
-                    }
-            }
+        	public void mousePressed(java.awt.event.MouseEvent e) {
+				mouseClicked(e);
+			}
+				
+			public void mouseReleased(java.awt.event.MouseEvent e) {
+				mouseClicked(e);
+			}
+			
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+					View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
+				}
+			}
         });
 		
 		scrollPane = new JScrollPane(httpPanelTextArea);

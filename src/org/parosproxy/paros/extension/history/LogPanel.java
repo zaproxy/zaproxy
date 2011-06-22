@@ -35,8 +35,8 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 
 /**
  *
@@ -240,8 +240,16 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
 			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {   
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 				    	
 						// ZAP: Select history list item on right click
 					    int Idx = listLog.locationToIndex( e.getPoint() );
