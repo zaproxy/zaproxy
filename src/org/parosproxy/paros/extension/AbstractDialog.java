@@ -24,12 +24,14 @@ package org.parosproxy.paros.extension;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 
 import javax.swing.JDialog;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.View;
 
 
 /**
@@ -74,20 +76,24 @@ abstract public class AbstractDialog extends JDialog {
 	    }
 		this.setTitle(Constant.PROGRAM_NAME);
 	}
+
 	/**
-	 * Centre this frame.
-	 *
+	 * Centres this dialog on the main fame.
+	 * This is needed, because when using multiple monitors.
+	 * Additionally, it will shrink the size of the dialog to fit the screen.
 	 */
 	public void centreDialog() {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = this.getSize();
-		if (frameSize.height > screenSize.height) {
-			frameSize.height = screenSize.height;
-		}
-		if (frameSize.width > screenSize.width) {
-			frameSize.width = screenSize.width;
-		}
-	    this.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+		// shrink dialog to fit screen if necessary
+		frameSize.height = Math.min(frameSize.height,screenSize.height);
+		frameSize.width  = Math.min(frameSize.width, screenSize.width);
+		// centres the dialog on main frame 
+		final Rectangle mainrect = View.getSingleton().getMainFrame().getBounds();
+		int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
+		int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
+		// finally set the new location
+	    this.setLocation(x, y);
 	}
 	
 	public void setVisible(boolean show) {
