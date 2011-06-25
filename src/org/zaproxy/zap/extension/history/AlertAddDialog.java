@@ -162,9 +162,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 		if (btnOk == null) {
 			btnOk = new JButton();
 			btnOk.setText(Constant.messages.getString("alert.add.button.save"));
-			btnOk.setMinimumSize(new java.awt.Dimension(75,30));
-			btnOk.setPreferredSize(new java.awt.Dimension(75,30));
-			btnOk.setMaximumSize(new java.awt.Dimension(100,40));
 			btnOk.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -218,9 +215,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 		if (btnCancel == null) {
 			btnCancel = new JButton();
 			btnCancel.setText(Constant.messages.getString("alert.add.button.cancel"));
-			btnCancel.setMaximumSize(new java.awt.Dimension(100,40));
-			btnCancel.setMinimumSize(new java.awt.Dimension(70,30));
-			btnCancel.setPreferredSize(new java.awt.Dimension(70,30));
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
