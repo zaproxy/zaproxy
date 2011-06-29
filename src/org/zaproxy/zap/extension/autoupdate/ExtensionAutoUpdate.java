@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2011 The Zed Attack Proxy Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -18,22 +18,18 @@
  * limitations under the License. 
  */
 package org.zaproxy.zap.extension.autoupdate;
-import java.awt.EventQueue;
-import java.io.IOException;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.text.MessageFormat;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 
@@ -42,24 +38,17 @@ import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionAutoUpdate extends ExtensionAdaptor{
+public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentListener{
 
 	private JMenuItem menuItemCheckUpdate = null;
-    //private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
-	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/QfCpK
-    private static final String GF_ZAP_LATEST_XML_SHORT = "http://goo.gl/QfCpK";
-    // The long URL is a failsafe ;)
-    private static final String GF_ZAP_LATEST_XML_FULL = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
     
-    private static final String ZAP_START_TAG = "&lt;ZAP&gt;";
-    private static final String ZAP_END_TAG = "&lt;/ZAP&gt;";
-	private HttpSender httpSender = null;
-    
-    private String latestVersionName = null;
     private Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
     
     private WaitMessageDialog waitDialog = null;
-    public static boolean manual = false;
+    private boolean isManual = false;
+    private boolean cancelled = false;
+
+    private CheckForUpdates checkForUpdates = null;
     
     /**
      * 
@@ -101,13 +90,43 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
 		return menuItemCheckUpdate;
 	}
 	
+	public void checkComplete (String latestVersionName) {
+		checkForUpdates = null;
+
+        if (waitDialog != null) {
+            waitDialog.setVisible(false);
+            waitDialog = null;
+        }
+        // based on simple String compare, works in many cases
+    	// breaks, in cases of 1.2.13 vs. 1.2.1
+        if (cancelled) {
+        	// Dont report anything to the user
+        } else if (latestVersionName.equals("")) {
+        	if (isManual) {
+        		getView().showWarningDialog(
+    				Constant.messages.getString("cfu.check.failed"));
+        	}
+        } else if (Constant.PROGRAM_VERSION.compareTo(latestVersionName) >= 0) {
+        	if (isManual) {
+        		getView().showMessageDialog(
+        			Constant.messages.getString("cfu.check.latest"));
+        	}
+        } else {
+        	getView().showMessageDialog(MessageFormat.format(
+        			Constant.messages.getString("cfu.check.newer"),
+        			latestVersionName));
+        }
+	}
+	
 	public void checkForUpdates(boolean manual) {
 		
-        // check 1 in 30 cases to avoid too frequent check.
-        //if (! manual && getRandom(CHECK_FREQUENCY) != 1) {
-        //    return;
-        //}
-		ExtensionAutoUpdate.manual = manual;
+		if (checkForUpdates != null) {
+			// Currently checking
+			return;
+		}
+		
+		isManual = manual;
+		cancelled = false;
 		if (! manual) {
 			if (getModel().getOptionsParam().getCheckForUpdatesParam().isCheckOnStartUnset()) {
 				// First time in
@@ -135,48 +154,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
 			
 		}
 		
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                latestVersionName = getLatestVersionName();
-                
-                if (waitDialog != null) {
-                    waitDialog.setVisible(false);
-                    waitDialog = null;
-                }
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        // based on simple String compare, works in many cases
-                    	// breaks, in cases of 1.2.13 vs. 1.2.1
-                        if (Constant.PROGRAM_VERSION.compareTo(latestVersionName) >= 0) {
-                        	if (ExtensionAutoUpdate.manual) {
-                        		getView().showMessageDialog(
-                        			Constant.messages.getString("cfu.check.latest"));
-                        	}
-                        } else if (latestVersionName.equals("")) {
-                        	if (ExtensionAutoUpdate.manual) {
-                        		getView().showWarningDialog(
-                    				Constant.messages.getString("cfu.check.failed"));
-                        	}
-                            
-                        } else {
-                            getView().showMessageDialog(MessageFormat.format(
-                        			Constant.messages.getString("cfu.check.newer"),
-                        			latestVersionName));
-                        }
-                    }
-                });
-            }
-        });
-        
         if (manual) {
-        	waitDialog = getView().getWaitMessageDialog(
-				Constant.messages.getString("cfu.check.checking"));
-        }
-
-        t.start();
-        if (manual) {
+        	waitDialog = getView().getWaitMessageDialog(Constant.messages.getString("cfu.check.checking"));
+        	// Allow user to close the dialog
+        	waitDialog.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        	waitDialog.addComponentListener(this);
         	waitDialog.setVisible(true);
         }
+
+		checkForUpdates = new CheckForUpdates(this);
+		checkForUpdates.execute();
+        
 	}
 
 
@@ -187,54 +175,24 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor{
 	    }
 	}
     
-    private String getLatestVersionName() {
-        String newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_SHORT);
-        if (newVersionName.length() == 0) {
-        	// Shortened version failed, try going direct
-            newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_FULL);
-        }
 
-        httpSender.shutdown();
-        httpSender = null;
-        
-        return newVersionName;
-    }
-    
-    private String getLatestVersionNameFromUrl(String url) {
-        String newVersionName = "";
-        HttpMessage msg = null;
-        String resBody = null;
-        
-        try {
-            msg = new HttpMessage(new URI(url, true));
-            getHttpSender().sendAndReceive(msg,true);
-            if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-            	logger.error("Failed to access " + url +
-            			" response " + msg.getResponseHeader().getStatusCode());
-                throw new IOException();
-            }
-            resBody = msg.getResponseBody().toString();
-            
-            int startIndex = resBody.indexOf(ZAP_START_TAG);
-            if (startIndex > 0) {
-            	startIndex += ZAP_START_TAG.length();
-                int endIndex = resBody.indexOf(ZAP_END_TAG, startIndex);
-            	newVersionName = resBody.substring(startIndex, endIndex ); 
-            }
-            
-        } catch (Exception e) {
-        	logger.error("Failed to access " + url, e);
-            newVersionName = "";
-        }
-        
-        return newVersionName;
-    	
-    }
-    
-    private HttpSender getHttpSender() {
-        if (httpSender == null) {
-            httpSender = new HttpSender(getModel().getOptionsParam().getConnectionParam(), true);
-        }
-        return httpSender;
-    }
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		cancelled = true;
+		if (checkForUpdates != null) {
+			checkForUpdates.cancel(true);
+		}
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+	}
 }
