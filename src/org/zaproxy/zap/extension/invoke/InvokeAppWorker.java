@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.invoke;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +34,16 @@ import org.parosproxy.paros.view.View;
 public class InvokeAppWorker extends SwingWorker<Void, Void> {
 
     private String command = null;
+    private File workingDir = null;
     private String parameters = null;
     private boolean captureOutput = true;
     private URI uri = null;
 
     private Logger logger = Logger.getLogger(InvokeAppWorker.class);
 
-	public InvokeAppWorker (String command, String parameters, boolean captureOutput, URI uri) {
+	public InvokeAppWorker (String command, File workingDir, String parameters, boolean captureOutput, URI uri) {
 		this.command = command;
+		this.workingDir = workingDir;
 		this.parameters = parameters;
 		this.captureOutput = captureOutput;
 		this.uri = uri;
@@ -84,7 +87,11 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 
 		logger.debug("Invoking: " + cmd.toString());
 		View.getSingleton().getOutputPanel().append("\n" + cmd.toString() + "\n");
-		Process proc = new ProcessBuilder(cmd).start();
+		ProcessBuilder pb = new ProcessBuilder(cmd);
+		if (workingDir != null) {
+			pb.directory(workingDir);
+		}
+		Process proc = pb.start();
 
 		if (captureOutput) {
 			BufferedReader brErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
