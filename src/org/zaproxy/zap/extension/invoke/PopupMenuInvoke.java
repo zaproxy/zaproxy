@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.invoke;
 
 import java.awt.Component;
+import java.io.File;
 
 import javax.swing.JList;
 import javax.swing.JTree;
@@ -37,6 +38,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 	private static final long serialVersionUID = 1L;
     private Component invoker = null;
     private String command = null;
+    private File workingDir = null;
     private String parameters = null;
     private boolean captureOutput = true;
 
@@ -101,7 +103,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
         		try {
 	        		if (command != null) {
-	        			InvokeAppWorker iaw = new InvokeAppWorker(command, parameters, captureOutput, uri);
+	        			InvokeAppWorker iaw = new InvokeAppWorker(command, workingDir, parameters, captureOutput, uri);
 	        			iaw.execute();
 	        		}
         		} catch (Exception e1) {
@@ -166,5 +168,13 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 	public void setCaptureOutput(boolean captureOutput) {
 		this.captureOutput = captureOutput;
 	}
-    	
+
+	public File getWorkingDir() {
+		return workingDir;
+	}
+
+	public void setWorkingDir(File workingDir) {
+		this.workingDir = workingDir;
+	}
+
 }

@@ -53,9 +53,11 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	private OptionsInvokeTableModel tableModel = null;
 	private ZapTextField editDisplayName = null;
 	private ZapTextField editFullCommand = null;
+	private ZapTextField editWorkingDir = null;
 	private ZapTextField editParameters = null;
 	private JCheckBox editOutput = null;
 	private JButton chooseApp = null;
+	private JButton chooseDir = null;
 	private JButton newButton = null;
 	private JButton saveButton = null;
 	private JButton deleteButton = null;
@@ -174,6 +176,8 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        editDisplayName = new ZapTextField();
 	        editFullCommand = new ZapTextField();
 	        editFullCommand.setEditable(false);
+	        editWorkingDir = new ZapTextField();
+	        editWorkingDir.setEditable(false);
 	        
 	        chooseApp = new JButton(Constant.messages.getString("invoke.options.label.file")); 
 			chooseApp.addActionListener(new java.awt.event.ActionListener() { 
@@ -202,6 +206,29 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 					{
 						editFullCommand.setText(fcCommand.getSelectedFile().toString() );
 						checkUpdateButton();
+					}
+				}
+			});
+
+	        chooseDir = new JButton(Constant.messages.getString("invoke.options.label.dir")); 
+			chooseDir.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			    	JFileChooser fcDirectory = new JFileChooser();
+			    	fcDirectory.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			    	 // disable the "All files" option.
+			    	fcDirectory.setAcceptAllFileFilterUsed(false);
+			    	
+					if (editWorkingDir.getText() != null && editWorkingDir.getText().length() > 0) {
+						// If theres and existing directory then select it 
+						File f = new File(editWorkingDir.getText());
+						fcDirectory.setCurrentDirectory(f);
+					}
+					
+					int state = fcDirectory.showOpenDialog( null );
+
+					if ( state == JFileChooser.APPROVE_OPTION )
+					{
+						editWorkingDir.setText(fcDirectory.getSelectedFile().toString() );
 					}
 				}
 			});
@@ -276,6 +303,11 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        editPane.add(editFullCommand, getGridBackConstrants(rowId++, 1, 1, false));
 	        editPane.add(chooseApp, getGridBackConstrants(rowId-1, 2, 0, false));
 	        
+	        editPane.add(new JLabel(Constant.messages.getString("invoke.options.label.workingDir")), 
+	        		getGridBackConstrants(rowId, 0, 0, false));
+	        editPane.add(editWorkingDir, getGridBackConstrants(rowId++, 1, 1, false));
+	        editPane.add(chooseDir, getGridBackConstrants(rowId-1, 2, 0, false));
+	        
 	        editPane.add(new JLabel(Constant.messages.getString("invoke.options.label.parameters")), 
 	        		getGridBackConstrants(rowId, 0, 0, false));
 	        editPane.add(editParameters, getGridBackConstrants(rowId++, 1, 1, true));
@@ -340,6 +372,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        			if (app != null) {
 	        				editDisplayName.setText(app.getDisplayName());
 	        				editFullCommand.setText(app.getFullCommand());
+	        				if (app.getWorkingDirectory() != null) {
+	        					editWorkingDir.setText(app.getWorkingDirectory().getAbsolutePath());
+	        				}
 	        				editParameters.setText(app.getParameters());
 	        				editOutput.setSelected(app.isCaptureOutput());
 	        				saveButton.setEnabled(true);
@@ -355,6 +390,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	private void clearEditForm() {
 		editDisplayName.setText("");
 		editFullCommand.setText("");
+		editWorkingDir.setText("");
 		editParameters.setText("");
 		editOutput.setSelected(true);
 		tableAuth.clearSelection();
@@ -372,6 +408,13 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		InvokableApp app = new InvokableApp();
 		app.setDisplayName(editDisplayName.getText());
 		app.setFullCommand(editFullCommand.getText());
+		String workingDir = editWorkingDir.getText();
+		if (workingDir != null) {
+			File dir = new File(workingDir);
+			if (dir.exists() && dir.isDirectory()) {
+				app.setWorkingDirectory(dir);
+			}
+		}
 		app.setParameters(editParameters.getText());
 		app.setCaptureOutput(editOutput.isSelected());
 
