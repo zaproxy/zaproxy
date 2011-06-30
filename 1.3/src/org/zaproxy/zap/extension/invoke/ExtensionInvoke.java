@@ -63,6 +63,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
         for (InvokableApp app: apps) {
             PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
             pmi.setCommand(app.getFullCommand());
+            pmi.setWorkingDir(app.getWorkingDirectory());
             pmi.setParameters(app.getParameters());
             pmi.setCaptureOutput(app.isCaptureOutput());
             this.invokeMenus.add(pmi);
@@ -107,6 +108,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 		for (InvokableApp app : apps) {
             PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
             pmi.setCommand(app.getFullCommand());
+            pmi.setWorkingDir(app.getWorkingDirectory());
             pmi.setParameters(app.getParameters());
             pmi.setCaptureOutput(app.isCaptureOutput());
     		View.getSingleton().getPopupMenu().addMenu(pmi);

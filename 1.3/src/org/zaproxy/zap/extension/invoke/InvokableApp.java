@@ -19,16 +19,20 @@
  */
 package org.zaproxy.zap.extension.invoke;
 
+import java.io.File;
+
 public class InvokableApp {
 
 	private String displayName = "";
 	private String fullCommand = "";
 	private String parameters = "";
 	private boolean captureOutput = true;
+	private File workingDirectory = null;
 	
-	public InvokableApp(String displayName, String fullCommand, String parameters, boolean captureOutput) {
+	public InvokableApp(String displayName, File workingDirectory, String fullCommand, String parameters, boolean captureOutput) {
 		super();
 		this.displayName = displayName;
+		this.workingDirectory = workingDirectory;
 		this.fullCommand = fullCommand;
 		this.parameters = parameters;
 		this.captureOutput = captureOutput;
@@ -64,6 +68,14 @@ public class InvokableApp {
 
 	public void setCaptureOutput(boolean captureOutput) {
 		this.captureOutput = captureOutput;
+	}
+
+	public File getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	public void setWorkingDirectory(File workingDirectory) {
+		this.workingDirectory = workingDirectory;
 	}
 	
 }
