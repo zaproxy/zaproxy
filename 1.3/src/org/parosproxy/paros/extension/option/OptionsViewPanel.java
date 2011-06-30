@@ -54,8 +54,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private JLabel editorViewLabel = null;
 	private JLabel brkPanelViewLabel = null;
-	private JLabel advancedViewLabel = null;
-	private JLabel wmUiHandlingLabel = null;
+	//private JLabel advancedViewLabel = null;
+	//private JLabel wmUiHandlingLabel = null;
 	private JLabel askOnExitLabel = null;
 	private JLabel displayLabel = null;
 	private JLabel showMainToolbarLabel = null;
@@ -273,8 +273,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			editorViewLabel = new JLabel(Constant.messages.getString("view.options.label.editorView"));
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
-			advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
-			wmUiHandlingLabel = new JLabel(Constant.messages.getString("view.options.label.wmuihandler"));
+			//advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
+			//wmUiHandlingLabel = new JLabel(Constant.messages.getString("view.options.label.wmuihandler"));
 			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
 			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
@@ -288,11 +288,16 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(brkPanelViewLabel, gbc2_0);
 			panelMisc.add(getBrkPanelViewSelect(), gbc2_1);
 
+			/*
 			panelMisc.add(advancedViewLabel, gbc3_0);
 			panelMisc.add(getChkAdvancedView(), gbc3_1);
 			
 			panelMisc.add(wmUiHandlingLabel, gbc4_0);
 			panelMisc.add(getChkWmUiHandling(), gbc4_1);
+			*/
+			// To prevent NPEs ;)
+			getChkAdvancedView();
+			getChkWmUiHandling();
 
 			panelMisc.add(askOnExitLabel, gbc5_0);
 			panelMisc.add(getChkAskOnExit(), gbc5_1);
