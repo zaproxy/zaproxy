@@ -60,8 +60,8 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         this.setSize(409, 268);
         this.setName(Constant.messages.getString("options.acsrf.title"));
         jLabel.setText(Constant.messages.getString("options.acsrf.label.tokens"));
-        jLabel.setPreferredSize(new java.awt.Dimension(494,80));
-        jLabel.setMinimumSize(new java.awt.Dimension(494,16));
+        jLabel.setPreferredSize(new java.awt.Dimension(494,25));
+        jLabel.setMinimumSize(new java.awt.Dimension(494,25));
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
         gridBagConstraints1.gridheight = 1;
@@ -69,7 +69,6 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.weightx = 1.0D;
         gridBagConstraints2.gridx = 0;
         gridBagConstraints2.gridy = 1;
         gridBagConstraints2.weightx = 1.0;
