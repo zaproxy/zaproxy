@@ -146,11 +146,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			this.getSpiderPanel().addSite(site);
+			this.getSpiderPanel().addSite(en.nextElement().getNodeName(), true);
 		}
 	}
 
@@ -161,7 +157,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
 			site += ":" + msg.getRequestHeader().getHostPort();
 		}
-		this.getSpiderPanel().addSite(site);
+		this.getSpiderPanel().addSite(site, true);
 	}
 
 	@Override

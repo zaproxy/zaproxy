@@ -145,11 +145,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			this.getBruteForcePanel().addSite(site);
+			this.getBruteForcePanel().addSite(en.nextElement().getNodeName());
 		}
 	}
 

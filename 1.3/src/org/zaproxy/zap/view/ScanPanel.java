@@ -408,7 +408,9 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 	}
 	
-	public void addSite(String site) {
+	public void addSite(String site, boolean incPort) {
+		site = cleanSiteName(site, incPort);
+		
 		if (siteModel.getIndexOf(activeSitelabel(site)) < 0 &&
 				siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
 	 		log.debug("addSite " + site);
@@ -457,13 +459,25 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 	}
 	
-	protected String cleanSiteName(String site) {
+	public static String cleanSiteName(String site, boolean incPort) {
+		boolean ssl = false;
+		if (site.toLowerCase().startsWith("https:")) {
+			ssl = true;
+		}
 		if (site.indexOf("//") >= 0) {
 			site = site.substring(site.indexOf("//") + 2);
 		}
 		if (site.indexOf(" (") >= 0) {
 			// Alert counts
 			site = site.substring(0, site.indexOf(" ("));
+		}
+		if (! incPort) {
+			// Strip the port off
+			if (site.indexOf(":") >= 0) {
+				site = site.substring(0, site.indexOf(":"));
+			}
+		} else if (ssl) {
+			site += ":443";
 		}
 		return site;
 	}
@@ -473,7 +487,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			return this.cleanSiteName(node.getNodeName());
+			return cleanSiteName(node.getNodeName(), true);
 		}
 		return null;
 	}
@@ -487,6 +501,9 @@ public abstract class ScanPanel extends AbstractPanel {
 		while (en.hasMoreElements()) {
 			SiteNode sn = en.nextElement();
 			String nodeName = sn.getNodeName();
+			if (nodeName.toLowerCase().startsWith("https:")) {
+				nodeName += ":443";
+			}
 			if (nodeName.indexOf("//") >= 0) {
 				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
 			}
