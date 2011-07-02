@@ -84,7 +84,7 @@ public class ZAP {
 	    try {
 	        zap.run();
 	    } catch (final Exception e) {
-	        log.fatal(e.getStackTrace());
+	        log.fatal(e.getMessage(), e);
 	        //throw e;
 	        System.exit(1);
 	    }
@@ -308,7 +308,7 @@ public class ZAP {
 	        }
 		    rc = 0;
 	    } catch (final Exception e) {
-	        log.error(e.getMessage());
+	        log.error(e.getMessage(), e);
 	        System.out.println(e.getMessage());
 	        rc = 1;
 	    } finally {
