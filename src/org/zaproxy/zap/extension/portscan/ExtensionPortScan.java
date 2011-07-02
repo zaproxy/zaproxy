@@ -130,21 +130,14 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			if (site.indexOf(":") >= 0) {
-				site = site.substring(0, site.indexOf(":"));
-			}
-			this.getPortScanPanel().addSite(site);
+			this.getPortScanPanel().addSite(en.nextElement().getNodeName(), false);
 		}
 	}
 
 	@Override
 	public void onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
-		this.getPortScanPanel().addSite(msg.getRequestHeader().getHostName());
+		this.getPortScanPanel().addSite(msg.getRequestHeader().getHostName(), false);
 	}
 
 	@Override
