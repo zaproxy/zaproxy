@@ -4,6 +4,8 @@ import java.util.Enumeration;
 
 import javax.swing.DefaultListModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
@@ -13,6 +15,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.GenericScanner;
+import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner, ScannerListener {
 
@@ -22,7 +25,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private boolean isAlive = false;
 	private DefaultListModel list = new DefaultListModel();
 	private SiteNode startNode = null;
-	
+	private static Log log = LogFactory.getLog(ActiveScan.class);
+
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);
 		this.site = site;
@@ -77,10 +81,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			Enumeration<SiteNode> en = rootNode.children();
 			while (en.hasMoreElements()) {
 				SiteNode sn = en.nextElement();
-				String nodeName = sn.getNodeName();
-				if (nodeName.indexOf("//") >= 0) {
-					nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
-				}
+				String nodeName = ScanPanel.cleanSiteName(sn.getNodeName(), true);
 				if (this.site.equals(nodeName)) {
 					startNode = sn;
 					break;
@@ -92,8 +93,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		if (startNode != null) {
 			this.start(startNode);
 		} else {
-			// TODO what? Popup?
-			System.out.println("Failed to find site " + site);
+			log.error("Failed to find site " + site);
 		}
 	}
 

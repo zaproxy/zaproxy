@@ -176,7 +176,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	@Override
 	public void hostComplete(String hostAndPort) {
-		this.scanFinshed(cleanSiteName(hostAndPort));
+		this.scanFinshed(cleanSiteName(hostAndPort, true));
 		
 	}
 
@@ -188,7 +188,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	@Override
 	public void hostProgress(String hostAndPort, String msg, int percentage) {
-		this.scanProgress(this.cleanSiteName(hostAndPort), percentage, 100);
+		this.scanProgress(cleanSiteName(hostAndPort, true), percentage, 100);
 	}
 
 

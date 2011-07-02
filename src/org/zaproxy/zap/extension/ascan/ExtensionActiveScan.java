@@ -399,11 +399,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		SiteNode snroot = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = snroot.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			this.getActiveScanPanel().addSite(site);
+			this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);
 		}
 	}
 
@@ -434,7 +430,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 		return manualRequestEditorDialog;
 	}
-	
+
 	private PopupMenuAlertEdit getPopupMenuAlertEdit() {
 		if (popupMenuAlertEdit == null) {
 			popupMenuAlertEdit = new PopupMenuAlertEdit();
@@ -515,8 +511,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		String site = msg.getRequestHeader().getHostName();
 		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
 			site += ":" + msg.getRequestHeader().getHostPort();
+		} else if (msg.getRequestHeader().getSecure()) {
+			site += ":443";
 		}
-		this.getActiveScanPanel().addSite(site);
+		this.getActiveScanPanel().addSite(site, true);
 	}
 
 	@Override

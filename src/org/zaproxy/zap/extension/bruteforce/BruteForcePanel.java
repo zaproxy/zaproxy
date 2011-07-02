@@ -61,6 +61,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.FilenameExtensionFilter;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.ScanStatus;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
@@ -592,6 +593,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 	
 	public void addSite(String site) {
+		// OK, so this doesnt extend ScanPanel right now .. but it should
+		site = ScanPanel.cleanSiteName(site, true);
+		
 		if (siteModel.getIndexOf(activeSitelabel(site)) < 0 &&
 				siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
 			siteModel.addElement(passiveSitelabel(site));
@@ -651,15 +655,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			String site = node.getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
-			if (site.indexOf(" (") >= 0) {
-				// Alert counts
-				site = site.substring(0, site.indexOf(" ("));
-			}
-			return site;
+			return ScanPanel.cleanSiteName(node.getNodeName(), true);
 		}
 		return null;
 	}
