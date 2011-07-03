@@ -99,8 +99,8 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         this.setSize(409, 268);
         this.setName(Constant.messages.getString("pscan.options.name"));
         jLabel.setText(Constant.messages.getString("pscan.options.header"));
-        jLabel.setPreferredSize(new java.awt.Dimension(494,30));
-        jLabel.setMinimumSize(new java.awt.Dimension(494,30));
+        jLabel.setPreferredSize(new java.awt.Dimension(494,40));
+        jLabel.setMinimumSize(new java.awt.Dimension(494,40));
         gbc1.gridx = 0;
         gbc1.gridy = 0;
         gbc1.gridheight = 1;
