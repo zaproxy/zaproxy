@@ -1,18 +1,27 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PassiveScannerList {
 
 	private List<PassiveScanner> passiveScanners = new ArrayList<PassiveScanner>();
+	private Set<String> scannerNames = new HashSet<String>();
 
 	protected void add (PassiveScanner scanner) {
+		if (scannerNames.contains(scanner.getName())) {
+			// Prevent duplicates, log error?
+			return;
+		}
 		passiveScanners.add(scanner);
+		scannerNames.add(scanner.getName());
 	}
 	
 	protected void remove (PassiveScanner scanner) {
 		passiveScanners.remove(scanner);
+		scannerNames.remove(scanner.getName());
 	}
 
 	protected List<PassiveScanner> list () {

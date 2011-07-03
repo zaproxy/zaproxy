@@ -42,6 +42,7 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -107,10 +108,15 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
      * @param tokens The tokens to set.
      */
     public void setTokens(List<String> tokens) {
-    	if (tokens == null) {
-    		this.tokens = new ArrayList<String>();
-    	} else {
-    		this.tokens = new ArrayList<String>(tokens);
+		this.tokens = new ArrayList<String>();
+    	if (tokens != null) {
+    		for (String token : tokens) {
+    			if ( ! this.tokens.contains(token)) {
+    				// Ensure duplicated removed
+    				this.tokens.add(token);
+    			}
+    		}
+    		Collections.sort(this.tokens);
     	}
         checkAndAppendNewRow();
   	  	fireTableDataChanged();
