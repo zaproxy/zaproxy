@@ -23,45 +23,83 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 
 public class LangImporter {
-
+	
 	private static Logger logger = Logger.getLogger(LangImporter.class);
-
+	
+	private static final String FILENAME_PATTERN = "Messages_([a-z]{2}_[A-Z]{2})\\.properties$";
+	
+	private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
+	private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";
+	private static final String MSG_FILE_NOT_FOUND = "options.lang.importer.dialog.message.filenotfound";
+	
+	
 	public static void importLanguagePack(String languagePack) {
+		Matcher matcher = null;
+		Pattern pattern = Pattern.compile(FILENAME_PATTERN);
+		
+		int langFileCount = 0;
+		String message = "";
+		
 		try {
 			File F = new File(languagePack);
-			System.out.println(F.getAbsolutePath());
 			ZipFile zipFile = new ZipFile(F.getAbsolutePath());
 			Enumeration enumeration = zipFile.entries();
 
+			
+			
 			while (enumeration.hasMoreElements()) {
 				ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
+				
 				if (!zipEntry.isDirectory()) {
-					BufferedInputStream bis = new BufferedInputStream(
-							zipFile.getInputStream(zipEntry));
+					BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(zipEntry));
 
 					int size;
 					byte[] buffer = new byte[2048];
-					BufferedOutputStream bos = new BufferedOutputStream(
-							new FileOutputStream(zipEntry.getName()),
-							buffer.length);
-
-					while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
-						bos.write(buffer, 0, size);
+					String name = zipEntry.getName();
+					
+					matcher = pattern.matcher(name);
+					if (matcher.find()) {
+						langFileCount++;
+						
+						BufferedOutputStream bos = new BufferedOutputStream(
+								new FileOutputStream(name),
+								buffer.length);
+	
+						while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
+							bos.write(buffer, 0, size);
+						}
+						
+						bos.flush();
+						bos.close();
 					}
-					bos.flush();
-					bos.close();
+					
 					bis.close();
 				}
 			}
+			
+			message = (langFileCount > 0) ? MSG_SUCCESS : MSG_ERROR;
+			
 		} catch (IOException e) {
+			message = MSG_FILE_NOT_FOUND;
 			logger.error(e.getMessage());
 		}
+		
+		JOptionPane.showMessageDialog(null,
+				MessageFormat.format(Constant.messages.getString(message), langFileCount),
+				Constant.messages.getString("options.lang.importer.dialog.title"),                                            
+				(langFileCount > 0) ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
 	}
 }
