@@ -50,11 +50,14 @@ public final class Constant {
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
+//	Also note that you _must_ add to the upgrade code when you 
+//	change the version, or the file will be wiped
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.3.0";
-    public static final long VERSION_TAG = 1003000;
+    public static final String PROGRAM_VERSION = "1.3.1";
+    public static final long VERSION_TAG = 1003001;
     
     // Old version numbers - for upgrade
+	private static final long V_1_3_0_TAG = 1003000;
     private static final long V_1_2_1_TAG = 1002001;
     private static final long V_1_2_0_TAG = 1002000;
     private static final long V_1_1_0_TAG = 1001000;
@@ -272,6 +275,10 @@ public final class Constant {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_2_1(config);
             		
+            	} else if (ver == V_1_3_0_TAG) {
+	            	log.info("Upgrading from " + ver);
+	            	// Nothing to do
+	            	
             	} else {
             		// No idea what this is, replace it
             		f = new File(FILE_CONFIG);
