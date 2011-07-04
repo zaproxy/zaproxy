@@ -25,10 +25,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
@@ -38,6 +40,8 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 
 /**
  *
@@ -46,6 +50,7 @@ import org.parosproxy.paros.view.View;
  */
 public class ReportLastScan {
 
+	private Logger logger = Logger.getLogger(ReportLastScan.class);
     
     public ReportLastScan() {
         
@@ -111,7 +116,7 @@ public class ReportLastScan {
 
             
         } catch (SQLException e) {
-    	    e.printStackTrace();
+        	logger.error(e.getMessage(), e);
         } finally {
             if (conn != null) {
                 conn.close();
@@ -182,15 +187,19 @@ public class ReportLastScan {
 	    		    return;
 	    		}
 	    		
-			    // ZAP: Dont show a success message
-			    //view.showMessageDialog("Scanning report generated.  If it does not show up after clicking OK,\r\nplease browse the file at " + report.getAbsolutePath()); 
-	  
-			    // ZAP: Dont try to open browser automatically
-	  			//ReportGenerator.openBrowser(report.getAbsolutePath());
+	    		try {
+					BrowserLauncher bl = new BrowserLauncher();
+					bl.openURLinBrowser("file://" + report.getAbsolutePath());
+				} catch (Exception e) {
+		        	logger.error(e.getMessage(), e);
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.complete.warning"),
+									new Object[] {report.getAbsolutePath()}));
+				}
 		    }
   			
     	} catch (Exception e){
-    	    e.printStackTrace();
+        	logger.error(e.getMessage(), e);
       		view.showWarningDialog("File creation error."); 
     	}
 	}
@@ -232,14 +241,21 @@ public class ReportLastScan {
 	    		if (report == null) {
 	    		    return;
 	    		}
+	    		
+	    		try {
+					BrowserLauncher bl = new BrowserLauncher();
+					bl.openURLinBrowser("file://" + report.getAbsolutePath());
+				} catch (Exception e) {
+		        	logger.error(e.getMessage(), e);
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.complete.warning"),
+									new Object[] {report.getAbsolutePath()}));
+				}
 		    }
   			
     	} catch (Exception e){
-    	    e.printStackTrace();
+        	logger.error(e.getMessage(), e);
       		view.showWarningDialog("File creation error."); 
     	}
 	}
-
-		
-    
 }

@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.compare;
 import java.awt.EventQueue;
 import java.io.File;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -49,6 +50,8 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.View;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  *
@@ -144,7 +147,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     	if (rh == null) {
     		return;
     	}
-        @SuppressWarnings("unchecked")
+
     	Vector<Integer> hIds = th.getHistoryList(rh.getSessionId(), HistoryReference.TYPE_MANUAL);
     	for (Integer hId : hIds) {
     		RecordHistory recH = th.read(hId);
@@ -282,13 +285,24 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 				        ReportGenerator.stringToHtml(sb.toString(), 
 					    		"xml" + File.separator + "reportCompare.xsl", 
 					    		outputFile.getAbsolutePath());
-				
+
+			    		try {
+							BrowserLauncher bl = new BrowserLauncher();
+							bl.openURLinBrowser("file://" + outputFile.getAbsolutePath());
+						} catch (Exception e) {
+				        	log.error(e.getMessage(), e);
+							View.getSingleton().showMessageDialog(
+									MessageFormat.format(Constant.messages.getString("report.complete.warning"),
+											new Object[] {outputFile.getAbsolutePath()}));
+						}
+
 				    } catch (Exception e1) {
 			        	log.warn(e1.getMessage(), e1);
 				    }
 		    	}
 		    	
 	    		//waitMessageDialog.setVisible(true);
+		    	
 			} catch (Exception e) {
 				log.warn(e.getMessage(), e);
 			}
