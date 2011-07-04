@@ -43,10 +43,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.OptionsDialog;
-import org.parosproxy.paros.view.View;
 
 public class DynamicSSLWelcomeDialog extends AbstractDialog {
 
@@ -158,9 +157,7 @@ public class DynamicSSLWelcomeDialog extends AbstractDialog {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						OptionsDialog optdlg = View.getSingleton().getOptionsDialog("");
-						optdlg.initParam(Model.getSingleton().getOptionsParam());
-						optdlg.showDialog(true, Constant.messages.getString("dynssl.options.name"));
+						Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("dynssl.options.name"));
 					}
 				});
 			}
