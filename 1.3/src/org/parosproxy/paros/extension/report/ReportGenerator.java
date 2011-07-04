@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,7 +36,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.parosproxy.paros.Constant;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -196,28 +193,6 @@ public class ReportGenerator {
 
     }
     
-    public static void openBrowser(String uri) {
-
-		try {
-			if (Constant.isWindows()) {
-				// is windows
-				int pos = uri.lastIndexOf("\\");
-				String path = uri.substring(0, pos);
-				String file = uri.substring(pos+1);
-				Runtime.getRuntime().exec("cmd /c start /D\"" + path + "\" " + file);
-				return;
-			}
-			
-			if (Constant.isLinux()) {
-				// is Linux
-				Runtime.getRuntime().exec("mozilla " + uri);
-				return;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	Encode entity for HTML or XML output.
 	*/
