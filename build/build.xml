@@ -145,6 +145,29 @@
 			</manifest>
 		</jar>
 	</target>
+	
+	<target name="generate-help-file" description="generates the help file and copies it to the right place">
+		<!-- Generate the indexes -->
+		<java classname="com.sun.java.help.search.Indexer" fork="true" dir="${src}/help/zaphelp">
+			<arg value="zaphelp"/>
+			<classpath>
+				<pathelement location="lib/jhall.jar"/>
+			</classpath>
+		</java>
+		<!-- delete the previous one in the help directory -->
+		<delete file="${src}/help/zaphelp.jar" />
+		<!-- Jar up the help files -->
+		<jar destfile="${src}/help/zaphelp.jar"
+			basedir="${src}/help/zaphelp"
+			includes="**"
+			excludes="**/.svn/**"
+		/>
+		<!-- Delete old file in lib directory -->
+		<delete file="lib/zaphelp.jar" />
+		<!-- Copy new one to the lib dirctory -->
+		<copy file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
+		
+	</target>
 
 	<target name="package-linux" description="package the Linux build">
 		<echo message="Packaging the Linux build..." />
