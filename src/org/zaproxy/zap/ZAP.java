@@ -51,6 +51,8 @@ import org.zaproxy.zap.view.AboutWindow;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
+import org.zaproxy.zap.view.SplashScreen;
+
 
 public class ZAP {
 
@@ -159,12 +161,13 @@ public class ZAP {
 	}
 
 	private void run() throws Exception {
-	    AboutWindow aboutWindow = null;
+	    
 	    boolean firstTime = false;
 	    if (cmdLine.isGUI()) {
 		    firstTime = showLicense();
-	        aboutWindow = new AboutWindow();
-	        aboutWindow.setVisible(true);
+		    
+		    Thread splashThread = new Thread(new SplashScreen());
+			splashThread.start();
 	    }
 
 	    try {
@@ -210,7 +213,7 @@ public class ZAP {
 
 		    View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 		    runGUI();
-		    aboutWindow.dispose();
+		    
 
 		    if (firstTime) {
 		    	ExtensionHelp.showHelp();

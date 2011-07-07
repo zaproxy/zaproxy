@@ -93,6 +93,8 @@ public final class Constant {
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
     
+    public static final String FILE_PROGRAM_SPLASH = "resource/zap128x128.png";
+    
 	// Accelerator keys - Default: Windows
 	public static String ACCELERATOR_UNDO = "control Z";
 	public static String ACCELERATOR_REDO = "control Y";
