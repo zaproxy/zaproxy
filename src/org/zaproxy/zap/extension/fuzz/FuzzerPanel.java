@@ -52,6 +52,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchResult;
 import org.zaproxy.zap.view.ScanStatus;
 /**
@@ -374,6 +375,22 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		try {
 			requestPanel.setMessage(msg);
 			responsePanel.setMessage(msg);
+			
+			// The fuzz payload is recorded in the note
+			
+	        String note = msg.getNote();
+	        if (note != null && note.length() > 0) {
+	        	int startIndex = msg.getResponseBody().toString().indexOf(note);
+	        	if (startIndex >= 0) {
+	        		// Found the exact pattern - highlight it
+	        		SearchMatch sm = new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, startIndex, startIndex + note.length());
+	        		responsePanel.setTabFocus();
+	        		responsePanel.requestFocus();
+					responsePanel.highlightBody(sm);
+	        	}
+	        }
+
+			
 		} catch (Exception e) {
 			log.error("Failed to access message ", e);
 		}

@@ -51,7 +51,6 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class FuzzDialog extends AbstractDialog {
@@ -68,6 +67,7 @@ public class FuzzDialog extends AbstractDialog {
 	private JList fuzzersField = null;
 	private JCheckBox enableTokens = null;
 	private JCheckBox showTokenRequests = null;
+	private JCheckBox followRedirects = null;
 	private JButton cancelButton = null;
 	private JButton startButton = null;
 	private int selectionStart = -1;
@@ -110,9 +110,9 @@ public class FuzzDialog extends AbstractDialog {
         this.setContentPane(getJTabbed());
         this.setTitle(Constant.messages.getString("fuzz.title"));
 		if (incAcsrfToken) {
-			this.setSize(500, 450);
+			this.setSize(500, 550);
 		} else {
-			this.setSize(500, 350);
+			this.setSize(500, 450);
 		}
 	}
 	
@@ -137,17 +137,18 @@ public class FuzzDialog extends AbstractDialog {
 				jPanel.add(getShowTokenRequests(), getGBC(1, 3, 1, 0.0D));
 				
 			}
-			
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 4, 1, 0.25D));
-			jPanel.add(getCategoryField(), getGBC(1, 4, 3, 0.75D));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.followredirects")), getGBC(0, 4, 3, 1.0D));
+			jPanel.add(getFollowRedirects(), getGBC(1, 4, 1, 0.0D));
 
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 5, 1, 0.25D));
-			
-			jPanel.add(new JScrollPane(getFuzzersField()), getGBC(1, 5, 3, 1.0D, 0.75D));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 5, 1, 0.25D));
+			jPanel.add(getCategoryField(), getGBC(1, 5, 3, 0.75D));
 
-			jPanel.add(new JLabel(""), getGBC(1, 6, 1, 0.50));
-			jPanel.add(getStartButton(), getGBC(2, 6, 1, 0.25));
-			jPanel.add(getCancelButton(), getGBC(3, 6, 1, 0.25));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 6, 1, 0.25D));
+			jPanel.add(new JScrollPane(getFuzzersField()), getGBC(1, 6, 3, 1.0D, 0.75D));
+			
+			jPanel.add(new JLabel(""), getGBC(1, 7, 1, 0.50));
+			jPanel.add(getStartButton(), getGBC(2, 7, 1, 0.25));
+			jPanel.add(getCancelButton(), getGBC(3, 7, 1, 0.25));
 		}
 		return jPanel;
 	}
@@ -177,6 +178,13 @@ public class FuzzDialog extends AbstractDialog {
 		return showTokenRequests;
 	}
 
+	public JCheckBox getFollowRedirects() {
+		if (followRedirects == null) {
+			followRedirects = new JCheckBox();
+			followRedirects.setSelected(true);
+		}
+		return followRedirects;
+	}
 	
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
@@ -213,7 +221,8 @@ public class FuzzDialog extends AbstractDialog {
 				        		token = tokenPane.getToken();
 				        	}
 			        		extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, 
-			        				selectionStart, selectionEnd, token, getShowTokenRequests().isSelected());
+			        				selectionStart, selectionEnd, token, 
+			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected());
 							
 						} catch (NoSuchFuzzerException e) {
 							log.error(e.getMessage(), e);
