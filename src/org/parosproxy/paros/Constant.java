@@ -109,6 +109,8 @@ public final class Constant {
 
     private static String staticEyeCatcher = PROGRAM_NAME;
     private static boolean staticSP = false;
+    
+    private static String zapHome = null;
 
     
     // ZAP: Added i18n
@@ -153,92 +155,85 @@ public final class Constant {
     	FileCopier copier = new FileCopier();
         File f = null;
         Log log = null;
-        
-        String userhome = System.getProperty("user.home");
-        String zaphome = userhome;
-        
+
         // default to use application directory 'log'
         System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
-        if (zaphome != null && !zaphome.equals("")) {
-            
+        if (zapHome == null) {
+            zapHome = System.getProperty("user.home");
+            if (zapHome == null) {
+            	zapHome = ".";
+            }
+
             if (isLinux()) {
             	// Linux: Hidden Zap directory in the user's home directory
-				zaphome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
+            	zapHome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
 			} else if (isMacOsX()) {
 				// Mac Os X: Support for writing the configuration into the users Library 
-				zaphome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
+				zapHome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
 					+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
 			} else {
 				// Windows: Zap directory in the user's home directory
-				zaphome += FILE_SEPARATOR + PROGRAM_NAME;
+				zapHome += FILE_SEPARATOR + PROGRAM_NAME;
 			}
-			
-			f = new File(zaphome);
-			zaphome += FILE_SEPARATOR;
-			FILE_CONFIG = zaphome + FILE_CONFIG;
-			FOLDER_SESSION = zaphome + FOLDER_SESSION;
-			DBNAME_UNTITLED = zaphome + DBNAME_UNTITLED;
-			ACCEPTED_LICENSE = zaphome + ACCEPTED_LICENSE;
 
-            try {
-                System.setProperty(SYSTEM_PAROS_USER_LOG, zaphome);
-                
-                if (!f.isDirectory()) {
-                    if (! f.mkdir() ) {
-                    	// ZAP: report failure to create directory
-                    	System.out.println("Failed to create directory " + f.getAbsolutePath());
-                    }
+        }
+		
+		f = new File(zapHome);
+		zapHome += FILE_SEPARATOR;
+		FILE_CONFIG = zapHome + FILE_CONFIG;
+		FOLDER_SESSION = zapHome + FOLDER_SESSION;
+		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
+		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
+
+        try {
+            System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
+            
+            if (!f.isDirectory()) {
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
-                
-                // Setup the logging
-                File logFile = new File(zaphome + "/log4j.properties");
-                if (!logFile.exists()) {
-                	copier.copy(new File("xml/log4j.properties"),logFile);
-                }
-                System.setProperty("log4j.configuration", logFile.getAbsolutePath());
-                PropertyConfigurator.configure(logFile.getAbsolutePath());
-                log = LogFactory.getLog(Constant.class);
-                
-                f = new File(FILE_CONFIG);
-                if (!f.isFile()) {
-                	// try old location
-                	File oldf = new File (userhome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
-                	
-                	if (oldf.exists()) {
-                		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
-                		copier.copy(oldf,f);
-                		
-                	} else {
-                		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT+" to " + FILE_CONFIG);
-                		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
-                	}
-                }
-                
-                f=new File(FOLDER_SESSION);
-                if (!f.isDirectory()) {
-                    log.info("Creating directory "+FOLDER_SESSION);
-                    if (! f.mkdir() ) {
-                    	// ZAP: report failure to create directory
-                    	System.out.println("Failed to create directory " + f.getAbsolutePath());
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Unable to initialize home directory! " + e.getMessage());
-                e.printStackTrace(System.err);
-                System.exit(1);
             }
             
-        } else {
-
-            System.setProperty("log4j.configuration","xml/log4j.properties");
-
-            FILE_CONFIG = FILE_CONFIG_DEFAULT;
-            FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
-            DBNAME_UNTITLED = DBNAME_UNTITLED_DEFAULT;
-            ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
+            // Setup the logging
+            File logFile = new File(zapHome + "/log4j.properties");
+            if (!logFile.exists()) {
+            	copier.copy(new File("xml/log4j.properties"),logFile);
+            }
+            System.setProperty("log4j.configuration", logFile.getAbsolutePath());
+            PropertyConfigurator.configure(logFile.getAbsolutePath());
+            log = LogFactory.getLog(Constant.class);
             
+            f = new File(FILE_CONFIG);
+            if (!f.isFile()) {
+            	// try old location
+            	File oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+            	
+            	if (oldf.exists()) {
+            		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+            		copier.copy(oldf,f);
+            		
+            	} else {
+            		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT+" to " + FILE_CONFIG);
+            		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
+            	}
+            }
+            
+            f=new File(FOLDER_SESSION);
+            if (!f.isDirectory()) {
+                log.info("Creating directory "+FOLDER_SESSION);
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Unable to initialize home directory! " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.exit(1);
         }
+        
         
         // Upgrade actions
         try {
@@ -256,19 +251,26 @@ public final class Constant {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_0_0(config);
             		upgradeFrom1_1_0(config);
+            		upgradeFrom1_2_0(config);
+            		upgradeFrom1_2_1(config);
             		
 	            } else if (ver == V_PAROS_TAG) {
 	            	log.info("Upgrading from Paros file " + ver);
             		upgradeFrom1_0_0(config);
             		upgradeFrom1_1_0(config);
+            		upgradeFrom1_2_0(config);
+            		upgradeFrom1_2_1(config);
             		
             	} else if (ver == V_1_1_0_TAG) {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_1_0(config);
+            		upgradeFrom1_2_0(config);
+            		upgradeFrom1_2_1(config);
             		
             	} else if (ver == V_1_2_0_TAG) {
 	            	log.info("Upgrading from " + ver);
             		upgradeFrom1_2_0(config);
+            		upgradeFrom1_2_1(config);
             		
             	} else if (ver == V_1_2_1_TAG) {
 	            	log.info("Upgrading from " + ver);
@@ -276,6 +278,8 @@ public final class Constant {
             		
             	} else {
             		// No idea what this is, replace it
+            		// TODO back up the old one??
+            		
             		f = new File(FILE_CONFIG);
 	            	log.info("Replacing configuration file " + f.getAbsolutePath());
 	                copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
@@ -425,6 +429,10 @@ public final class Constant {
         String os_name = System.getProperty("os.name");
         Matcher matcher = patternMacOsX.matcher(os_name);
         return matcher.find();
+    }
+    
+    public static void setZapHome (String dir) {
+    	zapHome = dir;
     }
     
 }

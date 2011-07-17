@@ -41,6 +41,7 @@ public class CommandLine {
     public static final String DAEMON = "-daemon";
     public static final String HELP = "-help";
     public static final String HELP2 = "-h";
+    public static final String DIR = "-dir";
     
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -197,6 +198,9 @@ public class CommandLine {
             result = true;
 	    } else if (checkPair(args, SESSION, i)) {
 	        setGUI(false);
+	        result = true;
+	    } else if (checkPair(args, DIR, i)) {
+	    	Constant.setZapHome(keywords.get(DIR));
 	        result = true;
 	    }
 	    return result;
