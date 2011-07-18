@@ -47,11 +47,9 @@ import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
-import org.zaproxy.zap.view.AboutWindow;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
-import org.zaproxy.zap.view.SplashScreen;
 
 
 public class ZAP {
@@ -165,9 +163,6 @@ public class ZAP {
 	    boolean firstTime = false;
 	    if (cmdLine.isGUI()) {
 		    firstTime = showLicense();
-		    
-		    Thread splashThread = new Thread(new SplashScreen());
-			splashThread.start();
 	    }
 
 	    try {
