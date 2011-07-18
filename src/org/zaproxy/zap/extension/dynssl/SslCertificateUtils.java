@@ -28,6 +28,8 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -35,12 +37,16 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.security.auth.x500.X500Principal;
-
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.parosproxy.paros.security.SslCertificateService;
 
@@ -64,43 +70,43 @@ import org.parosproxy.paros.security.SslCertificateService;
 	public final static KeyStore createRootCA() throws NoSuchAlgorithmException {
 		final Date startDate = Calendar.getInstance().getTime();
 		final Date expireDate = new Date(startDate.getTime()+ (DEFAULT_VALID_DAYS * 24L * 60L * 60L * 1000L));
-		// The Root CA serial number is '1'
-		final BigInteger serialNumber = new BigInteger("1");
 
-		final KeyPairGenerator g = KeyPairGenerator.getInstance("RSA");
 		final SecureRandom rnd = SecureRandom.getInstance("SHA1PRNG");
 		rnd.setSeed(System.currentTimeMillis());
-		g.initialize(2048, rnd);
+		
+		final KeyPairGenerator g = KeyPairGenerator.getInstance("RSA");
 		final KeyPair keypair = g.genKeyPair();
+		final PrivateKey privKey = keypair.getPrivate();
+        final PublicKey  pubKey = keypair.getPublic();
 
-		final X509V3CertificateGenerator certGen = new X509V3CertificateGenerator();
 		// using the hash code of the user's name and home path, keeps anonymity
 		// but also gives user a chance to distinguish between each other
-		final X500Principal x500principal = new X500Principal(
-						"CN = OWASP Zed Attack Proxy Root CA, " +
-						"L = " + Integer.toHexString(System.getProperty("user.name").hashCode()) +
-								Integer.toHexString(System.getProperty("user.home").hashCode()) + ", " +
-						"O = OWASP Root CA, " +
-						"OU = OWASP ZAP Root CA, " +
-						"C = XX"
-				);
-
-		certGen.setSerialNumber(serialNumber);
-		certGen.setSubjectDN(x500principal);
-		certGen.setIssuerDN(x500principal);
-		certGen.setNotBefore(startDate);
-		certGen.setNotAfter(expireDate);
-		certGen.setPublicKey(keypair.getPublic());
-		certGen.setSignatureAlgorithm("SHA1withRSA");
-
+		X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE); 
+		namebld.addRDN(BCStyle.CN, "OWASP Zed Attack Proxy Root CA");
+		namebld.addRDN(BCStyle.L, Integer.toHexString(System.getProperty("user.name").hashCode())
+									+ Integer.toHexString(System.getProperty("user.home").hashCode()));
+		namebld.addRDN(BCStyle.O, "OWASP Root CA");
+		namebld.addRDN(BCStyle.OU, "OWASP ZAP Root CA");
+		namebld.addRDN(BCStyle.C, "xx");
+		
+		X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder (
+												namebld.build(),
+												new BigInteger("3405691582"), // 0xCAFEBABE ;-)
+												startDate,
+												expireDate,
+												namebld.build(),
+												pubKey
+											);
+		
 		KeyStore ks = null;
 		try {
-			certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(keypair.getPublic()));
-			certGen.addExtension(X509Extensions.BasicConstraints, false, new BasicConstraints(true));
-			final X509Certificate cert = certGen.generate(keypair.getPrivate());
+			certGen.addExtension(X509Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(pubKey));
+			certGen.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(true));
+			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privKey);
+			final X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
 			ks = KeyStore.getInstance(KeyStore.getDefaultType());
 			ks.load(null, null);
-			ks.setKeyEntry(SslCertificateService.ZAPROXY_JKS_ALIAS, keypair.getPrivate(), SslCertificateService.PASSPHRASE, new Certificate[]{cert});
+			ks.setKeyEntry(SslCertificateService.ZAPROXY_JKS_ALIAS, privKey, SslCertificateService.PASSPHRASE, new Certificate[]{cert});
 		} catch (final Exception e) {
 			throw new IllegalStateException("Errors during assembling root CA.", e);
 		}
