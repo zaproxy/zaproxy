@@ -468,7 +468,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
     }
 
 	@SuppressWarnings("unchecked")
-	public List<SearchResult> searchResults(Pattern pattern) {
+	public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
 		List<SearchResult> results = new ArrayList<SearchResult>();
 		
 		if (resultsModel == null) {
@@ -482,7 +482,12 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			if (msg != null && msg.getRequestBody() != null) {
 	            matcher = pattern.matcher(msg.getResponseBody().toString());
 	            if (matcher.find()) {
-	            	results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
+	            	if (! inverse) {
+	            		results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
+	            			pattern.toString(), matcher.group()));
+	            	}
+	            } else if (inverse) {
+            		results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
 	            			pattern.toString(), matcher.group()));
 	            }
 			}

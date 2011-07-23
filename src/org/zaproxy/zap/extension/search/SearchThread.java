@@ -42,13 +42,15 @@ public class SearchThread extends Thread {
 	private 	Type reqType;
 	private SearchPanel searchPanel;
 	private boolean stopSearch = false;
+	private boolean inverse = false;
     private static Log log = LogFactory.getLog(SearchThread.class);
 	
-    public SearchThread(String filter, Type reqType, SearchPanel searchPanel) {
+    public SearchThread(String filter, Type reqType, SearchPanel searchPanel, boolean inverse) {
 		super();
 		this.filter = filter;
 		this.reqType = reqType;
 		this.searchPanel = searchPanel;
+		this.inverse = inverse;
 	}
 
     public void stopSearch() {
@@ -66,7 +68,7 @@ public class SearchThread extends Thread {
         	if (Type.Fuzz.equals(reqType)) {
         		ExtensionFuzz extFuzz = (ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.NAME);
         		if (extFuzz != null) {
-        			List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern);
+        			List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern, inverse);
         			for (SearchResult sr : fuzzResults) {
         				searchPanel.addSearchResult(sr);
         			}
@@ -90,60 +92,100 @@ public class SearchThread extends Thread {
 				        if (Type.URL.equals(reqType)) {
 				            // URL
 				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(), 
-						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-						        						matcher.start(), matcher.end()))); 
-				            	
+				            if (inverse) {
+					            if (! matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, "", 
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						0, 0))); 
+					            }
+				            } else {
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(), 
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()))); 
+					            	
+					            }
 				            }
 						}
 				        if (Type.Header.equals(reqType)) {
-				            // URL
+				            // Header
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(),
-						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-						        						matcher.start(), matcher.end()))); 
+				            if (inverse) {
+					            if (! matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, "",
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						0, 0))); 
+					            }
+				            } else {
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()))); 
+					            }
 				            }
 						}
 				        if (Type.Request.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
-				            // Request Header 
-				            matcher = pattern.matcher(message.getRequestHeader().toString());    
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(),
-						        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-						        						matcher.start(), matcher.end()))); 
-				            }
-				            // Request Body
-				            matcher = pattern.matcher(message.getRequestBody().toString());    
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(),
-						        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
-						        						matcher.start(), matcher.end()))); 
+				            if (inverse) {
+					            // Check for no matches in either Request Header or Body 
+					            if (! pattern.matcher(message.getRequestHeader().toString()).find() && 
+					            		! pattern.matcher(message.getRequestBody().toString()).find()) {    
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, "",
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						0, 0))); 
+					            }
+				            } else {
+					            // Request Header 
+					            matcher = pattern.matcher(message.getRequestHeader().toString());    
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()))); 
+					            }
+					            // Request Body
+					            matcher = pattern.matcher(message.getRequestBody().toString());    
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
+							        						matcher.start(), matcher.end()))); 
+					            }
 				            }
 				        }
 				        if (Type.Response.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
-				            // Response header
-				            matcher = pattern.matcher(message.getResponseHeader().toString());    
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(),
-						        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
-						        						matcher.start(), matcher.end()))); 
-				            }
-				            // Response body
-				            matcher = pattern.matcher(message.getResponseBody().toString());    
-				            while (matcher.find()) {
-						        searchPanel.addSearchResult(
-						        		new SearchResult(reqType, filter, matcher.group(),
-						        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
-						        						matcher.start(), matcher.end()))); 
+				            if (inverse) {
+					            // Check for no matches in either Response Header or Body 
+					            if (! pattern.matcher(message.getResponseHeader().toString()).find() && 
+					            		! pattern.matcher(message.getResponseBody().toString()).find()) {    
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, "",
+							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
+							        						0, 0))); 
+					            }
+				            } else {
+					            // Response header
+					            matcher = pattern.matcher(message.getResponseHeader().toString());    
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
+							        						matcher.start(), matcher.end()))); 
+					            }
+					            // Response body
+					            matcher = pattern.matcher(message.getResponseBody().toString());    
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
+							        						matcher.start(), matcher.end()))); 
+					            }
 				            }
 				        }
 			        }

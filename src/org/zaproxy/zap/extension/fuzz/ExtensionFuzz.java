@@ -126,8 +126,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 		fuzzerThread.resume();		
 	}
 	
-	public List<SearchResult> searchFuzzResults(Pattern pattern) {
-		return this.getFuzzerPanel().searchResults(pattern);
+	public List<SearchResult> searchFuzzResults(Pattern pattern, boolean inverse) {
+		return this.getFuzzerPanel().searchResults(pattern, inverse);
 	}
 
     protected void showFuzzDialog(Component invoker) {

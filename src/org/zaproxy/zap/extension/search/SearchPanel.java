@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -57,6 +58,7 @@ public class SearchPanel extends AbstractPanel {
 	private JComboBox searchType = null;
 	private JButton btnNext = null;
 	private JButton btnPrev = null;
+	private JCheckBox chkInverse = null;
 	
 	private JList resultsList = new JList();
 	private DefaultListModel resultsModel;
@@ -148,6 +150,15 @@ public class SearchPanel extends AbstractPanel {
 	}
 	/**/
 
+	private GridBagConstraints newGBC (int gridx) {
+		GridBagConstraints gridBagConstraints = new GridBagConstraints();
+		gridBagConstraints.gridx = gridx;
+		gridBagConstraints.gridy = 0;
+		gridBagConstraints.insets = new java.awt.Insets(0,0,0,0);
+		gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+		return gridBagConstraints;
+	}
+	
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
 			
@@ -160,39 +171,8 @@ public class SearchPanel extends AbstractPanel {
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("Search Toolbar");
 			
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
-
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.gridy = 0;
-			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints3.gridx = 2;
-			gridBagConstraints3.gridy = 0;
-			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints4.gridx = 3;
-			gridBagConstraints4.gridy = 0;
-			gridBagConstraints4.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints5.gridx = 4;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraintsX.gridx = 5;
+			gridBagConstraintsX.gridx = 6;
 			gridBagConstraintsX.gridy = 0;
 			gridBagConstraintsX.weightx = 1.0;
 			gridBagConstraintsX.weighty = 1.0;
@@ -201,22 +181,35 @@ public class SearchPanel extends AbstractPanel {
 			gridBagConstraintsX.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
 			JLabel t1 = new JLabel();
+			JLabel inverseTooltip = new JLabel(Constant.messages.getString("search.toolbar.label.inverse"));
+			inverseTooltip.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.inverse"));
 
-			panelToolbar.add(getRegExField(), gridBagConstraints1);
-			panelToolbar.add(getSearchType(), gridBagConstraints2);
-			panelToolbar.add(getBtnSearch(), gridBagConstraints3);
-			panelToolbar.add(getBtnNext(), gridBagConstraints4);
-			panelToolbar.add(getBtnPrev(), gridBagConstraints5);
+			panelToolbar.add(getRegExField(), newGBC(0));
+			panelToolbar.add(getSearchType(), newGBC(1));
+			panelToolbar.add(inverseTooltip, newGBC(2));
+			panelToolbar.add(getChkInverse(), newGBC(3));
+			panelToolbar.add(getBtnSearch(), newGBC(4));
+			panelToolbar.add(getBtnNext(), newGBC(5));
+			panelToolbar.add(getBtnPrev(), newGBC(6));
 			panelToolbar.add(t1, gridBagConstraintsX);
 		}
 		return panelToolbar;
 	}
 	
+	private JCheckBox getChkInverse () {
+		if (chkInverse == null) {
+			chkInverse = new JCheckBox();
+			chkInverse.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.inverse"));
+		}
+		return chkInverse;
+	}
+	
 	private JButton getBtnSearch() {
 		if (btnSearch == null) {
 			btnSearch = new JButton();
+			btnSearch.setText(Constant.messages.getString("search.toolbar.label.search"));
 			btnSearch.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
-			btnSearch.setToolTipText("Search");
+			btnSearch.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.search"));
 
 			btnSearch.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -233,7 +226,7 @@ public class SearchPanel extends AbstractPanel {
 			btnNext = new JButton();
 			btnNext.setText(Constant.messages.getString("search.toolbar.label.next"));
 			btnNext.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/107.png")));	// 'arrow down' icon
-			btnNext.setToolTipText(Constant.messages.getString("search.toolbar.label.next"));
+			btnNext.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.next"));
 
 			btnNext.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -250,7 +243,7 @@ public class SearchPanel extends AbstractPanel {
 			btnPrev = new JButton();
 			btnPrev.setText(Constant.messages.getString("search.toolbar.label.previous"));
 			btnPrev.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/108.png")));	// 'arrow up' icon
-			btnPrev.setToolTipText(Constant.messages.getString("search.toolbar.label.previous"));
+			btnPrev.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.previous"));
 
 			btnPrev.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -269,6 +262,7 @@ public class SearchPanel extends AbstractPanel {
 			regEx.setAlignmentX(0.0F);
 			regEx.setPreferredSize(new java.awt.Dimension(250,25));
 			regEx.setText("");
+			regEx.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.regex"));
 			regEx.setMinimumSize(new java.awt.Dimension(250,25));
 			
 			regEx.addActionListener(new java.awt.event.ActionListener() { 
@@ -339,7 +333,7 @@ public class SearchPanel extends AbstractPanel {
     		type = ExtensionSearch.Type.Fuzz;
     	}
 
-    	extension.search(regEx.getText(), type);
+    	extension.search(regEx.getText(), type, false, chkInverse.isSelected());
 		
 		// Select first result
 		if (resultsList.getModel().getSize() > 0) {
