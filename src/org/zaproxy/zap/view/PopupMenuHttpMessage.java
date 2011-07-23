@@ -34,12 +34,14 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.ascan.AlertNode;
+import org.zaproxy.zap.extension.bruteforce.BruteForceItem;
+import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 
 public abstract class PopupMenuHttpMessage extends ExtensionPopupMenu {
 
-	public static enum Invoker {sites, history, alerts, ascan, search, fuzz};
+	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce};
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
@@ -107,6 +109,10 @@ public abstract class PopupMenuHttpMessage extends ExtensionPopupMenu {
 						break;
 	        		case fuzz:
 	            	    msg = (HttpMessage) listInvoker.getSelectedValue();
+						break;
+	        		case bruteforce:
+	        	    	BruteForceItem bfi = (BruteForceItem) listInvoker.getSelectedValue();
+	        	    	msg = new HistoryReference(bfi.getHistoryId()).getHttpMessage();
 						break;
 	        		}
 	        		
@@ -182,6 +188,16 @@ public abstract class PopupMenuHttpMessage extends ExtensionPopupMenu {
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.fuzz;
+            this.listInvoker = (JList) invoker;
+
+            if (((JList)invoker).getSelectedIndex() >= 0) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
+            }
+            display = true;
+        } else if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
+        	this.lastInvoker = Invoker.bruteforce;
             this.listInvoker = (JList) invoker;
 
             if (((JList)invoker).getSelectedIndex() >= 0) {
