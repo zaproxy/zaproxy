@@ -20,11 +20,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
+// ZAP: 2011/07/23 Save current position in config file
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -33,7 +36,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.view.Layout;
 import org.zaproxy.zap.view.MainToolbarPanel;
 
 
@@ -69,8 +74,10 @@ public class MainFrame extends AbstractFrame {
 	private void initialize() {
 		this.setJMenuBar(getMainMenuBar());
 		this.setContentPane(getPaneContent());
-    	this.setPreferredSize(new Dimension(1000, 800));
-		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		this.loadPosition();
+    	
+    	this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -81,6 +88,7 @@ public class MainFrame extends AbstractFrame {
 		this.setVisible(false);
     	this.pack();
 	}
+	
 
 	/**
 	 * This method initializes paneContent
@@ -93,12 +101,11 @@ public class MainFrame extends AbstractFrame {
 			paneContent = new JPanel();
 			paneContent.setLayout(new BoxLayout(getPaneContent(), BoxLayout.Y_AXIS));
 			paneContent.setEnabled(true);
-			paneContent.setPreferredSize(new Dimension(800, 600));
 
 			if (Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 1) {
 				paneContent.add(getMainToolbarPanel(), null);
 			}
-
+			
 			paneContent.add(getPaneDisplay(), null);
 			paneContent.add(getMainFooterPanel(), null);
 
@@ -185,6 +192,30 @@ public class MainFrame extends AbstractFrame {
 			this.getWorkbench().changeDisplayOption(displayOption);
 			Model.getSingleton().getOptionsParam().getViewParam().setDisplayOption(displayOption);
 		}
+	}
+
+	private void loadPosition() {
+		FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
+
+		int x = config.getInt(Layout.OPTIONS_MAINFRAME_X, Layout.DEFAULT_MAINFRAME_X); 
+		int y = config.getInt(Layout.OPTIONS_MAINFRAME_Y, Layout.DEFAULT_MAINFRAME_Y);
+		int h = config.getInt(Layout.OPTIONS_MAINFRAME_H, Layout.DEFAULT_MAINFRAME_H); 
+		int w = config.getInt(Layout.OPTIONS_MAINFRAME_W, Layout.DEFAULT_MAINFRAME_W); 
+
+		this.setLocation(new Point(x,y));
+		this.setPreferredSize(new Dimension(w, h));
+		
+	}
+
+	public void savePosition(FileConfiguration config) {
+		Rectangle rec = this.getBounds();
+		config.setProperty(Layout.OPTIONS_MAINFRAME_X, rec.x);
+		config.setProperty(Layout.OPTIONS_MAINFRAME_Y, rec.y);
+		config.setProperty(Layout.OPTIONS_MAINFRAME_H, rec.height);
+		config.setProperty(Layout.OPTIONS_MAINFRAME_W, rec.width);
+		
+		this.getWorkbench().savePosition(config);
+		
 	}
 
 }
