@@ -87,7 +87,9 @@ public class SearchThread extends Thread {
 			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
 			        if (hr.getHistoryType() == HistoryReference.TYPE_MANUAL || 
 			        		hr.getHistoryType() == HistoryReference.TYPE_SPIDER) {
-				        HttpMessage message = Model.getSingleton().getDb().getTableHistory().read(v).getHttpMessage();
+			        	// Create the href to ensure the msg is set up correctly
+			        	HistoryReference href = new HistoryReference(hr.getHistoryId());
+			        	HttpMessage message = href.getHttpMessage();
 				
 				        if (Type.URL.equals(reqType)) {
 				            // URL

@@ -18,6 +18,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/07/23 Added TYPE_FUZZER
+
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -54,6 +56,7 @@ public class HistoryReference {
    public static final int TYPE_HIDDEN = 6;
    // ZAP: Added TYPE_BRUTE_FORCE
    public static final int TYPE_BRUTE_FORCE = 7;
+   public static final int TYPE_FUZZER = 8;
    
    // -ve means unsaved message;
    public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;

@@ -19,33 +19,15 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Component;
-
-import javax.swing.JList;
-
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
-public class PopupMenuAlert extends ExtensionPopupMenu {
+public class PopupMenuAlert extends PopupMenuHistoryReference {
 
 	private static final long serialVersionUID = 1L;
-	private ExtensionHistory extension = null;
-    
-    /**
-     * 
-     */
-    public PopupMenuAlert() {
-        super();
- 		initialize();
-    }
+    private ExtensionHistory extension = null;
 
     /**
      * @param label
@@ -53,42 +35,31 @@ public class PopupMenuAlert extends ExtensionPopupMenu {
     public PopupMenuAlert(String label) {
         super(label);
     }
-
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.alert.popup"));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        	    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    HistoryReference ref = (HistoryReference) listLog.getSelectedValue();
-           	    extension.showAlertAddDialog(ref);
-        	}
-        });
-	}
 	
-    public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-            try {
-                JList list = (JList) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {}
-            return true;
-        }
-        return false;
-    }
-    
-    public void setExtension(ExtensionHistory extension) {
-        this.extension = extension;
-    }
+	@Override
+	public void performAction(HistoryReference href) throws Exception {
+		extension.showAlertAddDialog(href);
+	}
+
+	public void setExtension(ExtensionHistory extension) {
+		this.extension = extension;
+	}
+
+	@Override
+	public boolean isEnableForInvoker(Invoker invoker) {
+		switch (invoker) {
+		case alerts:
+			return false;
+		case sites:
+		case history:
+		case ascan:
+		case search:
+		case fuzz:
+		case bruteforce:
+		default:
+			return true;
+		}
+	}
+
+	
 }

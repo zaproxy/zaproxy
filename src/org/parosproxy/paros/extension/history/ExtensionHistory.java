@@ -19,9 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
  
-// ZAP: 2011/08/04 Changed to support clearview() in HttpPanels
-// ZAP: 2011/08/04 Changed to use PopupMenuResendMessage
- 
+// ZAP: 2011/04/08 Changed to support clearview() in HttpPanels
+// ZAP: 2011/04/08 Changed to use PopupMenuResendMessage
+// ZAP: 2011/07/23 Use new add alert popup
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -616,9 +617,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     
     private PopupMenuAlert getPopupMenuAlert() {
         if (popupMenuAlert == null) {
-            popupMenuAlert = new PopupMenuAlert();
+            popupMenuAlert = new PopupMenuAlert(Constant.messages.getString("history.alert.popup"));
             popupMenuAlert.setExtension(this);
-
         }
         return popupMenuAlert;
     }
