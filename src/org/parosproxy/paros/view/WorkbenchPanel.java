@@ -19,10 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
-// ZAP: 2011/07/23 Save current position in config file
 package org.parosproxy.paros.view;
 
-import java.awt.CardLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -33,9 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.view.Layout;
+
+import java.awt.CardLayout;
 
 /**
  * 
@@ -77,6 +75,12 @@ public class WorkbenchPanel extends JPanel {
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
+		/*
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(800, 600);
+			this.setPreferredSize(new Dimension(800, 600));
+		}
+		*/
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;
 		consGridBagConstraints1.weightx = 1.0;
@@ -113,12 +117,13 @@ public class WorkbenchPanel extends JPanel {
 	private JSplitPane getSplitVert() {
 		if (splitVert == null) {
 			splitVert = new JSplitPane();
+			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+				splitVert.setDividerLocation(480);
+				splitVert.setPreferredSize(new Dimension(800, 400));
+			}
 			splitVert.setDividerSize(3);
 			splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitVert.setResizeWeight(0.5D);
-			FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
-			splitVert.setDividerLocation(config.getInt(Layout.OPTIONS_WORKBENCH_VERTICAL_DIVIDER, 
-					Layout.DEFAULT_WORKBENCH_VERTICAL_DIVIDER));
 
 			switch (displayOption) {
 			case View.DISPLAY_OPTION_LEFT_FULL:
@@ -156,13 +161,14 @@ public class WorkbenchPanel extends JPanel {
 				splitHoriz.setRightComponent(getPaneWork());
 				break;
 			}
+			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+				splitHoriz.setDividerLocation(350);	// 280
+				splitHoriz.setPreferredSize(new Dimension(800, 400));
+			}
 			splitHoriz.setDividerSize(3);
 			splitHoriz.setResizeWeight(0.3D);
 			splitHoriz.setContinuousLayout(false);
 			splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-			FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
-			splitHoriz.setDividerLocation(config.getInt(Layout.OPTIONS_WORKBENCH_HORIZONTAL_DIVIDER, 
-					Layout.DEFAULT_WORKBENCH_HORIZONTAL_DIVIDER));
 		}
 		return splitHoriz;
 	}
@@ -259,11 +265,6 @@ public class WorkbenchPanel extends JPanel {
 		}
 
 		return tabbedSelect;
-	}
-
-	public void savePosition(FileConfiguration config) {
-		config.setProperty("display.layout.workbench.vert.d", getSplitVert().getDividerLocation());
-		config.setProperty("display.layout.workbench.horiz.d", getSplitHoriz().getDividerLocation());
 	}
 
 }

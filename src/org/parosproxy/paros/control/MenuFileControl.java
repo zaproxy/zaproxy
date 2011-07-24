@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Improved error logging
-// ZAP: 2011/07/23 Save current position in config file
 
 package org.parosproxy.paros.control;
  
@@ -29,8 +28,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
@@ -76,15 +73,6 @@ public class MenuFileControl implements SessionListener {
 
 	    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
 
-	    // ZAP: Save main frame size + position
-		FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
-	    View.getSingleton().getMainFrame().savePosition(config);
-		try {
-			config.save();
-		} catch (ConfigurationException e) {
-			log.error("Failed to save position", e);
-		}
-	    
 	    Thread t = new Thread(new Runnable() {
 	        public void run() {
 	            control.shutdown(false);
