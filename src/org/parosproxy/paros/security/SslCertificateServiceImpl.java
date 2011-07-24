@@ -39,19 +39,21 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Random;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.jce.PrincipalUtil;
-import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 
 
@@ -125,60 +127,34 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         final PrivateKey privKey = mykp.getPrivate();
         final PublicKey pubKey = mykp.getPublic();
 
-        //
-        // subjects name table.
-        //
-        final Hashtable<Object, String> attrs = new Hashtable<Object, String>();
-        final Vector<Object> order = new Vector<Object>();
+		X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE); 
+		namebld.addRDN(BCStyle.CN, hostname);
+		namebld.addRDN(BCStyle.OU, "Zed Attack Proxy Project");
+		namebld.addRDN(BCStyle.O, "OWASP");
+		namebld.addRDN(BCStyle.C, "xx");
+		namebld.addRDN(BCStyle.EmailAddress, "owasp-zed-attack-proxy@lists.owasp.org");
 
-        attrs.put(X509Name.CN, hostname);
-        attrs.put(X509Name.OU, "Zed Attack Proxy Project");
-        attrs.put(X509Name.O, "OWASP");
-        attrs.put(X509Name.C, "XX");
-        attrs.put(X509Name.EmailAddress, "owasp-zed-attack-proxy@lists.owasp.org");
+		X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder (
+				new X509CertificateHolder(caCert.getEncoded()).getSubject(),
+				BigInteger.valueOf(serial.getAndIncrement()),
+				new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30),
+				new Date(System.currentTimeMillis() + 100*(1000L * 60 * 60 * 24 * 30)),
+				namebld.build(),
+				pubKey
+			);
 
-        order.addElement(X509Name.CN);
-        order.addElement(X509Name.OU);
-        order.addElement(X509Name.O);
-        order.addElement(X509Name.C);
-        order.addElement(X509Name.EmailAddress);
+		certGen.addExtension(X509Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(pubKey));
+		certGen.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
 
-        //
-        // create the certificate - version 3
-        //
-        final X509V3CertificateGenerator  v3CertGen = new X509V3CertificateGenerator();
-        v3CertGen.reset();
-
-        v3CertGen.setSerialNumber(BigInteger.valueOf(serial.getAndIncrement()));
-        v3CertGen.setIssuerDN(PrincipalUtil.getSubjectX509Principal(caCert));
-        v3CertGen.setNotBefore(new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30));
-        v3CertGen.setNotAfter(new Date(System.currentTimeMillis() + 100*(1000L * 60 * 60 * 24 * 30)));
-        v3CertGen.setSubjectDN(new X509Principal(order, attrs));
-        v3CertGen.setPublicKey(pubKey);
-        v3CertGen.setSignatureAlgorithm("SHA1WithRSAEncryption");
-
-        //
-        // add the extensions
-        //
-        v3CertGen.addExtension(
-            X509Extensions.SubjectKeyIdentifier,
-            false,
-            new SubjectKeyIdentifierStructure(pubKey));
-
-        v3CertGen.addExtension(
-            X509Extensions.AuthorityKeyIdentifier,
-            false,
-            new AuthorityKeyIdentifierStructure(caCert.getPublicKey()));
-
-        v3CertGen.addExtension(
-                X509Extensions.BasicConstraints,
-                true,
-                new BasicConstraints(0));
-
-//        X509Certificate cert = v3CertGen.generateX509Certificate(caPrivKey);
-        final X509Certificate cert = v3CertGen.generate(caPrivKey, "BC");
+		ContentSigner sigGen;
+		try {
+			sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(caPrivKey);
+		} catch (OperatorCreationException e) {
+			throw new CertificateException(e);
+		}
+		final X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
         cert.checkValidity(new Date());
-        cert.verify(caCert.getPublicKey());
+        cert.verify(caPubKey);
 
         final KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(null, null);
