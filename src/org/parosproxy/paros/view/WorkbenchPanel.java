@@ -19,21 +19,26 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
+// ZAP: 2011/07/25 Added automatically save/restore of divider locations  
 package org.parosproxy.paros.view;
 
+import java.awt.CardLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import org.parosproxy.paros.model.Model;
-
-import java.awt.CardLayout;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -43,6 +48,10 @@ import java.awt.CardLayout;
 public class WorkbenchPanel extends JPanel {
 
 	private static final long serialVersionUID = -4610792807151921550L;
+
+	private static final String PREF_DIVIDER_LOCATION = "divider.location";
+	private static final String DIVIDER_VERTICAL = "vertical";
+	private static final String DIVIDER_HORIZONTAL = "horizontal";
 
 	private JSplitPane splitVert = null;
 	private JSplitPane splitHoriz = null;
@@ -57,11 +66,17 @@ public class WorkbenchPanel extends JPanel {
 	
 	private int displayOption;
 
+	private final Preferences preferences;
+	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+
+	private final Log logger = LogFactory.getLog(WorkbenchPanel.class);
+
 	/**
 	 * This is the default constructor
 	 */
 	public WorkbenchPanel(int displayOption) {
 		super();
+		this.preferences = Preferences.userNodeForPackage(getClass());
 		this.displayOption = displayOption;
 		initialize();
 	}
@@ -75,12 +90,6 @@ public class WorkbenchPanel extends JPanel {
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
-		/*
-		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-			this.setSize(800, 600);
-			this.setPreferredSize(new Dimension(800, 600));
-		}
-		*/
 		consGridBagConstraints1.gridx = 0;
 		consGridBagConstraints1.gridy = 0;
 		consGridBagConstraints1.weightx = 1.0;
@@ -117,10 +126,10 @@ public class WorkbenchPanel extends JPanel {
 	private JSplitPane getSplitVert() {
 		if (splitVert == null) {
 			splitVert = new JSplitPane();
-			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-				splitVert.setDividerLocation(480);
-				splitVert.setPreferredSize(new Dimension(800, 400));
-			}
+
+			splitVert.setDividerLocation(restoreDividerLocation(DIVIDER_VERTICAL, 400));
+			splitVert.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_VERTICAL));
+
 			splitVert.setDividerSize(3);
 			splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			splitVert.setResizeWeight(0.5D);
@@ -161,10 +170,10 @@ public class WorkbenchPanel extends JPanel {
 				splitHoriz.setRightComponent(getPaneWork());
 				break;
 			}
-			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-				splitHoriz.setDividerLocation(350);	// 280
-				splitHoriz.setPreferredSize(new Dimension(800, 400));
-			}
+
+			splitHoriz.setDividerLocation(restoreDividerLocation(DIVIDER_HORIZONTAL, 300));
+			splitHoriz.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_HORIZONTAL));
+
 			splitHoriz.setDividerSize(3);
 			splitHoriz.setResizeWeight(0.3D);
 			splitHoriz.setContinuousLayout(false);
@@ -265,6 +274,71 @@ public class WorkbenchPanel extends JPanel {
 		}
 
 		return tabbedSelect;
+	}
+	
+	/**
+	 * @param prefix
+	 * @param location
+	 */
+	private final void saveDividerLocation(String prefix, int location) {
+		if (location > 0) {
+			if (logger.isDebugEnabled()) logger.debug("Saving preference " + prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION + "=" + location);
+			this.preferences.put(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, Integer.toString(location));
+			// immediate flushing
+			try {
+				this.preferences.flush();
+			} catch (final BackingStoreException e) {
+				logger.error("Error while saving the preferences", e);
+			}
+		}
+	}
+	
+	/**
+	 * @param prefix
+	 * @param fallback
+	 * @return the size of the frame OR fallback value, if there wasn't any preference.
+	 */
+	private final int restoreDividerLocation(String prefix, int fallback) {
+		int result = fallback;
+		final String sizestr = preferences.get(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, null);
+		if (sizestr != null) {
+			int location = 0;
+			try {
+				location = Integer.parseInt(sizestr.trim());
+			} catch (final Exception e) {
+				// ignoring, cause is prevented by default values;
+			}
+			if (location > 0 ) {
+				result = location;
+				if (logger.isDebugEnabled()) logger.debug("Restoring preference " + prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION + "=" + location);
+			}
+		}
+		return result;
+	}
+	
+	/*
+	 * ========================================================================
+	 */
+	
+	private final class DividerResizedListener implements PropertyChangeListener {
+
+		private final String prefix;
+		
+		public DividerResizedListener(String prefix) {
+			super();
+			assert prefix != null;
+			this.prefix = prefix;
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			JSplitPane component = (JSplitPane) evt.getSource();
+			if (component != null) {
+				if (logger.isDebugEnabled()) logger.debug(prefnzPrefix+prefix + "." + "location" + "=" + component.getDividerLocation());
+				saveDividerLocation(prefix, component.getDividerLocation());
+			}
+		}
+		
 	}
 
 }
