@@ -26,8 +26,8 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
@@ -296,7 +296,7 @@ public abstract class AbstractFrame extends JFrame {
 		}
 	}
 
-	private final class FrameResizedListener implements ComponentListener {
+	private final class FrameResizedListener extends ComponentAdapter {
 
 		@Override
 		public void componentResized(ComponentEvent e) {
@@ -311,12 +311,6 @@ public abstract class AbstractFrame extends JFrame {
 				saveWindowLocation(e.getComponent().getLocation());
 			}
 		}
-
-		@Override
-		public void componentShown(ComponentEvent e) { /* nothing to do */ }
-
-		@Override
-		public void componentHidden(ComponentEvent e) { /* nothing to do */ }
 
 	}
 
