@@ -189,6 +189,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			requestPanel.setMessage(msg);
 		} else {
 			responsePanel.saveData();
+			responsePanel.getHttpMessage().getResponseHeader().setContentLength(responsePanel.getHttpMessage().getResponseBody().length());
 			cl.show(panelContent, "response");
 			responsePanel.setMessage(msg);
 		}
