@@ -38,7 +38,8 @@ public class PluginFactory {
     private static Vector<Plugin> listAllPlugin = new Vector<Plugin>();
     private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<Integer, Plugin>();
     private static TreeMap<String, Plugin> mapAllPluginOrderCodeName = new TreeMap<String, Plugin>();
-    private static DynamicLoader loader = null;
+    private static DynamicLoader parosLoader = null;
+    private static DynamicLoader zapLoader = null;
     private Vector<Plugin> listPending = new Vector<Plugin>();
     private Vector<Plugin> listRunning = new Vector<Plugin>();
     private Vector<Plugin> listCompleted = new Vector<Plugin>();
@@ -94,10 +95,14 @@ public class PluginFactory {
     }
 
     public synchronized static void loadAllPlugin(Configuration config) {
-        if (loader == null) {
-            loader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
+        if (parosLoader == null) {
+        	parosLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
         }
-        List<Object> listTest = loader.getFilteredObject(AbstractPlugin.class);
+        if (zapLoader == null) {
+        	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.scanner.plugin");
+        }
+        List<Object> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
+        listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
 
         synchronized (mapAllPlugin) {
             
