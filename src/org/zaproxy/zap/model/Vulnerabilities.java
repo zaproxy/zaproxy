@@ -21,7 +21,9 @@ package org.zaproxy.zap.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -30,6 +32,7 @@ import org.parosproxy.paros.Constant;
 public class Vulnerabilities {
 
 	private static List<Vulnerability> vulns = null;
+	private static Map<String, Vulnerability> idToVuln = new HashMap<String, Vulnerability>();
 	
 	@SuppressWarnings("unchecked")
 	private static synchronized void init() {
@@ -42,12 +45,15 @@ public class Vulnerabilities {
 	        	vulns = new ArrayList<Vulnerability>();
 	        	for (String item : test) {
 	        		String name = "vuln_item_" + item;
-	        		vulns.add(
+	        		Vulnerability v = 
 	        			new Vulnerability(
+	        					item,
 	        					config.getString(name + ".alert"),
 	        					config.getString(name + ".desc"),
 	        					config.getString(name + ".solution"),
-	        					(List<String>)config.getList(name + ".reference")));
+	        					(List<String>)config.getList(name + ".reference"));
+	        		vulns.add(v);
+	        		idToVuln.put(item, v);
 	        	}
 
           } catch (ConfigurationException e) {
@@ -61,5 +67,12 @@ public class Vulnerabilities {
 			init();
 		}
 		return vulns;
+	}
+	
+	public static Vulnerability getVulnerability (String id) {
+		if (vulns == null) {
+			init();
+		}
+		return idToVuln.get(id);
 	}
 }

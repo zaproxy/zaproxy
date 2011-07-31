@@ -36,6 +36,7 @@ Pages in this section should only contain vulnerabilities be detectable by activ
 <UL>
 <LI><A HREF="xss/xss-index.jsp">Cross Site Scripting</A>
 <LI><A HREF="inject/inject-index.jsp">Injection</A>
+<LI><A HREF="redirect/redirect-index.jsp">Redirect</A>
 </UL>
 
 </body>

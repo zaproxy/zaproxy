@@ -17,14 +17,14 @@
     See the License for the specific language governing permissions and 
     limitations under the License. 
 -->
+<%@ page import="java.sql.*" %>
 <head>
-<title>OWASP ZAP WAVE - XSS Form basic</title>
+<title>OWASP ZAP WAVE - Redirect URL basic</title>
 </head>
 <body>
-<H2>OWASP ZAP WAVE - Simple XSS in a Form parameter</H2>
+<H2>OWASP ZAP WAVE - Simple redirection via a URL parameter</H2>
 <H3>Description</H3>
-The 'name' parameter in the form is written to the page without being sanitised and so is vulnerable to a simple script injection attack.<br>
-Only a POST is vulnerable, not a GET.
+The 'redir' parameter in the URL can be used to redirect the user to any web page, not just those in WAVE.
 <H3>Example</H3>
 <%
 	// Standard bit of code to ensure any session ID is protected using HTTPOnly
@@ -32,23 +32,13 @@ Only a POST is vulnerable, not a GET.
 	if (sessionid != null && sessionid.length() > 0) {
 		response.setHeader("SET-COOKIE", "JSESSIONID=" + sessionid + "; HttpOnly");
 	}
-	String name = request.getParameter("name");
-	if (request.getMethod().equals("POST") && name != null) {
-		out.println("The form 'name' parameter is " + name + "<br/><br/>");
+	String redir = request.getParameter("redir");
+	if (request.getMethod().equals("GET") && redir != null) {
+		response.sendRedirect(redir);
 	}
 %>
 
-<form method="POST">
-	<table>
-	<tr>
-	<td>Name:</td>
-	<td><input id="name" name="name"></input></td>
-	</tr>
-	<tr>
-	<td></td><td><input id="submit" type="submit" value="Submit"></input></td>
-	</tr>
-	</table>
-</form>
+Example link: <A HREF="redirect-url-basic.jsp?redir=redirect-index.jsp">Simple redirect via a URL parameter</A>
 
 </body>
 

@@ -60,6 +60,7 @@ This list the alerts
 20002	Paramter tampering
 20003	Perl Injection
 20004	SSI Injection
+20010	URL Redirector Abuse
 30000	Exceeding long input
 30001	Format string buffer overflow
 
