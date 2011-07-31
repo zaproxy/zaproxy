@@ -24,7 +24,7 @@
 <body>
 <H2>OWASP ZAP WAVE - Simple redirection via a FORM parameter</H2>
 <H3>Description</H3>
-The 'target' parameter in the URL can be used to redirect the user to any web page, not just those in WAVE.
+The 'target' parameter in the form can be used to redirect the user to any web page, not just those in WAVE.
 <H3>Example</H3>
 <%
 	// Standard bit of code to ensure any session ID is protected using HTTPOnly
