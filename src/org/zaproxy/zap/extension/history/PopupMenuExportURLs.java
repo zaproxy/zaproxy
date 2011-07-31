@@ -133,7 +133,8 @@ public class PopupMenuExportURLs extends ExtensionPopupMenu {
         try {
         	
         	if (node.getHistoryReference() != null &&
-        			node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_MANUAL &&
+        			(node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_MANUAL ||
+        					node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER) &&
         			node.getHistoryReference().getHttpMessage() != null &&
         			node.getHistoryReference().getHttpMessage().getRequestHeader() != null &&
         			node.getHistoryReference().getHttpMessage().getRequestHeader().getURI() != null) {
