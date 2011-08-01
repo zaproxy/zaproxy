@@ -250,6 +250,6 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.lang";
+		return "ui.dialogs.options.language";
 	}
 }
