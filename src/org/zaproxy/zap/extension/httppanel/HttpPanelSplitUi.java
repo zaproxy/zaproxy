@@ -179,7 +179,16 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			
 			txtHeader.addMouseListener(new java.awt.event.MouseAdapter() {
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // right mouse button
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 						View.getSingleton().getPopupMenu().show(t, e.getX(), e.getY());
 					}
 				}
@@ -206,12 +215,20 @@ public class HttpPanelSplitUi extends AbstractPanel {
 			
 			txtBody.addMouseListener(new java.awt.event.MouseAdapter() {
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) { // right
-						View.getSingleton().getPopupMenu().show(
-								t, e.getX(), e.getY());
-							//e.getComponent(), e.getX(), e.getY());
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+						View.getSingleton().getPopupMenu().show(t, e.getX(), e.getY());
 					}
 				}
+				
 			});
 		}
 

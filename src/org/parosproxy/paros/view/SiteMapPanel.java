@@ -108,10 +108,18 @@ public class SiteMapPanel extends JPanel {
 			treeSite.setShowsRootHandles(true);
 			treeSite.setName("treeSite");
 			treeSite.setToggleClickCount(1);
-			treeSite.addMouseListener(new java.awt.event.MouseAdapter() { 
-
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-	          		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+			treeSite.addMouseListener(new java.awt.event.MouseAdapter() {
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 
 						// ZAP: Select site list item on right click
 				    	TreePath tp = treeSite.getPathForLocation( e.getPoint().x, e.getPoint().y );

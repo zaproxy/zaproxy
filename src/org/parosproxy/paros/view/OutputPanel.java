@@ -93,11 +93,21 @@ public class OutputPanel extends AbstractPanel {
 			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			txtOutput.setName("");
 			txtOutput.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }	
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseAction(e);
 				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseAction(e);
+				}
+				
+				public void mouseAction(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}
+				}
+				
 			});
 		}
 		return txtOutput;

@@ -242,8 +242,17 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
 			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {  // right mouse button
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+					
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 				    	
 						// ZAP: Select history list item on right click
 					    int Idx = listLog.locationToIndex( e.getPoint() );
