@@ -79,7 +79,6 @@ public class MainFrame extends AbstractFrame {
 		});
 
 		this.setVisible(false);
-    	this.pack();
 	}
 
 	/**
@@ -93,7 +92,6 @@ public class MainFrame extends AbstractFrame {
 			paneContent = new JPanel();
 			paneContent.setLayout(new BoxLayout(getPaneContent(), BoxLayout.Y_AXIS));
 			paneContent.setEnabled(true);
-			paneContent.setPreferredSize(new Dimension(800, 600));
 
 			if (Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 1) {
 				paneContent.add(getMainToolbarPanel(), null);

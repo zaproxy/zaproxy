@@ -5,34 +5,39 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
 import org.zaproxy.zap.extension.httppanel.view.table.HttpPanelTabularView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class RequestSplitView implements PluginInterface, ActionListener  {
+	
+	private static final String PREF_DIVIDER_LOCATION = "divider.location";
+	private static final String DIVIDER_HORIZONTAL = "horizontal";
+	
 	private HttpPanelTextView viewBodyText;
 	private HttpPanelHexView viewBodyHex;
 	private HttpPanelTabularView viewBodyTable;
@@ -60,9 +65,13 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 	protected HttpPanelTextModelInterface modelTextBody;
 	protected HttpPanelTextModelInterface modelHexBody;
 	
+	private final Preferences preferences;
+	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+	
 	public RequestSplitView(HttpPanel httpPanel, HttpMessage httpMessage) {
 		this.httpPanel = httpPanel;
 		this.httpMessage = httpMessage;
+		this.preferences = Preferences.userNodeForPackage(getClass());
 		initModel();
 		initUi();
 		switchView(viewBodyText.getName());
@@ -95,6 +104,9 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		splitMain = new JSplitPane();
 		splitMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		panelHeader.setMinimumSize(new Dimension(100, 100));
+		splitMain.setDividerLocation(restoreDividerLocation(DIVIDER_HORIZONTAL, 100));
+		splitMain.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_HORIZONTAL));
+		
 		splitMain.setTopComponent(panelHeader);
 		splitMain.setBottomComponent(panelBody);
 		
@@ -237,6 +249,71 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
         save();
         switchView(item);
         load();
+	}
+	
+	/**
+	 * @param prefix
+	 * @param location
+	 */
+	private final void saveDividerLocation(String prefix, int location) {
+		if (location > 0) {
+			if (log.isDebugEnabled()) log.debug("Saving preference " + prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION + "=" + location);
+			this.preferences.put(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, Integer.toString(location));
+			// immediate flushing
+			try {
+				this.preferences.flush();
+			} catch (final BackingStoreException e) {
+				log.error("Error while saving the preferences", e);
+			}
+		}
+	}
+	
+	/**
+	 * @param prefix
+	 * @param fallback
+	 * @return the size of the frame OR fallback value, if there wasn't any preference.
+	 */
+	private final int restoreDividerLocation(String prefix, int fallback) {
+		int result = fallback;
+		final String sizestr = preferences.get(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, null);
+		if (sizestr != null) {
+			int location = 0;
+			try {
+				location = Integer.parseInt(sizestr.trim());
+			} catch (final Exception e) {
+				// ignoring, cause is prevented by default values;
+			}
+			if (location > 0 ) {
+				result = location;
+				if (log.isDebugEnabled()) log.debug("Restoring preference " + prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION + "=" + location);
+			}
+		}
+		return result;
+	}
+	
+	/*
+	 * ========================================================================
+	 */
+	
+	private final class DividerResizedListener implements PropertyChangeListener {
+
+		private final String prefix;
+		
+		public DividerResizedListener(String prefix) {
+			super();
+			assert prefix != null;
+			this.prefix = prefix;
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			JSplitPane component = (JSplitPane) evt.getSource();
+			if (component != null) {
+				if (log.isDebugEnabled()) log.debug(prefnzPrefix+prefix + "." + "location" + "=" + component.getDividerLocation());
+				saveDividerLocation(prefix, component.getDividerLocation());
+			}
+		}
+		
 	}
 
 }

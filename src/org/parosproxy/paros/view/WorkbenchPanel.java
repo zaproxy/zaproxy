@@ -127,7 +127,7 @@ public class WorkbenchPanel extends JPanel {
 		if (splitVert == null) {
 			splitVert = new JSplitPane();
 
-			splitVert.setDividerLocation(restoreDividerLocation(DIVIDER_VERTICAL, 400));
+			splitVert.setDividerLocation(restoreDividerLocation(DIVIDER_VERTICAL, 300));
 			splitVert.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_VERTICAL));
 
 			splitVert.setDividerSize(3);

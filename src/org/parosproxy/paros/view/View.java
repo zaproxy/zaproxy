@@ -36,7 +36,6 @@ import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -116,9 +115,6 @@ public class View implements ViewDelegate {
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
 
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() != 0) {
-	    	mainFrame.pack();
-	    }
 	}
 	
 	public void postInit() {
