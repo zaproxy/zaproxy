@@ -60,7 +60,7 @@ public class View implements ViewDelegate {
 	private HttpPanelResponse responsePanel = null;
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
-	private Vector popupList = new Vector();
+	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
 	
 	private static int displayOption = DISPLAY_OPTION_LEFT_FULL;
 	

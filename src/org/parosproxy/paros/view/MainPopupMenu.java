@@ -36,7 +36,7 @@ public class MainPopupMenu extends JPopupMenu {
 
 	private static final long serialVersionUID = -3021348328961418293L;
 
-	private List<ExtensionPopupMenu> itemList = null;
+	private List<JMenuItem> itemList = null;
 //	private PopupFindMenu popupFindMenu = null;  //  @jve:decl-index=0:visual-constraint="125,151"
 	private PopupDeleteMenu popupDeleteMenu = null;
 	private PopupPurgeMenu popupPurgeMenu = null;
@@ -57,7 +57,7 @@ public class MainPopupMenu extends JPopupMenu {
         super(arg0);
     }
     
-    public MainPopupMenu(List<ExtensionPopupMenu> itemList) {
+    public MainPopupMenu(List<JMenuItem> itemList) {
         this();
         this.itemList = itemList;
     }

@@ -70,7 +70,7 @@ public class ExtensionLoader {
     }
     
     public Extension getExtension(int i) {
-        return (Extension) extensionList.get(i);
+        return extensionList.get(i);
     }
     
     public Extension getExtension(String name) {
@@ -93,11 +93,11 @@ public class ExtensionLoader {
     
     public void hookProxyListener(Proxy proxy) {
         for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            ExtensionHook hook = hookList.get(i);
             List<ProxyListener> listenerList = hook.getProxyListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
-                    ProxyListener listener = (ProxyListener) listenerList.get(j);
+                    ProxyListener listener = listenerList.get(j);
                     if (listener != null) {
                         proxy.addProxyListener(listener);
                     }
@@ -113,11 +113,11 @@ public class ExtensionLoader {
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
         for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            ExtensionHook hook = hookList.get(i);
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
-                	SiteMapListener listener = (SiteMapListener) listenerList.get(j);
+                	SiteMapListener listener = listenerList.get(j);
                     if (listener != null) {
                     	siteMapPanel.addSiteMapListenner(listener);
                     }
@@ -132,11 +132,11 @@ public class ExtensionLoader {
     
     public void optionsChangedAllPlugin(OptionsParam options) {
         for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            ExtensionHook hook = hookList.get(i);
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
-                    OptionsChangedListener listener = (OptionsChangedListener) listenerList.get(j);
+                    OptionsChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.OptionsChanged(options);
                     }
@@ -154,7 +154,7 @@ public class ExtensionLoader {
         Extension ext = null;
         for (int i=0; i<getExtensionCount(); i++) {
             ext = getExtension(i);
-            hook = (ExtensionHook) hookList.get(i);
+            hook = hookList.get(i);
             if (ext instanceof CommandLineListener) {
                 CommandLineListener listener = (CommandLineListener) ext;
                 listener.execute(hook.getCommandLineArgument());
@@ -164,11 +164,11 @@ public class ExtensionLoader {
     
     public void sessionChangedAllPlugin(Session session) {
         for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            ExtensionHook hook = hookList.get(i);
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
-                    SessionChangedListener listener = (SessionChangedListener) listenerList.get(j);
+                    SessionChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.sessionChanged(session);
                     }
@@ -226,7 +226,7 @@ public class ExtensionLoader {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
             try {
-                panel = (AbstractPanel) panelList.get(i);
+                panel = panelList.get(i);
                 tab.add(panel, panel.getName());
                 
         		// ZAP: added icon
@@ -273,7 +273,7 @@ public class ExtensionLoader {
     public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
         Vector<CommandLineArgument[]> allCommandLineList = new Vector<CommandLineArgument[]>();
         for (int i=0; i<hookList.size(); i++) {
-            ExtensionHook hook = (ExtensionHook) hookList.get(i);
+            ExtensionHook hook = hookList.get(i);
             CommandLineArgument[] arg = hook.getCommandLineArgument();
             if (arg.length > 0) {
                 allCommandLineList.add(arg);
@@ -321,7 +321,7 @@ public class ExtensionLoader {
         int existingCount = 2;
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuFile.addSeparator();
@@ -337,7 +337,7 @@ public class ExtensionLoader {
         existingCount = 2;
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuTools.addSeparator();
@@ -351,7 +351,7 @@ public class ExtensionLoader {
         list = hookMenu.getEdit();
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuEdit.addSeparator();
@@ -364,7 +364,7 @@ public class ExtensionLoader {
         list = hookMenu.getView();
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuView.addSeparator();
@@ -378,7 +378,7 @@ public class ExtensionLoader {
         list = hookMenu.getAnalyse();
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuAnalyse.addSeparator();
@@ -393,7 +393,7 @@ public class ExtensionLoader {
         list = hookMenu.getPopupMenus();
         
         for (int i=0; i<list.size(); i++) {
-            item = (ExtensionPopupMenu) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
 
             view.getPopupList().add(item);
@@ -403,7 +403,7 @@ public class ExtensionLoader {
         list = hookMenu.getHelpMenus();
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuHelp.addSeparator();
@@ -416,7 +416,7 @@ public class ExtensionLoader {
         list = hookMenu.getReportMenus();
         
         for (int i=0; i<list.size(); i++) {
-            item = (JMenuItem) list.get(i);
+            item = list.get(i);
             if (item == null) continue;
             if (item == ExtensionHookMenu.MENU_SEPARATOR) {
                 menuReport.addSeparator();
