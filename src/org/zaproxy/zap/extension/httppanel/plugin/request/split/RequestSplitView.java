@@ -21,6 +21,7 @@ import javax.swing.JSplitPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -86,7 +87,7 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 
 	protected void initUi() {
 		// Common
-		buttonShowView = new JButton("Split");
+		buttonShowView = new JButton(Constant.messages.getString("request.panel.button.split"));
 		panelOptions = new JPanel();
 		comboxSelectView = new JComboBox();		
 

@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
@@ -80,7 +81,7 @@ public class HttpPanelTextView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
-		return "Text";
+		return Constant.messages.getString("request.panel.view.text");
 	}
 
 	@Override

@@ -4,10 +4,10 @@ import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 
@@ -44,7 +44,7 @@ public class HttpPanelTabularView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
-		return "Table";
+		return Constant.messages.getString("request.panel.view.table");
 	}
 
 	@Override

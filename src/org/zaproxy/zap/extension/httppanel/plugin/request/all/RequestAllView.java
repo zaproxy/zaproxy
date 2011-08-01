@@ -13,14 +13,13 @@ import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-import org.zaproxy.zap.extension.httppanel.view.table.HttpPanelTabularView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -48,8 +47,6 @@ public class RequestAllView implements PluginInterface, ActionListener {
 	
     private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
 	
-    private String Name = "All";
-    
 	public RequestAllView(HttpPanel httpPanel, HttpMessage httpMessage) {
 		this.httpPanel = httpPanel;
 		this.httpMessage = httpMessage;
@@ -65,7 +62,7 @@ public class RequestAllView implements PluginInterface, ActionListener {
 	
 	private void initUi() {
 		// Common
-		buttonShowView = new JButton(this.Name);
+		buttonShowView = new JButton(Constant.messages.getString("request.panel.button.all"));
 
 		// Main Panel
 		panelMain = new JPanel();
