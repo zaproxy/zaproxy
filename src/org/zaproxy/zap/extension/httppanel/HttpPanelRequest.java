@@ -1,35 +1,22 @@
 package org.zaproxy.zap.extension.httppanel;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.regex.Pattern;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.plugin.request.all.RequestAllView;
 import org.zaproxy.zap.extension.httppanel.plugin.request.split.RequestSplitView;
-import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 
 /*
  *
  */
 
-public class HttpPanelRequest extends HttpPanel implements ActionListener {
+public class HttpPanelRequest extends HttpPanel {
 	private static final long serialVersionUID = 1L;
 	private JComboBox comboChangeMethod;
 	
@@ -68,8 +55,6 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 		comboChangeMethod.addItem(HttpRequestHeader.POST);
 		comboChangeMethod.addItem(HttpRequestHeader.PUT);
 		comboChangeMethod.addItem(HttpRequestHeader.TRACE);
-		comboChangeMethod = comboChangeMethod;
-
 		comboChangeMethod.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

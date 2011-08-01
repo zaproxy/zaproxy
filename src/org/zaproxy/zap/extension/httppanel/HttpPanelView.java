@@ -21,7 +21,6 @@
 package org.zaproxy.zap.extension.httppanel;
 
 import javax.swing.JComponent;
-import javax.swing.JScrollPane;
 
 import org.parosproxy.paros.network.HttpMessage;
 /**
