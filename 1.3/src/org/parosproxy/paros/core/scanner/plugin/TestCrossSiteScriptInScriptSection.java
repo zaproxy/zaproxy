@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/02 No longer switched on -sp flag and fixed regex
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -37,10 +39,11 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 
-    private static final String XSS4 = "alert('{" + Constant.getEyeCatcher() + "}');";
+    private static final String XSS4 = "alert('" + Constant.getEyeCatcher() + "');";
 	
 	private static final Pattern patternXSS4
-	     = Pattern.compile("<SCRIPT>.*?alert\\('\\{" + Constant.getEyeCatcher() + "\\}'\\);.*?</SCRIPT>", Pattern.DOTALL);
+	     = Pattern.compile("<SCRIPT.*alert\\('" + Constant.getEyeCatcher() + "'\\);.*</SCRIPT>", 
+	    		 Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
 	
     public int getId() {
         return 40001;
@@ -141,8 +144,4 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 		
 
 	}
-	
-    public boolean isVisible() {
-        return Constant.isSP();
-    }
 }
