@@ -18,13 +18,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/02 No longer switched on -sp flag
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpException;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
@@ -395,10 +396,4 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 		return is1;
 
 	}
-    
-	public boolean isVisible() {
-		return Constant.isSP();
-	}
-
-
 }
