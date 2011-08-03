@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/03 Cope with unexpected values in config file
+
 package org.parosproxy.paros.network;
 
 import java.util.Vector;
@@ -98,19 +100,38 @@ public class ConnectionParam extends AbstractParam {
 			setProxyChainPort(getConfig().getInt(PROXY_CHAIN_PORT, 8080));
 		} catch (Exception e) {
         	// ZAP: Log exceptions
-        	log.warn(e.getMessage(), e);
+        	log.error(e.getMessage(), e);
 		}
-		setProxyChainSkipName(getConfig().getString(PROXY_CHAIN_SKIP_NAME, ""));
-		setProxyChainRealm(getConfig().getString(PROXY_CHAIN_REALM, ""));
-		setProxyChainUserName(getConfig().getString(PROXY_CHAIN_USER_NAME, ""));
-		// ZAP: Added prompt option
-		if (getConfig().getBoolean(PROXY_CHAIN_PROMPT, false)) {
-			setProxyChainPrompt(true);
-		} else {
-			setProxyChainPrompt(false);
-			setProxyChainPassword(getConfig().getString(PROXY_CHAIN_PASSWORD, ""));
+		try {
+			setProxyChainSkipName(getConfig().getString(PROXY_CHAIN_SKIP_NAME, ""));
+			setProxyChainRealm(getConfig().getString(PROXY_CHAIN_REALM, ""));
+			setProxyChainUserName(getConfig().getString(PROXY_CHAIN_USER_NAME, ""));
+		} catch (Exception e) {
+        	// ZAP: Log exceptions
+        	log.error(e.getMessage(), e);
 		}
-		setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
+		try {
+			// ZAP: Added prompt option
+			if (getConfig().getProperty(PROXY_CHAIN_PROMPT) instanceof String &&
+					((String)getConfig().getProperty(PROXY_CHAIN_PROMPT)).isEmpty()) {
+				// In 1.2.0 the default for this field was empty, which causes a crash in 1.3.*
+				setProxyChainPrompt(false);
+			} else if (getConfig().getBoolean(PROXY_CHAIN_PROMPT, false)) {
+				setProxyChainPrompt(true);
+			} else {
+				setProxyChainPrompt(false);
+				setProxyChainPassword(getConfig().getString(PROXY_CHAIN_PASSWORD, ""));
+			}
+		} catch (Exception e) {
+        	// ZAP: Log exceptions
+        	log.error(e.getMessage(), e);
+		}
+		try {
+			setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
+		} catch (Exception e) {
+        	// ZAP: Log exceptions
+        	log.error(e.getMessage(), e);
+		}
 		
 		parseAuthentication();
 	}
