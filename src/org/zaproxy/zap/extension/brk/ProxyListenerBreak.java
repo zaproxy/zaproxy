@@ -66,14 +66,14 @@ public class ProxyListenerBreak implements ProxyListener {
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
 	 */
-	public void onHttpRequestSend(HttpMessage msg) {
+	public boolean onHttpRequestSend(HttpMessage msg) {
 	    
 		if (isSkipImage(msg.getRequestHeader())) {
-			return;
+			return true;
 		}
 
 		if ( ! isBreakPoint(msg, true)) {
-			return;
+			return true;
 		}
 		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
 		// but be reset when the next break pooint is hit
@@ -85,6 +85,8 @@ public class ProxyListenerBreak implements ProxyListener {
 				waitUntilContinue(msg, true);
 			}
 		}
+		getBreakPanel().clearView();
+		return ! getBreakPanel().isToBeDropped();
 	}
 
 	private void setBreakDisplay(final HttpMessage msg, boolean isRequest) {
@@ -143,13 +145,13 @@ public class ProxyListenerBreak implements ProxyListener {
 	 * 
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(com.proofsecure.paros.network.HttpMessage)
 	 */
-	public void onHttpResponseReceive(HttpMessage msg) {
+	public boolean onHttpResponseReceive(HttpMessage msg) {
 		if (isSkipImage(msg.getRequestHeader())|| isSkipImage(msg.getResponseHeader())) {
-			return;
+			return true;
 		}
 
 		if (! isBreakPoint(msg, false)) {
-			return;
+			return true;
 		}
         
 		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
@@ -163,7 +165,9 @@ public class ProxyListenerBreak implements ProxyListener {
 				waitUntilContinue(msg, false);
 			}
 		}
-		
+		getBreakPanel().clearView();
+
+		return ! getBreakPanel().isToBeDropped();
 	}
 	
 	public String getHeaderFromZapTextArea(ZapTextArea txtArea) {

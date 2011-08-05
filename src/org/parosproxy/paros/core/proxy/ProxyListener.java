@@ -30,7 +30,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface ProxyListener {
 
-	public void onHttpRequestSend(HttpMessage msg);
-	public void onHttpResponseReceive(HttpMessage msg);
+	public boolean onHttpRequestSend(HttpMessage msg);
+	public boolean onHttpResponseReceive(HttpMessage msg);
 	
 }

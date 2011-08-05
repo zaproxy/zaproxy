@@ -36,4 +36,8 @@ public class HttpDataModelResSplit {
 	public void search(Pattern p, List<SearchMatch> matches) {
 		splitUi.search(p, matches);
 	}
+
+	public void clearData() {
+		splitUi.setMessage(null, false);
+	}
 }

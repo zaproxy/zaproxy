@@ -242,7 +242,10 @@ class ProxyThread implements Runnable {
 			
 			synchronized (semaphore) {
 			    
-			    notifyListenerRequestSend(msg);
+			    if (! notifyListenerRequestSend(msg)) {
+		        	// One of the listeners has told us to drop the request
+			    	return;
+			    }
 			    
 			    
 			    try {
@@ -250,7 +253,11 @@ class ProxyThread implements Runnable {
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
 					getHttpSender().sendAndReceive(msg);
-			        notifyListenerResponseReceive(msg);
+					
+			        if (! notifyListenerResponseReceive(msg)) {
+			        	// One of the listeners has told us to drop the response
+   				    	return;
+			        }
 		        
 			        // write out response header and body
 			        httpOut.write(msg.getResponseHeader());
@@ -484,21 +491,24 @@ class ProxyThread implements Runnable {
 	 * The method can be modified in each observers.
 	 * @param httpMessage
 	 */
-	private void notifyListenerRequestSend(HttpMessage httpMessage) {
+	private boolean notifyListenerRequestSend(HttpMessage httpMessage) {
 		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return;
+			return true;
 		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
 			listener = (ProxyListener) listenerList.get(i);
 			try {
-			    listener.onHttpRequestSend(httpMessage);
+			    if (! listener.onHttpRequestSend(httpMessage)) {
+			    	return false;
+			    }
 			} catch (Exception e) {
 				// ZAP: Log exceptions
 				log.warn(e.getMessage(), e);
 			}
-		}	
+		}
+		return true;
 	}
 
 	/**
@@ -506,22 +516,24 @@ class ProxyThread implements Runnable {
 	 * The msg can be changed by each observers.
 	 * @param msg
 	 */
-	private void notifyListenerResponseReceive(HttpMessage httpMessage) {
-		// TODO not if on ignore list
+	private boolean notifyListenerResponseReceive(HttpMessage httpMessage) {
 		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return;
+			return true;
 		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
 			listener = (ProxyListener) listenerList.get(i);
 			try {
-			    listener.onHttpResponseReceive(httpMessage);
+			    if (!listener.onHttpResponseReceive(httpMessage)) {
+			    	return false;
+			    }
 			} catch (Exception e) {
 				// ZAP: Log exceptions
 				log.warn(e.getMessage(), e);
 			}
 		}
+		return true;
 	}
 	
 	private boolean isRecursive(HttpRequestHeader header) {

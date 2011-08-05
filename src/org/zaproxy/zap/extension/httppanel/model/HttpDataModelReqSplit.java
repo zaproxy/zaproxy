@@ -36,5 +36,9 @@ public class HttpDataModelReqSplit  {
 		splitUi.search(p, matches);
 	}
 
+	public void clearData() {
+		splitUi.setMessage(null, true);
+	}
+
 
 }

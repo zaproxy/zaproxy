@@ -198,5 +198,9 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		responsePanel.clearView(false);
 		requestPanel.clearView(false);
 	}
+	
+	public boolean isToBeDropped() {
+		return breakToolbarFactory.isToBeDropped();
+	}
 
 }

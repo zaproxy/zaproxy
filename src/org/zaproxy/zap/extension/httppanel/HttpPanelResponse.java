@@ -228,7 +228,17 @@ public class HttpPanelResponse extends HttpPanel implements ActionListener  {
 	}
 	
 	public void clearView(boolean enableViewSelect) {
-		
+		ViewMode view = getView();
+		if (currentView.equals(View.SPLIT)) {
+			// Split is special
+			httpDataModelSplit.clearData();
+		} else if (view.equals(ViewMode.TEXT)) {
+			// Not currently supported
+		} else if (view.equals(ViewMode.TABLE)) {
+			// Not currently supported
+		} else if (view.equals(ViewMode.HEX)) {
+			// Not currently supported
+		}
 	}	
 
 	private void changeView(View view) {
