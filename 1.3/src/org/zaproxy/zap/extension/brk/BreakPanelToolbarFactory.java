@@ -36,6 +36,7 @@ public class BreakPanelToolbarFactory {
 	private boolean cont = false;
 	private boolean step = false;
 	private boolean stepping = false;
+	private boolean toBeDropped = false;
 	private boolean isBreakRequest = false;
 	private boolean isBreakResponse = false;
 	
@@ -94,8 +95,7 @@ public class BreakPanelToolbarFactory {
 		btnStep.setToolTipText(Constant.messages.getString("brk.toolbar.button.step"));
 		btnStep.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {    
-				step = true;
-				clearView();
+				setStep(true);
 			}
 		});
 		// Default to disabled
@@ -117,9 +117,8 @@ public class BreakPanelToolbarFactory {
 		btnContinue.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
 		btnContinue.setToolTipText(Constant.messages.getString("brk.toolbar.button.cont"));
 		btnContinue.addActionListener(new ActionListener() { 
-			public void actionPerformed(ActionEvent e) {    
+			public void actionPerformed(ActionEvent e) {
 				setContinue(true);
-				clearView();
 			}
 		});
 		// Default to disabled
@@ -142,8 +141,8 @@ public class BreakPanelToolbarFactory {
 		btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
 		btnDrop.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
+				toBeDropped = true;
 				setContinue(true);
-				clearView();
 			}
 		});
 		// Default to disabled
@@ -154,12 +153,6 @@ public class BreakPanelToolbarFactory {
 		return btnDrop;
 	}
 	
-	private void clearView() {
-		if (breakPanel != null) {
-			breakPanel.clearView();
-		}
-	}
-
 	/**
 	 * This method initializes btnContinue	
 	 * 	
@@ -340,10 +333,36 @@ public class BreakPanelToolbarFactory {
 		}
 	}
 
+	private void setStep(boolean isStep) {
+		step = isStep;
+
+		for(JButton btnStep: btnStepList) {
+			btnStep.setEnabled( ! isStep);
+		}
+
+		for(JButton btnContinue: btnContinueList) {
+			btnContinue.setEnabled( ! isStep);
+		}
+
+		for(JButton btnDrop: btnDropList) {
+			btnDrop.setEnabled( ! isStep);
+		}
+
+		if (isStep) {
+			this.setActiveIcon(false);
+		}
+	}
+
 	public void gotMessage(boolean isRequest) {
 		this.isRequest = isRequest; 
 		this.isVirgin = true;
 		updateInfoLabel();
+	}
+
+	public boolean isToBeDropped() {
+		boolean drop = toBeDropped;
+		toBeDropped = false;
+		return drop;
 	}
 
 }

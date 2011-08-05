@@ -274,8 +274,18 @@ public class HttpPanelRequest extends HttpPanel implements ActionListener {
 	}
 	
 	public void clearView(boolean enableViewSelect) {
-		
-	}
+		ViewMode view = getViewMode();
+		if (currentView.equals(View.SPLIT)) {
+			// Split is special
+			httpDataModelSplit.clearData();
+		} else if (view.equals(ViewMode.TEXT)) {
+			// Not currently supported
+		} else if (view.equals(ViewMode.TABLE)) {
+			// Not currently supported
+		} else if (view.equals(ViewMode.HEX)) {
+			// Not currently supported
+		}
+	}	
 	
 	public void addView (HttpPanelView view) {
 		views.add(view);

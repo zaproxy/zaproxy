@@ -128,7 +128,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
-    public void onHttpRequestSend(HttpMessage httpMessage) {
+    public boolean onHttpRequestSend(HttpMessage httpMessage) {
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
             filter = (Filter) filterFactory.getAllFilter().get(i);
@@ -138,7 +138,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
                 }
             } catch (Exception e) {}
         }
-        
+        return true;
     }
 
 
@@ -146,7 +146,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
-    public void onHttpResponseReceive(HttpMessage httpMessage) {
+    public boolean onHttpResponseReceive(HttpMessage httpMessage) {
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
             filter = (Filter) filterFactory.getAllFilter().get(i);
@@ -157,7 +157,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
                 }
             } catch (Exception e) {}
         }
-        
+        return true;
     }
 
     /**
