@@ -506,7 +506,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	@Override
-	public void onHttpRequestSend(HttpMessage msg) {
+	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
 		String site = msg.getRequestHeader().getHostName();
 		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
@@ -515,11 +515,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			site += ":443";
 		}
 		this.getActiveScanPanel().addSite(site, true);
+		return true;
 	}
 
 	@Override
-	public void onHttpResponseReceive(HttpMessage msg) {
+	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Do nothing
+		return true;
 	}
 
 	@Override

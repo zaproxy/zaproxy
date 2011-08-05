@@ -135,14 +135,16 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	}
 
 	@Override
-	public void onHttpRequestSend(HttpMessage msg) {
+	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
 		this.getPortScanPanel().addSite(msg.getRequestHeader().getHostName(), false);
+		return true;
 	}
 
 	@Override
-	public void onHttpResponseReceive(HttpMessage msg) {
+	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Do nothing
+		return true;
 	}
 
 	@Override

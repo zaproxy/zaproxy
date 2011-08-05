@@ -169,15 +169,16 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 
 	@Override
-	public void onHttpRequestSend(HttpMessage msg) {
+	public boolean onHttpRequestSend(HttpMessage msg) {
 		// Ignore
-		
+		return true;
 	}
 
 	@Override
-	public void onHttpResponseReceive(HttpMessage msg) {
+	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Wakey wakey
 		this.interrupt();
+		return true;
 	}
 
 	@Override

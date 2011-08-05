@@ -79,7 +79,7 @@ public class ProxyListenerLog implements ProxyListener {
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(org.apache.commons.httpclient.HttpMethod)
 	 */
-	public void onHttpRequestSend(HttpMessage msg) {
+	public boolean onHttpRequestSend(HttpMessage msg) {
 //	    if (msg.getRequestHeader().isImage()) {
 //	        return;
 //	    }
@@ -90,7 +90,7 @@ public class ProxyListenerLog implements ProxyListener {
 	    if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
 	        if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
 	            // exist, no modification necessary
-	            return;
+	            return true;
 	        }
 	    }
         
@@ -102,20 +102,20 @@ public class ProxyListenerLog implements ProxyListener {
 	    if (msg.getRequestHeader().getHeader(HttpHeader.IF_NONE_MATCH) != null) {
 	        msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
 	    }
-
+		return true;
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(org.apache.commons.httpclient.HttpMethod, com.proofsecure.paros.proxy.HttpMessage)
 	 */
-	public void onHttpResponseReceive(final HttpMessage msg) {
+	public boolean onHttpResponseReceive(final HttpMessage msg) {
 
         int type = HistoryReference.TYPE_MANUAL;
 		if (isSkipImage(msg.getRequestHeader()) || isSkipImage(msg.getResponseHeader())) {
             if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
                 type = HistoryReference.TYPE_HIDDEN;
             } else {
-                return;
+                return true;
             }
 		}
 		final int finalType = type;
@@ -126,7 +126,7 @@ public class ProxyListenerLog implements ProxyListener {
 		});
 		t.start();
 				
-
+		return true;
 	}
 	    
     public boolean isSkipImage(HttpHeader header) {
