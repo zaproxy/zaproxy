@@ -248,8 +248,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					mouseClicked(e);
 				}
 				
-				public void mouseClicked(java.awt.event.MouseEvent e) {   
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 				    	
 						// ZAP: Select history list item on right click
 					    int Idx = listLog.locationToIndex( e.getPoint() );

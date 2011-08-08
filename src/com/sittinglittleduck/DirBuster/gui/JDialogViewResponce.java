@@ -22,9 +22,11 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
+import com.sittinglittleduck.DirBuster.BaseCase;
+import com.sittinglittleduck.DirBuster.Config;
 import com.sittinglittleduck.DirBuster.diff.Diff;
 import com.sittinglittleduck.DirBuster.diff.DiffPrint;
-import com.sittinglittleduck.DirBuster.*;
+
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;

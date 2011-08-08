@@ -2,8 +2,7 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.net.URL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
 import com.sittinglittleduck.DirBuster.Manager;
@@ -14,7 +13,7 @@ public class DirBusterManager extends Manager {
 	private int done = 0;
 	private int total = 100;
 	private boolean finished = false;
-    private static Log log = LogFactory.getLog(DirBusterManager.class);
+    private static Logger log = Logger.getLogger(DirBusterManager.class);
 
 	public DirBusterManager (BruteForceListenner listenner) {
 		super();

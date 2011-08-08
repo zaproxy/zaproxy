@@ -20,11 +20,10 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
-import java.awt.Point;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import javax.swing.JViewport;
+
+import com.sittinglittleduck.DirBuster.Config;
 
 /**
  *

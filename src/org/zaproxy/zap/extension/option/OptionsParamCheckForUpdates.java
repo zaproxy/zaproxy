@@ -23,8 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class OptionsParamCheckForUpdates extends AbstractParam {
@@ -36,7 +35,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	// Day last checked is used to ensure if the user has agreed then we only check the first time ZAP is run every day
 	private String dayLastChecked = null; 
 	private boolean unset = true;
-    private static Log log = LogFactory.getLog(OptionsParamCheckForUpdates.class);
+    private static Logger log = Logger.getLogger(OptionsParamCheckForUpdates.class);
 
     /**
      * @param rootElementName

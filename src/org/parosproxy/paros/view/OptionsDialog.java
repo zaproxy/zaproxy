@@ -23,8 +23,6 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
-import org.parosproxy.paros.model.Model;
-
 public class OptionsDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = -4374132178769109917L;

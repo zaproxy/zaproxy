@@ -32,8 +32,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -48,7 +47,7 @@ public class SiteMap extends DefaultTreeModel {
 	private Model model = null;
 
     // ZAP: Added log
-    private static Log log = LogFactory.getLog(SiteMap.class);
+    private static Logger log = Logger.getLogger(SiteMap.class);
     
     public static SiteMap createTree(Model model) {
         SiteNode root = new SiteNode(Constant.messages.getString("tab.sites"));

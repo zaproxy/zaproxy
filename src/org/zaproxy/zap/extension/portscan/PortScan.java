@@ -32,8 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.model.ScanListenner;
@@ -58,7 +57,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 	private boolean useProxy = true;
 	private List<PortScan> subThreads = new ArrayList<PortScan>();
 	
-    private static Log log = LogFactory.getLog(PortScan.class);
+    private static Logger log = Logger.getLogger(PortScan.class);
 
 	public PortScan (String site, ScanListenner listenner, PortScanParam portScanParam) {
 		super(site, listenner);

@@ -24,16 +24,13 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;

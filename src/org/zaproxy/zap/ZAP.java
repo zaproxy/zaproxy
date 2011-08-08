@@ -32,8 +32,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -54,7 +54,7 @@ import org.zaproxy.zap.view.ProxyDialog;
 
 public class ZAP {
 
-    private static Log log = null;
+    private static Logger log = null;
     private CommandLine cmdLine = null;
 
     static {
@@ -78,7 +78,10 @@ public class ZAP {
 	    zap.init(args);
         Constant.getInstance();
         final String msg = Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " started.";
-        log = LogFactory.getLog(ZAP.class);
+        
+        BasicConfigurator.configure();
+        
+        log = Logger.getLogger(ZAP.class);
 	    log.info(msg);
 
 	    try {
@@ -150,11 +153,6 @@ public class ZAP {
 	    } catch (final IllegalAccessException e) {
 	        // handle exception
 	    }
-
-//	    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-//	    System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-//	    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "error");
-
 
 	}
 

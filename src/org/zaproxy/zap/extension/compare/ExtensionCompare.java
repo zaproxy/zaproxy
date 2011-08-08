@@ -34,8 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.RecordHistory;
@@ -63,7 +62,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	private static final String CRLF = "\r\n";
 	private JMenuItem menuCompare = null;
 
-    private static Log log = LogFactory.getLog(ExtensionCompare.class);
+    private static Logger log = Logger.getLogger(ExtensionCompare.class);
 
 	/**
      * 

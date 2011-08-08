@@ -37,8 +37,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 /**
@@ -74,7 +73,7 @@ public abstract class AbstractFrame extends JFrame {
 	 */
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
-	private final Log logger = LogFactory.getLog(AbstractFrame.class);
+	private final Logger logger = Logger.getLogger(AbstractFrame.class);
 
 	private List<Image> icons = null;
 

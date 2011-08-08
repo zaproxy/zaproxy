@@ -20,10 +20,10 @@
 
 package com.sittinglittleduck.DirBuster.gui.documentListeners;
 
-import com.sittinglittleduck.DirBuster.gui.*;
-import com.sittinglittleduck.DirBuster.gui.JPanelSetup;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import com.sittinglittleduck.DirBuster.gui.JPanelSetup;
 
 /**
  *

@@ -19,21 +19,26 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.gui.documentListeners.TargetDocumentListener;
-import com.sittinglittleduck.DirBuster.*;
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
-import com.sittinglittleduck.DirBuster.gui.documentListeners.DirStartDocumentListener;
-import com.sittinglittleduck.DirBuster.gui.documentListeners.FileExtDocumentListener;
-import com.sittinglittleduck.DirBuster.gui.documentListeners.UrlFuzzDocumentListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
-import java.util.StringTokenizer;
-import javax.swing.*;
-import java.io.*;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 import java.util.Vector;
+
+import javax.swing.JFileChooser;
+
+import com.sittinglittleduck.DirBuster.ExtToCheck;
+import com.sittinglittleduck.DirBuster.Manager;
+import com.sittinglittleduck.DirBuster.gui.documentListeners.DirStartDocumentListener;
+import com.sittinglittleduck.DirBuster.gui.documentListeners.FileExtDocumentListener;
+import com.sittinglittleduck.DirBuster.gui.documentListeners.TargetDocumentListener;
+import com.sittinglittleduck.DirBuster.gui.documentListeners.UrlFuzzDocumentListener;
 
 public class JPanelSetup extends javax.swing.JPanel
 {

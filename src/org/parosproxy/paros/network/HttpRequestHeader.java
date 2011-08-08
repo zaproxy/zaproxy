@@ -23,15 +23,14 @@
  
 package org.parosproxy.paros.network;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 
 public class HttpRequestHeader extends HttpHeader {
 
@@ -66,15 +65,13 @@ public class HttpRequestHeader extends HttpHeader {
 	private int		mHostPort = 80;
 	private boolean	mIsSecure = false;
 
-	private Log log = null;
+	private Logger log = Logger.getLogger(this.getClass());
 
 	/**
 	 * Constructor for an empty header.
 	 *
 	 */
 	public HttpRequestHeader() {
-		// ZAP: added local log variable
-		log = LogFactory.getLog(this.getClass());
 	    clear();
 	}
 
@@ -340,7 +337,7 @@ public class HttpRequestHeader extends HttpHeader {
 			// ZAP: fixed cases, where host name is null
 			hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
 		} catch (URIException e) {
-			if (log.isWarnEnabled()) {
+			if (log.isDebugEnabled()) {
 				log.warn(e);
 			}
 		}

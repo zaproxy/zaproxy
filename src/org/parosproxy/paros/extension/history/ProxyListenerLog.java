@@ -28,8 +28,7 @@ package org.parosproxy.paros.extension.history;
 import java.awt.EventQueue;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryList;
@@ -49,7 +48,7 @@ import org.parosproxy.paros.view.View;
 public class ProxyListenerLog implements ProxyListener {
     
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(ProxyListenerLog.class);
+    private static Logger log = Logger.getLogger(ProxyListenerLog.class);
 	private ViewDelegate view = null;
 	private Model model = null;
 	private HistoryList historyList = null;

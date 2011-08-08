@@ -1,7 +1,6 @@
 package org.zaproxy.zap.utils;
 
 import javax.swing.JTextField;
-import org.zaproxy.zap.utils.UndoRedoHelper;
 
 public class ZapTextField extends JTextField {
 

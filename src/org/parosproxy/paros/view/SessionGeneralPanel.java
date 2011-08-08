@@ -22,19 +22,18 @@
 
 package org.parosproxy.paros.view;
 
-import javax.swing.JPanel;
+import java.awt.CardLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-
-import java.awt.CardLayout;
 
 public class SessionGeneralPanel extends AbstractParamPanel {
 

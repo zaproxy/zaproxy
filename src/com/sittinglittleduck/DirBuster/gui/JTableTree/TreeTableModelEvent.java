@@ -9,7 +9,6 @@
 package com.sittinglittleduck.DirBuster.gui.JTableTree;
 
 import javax.swing.event.TreeModelEvent;
-
 import javax.swing.tree.TreePath;
 
 

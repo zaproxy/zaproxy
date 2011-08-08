@@ -26,14 +26,13 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
 
 public class PluginFactory {
 
-    private static Log log = LogFactory.getLog(PluginFactory.class);
+    private static Logger log = Logger.getLogger(PluginFactory.class);
 
     private static Vector<Plugin> listAllPlugin = new Vector<Plugin>();
     private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<Integer, Plugin>();

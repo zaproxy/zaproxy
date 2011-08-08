@@ -22,17 +22,15 @@ package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.HeadlessException;
-
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;

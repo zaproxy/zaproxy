@@ -19,16 +19,17 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
-import java.io.IOException;
-import java.util.List;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.Vector;
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
+import com.sittinglittleduck.DirBuster.gui.StartGUI;
 
 public class ReportWriter
 {

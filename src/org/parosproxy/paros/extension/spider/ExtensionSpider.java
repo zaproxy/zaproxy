@@ -29,8 +29,7 @@ import javax.swing.JTree;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.spider.Spider;
 import org.parosproxy.paros.core.spider.SpiderListener;
@@ -53,7 +52,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener, SessionChangedListener, CommandLineListener {
     
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(ExtensionSpider.class);
+    private static Logger log = Logger.getLogger(ExtensionSpider.class);
 
     private static final int ARG_SPIDER_IDX = 0;
     private static final int ARG_URL_IDX = 1;

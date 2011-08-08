@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -50,8 +50,7 @@ import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -108,7 +107,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	private ScanStatus scanStatus = null;
 
-    private static Log log = LogFactory.getLog(BruteForcePanel.class);
+    private static Logger log = Logger.getLogger(BruteForcePanel.class);
     
     /**
      * @param bruteForceParam 

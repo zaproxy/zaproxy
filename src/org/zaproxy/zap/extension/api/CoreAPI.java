@@ -29,8 +29,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -43,7 +41,7 @@ import org.parosproxy.paros.model.SiteNode;
 
 public class CoreAPI extends ApiImplementor {
 
-    private static Log log = LogFactory.getLog(CoreAPI.class);
+    private static Logger log = Logger.getLogger(CoreAPI.class);
 
 	private static final String PREFIX = "core";
 	private static final String ACTION_LOAD_SESSION = "loadsession";

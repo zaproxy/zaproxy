@@ -22,8 +22,7 @@ package org.zaproxy.zap.extension.fuzz;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -32,7 +31,7 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 
 public class FuzzerThread implements Runnable {
 
-    private static Log log = LogFactory.getLog(FuzzerThread.class);
+    private static Logger log = Logger.getLogger(FuzzerThread.class);
 	
 	private ExtensionFuzz extension;
 	private List<FuzzerListener> listenerList = new ArrayList<FuzzerListener>();

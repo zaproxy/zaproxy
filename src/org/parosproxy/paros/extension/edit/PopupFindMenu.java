@@ -27,7 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
 public class PopupFindMenu extends ExtensionPopupMenu {

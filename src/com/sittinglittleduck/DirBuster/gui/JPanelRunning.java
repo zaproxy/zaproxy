@@ -19,23 +19,26 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
-import com.sittinglittleduck.DirBuster.gui.JTableTree.JTreeTable;
-import com.sittinglittleduck.DirBuster.gui.JTableTree.TreeTableModelAdapter;
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
-import com.sittinglittleduck.DirBuster.gui.Tree.ResultsNode;
-import com.sittinglittleduck.DirBuster.gui.Tree.ResultsTableTreeModel;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.util.List;
-import java.util.ArrayList;
-import edu.stanford.ejalbert.BrowserLauncher;
 import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
+
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumnModel;
+
+import com.sittinglittleduck.DirBuster.DirToCheck;
+import com.sittinglittleduck.DirBuster.ExtToCheck;
+import com.sittinglittleduck.DirBuster.gui.JTableTree.JTreeTable;
+import com.sittinglittleduck.DirBuster.gui.JTableTree.TreeTableModelAdapter;
+import com.sittinglittleduck.DirBuster.gui.Tree.ResultsNode;
+import com.sittinglittleduck.DirBuster.gui.Tree.ResultsTableTreeModel;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
 {

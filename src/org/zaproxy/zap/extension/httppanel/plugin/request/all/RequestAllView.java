@@ -11,8 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
@@ -20,8 +19,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class RequestAllView implements PluginInterface, ActionListener {
@@ -45,7 +44,7 @@ public class RequestAllView implements PluginInterface, ActionListener {
 	private HttpPanelView currentView;
 	private Hashtable<String, HttpPanelView> views = new Hashtable<String, HttpPanelView>();
 	
-    private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
+    private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 	
 	public RequestAllView(HttpPanel httpPanel, HttpMessage httpMessage) {
 		this.httpPanel = httpPanel;

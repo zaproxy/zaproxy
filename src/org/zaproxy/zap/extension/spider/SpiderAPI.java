@@ -27,8 +27,7 @@ import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -39,7 +38,7 @@ import org.zaproxy.zap.model.ScanListenner;
 
 public class SpiderAPI extends ApiImplementor implements ScanListenner {
 
-    private static Log log = LogFactory.getLog(SpiderAPI.class);
+    private static Logger log = Logger.getLogger(SpiderAPI.class);
 
 	private static final String PREFIX = "spider";
 	private static final String ACTION_SCAN = "scan";

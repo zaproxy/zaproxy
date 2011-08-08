@@ -18,12 +18,13 @@
 
 package com.sittinglittleduck.DirBuster.gui.Tree;
 
-import com.sittinglittleduck.DirBuster.gui.JTableTree.AbstractTreeTableModel;
-import com.sittinglittleduck.DirBuster.gui.JTableTree.TreeTableModel;
-import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
+
+import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
+import com.sittinglittleduck.DirBuster.gui.JTableTree.AbstractTreeTableModel;
+import com.sittinglittleduck.DirBuster.gui.JTableTree.TreeTableModel;
 
 /**
  *

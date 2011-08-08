@@ -32,8 +32,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -53,7 +52,7 @@ import org.parosproxy.paros.network.HttpSender;
  */
 public class Spider {
     
-    private static Log log = LogFactory.getLog(Spider.class);
+    private static Logger log = Logger.getLogger(Spider.class);
 
     private HttpSender httpSender = null;
     private Vector<SpiderListener> listenerList = new Vector<SpiderListener>();

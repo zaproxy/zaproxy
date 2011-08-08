@@ -8,6 +8,7 @@
 package com.sittinglittleduck.DirBuster;
 
 import javax.swing.ImageIcon;
+
 import org.apache.commons.codec.binary.Base64;
 
 /**

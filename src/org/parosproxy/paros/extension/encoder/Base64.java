@@ -3,8 +3,7 @@
  */
 package org.parosproxy.paros.extension.encoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 /**
@@ -36,7 +35,7 @@ import org.zaproxy.zap.utils.ZapTextArea;
 public class Base64
 {
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(Base64.class);
+    private static Logger log = Logger.getLogger(Base64.class);
     
     /** Specify encoding (value is <tt>true</tt>). */
     public final static boolean ENCODE = true;

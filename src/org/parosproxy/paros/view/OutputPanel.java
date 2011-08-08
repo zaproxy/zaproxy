@@ -103,7 +103,8 @@ public class OutputPanel extends AbstractPanel {
 				}
 				
 				public void mouseAction(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 					}
 				}

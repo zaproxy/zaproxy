@@ -20,8 +20,7 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
-import javax.swing.JScrollBar;
+import com.sittinglittleduck.DirBuster.Config;
 
 /**
  *

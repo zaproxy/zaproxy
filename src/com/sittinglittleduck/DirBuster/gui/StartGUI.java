@@ -21,24 +21,28 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.jgoodies.looks.plastic.theme.Silver;
-import com.sittinglittleduck.DirBuster.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.help.HelpSetException;
-import javax.swing.JOptionPane;
-import edu.stanford.ejalbert.BrowserLauncher;
 import java.awt.Dimension;
 import java.net.URL;
-import java.util.Date;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.help.CSH;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
+import javax.help.HelpSetException;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+import com.jgoodies.looks.plastic.theme.Silver;
+import com.sittinglittleduck.DirBuster.Config;
+import com.sittinglittleduck.DirBuster.ImageCreator;
+import com.sittinglittleduck.DirBuster.Manager;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 public class StartGUI extends javax.swing.JFrame
 {

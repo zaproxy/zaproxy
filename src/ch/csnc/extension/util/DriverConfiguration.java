@@ -29,8 +29,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -45,7 +44,7 @@ public class DriverConfiguration extends Observable {
 	private Vector<Integer> slots;
 	private Vector<Integer> slotListIndexes;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger logger = Logger.getLogger(this.getClass());
 
 	public DriverConfiguration() {
 		names = new Vector<String>();

@@ -25,8 +25,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -54,7 +53,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private int threads = 0;
 	private DirBusterManager manager = null;
 	
-    private static Log log = LogFactory.getLog(BruteForce.class);
+    private static Logger log = Logger.getLogger(BruteForce.class);
 
 	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
 		this.site = site;

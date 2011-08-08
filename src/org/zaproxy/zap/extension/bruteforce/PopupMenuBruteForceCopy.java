@@ -26,8 +26,7 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
@@ -35,7 +34,7 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenu implements Clipb
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionBruteForce extension = null;
-    private static Log log = LogFactory.getLog(PopupMenuBruteForceCopy.class);
+    private static Logger log = Logger.getLogger(PopupMenuBruteForceCopy.class);
     
     /**
      * 

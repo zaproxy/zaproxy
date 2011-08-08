@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -44,7 +43,7 @@ public class FuzzProcess  implements Runnable {
 	private String fuzz;
 	private AntiCsrfToken acsrfToken;
 	private List<FuzzerListener> listenerList = new ArrayList<FuzzerListener>();
-    private static Log log = LogFactory.getLog(FuzzProcess.class);
+    private static Logger log = Logger.getLogger(FuzzProcess.class);
     private List<HttpMessage> tokenRequests = new ArrayList<HttpMessage>();
 	private Encoder encoder = new Encoder();
 	private boolean showTokenRequests = false;

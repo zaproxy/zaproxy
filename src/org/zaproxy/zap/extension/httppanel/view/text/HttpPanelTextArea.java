@@ -8,15 +8,14 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpPanelTextArea extends JTextArea {
 
-	private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
+	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 	
 	private HttpMessage httpMessage;
 	private MessageType messageType;

@@ -34,8 +34,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -57,7 +56,7 @@ class ProxyThread implements Runnable {
 	private static final String		CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\nProxy-connection: Keep-alive\r\n\r\n";
 //	private static ArrayList 		processForwardList = new ArrayList();
     
-	private static Log log = LogFactory.getLog(ProxyThread.class);
+	private static Logger log = Logger.getLogger(ProxyThread.class);
     
 	// change httpSender to static to be shared among proxies to reuse keep-alive connections
 

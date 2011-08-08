@@ -288,7 +288,8 @@ public class SearchDialog extends AbstractDialog {
 				}
 				
 				public void mouseClicked(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
                         view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                     }
                 }

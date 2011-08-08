@@ -30,8 +30,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
@@ -46,7 +45,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class PopupMenuExportResponse extends ExtensionPopupMenu {
 
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(PopupMenuExportResponse.class);
+    private static Logger log = Logger.getLogger(PopupMenuExportResponse.class);
 
     private ExtensionHistory extension = null;
     

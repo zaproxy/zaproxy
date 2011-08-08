@@ -19,8 +19,9 @@
  */
 
 package com.sittinglittleduck.DirBuster.gui;
-import com.sittinglittleduck.DirBuster.*;
 import java.util.Vector;
+
+import com.sittinglittleduck.DirBuster.Config;
 /**
  *
  * @author  James

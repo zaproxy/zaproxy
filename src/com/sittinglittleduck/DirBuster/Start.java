@@ -19,17 +19,18 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
-import com.sittinglittleduck.DirBuster.headless.CatchExit;
 import gnu.getopt.Getopt;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import com.sittinglittleduck.DirBuster.gui.StartGUI;
+import com.sittinglittleduck.DirBuster.headless.CatchExit;
 
 /**
  *

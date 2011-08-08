@@ -25,8 +25,7 @@ package org.parosproxy.paros.core.scanner;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -35,7 +34,7 @@ import org.parosproxy.paros.network.HttpSender;
 
 public class HostProcess implements Runnable {
 
-    private static Log log = LogFactory.getLog(HostProcess.class);
+    private static Logger log = Logger.getLogger(HostProcess.class);
 	private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
     private SiteNode startNode = null;

@@ -39,8 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -52,7 +51,6 @@ import ch.csnc.extension.ui.AliasTableModel;
 import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
 import ch.csnc.extension.util.DriverConfiguration;
-import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 /**
  *
  * To change the template for this generated type comment go to
@@ -100,7 +98,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private AliasTableModel aliasTableModel;
 	private DriverConfiguration driverConfig;
 	
-	private final Log logger = LogFactory.getLog(OptionsCertificatePanel.class);
+	private final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
 	
 	public OptionsCertificatePanel() {
 		super();

@@ -37,18 +37,14 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-//import org.apache.commons.httpclient.
-//import org.apache.commons.logging.Log; 
-//import org.apache.commons.logging.LogFactory;
-
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * <p>
@@ -98,7 +94,7 @@ import javax.net.ssl.X509TrustManager;
 public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
 
     /** Log object for this class. */
-    //private static final Log LOG = LogFactory.getLog(EasySSLProtocolSocketFactory.class);
+    //private static final Logger log = Logger.getLogger(EasySSLProtocolSocketFactory.class);
 
     private SSLContext sslcontext = null;
 

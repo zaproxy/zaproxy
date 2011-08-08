@@ -47,8 +47,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -83,7 +82,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	private ShowHelpAction showHelpAction = null;
 	
 	// ZAP: Added logger
-    private static Log log = LogFactory.getLog(AbstractParamDialog.class);
+    private static Logger log = Logger.getLogger(AbstractParamDialog.class);
 
 	
 	public AbstractParamDialog() {

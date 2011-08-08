@@ -44,8 +44,7 @@ import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
@@ -87,7 +86,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
 	private ScanStatus scanStatus = null;
 
-    private static Log log = LogFactory.getLog(FuzzerPanel.class);
+    private static Logger log = Logger.getLogger(FuzzerPanel.class);
     
     public FuzzerPanel(ExtensionFuzz extension, FuzzerParam fuzzerParam) {
         super();

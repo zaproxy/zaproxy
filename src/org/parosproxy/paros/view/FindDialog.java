@@ -24,25 +24,21 @@ package org.parosproxy.paros.view;
 
 import java.awt.Component;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
-
-import javax.swing.JFrame;
-import javax.swing.text.JTextComponent;
-
-
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.KeyStroke;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;

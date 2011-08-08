@@ -55,12 +55,11 @@ import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.Model;
+
 import ch.csnc.extension.util.Encoding;
 import ch.csnc.extension.util.NullComparator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.parosproxy.paros.model.Model;
 
 public class SSLContextManager {
 
@@ -72,7 +71,7 @@ public class SSLContextManager {
 	private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<KeyStore, String>();
 	private Map<KeyStore, String> _keyStorePasswords = new HashMap<KeyStore, String>();
 	
-	private static Log log = LogFactory.getLog(SSLContextManager.class);
+	private static Logger log = Logger.getLogger(SSLContextManager.class);
 
 
 	private static TrustManager[] _trustAllCerts = new TrustManager[] {

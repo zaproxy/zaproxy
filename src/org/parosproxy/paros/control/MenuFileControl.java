@@ -28,8 +28,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -46,7 +45,7 @@ import org.parosproxy.paros.view.WaitMessageDialog;
  */
 public class MenuFileControl implements SessionListener {
 
-    private static Log log = LogFactory.getLog(MenuFileControl.class);
+    private static Logger log = Logger.getLogger(MenuFileControl.class);
 
     private View view = null;
     private Model model = null;

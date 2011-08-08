@@ -39,8 +39,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ViewDelegate;
@@ -70,7 +69,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 
 	private JPanel jPanel = null;
 	
-	private static Log log = LogFactory.getLog(BeanShellConsoleFrame.class);
+	private static Logger log = Logger.getLogger(BeanShellConsoleFrame.class);
 	
    /**
     * @throws HeadlessException

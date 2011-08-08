@@ -19,9 +19,13 @@
  */
 
 package com.sittinglittleduck.DirBuster.gui;
-import com.sittinglittleduck.DirBuster.*;
 import java.util.List;
+
 import javax.swing.table.DefaultTableModel;
+
+import com.sittinglittleduck.DirBuster.BaseCase;
+import com.sittinglittleduck.DirBuster.DirToCheck;
+import com.sittinglittleduck.DirBuster.Manager;
 
 public class ResultsTableModel extends DefaultTableModel
 {

@@ -19,29 +19,32 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import com.sittinglittleduck.DirBuster.gui.JTableTree.JTreeTable;
-import com.sittinglittleduck.DirBuster.workGenerators.BruteForceWorkGenerator;
-import com.sittinglittleduck.DirBuster.workGenerators.WorkerGenerator;
-import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
-import com.sittinglittleduck.DirBuster.gui.Tree.ResultsNode;
-import com.sittinglittleduck.DirBuster.gui.Tree.ResultsTableTreeModel;
-import com.sittinglittleduck.DirBuster.workGenerators.BruteForceURLFuzz;
-import com.sittinglittleduck.DirBuster.workGenerators.WorkerGeneratorURLFuzz;
-import java.util.concurrent.*;
-import java.net.*;
-import java.util.Calendar;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.Timer;
 import java.util.Vector;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.prefs.Preferences;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.protocol.Protocol;
+
+import com.sittinglittleduck.DirBuster.gui.ResultsTableObject;
+import com.sittinglittleduck.DirBuster.gui.StartGUI;
+import com.sittinglittleduck.DirBuster.gui.JTableTree.JTreeTable;
+import com.sittinglittleduck.DirBuster.gui.Tree.ResultsNode;
+import com.sittinglittleduck.DirBuster.gui.Tree.ResultsTableTreeModel;
+import com.sittinglittleduck.DirBuster.workGenerators.BruteForceURLFuzz;
+import com.sittinglittleduck.DirBuster.workGenerators.BruteForceWorkGenerator;
+import com.sittinglittleduck.DirBuster.workGenerators.WorkerGenerator;
+import com.sittinglittleduck.DirBuster.workGenerators.WorkerGeneratorURLFuzz;
 
 public class Manager implements ProcessChecker.ProcessUpdate
 {

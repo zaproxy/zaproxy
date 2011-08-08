@@ -37,8 +37,10 @@
  */
 package com.sittinglittleduck.DirBuster.gui.JTableTree;
 
-import java.lang.reflect.*;
-import javax.swing.tree.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+import javax.swing.tree.TreeNode;
 
 /**
  * An implementation of TreeTableModel that uses reflection to answer

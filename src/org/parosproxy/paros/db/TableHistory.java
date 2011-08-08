@@ -33,8 +33,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -79,7 +78,7 @@ public class TableHistory extends AbstractTable {
     private static boolean isExistStatusCode = false;
 
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(TableHistory.class);
+    private static Logger log = Logger.getLogger(TableHistory.class);
 
     public TableHistory() {
     }

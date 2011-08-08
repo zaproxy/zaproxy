@@ -1,7 +1,6 @@
 package org.zaproxy.zap.utils;
 
 import javax.swing.JTextArea;
-import org.zaproxy.zap.utils.UndoRedoHelper;
 
 public class ZapTextArea extends JTextArea {
 

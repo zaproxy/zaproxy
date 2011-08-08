@@ -32,8 +32,7 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -46,7 +45,7 @@ public class SiteMapPanel extends JPanel {
 	private static final long serialVersionUID = -3161729504065679088L;
 
 	// ZAP: Added logger
-    private static Log log = LogFactory.getLog(SiteMapPanel.class);
+    private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
@@ -121,7 +120,8 @@ public class SiteMapPanel extends JPanel {
 				}
 				
 				public void mouseClicked(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 
 						// ZAP: Select site list item on right click
 				    	TreePath tp = treeSite.getPathForLocation( e.getPoint().x, e.getPoint().y );

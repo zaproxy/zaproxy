@@ -37,8 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -69,7 +68,7 @@ public class WorkbenchPanel extends JPanel {
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
 
-	private final Log logger = LogFactory.getLog(WorkbenchPanel.class);
+	private final Logger logger = Logger.getLogger(WorkbenchPanel.class);
 
 	/**
 	 * This is the default constructor

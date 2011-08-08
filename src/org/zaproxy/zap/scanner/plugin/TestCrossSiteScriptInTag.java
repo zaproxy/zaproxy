@@ -3,8 +3,7 @@ package org.zaproxy.zap.scanner.plugin;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -16,7 +15,7 @@ import org.zaproxy.zap.model.Vulnerability;
 public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_8");
-    private static Log log = LogFactory.getLog(TestCrossSiteScriptInTag.class);
+    private static Logger log = Logger.getLogger(TestCrossSiteScriptInTag.class);
 
     private static final String [] XSS_ATTACKS = { 
     								"alert('" + Constant.getEyeCatcher() + "');",

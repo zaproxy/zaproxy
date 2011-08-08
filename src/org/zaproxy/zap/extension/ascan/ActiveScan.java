@@ -4,8 +4,7 @@ import java.util.Enumeration;
 
 import javax.swing.DefaultListModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
@@ -25,7 +24,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private boolean isAlive = false;
 	private DefaultListModel list = new DefaultListModel();
 	private SiteNode startNode = null;
-	private static Log log = LogFactory.getLog(ActiveScan.class);
+	private static Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);

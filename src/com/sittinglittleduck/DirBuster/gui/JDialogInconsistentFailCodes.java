@@ -19,12 +19,14 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.diff.Diff;
-import com.sittinglittleduck.DirBuster.diff.DiffPrint;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import javax.swing.JOptionPane;
+
+import com.sittinglittleduck.DirBuster.diff.Diff;
+import com.sittinglittleduck.DirBuster.diff.DiffPrint;
 
 /**
  *

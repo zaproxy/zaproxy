@@ -21,6 +21,7 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -41,12 +42,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
-
-import java.awt.CardLayout;
 
 public class BrowserDialog extends AbstractDialog {
 

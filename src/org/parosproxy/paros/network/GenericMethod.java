@@ -28,12 +28,11 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.EncodingUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.util.EncodingUtil;
+import org.apache.log4j.Logger;
 
 /**
  * This class is basing on the HttpClient under Apache licence 2.0
@@ -41,7 +40,7 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 public class GenericMethod extends EntityEnclosingMethod {
     
     /** Log object for this class. */
-    private static final Log LOG = LogFactory.getLog(GenericMethod.class);
+    private static final Logger log = Logger.getLogger(GenericMethod.class);
 
     /** The Content-Type for www-form-urlencoded. */
     public static final String FORM_URL_ENCODED_CONTENT_TYPE = 
@@ -86,7 +85,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * 
      */
     protected boolean hasRequestContent() {
-        LOG.trace("enter GenericMethod.hasRequestContent()");
+        log.trace("enter GenericMethod.hasRequestContent()");
         if (!this.params.isEmpty()) {
             return true;
         } else {
@@ -103,7 +102,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * @since 2.0beta1
      */
     protected void clearRequestBody() {
-        LOG.trace("enter GenericMethod.clearRequestBody()");
+        log.trace("enter GenericMethod.clearRequestBody()");
         this.params.clear();
         super.clearRequestBody();
     }
@@ -142,7 +141,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * @since 2.0
      */
     public void setParameter(String parameterName, String parameterValue) {
-        LOG.trace("enter PostMethod.setParameter(String, String)");
+        log.trace("enter PostMethod.setParameter(String, String)");
 
         removeParameter(parameterName);
         addParameter(parameterName, parameterValue);
@@ -161,7 +160,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * 
      */
     public NameValuePair getParameter(String paramName) {
-        LOG.trace("enter PostMethod.getParameter(String)");
+        log.trace("enter PostMethod.getParameter(String)");
 
         if (paramName == null) {
             return null;
@@ -191,7 +190,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * 
      */
     public NameValuePair[] getParameters() {
-        LOG.trace("enter PostMethod.getParameters()");
+        log.trace("enter PostMethod.getParameters()");
 
         int numPairs = this.params.size();
         Object[] objectArr = this.params.toArray();
@@ -216,7 +215,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      */
     public void addParameter(String paramName, String paramValue) 
     throws IllegalArgumentException {
-        LOG.trace("enter PostMethod.addParameter(String, String)");
+        log.trace("enter PostMethod.addParameter(String, String)");
 
         if ((paramName == null) || (paramValue == null)) {
             throw new IllegalArgumentException(
@@ -238,7 +237,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      */
     public void addParameter(NameValuePair param) 
     throws IllegalArgumentException {
-        LOG.trace("enter PostMethod.addParameter(NameValuePair)");
+        log.trace("enter PostMethod.addParameter(NameValuePair)");
 
         if (param == null) {
             throw new IllegalArgumentException("NameValuePair may not be null");
@@ -255,10 +254,10 @@ public class GenericMethod extends EntityEnclosingMethod {
      * @since 2.0
      */
     public void addParameters(NameValuePair[] parameters) {
-        LOG.trace("enter PostMethod.addParameters(NameValuePair[])");
+        log.trace("enter PostMethod.addParameters(NameValuePair[])");
 
         if (parameters == null) {
-            LOG.warn("Attempt to addParameters(null) ignored");
+            log.warn("Attempt to addParameters(null) ignored");
         } else {
             super.clearRequestBody();
             for (int i = 0; i < parameters.length; i++) {
@@ -283,7 +282,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      */
     public boolean removeParameter(String paramName) 
     throws IllegalArgumentException {
-        LOG.trace("enter PostMethod.removeParameter(String)");
+        log.trace("enter PostMethod.removeParameter(String)");
 
         if (paramName == null) {
             throw new IllegalArgumentException(
@@ -319,7 +318,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      */
     public boolean removeParameter(String paramName, String paramValue) 
     throws IllegalArgumentException {
-        LOG.trace("enter PostMethod.removeParameter(String, String)");
+        log.trace("enter PostMethod.removeParameter(String, String)");
 
         if (paramName == null) {
             throw new IllegalArgumentException("Parameter name may not be null");
@@ -354,7 +353,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      */
     public void setRequestBody(NameValuePair[] parametersBody)
     throws IllegalArgumentException {
-        LOG.trace("enter PostMethod.setRequestBody(NameValuePair[])");
+        log.trace("enter PostMethod.setRequestBody(NameValuePair[])");
 
         if (parametersBody == null) {
             throw new IllegalArgumentException("Array of parameters may not be null");

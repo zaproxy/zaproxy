@@ -27,11 +27,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.model.Model;
-
-import javax.swing.JScrollPane;
 /**
 *
 * To change the template for this generated type comment go to

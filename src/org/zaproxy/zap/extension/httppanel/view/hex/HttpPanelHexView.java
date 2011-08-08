@@ -26,8 +26,8 @@ import javax.swing.ListSelectionModel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 
 public class HttpPanelHexView implements HttpPanelView {
 

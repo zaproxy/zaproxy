@@ -21,7 +21,7 @@
  */
 
 package com.sittinglittleduck.DirBuster;
-import java.net.*;
+import java.net.URL;
 
 public class WorkUnit
 {

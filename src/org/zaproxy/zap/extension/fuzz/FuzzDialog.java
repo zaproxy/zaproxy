@@ -41,8 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
@@ -80,7 +79,7 @@ public class FuzzDialog extends AbstractDialog {
 	
 	private Database fuzzDB = new Database();
 
-	private static Log log = LogFactory.getLog(FuzzDialog.class);
+	private static Logger log = Logger.getLogger(FuzzDialog.class);
 
     /**
      * @throws HeadlessException

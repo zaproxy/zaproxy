@@ -17,8 +17,7 @@
  */
 package org.zaproxy.zap.scanner.plugin;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
@@ -36,7 +35,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_38");
     
-    private static Log log = LogFactory.getLog(TestRedirect.class);
+    private static Logger log = Logger.getLogger(TestRedirect.class);
 	
     public int getId() {
         return 20010;

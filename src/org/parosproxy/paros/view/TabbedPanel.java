@@ -25,8 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 
@@ -37,7 +36,7 @@ public class TabbedPanel extends JTabbedPane {
 	private java.awt.Container originalParent = null;
     private java.awt.Container alternativeParent = null;
     private java.awt.Component backupChild = null;
-    private Log log = LogFactory.getLog(this.getClass());
+    private Logger log = Logger.getLogger(this.getClass());
     
     /**
 	 * This is the default constructor

@@ -19,7 +19,7 @@
  */
 
 package com.sittinglittleduck.DirBuster;
-import java.net.*;
+import java.net.URL;
 import java.util.Date;
 
 public class urlTest

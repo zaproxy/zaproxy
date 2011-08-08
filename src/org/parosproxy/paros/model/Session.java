@@ -28,8 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
@@ -44,7 +43,7 @@ import org.zaproxy.zap.extension.spider.ExtensionSpider;
 public class Session extends FileXML {
 	
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(Session.class);
+    private static Logger log = Logger.getLogger(Session.class);
 
 	private static final String ROOT = "session";
 	

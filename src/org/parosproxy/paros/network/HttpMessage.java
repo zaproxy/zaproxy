@@ -31,8 +31,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 
 
@@ -59,7 +58,7 @@ public class HttpMessage {
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added log
-    private static Log log = LogFactory.getLog(HttpMessage.class);
+    private static Logger log = Logger.getLogger(HttpMessage.class);
 
 
     public HistoryReference getHistoryRef() {

@@ -23,8 +23,7 @@ package org.zaproxy.zap.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 
@@ -33,7 +32,7 @@ public class HttpPanelManager {
 	private List<HttpPanelView> views = new ArrayList<HttpPanelView> ();
 	
 	private static HttpPanelManager instance = null;
-	private static Log log = LogFactory.getLog(HttpPanelManager.class);
+	private static Logger log = Logger.getLogger(HttpPanelManager.class);
 	
 	public static synchronized HttpPanelManager getInstance() {
 		if (instance == null) {

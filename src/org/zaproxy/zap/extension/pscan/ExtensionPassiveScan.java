@@ -29,8 +29,8 @@ import org.zaproxy.zap.extension.pscan.scanner.CookieHttpOnlyScanner;
 import org.zaproxy.zap.extension.pscan.scanner.CookieSecureFlagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.extension.pscan.scanner.WeakAuthenticationScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE;
+import org.zaproxy.zap.extension.pscan.scanner.WeakAuthenticationScanner;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor {
 

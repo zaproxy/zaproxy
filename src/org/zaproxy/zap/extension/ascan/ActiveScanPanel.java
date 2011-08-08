@@ -61,7 +61,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
 
-    //private static Log log = LogFactory.getLog(ActiveScanPanel.class);
+    //private static Logger log = Logger.getLogger(ActiveScanPanel.class);
 
     /**
      * @param portScanParam 

@@ -25,8 +25,7 @@ package org.parosproxy.paros.control;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.edit.ExtensionEdit;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
@@ -66,7 +65,7 @@ import org.zaproxy.zap.extension.spider.ExtensionSpider;
  */
 public class Control extends AbstractControl {
 
-    private static Log log = LogFactory.getLog(Control.class);
+    private static Logger log = Logger.getLogger(Control.class);
 
     private static Control control = null;
     private Proxy proxy = null;

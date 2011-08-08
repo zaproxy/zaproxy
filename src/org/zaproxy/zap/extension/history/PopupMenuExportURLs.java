@@ -31,8 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -52,7 +51,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenu {
 	private static final String CRLF = "\r\n";
     private ExtensionHistory extension = null;
 
-    private static Log log = LogFactory.getLog(PopupMenuExportURLs.class);
+    private static Logger log = Logger.getLogger(PopupMenuExportURLs.class);
 
     /**
      * 

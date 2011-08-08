@@ -19,13 +19,14 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
-import com.sittinglittleduck.DirBuster.gui.StartGUI;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+
+import com.sittinglittleduck.DirBuster.ReportWriter;
 
 public class JPanelReport extends javax.swing.JPanel
 {

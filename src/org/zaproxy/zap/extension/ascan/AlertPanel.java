@@ -127,10 +127,11 @@ public class AlertPanel extends AbstractPanel {
 					mouseClicked(e);
 				}
 				
-				public void mouseClicked(java.awt.event.MouseEvent e) {    
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
 				        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }	
+				    }
 				    if (e.getClickCount() > 1) {
 				    	// Its a double click - edit the alert
 					    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();

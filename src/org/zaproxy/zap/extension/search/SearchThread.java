@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -43,7 +42,7 @@ public class SearchThread extends Thread {
 	private SearchPanel searchPanel;
 	private boolean stopSearch = false;
 	private boolean inverse = false;
-    private static Log log = LogFactory.getLog(SearchThread.class);
+    private static Logger log = Logger.getLogger(SearchThread.class);
 	
     public SearchThread(String filter, Type reqType, SearchPanel searchPanel, boolean inverse) {
 		super();

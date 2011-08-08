@@ -1,8 +1,8 @@
 package org.zaproxy.zap.extension.pscan;
 
-import org.parosproxy.paros.network.HttpMessage;
-
 import net.htmlparser.jericho.Source;
+
+import org.parosproxy.paros.network.HttpMessage;
 
 public interface PassiveScanner {
 

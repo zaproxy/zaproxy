@@ -27,14 +27,13 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class ConnectionParam extends AbstractParam {
 
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(ConnectionParam.class);
+    private static Logger log = Logger.getLogger(ConnectionParam.class);
 
 //	private static final String CONNECTION = "connection";
 

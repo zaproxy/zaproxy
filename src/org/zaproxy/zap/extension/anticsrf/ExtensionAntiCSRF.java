@@ -30,8 +30,7 @@ import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -55,7 +54,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	private Encoder encoder = new Encoder();
 
-	private static Log log = LogFactory.getLog(ExtensionAntiCSRF.class);
+	private static Logger log = Logger.getLogger(ExtensionAntiCSRF.class);
 
 	public ExtensionAntiCSRF() {
 		super();

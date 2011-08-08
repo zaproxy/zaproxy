@@ -15,8 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.Extension;
@@ -60,7 +59,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	protected HttpMessage httpMessage;
 	protected List<HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
-	private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
+	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 
 	private JPanel panelOptions;
 	private JPanel panelButtons;

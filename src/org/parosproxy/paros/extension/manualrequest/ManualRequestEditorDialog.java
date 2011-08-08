@@ -42,8 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
@@ -78,7 +77,7 @@ import org.zaproxy.zap.extension.tab.Tab;
 public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(ManualRequestEditorDialog.class);
+	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 
 	// Window
 	private JPanel panelWindow = null; // ZAP

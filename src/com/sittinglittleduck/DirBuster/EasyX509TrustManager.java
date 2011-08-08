@@ -66,8 +66,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 
 /**
  *

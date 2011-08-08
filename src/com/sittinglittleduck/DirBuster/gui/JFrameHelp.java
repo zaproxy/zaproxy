@@ -24,6 +24,7 @@ package com.sittinglittleduck.DirBuster.gui;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.help.JHelp;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;

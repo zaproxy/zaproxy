@@ -31,8 +31,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
@@ -154,7 +153,7 @@ public final class Constant {
         
     	FileCopier copier = new FileCopier();
         File f = null;
-        Log log = null;
+        Logger log = null;
 
         // default to use application directory 'log'
         System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
@@ -203,7 +202,7 @@ public final class Constant {
             }
             System.setProperty("log4j.configuration", logFile.getAbsolutePath());
             PropertyConfigurator.configure(logFile.getAbsolutePath());
-            log = LogFactory.getLog(Constant.class);
+            log = Logger.getLogger(Constant.class);
             
             f = new File(FILE_CONFIG);
             if (!f.isFile()) {

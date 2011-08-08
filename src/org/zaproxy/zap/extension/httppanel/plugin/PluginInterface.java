@@ -1,6 +1,5 @@
 package org.zaproxy.zap.extension.httppanel.plugin;
 
-import java.awt.Component;
 import java.util.List;
 import java.util.regex.Pattern;
 

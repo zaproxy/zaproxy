@@ -37,8 +37,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpUtil;
@@ -59,7 +58,7 @@ public class ProxyServer implements Runnable {
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<CacheProcessingItem>();
 
     private List<Pattern> excludeUrls = null;
-    private static Log log = LogFactory.getLog(ProxyServer.class);
+    private static Logger log = Logger.getLogger(ProxyServer.class);
 
     /**
      * @return Returns the enableCacheProcessing.

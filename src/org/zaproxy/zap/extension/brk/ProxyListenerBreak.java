@@ -27,8 +27,7 @@ import javax.swing.ListModel;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
@@ -42,7 +41,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	private BreakPanel breakPanel = null;
 	private Model model = null;
 	private ExtensionBreak extension = null;
-    private static Log log = LogFactory.getLog(ProxyListenerBreak.class);
+    private static Logger log = Logger.getLogger(ProxyListenerBreak.class);
 
 	public ProxyListenerBreak(Model model, ExtensionBreak extension) {
 	    this.model = model;

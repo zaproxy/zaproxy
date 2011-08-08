@@ -22,7 +22,6 @@ package com.sittinglittleduck.DirBuster.headless;
 
 import com.sittinglittleduck.DirBuster.Manager;
 import com.sittinglittleduck.DirBuster.ReportWriter;
-import java.io.File;
 
 /**
  *

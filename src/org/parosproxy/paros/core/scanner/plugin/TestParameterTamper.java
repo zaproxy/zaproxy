@@ -22,8 +22,7 @@ package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -58,7 +57,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     private static Pattern patternErrorTomcat= Pattern.compile("(Apache Tomcat).*(^Caused by:|HTTP Status 500 - Internal Server Error)", PATTERN_PARAM);
 
     // ZAP: Added logger
-    private static Log log = LogFactory.getLog(TestParameterTamper.class);
+    private static Logger log = Logger.getLogger(TestParameterTamper.class);
 
     
     /* (non-Javadoc)

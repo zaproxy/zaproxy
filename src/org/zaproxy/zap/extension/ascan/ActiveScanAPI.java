@@ -27,8 +27,7 @@ import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
@@ -42,7 +41,7 @@ import org.zaproxy.zap.extension.api.ApiView;
 
 public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
-    private static Log log = LogFactory.getLog(ActiveScanAPI.class);
+    private static Logger log = Logger.getLogger(ActiveScanAPI.class);
 
 	private static final String PREFIX = "ascan";
 	private static final String ACTION_SCAN = "scan";

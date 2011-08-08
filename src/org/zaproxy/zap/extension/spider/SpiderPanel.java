@@ -30,8 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
@@ -59,7 +58,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private static ZapTextArea txtURISkip = null;
 	private JScrollPane jScrollPane1 = null;
 
-	private static Log log = LogFactory.getLog(SpiderPanel.class);
+	private static Logger log = Logger.getLogger(SpiderPanel.class);
 
 	//private static JList portList = null;
     

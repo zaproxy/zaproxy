@@ -25,8 +25,7 @@ import javax.swing.JList;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
@@ -48,7 +47,7 @@ public abstract class PopupMenuHttpMessage extends ExtensionPopupMenu {
     private JList listInvoker = null;
     private Invoker lastInvoker = null;
 
-    private static Log log = LogFactory.getLog(PopupMenuHttpMessage.class);
+    private static Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
 
     /**
      * @param label

@@ -10,8 +10,8 @@ import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
+import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 
 public class PasswordAutocompleteScanner implements PassiveScanner {

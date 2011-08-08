@@ -27,7 +27,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.parosproxy.paros.network.*;
+import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.network.SSLConnector;
 
 
 /**

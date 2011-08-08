@@ -20,7 +20,7 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
+import com.sittinglittleduck.DirBuster.Config;
 
 /**
  *

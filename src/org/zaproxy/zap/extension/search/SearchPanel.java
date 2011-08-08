@@ -67,7 +67,7 @@ public class SearchPanel extends AbstractPanel {
 	private HttpPanelResponse responsePanel = null;
 
     private SearchPanelCellRenderer searchPanelCellRenderer = null;
-    //private static Log log = LogFactory.getLog(SearchPanel.class);
+    //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
      * 

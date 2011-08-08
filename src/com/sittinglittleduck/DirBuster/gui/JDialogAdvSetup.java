@@ -21,9 +21,14 @@
  */
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
 import java.io.File;
+
 import javax.swing.JFileChooser;
+
+import com.sittinglittleduck.DirBuster.Config;
+import com.sittinglittleduck.DirBuster.HTMLelementToParse;
+import com.sittinglittleduck.DirBuster.HTTPHeader;
+import com.sittinglittleduck.DirBuster.Manager;
 
 /**
  *

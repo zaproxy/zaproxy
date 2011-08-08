@@ -21,19 +21,22 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import java.util.concurrent.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.io.*;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
+
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NoHttpResponseException;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
 
 /**
  * This class process workunit and determines if the link has been found or not

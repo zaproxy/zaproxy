@@ -19,7 +19,8 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import java.util.*;
+import java.util.TimerTask;
+import java.util.Vector;
 
 public class ProcessEnd extends TimerTask
 {

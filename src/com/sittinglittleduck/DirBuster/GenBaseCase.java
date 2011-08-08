@@ -21,7 +21,6 @@
  */
 package com.sittinglittleduck.DirBuster;
 
-import com.sittinglittleduck.DirBuster.gui.JDialogInconsistentFailCodes;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +29,10 @@ import java.net.URL;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.httpclient.methods.GetMethod;
+
+import com.sittinglittleduck.DirBuster.gui.JDialogInconsistentFailCodes;
 
 /**
  * Generates a base case for a dir or file rangle that is about to be scanned

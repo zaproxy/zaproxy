@@ -20,10 +20,11 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
-import java.lang.annotation.Target;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
+
+import com.sittinglittleduck.DirBuster.HTMLelementToParse;
 
 /**
  *

@@ -30,8 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
@@ -53,7 +52,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     private HostProcess parent = null;
     private HttpMessage msg = null;
 //    private boolean enabled = false;
-    private Log log = LogFactory.getLog(this.getClass());
+    private Logger log = Logger.getLogger(this.getClass());
     private Configuration config = null;
     
     // ZAP Added delayInMs
@@ -470,7 +469,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	    return getParent().getKb();
 	}
 	
-	protected Log getLog() {
+	protected Logger getLog() {
 	    return log;
 	}
 	

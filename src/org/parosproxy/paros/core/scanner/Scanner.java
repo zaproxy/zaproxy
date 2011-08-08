@@ -30,8 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -46,7 +45,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class Scanner implements Runnable {
 
-    private static Log log = LogFactory.getLog(Scanner.class);
+    private static Logger log = Logger.getLogger(Scanner.class);
 	private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
 	private Vector<ScannerListener> listenerList = new Vector<ScannerListener>();

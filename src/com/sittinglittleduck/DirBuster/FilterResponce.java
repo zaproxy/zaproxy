@@ -21,8 +21,9 @@
  */
 
 package com.sittinglittleduck.DirBuster;
-import java.util.regex.*;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**

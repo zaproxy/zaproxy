@@ -20,8 +20,10 @@
 
 package com.sittinglittleduck.DirBuster.gui;
 
-import com.sittinglittleduck.DirBuster.*;
 import java.util.Vector;
+
+import com.sittinglittleduck.DirBuster.BaseCase;
+import com.sittinglittleduck.DirBuster.DirToCheck;
 
 
 public class ResultsTableObject

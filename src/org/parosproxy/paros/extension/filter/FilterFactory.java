@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
 
@@ -38,7 +37,7 @@ import org.parosproxy.paros.common.DynamicLoader;
  */
 public class FilterFactory {
 
-    private static Log log = LogFactory.getLog(FilterFactory.class);
+    private static Logger log = Logger.getLogger(FilterFactory.class);
 
     private DynamicLoader loader = null;
     private static TreeMap mapAllFilter = new TreeMap();

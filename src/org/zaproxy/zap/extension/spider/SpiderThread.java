@@ -24,8 +24,7 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.spider.Spider;
 import org.parosproxy.paros.core.spider.SpiderListener;
 import org.parosproxy.paros.model.HistoryReference;
@@ -52,7 +51,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private int spiderDone = 0;
 	private int spiderTodo = 100;	// Will get updated ;)
 
-    private static Log log = LogFactory.getLog(SpiderThread.class);
+    private static Logger log = Logger.getLogger(SpiderThread.class);
 
 	public SpiderThread (ExtensionSpider extension, String site, ScanListenner listenner, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
 		super(site, listenner);

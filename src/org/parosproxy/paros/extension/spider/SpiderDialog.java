@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionListener;
 
@@ -38,8 +39,6 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
-
-import javax.swing.JScrollPane;
 
 public class SpiderDialog extends AbstractDialog implements TreeSelectionListener {
 
