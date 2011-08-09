@@ -38,7 +38,6 @@ public class PolicyDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] ROOT = {};
-	private PolicyCategoryPanel policyCategoryPanel = null;
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     public PolicyDialog() {
         super();
@@ -55,33 +54,10 @@ public class PolicyDialog extends AbstractParamDialog {
                 this.setSize(550, 400);
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
         for (int i=0; i<Category.getAllNames().length; i++) {
-            addParamPanel(ROOT, Category.getName(i), getPolicyCategoryPanel(), true);
+            addParamPanel(ROOT, Category.getName(i), new PolicyCategoryPanel(i, PluginFactory.getAllPlugin()), true);
         }
         getBtnCancel().setEnabled(false);
     }
-	/**
-	 * This method initializes policyCategoryPanel	
-	 * 	
-	 * @return com.proofsecure.paros.plugin.scanner.PolicyCategoryPanel	
-	 */    
-	private PolicyCategoryPanel getPolicyCategoryPanel() {
-		if (policyCategoryPanel == null) {
-			policyCategoryPanel = new PolicyCategoryPanel();
-		}
-		return policyCategoryPanel;
-	}
-	
-	private void categorySelected(String name) {
-	    int category = Category.getCategory(name);
-	    getPolicyCategoryPanel().getCategoryTableModel().setTable(category, PluginFactory.getAllPlugin());
-	}
-	
-	public void showParamPanel(String name) {
-	    super.showParamPanel(name);
-	    if (!name.equals(this.getRootNode().toString())) {
-	        categorySelected(name);
-	    }
-	}
 	/**
 	 * This method initializes policyAllCategoryPanel	
 	 * 	
