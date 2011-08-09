@@ -22,11 +22,13 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
 /**
@@ -43,9 +45,10 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
     /**
      * 
      */
-    public PolicyCategoryPanel() {
+    public PolicyCategoryPanel(int category, List<Plugin> allTest) {
         super();
  		initialize();
+ 		getCategoryTableModel().setTable(category, allTest);
     }
 
 	/**
@@ -127,7 +130,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	 * 	
 	 * @return com.proofsecure.paros.plugin.scanner.CategoryTableModel	
 	 */    
-	CategoryTableModel getCategoryTableModel() {
+	private CategoryTableModel getCategoryTableModel() {
 		if (categoryTableModel == null) {
 			categoryTableModel = new CategoryTableModel();
 		}
