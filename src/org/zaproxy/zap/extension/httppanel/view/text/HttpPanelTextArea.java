@@ -2,7 +2,6 @@ package org.zaproxy.zap.extension.httppanel.view.text;
 
 import java.awt.Color;
 
-import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -12,8 +11,11 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.ZapTextArea;
 
-public class HttpPanelTextArea extends JTextArea {
+public class HttpPanelTextArea extends ZapTextArea {
+
+	private static final long serialVersionUID = 1L;
 
 	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 	
