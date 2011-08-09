@@ -33,8 +33,8 @@ import org.parosproxy.paros.network.HttpStatusCode;
 public class CheckForUpdates extends SwingWorker<String, String> {
 
     //private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
-	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/QfCpK
-    private static final String GF_ZAP_LATEST_XML_SHORT = "http://goo.gl/zQP0A";
+	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/ZkpQF
+    private static final String GF_ZAP_LATEST_XML_SHORT = "http://goo.gl/ZkpQF";
     // The long URL is a failsafe ;)
     private static final String GF_ZAP_LATEST_XML_FULL = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
     
