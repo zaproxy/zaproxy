@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>..\..\src\resource\zap48x48.ico</icon>
+  <icon>..\..\src\resource\zap.ico</icon>
   <classPath>
     <mainClass>org.zaproxy.zap.ZAP</mainClass>
     <cp>zap.jar</cp>
@@ -24,12 +24,12 @@
     <jdkPreference>preferJdk</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>1.3.1.0</fileVersion>
-    <txtFileVersion>1.3.1</txtFileVersion>
+    <fileVersion>1.3.2.0</fileVersion>
+    <txtFileVersion>1.3.2</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>1.3.1.0</productVersion>
-    <txtProductVersion>1.3.1</txtProductVersion>
+    <productVersion>1.3.2.0</productVersion>
+    <txtProductVersion>1.3.2</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
     <internalName>ZAP</internalName>
