@@ -174,7 +174,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private void inOrderSeed(Spider spider, SiteNode node) {
 
 	    try {
-	        if (!node.isRoot()) {
+	        if (!node.isRoot() && node.getHistoryReference() != null) {
 	            HttpMessage msg = node.getHistoryReference().getHttpMessage();
 	            if (msg != null) {
 	                if (!msg.getResponseHeader().isImage()) {
