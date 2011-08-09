@@ -165,6 +165,10 @@ public class HostProcess implements Runnable {
             }
             msg = node.getHistoryReference().getHttpMessage();
             
+            if (msg == null) {
+            	// TODO for some reason this happens for intermediate nodes after a session has been saved
+            	return;
+            }
             if (parentScanner.excludeUrl(msg.getRequestHeader().getURI())) {
 				return;
             }
