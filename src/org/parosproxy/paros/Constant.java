@@ -19,10 +19,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/03 Revamped upgrade for 1.3.2
+
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -50,10 +53,12 @@ public final class Constant {
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.3.0";
-    public static final long VERSION_TAG = 1003000;
+    public static final String PROGRAM_VERSION = "1.3.2";
+    public static final long VERSION_TAG = 1003002;
     
     // Old version numbers - for upgrade
+	private static final long V_1_3_1_TAG = 1003001;
+	private static final long V_1_3_0_TAG = 1003000;
     private static final long V_1_2_1_TAG = 1002001;
     private static final long V_1_2_0_TAG = 1002000;
     private static final long V_1_1_0_TAG = 1001000;
@@ -76,6 +81,7 @@ public final class Constant {
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
+    public static final String FILE_CONFIG_BACKUP = "xml/config.old";
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
@@ -243,45 +249,42 @@ public final class Constant {
 	            config.load();
 	
 	            long ver = config.getLong("version");
+	            
 	            if (ver == VERSION_TAG) {
 	            	// Nothing to do
-	            	
-	            } else if (ver == V_1_0_0_TAG) {
-	            	log.info("Upgrading from " + ver);
-            		upgradeFrom1_0_0(config);
-            		upgradeFrom1_1_0(config);
-            		upgradeFrom1_2_0(config);
-            		upgradeFrom1_2_1(config);
-            		
-	            } else if (ver == V_PAROS_TAG) {
-	            	log.info("Upgrading from Paros file " + ver);
-            		upgradeFrom1_0_0(config);
-            		upgradeFrom1_1_0(config);
-            		upgradeFrom1_2_0(config);
-            		upgradeFrom1_2_1(config);
-            		
-            	} else if (ver == V_1_1_0_TAG) {
-	            	log.info("Upgrading from " + ver);
-            		upgradeFrom1_1_0(config);
-            		upgradeFrom1_2_0(config);
-            		upgradeFrom1_2_1(config);
-            		
-            	} else if (ver == V_1_2_0_TAG) {
-	            	log.info("Upgrading from " + ver);
-            		upgradeFrom1_2_0(config);
-            		upgradeFrom1_2_1(config);
-            		
-            	} else if (ver == V_1_2_1_TAG) {
-	            	log.info("Upgrading from " + ver);
-            		upgradeFrom1_2_1(config);
-            		
-            	} else {
-            		// No idea what this is, replace it
-            		// TODO back up the old one??
-            		
+	            } else {
+	            	// Backup the old one
+	            	log.info("Backing up config file to " + FILE_CONFIG_BACKUP);
             		f = new File(FILE_CONFIG);
-	            	log.info("Replacing configuration file " + f.getAbsolutePath());
-	                copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+	                copier.copy(f, new File(FILE_CONFIG_BACKUP));
+	                
+		            if (ver == V_PAROS_TAG) {
+	            		upgradeFrom1_1_0(config);
+	            		upgradeFrom1_2_0(config);
+		            }
+	            	if (ver <= V_1_0_0_TAG) {
+	            		// Nothing to do
+	            	}
+	            	if (ver <= V_1_1_0_TAG) {
+	            		upgradeFrom1_1_0(config);
+	            	}
+	            	if (ver <= V_1_2_0_TAG) {
+	            		upgradeFrom1_2_0(config);
+	            	}
+	            	if (ver <= V_1_2_1_TAG) {
+	            		// Nothing to do
+	            	}
+	            	if (ver <= V_1_3_0_TAG) {
+	            		// Nothing to do
+	            	}
+	            	if (ver <= V_1_3_1_TAG) {
+	            		// Nothing to do
+	            	}
+	            	log.info("Upgraded from " + ver);
+            		
+            		// Update the version
+            		config.setProperty("version", VERSION_TAG);
+            		config.save();
             	}
 
 	        } catch (ConfigurationException e) {
@@ -324,24 +327,22 @@ public final class Constant {
     	toConfig.setProperty(key, fromConfig.getProperty(key));
     }
     
-	private void upgradeFrom1_0_0(XMLConfiguration config) throws ConfigurationException {
-		// The upgrade code was only added post 1.1.0 so all actions for this version are in the 1.1.0 method
-	}
-
+    @SuppressWarnings("unchecked")
+	private void copyAllProperties(XMLConfiguration fromConfig, XMLConfiguration toConfig, String prefix) {
+    	Iterator iter = fromConfig.getKeys(prefix);
+    	while (iter.hasNext()) {
+    		String key = (String)iter.next();
+    		copyProperty(fromConfig, toConfig, key);
+    	}
+    }
+    
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
         newConfig.setAutoSave(false);
         newConfig.load();
 
-        copyProperty(newConfig, config, "pscans.html_type_password.resBodyRegex");
-        copyProperty(newConfig, config, "pscans.html_type_hidden.resBodyRegex");
-        copyProperty(newConfig, config, "pscans.html_type_upload.resBodyRegex");
-        copyProperty(newConfig, config, "pscans.html_mailto.resBodyRegex");
-		
-		// Update the version
-		config.setProperty("version", VERSION_TAG);
-		config.save();
+        copyAllProperties(newConfig, config, "pscans");                
 	}
     
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
@@ -353,25 +354,7 @@ public final class Constant {
         copyProperty(newConfig, config, "view.editorView");
         copyProperty(newConfig, config, "view.brkPanelView");
         copyProperty(newConfig, config, "view.showMainToolbar");
-		
-		// Update the version
-		config.setProperty("version", VERSION_TAG);
-		config.save();
 	}
-    
-    private void upgradeFrom1_2_1(XMLConfiguration config) throws ConfigurationException {
-		// Upgrade the regexs
-        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
-        newConfig.setAutoSave(false);
-        newConfig.load();
-        
-        //TODO: Add new XML entities here
-		
-		// Update the version
-		config.setProperty("version", VERSION_TAG);
-		config.save();
-	}
-
 
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
