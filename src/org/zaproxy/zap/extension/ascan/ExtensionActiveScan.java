@@ -413,7 +413,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	        int alertId = v.get(i).intValue();
 	        RecordAlert recAlert = tableAlert.read(alertId);
 	        Alert alert = new Alert(recAlert);
-	        addAlertToDisplay(alert, alert.getHistoryRef());
+	        if (alert.getHistoryRef() != null) {
+	        	// Check the href hasnt been purged
+	        	addAlertToDisplay(alert, alert.getHistoryRef());
+	        }
 	    }
     	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
 	}
