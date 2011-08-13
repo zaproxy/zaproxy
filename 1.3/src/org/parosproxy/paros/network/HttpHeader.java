@@ -83,6 +83,8 @@ abstract public class HttpHeader implements java.io.Serializable{
 	protected static final String p_VERSION		= "(HTTP/\\d+\\.\\d+)";
 	protected static final String p_STATUS_CODE	= "(\\d{3})";
 	protected static final String p_REASON_PHRASE = "(" + p_TEXT + ")";
+
+	public static final String GZIP = "gzip";
 	
 	protected String mStartLine = "";
 	protected String mMsgHeader = "";

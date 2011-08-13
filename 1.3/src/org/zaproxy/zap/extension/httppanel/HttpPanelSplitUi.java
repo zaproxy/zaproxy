@@ -6,9 +6,14 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.HttpPanelTabularModel;
 import org.parosproxy.paros.view.View;
@@ -471,12 +477,36 @@ public class HttpPanelSplitUi extends AbstractPanel {
 		}
 
 		String header = replaceHeaderForZapTextArea(msg.getResponseHeader().toString());
+		
 		String body = msg.getResponseBody().toString();
 
 		getTxtHeader().setText(header);
 		getTxtHeader().setCaretPosition(0);
 
-		txtBody.setText(body);
+		if (HttpHeader.GZIP.equals(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+			// Uncompress gziped content
+			try {
+				ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
+				GZIPInputStream gis = new GZIPInputStream(bais);
+				InputStreamReader isr = new InputStreamReader(gis);
+				BufferedReader br = new BufferedReader(isr);
+				StringBuffer sb = new StringBuffer();
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+				br.close();
+				isr.close();
+				gis.close();
+				bais.close();
+				txtBody.setText(sb.toString());
+			} catch (IOException e) {
+				log.error(e.getMessage(), e);
+				txtBody.setText(body);
+			}
+		} else {
+			txtBody.setText(body);
+		}
 		txtBody.setCaretPosition(0);
 
 		getComboView().removeAllItems();
