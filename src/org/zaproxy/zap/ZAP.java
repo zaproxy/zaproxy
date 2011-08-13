@@ -182,9 +182,10 @@ public class ZAP {
 		if (Model.getSingleton().getOptionsParam().isGUI()) {
 
 		    // Prompt for language if not set
-		    if (Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale() == null) {
+			String locale = Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale();
+		    if (locale == null || locale.length() == 0) {
 	        	// Dont use a parent of the MainFrame - that will initialise it with English!
-				Locale userloc = determineUsersSystemLocale();
+				final Locale userloc = determineUsersSystemLocale();
 		    	if (userloc == null) {
 		    		// Only show the dialog, when the user's langauge can't be guessed.
 					final LocaleDialog dialog = new LocaleDialog(null, true);

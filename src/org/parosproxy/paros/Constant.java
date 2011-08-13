@@ -314,6 +314,9 @@ public final class Constant {
             config.load();
 
             lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
+            if (lang.length() == 0) {
+            	lang = OptionsParamView.DEFAULT_LOCALE;
+            }
             String[] langArray = lang.split("_");
             locale = new Locale(langArray[0], langArray[1]);
         } catch (Exception e) {
