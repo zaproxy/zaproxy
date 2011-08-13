@@ -154,6 +154,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 			
 		}
 		
+		checkForUpdates = new CheckForUpdates(this);
+		checkForUpdates.execute();
+        
         if (manual) {
         	waitDialog = getView().getWaitMessageDialog(Constant.messages.getString("cfu.check.checking"));
         	// Allow user to close the dialog
@@ -162,9 +165,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
         	waitDialog.setVisible(true);
         }
 
-		checkForUpdates = new CheckForUpdates(this);
-		checkForUpdates.execute();
-        
 	}
 
 
