@@ -239,5 +239,24 @@ class AlertTreeModel extends DefaultTreeModel {
         return null;
     }
 
+    public synchronized void deletePath(Alert alert) {
+
+        AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
+        if (node != null) {
+        	
+        	// Remove it
+        	AlertNode parent = (AlertNode) node.getParent();
+
+        	this.removeNodeFromParent(node);
+            nodeStructureChanged(parent);
+        	
+        	if (parent.getChildCount() == 0) {
+        		// Parent has no other children, remove it also
+        		this.removeNodeFromParent(parent);
+                nodeStructureChanged((AlertNode) this.getRoot());
+        	}
+        }
+        recalcAlertCounts();
+    }
     
 }

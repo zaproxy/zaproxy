@@ -27,11 +27,13 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 
 public class PopupPurgeMenu extends ExtensionPopupMenu {
 
@@ -104,8 +106,6 @@ public class PopupPurgeMenu extends ExtensionPopupMenu {
                 }
             }
             
-
-            
             if (node.isRoot()) {
                 return;
             }
@@ -114,19 +114,29 @@ public class PopupPurgeMenu extends ExtensionPopupMenu {
             ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
             ext.getHistoryList().removeElement(node.getHistoryReference());
 
+    		ExtensionActiveScan extAscan = 
+    			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+
             if (node.getHistoryReference()!= null) {
+        		if (extAscan != null) {
+        	        for (Alert alert : node.getHistoryReference().getAlerts()) {
+        				extAscan.deleteAlert(alert);
+        	        }
+        		}
                 node.getHistoryReference().delete();
             }
-            
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
+				for (Alert alert : ref.getAlerts()) {
+        			extAscan.deleteAlert(alert);
+       	        }
                 ext.getHistoryList().removeElement(ref);
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
             }
-            
+
             map.removeNodeFromParent(node);
         }
         

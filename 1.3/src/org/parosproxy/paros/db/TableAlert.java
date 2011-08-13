@@ -219,8 +219,7 @@ public class TableAlert extends AbstractTable {
 	
 	public void deleteAlert(int alertId) throws SQLException {
 	    psDeleteAlert.setInt(1, alertId);
-	    ResultSet rs = psDeleteAlert.executeQuery();
-	    rs.close();
+	    psDeleteAlert.execute();
 	}
 	
 	public synchronized void update(int alertId, String alert, 
