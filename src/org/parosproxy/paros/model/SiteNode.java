@@ -174,4 +174,36 @@ public class SiteNode extends DefaultMutableTreeNode {
     public List<Alert> getAlerts() {
  	   return this.alerts;
     }
+    
+    private void clearChildAlert (Alert alert, SiteNode child) {
+    	// Alerts are propagated up, which means when one is deleted we need to work out if it still
+    	// is present in another child node
+    	boolean removed = true;
+    	alerts.remove(alert);
+    	SiteNode c = (SiteNode) this.getFirstChild();
+    	while (c != null) {
+    		if (! c.equals(child)) {
+    			if (c.hasAlert(alert)) {
+    				alerts.add(alert);
+    				removed = false;
+    				break;
+    			}
+    		}
+    		c = (SiteNode) this.getChildAfter(c);
+    	}
+	 	if (removed && this.getParent() != null && 
+	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	}
+    }
+
+	public void deleteAlert(Alert alert) {
+		alerts.remove(alert);
+		
+		// Remove from parents, if not in siblings
+	 	if (this.getParent() != null && 
+	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	}
+	}
 }

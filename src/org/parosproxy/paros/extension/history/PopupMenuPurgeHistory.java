@@ -27,6 +27,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -34,6 +36,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.PopupPurgeMenu;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 
 
 /**
@@ -121,6 +124,15 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
             return;
         }
         extension.getHistoryList().removeElement(ref);
+        
+		ExtensionActiveScan extAscan = 
+			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+		if (extAscan != null) {
+	        for (Alert alert : ref.getAlerts()) {
+				extAscan.deleteAlert(alert);
+	        }
+		}
+        
         ref.delete();
 
         SiteNode node = ref.getSiteNode();
@@ -136,7 +148,8 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
             PopupPurgeMenu.purge(map, node);
         } else {
             node.getPastHistoryReference().remove(ref);
-        }        
+        }
+
 
     }
 	

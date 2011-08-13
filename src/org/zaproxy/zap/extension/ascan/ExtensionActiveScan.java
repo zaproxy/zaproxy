@@ -413,10 +413,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	        int alertId = v.get(i).intValue();
 	        RecordAlert recAlert = tableAlert.read(alertId);
 	        Alert alert = new Alert(recAlert);
-	        if (alert.getHistoryRef() != null) {
-	        	// Check the href hasnt been purged
-	        	addAlertToDisplay(alert, alert.getHistoryRef());
-	        }
+			if (alert.getHistoryRef() != null) {
+				// The ref can be null if hrefs are purged
+				addAlertToDisplay(alert, alert.getHistoryRef());
+			}
 	    }
     	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
 	}
@@ -577,4 +577,51 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public void setExcludeList(List<String> urls) {
 		this.getActiveScanPanel().setExcludeList(urls);
 	}
+
+	public void deleteAlert(Alert alert) {
+		deleteAlertFromDisplay(alert);
+		
+	    try {
+			getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
+		} catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void deleteAlertFromDisplay(final Alert alert) {
+        if (getView() == null) {
+    		// Running as a daemon
+    		return;
+    	}
+	    if (EventQueue.isDispatchThread()) {
+	    	deleteAlertFromDisplayEventHandler(alert);
+
+	    } else {
+	        
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	                	deleteAlertFromDisplayEventHandler(alert);
+	                }
+	            });
+	        } catch (Exception e) {
+	            logger.error(e.getMessage(), e);
+	        }
+	    }
+    }
+
+    private void deleteAlertFromDisplayEventHandler (Alert alert) {
+		SiteMap siteTree = this.getModel().getSession().getSiteTree();
+		SiteNode node = siteTree.findNode(alert.getMessage());
+		if (node != null &&  node.hasAlert(alert)) {
+			node.deleteAlert(alert);
+		}
+		
+        if (getView() != null) {
+        	treeAlert.deletePath(alert);
+        }
+
+        AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
+        tree.recalcAlertCounts();
+    }
 }
