@@ -22,7 +22,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     								"alert(\"" + Constant.getEyeCatcher() + "\");" 
     								};
 
-    // Note that these patterns wont match againts a tag on more than one line, so those vulnerabilities
+    // Note that these patterns wont match against a tag on more than one line, so those vulnerabilities
     // wont be found yet
 	private static final Pattern [] XSS_PATTERNS = {
 	     Pattern.compile("<.*alert\\('" + Constant.getEyeCatcher() + "'\\);.*>", Pattern.CASE_INSENSITIVE),
@@ -34,10 +34,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     }
 
     public String getName() {
-    	if (vuln != null) {
-    		return vuln.getAlert();
-    	}
-        return "Cross site scripting in TAG";
+    	return Constant.messages.getString("scanner.plugin.xsstag");
     }
 
     /* (non-Javadoc)

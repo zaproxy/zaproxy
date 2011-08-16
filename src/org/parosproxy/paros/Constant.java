@@ -112,7 +112,7 @@ public final class Constant {
     //public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
     public static final String USER_AGENT = "";
 
-    private static String staticEyeCatcher = PROGRAM_NAME;
+    private static String staticEyeCatcher = "0W45pz4p";
     private static boolean staticSP = false;
     
     private static String zapHome = null;
