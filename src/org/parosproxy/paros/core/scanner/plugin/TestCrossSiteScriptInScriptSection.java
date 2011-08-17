@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag and fixed regex
+// ZAP: 2011/08/17 Check with double quotes as well as single 
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -39,11 +40,15 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 
-    private static final String XSS4 = "alert('" + Constant.getEyeCatcher() + "');";
+    private static final String XSS_SCRIPT_1 = "alert('" + Constant.getEyeCatcher() + "');";
+    private static final String XSS_SCRIPT_2 = "alert(\"" + Constant.getEyeCatcher() + "\");";
 	
-	private static final Pattern patternXSS4
+	private static final Pattern PATTERN_XSS_SCRIPT_1
 	     = Pattern.compile("<SCRIPT.*alert\\('" + Constant.getEyeCatcher() + "'\\);.*</SCRIPT>", 
-	    		 Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
+	    		Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN_XSS_SCRIPT_2
+    	= Pattern.compile("<SCRIPT.*alert\\(\"" + Constant.getEyeCatcher() + "\"\\);.*</SCRIPT>", 
+    			Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
 	
     public int getId() {
         return 40001;
@@ -119,7 +124,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 
     public void scan(HttpMessage msg, String param, String value) {
 		
-		setParameter(msg, param, XSS4);
+		setParameter(msg, param, XSS_SCRIPT_1);
 
 		try {
             sendAndReceive(msg);
@@ -128,20 +133,26 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
             e.printStackTrace();
         }
 
-		//	no need to have 200 response
-		//	if (getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-		//	return;
-		//}
-
-        StringBuffer sb = new StringBuffer();
-//        String result = msg.getResponseBody().toString();
-//        System.out.println(result);
-        if (matchBodyPattern(msg, patternXSS4, sb)) {
+        if (matchBodyPattern(msg, PATTERN_XSS_SCRIPT_1, null)) {
         	// ZAP: Changed XSS level to HIGH
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS4, null, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_SCRIPT_1, null, msg);
 			return;
 		}
 		
+		setParameter(msg, param, XSS_SCRIPT_2);
+
+		try {
+            sendAndReceive(msg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (matchBodyPattern(msg, PATTERN_XSS_SCRIPT_2, null)) {
+        	// ZAP: Changed XSS level to HIGH
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_SCRIPT_2, null, msg);
+			return;
+		}
 
 	}
 }
