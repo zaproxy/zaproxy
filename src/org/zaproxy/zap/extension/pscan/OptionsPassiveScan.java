@@ -295,10 +295,6 @@ public class OptionsPassiveScan extends AbstractParamPanel {
      * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
     public void saveParam(Object obj) throws Exception {
-	    // OptionsParam optionsParam = (OptionsParam) obj;
-	    // ConnectionParam connectionParam = optionsParam.getConnectionParam();
-	    // connectionParam.setListAuth(getTableModel().getListAuth());
-	    
     }
 
     //private static int[] width = {360,55,30};

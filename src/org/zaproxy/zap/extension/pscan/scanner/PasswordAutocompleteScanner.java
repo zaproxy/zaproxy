@@ -10,11 +10,12 @@ import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 
-public class PasswordAutocompleteScanner implements PassiveScanner {
+public class PasswordAutocompleteScanner extends PluginPassiveScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -85,5 +86,4 @@ public class PasswordAutocompleteScanner implements PassiveScanner {
 	public String getName() {
 		return "Password Autocomplete in browser";
 	}
-
 }

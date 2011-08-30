@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.configuration.Configuration;
@@ -31,6 +33,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface Plugin extends Runnable {
     
+	public enum Level {OFF, DEFAULT, LOW, MEDIUM, HIGH};
+	
     /**
      * Unique Paros ID of this plugin.
      * @return
@@ -121,4 +125,10 @@ public interface Plugin extends Runnable {
 	public int getDelayInMs();
 	
 	public void setDelayInMs(int delay);
+	
+	public Level getLevel();
+	
+	public void setLevel(Level level);
+
+	public void setDefaultLevel(Level level);
 }

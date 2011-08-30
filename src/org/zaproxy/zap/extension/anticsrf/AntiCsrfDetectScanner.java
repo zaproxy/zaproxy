@@ -115,4 +115,15 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 		this.tokenNames = tokenNames;
 	}
 
+	@Override
+	public boolean isEnabled() {
+		// Always enabled
+		return true;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		// Ignore
+	}
+
 }

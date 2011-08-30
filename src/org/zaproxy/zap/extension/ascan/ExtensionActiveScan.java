@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
@@ -34,6 +35,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -55,8 +57,10 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.view.SiteMapListener;
 /**
  *
@@ -86,6 +90,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private ActiveScanPanel activeScanPanel = null;
 	private ScannerParam scannerParam = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
+
+	private List<AbstractParamPanel> policyPanels = new ArrayList<AbstractParamPanel>();
 
     private PopupMenuScanHistory popupMenuScanHistory = null;
     
@@ -174,13 +180,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private JMenuItem getMenuItemPolicy() {
 		if (menuItemPolicy == null) {
 			menuItemPolicy = new JMenuItem();
-			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));	// ZAP: i18n
+			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
 			menuItemPolicy.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
 				    dialog.initParam(getModel().getOptionsParam());
+				    for (AbstractParamPanel panel : policyPanels) {
+				    	dialog.addPolicyPanel(panel);
+				    }
+				    // TODO This could be done in a cleaner way...
+					ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+					dialog.addPolicyPanel(pscan.getPolicyPanel());
+
 					int result = dialog.showDialog(false);
 					if (result == JOptionPane.OK_OPTION) {
 					    try {
@@ -624,4 +637,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
         tree.recalcAlertCounts();
     }
+
+    public void addPolicyPanel(AbstractParamPanel panel) {
+		this.policyPanels.add(panel);
+	}
+	
 }

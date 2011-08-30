@@ -22,22 +22,24 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.List;
 
 import org.apache.commons.configuration.FileConfiguration;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.common.DynamicLoader;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
-import org.zaproxy.zap.extension.pscan.scanner.CookieHttpOnlyScanner;
-import org.zaproxy.zap.extension.pscan.scanner.CookieSecureFlagScanner;
-import org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE;
-import org.zaproxy.zap.extension.pscan.scanner.WeakAuthenticationScanner;
 
-public class ExtensionPassiveScan extends ExtensionAdaptor {
+public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
+	public static final String NAME = "ExtensionPassiveScan"; 
 	private static final String PSCAN_NAMES = "pscans.names";
 
 	private PassiveScannerList scannerList;
 	private OptionsPassiveScan optionsPassiveScan = null;
+	private PolicyPassiveScanPanel policyPanel = null;
 	private PassiveScanThread pst = null;
 	
 	public ExtensionPassiveScan() {
@@ -46,7 +48,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
 	}
 
 	private void initialize() {
-        this.setName("ExtensionProxyScan");
+        this.setName(NAME);
 
 	}
 
@@ -58,6 +60,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
         extensionHook.getHookView().addOptionPanel(
         		getOptionsPassiveScan(getPassiveScanThread()));
 
+	}
+	
+	private void addPassiveScanner (PluginPassiveScanner scanner) {
+		FileConfiguration config = this.getModel().getOptionsParam().getConfig();
+		scanner.setConfig(config);
+
+		scannerList.add(scanner);
+		getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -79,17 +89,26 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
                 		config.getString("pscans." + pscanName + ".resBodyRegex"),
                 		config.getBoolean("pscans." + pscanName + ".enabled")));
             }
-            
-            // TODO Get all instances? Allow scanners to be turned off
-    		scannerList.add(new PasswordAutocompleteScanner());
-    		scannerList.add(new CookieHttpOnlyScanner());
-    		scannerList.add(new WeakAuthenticationScanner());
-    		scannerList.add(new CookieSecureFlagScanner());
-    		
     		scannerList.add(new AntiCsrfDetectScanner());
-
+            
+            // Dynamically load 'switchable' plugins
+           	DynamicLoader zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension.pscan.scanner");
+            List<Object> listTest = zapLoader.getFilteredObject(PluginPassiveScanner.class);
+            for (Object obj : listTest) {
+        		addPassiveScanner((PluginPassiveScanner)obj);
+            }
 		}
 		return scannerList;
+	}
+	
+	public PolicyPassiveScanPanel getPolicyPanel() {
+		if (policyPanel == null) {
+    		policyPanel = new PolicyPassiveScanPanel();
+    		//policyModel = new PolicyPassiveScanTableModel();
+
+    		//policyPanel.setPassiveScanTableModel(policyModel);
+		}
+		return policyPanel;
 	}
 
 	private PassiveScanThread getPassiveScanThread() {
@@ -141,5 +160,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor {
 			optionsPassiveScan = new OptionsPassiveScan(this, scannerList);
 		}
 		return optionsPassiveScan;
+	}
+
+	@Override
+	public void sessionChanged(Session session) {
+		// Need to detect db closing
 	}
 }

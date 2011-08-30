@@ -24,8 +24,11 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -33,7 +36,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.core.scanner.Plugin.Level;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -51,6 +56,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JSlider sliderDelayInMs = null;
 	private JLabel labelDelayInMsValue = null;
 	private JCheckBox chkHandleAntiCrsfTokens = null;
+	private JComboBox comboLevel = null;
+	private JLabel labelLevelNotes = null;
 
     public OptionsScannerPanel() {
         super();
@@ -73,6 +80,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JPanel getPanelScanner() {
 		if (panelScanner == null) {
 			java.awt.GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints8c = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints8b = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints8a = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints5b = new GridBagConstraints();
@@ -87,16 +97,12 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			panelScanner.setSize(114, 132);
 			panelScanner.setName("");
 			
-			javax.swing.JLabel jLabel = new JLabel();
-			javax.swing.JLabel jLabel1 = new JLabel();
-			javax.swing.JLabel jLabel2 = new JLabel();
-			javax.swing.JLabel jLabelx = new JLabel();
+			JLabel jLabel = new JLabel(Constant.messages.getString("ascan.options.numHosts.label"));
+			JLabel jLabel1 = new JLabel(Constant.messages.getString("ascan.options.numThreads.label"));
+			JLabel jLabel2 = new JLabel(Constant.messages.getString("ascan.options.delayInMs.label"));
+			JLabel jLabel3 = new JLabel(Constant.messages.getString("ascan.options.level.label"));
+			JLabel jLabelx = new JLabel();
 			
-			jLabel.setText(Constant.messages.getString("ascan.options.numHosts.label"));
-			jLabel1.setText(Constant.messages.getString("ascan.options.numThreads.label"));
-			jLabel2.setText(Constant.messages.getString("ascan.options.delayInMs.label"));
-			jLabelx.setText("");
-
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.ipadx = 0;
@@ -105,7 +111,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints1.weightx = 1.0D;
-			gridBagConstraints1.gridwidth = 2;
+			gridBagConstraints1.gridwidth = 3;
 
 			gridBagConstraints2.gridx = 0;
 			gridBagConstraints2.gridy = 1;
@@ -115,7 +121,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints2.ipady = 0;
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints2.gridwidth = 2;
+			gridBagConstraints2.gridwidth = 3;
 
 			gridBagConstraints3.gridx = 0;
 			gridBagConstraints3.gridy = 2;
@@ -125,7 +131,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints3.weightx = 1.0D;
-			gridBagConstraints3.gridwidth = 2;
+			gridBagConstraints3.gridwidth = 3;
 
 			gridBagConstraints4.gridx = 0;
 			gridBagConstraints4.gridy = 3;
@@ -135,7 +141,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints4.ipady = 0;
 			gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints4.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints4.gridwidth = 2;
+			gridBagConstraints4.gridwidth = 3;
 
 			
 			gridBagConstraints5a.gridx = 0;
@@ -146,8 +152,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints5a.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints5a.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5a.weightx = 1.0D;
+			gridBagConstraints5a.gridwidth = 2;
 			
-			gridBagConstraints5b.gridx = 1;
+			gridBagConstraints5b.gridx = 2;
 			gridBagConstraints5b.gridy = 4;
 			gridBagConstraints5b.ipadx = 0;
 			gridBagConstraints5b.ipady = 0;
@@ -164,7 +171,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints6.ipady = 0;
 			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints6.insets = new Insets(2,2,2,2);
-			gridBagConstraints6.gridwidth = 2;
+			gridBagConstraints6.gridwidth = 3;
 
 			gridBagConstraints7.gridx = 0;
 			gridBagConstraints7.gridy = 6;
@@ -174,7 +181,34 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			gridBagConstraints7.ipady = 0;
 			gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints7.insets = new Insets(2,2,2,2);
-			gridBagConstraints7.gridwidth = 2;
+			gridBagConstraints7.gridwidth = 3;
+
+			gridBagConstraints8a.gridx = 0;
+			gridBagConstraints8a.gridy = 7;
+			gridBagConstraints8a.ipadx = 0;
+			gridBagConstraints8a.ipady = 0;
+			gridBagConstraints8a.insets = new Insets(2,2,2,2);
+			gridBagConstraints8a.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints8a.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints8a.weightx = 1.0D;
+			
+			gridBagConstraints8b.gridx = 1;
+			gridBagConstraints8b.gridy = 7;
+			gridBagConstraints8b.ipadx = 0;
+			gridBagConstraints8b.ipady = 0;
+			gridBagConstraints8b.insets = new Insets(2,2,2,2);
+			gridBagConstraints8b.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints8b.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints8b.weightx = 1.0D;
+
+			gridBagConstraints8c.gridx = 2;
+			gridBagConstraints8c.gridy = 7;
+			gridBagConstraints8c.ipadx = 0;
+			gridBagConstraints8c.ipady = 0;
+			gridBagConstraints8c.insets = new Insets(2,2,2,2);
+			gridBagConstraints8c.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints8c.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints8c.weightx = 1.0D;
 
 			gridBagConstraintsx.gridx = 0;
 			gridBagConstraintsx.gridy = 10;
@@ -195,11 +229,47 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			panelScanner.add(getSliderDelayInMs(), gridBagConstraints6);
 			panelScanner.add(getChkHandleAntiCSRFTokens(), gridBagConstraints7);
 
+			panelScanner.add(jLabel3, gridBagConstraints8a);
+			panelScanner.add(getComboLevel(), gridBagConstraints8b);
+			panelScanner.add(getLabelLevelNotes(), gridBagConstraints8c);
+			
 			panelScanner.add(jLabelx, gridBagConstraintsx);
 
 		}
 		return panelScanner;
 	}
+	
+	private JLabel getLabelLevelNotes() {
+		if (labelLevelNotes == null) {
+			labelLevelNotes = new JLabel();
+		}
+		return labelLevelNotes;
+	}
+
+
+	private JComboBox getComboLevel() {
+		if (comboLevel == null) {
+			comboLevel = new JComboBox();
+			comboLevel.addItem(Constant.messages.getString("ascan.options.level.low"));
+			comboLevel.addItem(Constant.messages.getString("ascan.options.level.medium"));
+			comboLevel.addItem(Constant.messages.getString("ascan.options.level.high"));
+			comboLevel.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Set the explanation
+				    if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
+				    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
+				    } else if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
+				    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
+				    } else {
+				    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
+				    }
+				}});
+		}
+		return comboLevel;
+	}
+
+
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
@@ -208,6 +278,20 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    getSliderDelayInMs().setValue(param.getDelayInMs());
 	    setLabelDelayInMsValue(param.getDelayInMs());
 	    getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
+	    switch (param.getLevel()) {
+	    case LOW: 
+	    	getComboLevel().setSelectedItem(Constant.messages.getString("ascan.options.level.low"));
+	    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
+	    	break;
+	    case MEDIUM: 
+	    	getComboLevel().setSelectedItem(Constant.messages.getString("ascan.options.level.medium")); 
+	    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
+	    	break;
+	    case HIGH: 
+	    	getComboLevel().setSelectedItem(Constant.messages.getString("ascan.options.level.high")); 
+	    	getLabelLevelNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
+	    	break;
+	    }
 	}
 	
 	public void validateParam(Object obj) {
@@ -221,6 +305,16 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    param.setThreadPerHost(getSliderThreadsPerHost().getValue());
 	    param.setDelayInMs(getDelayInMs());
 	    param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
+	    
+	    Plugin.Level level = null;
+	    if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
+	    	level = Level.LOW;
+	    } else if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
+	    	level = Level.MEDIUM;
+	    } else {
+	    	level = Level.HIGH;
+	    }
+	    param.setLevel(level);
 	}
 	
 	/**

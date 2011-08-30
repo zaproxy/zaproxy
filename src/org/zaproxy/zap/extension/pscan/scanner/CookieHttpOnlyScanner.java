@@ -7,11 +7,12 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 
-public class CookieHttpOnlyScanner implements PassiveScanner {
+public class CookieHttpOnlyScanner extends PluginPassiveScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
 	//private Logger logger = Logger.getLogger(this.getClass());
@@ -26,7 +27,6 @@ public class CookieHttpOnlyScanner implements PassiveScanner {
 		// Ignore
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		Vector<String> cookies1 = msg.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE);

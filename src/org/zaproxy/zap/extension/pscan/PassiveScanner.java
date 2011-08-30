@@ -14,4 +14,7 @@ public interface PassiveScanner {
 
 	public String getName();
 	
+	public void setEnabled (boolean enabled);
+	
+	public boolean isEnabled();
 }

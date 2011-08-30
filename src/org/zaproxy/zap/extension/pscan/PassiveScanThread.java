@@ -29,6 +29,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private int lastId = -1;
 	private int mainSleep = 5000;
 	private int postSleep = 200;
+	private boolean shutDown = false;
 	
 	private ExtensionHistory extHist = null; 
 	private ExtensionScanner extScan = null;
@@ -59,7 +60,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 			logger.error("Failed to get last index in History table", e1);
 		}
 		
-		while (true) {
+		while (!shutDown) {
 			try {
 				if (historyRecord != null || lastId > currentId ) {
 					currentId ++;
@@ -94,9 +95,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					
 					for (PassiveScanner scanner : scannerList.list()) {
 						try {
-							scanner.setParent(this);
-							scanner.scanHttpRequestSend(historyRecord.getHttpMessage(), historyRecord.getHistoryId());
-							scanner.scanHttpResponseReceive(historyRecord.getHttpMessage(), historyRecord.getHistoryId(), src);
+							if (scanner.isEnabled()) {
+								scanner.setParent(this);
+								scanner.scanHttpRequestSend(historyRecord.getHttpMessage(), historyRecord.getHistoryId());
+								scanner.scanHttpResponseReceive(historyRecord.getHttpMessage(), historyRecord.getHistoryId(), src);
+							}
 						} catch (Exception e) {
 							logger.error("Scanner " + scanner.getName() + 
 									" failed on record " + currentId + " from History table", e);
@@ -193,5 +196,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		} catch (Exception e1) {
 			logger.error("Failed to get last index in History table", e1);
 		}
+	}
+	
+	public void shutdown() {
+		this.shutDown = true;
 	}
 }

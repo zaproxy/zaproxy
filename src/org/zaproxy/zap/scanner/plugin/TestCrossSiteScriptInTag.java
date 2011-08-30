@@ -29,6 +29,8 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 	     Pattern.compile("<.*alert\\(\"" + Constant.getEyeCatcher() + "\"\\);.*>", Pattern.CASE_INSENSITIVE)
 	     };
 
+	private static final char [] QUOTES = {'\'', '"'};
+
     public int getId() {
         return 40010;
     }
@@ -96,7 +98,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     }
 
     public void scan(HttpMessage msg, String param, String value) {
-		
+    	
     	for (int i=0; i < XSS_ATTACKS.length; i++) {
 			try {
 				setParameter(msg, param, XSS_ATTACKS[i]);
@@ -106,11 +108,22 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 				boolean result = matcher.find();
 				if (result) {
 					String match = matcher.group();
-					int offset = match.indexOf(Constant.getEyeCatcher());
+					int offset = match.indexOf(XSS_ATTACKS[i]);
 					if ((match.substring(0, offset).indexOf(">") > 0) ||
 							(match.substring(offset).indexOf("<") > 0)) {
 						// Possible false positive, need to enhance the check to catch edge cases
+						if (this.getLevel().equals(Level.HIGH)) {
+							// Report anyway
+							bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param + "=" + XSS_ATTACKS[i], null, msg);
+						}
 					} else {
+						if (this.getLevel().equals(Level.LOW)) {
+							// Perform extra checks to reduce false positives, even if we miss some real issues
+							if (stringInQuotes (match, XSS_ATTACKS[i], QUOTES[i])) {
+								continue;
+							}
+						}
+						
 						bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_ATTACKS[i], null, msg);
 						return;
 						
@@ -120,5 +133,33 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 	            log.error(e.getMessage(), e);;
 	        }
     	}
+	}
+
+	private boolean stringInQuotes(String match, String attack, char quote) {
+		boolean falsePositive = false;
+		int offset = match.indexOf(attack);
+		for (int j=offset-2; j > 0; j--) {
+			// Scan down, if we hit the 'other' quote before the one used assume its correctly enclosed
+			if (match.charAt(j) == quote) {
+				// hit the same quote, very good chance this can be abused
+				return false;
+			}
+			if (match.charAt(j) == '\'' || match.charAt(j) == '\"') {
+				// hit the 'other' quote, not looking so good
+				falsePositive = true;
+			}
+		}
+		for (int j=offset + attack.length(); j < match.length(); j++) {
+			// Scan up, if we hit the 'other' quote before the one used assume its correctly enclosed
+			if (match.charAt(j) == quote) {
+				// hit the same quote, very good chance this can be abused
+				return false;
+			}
+			if (match.charAt(j) == '\'' || match.charAt(j) == '\"') {
+				// hit the 'other' quote, unlikely this can be abused
+				return true;
+			}
+		}
+		return falsePositive;
 	}
 }

@@ -22,11 +22,14 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.AbstractParamDialog;
+import org.parosproxy.paros.view.AbstractParamPanel;
 
 
 /**
@@ -39,7 +42,9 @@ public class PolicyDialog extends AbstractParamDialog {
 	private static final long serialVersionUID = 1L;
 	private static final String[] ROOT = {};
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
-    public PolicyDialog() {
+	private List<AbstractParamPanel> additionalPanels = new ArrayList<AbstractParamPanel>();
+
+	public PolicyDialog() {
         super();
         initialize();
         
@@ -58,6 +63,11 @@ public class PolicyDialog extends AbstractParamDialog {
         }
         getBtnCancel().setEnabled(false);
     }
+    public void addPolicyPanel (AbstractParamPanel panel) {
+    	this.additionalPanels.add(panel);
+        addParamPanel(ROOT, panel.getName(), panel, true);
+    }
+    
 	/**
 	 * This method initializes policyAllCategoryPanel	
 	 * 	

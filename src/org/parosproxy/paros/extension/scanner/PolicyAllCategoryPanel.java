@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.extension.scanner;
 
 import java.awt.GridBagConstraints;
@@ -28,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -163,7 +166,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JButton getBtnEnableAll() {
 		if (btnEnableAll == null) {
 			btnEnableAll = new JButton();
-			btnEnableAll.setText("Enable All");
+			btnEnableAll.setText(Constant.messages.getString("ascan.policy.button.enableall"));
 			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -184,7 +187,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JButton getBtnDisableAll() {
 		if (btnDisableAll == null) {
 			btnDisableAll = new JButton();
-			btnDisableAll.setText("Disable All");
+			btnDisableAll.setText(Constant.messages.getString("ascan.policy.button.disableall"));
 			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -203,4 +206,4 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		// ZAP: added help index support
 		return "ui.dialogs.scanpolicy";
 	}
-      }  //  @jve:decl-index=0:visual-constraint="10,10"
+}

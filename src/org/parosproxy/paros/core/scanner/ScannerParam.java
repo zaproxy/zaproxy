@@ -18,9 +18,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.core.scanner.Plugin.Level;
 
 public class ScannerParam extends AbstractParam {
 
@@ -29,12 +32,14 @@ public class ScannerParam extends AbstractParam {
 	// ZAP: Added support for delayInMs
 	private static final String DELAY_IN_MS = "scanner.delayInMs";
 	private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
+	private static final String LEVEL = "scanner.level";
 		
 	private int hostPerScan = 2;
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
 	private boolean handleAntiCSRFTokens = false;
-	
+	private Plugin.Level level = Level.MEDIUM; 
+
     /**
      * @param rootElementName
      */
@@ -58,6 +63,9 @@ public class ScannerParam extends AbstractParam {
 		try {
 			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 		} catch (Exception e) {}
+		try {
+			this.level = Level.valueOf(getConfig().getString(LEVEL, Level.MEDIUM.name()));
+			} catch (Exception e) {}
 
     }
 
@@ -104,4 +112,18 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
 	}
 	
+    public Plugin.Level getLevel() {
+		return level;
+	}
+
+    public void setLevel(Plugin.Level level) {
+		this.level = level;
+		getConfig().setProperty(LEVEL, level.name());
+	}
+
+    public void setLevel(String level) {
+		this.setLevel(Level.valueOf(level));
+	}
+
+
 }

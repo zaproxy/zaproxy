@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.extension.scanner;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 
 
@@ -35,7 +38,10 @@ import org.parosproxy.paros.core.scanner.Plugin;
  */
 public class CategoryTableModel extends DefaultTableModel {
 
-    private static final String[] columnNames = {"Test Name", "Enabled"};
+    private static final String[] columnNames = {
+		Constant.messages.getString("ascan.policy.table.testname"), 
+		Constant.messages.getString("ascan.policy.table.enabled")};
+
     private Vector listTestCategory = new Vector();
     
     /**

@@ -18,16 +18,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.extension.scanner;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamDialog;
+import org.parosproxy.paros.view.AbstractParamPanel;
 
 
 /**
@@ -40,7 +45,10 @@ public class PolicyDialog extends AbstractParamDialog {
     private static final String[] ROOT = {};
 	private PolicyCategoryPanel policyCategoryPanel = null;  //  @jve:decl-index=0:visual-constraint="431,185"
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
-    public PolicyDialog() {
+
+	private List<AbstractParamPanel> additionalPanels = new ArrayList<AbstractParamPanel>();
+
+	public PolicyDialog() {
         super();
         initialize();
         
@@ -62,6 +70,12 @@ public class PolicyDialog extends AbstractParamDialog {
         }
         getBtnCancel().setEnabled(false);
     }
+    
+    public void addPolicyPanel (AbstractParamPanel panel) {
+    	this.additionalPanels.add(panel);
+        addParamPanel(ROOT, panel.getName(), panel, true);
+    }
+    
 	/**
 	 * This method initializes policyCategoryPanel	
 	 * 	
@@ -79,10 +93,21 @@ public class PolicyDialog extends AbstractParamDialog {
 	    getPolicyCategoryPanel().getCategoryTableModel().setTable(category, PluginFactory.getAllPlugin());
 	}
 	
+@Override
 	public void showParamPanel(String name) {
 	    super.showParamPanel(name);
 	    if (!name.equals(this.getRootNode().toString())) {
-	        categorySelected(name);
+	    	// Check addn ones first
+	    	boolean found = false;
+	    	for (AbstractParamPanel panel : this.additionalPanels) {
+	    		if (name.equals(panel.getName())) {
+	    			found = true;
+	    		}
+	    	}
+	    	if (! found) {
+	    		categorySelected(name);
+	    	}
+	    } else {
 	    }
 	}
 	/**

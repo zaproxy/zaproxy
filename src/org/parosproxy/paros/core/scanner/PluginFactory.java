@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Iterator;
@@ -111,14 +113,19 @@ public class PluginFactory {
                 plugin.setConfig(config);
                 plugin.createParamIfNotExist();
                 if (!plugin.isVisible()) {
+					log.info("Plugin " + plugin.getName() + " not visible");
                     continue;
                 }
                 if (plugin.isDepreciated()) {
                 	// ZAP: ignore all depreciated plugins
+					log.info("Plugin " + plugin.getName() + " depricated");
                 	continue;
                 }
-//                plugin.setEnabled(true);
                 log.info("loaded plugin " + plugin.getName());
+                if (mapAllPlugin.get(new Integer(plugin.getId())) != null) {
+                	System.out.println("Duplicate id " + plugin.getName() + " " +
+                			mapAllPlugin.get(new Integer(plugin.getId())).getName());
+                }
                 mapAllPlugin.put(new Integer(plugin.getId()), plugin);
                 mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
             }

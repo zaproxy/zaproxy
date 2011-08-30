@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/08/30 Support for scanner levels
 
 package org.parosproxy.paros.core.scanner;
 
@@ -89,6 +90,7 @@ public class HostProcess implements Runnable {
             plugin = getPluginFactory().nextPlugin();
             if (plugin != null) {
             	plugin.setDelayInMs(this.scannerParam.getDelayInMs());
+            	plugin.setDefaultLevel(this.scannerParam.getLevel());
                 processPlugin(plugin);
             } else {
                 // waiting for dependency - no test ready yet
@@ -102,7 +104,7 @@ public class HostProcess implements Runnable {
     }
     
     private void processPlugin(Plugin plugin) {
-        log.info("start host " + hostAndPort + " | " + plugin.getCodeName());
+        log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + " level " + plugin.getLevel());
         mapPluginStartTime.put(new Long(plugin.getId()), new Long(System.currentTimeMillis()));
         if (plugin instanceof AbstractHostPlugin) {
             scanSingleNode(plugin, startNode);
@@ -176,6 +178,7 @@ public class HostProcess implements Runnable {
             test = (Plugin) plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
             test.setDelayInMs(plugin.getDelayInMs());
+        	test.setDefaultLevel(plugin.getLevel());
             test.init(msg, this);
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 

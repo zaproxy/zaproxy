@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/08/30 Support for scanner levels
+
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -59,6 +61,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     private int delayInMs;
     private ExtensionAntiCSRF extAntiCSRF = null;
 	private Encoder encoder = new Encoder();
+	private Level defaultLevel = Level.MEDIUM;
     
     public AbstractPlugin() {
     }
@@ -323,6 +326,37 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
             setProperty("enabled", "0");
         }
     }
+    
+	public Level getLevel() {
+		Level level = null;
+		try {
+			level = Level.valueOf(getProperty("level"));
+			log.debug("getLevel from configs: " + level.name());
+		} catch (Exception e) {
+			// Ignore
+		}
+		if (level == null) {
+			if (this.isEnabled()) {
+				level = defaultLevel;
+				log.debug("getLevel default: " + level.name());
+			} else {
+				level = Level.OFF;
+				log.debug("getLevel not enabled: " + level.name());
+			}
+		} else if (level.equals(Level.DEFAULT)) {
+			level = defaultLevel;
+			log.debug("getLevel default: " + level.name());
+		}
+		return level;
+	}
+	
+	public void setLevel(Level level) {
+		setProperty("level", level.name());
+	}
+
+	public void setDefaultLevel(Level level) {
+		this.defaultLevel = level;
+	}
 
     /**
      * Compare if 2 plugin is the same.
