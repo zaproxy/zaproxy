@@ -117,7 +117,7 @@ public class ClientApi {
 					for (Alert ignoreAlert : ignoreAlerts) {
 						if (foundAlert.matches(ignoreAlert)) {
 							if (debug) {
-								System.out.println("Ignoring alert " + ignoreAlert);
+								System.out.println("Ignoring " + foundAlert);
 							}
 							ignore = true;
 							break;
@@ -128,7 +128,7 @@ public class ClientApi {
 					for (Alert requireAlert : requireAlerts) {
 						if (foundAlert.matches(requireAlert)) {
 							if (debug) {
-								System.out.println("Found alert " + foundAlert);
+								System.out.println("Found " + foundAlert);
 							}
 							requireAlerts.remove(requireAlert);
 							ignore = true;

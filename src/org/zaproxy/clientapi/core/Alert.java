@@ -169,7 +169,7 @@ public class Alert {
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("\tAlert: alert=\"" + getAlert() + "\" ");
+		sb.append("Alert: alert=\"" + getAlert() + "\" ");
 		if (getRisk() != null) {
 			sb.append("risk=\"");
 			sb.append(getRisk().name());
