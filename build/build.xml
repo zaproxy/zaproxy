@@ -147,6 +147,14 @@
 				<attribute name="Implementation-Version" value="${version}" />
 			</manifest>
 		</jar>
+		<jar jarfile="${dist}/zap-api.jar" update="true" compress="false">
+			<zipfileset dir="${build}" prefix="">
+				<include name="org/zaproxy/clientapi/**"/>
+			</zipfileset>
+			<manifest>
+				<attribute name="Implementation-Version" value="${version}" />
+			</manifest>
+		</jar>
 	</target>
 	
 	<target name="generate-help-file" description="generates the help file and copies it to the right place">
