@@ -120,7 +120,6 @@ public class AlertPanel extends AbstractPanel {
 			treeAlert.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
 			treeAlert.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
 				}
 					
 				public void mouseReleased(java.awt.event.MouseEvent e) {
