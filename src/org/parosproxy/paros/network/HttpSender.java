@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/09/19 Added debugging
+
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -36,11 +38,13 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.parosproxy.paros.Constant;
 
 public class HttpSender {
 
-
+    private static Log log = LogFactory.getLog(HttpSender.class);
     private static ProtocolSocketFactory sslFactory = null;
     private static Protocol protocol = null;
 
@@ -198,6 +202,7 @@ public class HttpSender {
      */
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
 
+    	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " start");
         msg.setTimeSentMillis(System.currentTimeMillis());
 
         try {
@@ -233,6 +238,7 @@ public class HttpSender {
 
         } finally {
             msg.setTimeElapsedMillis((int) (System.currentTimeMillis()-msg.getTimeSentMillis()));
+        	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " + msg.getTimeElapsedMillis());
         }
     }
     
@@ -255,8 +261,6 @@ public class HttpSender {
 	            method.releaseConnection();
 	        }
         }
-
-        
     }
     
 	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
@@ -346,7 +350,7 @@ public class HttpSender {
      * @throws IOException
      */
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
-
+    	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " start");
         msg.setTimeSentMillis(System.currentTimeMillis());
 
         try {
@@ -382,6 +386,7 @@ public class HttpSender {
 
         } finally {
             msg.setTimeElapsedMillis((int) (System.currentTimeMillis()-msg.getTimeSentMillis()));
+        	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " + msg.getTimeElapsedMillis());
         }
     }
     
