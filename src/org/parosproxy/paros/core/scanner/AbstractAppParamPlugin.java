@@ -18,15 +18,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/09/19 Added debugging
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
 
-
+	private static Logger log = Logger.getLogger(AbstractAppParamPlugin.class);
     private Vector<VariantAbstractQuery> listVariant = new Vector<VariantAbstractQuery>();
     
     private Variant variant = null;
@@ -49,6 +52,7 @@ abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
         for (int i=0; i<variant.getParamList().size() && !isStop(); i++) {
             originalPair = (NameValuePair) variant.getParamList().get(i);
             HttpMessage msg = getNewMsg();
+            log.debug("scanVariant " + msg.getRequestHeader().getURI());
             scan(msg, originalPair.getName(), originalPair.getValue());
         }
     }

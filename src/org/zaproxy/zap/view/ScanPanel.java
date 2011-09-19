@@ -22,6 +22,7 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,8 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -268,6 +269,22 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	private void setActiveScanLabels() {
+	    if (EventQueue.isDispatchThread()) {
+	    	setActiveScanLabelsEventHandler();
+	    } else {
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	        	    	setActiveScanLabelsEventHandler();
+	                }
+	            });
+	        } catch (Exception e) {
+	            log.error(e.getMessage(), e);
+	        }
+	    }
+	}
+	
+	private void setActiveScanLabelsEventHandler() {
 		getActiveScansValueLabel().setText(""+activeScans.size());
 		StringBuffer sb = new StringBuffer();
 		Iterator <String> iter = activeScans.iterator();
@@ -555,7 +572,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		switchView(currentSite);
 	}
 	
-	protected void stopScan() {
+	private void stopScan() {
 		log.debug("stopScan " + prefix + " on " + currentSite);
 		GenericScanner scan = scanMap.get(currentSite);
 		if (scan != null) {
@@ -577,7 +594,23 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 	}
 
-	public void scanFinshed(String host) {
+	public void scanFinshed(final String host) {
+	    if (EventQueue.isDispatchThread()) {
+        	scanFinshedEventHandler(host);
+	    } else {
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	                	scanFinshedEventHandler(host);
+	                }
+	            });
+	        } catch (Exception e) {
+	            log.error(e.getMessage(), e);
+	        }
+	    }
+	}
+
+	private void scanFinshedEventHandler(String host) {
 		log.debug("scanFinished " + prefix + " on " + currentSite);
 		if (host.equals(currentSite)) {
 			getStartScanButton().setEnabled(true);
@@ -601,7 +634,23 @@ public abstract class ScanPanel extends AbstractPanel {
 		setActiveScanLabels();
 	}
 
-	public void scanProgress(String host, int progress, int maximum) {
+	public void scanProgress(final String host, final int progress, final int maximum) {
+	    if (EventQueue.isDispatchThread()) {
+        	scanFinshedEventHandler(host);
+	    } else {
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	                	scanProgressEventHandler(host, progress, maximum);
+	                }
+	            });
+	        } catch (Exception e) {
+	            log.error(e.getMessage(), e);
+	        }
+	    }
+	}
+
+	private void scanProgressEventHandler(String host, int progress, int maximum) {
 		//log.debug("scanProgress " + prefix + " on " + currentSite + " " + progress);
 		if (host.equals(currentSite)) {
 			getProgressBar().setValue(progress);

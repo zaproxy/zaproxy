@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/09/19 Handle multipart node name
+
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -34,6 +36,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -426,8 +429,13 @@ public class SiteMap extends DefaultTreeModel {
         // also handle POST method query in body
         query = "";
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            query = msg.getRequestBody().toString();
-            leafName = leafName + getQueryParamString(msg.getParamNameSet(query));
+        	String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
+        	if (contentType != null && contentType.startsWith("multipart/form-data")) {
+        		leafName = leafName + "(multipart/form-data)";
+        	} else {
+        		query = msg.getRequestBody().toString();
+        		leafName = leafName + getQueryParamString(msg.getParamNameSet(query));
+        	}
         }
         
         return leafName;
@@ -498,10 +506,16 @@ public class SiteMap extends DefaultTreeModel {
         Iterator<String> iterator = querySet.iterator();
         for (int i=0; iterator.hasNext(); i++) {
             String name = (String) iterator.next();
-            if (name == null)
+            if (name == null) {
                 continue;
-            if (i > 0)
+            }
+            if (i > 0) {
                 sb.append(',');
+            }
+            if (name.length() > 40) {
+            	// Truncate
+            	name = name.substring(0, 40);
+            }
             sb.append(name);
         }
 
