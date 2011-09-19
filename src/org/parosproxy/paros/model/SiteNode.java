@@ -19,10 +19,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 
 package org.parosproxy.paros.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -51,7 +53,8 @@ public class SiteNode extends DefaultMutableTreeNode {
     		return "";
     	}
     	int highest = -1;
-    	for (Alert alert : alerts) {
+
+    	for (Alert alert : this.getAlerts()) {
     		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
     			highest = alert.getRisk();
     		}
@@ -136,7 +139,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public boolean hasAlert(Alert alert) {
-		for (Alert a : alerts) {
+		for (Alert a : this.getAlerts()) {
 			   if (a.equals(alert)) {
 				   // We've already recorded it
 				   return true;
@@ -157,22 +160,27 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void updateAlert(Alert alert) {
-		for (Alert a : alerts) {
+		Alert foundAlert = null;
+		for (Alert a : this.getAlerts()) {
 			if (a.getAlertId() == alert.getAlertId()) {
-				// Have to use the alertId instead of 'equals' as any of the
-				// other params might have changed
-				this.alerts.remove(a);
-				this.alerts.add(alert);
-			 	if (this.getParent() != null && 
-			 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
-			 		((SiteNode)this.getParent()).updateAlert(alert);
-			 	}
+				// Do the work outside of the loop to prevent a concurrent mod exception
+				foundAlert = a;
+				break;
 			}
+		}
+		if (foundAlert != null) {
+			this.alerts.remove(foundAlert);
+			this.alerts.add(alert);
+		 	if (this.getParent() != null && 
+		 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+		 		((SiteNode)this.getParent()).updateAlert(alert);
+		 	}
+			
 		}
     }
     
     public List<Alert> getAlerts() {
- 	   return this.alerts;
+ 	   return Collections.synchronizedList(this.alerts);
     }
     
     private void clearChildAlert (Alert alert, SiteNode child) {
