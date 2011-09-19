@@ -21,7 +21,8 @@
  
 // ZAP: 2011/08/04 Changed to support clearview() in HttpPanels
 // ZAP: 2011/08/04 Changed to use PopupMenuResendMessage
- 
+// ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -710,17 +711,21 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
     public void showAlertAddDialog(HistoryReference ref) {
-    	dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-    	dialogAlertAdd.setPlugin(this);
-    	dialogAlertAdd.setVisible(true);
-    	dialogAlertAdd.setHistoryRef(ref);
+		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
+			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+	    	dialogAlertAdd.setPlugin(this);
+	    	dialogAlertAdd.setVisible(true);
+	    	dialogAlertAdd.setHistoryRef(ref);
+		}
     }
 
     public void showAlertAddDialog(Alert alert) {
-    	dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-    	dialogAlertAdd.setPlugin(this);
-    	dialogAlertAdd.setVisible(true);
-    	dialogAlertAdd.setAlert(alert);
+		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
+			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+	    	dialogAlertAdd.setPlugin(this);
+	    	dialogAlertAdd.setVisible(true);
+	    	dialogAlertAdd.setAlert(alert);
+		}
     }
 
 	public void hideAlertAddDialog() {
