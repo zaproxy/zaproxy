@@ -53,6 +53,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.reveal.ExtensionReveal;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 
@@ -127,7 +128,9 @@ public class Control extends AbstractControl {
         // Moved report extension above history so Generate Report is above the Exports 
         getExtensionLoader().addExtension(new ExtensionReport());
         getExtensionLoader().addExtension(new ExtensionHistory());
-        
+
+        getExtensionLoader().addExtension(new ExtensionReveal());
+
         getExtensionLoader().addExtension(new ExtensionSearch());
         getExtensionLoader().addExtension(new ExtensionEncoder2());
         getExtensionLoader().addExtension(new ExtensionBreak());
@@ -153,7 +156,6 @@ public class Control extends AbstractControl {
         
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());
-
         
         // Params extension not fully implemented
         //getExtensionLoader().addExtension(new ExtensionParams());
