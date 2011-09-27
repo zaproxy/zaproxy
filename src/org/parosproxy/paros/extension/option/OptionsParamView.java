@@ -42,6 +42,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WMUIHANDLING_OPTION = "view.uiWmHandling";
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
+	public static final String REVEAL_OPTION = "view.reveal";
 
 	private int advancedViewEnabled = 0;
 	private int editorViewOption;
@@ -54,6 +55,7 @@ public class OptionsParamView extends AbstractParam {
 	private int askOnExitEnabled = 1;
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
+	private boolean reveal = false;
 	
     /**
      * @param rootElementName
@@ -78,6 +80,7 @@ public class OptionsParamView extends AbstractParam {
 	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
+	    reveal = getConfig().getBoolean(REVEAL_OPTION, true);
     }
 
 	/**
@@ -208,5 +211,13 @@ public class OptionsParamView extends AbstractParam {
 		this.warnOnTabDoubleClick = warnOnTabDoubleClick;
 		getConfig().setProperty(WARN_ON_TAB_DOUBLE_CLICK_OPTION, warnOnTabDoubleClick);
 	}
+
+	public boolean getReveal() {
+		return reveal;
+	}
 	
+	public void setReveal(boolean reveal) {
+		this.reveal = reveal;
+		getConfig().setProperty(REVEAL_OPTION, reveal);
+	}
 }
