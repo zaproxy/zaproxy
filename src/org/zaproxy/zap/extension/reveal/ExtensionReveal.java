@@ -130,7 +130,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 										ATT_READONLY.equalsIgnoreCase(att.getName()) ||
 										(ATT_TYPE.equalsIgnoreCase(att.getName()) && 
 												TYPE_HIDDEN.equalsIgnoreCase(att.getValue()))) {
-										logger.info("Removing " + att.getName() + ": " + response.substring(att.getBegin(), att.getEnd()));
+										logger.debug("Removing " + att.getName() + ": " + response.substring(att.getBegin(), att.getEnd()));
 										outputDocument.remove(att);
 										changed = true;
 									}
