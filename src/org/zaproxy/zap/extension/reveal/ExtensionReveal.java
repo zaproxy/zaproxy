@@ -121,16 +121,19 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 						logger.debug("Found " + elements.size() + " inputs");
 						for (Element element : elements) {
 							Attributes atts = element.getAttributes();
-							Iterator<Attribute> iter = atts.iterator();
-							while (iter.hasNext()) {
-								Attribute att = iter.next();
-								if (ATT_DISABLED.equalsIgnoreCase(att.getName()) ||
-									ATT_READONLY.equalsIgnoreCase(att.getName()) ||
-									(ATT_TYPE.equalsIgnoreCase(att.getName()) && 
-											TYPE_HIDDEN.equalsIgnoreCase(att.getValue()))) {
-									logger.debug("Removing " + att.getName() + ": " + response.substring(att.getBegin(), att.getEnd()));
-									outputDocument.remove(att);
-									changed = true;
+							
+							if(atts != null && atts.size() > 0) {
+								Iterator<Attribute> iter = atts.iterator();
+								while (iter.hasNext()) {
+									Attribute att = iter.next();
+									if (ATT_DISABLED.equalsIgnoreCase(att.getName()) ||
+										ATT_READONLY.equalsIgnoreCase(att.getName()) ||
+										(ATT_TYPE.equalsIgnoreCase(att.getName()) && 
+												TYPE_HIDDEN.equalsIgnoreCase(att.getValue()))) {
+										logger.info("Removing " + att.getName() + ": " + response.substring(att.getBegin(), att.getEnd()));
+										outputDocument.remove(att);
+										changed = true;
+									}
 								}
 							}
 						}
