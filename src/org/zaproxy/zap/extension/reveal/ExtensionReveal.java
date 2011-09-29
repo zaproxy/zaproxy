@@ -28,6 +28,7 @@ import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Attributes;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
+import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -64,11 +65,9 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 		this.reveal = reveal; 
 	    revealButton.setSelected(reveal);
 	    if (reveal) {
-			reveal = true;
 			revealButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/043.png")));	// 'light on' icon
 			revealButton.setToolTipText(Constant.messages.getString("reveal.button.disable"));
 		} else {
-			reveal = false;
 			revealButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/044.png")));	// 'light off' icon
 			revealButton.setToolTipText(Constant.messages.getString("reveal.button.enable"));
 	    }
@@ -100,23 +99,13 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 		return true;
 	}
 	
-	private String replaceWithSpaces (String str, int start, int end) {
-		// Overwrite the 'offending' string with spaces.
-		// Removing the spaces causes problems with the parser ;)
-		StringBuffer sb = new StringBuffer(str.substring(0, start));
-		for (int i=start; i < end; i++) {
-			sb.append(" ");
-		}
-		sb.append(str.substring(end));
-		return sb.toString();
-	}
-
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		if (reveal) {
 			boolean changed = false;
 			String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
 			Source src = new Source(response);
+			OutputDocument outputDocument = new OutputDocument(src);
 			
 			List<Element> formElements = src.getAllElements(HTMLElementName.FORM);
 			
@@ -140,7 +129,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 									(ATT_TYPE.equalsIgnoreCase(att.getName()) && 
 											TYPE_HIDDEN.equalsIgnoreCase(att.getValue()))) {
 									logger.debug("Removing " + att.getName() + ": " + response.substring(att.getBegin(), att.getEnd()));
-									response = this.replaceWithSpaces(response, att.getBegin(), att.getEnd());
+									outputDocument.remove(att);
 									changed = true;
 								}
 							}
@@ -149,6 +138,8 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 				}
 			}
 			if (changed) {
+				response = outputDocument.toString();
+				
 				int i = response.indexOf(HttpHeader.CRLF + HttpHeader.CRLF);
 				msg.setResponseBody(response.substring(i + (HttpHeader.CRLF + HttpHeader.CRLF).length()));
 			}
