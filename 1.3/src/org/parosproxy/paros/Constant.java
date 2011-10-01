@@ -56,10 +56,11 @@ public final class Constant {
 //	Also note that you _must_ add to the upgrade code when you 
 //	change the version, or the file will be wiped
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.3.2";
-    public static final long VERSION_TAG = 1003002;
+    public static final String PROGRAM_VERSION = "1.3.3";
+    public static final long VERSION_TAG = 1003003;
     
     // Old version numbers - for upgrade
+	private static final long V_1_3_2_TAG = 1003002;
 	private static final long V_1_3_1_TAG = 1003001;
 	private static final long V_1_3_0_TAG = 1003000;
     private static final long V_1_2_1_TAG = 1002001;
@@ -283,6 +284,9 @@ public final class Constant {
 	            		// Nothing to do
 	            	}
 	            	if (ver <= V_1_3_1_TAG) {
+	            		// Nothing to do
+	            	}
+	            	if (ver <= V_1_3_2_TAG) {
 	            		// Nothing to do
 	            	}
 	            	log.info("Upgraded from " + ver);
