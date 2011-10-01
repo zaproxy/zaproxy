@@ -199,7 +199,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 					    try {
 			                getModel().getOptionsParam().getConfig().save();
 			            } catch (ConfigurationException ce) {
-			                ce.printStackTrace();
+			            	logger.error(ce.getMessage(), ce);
 			                getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));	// ZAP: i18n
 			                return;
 			            }
@@ -231,6 +231,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
     public void alertFound(Alert alert, HistoryReference ref) {
         try {
+        	logger.debug("alertFound " + alert.getAlert() + " " + alert.getUri());
         	if (ref == null) {
         		ref = alert.getHistoryRef();
         	}
@@ -245,8 +246,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         	this.nodeChanged(ref.getSiteNode());
         	
         } catch (Exception e) {
-        	// ZAP: Print stack trace to Output tab
-        	getView().getOutputPanel().append(e);
+        	logger.error(e.getMessage(), e);
         }
     }
     
@@ -345,6 +345,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         
 	}
 	public void updateAlert(Alert alert) throws HttpMalformedHeaderException, SQLException {
+    	logger.debug("updateAlert " + alert.getAlert() + " " + alert.getUri());
 		updateAlertInDB(alert);
 		if (alert.getHistoryRef() != null) {
 			this.nodeChanged(alert.getHistoryRef().getSiteNode());
@@ -361,6 +362,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 	
 	public void displayAlert (Alert alert) {
+    	logger.debug("displayAlert " + alert.getAlert() + " " + alert.getUri());
 		this.alertPanel.getAlertViewPanel().displayAlert(alert);
 	}
 	
@@ -592,6 +594,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	public void deleteAlert(Alert alert) {
+    	logger.debug("deleteAlert " + alert.getAlert() + " " + alert.getUri());
 		deleteAlertFromDisplay(alert);
 		
 	    try {

@@ -32,6 +32,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -61,7 +62,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
 
-    //private static Logger log = Logger.getLogger(ActiveScanPanel.class);
+    private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
 
     /**
      * @param portScanParam 
@@ -125,6 +126,12 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     	if (msg == null) {
     		return;
     	}
+    	if (msg.getRequestHeader() != null) {
+    		logger.debug("displayMessage " + msg.getRequestHeader().getURI());
+    	} else {
+    		logger.debug("displayMessage null header");
+    	}
+    	
         if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
             requestPanel.setMessage(null, true);
         } else {
