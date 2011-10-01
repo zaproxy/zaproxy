@@ -337,11 +337,10 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     			return file;
     		}
             getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-    		String fileName = file.getAbsolutePath().toLowerCase();
-    		if (! fileName.endsWith(".htm") &&
-    				! fileName.endsWith(".html")) {
-    		    fileName += ".html";
-    		    file = new File(fileName);
+    		String fileNameLc = file.getAbsolutePath().toLowerCase();
+    		if (! fileNameLc.endsWith(".htm") &&
+    				! fileNameLc.endsWith(".html")) {
+    		    file = new File(file.getAbsolutePath() + ".html");
     		}
     		return file;
     		

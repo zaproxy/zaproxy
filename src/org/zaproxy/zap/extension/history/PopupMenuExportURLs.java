@@ -198,11 +198,10 @@ public class PopupMenuExportURLs extends ExtensionPopupMenu {
     			return file;
     		}
             extension.getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-    		String fileName = file.getAbsolutePath().toLowerCase();
-    		if (! fileName.endsWith(".txt") && ! fileName.endsWith(".htm") &&
-    				! fileName.endsWith(".html")) {
-    		    fileName += ".txt";
-    		    file = new File(fileName);
+    		String fileNameLc = file.getAbsolutePath().toLowerCase();
+    		if (! fileNameLc.endsWith(".txt") && ! fileNameLc.endsWith(".htm") &&
+    				! fileNameLc.endsWith(".html")) {
+    		    file = new File(file.getAbsolutePath() + ".txt");
     		}
     		return file;
     		
