@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/10/01 Fixed filename problem (issue 161)
+
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
@@ -174,11 +176,10 @@ public class ReportLastScan {
 	    		file = chooser.getSelectedFile();
 	    		if (file != null) {
 		            Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-		    		String fileName = file.getAbsolutePath().toLowerCase();
-		    		if (! fileName.endsWith(".htm") &&
-		    				! fileName.endsWith(".html")) {
-		    		    fileName += ".html";
-		    		    file = new File(fileName);
+		    		String fileNameLc = file.getAbsolutePath().toLowerCase();
+		    		if (! fileNameLc.endsWith(".htm") &&
+		    				! fileNameLc.endsWith(".html")) {
+		    		    file = new File(file.getAbsolutePath() + ".html");
 		    		}
 	    		}
     		
@@ -230,10 +231,9 @@ public class ReportLastScan {
 	    		file = chooser.getSelectedFile();
 	    		if (file != null) {
 		            Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-		    		String fileName = file.getAbsolutePath().toLowerCase();
-		    		if (! fileName.endsWith(".xml")) {
-		    		    fileName += ".xml";
-		    		    file = new File(fileName);
+		    		String fileNameLc = file.getAbsolutePath().toLowerCase();
+		    		if (! fileNameLc.endsWith(".xml")) {
+		    		    file = new File(file.getAbsolutePath() + ".xml");
 		    		}
 	    		}
     		
