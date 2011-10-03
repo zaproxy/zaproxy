@@ -212,7 +212,7 @@ public class CoreAPI extends ApiImplementor {
 			try {
 				hm = getHttpMessages();
 				for (HttpMessage httpm : hm) {
-					result.add(this.httpmessageToJSON(httpm));
+					result.add(this.httpMessageToJSON(httpm));
 				}
 			} catch (HttpMalformedHeaderException e) {
 				logger.error(e.getMessage(), e);
@@ -263,10 +263,10 @@ public class CoreAPI extends ApiImplementor {
 	 * @param hm
 	 * @return
 	 */
-	private JSONObject httpmessageToJSON(HttpMessage hm) {
+	private JSONObject httpMessageToJSON(HttpMessage hm) {
 		JSONObject ja = new JSONObject();
 		ja.put("cookieParams", hm.getCookieParamsAsString().toString());
-		ja.put("Note", hm.getNote().toString());
+		ja.put("note", hm.getNote().toString());
 		ja.put("requestHeader", hm.getRequestHeader().toString());
 		ja.put("requestBody", hm.getRequestBody().toString());
 		ja.put("responseHeader", hm.getResponseHeader().toString());
