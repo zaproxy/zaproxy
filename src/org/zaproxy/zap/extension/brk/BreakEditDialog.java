@@ -45,10 +45,10 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 	private ZapTextField txtDisplay = null;
 	private JButton btnSave = null;
 	private JButton btnCancel = null;
-	private String currentBreakPoint = null;
+	private int currentBreakPointRow = -1;
 	
-	public void setCurrentBreakPoint(String currentBreakPoint) {
-		this.currentBreakPoint = currentBreakPoint;
+	public void setCurrentBreakPointRow(int currentBreakPoint) {
+		this.currentBreakPointRow = currentBreakPoint;
 	}
 
 
@@ -177,9 +177,8 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    extension.removeBreakPoint(currentBreakPoint);
-				    extension.addBreakPoint(getTxtDisplay().getText());
-				    extension.hidePopupMenuEdit();
+					extension.editBreakPointAtRow(currentBreakPointRow, getTxtDisplay().getText());
+				    extension.hideBreakEditDialog();
 				}
 			});
 
@@ -202,7 +201,7 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-				    extension.hidePopupMenuEdit();
+				    extension.hideBreakEditDialog();
 				}
 			});
 

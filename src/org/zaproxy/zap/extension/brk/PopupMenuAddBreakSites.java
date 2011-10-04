@@ -93,7 +93,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenu {
         treeSite = getTree(invoker);
         if (treeSite != null) {
 		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot()) {
+		    if (node != null && ! node.isRoot() && extension.canAddBreakPoint()) {
 		        this.setEnabled(true);
 		    } else {
 		        this.setEnabled(false);

@@ -22,16 +22,18 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableColumn;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
@@ -49,15 +51,23 @@ public class BreakPointsPanel extends AbstractPanel {
 	private javax.swing.JPanel panelCommand = null;
 	private javax.swing.JLabel jLabel = null;
 	private JScrollPane jScrollPane = null;
-	private javax.swing.JList breakPointList = null;
-	private DefaultListModel model = new DefaultListModel();
-	private PopupMenuRemove popupMenuDelete = null;
+	private javax.swing.JTable breakPointTable = null;
+	private BreakPointsTableModel model = new BreakPointsTableModel();
+	
+	private static final String BRK_TABLE = "brk.table";
+	private static final String PREF_COLUMN_WIDTH = "column.width";
+	private final Preferences preferences;
+	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+	
+	private static Logger log = Logger.getLogger(BreakPointsPanel.class);
 
     /**
      * 
      */
     public BreakPointsPanel() {
         super();
+		this.preferences = Preferences.userNodeForPackage(getClass());
+		
  		initialize();
     }
 
@@ -123,14 +133,6 @@ public class BreakPointsPanel extends AbstractPanel {
 			//panelCommand.add(jLabel, gridBagConstraints1);
 			panelCommand.add(getJScrollPane(), gridBagConstraints2);
 			
-			//jLabel.addMouseListener(new MouseAdapter() {
-			panelCommand.addMouseListener(new MouseAdapter() {
-				public void mouseReleased(MouseEvent event){
-					if (event.isPopupTrigger())
-						getPopupMenuDelete().setVisible(true);
-					}
-				});
-
 		}
 		return panelCommand;
 	}
@@ -159,89 +161,176 @@ public class BreakPointsPanel extends AbstractPanel {
 		return jScrollPane;
 	}
 
-	protected JList getBreakPoints() {
-		if (breakPointList == null) {
-			breakPointList = new JList(model);
-			breakPointList.setName(PANEL_NAME);
-			breakPointList.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			breakPointList.setDoubleBuffered(true);
-			breakPointList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			breakPointList.addMouseListener(new java.awt.event.MouseAdapter() { 
+	protected JTable getBreakPoints() {
+		if (breakPointTable == null) {
+			breakPointTable = new JTable(model);
+
+			breakPointTable.setColumnSelectionAllowed(false);
+			breakPointTable.setCellSelectionEnabled(false);
+			breakPointTable.setRowSelectionAllowed(true);
+
+			breakPointTable.getColumnModel().getColumn(0).setMinWidth(20);
+			breakPointTable.getColumnModel().getColumn(0).setMaxWidth(250);
+			breakPointTable.getColumnModel().getColumn(0).setPreferredWidth(restoreColumnWidth(BRK_TABLE, 100));
+			breakPointTable.getColumnModel().getColumn(0).addPropertyChangeListener(new ColumnResizedListener(BRK_TABLE));
+			
+			breakPointTable.getColumnModel().getColumn(1).setResizable(false);
+
+			breakPointTable.getTableHeader().setReorderingAllowed(false);
+			
+			breakPointTable.setName(PANEL_NAME);
+			breakPointTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			breakPointTable.setDoubleBuffered(true);
+			breakPointTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+			breakPointTable.addMouseListener(new java.awt.event.MouseAdapter() { 
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 
 					if (SwingUtilities.isRightMouseButton(e)) {
 
-						// Select list item
-					    int Idx = breakPointList.locationToIndex( e.getPoint() );
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = breakPointList.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    if ( Idx < 0 || !breakPointList.getSelectionModel().isSelectedIndex( Idx ) ) {
-					    	breakPointList.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		breakPointList.getSelectionModel().setSelectionInterval( Idx, Idx );
+						// Select table item
+					    int row = breakPointTable.rowAtPoint( e.getPoint() );
+					    if ( row < 0 || !breakPointTable.getSelectionModel().isSelectedIndex( row ) ) {
+					    	breakPointTable.getSelectionModel().clearSelection();
+					    	if ( row >= 0 ) {
+					    		breakPointTable.getSelectionModel().setSelectionInterval( row, row );
 					    	}
 					    }
 						
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-			        }			    	
+			        }
 			    }
 			});
 		}
-		return breakPointList;
+		return breakPointTable;
 	}
 	
-	private void addToSortedModel(String s) {
-		for (int i = 0; i < model.getSize(); i++) {
-			int cmp = s.compareTo((String)model.elementAt(i)); 
-			if (cmp < 0) {
-				model.add(i, s);
-				return;
-			} else if (cmp == 0) {
-				// Already matches, so ignore
-				return;
+	private void selectRowAndEnsureVisible(int row) {
+		if (row != -1) {
+			breakPointTable.getSelectionModel().setSelectionInterval(row, row);
+			breakPointTable.scrollRectToVisible(breakPointTable.getCellRect(row, 0, true));
+		}
+	}
+	
+	private void addBreakPointRow(String url) {
+		model.addBreakPoint(url);
+		selectRowAndEnsureVisible(model.getLastAddedRow());
+	}
+	
+	private void editBreakPointRow(int row, String url) {
+		model.editBreakPointAtRow(row, url);
+		selectRowAndEnsureVisible(model.getLastEditedRow());
+	}
+	
+	private void removeBreakPointRow(int row) {
+		model.removeBreakPointAtRow(row);
+	}
+	
+	void addBreakPoint(final String url) {
+		if (EventQueue.isDispatchThread()) {
+			addBreakPointRow(url);
+			return;
+		}
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				public void run() {
+					addBreakPointRow(url);
+				}
+			});
+		} catch (Exception e) {
+		}
+	    
+	}
+	
+	void editBreakPoint(final int row, final String url) {
+		if (EventQueue.isDispatchThread()) {
+			editBreakPointRow(row, url);
+			return;
+		}
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				public void run() {
+					editBreakPointRow(row, url);
+				}
+			});
+		} catch (Exception e) {
+		}
+	    
+	}
+
+	public void removeBreakPoint(final int row) {
+		if (EventQueue.isDispatchThread()) {
+			removeBreakPointRow(row);
+			return;
+		}
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				public void run() {
+					removeBreakPointRow(row);
+				}
+			});
+		} catch (Exception e) {
+		}
+	    
+	}
+
+	/**
+	 * @param prefix
+	 * @param width
+	 */
+	private final void saveColumnWidth(String prefix, int width) {
+		if (width > 0) {
+			if (log.isDebugEnabled()) log.debug("Saving preference " + prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH + "=" + width);
+			this.preferences.put(prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH, Integer.toString(width));
+			// immediate flushing
+			try {
+				this.preferences.flush();
+			} catch (final BackingStoreException e) {
+				log.error("Error while saving the preferences", e);
 			}
 		}
-		model.add(model.getSize(), s);
 	}
 	
-	void addBreakPoint(final String s) {
-		if (EventQueue.isDispatchThread()) {
-			addToSortedModel(s);
-			return;
+	/**
+	 * @param prefix
+	 * @param fallback
+	 * @return the width of the column OR fallback value, if there wasn't any preference.
+	 */
+	private final int restoreColumnWidth(String prefix, int fallback) {
+		int result = fallback;
+		final String sizestr = preferences.get(prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH, null);
+		if (sizestr != null) {
+			int width = 0;
+			try {
+				width = Integer.parseInt(sizestr.trim());
+			} catch (final Exception e) {
+				// ignoring, cause is prevented by default values;
+			}
+			if (width > 0 ) {
+				result = width;
+				if (log.isDebugEnabled()) log.debug("Restoring preference " + prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH + "=" + width);
+			}
 		}
-		try {
-			EventQueue.invokeAndWait(new Runnable() {
-				public void run() {
-					addToSortedModel(s);
-				}
-			});
-		} catch (Exception e) {
-		}
-	    
+		return result;
 	}
+	
+	private final class ColumnResizedListener implements PropertyChangeListener {
 
-	public void removeBreakPoint(final String s) {
-		if (EventQueue.isDispatchThread()) {
-			model.removeElement(s);
-			return;
+		private final String prefix;
+		
+		public ColumnResizedListener(String prefix) {
+			super();
+			assert prefix != null;
+			this.prefix = prefix;
 		}
-		try {
-			EventQueue.invokeAndWait(new Runnable() {
-				public void run() {
-					model.removeElement(s);
-				}
-			});
-		} catch (Exception e) {
-		}
-	    
-	}
 
-	private PopupMenuRemove getPopupMenuDelete() {
-		if (popupMenuDelete == null) {
-			popupMenuDelete = new PopupMenuRemove();
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			TableColumn column = (TableColumn) evt.getSource();
+			if (column != null) {
+				if (log.isDebugEnabled()) log.debug(prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH + "=" + column.getWidth());
+				saveColumnWidth(prefix, column.getWidth());
+			}
 		}
-		return popupMenuDelete;
+		
 	}
 }

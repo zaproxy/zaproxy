@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.EventQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.ListModel;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -202,31 +200,30 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 		
 	    try {
-		    ListModel lm = extension.getBreakPointsModel();
-		    if (lm.getSize() == 0) {
+	    	List<BreakPoint> breakPoints = extension.getBreakPointsList();
+		    
+	    	if (breakPoints.isEmpty()) {
 		    	// No break points
 		    	return false;
 		    }
 		    
 			URI uri = (URI) msg.getRequestHeader().getURI().clone();
 		    uri.setQuery(null);
-		    String sUri = uri.toString();
+		    String sUri = uri.getURI();
 		    
 		    // match against the break points
 		    
-		    for (int i=0; i < lm.getSize(); i++) {
-		    	String str = (String) lm.getElementAt(i);
-		    	
-		    	str = str.replaceAll("\\.", "\\\\.");
-		    	str = str.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
-		    	str = "(" + str.replaceAll(";+", "|") + ")$";
-				Pattern p = Pattern.compile(str, Pattern.CASE_INSENSITIVE);
-				Matcher m = p.matcher(sUri);
-				if (m.find()) {
-					return true;
+			synchronized (breakPoints) {
+				Iterator<BreakPoint> it = breakPoints.iterator();
+				
+				while(it.hasNext()) {
+					BreakPoint breakPoint = it.next();
+					
+					if (breakPoint.isEnabled() && breakPoint.match(sUri)) {
+						return true;
+					}
 				}
-		    }
-    		
+			}
         } catch (URIException e) {
 			log.warn(e.getMessage(), e);
         }

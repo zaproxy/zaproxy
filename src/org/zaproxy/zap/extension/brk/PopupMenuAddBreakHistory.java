@@ -97,7 +97,7 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenu {
                 listLog = list;
                 Object[] obj = listLog.getSelectedValues();
 
-                if (obj.length == 1) {
+                if (obj.length == 1 && extension.canAddBreakPoint()) {
                     this.setEnabled(true);
                 } else {
                     this.setEnabled(false);

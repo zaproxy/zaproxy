@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
 
-import javax.swing.JList;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
@@ -63,7 +61,7 @@ public class PopupMenuRemove extends ExtensionPopupMenu {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-			    extension.removeBreakPoint(extension.getSelectedBreakPoint());
+			    extension.removeSelectedBreakPoint();
         	}
         });
 
@@ -72,17 +70,12 @@ public class PopupMenuRemove extends ExtensionPopupMenu {
 	
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BreakPointsPanel.PANEL_NAME)) {
-            try {
-                JList list = (JList) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {}
+            if (extension.canRemoveBreakPoint()) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
+            }
             return true;
-            
-            
         }
         return false;
     }

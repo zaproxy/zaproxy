@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.EventQueue;
-import java.awt.Point;
-
-import javax.swing.ListModel;
+import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -50,8 +48,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuEditBreak popupMenuEditBreak = null;
 	private PopupMenuRemove popupMenuRemove = null;
 
-	private BreakAddDialog dialog = null;
+	private BreakAddDialog addDialog = null;
+	private BreakEditDialog editDialog = null;
 	
+	private boolean canShowDialog = true;
+	private Object canShowDialogLock = new Object();
+	private enum Dialogs {NONE, ADD_DIALOG, EDIT_DIALOG};
+	private Dialogs currentDialog = Dialogs.NONE;
 
 	/**
      * 
@@ -101,7 +104,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	        extensionHook.getHookView().addStatusPanel(getBreakPointsPanel());
 
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBreakSites());
+	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakSites());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEdit());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakHistory());
@@ -121,25 +124,32 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return breakPointsPanel;
 	}
 	
-	public void addBreakPoint (String bp) {
-		this.getBreakPointsPanel().addBreakPoint(bp);
+	public void addBreakPoint (String url) {
+		this.getBreakPointsPanel().addBreakPoint(url);
 	}
 
-	public void removeBreakPoint (String bp) {
-		this.getBreakPointsPanel().removeBreakPoint(bp);
+	public void editBreakPointAtRow (int row, String url) {
+		this.getBreakPointsPanel().editBreakPoint(row, url);
 	}
 	
-	public ListModel getBreakPointsModel() {
-		return this.getBreakPointsPanel().getBreakPoints().getModel();
+	public void removeBreakPointAtRow (int row) {
+		this.getBreakPointsPanel().removeBreakPoint(row);
 	}
 	
-	public String getSelectedBreakPoint() {
-		return (String) this.getBreakPointsPanel().getBreakPoints().getSelectedValue();
+	public List<BreakPoint> getBreakPointsList() {
+		return getBreakPointsModel().getBreakPointsList();
 	}
 	
-	public void selectBreakPoint (Point point) {
-		int index = this.getBreakPointsPanel().getBreakPoints().locationToIndex(point);
-		this.getBreakPointsPanel().getBreakPoints().setSelectedIndex(index);
+	private int getSelectedBreakPointRow() {
+		return this.getBreakPointsPanel().getBreakPoints().getSelectedRow();
+	}
+	
+	private BreakPoint getSelectedBreakPoint() {
+		return getBreakPointsModel().getBreakPointAtRow(getSelectedBreakPointRow());
+	}
+	
+	private BreakPointsTableModel getBreakPointsModel() {
+		return (BreakPointsTableModel)this.getBreakPointsPanel().getBreakPoints().getModel();
 	}
 
 	public void sessionChanged(final Session session)  {
@@ -174,33 +184,12 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         return proxyListener;
 	}
 
-	private PopupMenuAddBreakSites getPopupMenuBreakSites() {
+	private PopupMenuAddBreakSites getPopupMenuAddBreakSites() {
 		if (popupMenuAddBreakSites == null) {
 			popupMenuAddBreakSites = new PopupMenuAddBreakSites();
 			popupMenuAddBreakSites.setExtension(this);
 		}
 		return popupMenuAddBreakSites;
-	}
-
-	private PopupMenuEditBreak getPopupMenuEdit() {
-		if (popupMenuEditBreak == null) {
-			popupMenuEditBreak = new PopupMenuEditBreak();
-			popupMenuEditBreak.setExtension(this);
-		}
-		return popupMenuEditBreak;
-	}
-
-	public void hidePopupMenuEdit() {
-		this.getPopupMenuEdit().getDialog().dispose();
-	}
-
-
-	private PopupMenuRemove getPopupMenuDelete() {
-		if (popupMenuRemove == null) {
-			popupMenuRemove = new PopupMenuRemove();
-			popupMenuRemove.setExtension(this);
-		}
-		return popupMenuRemove;
 	}
 	
     private PopupMenuAddBreakHistory getPopupMenuAddBreakHistory() {
@@ -211,16 +200,90 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         return popupMenuAddBreakHistory;
     }
 
+	private PopupMenuEditBreak getPopupMenuEdit() {
+		if (popupMenuEditBreak == null) {
+			popupMenuEditBreak = new PopupMenuEditBreak();
+			popupMenuEditBreak.setExtension(this);
+		}
+		return popupMenuEditBreak;
+	}
+
+	private PopupMenuRemove getPopupMenuDelete() {
+		if (popupMenuRemove == null) {
+			popupMenuRemove = new PopupMenuRemove();
+			popupMenuRemove.setExtension(this);
+		}
+		return popupMenuRemove;
+	}
+
+	public boolean canAddBreakPoint() {
+		return (currentDialog == Dialogs.NONE || currentDialog == Dialogs.ADD_DIALOG);
+	}
+    
     public void showBreakAddDialog(String msg) {
-		dialog = new BreakAddDialog(getView().getMainFrame(), false);
-		dialog.setPlugin(this);
-		dialog.setVisible(true);
-		dialog.getTxtDisplay().setText(msg);
-		
+		synchronized (canShowDialogLock) {
+			if(canShowDialog) {
+	    		addDialog = new BreakAddDialog(getView().getMainFrame(), false);
+	    		addDialog.setPlugin(this);
+	    		addDialog.setVisible(true);
+	    		addDialog.getTxtDisplay().setText(msg);
+	    		
+				canShowDialog = false;
+				currentDialog = Dialogs.ADD_DIALOG;
+	    	} else if (currentDialog == Dialogs.ADD_DIALOG) {
+	    		addDialog.getTxtDisplay().setText(msg);
+	    	}
+		}
     }
 
 	public void hideBreakAddDialog() {
-		dialog.dispose();
+		synchronized (canShowDialogLock) {
+			addDialog.dispose();
+			addDialog = null;
+		
+			canShowDialog = true;
+			currentDialog = Dialogs.NONE;
+		}
+	}
+	
+	public boolean canEditBreakPoint() {
+		return (currentDialog == Dialogs.EDIT_DIALOG || currentDialog == Dialogs.NONE);
+	}
+	
+    public void showBreakEditDialog() {
+    	synchronized (canShowDialogLock) {
+	    	if(canShowDialog) {
+	    		editDialog = new BreakEditDialog(getView().getMainFrame(), false);
+	    		editDialog.setPlugin(this);
+	    		editDialog.setVisible(true);
+	    		editDialog.getTxtDisplay().setText(getSelectedBreakPoint().getUrl());
+	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
+	    		
+				canShowDialog = false;
+				currentDialog = Dialogs.EDIT_DIALOG;
+	    	} else if (currentDialog == Dialogs.EDIT_DIALOG) {
+	    		editDialog.getTxtDisplay().setText(getSelectedBreakPoint().getUrl());
+	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
+	    	}
+    	}
+    }
+
+	public void hideBreakEditDialog() {
+		synchronized (canShowDialogLock) {
+			editDialog.dispose();
+			editDialog = null;
+		
+			canShowDialog = true;
+			currentDialog = Dialogs.NONE;
+		}
+	}
+	
+	public boolean canRemoveBreakPoint() {
+		return (currentDialog == Dialogs.NONE);
+	}
+	
+	public void removeSelectedBreakPoint() {
+		removeBreakPointAtRow(getSelectedBreakPointRow());
 	}
 
   }

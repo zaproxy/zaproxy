@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
 
-import javax.swing.JList;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 
@@ -37,12 +35,6 @@ public class PopupMenuEditBreak extends ExtensionPopupMenu {
 	private static final long serialVersionUID = 1L;
 
     private ExtensionBreak extension;
-
-	private BreakEditDialog dialog = null;
-
-	public BreakEditDialog getDialog() {
-		return dialog;
-	}
 
 	/**
      * 
@@ -63,15 +55,6 @@ public class PopupMenuEditBreak extends ExtensionPopupMenu {
 		this.extension = extension;
 	}
 
-    void showDialog(String msg) {
-		dialog = new BreakEditDialog(extension.getView().getMainFrame(), false);
-		dialog.setPlugin(this.extension);
-		dialog.setVisible(true);
-		dialog.getTxtDisplay().setText(msg);
-		dialog.setCurrentBreakPoint(msg);
-		
-    }
-
     /**
 	 * This method initialises this
 	 * 
@@ -82,8 +65,7 @@ public class PopupMenuEditBreak extends ExtensionPopupMenu {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        		
-                showDialog(extension.getSelectedBreakPoint());
+        		extension.showBreakEditDialog();
         	}
         });
 
@@ -92,14 +74,11 @@ public class PopupMenuEditBreak extends ExtensionPopupMenu {
 
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BreakPointsPanel.PANEL_NAME)) {
-            try {
-                JList list = (JList) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {}
+            if (extension.canEditBreakPoint()) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
+            }
             return true;
         }
         return false;
