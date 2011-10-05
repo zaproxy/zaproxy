@@ -20,10 +20,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/03 Revamped upgrade for 1.3.2
+// ZAP: 2011/10/05 Write backup file to user dir
 
 package org.parosproxy.paros;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Locale;
@@ -81,7 +83,6 @@ public final class Constant {
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
-    public static final String FILE_CONFIG_BACKUP = "xml/config.old";
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
@@ -254,9 +255,16 @@ public final class Constant {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
-	            	log.info("Backing up config file to " + FILE_CONFIG_BACKUP);
+	            	log.info("Backing up config file to " + FILE_CONFIG + ".bak");
             		f = new File(FILE_CONFIG);
-	                copier.copy(f, new File(FILE_CONFIG_BACKUP));
+	                try {
+						copier.copy(f, new File(FILE_CONFIG + ".bak"));
+					} catch (IOException e) {
+						String msg = "Failed to backup config file " + 
+	            			FILE_CONFIG + " to " + FILE_CONFIG + ".bak " + e.getMessage();
+			            System.err.println(msg);
+			            log.error(msg, e);
+					}
 	                
 		            if (ver == V_PAROS_TAG) {
 	            		upgradeFrom1_1_0(config);
