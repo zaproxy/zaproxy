@@ -41,6 +41,7 @@ This list the alerts
 3		Session ID in URL rewrite
 4		Obsolete file (Depreciated)
 5		Obsolete file extended check (Depreciated)
+6		Directory/Path traversal
 
 10000	Password Autocomplete in browser (Depreciated)
 10001	Secure page browser cache
