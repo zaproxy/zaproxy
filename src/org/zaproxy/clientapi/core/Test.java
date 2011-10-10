@@ -12,6 +12,21 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		// TODO List
+		// High priority
+		// * Start ZAP in background - task still waits! } Need docs?
+		// * Get checkAlerts to work with inner elements } 
+		// Medium - tidy up
+		// * Create min zapapi.jar
+		// * Correct way of installing in Eclipse
+		// Docs etc
+		// * Full wave reg test
+		// * Full wavsep reg test
+		// * Documentation
+		// Publicise
+		// * Blog, tweet etc etc
+		// * Work out priorities for extending api
+		// * Complete tasks - more for internal use than anything else
 
 		List<Alert> ignoreAlerts = new ArrayList<Alert>();
 		ignoreAlerts.add(new Alert("Cookie set without HttpOnly flag", null, Risk.Low, Reliability.Warning, null, null));

@@ -19,8 +19,6 @@
  */
 package org.zaproxy.clientapi.core;
 
-import java.util.regex.Pattern;
-
 import net.sf.json.JSONObject;
 
 public class Alert {
@@ -84,10 +82,6 @@ public class Alert {
 		this.url = url;
 	}
 
-	public Alert() {
-		super();
-	}
-	
 	public String getAlert() {
 		return alert;
 	}
@@ -142,47 +136,30 @@ public class Alert {
 		if (alertFilter.getReliability() != null && ! alertFilter.getReliability().equals(reliability) ) {
 			matches = false;
 		}
-		if (alertFilter.getUrl() != null) {
-			// Url is a regex
-			Pattern p = Pattern.compile(alertFilter.getUrl());
-			if (! p.matcher(url).matches()) {
-				matches = false;
-			}
-		}
-		if (alertFilter.getParam() != null) {
-			// Param is a regex
-			Pattern p = Pattern.compile(alertFilter.getParam());
-			if (! p.matcher(param).matches()) {
-				matches = false;
-			}
-		}
-		if (alertFilter.getOther() != null) {
-			// Param is a regex
-			Pattern p = Pattern.compile(alertFilter.getOther());
-			if (! p.matcher(other).matches()) {
-				matches = false;
-			}
-		}
 
 		return matches;
 	}
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Alert: alert=\"" + getAlert() + "\" ");
+		sb.append("\tAlert: " + getAlert() + ", ");
+		sb.append("Risk: ");
 		if (getRisk() != null) {
-			sb.append("risk=\"");
 			sb.append(getRisk().name());
-			sb.append("\" ");
+		} else {
+			sb.append("null");
 		}
+		sb.append(", ");
+		sb.append("Reliability: ");
 		if (getReliability() != null) {
-			sb.append("reliability=\"");
 			sb.append(getReliability().name());
-			sb.append("\" ");
+		} else {
+			sb.append("null");
 		}
-		sb.append("url=\"" + getUrl() + "\" ");
-		sb.append("param=\"" + getParam() + "\" ");
-		sb.append("other=\"" + getOther() + "\"");
+		sb.append(", ");
+		sb.append("Url: " + getUrl() + ", ");
+		sb.append("Param: " + getParam() + ", ");
+		sb.append("Other: " + getOther());
 		return sb.toString();
 	}
 	

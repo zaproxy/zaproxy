@@ -26,17 +26,12 @@ import org.apache.tools.ant.BuildException;
 import org.zaproxy.clientapi.core.Alert;
 
 public class AlertCheckTask extends ZapTask {
-
-	/*
+	
 	private List<AlertTask> ignoreAlertTasks = new ArrayList<AlertTask>();
 	private List<AlertTask> requireAlertTasks = new ArrayList<AlertTask>();
-	*/
-	private List<Alert> ignoreAlerts = new ArrayList<Alert>();
-	private List<Alert> requireAlerts = new ArrayList<Alert>();
 	
 	public void execute() throws BuildException {
 		try {
-			/*
 			List<Alert> ignoreAlerts = new ArrayList<Alert>();
 			List<Alert> requireAlerts = new ArrayList<Alert>();
 			if (ignoreAlertTasks != null) {
@@ -49,7 +44,6 @@ public class AlertCheckTask extends ZapTask {
 					requireAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
 				}
 			}
-			*/
 			
 			this.getClientApi().checkAlerts(ignoreAlerts, requireAlerts);
 			
@@ -57,20 +51,7 @@ public class AlertCheckTask extends ZapTask {
 			throw new BuildException(e);
 		}
 	}
-	
-	public Alert createIgnoreAlert() {
-		Alert alert = new Alert();
-		this.ignoreAlerts.add(alert);		
-		return alert;
-	}
-	
-	public Alert createRequireAlert() {
-		Alert alert = new Alert();
-		this.requireAlerts.add(alert);		
-		return alert;
-	}
-	
-/*
+
 	public void addIgnoreAlert(AlertTask alert) {
 		this.ignoreAlertTasks.add(alert);
 	}
@@ -86,5 +67,4 @@ public class AlertCheckTask extends ZapTask {
 	public List<AlertTask> getRequireAlerts() {
 		return requireAlertTasks;
 	}
-	*/
 }

@@ -117,20 +117,8 @@ public class ClientApi {
 					for (Alert ignoreAlert : ignoreAlerts) {
 						if (foundAlert.matches(ignoreAlert)) {
 							if (debug) {
-								System.out.println("Ignoring " + foundAlert);
+								System.out.println("Ignoring alert " + ignoreAlert);
 							}
-							ignore = true;
-							break;
-						}
-					}
-				}
-				if (requireAlerts != null) {
-					for (Alert requireAlert : requireAlerts) {
-						if (foundAlert.matches(requireAlert)) {
-							if (debug) {
-								System.out.println("Found " + foundAlert);
-							}
-							requireAlerts.remove(requireAlert);
 							ignore = true;
 							break;
 						}
@@ -138,6 +126,17 @@ public class ClientApi {
 				}
 				if (! ignore) {
 					reportAlerts.add(foundAlert);
+				}
+				if (requireAlerts != null) {
+					for (Alert requireAlert : requireAlerts) {
+						if (foundAlert.matches(requireAlert)) {
+							if (debug) {
+								System.out.println("Found alert " + foundAlert);
+							}
+							requireAlerts.remove(requireAlert);
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -173,7 +172,7 @@ public class ClientApi {
 		List<String> response = new ArrayList<String>();
 		URL url = new URL(apiurl);
 		if (debug) {
-			System.out.println("Open URL: " + apiurl);
+			System.out.println("Oepn URL: " + apiurl);
 		}
 		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 		uc.connect();
@@ -195,7 +194,7 @@ public class ClientApi {
 	private void accessUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
 		URL url = new URL(apiurl);
 		if (debug) {
-			System.out.println("Open URL: " + apiurl);
+			System.out.println("Oepn URL: " + apiurl);
 		}
 		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 		uc.connect();
