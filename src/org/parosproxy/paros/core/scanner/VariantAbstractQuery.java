@@ -35,7 +35,7 @@ abstract public class VariantAbstractQuery implements Variant {
         
     }
 
-    abstract protected void buildMessage(HttpMessage msg, String query);
+    abstract protected void buildMessage(HttpMessage msg, String query, boolean escaped);
     
     /**
      * Return encoded mutate of the value.  To be overriden by subclass.
@@ -86,6 +86,14 @@ abstract public class VariantAbstractQuery implements Variant {
      * If name and value = null, not to append entire paramter.
      */
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
+    	return this.setParameter(msg, originalPair, name, value, false);
+    }
+    
+    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
+    	return this.setParameter(msg, originalPair, name, value, true);
+    }
+    
+    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
 
         StringBuffer sb = new StringBuffer();
         NameValuePair pair = null;
@@ -107,7 +115,7 @@ abstract public class VariantAbstractQuery implements Variant {
         }
 
         String query = sb.toString();
-        buildMessage(msg, query);
+        buildMessage(msg, query, escaped);
         return query;
     }
 

@@ -18,8 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2011/09/19 Ignore multipart data
-
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.network.HttpHeader;
@@ -41,17 +39,11 @@ public class VariantFormQuery extends VariantAbstractQuery {
     }
     
     public void setMessage(HttpMessage msg) {
-        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        if (contentType != null && contentType.startsWith("multipart/form-data")) {
-        	// Ignore multipart form data - probably file uploads which break the scanning!
-        	// TODO: check each part to see what it really is and then decide!
-        } else {
-        	parse(msg.getRequestBody().toString());
-        }
+        parse(msg.getRequestBody().toString());
     }
         
     
-    protected void buildMessage(HttpMessage msg, String query) {
+    protected void buildMessage(HttpMessage msg, String query, boolean escaped) {
         msg.getRequestBody().setBody(query);
     }
     

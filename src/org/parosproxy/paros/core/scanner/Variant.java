@@ -29,5 +29,6 @@ public interface Variant {
     public void setMessage(HttpMessage msg);
     public Vector<NameValuePair> getParamList();
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
+    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
     
 }

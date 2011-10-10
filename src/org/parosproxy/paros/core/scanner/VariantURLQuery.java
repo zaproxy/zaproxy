@@ -43,9 +43,13 @@ public class VariantURLQuery extends VariantAbstractQuery {
         }
     }
     
-    protected void buildMessage(HttpMessage msg, String query) {
+    protected void buildMessage(HttpMessage msg, String query, boolean escaped) {
         try {
-            msg.getRequestHeader().getURI().setQuery(query);
+        	if (escaped) {
+        		msg.getRequestHeader().getURI().setEscapedQuery(query);
+        	} else {
+                msg.getRequestHeader().getURI().setQuery(query);
+        	}
         } catch (URIException e) {
             e.printStackTrace();
         }
