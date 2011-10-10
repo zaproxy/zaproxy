@@ -51,6 +51,7 @@ import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
+import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.reveal.ExtensionReveal;
@@ -156,13 +157,10 @@ public class Control extends AbstractControl {
         
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());
-        
-        // Params extension not fully implemented
-        //getExtensionLoader().addExtension(new ExtensionParams());
-        // Tech extension not fully implemented 
-        //getExtensionLoader().addExtension(new ExtensionTech());
-        // This is just for testing
-        //getExtensionLoader().addExtension(new ExtensionTest());
+
+        getExtensionLoader().addExtension(new ExtensionLog4j());
+
+        //getExtensionLoader().addExtension(new ExtensionDiff());
 
     }
     

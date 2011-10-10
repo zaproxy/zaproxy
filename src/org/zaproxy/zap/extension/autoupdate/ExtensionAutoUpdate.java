@@ -85,6 +85,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 				}
 
 			});
+			if (Constant.PROGRAM_VERSION.equals(Constant.DEV_VERSION)) {
+				// Dont enable if this is a developer build, ie build from source
+				menuItemCheckUpdate.setEnabled(false);
+			}
 
 		}
 		return menuItemCheckUpdate;
@@ -119,7 +123,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 	}
 	
 	public void checkForUpdates(boolean manual) {
-		
+
+		if (Constant.PROGRAM_VERSION.equals(Constant.DEV_VERSION)) {
+			// Dont enable if this is a developer build, ie build from source
+			return;
+		}
+
 		if (checkForUpdates != null) {
 			// Currently checking
 			return;
