@@ -141,6 +141,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 				if (inputElements != null && inputElements.size() > 0) {
 					// Loop through all of the INPUT elements
 					for (Element inputElement : inputElements) {
+						String id = inputElement.getAttributeValue("ID");
+						if (id != null && id.equalsIgnoreCase(tokenName)) {
+							return inputElement.getAttributeValue("VALUE");
+						}
 						String name = inputElement.getAttributeValue("NAME");
 						if (name != null && name.equalsIgnoreCase(tokenName)) {
 							return inputElement.getAttributeValue("VALUE");

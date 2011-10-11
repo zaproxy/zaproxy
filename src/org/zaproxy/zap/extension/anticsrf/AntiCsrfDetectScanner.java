@@ -67,6 +67,20 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 					// Loop through all of the INPUT elements
 					logger.debug("Found " + inputElements.size() + " inputs");
 					for (Element inputElement : inputElements) {
+						String attId = inputElement.getAttributeValue("ID");
+						if (attId != null) {
+							for (String tokenName : this.getTokenNames()) {
+								if (tokenName.equalsIgnoreCase(attId)) {
+									
+									if (parent != null) {
+										parent.addTag(id, ExtensionAntiCSRF.TAG);
+									}
+									extAntiCSRF.registerAntiCsrfToken(
+											new AntiCsrfToken(msg, attId, inputElement.getAttributeValue("VALUE")));
+									break;
+								}
+							}
+						}
 						String name = inputElement.getAttributeValue("NAME");
 						if (name != null) {
 							for (String tokenName : this.getTokenNames()) {
