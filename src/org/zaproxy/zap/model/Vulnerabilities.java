@@ -40,7 +40,9 @@ public class Vulnerabilities {
 			// Read them in from the file
 	        try {
 	        	File f = new File(Constant.getInstance().VULNS_CONFIG);
-	        	XMLConfiguration config = new XMLConfiguration(f);
+	        	XMLConfiguration config = new XMLConfiguration();
+	        	config.setDelimiterParsingDisabled(true);
+	        	config.load(f);
 	        	List<String> test = config.getList("vuln_items");
 	        	vulns = new ArrayList<Vulnerability>();
 	        	for (String item : test) {
