@@ -45,6 +45,13 @@ This list the alerts
 
 10000	Password Autocomplete in browser (Depreciated)
 10001	Secure page browser cache
+
+10010	Cookie set without HttpOnly flag
+10011	Cookie set without secure flag
+10012	Password Autocomplete in browser
+10013	Weak HTTP authentication over an unsecured connection
+10014	Cross Site Request Forgery
+
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
 20002	IIS default file (Depreciated)
