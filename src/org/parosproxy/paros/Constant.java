@@ -55,8 +55,12 @@ public final class Constant {
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String PROGRAM_VERSION = "1.3.2";
-    public static final long VERSION_TAG = 1003002;
+    public static final String DEV_VERSION = "Dev Build";
+    // Note: Change this before building a release!
+    //public static final String PROGRAM_VERSION = "1.3.3";
+    public static final String PROGRAM_VERSION = DEV_VERSION;
+    
+    private static final long VERSION_TAG = 1003003;
     
     // Old version numbers - for upgrade
 	private static final long V_1_3_1_TAG = 1003001;
@@ -252,6 +256,8 @@ public final class Constant {
 	            long ver = config.getLong("version");
 	            
 	            if (ver == VERSION_TAG) {
+	            	// Nothing to do
+	            } else if (PROGRAM_VERSION.equals(DEV_VERSION)) {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
