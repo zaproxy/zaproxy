@@ -208,6 +208,10 @@ public class ExtensionBruteForce extends ExtensionAdaptor
     	return this.getOptionsBruteForcePanel().getThreadPerScan();
     }
 
+	public boolean getRecursive() {
+    	return this.getOptionsBruteForcePanel().getRecursive();
+    }
+
 	public boolean isScanning(SiteNode node) {
 		return this.getBruteForcePanel().isScanning(node);
 	}

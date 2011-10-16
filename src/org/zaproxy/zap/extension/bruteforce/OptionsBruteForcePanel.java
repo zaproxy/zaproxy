@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -36,6 +37,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel panelPortScan = null;
+	private JCheckBox checkBoxRecursive = null;
     public OptionsBruteForcePanel() {
         super();
  		initialize();
@@ -50,9 +52,10 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("bruteforce.options.title"));
-        this.setSize(314, 245);
+        this.setSize(314, 345);
         this.add(getPanelPortScan(), getPanelPortScan().getName());
 	}
+
 	/**
 	 * This method initializes panelSpider	
 	 * 	
@@ -68,12 +71,14 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 
+			GridBagConstraints checkBoxGridBagConstraints = new GridBagConstraints();
+
 			panelPortScan = new JPanel();
 			JLabel jLabel1 = new JLabel();
 
 			panelPortScan.setLayout(new GridBagLayout());
 			panelPortScan.setSize(114, 132);
-			panelPortScan.setName("");
+			panelPortScan.setName(BruteForceParam.EMPTY_STRING);
 			jLabel1.setText(Constant.messages.getString("bruteforce.options.label.threads"));
 		
 			gridBagConstraints3.gridx = 0;
@@ -96,6 +101,16 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			gridBagConstraints4.insets = new Insets(2,2,2,2);
 			gridBagConstraints4.gridwidth = 2;
 			
+			checkBoxGridBagConstraints.gridx = 0;
+			checkBoxGridBagConstraints.gridy = 4;
+			checkBoxGridBagConstraints.weightx = 1.0;
+			checkBoxGridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+			checkBoxGridBagConstraints.ipadx = 0;
+			checkBoxGridBagConstraints.ipady = 0;
+			checkBoxGridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+			checkBoxGridBagConstraints.insets = new Insets(2,2,2,2);
+			checkBoxGridBagConstraints.gridwidth = 2;
+			
 			gridBagConstraints6.gridx = 0;
 			gridBagConstraints6.gridy = 10;
 			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
@@ -105,21 +120,33 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			gridBagConstraints6.weighty = 1.0D;
 			gridBagConstraints6.gridwidth = 2;
 			
-			jLabel2.setText("");
+			jLabel2.setText(BruteForceParam.EMPTY_STRING);
 			panelPortScan.add(jLabel1, gridBagConstraints3);
 			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
+			panelPortScan.add(getCheckBoxRecursive(), checkBoxGridBagConstraints);
 			panelPortScan.add(jLabel2, gridBagConstraints6);
 		}
 		return panelPortScan;
 	}
-	
+
+	private JCheckBox getCheckBoxRecursive() {
+		if (checkBoxRecursive == null) {
+			checkBoxRecursive = new JCheckBox();
+			checkBoxRecursive.setText(Constant.messages.getString("bruteforce.options.label.recursive"));
+			checkBoxRecursive.setSelected(BruteForceParam.DEFAULT_RECURSIVE);
+		}
+		return checkBoxRecursive;
+	}
+	 
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    BruteForceParam param = (BruteForceParam) options.getParamSet(BruteForceParam.class);
 	    if (param == null) {
 		    getSliderThreadsPerScan().setValue(BruteForceParam.DEFAULT_THREAD_PER_SCAN);
+		    getCheckBoxRecursive().setSelected(BruteForceParam.DEFAULT_RECURSIVE);
 	    } else {
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
+		    getCheckBoxRecursive().setSelected(param.getRecursive());
 	    }
 	}
 	
@@ -135,6 +162,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    	options.addParamSet(param);
 	    }
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
+	   	param.setRecursive(getCheckBoxRecursive().isSelected());
 	}
 	
 	/**
@@ -160,6 +188,10 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 
     public int getThreadPerScan() {
     	return this.sliderThreadsPerScan.getValue();
+    }
+    
+    public boolean getRecursive() {
+    	return this.checkBoxRecursive.isSelected();
     }
     
 	@Override

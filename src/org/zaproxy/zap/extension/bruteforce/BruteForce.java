@@ -51,6 +51,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private boolean isPaused = false;
 	private BruteForceListenner listenner;
 	private int threads = 0;
+	private boolean recursive = BruteForceParam.DEFAULT_RECURSIVE;
 	private DirBusterManager manager = null;
 	
     private static Logger log = Logger.getLogger(BruteForce.class);
@@ -61,6 +62,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		this.directory = directory;
 		this.listenner = listenner;
 		this.threads = bruteForceParam.getThreadPerScan();
+		this.recursive = bruteForceParam.getRecursive();
 
 		this.list = new SortedListModel();
 		log.info("BruteForce : " + site + "/" + directory + " threads: " + threads);
@@ -113,7 +115,6 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
-            boolean recursive = true;
 			Vector extsVector = new Vector();
 			String exts = "php";
 			String startPoint = "/";
@@ -121,6 +122,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				startPoint = directory;
 			}
 			log.debug("BruteForce : starting on http://" + site + startPoint);
+			log.debug("BruteForce : using recursive=" + recursive);
 			manager.setupManager(startPoint, fileName, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
 			
 			manager.start();
