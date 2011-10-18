@@ -112,6 +112,7 @@ public class SearchThread extends Thread {
 						}
 				        if (Type.Header.equals(reqType)) {
 				            // Header
+				        	// Request header
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
@@ -125,6 +126,23 @@ public class SearchThread extends Thread {
 							        searchPanel.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()))); 
+					            }
+				            }
+				        	// Response header
+				            matcher = pattern.matcher(message.getResponseHeader().toString());
+				            if (inverse) {
+					            if (! matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, "",
+							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
+							        						0, 0))); 
+					            }
+				            } else {
+					            while (matcher.find()) {
+							        searchPanel.addSearchResult(
+							        		new SearchResult(reqType, filter, matcher.group(),
+							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()))); 
 					            }
 				            }
