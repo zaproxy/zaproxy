@@ -41,6 +41,8 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     private static final Pattern pSeparator	= Pattern.compile("([^=&]+)[=]([^=&]*)"); 
     private Vector<String[]> listPair = new Vector<String[]>();
     private boolean editable = true;
+    private boolean isChanged = false;
+    
     // ZAP: Added logger
     private Logger logger = Logger.getLogger(HttpPanelTabularModel.class);
     
@@ -163,5 +165,11 @@ public class HttpPanelTabularModel extends AbstractTableModel {
         cell = (String[]) listPair.get(row);
         cell[col] = (String) value;
         fireTableCellUpdated(row, col);
+        
+        isChanged = true;
     }
+    
+	public boolean hasChanged() {
+		return isChanged;
+	}
 }

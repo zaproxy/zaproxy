@@ -72,7 +72,7 @@ public class HttpPanelTextView implements HttpPanelView {
 	
 	public void load() {
 		httpPanelTextArea.setText(model.getData());
-		httpPanelTextArea.setCaretPosition(0);	
+		httpPanelTextArea.setCaretPosition(0);
 	}
 	
 	public void save() {

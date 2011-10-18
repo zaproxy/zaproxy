@@ -38,10 +38,10 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 	private static final String PREF_DIVIDER_LOCATION = "divider.location";
 	private static final String DIVIDER_HORIZONTAL = "horizontal";
 	
-	private HttpPanelTextView viewBodyText;
-	private HttpPanelHexView viewBodyHex;
-	private HttpPanelTabularView viewBodyTable;
-	private HttpPanelTextView viewHeaderText;
+	protected HttpPanelTextView viewBodyText;
+	protected HttpPanelHexView viewBodyHex;
+	protected HttpPanelTabularView viewBodyTable;
+	protected HttpPanelTextView viewHeaderText;
 	
 	protected JPanel panelHeader;
 	protected JPanel panelBody;
@@ -64,6 +64,7 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 	protected HttpPanelTextModelInterface modelTextHeader;
 	protected HttpPanelTextModelInterface modelTextBody;
 	protected HttpPanelTextModelInterface modelHexBody;
+	protected HttpPanelTextModelInterface modelTableBody;
 	
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
@@ -81,6 +82,7 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		modelTextHeader = new RequestSplitModelHeaderText(httpMessage);
 		modelTextBody = new RequestSplitModelBodyText(httpMessage);
 		modelHexBody = new RequestSplitModelBodyText(httpMessage);
+		modelTableBody = new RequestSplitModelBodyText(httpMessage);
 	}
 	
 
@@ -111,8 +113,19 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		splitMain.setBottomComponent(panelBody);
 		
 		// Plugins
+		initPluginView();
+
+
+		// All
+		panelMain = new JPanel(new BorderLayout());
+		panelMain.add(splitMain, BorderLayout.CENTER);
+
+		httpPanel.addHttpDataView(this);
+	}
+	
+	protected void initPluginView() {
 		viewBodyText = new HttpPanelTextView(modelTextBody, MessageType.Body, httpPanel.isEditable());
-		viewBodyTable = new HttpPanelTabularView();
+		viewBodyTable = new HttpPanelTabularView(modelTextBody, MessageType.Body, httpPanel.isEditable());
 		viewBodyHex = new HttpPanelHexView(modelTextBody, MessageType.Body, httpPanel.isEditable());
 		
 		views.put(viewBodyText.getName(), viewBodyText);
@@ -129,12 +142,6 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		comboxSelectView.addItem(viewBodyHex.getName());
 		comboxSelectView.addActionListener(this);
 		panelOptions.add(comboxSelectView);
-
-		// All
-		panelMain = new JPanel(new BorderLayout());
-		panelMain.add(splitMain, BorderLayout.CENTER);
-
-		httpPanel.addHttpDataView(this);
 	}
 
 	@Override
@@ -191,8 +198,8 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		modelTextHeader.setHttpMessage(httpMessage);
 
 		modelTextBody.setHttpMessage(httpMessage);
-///		modelTableBody.setHttpMessage(httpMessage);
 		modelHexBody.setHttpMessage(httpMessage);
+		modelTableBody.setHttpMessage(httpMessage);
 		
 		// This is not nice, but needed for fuzzing
 		// ExtensionAntiCSRF gets HttpMessage from HttpPanelTextView...

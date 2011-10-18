@@ -4,29 +4,33 @@ import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 
 public class HttpPanelTabularView implements HttpPanelView {
 
 	private JTable tableBody;
 	private JPanel mainPanel;
-	private AbstractTableModel httpPanelTabularModel;
-	
-	public HttpPanelTabularView(AbstractTableModel model) {
-		this.httpPanelTabularModel = model;
-		init();
-	}
-	
-	public HttpPanelTabularView() {
+	private HttpPanelTabularModel httpPanelTabularModel;
+	private MessageType messageType;
+	private HttpPanelTextModelInterface model;
+	private boolean isEditable = false;
+
+	public HttpPanelTabularView(HttpPanelTextModelInterface modelTextBody, MessageType body, boolean editable) {
 		httpPanelTabularModel = new HttpPanelTabularModel();
-		init();
+		this.messageType = body;
+		this.model = modelTextBody;
+		this.isEditable = editable;
+		init();	
 	}
-	
+
 	private void init() {
 		// Table
         tableBody = new JTable();
@@ -39,7 +43,7 @@ public class HttpPanelTabularView implements HttpPanelView {
 
 		// Main panel
 		mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(tableBody, BorderLayout.CENTER);
+		mainPanel.add(new JScrollPane(tableBody), BorderLayout.CENTER);
 	}
 	
 	@Override
@@ -49,8 +53,7 @@ public class HttpPanelTabularView implements HttpPanelView {
 
 	@Override
 	public boolean hasChanged() {
-		//return httpPanelTabularModel.hasChanged();
-		return true;
+		return httpPanelTabularModel.hasChanged();
 	}
 
 	@Override
@@ -60,30 +63,28 @@ public class HttpPanelTabularView implements HttpPanelView {
 
 	@Override
 	public boolean isEditable() {
-		//return httpPanelTabularModel.isEditable();
-		return false;
+		return httpPanelTabularModel.isEditable();
 	}
 
 	@Override
 	public void setEditable(boolean editable) {
-		//httpPanelTabularModel.setEditable(editable);		
+		httpPanelTabularModel.setEditable(editable);		
 	}
 	
 	@Override
 	public boolean isEnabled(HttpMessage msg) {
-		return tableBody.isEnabled();
+		return true;
+		//return tableBody.isEnabled();
 	}
 
 	@Override
 	public void load() {
-		// TODO Auto-generated method stub
-		
+		httpPanelTabularModel.setText(model.getData());
 	}
 
 	@Override
 	public void save() {
-		// TODO Auto-generated method stub
-		
+		model.setData(httpPanelTabularModel.getText());
 	}
 
 }
