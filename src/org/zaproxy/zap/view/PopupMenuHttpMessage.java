@@ -154,15 +154,12 @@ public abstract class PopupMenuHttpMessage extends ExtensionPopupMenu {
         } else if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
         	this.lastInvoker = Invoker.alerts;
         	this.treeInvoker = (JTree) invoker;
-
-        	JTree tree = (JTree) invoker;
-            if (tree.getLastSelectedPathComponent() != null) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                if (!node.isRoot() && node.getUserObject() != null) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
+        	
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeInvoker.getLastSelectedPathComponent();
+            if (node != null && !node.isRoot() && node.getUserObject() != null) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
             }
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals("listSearch")) {
