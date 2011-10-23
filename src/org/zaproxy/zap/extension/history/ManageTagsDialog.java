@@ -204,6 +204,9 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	}
 	
 	public void setTags (Vector<String> tags) {
+		addedTags.clear();
+		deletedTags.clear();
+		tagListModel.clear();
 		for (String tag : tags) {
 			tagListModel.addElement(tag);
             getAllTagsModel().removeElement(tag);
@@ -215,7 +218,7 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 			historyRef.addTag(tag);
 		}
 		for (String tag : deletedTags) {
-			historyRef.deleteTag(tag.toString());
+			historyRef.deleteTag(tag);
 		}
         extension.getHistoryList().notifyItemChanged(historyRef);
 	}
@@ -262,7 +265,6 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	private DefaultComboBoxModel getAllTagsModel () {
 		if (tagAddModel == null) {
 			tagAddModel = new DefaultComboBoxModel();
-			tagAddModel.addElement("");	// Default is empty so user can type anything in
 		}
 		return tagAddModel;
 	}
@@ -386,6 +388,9 @@ public class ManageTagsDialog extends AbstractDialog implements TreeSelectionLis
 	}
 
 	public void setAllTags(List<String> allTags) {
+		getAllTagsModel().removeAllElements();
+		getAllTagsModel().addElement("");// Default is empty so user can type anything in
+		
 		for (String tag : allTags) {
 			getAllTagsModel().addElement(tag);
 		}

@@ -23,6 +23,7 @@
 // ZAP: 2011/04/08 Changed to use PopupMenuResendMessage
 // ZAP: 2011/07/23 Use new add alert popup
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
+// ZAP: 2011/10/23 Fix add note and manage tags dialogs
 
 package org.parosproxy.paros.extension.history;
 
@@ -698,12 +699,20 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
     */
     
-    public void showNotesAddDialog(HistoryReference ref, String note) {
-    	dialogNotesAdd = new NotesAddDialog(getView().getMainFrame(), false);
-    	dialogNotesAdd.setPlugin(this);
-    	dialogNotesAdd.setVisible(true);
+    private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
     	dialogNotesAdd.getTxtDisplay().setText(note);
     	dialogNotesAdd.setHistoryRef(ref);
+    	dialogNotesAdd.setVisible(true);
+    }
+    
+    public void showNotesAddDialog(HistoryReference ref, String note) {
+    	if (dialogNotesAdd == null) {
+	    	dialogNotesAdd = new NotesAddDialog(getView().getMainFrame(), false);
+	    	dialogNotesAdd.setPlugin(this);
+	    	populateNotesAddDialogAndSetVisible(ref, note);
+    	} else if (!dialogNotesAdd.isVisible()) {
+    		populateNotesAddDialogAndSetVisible(ref, note);
+    	}
     }
 
 	public void hideNotesAddDialog() {
@@ -732,11 +741,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		dialogAlertAdd.dispose();
 	}
 	
-    public void showManageTagsDialog(HistoryReference ref, Vector<String> tags) {
-    	manageTags = new ManageTagsDialog(getView().getMainFrame(), false);
-    	manageTags.setPlugin(this);
-    	manageTags.setVisible(true);
-    	try {
+	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, Vector<String> tags) {
+		try {
 			manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -744,6 +750,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
     	manageTags.setTags(tags);
     	manageTags.setHistoryRef(ref);
+    	manageTags.setVisible(true);
+	}
+	
+    public void showManageTagsDialog(HistoryReference ref, Vector<String> tags) {
+    	if (manageTags == null) {
+	    	manageTags = new ManageTagsDialog(getView().getMainFrame(), false);
+	    	manageTags.setPlugin(this);
+	    	populateManageTagsDialogAndSetVisible(ref, tags);
+    	} else if (!manageTags.isVisible()) {
+    		populateManageTagsDialogAndSetVisible(ref, tags);
+    	}
     }
 
 	public void hideManageTagsDialog() {
