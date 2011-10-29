@@ -172,7 +172,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	@Override
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
-		this.getSpiderPanel().nodeSelected(node);
+		this.getSpiderPanel().nodeSelected(node, true);
 	}
 
     private PopupMenuSpider getPopupMenuSpider() {
@@ -190,16 +190,16 @@ public class ExtensionSpider extends ExtensionAdaptor
 		return optionsSpiderPanel;
 	}
 	
-	protected void spiderSite(SiteNode node) {
-		this.getSpiderPanel().scanSite(node);
+	protected void spiderSite(SiteNode node, boolean incPort) {
+		this.getSpiderPanel().scanSite(node, incPort);
 	}
 	
     public int getThreadPerScan() {
     	return this.getOptionsSpiderPanel().getThreads();
     }
 
-	public boolean isScanning(SiteNode node) {
-		return this.getSpiderPanel().isScanning(node);
+	public boolean isScanning(SiteNode node, boolean incPort) {
+		return this.getSpiderPanel().isScanning(node, incPort);
 	}
 
 	public void setExcludeList(List<String> ignoredRegexs) {

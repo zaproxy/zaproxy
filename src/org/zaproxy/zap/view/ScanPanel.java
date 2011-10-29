@@ -382,8 +382,8 @@ public abstract class ScanPanel extends AbstractPanel {
 		return siteSelect;
 	}
 	
-	public boolean isScanning(SiteNode node) {
-		String site = getSiteFromLabel(this.getSiteName(node));
+	public boolean isScanning(SiteNode node, boolean incPort) {
+		String site = getSiteFromLabel(cleanSiteName(node, incPort));
 		if (site != null) {
 			GenericScanner scanThread = scanMap.get(site);
 			if (scanThread != null) {
@@ -394,10 +394,10 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	
-	public void scanSite(SiteNode node) {
+	public void scanSite(SiteNode node, boolean incPort) {
  		log.debug("scanSite " + prefix + " node=" + node.getNodeName());
 		this.setTabFocus();
-		nodeSelected(node);
+		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
 			startScan(node);
 		}
@@ -498,12 +498,12 @@ public abstract class ScanPanel extends AbstractPanel {
 		return site;
 	}
 	
-	protected String getSiteName(SiteNode node) {
+	public static String cleanSiteName(SiteNode node, boolean incPort) {
 		if (node != null) {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			return cleanSiteName(node.getNodeName(), true);
+			return cleanSiteName(node.getNodeName(), incPort);
 		}
 		return null;
 	}
@@ -530,8 +530,8 @@ public abstract class ScanPanel extends AbstractPanel {
 		return null;
 	}
 
-	public void nodeSelected(SiteNode node) {
-		siteSelected(getSiteName(node));
+	public void nodeSelected(SiteNode node, boolean incPort) {
+		siteSelected(cleanSiteName(node, incPort));
 	}
 	
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);

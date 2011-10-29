@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/10/29 Support for parameters
+
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -36,6 +38,7 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
+import org.zaproxy.zap.extension.session.SessionParam;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
@@ -62,6 +65,7 @@ public class OptionsParam extends AbstractParam {
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
+	private SessionParam sessionParam = new SessionParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private XMLConfiguration config = null;
@@ -185,7 +189,7 @@ public class OptionsParam extends AbstractParam {
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
-		
+		getSessionParam().load(getConfig());
 		
 		String userDir = null;
 		try {
@@ -255,5 +259,8 @@ public class OptionsParam extends AbstractParam {
 	public OptionsParamExperimentalSliSupport getExperimentalFeaturesParam() {
 		return experimentalFeatuesParam;
 	}
-    
+
+	public SessionParam getSessionParam() {
+		return sessionParam;
+	}
 }

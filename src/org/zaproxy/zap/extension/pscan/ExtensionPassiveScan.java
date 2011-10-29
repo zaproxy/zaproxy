@@ -29,6 +29,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
+import org.zaproxy.zap.extension.params.ParamScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE;
 
@@ -90,6 +91,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                 		config.getBoolean("pscans." + pscanName + ".enabled")));
             }
     		scannerList.add(new AntiCsrfDetectScanner());
+    		scannerList.add(new ParamScanner());
             
             // Dynamically load 'switchable' plugins
            	DynamicLoader zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension.pscan.scanner");

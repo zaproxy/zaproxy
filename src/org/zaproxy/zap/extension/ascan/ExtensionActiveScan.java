@@ -166,7 +166,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 	
 	void startScan(SiteNode startNode) {
-		this.getActiveScanPanel().scanSite(startNode);
+		this.getActiveScanPanel().scanSite(startNode, true);
 	}
 
     public void scannerComplete() {
@@ -270,7 +270,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    } else {
 	        
 	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
+	        	// Changed from invokeAndWait due to the number of interupt exceptions
+	        	// And its likely to always to run from a background thread anyway
+	            //EventQueue.invokeAndWait(new Runnable() {
+	            EventQueue.invokeLater(new Runnable() {
 	                public void run() {
 	        	    	addAlertToDisplayEventHandler(alert, ref);
 	                }
@@ -545,7 +548,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	@Override
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
-		this.getActiveScanPanel().nodeSelected(node);
+		this.getActiveScanPanel().nodeSelected(node, true);
 	}
 
 	private PopupMenuActiveScanSites getPopupMenuActiveScanSites() {
@@ -586,7 +589,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	public boolean isScanning(SiteNode node) {
-		return this.getActiveScanPanel().isScanning(node);
+		return this.getActiveScanPanel().isScanning(node, true);
 	}
 
 	public void setExcludeList(List<String> urls) {

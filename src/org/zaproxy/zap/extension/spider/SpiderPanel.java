@@ -103,7 +103,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	}
 
 	@Override
-	public boolean isScanning(SiteNode node) {
+	public boolean isScanning(SiteNode node, boolean incPort) {
 		// Only allow one spider at a time, due to the way it uses the db
 		return ! this.getSiteSelect().isEnabled();
 	}

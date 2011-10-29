@@ -20,7 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/04 Changed to support Logging
- 
+// ZAP: 2011/10/29 Log errors
+
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -137,6 +138,7 @@ public class HttpRequestHeader extends HttpHeader {
         		mMalformedHeader = true;
         	}
     	} catch (Exception e) {
+    		log.error(e.getMessage(), e);
     		mMalformedHeader = true;
     	}
 

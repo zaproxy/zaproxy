@@ -19,11 +19,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/10/29 Fixed cookie parsing
+
 package org.parosproxy.paros.network;
 
-import java.net.HttpCookie;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -42,6 +42,8 @@ import org.parosproxy.paros.model.HistoryReference;
 public class HttpMessage {
 
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
+	// Not yet supported
+	//private static Pattern staticPatternParam2 = Pattern.compile(";", Pattern.CASE_INSENSITIVE);
 
 	private HttpRequestHeader mReqHeader = new HttpRequestHeader();
 	private HttpBody mReqBody = new HttpBody();
@@ -409,6 +411,16 @@ public class HttpMessage {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
 		//!!! note: this means param not separated by & is not parsed
 	    String[] keyValue = staticPatternParam.split(params);
+	    // TODO need to parse the header to split out params if separated by semicolons
+	    /*
+	    if (keyValue.length == 0) {
+		    String[] keyValue2 = staticPatternParam2.split(params);
+	    	if (keyValue2.length > 1) {
+	    		// Looks like the parameters are probably split using semicolons instead of &
+	    		keyValue = keyValue2;
+	    	}
+	    }
+	    */
 		String key = null;
 		String value = null;
 		int pos = 0;
@@ -423,7 +435,7 @@ public class HttpMessage {
 					value = keyValue[i].substring(pos+1);
 					set.add(new HtmlParameter (type, key, value));
 				} else if (keyValue[i].length() > 0) {
-					set.add(new HtmlParameter (type, key, ""));
+					set.add(new HtmlParameter (type, keyValue[i], ""));
 				}
 				
 			} catch (Exception e) {
@@ -534,25 +546,37 @@ public class HttpMessage {
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
-		Vector<String> cookies = null;
-        if (! this.getRequestHeader().isEmpty()) {
-        	cookies = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-        } else if (! this.getResponseHeader().isEmpty()) {
-        	cookies = this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE);
-        	cookies.addAll(this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE2));
+		Vector<String> cookies = new Vector<String>();
+	    if (! this.getResponseHeader().isEmpty()) {
+	    	cookies = this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE);
+	    	if (cookies == null) {
+	    		cookies = new Vector<String>();
+	    	}
+	    	Vector<String> cookies2 = this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2);
+	    	if (cookies2 != null) {
+	    		cookies.addAll(cookies2);
+	    	}
+	    	
+	    } else if (! this.getRequestHeader().isEmpty()) {
+    		Vector<String> cookieLines = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+    		if (cookieLines != null) {
+	    		for (String cookieLine : cookieLines) {
+	        		if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
+	        			// HttpCookie wont parse lines starting with "Cookie:"
+	        			cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
+	        		}
+	            	// These can be comma separated type=value
+	        		String [] cookieArray = cookieLine.split(";");
+	        		for (String cookie : cookieArray) {
+	        			cookies.add(cookie);
+	        		}
+	    		}
+    		}
         }
 
         if (cookies != null) {
-        	for (String header : (Vector<String>)cookies) {
-        		if (header.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
-        			// HttpCookie wont parse lines starting with "Cookie:"
-        			header = header.substring(HttpHeader.COOKIE.length() + 1);
-        		}
-        		// TODO: doesnt parse all cookies
-        		List<HttpCookie> httpCookies = HttpCookie.parse(header);
-        		for (HttpCookie httpCookie : httpCookies) {
-        			set.add(new HtmlParameter(httpCookie));
-        		}
+        	for (String cookie : cookies) {
+    			set.add(new HtmlParameter(cookie));
         	}
         }
 		return set;

@@ -77,7 +77,7 @@ public class PopupMenuSpider extends ExtensionPopupMenu {
         		if (treeSite != null) {
         		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
         		    if (node != null) {
-        		    	extension.spiderSite(node);
+        		    	extension.spiderSite(node, true);
         		    }
         		}
 
@@ -90,7 +90,7 @@ public class PopupMenuSpider extends ExtensionPopupMenu {
         treeSite = getTree(invoker);
         if (treeSite != null) {
 		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot() && ! extension.isScanning(node)) {
+		    if (node != null && ! node.isRoot() && ! extension.isScanning(node, true)) {
 		        this.setEnabled(true);
 		    } else {
 		        this.setEnabled(false);

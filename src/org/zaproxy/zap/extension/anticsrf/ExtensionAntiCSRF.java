@@ -186,5 +186,12 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		}
 
 	}
+
+	public boolean isAntiCsrfToken(String name) {
+		if (name == null) {
+			return false;
+		}
+		return this.getParam().getTokens().contains(name.toLowerCase());
+	}
 	
 }

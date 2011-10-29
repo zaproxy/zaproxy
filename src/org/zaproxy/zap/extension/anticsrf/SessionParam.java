@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.anticsrf;
+package org.zaproxy.zap.extension.session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,16 +29,16 @@ import org.parosproxy.paros.common.AbstractParam;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class AntiCsrfParam extends AbstractParam {
+public class SessionParam extends AbstractParam {
 
-	private static final String TOKENS = "anticsrf.tokens";
+	private static final String TOKENS = "session.tokens";
 		
 	private List<String> tokens = null;
 	
     /**
      * @param rootElementName
      */
-    public AntiCsrfParam() {
+    public SessionParam() {
     }
 
     /* (non-Javadoc)
@@ -53,10 +53,9 @@ public class AntiCsrfParam extends AbstractParam {
     	}
     	if (this.tokens.size() == 0) {
     		// These are the default ones
-    		this.tokens.add("");
-    		this.tokens.add("anticsrf");
-    		this.tokens.add("CSRFToken");
-    		this.tokens.add("__RequestVerificationToken");
+    		this.tokens.add("aspsessionid");
+    		this.tokens.add("jsessionid");
+    		this.tokens.add("phpsessid");
     	}
     }
 

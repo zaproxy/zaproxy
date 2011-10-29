@@ -19,12 +19,14 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/10/29 Support for parameters
 
 package org.parosproxy.paros.db;
 
 import java.sql.SQLException;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.spider.SpiderListener;
 
 
@@ -47,8 +49,10 @@ public class Database {
 	private TableScan tableScan = null;
 	// ZAP: Added TableTag
 	private TableTag tableTag = null;
-	private TableSessionUrl tableSessionUrl= null;
-	
+	private TableSessionUrl tableSessionUrl = null;
+	private TableParam tableParam = null;
+    private static Logger log = Logger.getLogger(Database.class);
+
 	private Vector<DatabaseListener> listenerList = new Vector<DatabaseListener>();
 
 	public Database() {
@@ -58,12 +62,14 @@ public class Database {
 	    tableScan = new TableScan();
 	    tableTag = new TableTag();
 	    tableSessionUrl = new TableSessionUrl();
+	    tableParam = new TableParam();
 	    addDatabaseListener(tableHistory);
 	    addDatabaseListener(tableSession);
 	    addDatabaseListener(tableAlert);
 	    addDatabaseListener(tableScan);
 	    addDatabaseListener(tableTag);
 	    addDatabaseListener(tableSessionUrl);
+	    addDatabaseListener(tableParam);
 
 	}
 	
@@ -134,11 +140,13 @@ public class Database {
 	}
 
 	public void open(String path) throws ClassNotFoundException, Exception {
+		log.debug("open " + path);
 	    setDatabaseServer(new DatabaseServer(path));
 	    notifyListenerDatabaseOpen();
 	}
 	
 	public void close(boolean compact) {
+		log.debug("close");
 	    if (databaseServer == null) return;
 	    
 	    try {
@@ -193,4 +201,9 @@ public class Database {
 	public void setTableSessionUrl(TableSessionUrl tableSessionUrl) {
 		this.tableSessionUrl = tableSessionUrl;
 	}
+
+	public TableParam getTableParam() {
+		return tableParam;
+	}
+	
 }

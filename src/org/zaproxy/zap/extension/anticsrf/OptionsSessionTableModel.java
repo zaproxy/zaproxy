@@ -16,7 +16,7 @@
  * limitations under the License. 
  */
 
-package org.zaproxy.zap.extension.anticsrf;
+package org.zaproxy.zap.extension.session;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,19 +26,19 @@ import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
 
-public class OptionsAntiCsrfTableModel extends AbstractTableModel {
+public class OptionsSessionTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] columnNames = {
-				Constant.messages.getString("options.acsrf.label.token")};
+				Constant.messages.getString("options.session.label.token")};
     
     private List<String> tokens = new ArrayList<String>();
     
     /**
      * 
      */
-    public OptionsAntiCsrfTableModel() {
+    public OptionsSessionTableModel() {
         super();
     }
 

@@ -19,12 +19,12 @@
  */
 package org.parosproxy.paros.network;
 
-import java.net.HttpCookie;
 import java.util.HashSet;
 import java.util.Set;
 
 public class HtmlParameter implements Comparable<HtmlParameter> {
-	public enum Type {cookie, url, form};
+	public enum Type {cookie, form, url};
+	public enum Flags {anticsrf, session};
 	private String name;
 	private String value;
 	private Type type;
@@ -37,15 +37,23 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 		this.type = type;
 	}
 	
-	public HtmlParameter(HttpCookie cookie) {
-		this.name = cookie.getName();
-		this.value = cookie.getValue();
-		this.type = Type.cookie;
-		if (cookie.getSecure()) {
-			flags.add("secure");
+	public HtmlParameter(String cookieLine) {
+		super();
+		String [] array = cookieLine.split(";");
+		if (array == null || array.length == 0) {
+			throw new IllegalArgumentException(cookieLine);
 		}
-		if (cookie.hasExpired()) {
-			flags.add("expired");
+		int eqOffset = array[0].indexOf("=");
+		if (eqOffset <= 0) {
+			throw new IllegalArgumentException(cookieLine);
+		}
+		this.type = Type.cookie;
+		this.name = array[0].substring(0, eqOffset).trim();
+		this.value = array[0].substring(eqOffset+1).trim();
+		if (array.length > 1) {
+			for (int i=1; i < array.length; i++) {
+				this.addFlag(array[i].trim());
+			}
 		}
 	}
 	
@@ -90,6 +98,11 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 			result = this.value.compareTo(o.getValue());
 		}
 		return result;
+	}
+	
+	@Override
+	public String toString() {
+		return "HtmlParameter type = " + type + " name= " + name + " value=" + value;
 	}
 	
 	

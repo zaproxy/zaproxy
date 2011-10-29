@@ -150,7 +150,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	@Override
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
-		this.getPortScanPanel().nodeSelected(node);
+		this.getPortScanPanel().nodeSelected(node, false);
 	}
 
     private PopupMenuPortScan getPopupMenuPortScan() {
@@ -178,7 +178,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 
 	
 	protected void portScanSite(SiteNode node) {
-		this.getPortScanPanel().scanSite(node);
+		this.getPortScanPanel().scanSite(node, false);
 	}
 	
     public int getThreadPerScan() {
@@ -190,7 +190,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
     }
 
 	public boolean isScanning(SiteNode node) {
-		return 	this.getPortScanPanel().isScanning(node);
+		return 	this.getPortScanPanel().isScanning(node, false);
 	}
 
 }

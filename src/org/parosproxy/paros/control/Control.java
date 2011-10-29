@@ -21,6 +21,8 @@
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/10/29 Support for parameters
+
 package org.parosproxy.paros.control;
 
 import java.util.List;
@@ -52,10 +54,12 @@ import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
 import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
+import org.zaproxy.zap.extension.params.ExtensionParams;
 import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.reveal.ExtensionReveal;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.extension.session.ExtensionSession;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 
 
@@ -154,12 +158,14 @@ public class Control extends AbstractControl {
 //        getExtensionLoader().addExtension(new ExtensionHexView());
         getExtensionLoader().addExtension(new ExtensionFuzz());
         getExtensionLoader().addExtension(new ExtensionAntiCSRF());
+        getExtensionLoader().addExtension(new ExtensionSession());
         
         // ZAP: adding connection SSL options right after regular ones
         getExtensionLoader().addExtension(new ExtensionDynSSL());
 
         getExtensionLoader().addExtension(new ExtensionLog4j());
 
+        getExtensionLoader().addExtension(new ExtensionParams());
         //getExtensionLoader().addExtension(new ExtensionDiff());
 
     }
