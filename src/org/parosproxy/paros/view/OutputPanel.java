@@ -113,7 +113,11 @@ public class OutputPanel extends AbstractPanel {
 		}
 		return txtOutput;
 	}
-	
+
+	public void appendDirty(final String msg) {
+		getTxtOutput().append(msg);
+	}
+
 	public void append(final String msg) {
 		if (EventQueue.isDispatchThread()) {
 			getTxtOutput().append(msg);
