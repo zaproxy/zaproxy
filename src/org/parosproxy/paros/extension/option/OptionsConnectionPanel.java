@@ -465,9 +465,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtProxyChainRealm.setEnabled(isEnabled);
 	    txtProxyChainUserName.setEnabled(isEnabled);
 	    txtProxyChainPassword.setEnabled(isEnabled);
+	    // ZAP: Added prompt option
+        chkProxyChainPrompt.setEnabled(isEnabled);
 	    
 	    Color color = Color.WHITE;
 	    if (!isEnabled) {
+	    	// ZAP: Added prompt option
+	        chkProxyChainPrompt.setSelected(false);
 	        txtProxyChainRealm.setText("");
 	        txtProxyChainUserName.setText("");
 	        txtProxyChainPassword.setText("");
@@ -502,6 +506,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
 	    if (chkUseProxyChain.isSelected()) {
+	    	// ZAP: empty proxy name validation
+        	if(txtProxyChainName.getText().isEmpty()) {
+        		txtProxyChainName.requestFocus();
+                throw new Exception(Constant.messages.getString("conn.options.proxy.address.empty"));
+        	}
+	    	
             try {
                 Integer.parseInt(txtProxyChainPort.getText());
             } catch (NumberFormatException nfe) {
