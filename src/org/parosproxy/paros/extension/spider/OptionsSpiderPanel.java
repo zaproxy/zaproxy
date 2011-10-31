@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/10/31 i18n and removed URLs - these are replaced by the regexs in the session properties
+
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.CardLayout;
@@ -54,9 +56,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private ZapTextArea txtScope = null;
 	private JScrollPane jScrollPane = null;
     private JCheckBox chkPostForm = null;
-    private JLabel jLabel5 = null;
-    private JScrollPane jScrollPane1 = null;
-    private ZapTextArea txtSkipURL = null;
+    //private JLabel jLabel5 = null;
+    //private JScrollPane jScrollPane1 = null;
+    //private ZapTextArea txtSkipURL = null;
 	/**
 	 * This method initializes this
 	 * 
@@ -64,7 +66,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName("Spider");
+        this.setName(Constant.messages.getString("spider.options.title"));
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(314, 245);
 	    }
@@ -91,8 +93,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			gridBagConstraints12.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints12.weightx = 1.0D;
 			gridBagConstraints12.gridx = 0;
-			jLabel5 = new JLabel();
-			jLabel5.setText("URLs to be skipped and not read (CR to separate, '*' as wildcard)");
+			//jLabel5 = new JLabel();
+			//jLabel5.setText("URLs to be skipped and not read (CR to separate, '*' as wildcard)");
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -127,8 +129,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		    	panelSpider.setSize(114, 132);
 		    }
 			panelSpider.setName("");
-			jLabel.setText("Maximum depth to crawl:");
-			jLabel1.setText("Number of threads used:");
+			jLabel.setText(Constant.messages.getString("spider.options.label.depth"));
+			jLabel1.setText(Constant.messages.getString("spider.options.label.threads"));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.ipadx = 0;
@@ -169,7 +171,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			gridBagConstraints6.weightx = 1.0D;
 			gridBagConstraints6.weighty = 1.0D;
 			jLabel2.setText("");
-			jLabel3.setText("Domain suffix included in spider (use ';' to separate, '*' as wildcard)");
+			jLabel3.setText(Constant.messages.getString("spider.options.label.domains"));
 			gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints8.gridx = 0;
@@ -187,8 +189,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getSliderMaxDepth(), gridBagConstraints2);
 			panelSpider.add(jLabel1, gridBagConstraints3);
 			panelSpider.add(getSliderThreads(), gridBagConstraints4);
-			panelSpider.add(jLabel5, gridBagConstraints12);
-			panelSpider.add(getJScrollPane1(), gridBagConstraints21);
+			//panelSpider.add(jLabel5, gridBagConstraints12);
+			//panelSpider.add(getJScrollPane1(), gridBagConstraints21);
 			panelSpider.add(jLabel3, gridBagConstraints8);
 			panelSpider.add(getJScrollPane(), gridBagConstraints10);
 			panelSpider.add(getChkPostForm(), gridBagConstraints);
@@ -202,7 +204,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 	    getSliderMaxDepth().setValue(param.getMaxDepth());
 	    getSliderThreads().setValue(param.getThread());
-        getTxtSkipURL().setText(param.getSkipURL());
+        //getTxtSkipURL().setText(param.getSkipURL());
 	    getTxtScope().setText(param.getScope());
         getChkPostForm().setSelected(param.isPostForm());
 	}
@@ -216,7 +218,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 	    param.setMaxDepth(getSliderMaxDepth().getValue());
 	    param.setThread(getSliderThreads().getValue());
-        param.setSkipURL(getTxtSkipURL().getText());
+        //param.setSkipURL(getTxtSkipURL().getText());
         param.setScope(getTxtScope().getText());
         param.setPostForm(getChkPostForm().isSelected());
 	}
@@ -261,6 +263,11 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		}
 		return sliderThreads;
 	}
+	
+	public int getThreads() {
+		return this.getSliderThreads().getValue();
+	}
+	
 	/**
 	 * This method initializes txtScope	
 	 * 	
@@ -296,7 +303,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     private JCheckBox getChkPostForm() {
         if (chkPostForm == null) {
             chkPostForm = new JCheckBox();
-            chkPostForm.setText("POST forms (recommended but may generate multiple unwanted requests)");
+            chkPostForm.setText(Constant.messages.getString("spider.options.label.post"));
         }
         return chkPostForm;
     }
@@ -305,6 +312,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
      * 	
      * @return javax.swing.JScrollPane	
      */
+    /* Replaced by the regexs in the session properties
     private JScrollPane getJScrollPane1() {
         if (jScrollPane1 == null) {
             jScrollPane1 = new JScrollPane();
@@ -313,11 +321,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         }
         return jScrollPane1;
     }
+    */
     /**
      * This method initializes ZapTextArea	
      * 	
      * @return javax.swing.ZapTextArea	
      */
+    /* Replaced by the regexs in the session properties
     private ZapTextArea getTxtSkipURL() {
         if (txtSkipURL == null) {
             txtSkipURL = new ZapTextArea();
@@ -328,10 +338,11 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         }
         return txtSkipURL;
     }
+    */
 	@Override
 	public String getHelpIndex() {
 		// ZAP: added help index 
 		return "ui.dialogs.options.spider";
 	}
     
- }  //  @jve:decl-index=0:visual-constraint="10,10"
+}  //  @jve:decl-index=0:visual-constraint="10,10"

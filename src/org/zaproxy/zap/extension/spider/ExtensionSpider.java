@@ -32,6 +32,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.spider.OptionsSpiderPanel;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -193,11 +194,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	}
 	
     public int getThreadPerScan() {
-    	return this.getOptionsSpiderPanel().getThreadPerScan();
-    }
-
-    public int getMaxPort() {
-    	return this.getOptionsSpiderPanel().getMaxPort();
+    	return this.getOptionsSpiderPanel().getThreads();
     }
 
 	public boolean isScanning(SiteNode node) {
