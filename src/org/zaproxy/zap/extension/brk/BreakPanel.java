@@ -29,6 +29,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -76,8 +77,8 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		panelContent = new JPanel(new CardLayout());
 		this.add(panelContent, BorderLayout.CENTER);
 
-		requestPanel = new HttpPanelRequest(true, null);
-		responsePanel = new HttpPanelResponse(true, null);
+		requestPanel = new HttpPanelRequest(true, null, null, OptionsParamView.ViewType.req_proxy);
+		responsePanel = new HttpPanelResponse(true, null, null,  OptionsParamView.ViewType.res_proxy);
 
 		panelContent.add(requestPanel, "request");
 		panelContent.add(responsePanel, "response");

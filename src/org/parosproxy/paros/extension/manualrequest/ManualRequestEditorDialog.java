@@ -47,6 +47,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -179,8 +180,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private HttpPanelRequest getRequestPanel() {
 		if (requestPanel == null) {
-
-			requestPanel = new HttpPanelRequest(true, extension, httpMessage);
+			requestPanel = new HttpPanelRequest(true, extension, httpMessage, OptionsParamView.ViewType.req_manual);
 		}
 		return requestPanel;
 	}
@@ -241,7 +241,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
-			responsePanel = new HttpPanelResponse(false, extension, httpMessage);
+			responsePanel = new HttpPanelResponse(false, extension, httpMessage, OptionsParamView.ViewType.res_manual);
 		}
 		return responsePanel;
 	}

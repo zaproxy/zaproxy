@@ -7,6 +7,8 @@ import javax.swing.JComboBox;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.extension.option.OptionsParamView;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.httppanel.plugin.request.all.RequestAllView;
@@ -27,6 +29,10 @@ public class HttpPanelRequest extends HttpPanel {
 	public HttpPanelRequest(boolean isEditable, Extension extension, HttpMessage httpMessage) {
 		super(isEditable, extension, httpMessage);
 	}
+	
+	public HttpPanelRequest(boolean isEditable, Extension extension, HttpMessage httpMessage, OptionsParamView.ViewType viewType) {
+		super(isEditable, extension, httpMessage, viewType);
+	}
 
 
 	protected void initPlugins() {
@@ -40,7 +46,6 @@ public class HttpPanelRequest extends HttpPanel {
 			initComboChangeMethod();
 		}
 	}
-
 
 	//	private JComboBox getComboChangeMethod() {
 	private void initComboChangeMethod() {

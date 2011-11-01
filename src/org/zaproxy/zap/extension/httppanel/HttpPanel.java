@@ -20,6 +20,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
+import org.parosproxy.paros.extension.option.OptionsParamView;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -69,6 +71,8 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	private Hashtable<JButton, String> buttonViewLink = new Hashtable<JButton, String>();
 	private Hashtable<String, PluginInterface> viewLink = new Hashtable<String, PluginInterface>();
 	
+	private OptionsParamView.ViewType viewType;
+	
 	/*** Constructors ***/
 
 	public HttpPanel(boolean isEditable, HttpMessage httpMessage) {
@@ -91,7 +95,19 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 		initUi();
 		initSpecial();
 	}
-
+	
+	public HttpPanel(boolean isEditable, Extension extension, HttpMessage httpMessage, OptionsParamView.ViewType viewType) {
+		this.isEditable = isEditable;
+		this.httpMessage = httpMessage;
+		this.extension = extension;
+		this.viewType = viewType;
+		
+		initialize();
+		HttpPanelManager.getInstance().addPanel(this);
+		initUi();
+		initSpecial();
+	}
+	
 	abstract protected void initSpecial();
 	
 	private  void initialize() {
@@ -114,7 +130,14 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 
 		initPlugins();
 		
-		switchView("Split");
+		// restore default view
+		String defaultView = Model.getSingleton().getOptionsParam().getViewParam().getDefaultView(viewType);
+		if (defaultView != "") {
+			switchView(defaultView);
+		} else {
+			switchView("Split");			
+		}
+
 		loadData();
 	}
 
@@ -261,6 +284,8 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 
 		cl = (CardLayout)(panelOptions.getLayout());
 		cl.show(panelOptions, name);
+		
+		Model.getSingleton().getOptionsParam().getViewParam().setDefaultView(viewType, name);
 	}
 	
 	

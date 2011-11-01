@@ -25,6 +25,7 @@ package org.parosproxy.paros.extension.option;
 import java.util.Locale;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.model.Model;
 
 // ZAP: Added support for selecting the locale
 
@@ -44,6 +45,22 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String REVEAL_OPTION = "view.reveal";
 
+	public static final String DEFAULT_VIEW_REQ_MANUAL = "view.defaultViewReqManual";
+	public static final String DEFAULT_VIEW_REQ_PROXY = "view.defaultViewReqProxy";
+	public static final String DEFAULT_VIEW_REQ_HISTORY = "view.defaultViewReqHistory";
+	public static final String DEFAULT_VIEW_RES_MANUAL = "view.defaultViewResManual";
+	public static final String DEFAULT_VIEW_RES_PROXY = "view.defaultViewResProxy";
+	public static final String DEFAULT_VIEW_RES_HISTORY = "view.defaultViewResHistory";
+	
+	public static enum ViewType {
+		req_manual,
+		req_proxy,
+		req_history,
+		res_manual,
+		res_proxy,
+		res_history
+	};
+	
 	private int advancedViewEnabled = 0;
 	private int editorViewOption;
 	private int processImages = 0;
@@ -56,6 +73,14 @@ public class OptionsParamView extends AbstractParam {
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
 	private boolean reveal = false;
+	
+	private String defaultReqViewManual = "";
+	private String defaultReqViewProxy = "";
+	private String defaultReqViewHistory = "";
+	private String defaultResViewManual = "";
+	private String defaultResViewProxy = "";
+	private String defaultResViewHistory = "";
+
 	
     /**
      * @param rootElementName
@@ -81,6 +106,13 @@ public class OptionsParamView extends AbstractParam {
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    reveal = getConfig().getBoolean(REVEAL_OPTION, true);
+	    
+	    defaultReqViewManual = getConfig().getString(DEFAULT_VIEW_REQ_MANUAL, "");
+	    defaultReqViewProxy = getConfig().getString(DEFAULT_VIEW_REQ_PROXY, "");
+	    defaultReqViewHistory = getConfig().getString(DEFAULT_VIEW_REQ_HISTORY, "");
+	    defaultResViewManual = getConfig().getString(DEFAULT_VIEW_RES_MANUAL, "");
+	    defaultResViewProxy = getConfig().getString(DEFAULT_VIEW_RES_PROXY, "");
+	    defaultResViewHistory = getConfig().getString(DEFAULT_VIEW_RES_HISTORY, "");
     }
 
 	/**
@@ -220,4 +252,49 @@ public class OptionsParamView extends AbstractParam {
 		this.reveal = reveal;
 		getConfig().setProperty(REVEAL_OPTION, reveal);
 	}
+	
+	public void setDefaultView(OptionsParamView.ViewType viewType, String view) {
+		if (viewType == null) {
+			return;
+		}
+		
+		if (viewType == ViewType.req_history) {
+			defaultReqViewHistory = view;
+			getConfig().setProperty(DEFAULT_VIEW_REQ_HISTORY, view);
+		} else if (viewType == ViewType.req_proxy) {
+			defaultReqViewProxy = view;
+			getConfig().setProperty(DEFAULT_VIEW_REQ_PROXY, view);
+		} else if (viewType == ViewType.req_manual) {
+			defaultReqViewManual = view;
+			getConfig().setProperty(DEFAULT_VIEW_REQ_MANUAL, view);
+		} else if (viewType == ViewType.res_history) {
+			defaultResViewHistory = view;
+			getConfig().setProperty(DEFAULT_VIEW_RES_HISTORY, view);
+		} else if (viewType == ViewType.res_proxy) {
+			defaultResViewProxy = view;
+			getConfig().setProperty(DEFAULT_VIEW_RES_PROXY, view);
+		} else if (viewType == ViewType.res_manual) {
+			defaultResViewManual = view;
+			getConfig().setProperty(DEFAULT_VIEW_RES_MANUAL, view);
+		}
+	}
+	
+	public String getDefaultView(OptionsParamView.ViewType viewType) {
+		if (viewType == ViewType.req_history) {
+			return defaultReqViewHistory;
+		} else if (viewType == ViewType.req_proxy) {
+			return defaultReqViewProxy;
+		} else if (viewType == ViewType.req_manual) {
+			return defaultReqViewManual;
+		} else if (viewType == ViewType.res_history) {
+			return defaultResViewHistory;
+		} else if (viewType == ViewType.res_proxy) {
+			return defaultResViewProxy;
+		} else if (viewType == ViewType.res_manual) {
+			return defaultResViewManual;
+		}
+			
+		return "Split";
+	}
+	
 }

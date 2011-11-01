@@ -36,6 +36,7 @@ import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -172,7 +173,7 @@ public class View implements ViewDelegate {
 
     public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
-            requestPanel = new HttpPanelRequest(false, null);
+            requestPanel = new HttpPanelRequest(false, null, null, OptionsParamView.ViewType.req_history);
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("request.panel.title"));	// ZAP: i18n
@@ -182,7 +183,7 @@ public class View implements ViewDelegate {
     
     public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
-            responsePanel = new HttpPanelResponse(false, null);
+            responsePanel = new HttpPanelResponse(false, null, null, OptionsParamView.ViewType.res_history);
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
