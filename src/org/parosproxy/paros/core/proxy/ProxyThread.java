@@ -41,6 +41,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -174,10 +175,12 @@ class ProxyThread implements Runnable {
 	    	if (firstHeader != null) {
 	    		log.warn("Timeout accessing " + firstHeader.getURI());
 	    	} else {
-	    		log.warn("Timeout ", e);
+	    		log.warn("Timeout", e);
 	    	}
+	    } catch (HttpMalformedHeaderException e) {
+	    	log.warn("Malformed Header: ", e);
 		} catch (IOException e) {
-		    log.warn(e.getMessage(), e);
+		    log.debug("IOException: ", e);
 		} finally {
             proxyThreadList.remove(thread);
 			disconnect();

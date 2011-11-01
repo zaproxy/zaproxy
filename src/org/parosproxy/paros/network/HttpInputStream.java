@@ -52,7 +52,17 @@ public class HttpInputStream extends BufferedInputStream {
 	}
 	
 	public HttpRequestHeader readRequestHeader(boolean isSecure) throws HttpMalformedHeaderException, IOException {
-		return new HttpRequestHeader(readHeader(), isSecure);
+		String msg = "";
+		HttpRequestHeader httpRequestHeader = null;
+		
+		msg = readHeader();
+		if (msg.length() == 0) {
+			throw new IOException();
+		}
+		
+		httpRequestHeader = new HttpRequestHeader(msg, isSecure); 
+		
+		return httpRequestHeader;
 	}
 
     
@@ -76,7 +86,7 @@ public class HttpInputStream extends BufferedInputStream {
                 msg = sb.toString();
             }
 		} while (!eoh);
-
+        
         return msg;
 
 	}
