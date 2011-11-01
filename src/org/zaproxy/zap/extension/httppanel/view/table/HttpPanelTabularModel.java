@@ -42,6 +42,8 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     private Vector<String[]> listPair = new Vector<String[]>();
     private boolean editable = true;
     private boolean isChanged = false;
+
+    private boolean tableError = false;
     
     // ZAP: Added logger
     private Logger logger = Logger.getLogger(HttpPanelTabularModel.class);
@@ -97,7 +99,11 @@ public class HttpPanelTabularModel extends AbstractTableModel {
         String value = null;
         Matcher matcher = pSeparator.matcher(body);
         //int row = 0;
+        int cnt = 0;
+        tableError = false;
+                
   	  	while (matcher.find()){
+  	  		cnt++;
   	  	    String[] cell = new String[2];
   	  	    try {
                 name = URLDecoder.decode(matcher.group(1),"8859_1");
@@ -113,14 +119,26 @@ public class HttpPanelTabularModel extends AbstractTableModel {
             	logger.error(e.getMessage(), e);
             }
   	  	}
-  	  	// Make sure user can always add a param at the end
-  	  	listPair.add(new String[] {"", ""});
+  	  	
+  	  	if (cnt <= 0) {
+  	  		// No valid body, cant create table
+  	  		tableError = true;
+  	  		listPair.add(new String[] {"[cannot compute]", "[cannot compute]"});
+  	  	} else {
+  	  		// Make sure user can always add a param at the end
+  	  		listPair.add(new String[] {"", ""});
+  	  	}
 
   	  	fireTableDataChanged();
     }
     
     public synchronized String getText() {
         StringBuffer sb = new StringBuffer();
+        
+        if (tableError) {
+        	return null;
+        }
+        
         for (int i=0; i<listPair.size(); i++) {
             String[] cell = (String[]) listPair.get(i);
             try {

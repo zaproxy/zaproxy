@@ -84,7 +84,10 @@ public class HttpPanelTabularView implements HttpPanelView {
 
 	@Override
 	public void save() {
-		model.setData(httpPanelTabularModel.getText());
+		String data = httpPanelTabularModel.getText();
+		if (data != null) {
+			model.setData(data);
+		}
 	}
 
 }
