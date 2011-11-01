@@ -124,6 +124,13 @@ public class FindDialog extends AbstractDialog {
 		    String findText = txtFind.getText().toLowerCase();
 		    String txt = txtComp.getText().toLowerCase();
 		    int startPos = txt.indexOf(findText, txtComp.getCaretPosition());
+
+		    // Enable Wrap Search
+		    if (startPos <= 0) {
+		    	txtComp.setCaretPosition(0);
+		    	startPos = txt.indexOf(findText, txtComp.getCaretPosition());
+		    }
+		    
 		    int length = findText.length();
 		    if (startPos > -1) {
 		        txtComp.select(startPos,startPos+length);
@@ -133,6 +140,7 @@ public class FindDialog extends AbstractDialog {
 		        Toolkit.getDefaultToolkit().beep();
 		    }
 		} catch (Exception e) {
+			System.out.println("Exception: " + e.getMessage());
 		}
 	}
 	/**
