@@ -55,7 +55,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	protected JPanel panelContent;
 
 	private Extension extension = null;
-	protected boolean editable = false;
+	protected boolean isEditable = false;
 	protected HttpMessage httpMessage;
 	protected List<HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
@@ -72,7 +72,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	/*** Constructors ***/
 
 	public HttpPanel(boolean isEditable, HttpMessage httpMessage) {
-		this.editable = isEditable;
+		this.isEditable = isEditable;
 		this.httpMessage = httpMessage;
 		
 		initialize();
@@ -82,7 +82,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	}
 
 	public HttpPanel(boolean isEditable, Extension extension, HttpMessage httpMessage) {
-		this.editable = isEditable;
+		this.isEditable = isEditable;
 		this.httpMessage = httpMessage;
 		this.extension = extension;
 		
@@ -195,7 +195,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	}
 
 	public boolean isEditable() {
-		return editable;
+		return isEditable;
 	}
 
 	abstract protected void initPlugins();

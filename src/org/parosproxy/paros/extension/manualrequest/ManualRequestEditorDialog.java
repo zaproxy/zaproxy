@@ -241,7 +241,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
-			responsePanel = new HttpPanelResponse(true, extension, httpMessage);
+			responsePanel = new HttpPanelResponse(false, extension, httpMessage);
 		}
 		return responsePanel;
 	}
