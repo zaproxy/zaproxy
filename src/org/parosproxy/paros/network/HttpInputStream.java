@@ -28,12 +28,15 @@ import java.net.SocketTimeoutException;
 
 import javax.net.ssl.SSLSocket;
 
+import org.apache.log4j.Logger;
+
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class HttpInputStream extends BufferedInputStream {
+	private static Logger log = Logger.getLogger(HttpInputStream.class);
 
 	private static final int	BUFFER_SIZE = 4096;
 	private static final String CRLF = "\r\n";
@@ -57,6 +60,7 @@ public class HttpInputStream extends BufferedInputStream {
 		
 		msg = readHeader();
 		if (msg.length() == 0) {
+    		log.debug("Read 0 bytes from upstream. Could not read header!");
 			throw new IOException();
 		}
 		
