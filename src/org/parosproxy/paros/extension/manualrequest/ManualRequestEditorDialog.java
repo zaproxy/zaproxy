@@ -163,7 +163,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			panelLeft.add(getBtnSend());
 			panelRight.add(getChkUseTrackingSessionState());
 			panelRight.add(getChkFollowRedirect());
-			panelRight.add(getComboChangeMethod());
 
 			panelHeader.add(panelLeft, BorderLayout.LINE_START);
 			panelHeader.add(panelMiddle, BorderLayout.CENTER);
@@ -467,34 +466,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		 });
 		 t.setPriority(Thread.NORM_PRIORITY);
 		 t.start();
-	 }
-
-	 private JComboBox getComboChangeMethod() {
-		 if (comboChangeMethod == null) {
-			 comboChangeMethod = new JComboBox();
-			 comboChangeMethod.setEditable(false);
-			 comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
-			 comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
-			 comboChangeMethod.addItem(HttpRequestHeader.DELETE);
-			 comboChangeMethod.addItem(HttpRequestHeader.GET);
-			 comboChangeMethod.addItem(HttpRequestHeader.HEAD);
-			 comboChangeMethod.addItem(HttpRequestHeader.OPTIONS);
-			 comboChangeMethod.addItem(HttpRequestHeader.POST);
-			 comboChangeMethod.addItem(HttpRequestHeader.PUT);
-			 comboChangeMethod.addItem(HttpRequestHeader.TRACE);
-			 comboChangeMethod.addActionListener(new ActionListener() {
-				 @Override
-				 public void actionPerformed(ActionEvent e) {
-					 if (comboChangeMethod.getSelectedIndex() > 0) {
-						 requestPanel.saveData();
-						 getHttpMessage().mutateHttpMethod((String) comboChangeMethod.getSelectedItem());
-						 comboChangeMethod.setSelectedIndex(0);
-						 requestPanel.updateContent();
-					 }
-				 }});
-		 }
-
-		 return this.comboChangeMethod;
 	 }
 
 	 private void switchToTab(int i) {
