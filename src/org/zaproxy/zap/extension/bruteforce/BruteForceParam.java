@@ -29,11 +29,14 @@ import org.parosproxy.paros.common.AbstractParam;
 public class BruteForceParam extends AbstractParam {
 
 	private static final String THREAD_PER_SCAN = "bruteforce.threadPerHost";
+	private static final String RECURSIVE = "bruteforce.recursive";
 	
 	public static final int DEFAULT_THREAD_PER_SCAN = 10;
+	public static final boolean DEFAULT_RECURSIVE = true;
+	public static final String EMPTY_STRING = "";
 		
 	private int threadPerScan = DEFAULT_THREAD_PER_SCAN;
-	
+	private boolean recursive = DEFAULT_RECURSIVE;
 	
     /**
      * @param rootElementName
@@ -47,6 +50,7 @@ public class BruteForceParam extends AbstractParam {
     protected void parse(){
 		try {
 			setThreadPerScan(getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN));
+			setRecursive(getConfig().getBoolean(RECURSIVE, DEFAULT_RECURSIVE));
 		} catch (Exception e) {}
     }
 
@@ -57,6 +61,16 @@ public class BruteForceParam extends AbstractParam {
     public void setThreadPerScan(int threadPerHost) {
         this.threadPerScan = threadPerHost;
         getConfig().setProperty(THREAD_PER_SCAN, Integer.toString(this.threadPerScan));
+
+    }
+
+    public boolean getRecursive() {
+        return recursive;
+    }
+    
+    public void setRecursive(boolean recursive) {
+        this.recursive = recursive;
+        getConfig().setProperty(RECURSIVE, Boolean.toString(this.recursive));
 
     }
 
