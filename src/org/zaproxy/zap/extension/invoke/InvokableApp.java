@@ -27,15 +27,18 @@ public class InvokableApp {
 	private String fullCommand = "";
 	private String parameters = "";
 	private boolean captureOutput = true;
+	private boolean outputNote = false;
 	private File workingDirectory = null;
 	
-	public InvokableApp(String displayName, File workingDirectory, String fullCommand, String parameters, boolean captureOutput) {
+	public InvokableApp(String displayName, File workingDirectory, String fullCommand, String parameters, 
+			boolean captureOutput, boolean outputNote) {
 		super();
 		this.displayName = displayName;
 		this.workingDirectory = workingDirectory;
 		this.fullCommand = fullCommand;
 		this.parameters = parameters;
 		this.captureOutput = captureOutput;
+		this.outputNote = outputNote;
 	}
 	
 	public InvokableApp() {
@@ -76,6 +79,14 @@ public class InvokableApp {
 
 	public void setWorkingDirectory(File workingDirectory) {
 		this.workingDirectory = workingDirectory;
+	}
+
+	public boolean isOutputNote() {
+		return outputNote;
+	}
+
+	public void setOutputNote(boolean outputNote) {
+		this.outputNote = outputNote;
 	}
 	
 }
