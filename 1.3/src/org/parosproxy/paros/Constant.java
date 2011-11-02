@@ -127,6 +127,7 @@ public final class Constant {
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
+    public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
 	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
 	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
@@ -188,6 +189,7 @@ public final class Constant {
 			FOLDER_SESSION = zaphome + FOLDER_SESSION;
 			DBNAME_UNTITLED = zaphome + DBNAME_UNTITLED;
 			ACCEPTED_LICENSE = zaphome + ACCEPTED_LICENSE;
+			DIRBUSTER_CUSTOM_DIR = zaphome + DIRBUSTER_DIR;
 
             try {
                 System.setProperty(SYSTEM_PAROS_USER_LOG, zaphome);
@@ -223,9 +225,17 @@ public final class Constant {
                 	}
                 }
                 
-                f=new File(FOLDER_SESSION);
+                f = new File(FOLDER_SESSION);
                 if (!f.isDirectory()) {
                     log.info("Creating directory "+FOLDER_SESSION);
+                    if (! f.mkdir() ) {
+                    	// ZAP: report failure to create directory
+                    	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                    }
+                }
+                f = new File(DIRBUSTER_CUSTOM_DIR);
+                if (!f.isDirectory()) {
+                    log.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
                     if (! f.mkdir() ) {
                     	// ZAP: report failure to create directory
                     	System.out.println("Failed to create directory " + f.getAbsolutePath());

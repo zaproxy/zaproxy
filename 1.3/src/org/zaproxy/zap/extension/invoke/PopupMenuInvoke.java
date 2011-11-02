@@ -25,12 +25,12 @@ import java.io.File;
 import javax.swing.JList;
 import javax.swing.JTree;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 
 public class PopupMenuInvoke extends ExtensionPopupMenu {
@@ -41,6 +41,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
     private File workingDir = null;
     private String parameters = null;
     private boolean captureOutput = true;
+    private boolean outputNote = false;
 
     private Logger logger = Logger.getLogger(PopupMenuInvoke.class);
 
@@ -79,7 +80,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		HistoryReference hr = null;
-				URI uri = null;
+				HttpMessage msg = null;
         		
         		if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
         			JTree treeSite = (JTree) invoker;
@@ -95,7 +96,7 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
         		}
         		if (hr != null) {
         			try {
-        				uri = hr.getHttpMessage().getRequestHeader().getURI();
+        				msg = hr.getHttpMessage();
 					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
 					}
@@ -103,7 +104,8 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
         		try {
 	        		if (command != null) {
-	        			InvokeAppWorker iaw = new InvokeAppWorker(command, workingDir, parameters, captureOutput, uri);
+	        			InvokeAppWorker iaw = 
+	        					new InvokeAppWorker(command, workingDir, parameters, captureOutput, outputNote, msg);
 	        			iaw.execute();
 	        		}
         		} catch (Exception e1) {
@@ -175,6 +177,14 @@ public class PopupMenuInvoke extends ExtensionPopupMenu {
 
 	public void setWorkingDir(File workingDir) {
 		this.workingDir = workingDir;
+	}
+
+	public boolean isOutputNote() {
+		return outputNote;
+	}
+
+	public void setOutputNote(boolean outputNote) {
+		this.outputNote = outputNote;
 	}
 
 }

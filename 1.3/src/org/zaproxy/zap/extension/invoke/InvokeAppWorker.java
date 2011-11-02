@@ -24,11 +24,15 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 
 public class InvokeAppWorker extends SwingWorker<Void, Void> {
@@ -37,16 +41,19 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
     private File workingDir = null;
     private String parameters = null;
     private boolean captureOutput = true;
-    private URI uri = null;
+    private boolean outputNote = false;
+    private HttpMessage msg = null;
 
     private Logger logger = Logger.getLogger(InvokeAppWorker.class);
 
-	public InvokeAppWorker (String command, File workingDir, String parameters, boolean captureOutput, URI uri) {
+	public InvokeAppWorker (String command, File workingDir, String parameters, 
+			boolean captureOutput, boolean outputNote, HttpMessage msg) {
 		this.command = command;
 		this.workingDir = workingDir;
 		this.parameters = parameters;
 		this.captureOutput = captureOutput;
-		this.uri = uri;
+		this.outputNote = outputNote;
+		this.msg = msg;
 	}
 	
 	@Override
@@ -56,7 +63,10 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 		String host = "";	// Just the server name, e.g. localhost
 		String port = "";	// the port
 		String site = "";	// e.g. http://localhost:8080/
+		String postdata = "";	// only present in POST ops
+		String cookie = "";		// from the request header
 
+		URI uri = msg.getRequestHeader().getURI();
 		url = uri.toString();
 		host = uri.getHost();
 		site = uri.getScheme() + "://" + uri.getHost();
@@ -71,6 +81,14 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 			}
 			site = site + "/";
 		}
+		if (msg.getRequestBody() != null) {
+			postdata = msg.getRequestBody().toString();
+			postdata.replaceAll("\n", "\\n");
+		}
+		Vector<String> cookies = msg.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+		if (cookies != null && cookies.size() > 0) {
+			cookie = cookies.get(0);
+		}
 
 		List<String> cmd = new ArrayList<String>();
 		cmd.add(command);
@@ -79,7 +97,9 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 			String params = parameters.replace("%url%", url)
 									.replace("%host%", host)
 									.replace("%port%", port)
-									.replace("%site%", site);
+									.replace("%site%", site)
+									.replace("%cookie%", cookie)
+									.replace("%postdata%", postdata);
 			for (String p : params.split(" ")) {
 				cmd.add(p);
 			}
@@ -98,15 +118,24 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 			BufferedReader brOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line;
 			boolean isOutput = false;
+			StringBuffer sb = new StringBuffer();
+			if (msg.getNote() != null) {
+				sb.append(msg.getNote());
+				sb.append("\n");	
+			}
 
 			// Show any error messages
 			while ((line = brErr.readLine()) != null) {
 				View.getSingleton().getOutputPanel().append(line + "\n");
+				sb.append(line);	
+				sb.append("\n");	
 				isOutput = true;
 			}
 			// Show any stdout messages
 			while ((line = brOut.readLine()) != null) {
 				View.getSingleton().getOutputPanel().append(line + "\n");
+				sb.append(line);	
+				sb.append("\n");	
 				isOutput = true;
 			}
 			if (isOutput) {
@@ -115,6 +144,13 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 			}
 			brOut.close();
 			brErr.close();
+
+			if (outputNote) {
+				HistoryReference hr = msg.getHistoryRef();
+				if (hr != null) {
+					hr.setNote(sb.toString());
+				}
+			}
 		}
 			
 		return null;

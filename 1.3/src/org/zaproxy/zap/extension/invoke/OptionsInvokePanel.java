@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.invoke;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -56,6 +58,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	private ZapTextField editWorkingDir = null;
 	private ZapTextField editParameters = null;
 	private JCheckBox editOutput = null;
+	private JCheckBox editNote = null;
 	private JButton chooseApp = null;
 	private JButton chooseDir = null;
 	private JButton newButton = null;
@@ -234,7 +237,19 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 			});
 
 	        editParameters = new ZapTextField();
+	        editNote = new JCheckBox();
 	        editOutput = new JCheckBox();
+	        editOutput.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (! editOutput.isSelected()) {
+						editNote.setSelected(false);
+						editNote.setEnabled(false);
+					} else {
+						editNote.setEnabled(true);
+					}
+				}});
 	        
 	    	newButton = new JButton(Constant.messages.getString("invoke.options.button.new"));
 	    	saveButton = new JButton(Constant.messages.getString("invoke.options.button.save"));
@@ -316,6 +331,10 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        		getGridBackConstrants(rowId, 0, 0, false));
 	        editPane.add(editOutput, getGridBackConstrants(rowId++, 1, 1, true));
 	        
+	        editPane.add(new JLabel(Constant.messages.getString("invoke.options.label.note")), 
+	        		getGridBackConstrants(rowId, 0, 0, false));
+	        editPane.add(editNote, getGridBackConstrants(rowId++, 1, 1, true));
+	        
 	        
 	        JPanel buttons = new JPanel();
 	        buttons.add(newButton);
@@ -377,6 +396,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        				}
 	        				editParameters.setText(app.getParameters());
 	        				editOutput.setSelected(app.isCaptureOutput());
+	        				editNote.setSelected(app.isOutputNote());
 	        				saveButton.setEnabled(true);
 	        				deleteButton.setEnabled(true);
 	        			}
@@ -392,7 +412,8 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		editFullCommand.setText("");
 		editWorkingDir.setText("");
 		editParameters.setText("");
-		editOutput.setSelected(true);
+		editOutput.setSelected(false);
+		editNote.setSelected(false);
 		tableAuth.clearSelection();
 	}
 	
@@ -417,6 +438,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 		}
 		app.setParameters(editParameters.getText());
 		app.setCaptureOutput(editOutput.isSelected());
+		app.setOutputNote(editNote.isSelected());
 
 		if (tableAuth.getSelectedRow() > -1) {
 			((OptionsInvokeTableModel)tableAuth.getModel()).replaceInvokableApp(tableAuth.getSelectedRow(), app);
