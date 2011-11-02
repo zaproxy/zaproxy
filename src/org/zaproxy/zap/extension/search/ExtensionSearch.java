@@ -118,9 +118,10 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 	public void search(String filter, Type reqType) {
-		this.search(filter, reqType, false);
+		this.search(filter, reqType, false, false);
 	}
-	public void search(String filter, Type reqType, boolean setToolbar){
+	
+	public void search(String filter, Type reqType, boolean setToolbar, boolean inverse){
 		
 		this.searchPanel.resetSearchResults();
 		
@@ -142,7 +143,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 					}
 	    		}
 	    	}
-    		searchThread = new SearchThread(filter, reqType, searchPanel);
+    		searchThread = new SearchThread(filter, reqType, searchPanel, inverse);
 	    	searchThread.start();
 	    	
 	    }

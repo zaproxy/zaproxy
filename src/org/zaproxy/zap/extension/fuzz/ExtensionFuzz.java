@@ -103,11 +103,12 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 
 	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
-			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
+			int startOffset, int endOffset, AntiCsrfToken acsrfToken, 
+			boolean showTokenRequests, boolean followRedirects) {
 		this.getFuzzerPanel().scanStarted();
 
 		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(msg, fuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests);
+		fuzzerThread.setTarget(msg, fuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects);
 		fuzzerThread.addFuzzerListener(this);
 		fuzzerThread.start();
 
@@ -125,8 +126,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 		fuzzerThread.resume();		
 	}
 	
-	public List<SearchResult> searchFuzzResults(Pattern pattern) {
-		return this.getFuzzerPanel().searchResults(pattern);
+	public List<SearchResult> searchFuzzResults(Pattern pattern, boolean inverse) {
+		return this.getFuzzerPanel().searchResults(pattern, inverse);
 	}
 
     protected void showFuzzDialog(Component invoker) {
@@ -200,6 +201,10 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 				addFuzzResult(tokenMsg);
 			}
 		}
+		
+		// Record the fuzz payload in the note		
+		fp.getHttpMessage().setNote(fp.getFuzz());
+		
 		addFuzzResult(fp.getHttpMessage());
 	}
 
