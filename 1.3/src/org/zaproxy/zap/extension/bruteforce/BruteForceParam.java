@@ -29,6 +29,7 @@ import org.parosproxy.paros.common.AbstractParam;
 public class BruteForceParam extends AbstractParam {
 
 	private static final String THREAD_PER_SCAN = "bruteforce.threadPerHost";
+	private static final String DEFAULT_FILE = "bruteforce.defaultFile";
 	private static final String RECURSIVE = "bruteforce.recursive";
 	
 	public static final int DEFAULT_THREAD_PER_SCAN = 10;
@@ -37,6 +38,7 @@ public class BruteForceParam extends AbstractParam {
 		
 	private int threadPerScan = DEFAULT_THREAD_PER_SCAN;
 	private boolean recursive = DEFAULT_RECURSIVE;
+	private String defaultFile = null;
 	
     /**
      * @param rootElementName
@@ -49,8 +51,9 @@ public class BruteForceParam extends AbstractParam {
      */
     protected void parse(){
 		try {
-			setThreadPerScan(getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN));
-			setRecursive(getConfig().getBoolean(RECURSIVE, DEFAULT_RECURSIVE));
+			this.threadPerScan = getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN);
+			this.recursive = getConfig().getBoolean(RECURSIVE, DEFAULT_RECURSIVE);
+			this.defaultFile = getConfig().getString(DEFAULT_FILE, null);
 		} catch (Exception e) {}
     }
 
@@ -73,6 +76,15 @@ public class BruteForceParam extends AbstractParam {
         getConfig().setProperty(RECURSIVE, Boolean.toString(this.recursive));
 
     }
+
+	protected String getDefaultFile() {
+		return defaultFile;
+	}
+
+	protected void setDefaultFile(String defaultFile) {
+        this.defaultFile = defaultFile;
+        getConfig().setProperty(DEFAULT_FILE, defaultFile);
+	}
 
 
 }
