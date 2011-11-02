@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -43,6 +44,7 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
     private JLabel txtSize = null;
 	private JLabel txtNote = null;
 	private JLabel txtFlag = null;
+	private JLabel txtFuzz = null;
 
 
     /**
@@ -61,6 +63,17 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
      */
     private void initialize() {
     	// ZAP: Added flag image
+        GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+        gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints7.gridx = 9;
+        gridBagConstraints7.gridy = 0;
+        gridBagConstraints7.weightx = 1.05D;
+        gridBagConstraints7.ipadx = 4;
+        gridBagConstraints7.ipady = 1;
+        //gridBagConstraints7.insets = new java.awt.Insets(0,2,0,0);
+        gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+
         GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.gridx = 8;
@@ -219,6 +232,15 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
         txtNote.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         txtNote.setOpaque(true);
         
+        txtFuzz = new JLabel();
+        txtFuzz.setText("");
+        txtFuzz.setBackground(java.awt.SystemColor.text);
+        txtFuzz.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        txtFuzz.setPreferredSize(new java.awt.Dimension(70,15));
+        txtFuzz.setMinimumSize(new java.awt.Dimension(70,15));
+        txtFuzz.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+        txtFuzz.setOpaque(true);
+
         this.setLayout(new GridBagLayout());
         this.setSize(328, 11);
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
@@ -231,18 +253,30 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
         this.add(txtFlag, gridBagConstraints4);
         this.add(txtNote, gridBagConstraints5);
         this.add(txtSize, gridBagConstraints6);
+        this.add(txtFuzz, gridBagConstraints7);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         HttpMessage msg = (HttpMessage) value;
+        
+        // The fuzz payload is recorded in the note
+    	String note = msg.getNote();
+    	txtFlag.setIcon(null);
+        if (note != null && note.length() > 0) {
+        	if (msg.getResponseBody().toString().indexOf(note) >= 0) {
+        		// Found the exact payload - flag it
+        		txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/099.png")));	// Yellow fuzzy circle
+        	}
+        }
 
-            txtMethod.setText(msg.getRequestHeader().getMethod());
-            txtURI.setText(msg.getRequestHeader().getURI().toString());
-            txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
-            txtReason.setText(msg.getResponseHeader().getReasonPhrase());
-            txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
-            txtSize.setText(""+msg.getResponseBody().toString().length());
+        txtMethod.setText(msg.getRequestHeader().getMethod());
+        txtURI.setText(msg.getRequestHeader().getURI().toString());
+        txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
+        txtReason.setText(msg.getResponseHeader().getReasonPhrase());
+        txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
+        txtSize.setText(""+msg.getResponseBody().toString().length());
+        txtFuzz.setText(note);
             
         
         if (isSelected) {
@@ -264,6 +298,8 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
             txtNote.setForeground(list.getSelectionForeground());
             txtFlag.setBackground(list.getSelectionBackground());
             txtFlag.setForeground(list.getSelectionForeground());
+            txtFuzz.setBackground(list.getSelectionBackground());
+            txtFuzz.setForeground(list.getSelectionForeground());
 
         } else {
             Color darker = new Color(list.getBackground().getRGB() & 0xFFECECEC);
@@ -286,6 +322,8 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
             txtNote.setForeground(list.getForeground());
             txtFlag.setBackground(list.getBackground());
             txtFlag.setForeground(list.getForeground());
+            txtFuzz.setBackground(list.getBackground());
+            txtFuzz.setForeground(list.getForeground());
 
         }
         setEnabled(list.isEnabled());

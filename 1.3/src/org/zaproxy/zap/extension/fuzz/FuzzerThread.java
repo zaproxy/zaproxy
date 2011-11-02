@@ -48,6 +48,7 @@ public class FuzzerThread implements Runnable {
 	private int endOffset;
 	private AntiCsrfToken acsrfToken;
 	private boolean showTokenRequests;
+	private boolean followRedirects;
 
 	private boolean pause = false;
 
@@ -93,7 +94,7 @@ public class FuzzerThread implements Runnable {
 
 
 	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
-			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
+			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects) {
 		this.msg = msg;
 		this.fuzzers = fuzzers;
 		this.fuzzHeader = fuzzHeader;
@@ -101,6 +102,7 @@ public class FuzzerThread implements Runnable {
 		this.endOffset = endOffset;
 		this.acsrfToken = acsrfToken;
 		this.showTokenRequests = showTokenRequests;
+		this.followRedirects = followRedirects;
 	}
 
     public void run() {
@@ -141,7 +143,7 @@ public class FuzzerThread implements Runnable {
 				
 				String fuzz = fuzzer.next();
 				FuzzProcess fp = new FuzzProcess(connectionParam, 
-						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests);
+						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests, followRedirects);
 				for (FuzzerListener listener : listenerList) {
 					fp.addFuzzerListener(listener);
 				}

@@ -48,11 +48,12 @@ public class FuzzProcess  implements Runnable {
     private List<HttpMessage> tokenRequests = new ArrayList<HttpMessage>();
 	private Encoder encoder = new Encoder();
 	private boolean showTokenRequests = false;
+	private boolean followRedirects = false;
 	private ExtensionAntiCSRF extAntiCSRF = null; 
 
 	public FuzzProcess(ConnectionParam connectionParam, HttpMessage msg,
 			boolean fuzzHeader, int startOffset, int endOffset,
-			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests) {
+			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects) {
 		this.connectionParam = connectionParam;
 		this.msg = msg.cloneAll();
 		this.fuzzHeader = fuzzHeader;
@@ -118,6 +119,9 @@ public class FuzzProcess  implements Runnable {
 	        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 			
 			HttpSender httpSender = new HttpSender(connectionParam, true);
+			if (followRedirects) {
+				httpSender.setFollowRedirect(true);
+			}
 			httpSender.sendAndReceive(msg);
 			
 		} catch (HttpException e) {
@@ -152,6 +156,10 @@ public class FuzzProcess  implements Runnable {
 
 	public void setShowTokenRequests(boolean showTokenRequests) {
 		this.showTokenRequests = showTokenRequests;
+	}
+
+	public String getFuzz() {
+		return fuzz;
 	}
 
 }
