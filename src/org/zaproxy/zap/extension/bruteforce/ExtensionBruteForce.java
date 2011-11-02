@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.EventQueue;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -81,7 +82,9 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
         extensionHook.addSiteMapListner(this);
-	    
+
+        extensionHook.addOptionsParamSet(getBruteForceParam());
+
 	    if (getView() != null) {
 	        @SuppressWarnings("unused")
 			ExtensionHookView pv = extensionHook.getHookView();
@@ -95,8 +98,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	        this.getBruteForcePanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 
 	    	ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
-}
-        extensionHook.addOptionsParamSet(getBruteForceParam());
+	    }
 	}
 	
 	private BruteForceParam getBruteForceParam() {
@@ -191,7 +193,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	private OptionsBruteForcePanel getOptionsBruteForcePanel() {
 		if (optionsBruteForcePanel == null) {
-			optionsBruteForcePanel = new OptionsBruteForcePanel();
+			optionsBruteForcePanel = new OptionsBruteForcePanel(this);
 		}
 		return optionsBruteForcePanel;
 	}
@@ -214,6 +216,18 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	public boolean isScanning(SiteNode node) {
 		return this.getBruteForcePanel().isScanning(node);
+	}
+
+	public void refreshFileList() {
+		this.getBruteForcePanel().refreshFileList();
+	}
+	
+	public List<String> getFileList() {
+		return this.getBruteForcePanel().getFileList();
+	}
+	
+	public void setDefaultFile(String file) {
+		this.getBruteForcePanel().setDefaultFile(file);
 	}
 
 }
