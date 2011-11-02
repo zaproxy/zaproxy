@@ -66,6 +66,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
             pmi.setWorkingDir(app.getWorkingDirectory());
             pmi.setParameters(app.getParameters());
             pmi.setCaptureOutput(app.isCaptureOutput());
+            pmi.setOutputNote(app.isOutputNote());
             this.invokeMenus.add(pmi);
         	
         }
@@ -111,6 +112,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
             pmi.setWorkingDir(app.getWorkingDirectory());
             pmi.setParameters(app.getParameters());
             pmi.setCaptureOutput(app.isCaptureOutput());
+            pmi.setOutputNote(app.isOutputNote());
     		View.getSingleton().getPopupMenu().addMenu(pmi);
             this.invokeMenus.add(pmi);
 		}

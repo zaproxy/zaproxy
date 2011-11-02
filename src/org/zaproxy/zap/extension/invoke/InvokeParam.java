@@ -32,6 +32,7 @@ public class InvokeParam extends AbstractParam {
     private static final String INVOKE_COMMAND = "command";
     private static final String INVOKE_PARAMS = "parameters";
     private static final String INVOKE_OUTPUT = "output";
+    private static final String INVOKE_NOTE = "note";
     private static final String INVOKE_DIRECTORY = "directory";
 
 	private List<InvokableApp> listInvoke = new ArrayList<InvokableApp>();
@@ -65,7 +66,8 @@ public class InvokeParam extends AbstractParam {
                     dir,
                     getConfig().getString(getInvoke(i, INVOKE_COMMAND)),
                     getConfig().getString(getInvoke(i, INVOKE_PARAMS)),
-                    getConfig().getBoolean(getInvoke(i, INVOKE_OUTPUT), true)
+                    getConfig().getBoolean(getInvoke(i, INVOKE_OUTPUT), true),
+                    getConfig().getBoolean(getInvoke(i, INVOKE_NOTE), false)
                     );
             listInvoke.add(auth);
         }
@@ -87,6 +89,7 @@ public class InvokeParam extends AbstractParam {
             getConfig().clearProperty(getInvoke(i, INVOKE_COMMAND));            
             getConfig().clearProperty(getInvoke(i, INVOKE_PARAMS));
             getConfig().clearProperty(getInvoke(i, INVOKE_OUTPUT));
+            getConfig().clearProperty(getInvoke(i, INVOKE_NOTE));
             getConfig().clearProperty(INVOKE + ".A"+i);
         }
         for (int i=0; i<listAuth.size(); i++) {
@@ -98,6 +101,7 @@ public class InvokeParam extends AbstractParam {
             getConfig().setProperty(getInvoke(i, INVOKE_COMMAND), app.getFullCommand());
             getConfig().setProperty(getInvoke(i, INVOKE_PARAMS), app.getParameters());
             getConfig().setProperty(getInvoke(i, INVOKE_OUTPUT), app.isCaptureOutput());
+            getConfig().setProperty(getInvoke(i, INVOKE_NOTE), app.isOutputNote());
         }
         
     }
