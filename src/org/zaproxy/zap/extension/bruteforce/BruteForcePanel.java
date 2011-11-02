@@ -29,12 +29,13 @@ import java.io.FilenameFilter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -54,6 +55,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -84,9 +86,11 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel activeScansValueLabel = null;
 	private List<String> activeScans = new ArrayList<String>();;
     private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
+    private List<String> fileList = null;
 	private JComboBox fileSelect = null;
 
 	private String fileDirectory = Constant.getInstance().DIRBUSTER_DIR;
+	private String customFileDirectory = Constant.getInstance().DIRBUSTER_CUSTOM_DIR;
 	private String fileExtension = ".txt";
 
 	private String currentSite = null;
@@ -541,14 +545,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JComboBox getFileSelect() {
 		if (fileSelect == null) {
 			fileSelect = new JComboBox();
-			File dir = new File(fileDirectory);
-			FilenameFilter filter = new FilenameExtensionFilter(fileExtension, true);
-			String[] files = dir.list(filter );
-			Arrays.sort(files);
-			for (String file : files) {
-				fileSelect.addItem(file);
-			}
-			fileSelect.setSelectedIndex(0);
+			this.refreshFileList();
 		}
 		return fileSelect;
 	}
@@ -612,8 +609,14 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			BruteForce bruteForce = bruteForceMap.get(site);
 			if (bruteForce == null) {
-				String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
+				// Try the 'local' dir first
+				String fileName = this.customFileDirectory + File.separator + this.fileSelect.getSelectedItem();
 				File f = new File(fileName);
+				if (! f.exists()) {
+					log.debug("No such file: " + f.getAbsolutePath());
+					fileName = this.fileDirectory + File.separator + this.fileSelect.getSelectedItem();
+					f = new File(fileName);
+				}
 				if (! f.exists()) {
 					log.error("No such file: " + f.getAbsolutePath());
 					return;
@@ -698,8 +701,14 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		this.activeScans.add(currentSite);
 
 		// Start a new thread
-		String fileName = this.fileDirectory + "/" + this.fileSelect.getSelectedItem();
+		// Try the 'local' dir first
+		String fileName = this.customFileDirectory + File.separator + this.fileSelect.getSelectedItem();
 		File f = new File(fileName);
+		if (! f.exists()) {
+			log.debug("No such file: " + f.getAbsolutePath());
+			fileName = this.fileDirectory + File.separator + this.fileSelect.getSelectedItem();
+			f = new File(fileName);
+		}
 		if (! f.exists()) {
 			log.error("No such file: " + f.getAbsolutePath());
 			return;
@@ -829,6 +838,62 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			}
 		}
 		return false;
+	}
+
+	public void refreshFileList() {
+		fileSelect.removeAllItems();
+		fileList = null;
+		List<String> list = getFileList();
+		for (String file: list) {
+			fileSelect.addItem(file);
+		}
+
+		String defaultFile = this.bruteForceParam.getDefaultFile();
+		
+		if (defaultFile == null) {
+			// Wont be set up yet on start up, so nasty direct access ;)
+			defaultFile = Model.getSingleton().getOptionsParam().getBruteForceParam().getDefaultFile();
+		}
+
+		if (defaultFile != null) {
+			fileSelect.setSelectedItem(defaultFile);
+		}
+	}
+
+	public List<String> getFileList() {
+		if (fileList == null) {
+			fileList = new ArrayList<String>();
+			File dir = new File(fileDirectory);
+			FilenameFilter filter = new FilenameExtensionFilter(fileExtension, true);
+			String[] files = dir.list(filter );
+			if (files != null) {
+				Arrays.sort(files);
+				for (String file : files) {
+					fileList.add(file);
+				}
+			}
+			
+			// handle local/custom files
+			File customDir = new File(customFileDirectory);
+			if ( ! dir.equals(customDir)) {
+				File[] customFiles = customDir.listFiles();
+				if (customFiles != null) {
+					Arrays.sort(customFiles);
+					for (File file : customFiles) {
+						if (! file.isDirectory()) {
+							fileList.add(file.getName());
+						}
+					}
+				}
+			}
+			Collections.sort(fileList);
+		}
+		
+		return fileList;
+	}
+
+	public void setDefaultFile(String file) {
+		this.getFileSelect().setSelectedItem(file);
 	}
 
 }

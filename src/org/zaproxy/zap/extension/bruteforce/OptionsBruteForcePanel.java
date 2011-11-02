@@ -23,23 +23,37 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.filechooser.FileFilter;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 
 public class OptionsBruteForcePanel extends AbstractParamPanel {
 
+	private ExtensionBruteForce extension = null;
 	private static final long serialVersionUID = 1L;
 	private JPanel panelPortScan = null;
 	private JCheckBox checkBoxRecursive = null;
-    public OptionsBruteForcePanel() {
+	private JComboBox defaultFileList = null;
+	private JButton addFileButton = null;
+
+	public OptionsBruteForcePanel(ExtensionBruteForce extension) {
         super();
+        this.extension = extension;
  		initialize();
    }
     
@@ -63,23 +77,29 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelPortScan() {
 		if (panelPortScan == null) {
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			JLabel jLabel2 = new JLabel();
-
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-
-			GridBagConstraints checkBoxGridBagConstraints = new GridBagConstraints();
 
 			panelPortScan = new JPanel();
 			JLabel jLabel1 = new JLabel();
+			JLabel jLabel2 = new JLabel();
+			JLabel jLabel3 = new JLabel();
+			JLabel jLabelx = new JLabel();
+
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints5a = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints5b = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints6a = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints6b = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
+
+			GridBagConstraints checkBoxGridBagConstraints = new GridBagConstraints();
 
 			panelPortScan.setLayout(new GridBagLayout());
 			panelPortScan.setSize(114, 132);
 			panelPortScan.setName(BruteForceParam.EMPTY_STRING);
 			jLabel1.setText(Constant.messages.getString("bruteforce.options.label.threads"));
+			jLabel2.setText(Constant.messages.getString("bruteforce.options.label.defaultfile"));
+			jLabel3.setText(Constant.messages.getString("bruteforce.options.label.addfile"));
 		
 			gridBagConstraints3.gridx = 0;
 			gridBagConstraints3.gridy = 2;
@@ -110,24 +130,85 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			checkBoxGridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
 			checkBoxGridBagConstraints.insets = new Insets(2,2,2,2);
 			checkBoxGridBagConstraints.gridwidth = 2;
+
+			gridBagConstraints5a.gridx = 0;
+			gridBagConstraints5a.gridy = 5;
+			gridBagConstraints5a.weightx = 1.0;
+			gridBagConstraints5a.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5a.ipadx = 0;
+			gridBagConstraints5a.ipady = 0;
+			gridBagConstraints5a.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5a.insets = new Insets(2,2,2,2);
+			gridBagConstraints5a.gridwidth = 1;
 			
-			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 10;
-			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints6.fill = GridBagConstraints.BOTH;
-			gridBagConstraints6.insets = new Insets(2,2,2,2);
-			gridBagConstraints6.weightx = 1.0D;
-			gridBagConstraints6.weighty = 1.0D;
-			gridBagConstraints6.gridwidth = 2;
+			gridBagConstraints5b.gridx = 1;
+			gridBagConstraints5b.gridy = 5;
+			gridBagConstraints5b.weightx = 1.0;
+			gridBagConstraints5b.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5b.ipadx = 0;
+			gridBagConstraints5b.ipady = 0;
+			gridBagConstraints5b.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5b.insets = new Insets(2,2,2,2);
+			gridBagConstraints5b.gridwidth = 1;
 			
-			jLabel2.setText(BruteForceParam.EMPTY_STRING);
+			gridBagConstraints6a.gridx = 0;
+			gridBagConstraints6a.gridy = 6;
+			gridBagConstraints6a.weightx = 1.0;
+			gridBagConstraints6a.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints6a.ipadx = 0;
+			gridBagConstraints6a.ipady = 0;
+			gridBagConstraints6a.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints6a.insets = new Insets(2,2,2,2);
+			gridBagConstraints6a.gridwidth = 1;
+			
+			gridBagConstraints6b.gridx = 1;
+			gridBagConstraints6b.gridy = 6;
+			gridBagConstraints6b.weightx = 1.0;
+			gridBagConstraints6b.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints6b.ipadx = 0;
+			gridBagConstraints6b.ipady = 0;
+			gridBagConstraints6b.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints6b.insets = new Insets(2,2,2,2);
+			gridBagConstraints6b.gridwidth = 1;
+			
+			gridBagConstraintsX.gridx = 0;
+			gridBagConstraintsX.gridy = 10;
+			gridBagConstraintsX.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraintsX.fill = GridBagConstraints.BOTH;
+			gridBagConstraintsX.insets = new Insets(2,2,2,2);
+			gridBagConstraintsX.weightx = 1.0D;
+			gridBagConstraintsX.weighty = 1.0D;
+			gridBagConstraintsX.gridwidth = 2;
+			
+			jLabelx.setText(BruteForceParam.EMPTY_STRING);
 			panelPortScan.add(jLabel1, gridBagConstraints3);
 			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
 			panelPortScan.add(getCheckBoxRecursive(), checkBoxGridBagConstraints);
-			panelPortScan.add(jLabel2, gridBagConstraints6);
+			panelPortScan.add(jLabel2, gridBagConstraints5a);
+			panelPortScan.add(getDefaultFileList(), gridBagConstraints5b);
+			panelPortScan.add(jLabel3, gridBagConstraints6a);
+			panelPortScan.add(getAddFileButton(), gridBagConstraints6b);
+			panelPortScan.add(jLabelx, gridBagConstraintsX);
 		}
 		return panelPortScan;
 	}
+
+	private JComboBox getDefaultFileList() {
+		if (defaultFileList == null) {
+			defaultFileList = new JComboBox();
+			refreshFileList();
+		}
+		return defaultFileList;
+	}
+	
+	private void refreshFileList() {
+		defaultFileList.removeAllItems();
+		List<String> files = extension.getFileList();
+		for (String file : files) {
+			defaultFileList.addItem(file);
+		}
+	}
+
 
 	private JCheckBox getCheckBoxRecursive() {
 		if (checkBoxRecursive == null) {
@@ -147,6 +228,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    } else {
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
 		    getCheckBoxRecursive().setSelected(param.getRecursive());
+		    getDefaultFileList().setSelectedItem(param.getDefaultFile());
 	    }
 	}
 	
@@ -163,6 +245,9 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    }
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
 	   	param.setRecursive(getCheckBoxRecursive().isSelected());
+	   	param.setDefaultFile((String)getDefaultFileList().getSelectedItem());
+	   	
+	   	extension.setDefaultFile((String)getDefaultFileList().getSelectedItem());
 	}
 	
 	/**
@@ -186,6 +271,57 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		return sliderThreadsPerScan;
 	}
 
+	private JButton getAddFileButton() {
+		if (addFileButton == null) {
+	        addFileButton = new JButton(Constant.messages.getString("bruteforce.options.button.addfile")); 
+			addFileButton.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			    	JFileChooser fcCommand = new JFileChooser();
+					fcCommand.setFileFilter( new FileFilter() {
+						@Override
+						public String getDescription() {
+							return Constant.messages.getString("bruteforce.options.title");
+						}
+						@Override
+						public boolean accept(File f) {
+							return true;
+						}
+					} );
+
+					// Copy the file into the 'home' dirbuster directory
+					int state = fcCommand.showOpenDialog( null );
+
+					if ( state == JFileChooser.APPROVE_OPTION )
+					{
+				    	FileCopier copier = new FileCopier();
+				    	File newFile = new File(Constant.getInstance().DIRBUSTER_CUSTOM_DIR + File.separator + 
+				    							fcCommand.getSelectedFile().getName());
+				    	if (newFile.exists() || extension.getFileList().contains(newFile.getName())) {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("bruteforce.add.duplicate.error"));
+				    		
+				    	} else if ( ! newFile.getParentFile().canWrite()) {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("bruteforce.add.dirperms.error") +
+									newFile.getParentFile().getAbsolutePath());
+				    		
+				    	} else {
+				    		try {
+								copier.copy(fcCommand.getSelectedFile(), newFile);
+								// Refresh list in panel
+								extension.refreshFileList();
+								View.getSingleton().showMessageDialog(Constant.messages.getString("bruteforce.add.ok"));
+							} catch (IOException e1) {
+								View.getSingleton().showWarningDialog(Constant.messages.getString("bruteforce.add.fail.error") +
+										e1.getMessage());
+							}
+				    	}
+					}
+				}
+			});
+		}
+		return addFileButton;
+	}
+
+	
     public int getThreadPerScan() {
     	return this.sliderThreadsPerScan.getValue();
     }

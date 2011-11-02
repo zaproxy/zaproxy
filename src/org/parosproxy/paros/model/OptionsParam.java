@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/10/29 Support for parameters
+// ZAP: 2011/11/02 Added brute force options
 
 package org.parosproxy.paros.model;
 
@@ -36,6 +37,7 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
+import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.session.SessionParam;
@@ -64,6 +66,7 @@ public class OptionsParam extends AbstractParam {
 	private InvokeParam invokeParam = new InvokeParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
+	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	private SessionParam sessionParam = new SessionParam();
 
@@ -188,6 +191,7 @@ public class OptionsParam extends AbstractParam {
 		getInvokeParam().load(getConfig());
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
+		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
 		getSessionParam().load(getConfig());
 		
@@ -263,4 +267,13 @@ public class OptionsParam extends AbstractParam {
 	public SessionParam getSessionParam() {
 		return sessionParam;
 	}
+	
+	public BruteForceParam getBruteForceParam() {
+		return bruteForceParam;
+	}
+
+	public void setBruteForceParam(BruteForceParam bruteForceParam) {
+		this.bruteForceParam = bruteForceParam;
+	}
+	
 }

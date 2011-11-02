@@ -122,7 +122,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				startPoint = directory;
 			}
 			log.debug("BruteForce : starting on http://" + site + startPoint);
-			log.debug("BruteForce : using recursive=" + recursive);
+			log.debug("BruteForce : file: " + fileName + " recursive=" + recursive);
 			manager.setupManager(startPoint, fileName, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
 			
 			manager.start();
