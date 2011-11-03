@@ -182,9 +182,19 @@ public class ReportLastScan {
 		    		    file = new File(file.getAbsolutePath() + ".html");
 		    		}
 	    		}
+	    		
+	    		if (! file.getParentFile().canWrite()) {
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.write.error"),
+									new Object[] {file.getAbsolutePath()}));
+					return;
+	    		}
     		
 	    		File report = generate(file.getAbsolutePath(), model, "xml/report.html.xsl");
 	    		if (report == null) {
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.unknown.error"),
+									new Object[] {file.getAbsolutePath()}));
 	    		    return;
 	    		}
 	    		
@@ -236,9 +246,19 @@ public class ReportLastScan {
 		    		    file = new File(file.getAbsolutePath() + ".xml");
 		    		}
 	    		}
-    		
+
+	    		if (! file.getParentFile().canWrite()) {
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.write.error"),
+									new Object[] {file.getAbsolutePath()}));
+					return;
+	    		}
+
 	    		File report = generate(file.getAbsolutePath(), model, "xml/report.xml.xsl");
 	    		if (report == null) {
+					view.showMessageDialog(
+							MessageFormat.format(Constant.messages.getString("report.unknown.error"),
+									new Object[] {file.getAbsolutePath()}));
 	    		    return;
 	    		}
 	    		
@@ -255,7 +275,7 @@ public class ReportLastScan {
   			
     	} catch (Exception e){
         	logger.error(e.getMessage(), e);
-      		view.showWarningDialog("File creation error."); 
+      		view.showWarningDialog(Constant.messages.getString("report.unexpected.warning")); 
     	}
 	}
 }
