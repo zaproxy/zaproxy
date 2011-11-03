@@ -1,4 +1,4 @@
-package org.zaproxy.zap.extension.httppanel.view.table;
+package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.awt.BorderLayout;
 
@@ -14,17 +14,17 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 
-public class HttpPanelTabularView implements HttpPanelView {
+public class RequestPostTableView implements HttpPanelView {
 
 	private JTable tableBody;
 	private JPanel mainPanel;
-	private HttpPanelTabularModel httpPanelTabularModel;
+	private RequestPostTableModel httpPanelTabularModel;
 	private MessageType messageType;
 	private HttpPanelTextModelInterface model;
 	private boolean isEditable = false;
 
-	public HttpPanelTabularView(HttpPanelTextModelInterface modelTextBody, MessageType body, boolean editable) {
-		httpPanelTabularModel = new HttpPanelTabularModel();
+	public RequestPostTableView(HttpPanelTextModelInterface modelTextBody, MessageType body, boolean editable) {
+		httpPanelTabularModel = new RequestPostTableModel();
 		this.messageType = body;
 		this.model = modelTextBody;
 		this.isEditable = editable;

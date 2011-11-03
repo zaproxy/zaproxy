@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 
 // ZAP: Added support for selecting the locale
 
@@ -44,6 +45,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String REVEAL_OPTION = "view.reveal";
+	public static final String PLUGIN_VIEW = "view.plugin.";
 
 	public static final String DEFAULT_VIEW_REQ_MANUAL = "view.defaultViewReqManual";
 	public static final String DEFAULT_VIEW_REQ_PROXY = "view.defaultViewReqProxy";
@@ -295,6 +297,22 @@ public class OptionsParamView extends AbstractParam {
 		}
 			
 		return "Split";
+	}
+
+	public String getPluginView(String name, boolean isRequest) {
+		if (isRequest) {
+			return (String) getConfig().getProperty(PLUGIN_VIEW + "Request" + name);
+		} else {
+			return (String) getConfig().getProperty(PLUGIN_VIEW + "Response" + name);
+		}
+	}
+
+	public void setPluginView(String pluginName, boolean isRequest, String viewEntry) {
+		if (isRequest) {
+			getConfig().setProperty(PLUGIN_VIEW + "Request" + pluginName, viewEntry);
+		} else {
+			getConfig().setProperty(PLUGIN_VIEW + "Response" + pluginName, viewEntry);
+		}
 	}
 	
 }

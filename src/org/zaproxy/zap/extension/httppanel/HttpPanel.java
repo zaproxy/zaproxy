@@ -252,6 +252,10 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	
 	// New HttpMessage was set
 	public void updateContent() {
+		if (currentPlugin == null) {
+			log.error("HttpPanel: could not find current plugin");
+			return;
+		}
 		currentPlugin.setHttpMessage(httpMessage);
 		loadData();
 	}
@@ -274,7 +278,10 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	
 	private void switchView(String name) {
 		this.currentPlugin = viewLink.get(name);
-		
+		if (this.currentPlugin == null) {
+			log.error("HttpPanel: could not find plugin with name: " + name);
+			return;
+		}
 		currentPlugin.getButton().setBackground(Color.gray);
 		
 		this.currentPlugin.setHttpMessage(httpMessage);

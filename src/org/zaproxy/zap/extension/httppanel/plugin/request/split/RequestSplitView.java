@@ -25,57 +25,45 @@ import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.plugin.BasicPlugin;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-import org.zaproxy.zap.extension.httppanel.view.table.HttpPanelTabularView;
+import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
-public class RequestSplitView implements PluginInterface, ActionListener  {
+public class RequestSplitView extends BasicPlugin  {
 	
 	private static final String PREF_DIVIDER_LOCATION = "divider.location";
 	private static final String DIVIDER_HORIZONTAL = "horizontal";
 	
-	protected HttpPanelTextView viewBodyText;
-	protected HttpPanelHexView viewBodyHex;
-	protected HttpPanelTabularView viewBodyTable;
-	protected HttpPanelTextView viewHeaderText;
-	
 	protected JPanel panelHeader;
-	protected JPanel panelBody;
-	
-	protected JButton buttonShowView;
-	protected JComboBox comboxSelectView;
-
 	protected JSplitPane splitMain;
-	protected JPanel panelOptions;
-	protected JPanel panelMain;
 
-	protected HttpPanel httpPanel;
-	protected HttpMessage httpMessage;
-
-	protected HttpPanelView currentView;
-	protected Hashtable<String, HttpPanelView> views = new Hashtable<String, HttpPanelView>();
-	
 	protected static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
 
+	private final Preferences preferences;
+	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+	
+	
+	// Plugins
 	protected HttpPanelTextModelInterface modelTextHeader;
 	protected HttpPanelTextModelInterface modelTextBody;
 	protected HttpPanelTextModelInterface modelHexBody;
 	protected HttpPanelTextModelInterface modelTableBody;
 	
-	private final Preferences preferences;
-	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
+	protected HttpPanelTextView viewBodyText;
+	protected HttpPanelHexView viewBodyHex;
+	protected RequestPostTableView viewBodyTable;
+	protected HttpPanelTextView viewHeaderText;
 	
 	public RequestSplitView(HttpPanel httpPanel, HttpMessage httpMessage) {
-		this.httpPanel = httpPanel;
-		this.httpMessage = httpMessage;
+		super(httpPanel, httpMessage);
 		this.preferences = Preferences.userNodeForPackage(getClass());
-		initModel();
 		initUi();
-		switchView(viewBodyText.getName());
+		switchView(null);
 	}
 	
 	protected void initModel() {
@@ -84,7 +72,6 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		modelHexBody = new RequestSplitModelBodyText(httpMessage);
 		modelTableBody = new RequestSplitModelBodyText(httpMessage);
 	}
-	
 
 	protected void initUi() {
 		// Common
@@ -94,8 +81,8 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 
 		// Main
 		panelHeader = new JPanel();
-		panelBody = new JPanel();
-		panelBody.setLayout(new CardLayout());
+		panelMainSwitchable = new JPanel();
+		panelMainSwitchable.setLayout(new CardLayout());
 
 		// Header
 		viewHeaderText = new HttpPanelTextView(modelTextHeader, MessageType.Header, httpPanel.isEditable());
@@ -110,11 +97,10 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		splitMain.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_HORIZONTAL));
 		
 		splitMain.setTopComponent(panelHeader);
-		splitMain.setBottomComponent(panelBody);
+		splitMain.setBottomComponent(panelMainSwitchable);
 		
 		// Plugins
-		initPluginView();
-
+		initPlugins();
 
 		// All
 		panelMain = new JPanel(new BorderLayout());
@@ -123,18 +109,18 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		httpPanel.addHttpDataView(this);
 	}
 	
-	protected void initPluginView() {
+	protected void initPlugins() {
 		viewBodyText = new HttpPanelTextView(modelTextBody, MessageType.Body, httpPanel.isEditable());
-		viewBodyTable = new HttpPanelTabularView(modelTextBody, MessageType.Body, httpPanel.isEditable());
+		viewBodyTable = new RequestPostTableView(modelTextBody, MessageType.Body, httpPanel.isEditable());
 		viewBodyHex = new HttpPanelHexView(modelTextBody, MessageType.Body, httpPanel.isEditable());
 		
 		views.put(viewBodyText.getName(), viewBodyText);
 		views.put(viewBodyTable.getName(), viewBodyTable);
 		views.put(viewBodyHex.getName(), viewBodyHex);
 		
-		panelBody.add(viewBodyText.getPane(), viewBodyText.getName());
-		panelBody.add(viewBodyTable.getPane(), viewBodyTable.getName());
-		panelBody.add(viewBodyHex.getPane(), viewBodyHex.getName());
+		panelMainSwitchable.add(viewBodyText.getPane(), viewBodyText.getName());
+		panelMainSwitchable.add(viewBodyTable.getPane(), viewBodyTable.getName());
+		panelMainSwitchable.add(viewBodyHex.getPane(), viewBodyHex.getName());
 		
 		// Combobox
 		comboxSelectView.addItem(viewBodyText.getName());
@@ -147,48 +133,6 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 	@Override
 	public String getName() {
 		return "Split";
-	}
-
-	@Override
-	public JButton getButton() {
-		return buttonShowView;
-	}
-
-	@Override
-	public JPanel getOptionsPanel() {
-		return panelOptions;
-	}
-
-	@Override
-	public JPanel getMainPanel() {
-		return panelMain;
-	}
-
-	@Override
-	public void load() {
-		if (httpMessage == null) {
-			return;
-		}
-
-		// Update UI
-		viewHeaderText.load();
-		currentView.load();
-	}
-
-	@Override
-	public void save() {
-		if (httpMessage == null) {
-			return;
-		}
-		
-		viewHeaderText.save();
-		currentView.save();
-	}
-	
-	protected void switchView(String name) {
-		this.currentView = views.get(name);		
-        CardLayout card = (CardLayout) panelBody.getLayout();
-        card.show(panelBody, name);	
 	}
 
 	@Override
@@ -206,11 +150,27 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		viewBodyText.setHttpMessage(httpMessage);
 		viewHeaderText.setHttpMessage(httpMessage);
 	}
+	
+    @Override
+    public void load() {
+            if (httpMessage == null) {
+                    return;
+            }
 
-	@Override
-	public void clearView(boolean enableViewSelect) {
-		// TODO Auto-generated method stub
-	}
+            // Update UI
+            viewHeaderText.load();
+            currentView.load();
+    }
+
+    @Override
+    public void save() {
+            if (httpMessage == null) {
+                    return;
+            }
+
+            viewHeaderText.save();
+            currentView.save();
+    }
 
 	@Override
 	public void searchHeader(Pattern p, List<SearchMatch> matches) {
@@ -244,19 +204,6 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 		viewBodyText.highlight(sm);
 	}
 
-	
-	// Combobox action listener
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-        String item = (String) comboxSelectView.getSelectedItem();
-        if (item == null || item.equals(currentView.getName())) {
-                return;
-        }
-        
-        save();
-        switchView(item);
-        load();
-	}
 	
 	/**
 	 * @param prefix
@@ -321,6 +268,11 @@ public class RequestSplitView implements PluginInterface, ActionListener  {
 			}
 		}
 		
+	}
+
+	@Override
+	protected boolean isRequest() {
+		return true;
 	}
 
 }

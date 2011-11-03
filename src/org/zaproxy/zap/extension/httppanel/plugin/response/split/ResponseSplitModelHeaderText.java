@@ -1,10 +1,13 @@
 package org.zaproxy.zap.extension.httppanel.plugin.response.split;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 
 public class ResponseSplitModelHeaderText extends HttpPanelTextModelInterface {
+	
+    private static Logger log = Logger.getLogger(HttpMessage.class);
 	
 	public ResponseSplitModelHeaderText(HttpMessage httpMessage) {
 		setHttpMessage(httpMessage);
@@ -20,8 +23,7 @@ public class ResponseSplitModelHeaderText extends HttpPanelTextModelInterface {
 		try {
 			httpMessage.setResponseHeader(data);
 		} catch (HttpMalformedHeaderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Could not Save Header: " + data);
 		}
 	}
 }

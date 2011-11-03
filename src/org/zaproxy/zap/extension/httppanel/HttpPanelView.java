@@ -57,6 +57,7 @@ public interface HttpPanelView {
 	 * Gets the content
 	 * @return a string representation of the content
 	 */
+// DOBIN
 //	public String getModel();
 
 	

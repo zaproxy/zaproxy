@@ -1,5 +1,6 @@
 package org.zaproxy.zap.extension.httppanel.plugin.request.all;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,115 +18,106 @@ import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.plugin.BasicPlugin;
 import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
+import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableModel;
+import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableView;
+import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
-public class RequestAllView implements PluginInterface, ActionListener {
-
-	private JButton buttonShowView;
-	private JComboBox comboxSelectView;
+public class RequestAllView extends BasicPlugin {
 	
-	private JPanel panelOptions;
-	private JPanel panelMain;
-	
-	private HttpPanel httpPanel;
-	private HttpMessage httpMessage;
-	
+	// Plugins
 	private HttpPanelTextView textView;
 	private HttpPanelHexView hexView;
-//	private HttpPanelTabularView httpPanelTableView;
+	private RequestAllTableView tableView;
 	
 	private RequestAllModelText modelText;
 	private RequestAllModelText modelHex;
+	private RequestAllTableModel modelTable;
 	
-	private HttpPanelView currentView;
-	private Hashtable<String, HttpPanelView> views = new Hashtable<String, HttpPanelView>();
-	
-    private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
-	
+
 	public RequestAllView(HttpPanel httpPanel, HttpMessage httpMessage) {
-		this.httpPanel = httpPanel;
-		this.httpMessage = httpMessage;
-		initModel();
+		super(httpPanel, httpMessage);
 		initUi();
-		switchView(textView.getName());
+		switchView(null);
 	}
 	
-	private void initModel() {
-		modelText = new RequestAllModelText(httpMessage);
-		modelHex = new RequestAllModelText(httpMessage);
-	}
-	
-	private void initUi() {
+	protected void initUi() {
 		// Common
 		buttonShowView = new JButton(Constant.messages.getString("request.panel.button.all"));
 
 		// Main Panel
 		panelMain = new JPanel();
-		panelMain.setLayout(new CardLayout());
+		panelMainSwitchable = new JPanel();
+		panelMainSwitchable.setLayout(new CardLayout());
 		
-		// Plugins
-		textView = new HttpPanelTextView(modelText, MessageType.Full, httpPanel.isEditable());
-//		httpPanelTableView = new HttpPanelTabularView();
-		hexView = new HttpPanelHexView(modelText, MessageType.Full, httpPanel.isEditable());
-		
-		views.put(textView.getName(), textView);
-//		views.put(httpPanelTableView.getName(), httpPanelTableView);
-		views.put(hexView.getName(), hexView);
-		
-		panelMain.add(textView.getPane(), textView.getName());
-//		panelMain.add(httpPanelTableView.getPane(), httpPanelTableView.getName());
-		panelMain.add(hexView.getPane(), hexView.getName());
-		
-		// Combobox
-		comboxSelectView = new JComboBox();
-		comboxSelectView.addItem(textView.getName());
-//		comboxSelectView.addItem(httpPanelTableView.getName());
-		comboxSelectView.addItem(hexView.getName());
-		comboxSelectView.addActionListener(this);
-		
+		initPlugins();
+
 		panelOptions = new JPanel();
 		panelOptions.add(comboxSelectView);
+
+		// All
+		panelMain = new JPanel(new BorderLayout());
+		panelMain.add(panelMainSwitchable);
 		
 		httpPanel.addHttpDataView(this);
 	}
 	
-	private void switchView(String name) {
-		this.currentView = views.get(name);		
-        CardLayout card = (CardLayout) panelMain.getLayout();
-        card.show(panelMain, name);	
+	
+	protected void initModel() {
+		modelText = new RequestAllModelText(httpMessage);
+		modelHex = new RequestAllModelText(httpMessage);
+		modelTable = new RequestAllTableModel(httpMessage, httpPanel.isEditable());
+	}
+	
+	protected void initPlugins() {
+		// Plugins - View
+		textView = new HttpPanelTextView(modelText, MessageType.Full, httpPanel.isEditable());
+		tableView = new RequestAllTableView(modelTable, MessageType.Full, httpPanel.isEditable());
+		hexView = new HttpPanelHexView(modelText, MessageType.Full, httpPanel.isEditable());
+		
+		views.put(textView.getName(), textView);
+		views.put(tableView.getName(), tableView);
+		views.put(hexView.getName(), hexView);
+		
+		panelMainSwitchable.add(textView.getPane(), textView.getName());
+		panelMainSwitchable.add(tableView.getPane(), tableView.getName());
+		panelMainSwitchable.add(hexView.getPane(), hexView.getName());
+
+		// Combobox
+		comboxSelectView = new JComboBox();
+		comboxSelectView.addItem(textView.getName());
+		comboxSelectView.addItem(tableView.getName());
+		comboxSelectView.addItem(hexView.getName());
+		comboxSelectView.addActionListener(this);
 	}
 
-	@Override
 	public String getName() {
 		return "All";
 	}
 
-	@Override
-	public JButton getButton() {
-		return buttonShowView;
+	public void setHttpMessage(HttpMessage httpMessage) {
+		this.httpMessage = httpMessage;
+		
+		modelText.setHttpMessage(httpMessage);
+		modelTable.setHttpMessage(httpMessage);
+		
+		// This is not nice, but needed for fuzzing
+		// ExtensionAntiCSRF gets HttpMessage from HttpPanelTextView...
+		textView.setHttpMessage(httpMessage);
+		//tableView.set
 	}
-
-	@Override
-	public JPanel getOptionsPanel() {
-		return panelOptions;
-	}
-
-	@Override
-	public JPanel getMainPanel() {
-		return panelMain;
-	}
-
+	
 	@Override
 	public void load() {
 		if (httpMessage == null) {
 			return;
 		}
-		
-		currentView.load();		
+		currentView.load();
 	}
 
 	@Override
@@ -133,63 +125,35 @@ public class RequestAllView implements PluginInterface, ActionListener {
 		if (httpMessage == null) {
 			return;
 		}
-		
+		// currentView.getModel().save();
 		currentView.save();
 	}
-
-	@Override
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
-
-		modelText.setHttpMessage(httpMessage);
-
-		
-		this.textView.setHttpMessage(httpMessage);
-	}
-
-	@Override
-	public void clearView(boolean enableViewSelect) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-        String item = (String) comboxSelectView.getSelectedItem();
-        if (item == null || item.equals(currentView.getName())) {
-                return;
-        }
-        
-        save();
-        switchView(item);
-        load();
-	}
 	
-	
+
 	//// Not implemented
-	
-	@Override
 	public void searchHeader(Pattern p, List<SearchMatch> matches) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void highlightHeader(SearchMatch sm) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void highlightBody(SearchMatch sm) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	protected boolean isRequest() {
+		return true;
 	}
 
 }

@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.zaproxy.zap.extension.httppanel.view.table;
+package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -32,7 +32,7 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
-public class HttpPanelTabularModel extends AbstractTableModel {
+public class RequestPostTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -3239987476977015394L;
 	private static final String[] columnNames = {
@@ -46,7 +46,7 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     private boolean tableError = false;
     
     // ZAP: Added logger
-    private Logger logger = Logger.getLogger(HttpPanelTabularModel.class);
+    private Logger logger = Logger.getLogger(RequestPostTableModel.class);
     
     /**
      * @return Returns the editable.
@@ -63,7 +63,7 @@ public class HttpPanelTabularModel extends AbstractTableModel {
     /**
      * 
      */
-    public HttpPanelTabularModel() {
+    public RequestPostTableModel() {
         super();
     }
 

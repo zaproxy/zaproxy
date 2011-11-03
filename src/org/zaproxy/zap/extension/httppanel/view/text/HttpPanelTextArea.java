@@ -60,8 +60,23 @@ public class HttpPanelTextArea extends ZapTextArea {
 					SearchMatch.Location.REQUEST_BODY, 
 					getSelectionStart(),
 					getSelectionEnd());
-			
 		} else if (messageType.equals(MessageType.Full)) {
+			int headerLen = httpMessage.getRequestHeader().toString().length();
+			if (getSelectionStart() < headerLen) {
+				sm = new SearchMatch(
+					httpMessage,
+					SearchMatch.Location.REQUEST_HEAD, 
+					getSelectionStart(),
+					getSelectionEnd());
+			} else {
+				sm = new SearchMatch(
+					httpMessage,
+					SearchMatch.Location.REQUEST_BODY, 
+					getSelectionStart() - headerLen,
+					getSelectionEnd() - headerLen);
+			}
+		} else {
+			log.debug("MessageType unknown");
 		}
 		
 		return sm;
