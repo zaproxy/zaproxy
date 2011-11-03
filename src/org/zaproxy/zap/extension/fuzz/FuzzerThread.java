@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.fuzz;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,6 +43,7 @@ public class FuzzerThread implements Runnable {
 
 	private HttpMessage msg;
 	private Fuzzer[] fuzzers;
+	private FileFuzzer[] customFuzzers;
 	private boolean fuzzHeader;
 	private int startOffset;
 	private int endOffset;
@@ -92,10 +94,11 @@ public class FuzzerThread implements Runnable {
 	}
 
 
-	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
+	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, boolean fuzzHeader, 
 			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects) {
 		this.msg = msg;
 		this.fuzzers = fuzzers;
+		this.customFuzzers = customFuzzers;
 		this.fuzzHeader = fuzzHeader;
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
@@ -105,12 +108,75 @@ public class FuzzerThread implements Runnable {
 	}
 
     public void run() {
-	    this.fuzz(msg, fuzzers, fuzzHeader, startOffset, endOffset);
+    	if (customFuzzers != null) {
+    		this.fuzz(msg, customFuzzers, fuzzHeader, startOffset, endOffset);
+    	} else {
+    		this.fuzz(msg, fuzzers, fuzzHeader, startOffset, endOffset);
+    	}
 	    
 	    pool.waitAllThreadComplete(0);
 	    notifyFuzzerComplete();
 	}
 	
+	private void fuzz(HttpMessage msg, FileFuzzer[] customFuzzers,
+			boolean fuzzHeader, int startOffset, int endOffset) {
+		
+		int total = 0;
+		for (FileFuzzer fuzzer : customFuzzers) {
+			total += (int)fuzzer.getLength();
+		}
+		extension.scanProgress(0, total);
+		
+		for (FileFuzzer fuzzer : customFuzzers) {
+			Iterator<String> iter = fuzzer.getIterator();
+			while (iter.hasNext()) {
+				
+				while (pause && ! isStop()) {
+                	try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+				}
+				if (isStop()) {
+					break;
+				}
+				if (delayInMs > 0) {
+                	try {
+						Thread.sleep(delayInMs);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+				}
+				
+				String fuzz = iter.next();
+				FuzzProcess fp = new FuzzProcess(connectionParam, 
+						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests, followRedirects);
+				for (FuzzerListener listener : listenerList) {
+					fp.addFuzzerListener(listener);
+				}
+	
+				Thread thread;
+	            do { 
+	                thread = pool.getFreeThreadAndRun(fp);
+	                if (thread == null) {
+	                	try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							// Ignore
+						}
+	                }
+	            } while (thread == null && !isStop());
+	
+			}
+			if (isStop()) {
+				break;
+			}
+
+		}
+	}
+
+
 	private void fuzz(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, int startOffset, int endOffset) {
 	
 		int total = 0;

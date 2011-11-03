@@ -79,7 +79,7 @@ public class FuzzDialog extends AbstractDialog {
 	
 	private Database fuzzDB = new Database();
 
-	private static Logger log = Logger.getLogger(FuzzDialog.class);
+    private static Logger log = Logger.getLogger(FuzzDialog.class);
 
     /**
      * @throws HeadlessException
@@ -211,15 +211,24 @@ public class FuzzDialog extends AbstractDialog {
 			        Object [] names = fuzzersField.getSelectedValues();
 			        if (names != null && names.length > 0) {
 				        try {
-				        	Fuzzer [] fuzzers = new Fuzzer[names.length];
-				        	for (int i=0; i < names.length; i++) {
-						        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
-				        	}
+				        	Fuzzer [] fuzzers = null;;
+				        	FileFuzzer [] customFuzzers = null;
+				    		if (isCustomCategory()) {
+				    			customFuzzers = new FileFuzzer[names.length];
+					        	for (int i=0; i < names.length; i++) {
+					        		customFuzzers[i] = extension.getFileFuzzer(names[i].toString());
+					        	}
+				    		} else {
+					        	fuzzers = new Fuzzer[names.length];
+					        	for (int i=0; i < names.length; i++) {
+							        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
+					        	}
+				    		}
 				        	AntiCsrfToken token = null;
 				        	if (getEnableTokens().isSelected() && tokenPane.isEnable()) {
 				        		token = tokenPane.getToken();
 				        	}
-			        		extension.startFuzzers(httpMessage, fuzzers, fuzzHeader, 
+			        		extension.startFuzzers(httpMessage, fuzzers, customFuzzers, fuzzHeader, 
 			        				selectionStart, selectionEnd, token, 
 			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected());
 							
@@ -250,6 +259,10 @@ public class FuzzDialog extends AbstractDialog {
 		return gbc;
 	}
 	
+	private boolean isCustomCategory() {
+		return Constant.messages.getString("fuzz.category.custom").equals(getCategoryField().getSelectedItem());
+	}
+	
 	private JComboBox getCategoryField() {
 		if (categoryField == null) {
 			categoryField = new JComboBox();
@@ -261,6 +274,7 @@ public class FuzzDialog extends AbstractDialog {
 			for (String category : allCats) {
 				categoryField.addItem(category);
 			}
+			categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
 			
 			categoryField.addActionListener(new ActionListener() {
 
@@ -280,10 +294,17 @@ public class FuzzDialog extends AbstractDialog {
 			return;
 		}
 		
-		String [] fuzzers = fuzzDB.getPrototypeNamesInCategory(category);
-		Arrays.sort(fuzzers);
-		for (String fuzzer : fuzzers) {
-			fuzzerModel.addElement(fuzzer);
+		if (isCustomCategory()) {
+			List<String> fuzzers = extension.getFileList();
+			for (String fuzzer : fuzzers) {
+				fuzzerModel.addElement(fuzzer);
+			}
+		} else {
+			String [] fuzzers = fuzzDB.getPrototypeNamesInCategory(category);
+			Arrays.sort(fuzzers);
+			for (String fuzzer : fuzzers) {
+				fuzzerModel.addElement(fuzzer);
+			}
 		}
 
 	}
