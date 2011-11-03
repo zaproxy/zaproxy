@@ -773,4 +773,23 @@ public class HttpMessage {
 		}
 
 	}
+
+	// Construct new POST Body from parameter in the postParams argument
+	// in the Request Body
+	public void setFormParams(TreeSet<HtmlParameter> postParams) {
+		// TODO: Maybe update content length etc?
+		mReqBody.setFormParams(postParams);
+	}
+
+	// Construct new URL from get Request, based on the getParams argument
+	// in the Request Header
+	public void setGetParams(TreeSet<HtmlParameter> getParams) {
+		mReqHeader.setGetParams(getParams);
+	}
+
+	// Rewrite cookie line in the Request Header,
+	// based on values in cookieParams
+	public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
+		mReqHeader.setCookieParams(cookieParams);
+	}
 }

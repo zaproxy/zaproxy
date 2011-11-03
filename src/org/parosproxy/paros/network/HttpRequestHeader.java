@@ -26,6 +26,7 @@ package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -204,7 +205,7 @@ public class HttpRequestHeader extends HttpHeader {
 			mIsSecure = false;
 		}
 	}
-
+	
 	/**
 	 * Get if this request header is under secure connection.
 	 * @return
@@ -446,6 +447,67 @@ public class HttpRequestHeader extends HttpHeader {
 	    }
 	    uri = new URI(sb.toString(), true);
 		return uri;
+	}
+
+	// Construct new GET url of request
+	// Based on getParams
+	public void setGetParams(TreeSet<HtmlParameter> getParams) {
+		String uri = "";
+		
+		if (getParams.size() == 0) {
+			return;
+		}
+		
+		for(HtmlParameter parameter: getParams) {
+			if (parameter.getType() != HtmlParameter.Type.url) {
+				continue;
+			}
+			
+			uri += parameter.getName() + "=" + parameter.getValue();
+			uri += "&";
+		}
+		
+		if (uri.length() < 1) {
+			return;
+		}
+		
+		uri = uri.substring(0, uri.length() - 1);
+
+		try {
+			String a = "";
+			a += mUri.getScheme() + "://";
+			a += mUri.getHost() + mUri.getPath() + "?";
+			a += uri;
+			setURI( new URI(a));
+		} catch (URIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	// Construct new "Cookie:" line in request header,
+	// based on cookieParams
+	public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
+		String data = "";
+		
+		for(HtmlParameter parameter: cookieParams) {
+			if (parameter.getType() != HtmlParameter.Type.cookie) {
+				continue;
+			}
+			
+			data += parameter.getName() + "=" + parameter.getValue();
+			data += "; ";
+		}
+		
+		if (data.length() <= 2) {
+			return;
+		}
+		
+		data = data.substring(0, data.length() - 2);
+		setHeader(HttpHeader.COOKIE, data);
 	}
 
 }

@@ -22,6 +22,7 @@
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -271,6 +272,23 @@ public class HttpBody {
         
         return utf8;
     }
+
+	// Construct a HTTP POST Body from the variables in postParams
+	public void setFormParams(TreeSet<HtmlParameter> postParams) {
+		String postData = "";
+		
+		for(HtmlParameter parameter: postParams) {
+			if (parameter.getType() != HtmlParameter.Type.form) {
+				continue;
+			}
+			
+			postData += parameter.getName() + "=" + parameter.getValue();
+			postData += "&";
+		}
+		postData = postData.substring(0, postData.length() - 1);
+		
+		this.setBody(postData);
+	}
     
     
 }
