@@ -131,6 +131,7 @@ public final class Constant {
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
+    public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
 	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
 	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
@@ -195,6 +196,7 @@ public final class Constant {
 		FOLDER_SESSION = zapHome + FOLDER_SESSION;
 		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
+		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
 
         try {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
