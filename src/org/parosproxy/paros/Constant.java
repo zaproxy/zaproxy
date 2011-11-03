@@ -133,6 +133,8 @@ public final class Constant {
     public String DIRBUSTER_DIR = "dirbuster";
     public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
+    public String FUZZER_CUSTOM_DIR = "fuzzers";
+
 	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
 	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
 	public static URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png");		// Yellow
@@ -197,6 +199,7 @@ public final class Constant {
 		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
+		FUZZER_CUSTOM_DIR = zapHome + FUZZER_CUSTOM_DIR;
 
         try {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
@@ -240,6 +243,23 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
+            f = new File(DIRBUSTER_CUSTOM_DIR);
+            if (!f.isDirectory()) {
+                log.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+            f = new File(FUZZER_CUSTOM_DIR);
+            if (!f.isDirectory()) {
+                log.info("Creating directory " + FUZZER_CUSTOM_DIR);
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+
         } catch (Exception e) {
             System.err.println("Unable to initialize home directory! " + e.getMessage());
             e.printStackTrace(System.err);
