@@ -48,6 +48,11 @@ public class RequestPostTableView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
+		return Constant.messages.getString("request.panel.view.table");
+	}
+	
+	@Override
+	public String getConfigName() {
 		return "Table";
 	}
 

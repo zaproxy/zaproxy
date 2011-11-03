@@ -45,8 +45,14 @@ public class HttpPanelHexView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
+		return VIEW_HEX;
+	}
+	
+	@Override
+	public String getConfigName() {
 		return "Hex";
 	}
+
 
 	@Override
 	public JScrollPane getPane() {

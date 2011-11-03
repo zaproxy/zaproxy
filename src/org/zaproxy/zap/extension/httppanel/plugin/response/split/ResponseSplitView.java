@@ -17,6 +17,11 @@ public class ResponseSplitView extends RequestSplitView {
 	public ResponseSplitView(HttpPanel httpPanel, HttpMessage httpMessage) {
 		super(httpPanel, httpMessage);
 	}
+	
+	@Override
+	public boolean isRequest() {
+		return false;
+	}
 
 	@Override
 	protected void initModel() {

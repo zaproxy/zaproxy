@@ -82,4 +82,6 @@ public interface HttpPanelView {
 	 * @param editable
 	 */
 	public void setEditable(boolean editable);
+	
+	public String getConfigName();
 }

@@ -114,8 +114,13 @@ public class RequestAllTableView implements HttpPanelView {
 	}
 
 	@Override
-	public String getName() {
+	public String getConfigName() {
 		return "Table";
+	}
+	
+	@Override
+	public String getName() {
+		return Constant.messages.getString("request.panel.view.table");
 	}
 
 	@Override

@@ -20,6 +20,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
+import bsh.This;
+
 public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected JButton buttonShowView;
 	protected JComboBox comboxSelectView;
@@ -34,7 +36,7 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected HttpPanelView currentView;
 	protected Hashtable<String, HttpPanelView> views = new Hashtable<String, HttpPanelView>();
 	
-	protected static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
+	protected static Logger log = Logger.getLogger(BasicPlugin.class);
     
 	public BasicPlugin(HttpPanel httpPanel, HttpMessage httpMessage) {
 		this.httpPanel = httpPanel;
@@ -45,31 +47,47 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected abstract void initModel();
 	protected abstract void initPlugins();
 	protected abstract void initUi();
+//	public abstract String getConfigName();
 		
 	protected void switchView(String name) {
 		if (name == null) {
-			String configView = Model.getSingleton().getOptionsParam().getViewParam().getPluginView(this.getName(), isRequest());
-			System.out.println("Configview: " + configView);
+			String configView = Model.getSingleton().getOptionsParam().getViewParam().getPluginView(
+						this.getName(), 
+						isRequest());
 			if (configView == null) {
 				// Fallback
-				this.currentView = views.get("Text");
-				name = "Text";
+				this.currentView = views.get(Constant.messages.getString("request.panel.view.text"));
+				name = Constant.messages.getString("request.panel.view.text");
 			} else {
 				// From config
-				this.currentView = views.get(configView);
-				name = configView;
-				comboxSelectView.setSelectedItem(configView);
+				boolean gotit = false;
+				for(HttpPanelView view: views.values()) {
+					if (view.getConfigName().equals(configView)) {
+						String realView = view.getName();
+						this.currentView = views.get(realView);
+						comboxSelectView.setSelectedItem(realView);
+						name = realView;
+						gotit = true;
+						break;
+					}
+				}
+				if (! gotit) {
+					// Fallback
+					this.currentView = views.get(Constant.messages.getString("request.panel.view.text"));
+					name = Constant.messages.getString("request.panel.view.text");
+				}
 			}
 		} else {
 			// Last selected
 			this.currentView = views.get(name);
-			Model.getSingleton().getOptionsParam().getViewParam().setPluginView(this.getName(), isRequest(), name);
+			Model.getSingleton().getOptionsParam().getViewParam().setPluginView(this.getName(), isRequest(), this.currentView.getConfigName());
 		}
 		
 		if (this.currentView == null) {
 			log.error("Could not find plugin view");
 			return;
 		}
+		
 		
         CardLayout card = (CardLayout) panelMainSwitchable.getLayout();
         card.show(panelMainSwitchable, name);
@@ -107,6 +125,10 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	// Combobox event
 	public void actionPerformed(ActionEvent arg0) {
         String item = (String) comboxSelectView.getSelectedItem();
+        if (currentView == null) {
+        	return;
+        }
+        
         if (item == null || item.equals(currentView.getName())) {
                 return;
         }

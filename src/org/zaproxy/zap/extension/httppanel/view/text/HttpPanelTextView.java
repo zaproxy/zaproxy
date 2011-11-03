@@ -78,11 +78,15 @@ public class HttpPanelTextView implements HttpPanelView {
 	public void save() {
 		model.setData(httpPanelTextArea.getText());
 	}
-	
+
+	@Override
+	public String getConfigName() {
+		return "Text";
+	}
 	
 	@Override
 	public String getName() {
-		return "Text";
+		return Constant.messages.getString("request.panel.view.text");
 	}
 
 	@Override
