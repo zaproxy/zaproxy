@@ -20,6 +20,10 @@
 package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.Component;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -102,13 +106,13 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 
 
-	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, 
+	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, boolean fuzzHeader, 
 			int startOffset, int endOffset, AntiCsrfToken acsrfToken, 
 			boolean showTokenRequests, boolean followRedirects) {
 		this.getFuzzerPanel().scanStarted();
 
 		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(msg, fuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects);
+		fuzzerThread.setTarget(msg, fuzzers, customFuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects);
 		fuzzerThread.addFuzzerListener(this);
 		fuzzerThread.start();
 
@@ -221,6 +225,26 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	public boolean isFuzzing() {
 		return fuzzing;
+	}
+
+	public List<String> getFileList() {
+		List <String> fileList = new ArrayList<String>();
+		File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
+		File[] customFiles = customDir.listFiles();
+		if (customFiles != null) {
+			Arrays.sort(customFiles);
+			for (File file : customFiles) {
+				if (! file.isDirectory()) {
+					fileList.add(file.getName());
+				}
+			}
+		}
+		Collections.sort(fileList);
+		return fileList;
+	}
+
+	public FileFuzzer getFileFuzzer(String string) {
+		return new FileFuzzer(new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + string));
 	}
 
 }

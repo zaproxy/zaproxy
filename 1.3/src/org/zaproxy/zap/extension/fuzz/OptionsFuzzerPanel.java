@@ -23,17 +23,24 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.filechooser.FileFilter;
 
 import org.owasp.jbrofuzz.core.Database;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 
 public class OptionsFuzzerPanel extends AbstractParamPanel {
 
@@ -41,6 +48,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	private JPanel panelPortScan = null;
 	private JSlider sliderThreadsPerScan = null;
 	private JComboBox categoryField = null;
+	private JButton addFileButton = null;
 
 	private Database fuzzDB = new Database();
 
@@ -68,24 +76,28 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelPortScan() {
 		if (panelPortScan == null) {
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			JLabel jLabel2 = new JLabel();
 
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints5a = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints5b = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
 
 			panelPortScan = new JPanel();
 			JLabel jLabel0 = new JLabel();
 			JLabel jLabel1 = new JLabel();
+			JLabel jLabel2 = new JLabel();
+			JLabel jLabel3 = new JLabel();
 
 			panelPortScan.setLayout(new GridBagLayout());
 			panelPortScan.setSize(114, 132);
 			panelPortScan.setName("");
 			jLabel0.setText(Constant.messages.getString("fuzz.options.label.category"));
 			jLabel1.setText(Constant.messages.getString("fuzz.options.label.threads"));
+			jLabel2.setText("");
+			jLabel3.setText(Constant.messages.getString("fuzz.options.label.addfile"));
 			
 			gridBagConstraints10.gridx = 0;
 			gridBagConstraints10.gridy = 0;
@@ -125,21 +137,44 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 			gridBagConstraints4.insets = new Insets(2,2,2,2);
 			gridBagConstraints4.gridwidth = 2;
 			
-			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 10;
-			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints6.fill = GridBagConstraints.BOTH;
-			gridBagConstraints6.insets = new Insets(2,2,2,2);
-			gridBagConstraints6.weightx = 1.0D;
-			gridBagConstraints6.weighty = 1.0D;
-			gridBagConstraints6.gridwidth = 2;
+			gridBagConstraints5a.gridx = 0;
+			gridBagConstraints5a.gridy = 4;
+			gridBagConstraints5a.weightx = 1.0;
+			gridBagConstraints5a.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5a.ipadx = 0;
+			gridBagConstraints5a.ipady = 0;
+			gridBagConstraints5a.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5a.insets = new Insets(2,2,2,2);
+			gridBagConstraints5a.gridwidth = 1;
 			
-			jLabel2.setText("");
+			gridBagConstraints5b.gridx = 1;
+			gridBagConstraints5b.gridy = 4;
+			gridBagConstraints5b.weightx = 1.0;
+			gridBagConstraints5b.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5b.ipadx = 0;
+			gridBagConstraints5b.ipady = 0;
+			gridBagConstraints5b.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraints5b.insets = new Insets(2,2,2,2);
+			gridBagConstraints5b.gridwidth = 1;
+
+			gridBagConstraintsX.gridx = 0;
+			gridBagConstraintsX.gridy = 10;
+			gridBagConstraintsX.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraintsX.fill = GridBagConstraints.BOTH;
+			gridBagConstraintsX.insets = new Insets(2,2,2,2);
+			gridBagConstraintsX.weightx = 1.0D;
+			gridBagConstraintsX.weighty = 1.0D;
+			gridBagConstraintsX.gridwidth = 2;
+			
 			panelPortScan.add(jLabel0, gridBagConstraints10);
 			panelPortScan.add(getDefaultCategory(), gridBagConstraints11);
 			panelPortScan.add(jLabel1, gridBagConstraints3);
 			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
-			panelPortScan.add(jLabel2, gridBagConstraints6);
+			panelPortScan.add(jLabel2, gridBagConstraintsX);
+
+			panelPortScan.add(jLabel3, gridBagConstraints5a);
+			panelPortScan.add(getAddFileButton(), gridBagConstraints5b);
+
 		}
 		return panelPortScan;
 	}
@@ -155,6 +190,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 			for (String category : allCats) {
 				categoryField.addItem(category);
 			}
+			categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
 		}
 		return categoryField;
 	}
@@ -210,6 +246,57 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
     public int getThreadPerScan() {
     	return this.sliderThreadsPerScan.getValue();
     }
+
+	private JButton getAddFileButton() {
+		if (addFileButton == null) {
+	        addFileButton = new JButton(Constant.messages.getString("bruteforce.options.button.addfile")); 
+			addFileButton.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+			    	JFileChooser fcCommand = new JFileChooser();
+					fcCommand.setFileFilter( new FileFilter() {
+						@Override
+						public String getDescription() {
+							return Constant.messages.getString("fuzz.options.title");
+						}
+						@Override
+						public boolean accept(File f) {
+							return true;
+						}
+					} );
+
+					// Copy the file into the 'home' dirbuster directory
+					int state = fcCommand.showOpenDialog( null );
+
+					if ( state == JFileChooser.APPROVE_OPTION )
+					{
+				    	FileCopier copier = new FileCopier();
+				    	File newFile = new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + 
+				    							fcCommand.getSelectedFile().getName());
+				    	// TODO
+				    	if (newFile.exists() /*|| extension.getFileList().contains(newFile.getName())*/) {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.duplicate.error"));
+				    		
+				    	} else if ( ! newFile.getParentFile().canWrite()) {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.dirperms.error") +
+									newFile.getParentFile().getAbsolutePath());
+				    		
+				    	} else {
+				    		try {
+								copier.copy(fcCommand.getSelectedFile(), newFile);
+								View.getSingleton().showMessageDialog(Constant.messages.getString("fuzz.add.ok"));
+							} catch (IOException e1) {
+								View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.fail.error") +
+										e1.getMessage());
+							}
+				    	}
+					}
+				}
+			});
+		}
+		return addFileButton;
+	}
+
+	
 
 	@Override
 	public String getHelpIndex() {
