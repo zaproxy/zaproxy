@@ -202,10 +202,15 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	}
 	
 	private void refreshFileList() {
+		String currentSelection = (String)defaultFileList.getSelectedItem();
 		defaultFileList.removeAllItems();
 		List<String> files = extension.getFileList();
 		for (String file : files) {
 			defaultFileList.addItem(file);
+		}
+		if (currentSelection != null) {
+			// Keep the same selection
+			defaultFileList.setSelectedItem(currentSelection);
 		}
 	}
 
@@ -308,6 +313,8 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 								copier.copy(fcCommand.getSelectedFile(), newFile);
 								// Refresh list in panel
 								extension.refreshFileList();
+								// Refresh the list in this popup
+								refreshFileList();
 								View.getSingleton().showMessageDialog(Constant.messages.getString("bruteforce.add.ok"));
 							} catch (IOException e1) {
 								View.getSingleton().showWarningDialog(Constant.messages.getString("bruteforce.add.fail.error") +
