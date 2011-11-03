@@ -361,6 +361,7 @@ public class HttpRequestHeader extends HttpHeader {
 	 */
 	public boolean isImage() {
 		try {
+			// ZAP: prevents a NullPointerException when no path exists
 			final String path = getURI().getPath();
 			if(path != null) {
 				return (patternImage.matcher(path).find());
