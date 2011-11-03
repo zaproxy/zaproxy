@@ -82,7 +82,7 @@ public class HttpPanelTextView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
-		return Constant.messages.getString("request.panel.view.text");
+		return "Text";
 	}
 
 	@Override

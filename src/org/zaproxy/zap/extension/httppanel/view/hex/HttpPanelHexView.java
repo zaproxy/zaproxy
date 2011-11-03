@@ -45,7 +45,7 @@ public class HttpPanelHexView implements HttpPanelView {
 	
 	@Override
 	public String getName() {
-		return VIEW_HEX;
+		return "Hex";
 	}
 
 	@Override

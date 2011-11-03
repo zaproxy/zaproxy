@@ -159,6 +159,10 @@ public class RequestSplitView extends BasicPlugin  {
 
             // Update UI
             viewHeaderText.load();
+            
+            if (currentView == null) {
+            	return;
+            }
             currentView.load();
     }
 

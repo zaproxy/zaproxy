@@ -49,10 +49,11 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected void switchView(String name) {
 		if (name == null) {
 			String configView = Model.getSingleton().getOptionsParam().getViewParam().getPluginView(this.getName(), isRequest());
+			System.out.println("Configview: " + configView);
 			if (configView == null) {
 				// Fallback
-				this.currentView = views.get(Constant.messages.getString("request.panel.view.text"));
-				name = Constant.messages.getString("request.panel.view.text");
+				this.currentView = views.get("Text");
+				name = "Text";
 			} else {
 				// From config
 				this.currentView = views.get(configView);
