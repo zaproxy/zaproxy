@@ -16,6 +16,7 @@ You should have received a copy of the Clarified Artistic License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/11/04 Correct entityEncode
 
 package org.parosproxy.paros.extension.report;
 
@@ -36,6 +37,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -203,16 +205,10 @@ public class ReportGenerator {
 			return result;
 		}
 
-		// & must be the first one to replace because all other entity depends on &.
-		result = result.replaceAll("&", "&amp;");
+		// The escapeXml function doesnt escape null chrs, which will cause problems later
+		result = result.replaceAll("\0", "%00");
 		
-		result = result.replaceAll("<", "&lt;");
-		result = result.replaceAll(">", "&gt;");
-		result = result.replaceAll("\"", "&quot;");
-		result = result.replaceAll("'", "&apos;");
-
-		
-		return result;
+		return StringEscapeUtils.escapeXml(result);
 	}
 	
 	/**
