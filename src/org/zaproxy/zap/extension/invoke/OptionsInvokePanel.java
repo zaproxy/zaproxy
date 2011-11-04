@@ -238,7 +238,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 
 	        editParameters = new ZapTextField();
 	        editNote = new JCheckBox();
-	        editOutput = new JCheckBox();
+			editNote.setEnabled(false);
+
+			editOutput = new JCheckBox();
 	        editOutput.addActionListener(new ActionListener() {
 
 				@Override
@@ -396,7 +398,13 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        				}
 	        				editParameters.setText(app.getParameters());
 	        				editOutput.setSelected(app.isCaptureOutput());
-	        				editNote.setSelected(app.isOutputNote());
+	        				if (app.isCaptureOutput()) {
+	        					editNote.setEnabled(true);
+		        				editNote.setSelected(app.isOutputNote());
+	        				} else {
+	        					editNote.setEnabled(false);
+		        				editNote.setSelected(false);
+	        				}
 	        				saveButton.setEnabled(true);
 	        				deleteButton.setEnabled(true);
 	        			}
