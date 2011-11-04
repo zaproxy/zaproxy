@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
+// ZAP: 2011/11/04 Correct getHierarchicNodeName
 
 package org.parosproxy.paros.model;
 
@@ -101,7 +102,21 @@ public class SiteNode extends DefaultMutableTreeNode {
     	if (((SiteNode)this.getParent()).isRoot()) {
     		return this.getNodeName();
     	}
-    	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + this.getNodeName();
+    	String nodeName = this.getNodeName();
+    	if (this.isLeaf()) {
+    		// Need to clean up
+    		int colonIndex = nodeName.indexOf(":");
+    		if (colonIndex > 0) {
+    			// Strip the GET/POST etc off
+    			nodeName = nodeName.substring(colonIndex+1);
+    		}
+    		int bracketIndex = nodeName.indexOf("(");
+    		if (bracketIndex > 0) {
+    			// Strip the param summary off
+    			nodeName = nodeName.substring(0, bracketIndex);
+    		}
+    	}
+    	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
     }
     
     public HistoryReference getHistoryReference() {
