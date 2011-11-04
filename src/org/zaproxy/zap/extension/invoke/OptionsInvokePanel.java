@@ -238,7 +238,9 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 
 	        editParameters = new ZapTextField();
 	        editNote = new JCheckBox();
-	        editOutput = new JCheckBox();
+			editNote.setEnabled(false);
+
+			editOutput = new JCheckBox();
 	        editOutput.addActionListener(new ActionListener() {
 
 				@Override
