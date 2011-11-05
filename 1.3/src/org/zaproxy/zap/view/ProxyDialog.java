@@ -117,7 +117,7 @@ public class ProxyDialog extends AbstractDialog {
 	
 	private OptionsConnectionPanel getConnPanel() {
 		if (connPanel == null) {
-			connPanel = new OptionsConnectionPanel();
+			connPanel = new OptionsConnectionPanel(true);
 			connPanel.setProxyDialog(this);
 		}
 		return connPanel;

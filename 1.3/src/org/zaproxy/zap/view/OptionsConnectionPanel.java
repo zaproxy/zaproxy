@@ -47,11 +47,18 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtProxyChainUserName = null;
 	private JPasswordField txtProxyChainPassword = null;
 	private ProxyDialog proxyDialog = null;
+	private boolean prompting = false;
 	
     public void setProxyDialog(ProxyDialog proxyDialog) {
 		this.proxyDialog = proxyDialog;
 	}
 
+	public OptionsConnectionPanel(boolean prompting) {
+        super();
+		this.prompting = prompting;
+ 		initialize();
+	}
+	
 	public OptionsConnectionPanel() {
         super();
  		initialize();
@@ -88,7 +95,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelProxyAuth.setLayout(new GridBagLayout());
 			jLabel9.setText(Constant.messages.getString("conn.options.proxy.auth.realm"));
 			jLabel10.setText(Constant.messages.getString("conn.options.proxy.auth.username"));
-			jLabel11.setText(Constant.messages.getString("conn.options.proxy.auth.password"));
+			if (prompting) {
+				jLabel11.setText(Constant.messages.getString("conn.options.proxy.auth.passprompt"));
+			} else {
+				jLabel11.setText(Constant.messages.getString("conn.options.proxy.auth.password"));
+			}
 			panelProxyAuth.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
 					Constant.messages.getString("conn.options.proxy.auth.auth"), 
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
@@ -265,5 +276,4 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	public String getHelpIndex() {
 		return "ui.dialogs.options.connection";
 	}
-	
 }
