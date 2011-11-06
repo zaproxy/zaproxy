@@ -86,7 +86,8 @@ public class MainPopupMenu extends JPopupMenu {
 	        try {
 	            if (getComponent(i) != null && getComponent(i) instanceof ExtensionPopupMenu) {
 	                menu = (ExtensionPopupMenu) getComponent(i);
-	                menu.setVisible(menu.isEnableForComponent(invoker) && menu.isEnabled());
+	                // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
+	                menu.setVisible(menu.isEnableForComponent(invoker));
 	            }
 	        } catch (Exception e) {
 	            e.printStackTrace();

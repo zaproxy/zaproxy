@@ -23,6 +23,7 @@ package org.parosproxy.paros.view;
 import java.awt.Component;
 
 import javax.swing.JTree;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
@@ -78,14 +79,13 @@ public class PopupDeleteMenu extends ExtensionPopupMenu {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;
-//	        JTree tree = (JTree) invoker;
-//
-//		    SiteNode node = (SiteNode) tree.getLastSelectedPathComponent();
-//		    if (node != null) {
-//		        this.setEnabled(true);
-//		    } else {
-//		        this.setEnabled(false);
-//		    }
+            // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
+            JTree tree = (JTree)invoker;
+            if (tree.isSelectionEmpty() || ((TreeNode)tree.getModel().getRoot()).getChildCount() == 0) {
+                this.setEnabled(false);
+            } else {
+                this.setEnabled(true);
+            }
             return true;
         } else {
             this.invoker = null;
