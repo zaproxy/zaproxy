@@ -78,6 +78,8 @@ public class AbstractParamDialog extends AbstractDialog {
 	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
 	private JScrollPane jScrollPane = null;
 	private JScrollPane jScrollPane1 = null;
+	// ZAP: show the last selected panel
+	private String nameLastSelectedPanel = null;
 
 	private ShowHelpAction showHelpAction = null;
 	
@@ -315,8 +317,9 @@ public class AbstractParamDialog extends AbstractDialog {
 					
 			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
 			        if (node == null) return;
-			        String name = (String) node.getUserObject();
-			        showParamPanel(name);
+			        // ZAP: show the last selected panel
+			        nameLastSelectedPanel = (String) node.getUserObject();
+			        showParamPanel(nameLastSelectedPanel);
 				}
 			});
 			DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
@@ -549,29 +552,25 @@ public class AbstractParamDialog extends AbstractDialog {
 	}
 	
 	// ZAP: Added option to specify panel - note this only supports one level at the moment
+	// ZAP: show the last selected panel
 	public int showDialog(boolean showRoot, String panel) {
         expandRoot();
         try {
-            DefaultMutableTreeNode firstNode = null;
+            DefaultMutableTreeNode node = null;
             if (panel != null) {
-            	Enumeration<DefaultMutableTreeNode> children = ((DefaultMutableTreeNode) getTreeModel().getRoot()).children();
-            	while (children.hasMoreElements()) {
-            		DefaultMutableTreeNode child = children.nextElement();
-            		if (panel.equals(child.toString())) {
-            			firstNode = child;
-            			break;
-            		}
-            	}
+            	node = getTreeNodeFromPanelName(panel);
             }
-            if (firstNode == null) {
-	            if (showRoot) {
-	                firstNode = (DefaultMutableTreeNode) getTreeModel().getRoot();
+            if (node == null) {
+            	if (nameLastSelectedPanel != null) {
+            		node = getTreeNodeFromPanelName(nameLastSelectedPanel);
+            	} else if (showRoot) {
+	                node = (DefaultMutableTreeNode) getTreeModel().getRoot();
 	            } else {
-	                firstNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+	                node = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
 	            }
             }
-        	showParamPanel(firstNode.toString());
-            getTreeParam().setSelectionPath(new TreePath(firstNode.getPath()));
+        	showParamPanel(node.toString());
+            getTreeParam().setSelectionPath(new TreePath(node.getPath()));
         } catch (Exception e) {
         	// ZAP: log errors
         	log.error(e.getMessage(), e);
@@ -580,6 +579,21 @@ public class AbstractParamDialog extends AbstractDialog {
         this.setVisible(true);
 	    return exitResult;
 	
+	}
+
+	// ZAP: show the last selected panel
+	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
+		DefaultMutableTreeNode node = null;
+		
+		Enumeration<DefaultMutableTreeNode> children = ((DefaultMutableTreeNode) getTreeModel().getRoot()).children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = children.nextElement();
+			if (panel.equals(child.toString())) {
+				node = child;
+				break;
+			}
+		}
+		return node;
 	}
 
 	/**
