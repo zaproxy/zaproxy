@@ -317,9 +317,8 @@ public class AbstractParamDialog extends AbstractDialog {
 					
 			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
 			        if (node == null) return;
-			        // ZAP: show the last selected panel
-			        nameLastSelectedPanel = (String) node.getUserObject();
-			        showParamPanel(nameLastSelectedPanel);
+			        String name = (String) node.getUserObject();
+			        showParamPanel(name);
 				}
 			});
 			DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
@@ -494,6 +493,9 @@ public class AbstractParamDialog extends AbstractDialog {
 	    // exit if panel name not found. 
 	    AbstractParamPanel panel = tablePanel.get(name);
 	    if (panel == null) return;
+
+        // ZAP: show the last selected panel
+        nameLastSelectedPanel = name;
 
         getPanelHeadline();
         getTxtHeadline().setText(name);
