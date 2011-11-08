@@ -36,6 +36,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ProxyDialog;
@@ -51,7 +52,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	//private OptionsParam optionsParam = null;
 	private JPanel panelProxyChain = null;
 	private ZapTextField txtProxyChainName = null;
-	private ZapTextField txtProxyChainPort = null;
+	// ZAP: Do not allow invalid port numbers
+	private ZapPortNumberSpinner spinnerProxyChainPort = null;
 	private ZapTextArea txtProxyChainSkipName = null;
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
@@ -361,15 +363,16 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		return txtProxyChainName;
 	}
 	/**
-	 * This method initializes txtProxyChainPort	
+	 * This method initializes spinnerProxyChainPort
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return ZapPortNumberSpinner	
 	 */    
-	private ZapTextField getTxtProxyChainPort() {
-		if (txtProxyChainPort == null) {
-			txtProxyChainPort = new ZapTextField();
+	private ZapPortNumberSpinner getTxtProxyChainPort() {
+		if (spinnerProxyChainPort == null) {
+			// ZAP: Do not allow invalid port numbers
+			spinnerProxyChainPort = new ZapPortNumberSpinner(8080);
 		}
-		return txtProxyChainPort;
+		return spinnerProxyChainPort;
 	}
 	/**
 	 * This method initializes txtProxyChainSkipName	
@@ -413,7 +416,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	        chkUseProxyChain.setSelected(true);
 	        setProxyChainEnabled(true);
 		    txtProxyChainName.setText(connectionParam.getProxyChainName());
-		    txtProxyChainPort.setText(Integer.toString(connectionParam.getProxyChainPort()));
+			// ZAP: Do not allow invalid port numbers
+		    spinnerProxyChainPort.setValue(connectionParam.getProxyChainPort());
 		    txtProxyChainSkipName.setText(connectionParam.getProxyChainSkipName());
 		    
 		    if (connectionParam.getProxyChainUserName().equals("")) {
@@ -442,20 +446,21 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	
 	private void setProxyChainEnabled(boolean isEnabled) {
 	    txtProxyChainName.setEnabled(isEnabled);
-	    txtProxyChainPort.setEnabled(isEnabled);
+	    spinnerProxyChainPort.setEnabled(isEnabled);
 	    txtProxyChainSkipName.setEnabled(isEnabled);
 	    chkProxyChainAuth.setEnabled(isEnabled);
 	    Color color = Color.WHITE;
 	    if (!isEnabled) {
 	        txtProxyChainName.setText("");
-	        txtProxyChainPort.setText("");
+	    	// ZAP: Do not allow invalid port numbers
+	        spinnerProxyChainPort.changeToDefaultValue();
 	        txtProxyChainSkipName.setText("");
 	        chkProxyChainAuth.setSelected(false);
 	        setProxyChainAuthEnabled(false);
 	        color = panelProxyChain.getBackground();
 	    }
 	    txtProxyChainName.setBackground(color);
-	    txtProxyChainPort.setBackground(color);
+	    spinnerProxyChainPort.setBackground(color);
 	    txtProxyChainSkipName.setBackground(color);
 	    
 	}
@@ -511,13 +516,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         		txtProxyChainName.requestFocus();
                 throw new Exception(Constant.messages.getString("conn.options.proxy.address.empty"));
         	}
-	    	
-            try {
-                Integer.parseInt(txtProxyChainPort.getText());
-            } catch (NumberFormatException nfe) {
-                txtProxyChainPort.requestFocus();
-                throw new Exception(Constant.messages.getString("conn.options.proxy.port.invalid"));
-            }
 
         }
 	    
@@ -528,7 +526,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    int timeout;
-	    int proxyChainPort = 8080;
 
         try {
             timeout = Integer.parseInt(txtTimeoutInSecs.getText());
@@ -537,17 +534,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
         }
 
-	    if (chkUseProxyChain.isSelected()) {
-            try {
-                proxyChainPort = Integer.parseInt(txtProxyChainPort.getText());
-            } catch (NumberFormatException nfe) {
-                txtProxyChainPort.requestFocus();
-                throw new Exception(Constant.messages.getString("conn.options.proxy.port.invalid"));
-            }
- 
-        }
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
-	    connectionParam.setProxyChainPort(proxyChainPort);
+		// ZAP: Do not allow invalid port numbers
+	    connectionParam.setProxyChainPort(spinnerProxyChainPort.getValue());
 	    connectionParam.setProxyChainSkipName(txtProxyChainSkipName.getText());
 
 	    connectionParam.setProxyChainRealm(txtProxyChainRealm.getText());

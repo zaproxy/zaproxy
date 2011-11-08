@@ -36,6 +36,7 @@ import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class OptionsLocalProxyPanel extends AbstractParamPanel {
@@ -50,14 +51,15 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	private ZapTextField txtProxyIp = null;
 	private ZapTextField txtReverseProxyIp = null;
     
-	private ZapTextField txtProxyPort = null;
-	private ZapTextField txtReverseProxyHttpPort = null;
+	// ZAP: Do not allow invalid port numbers
+	private ZapPortNumberSpinner spinnerProxyPort = null;
+	private ZapPortNumberSpinner spinnerReverseProxyHttpPort = null;
+	private ZapPortNumberSpinner spinnerReverseProxyHttpsPort = null;
 
 	
 	private JLabel jLabel6 = null;
 	private JCheckBox chkReverseProxy = null;
 	private JLabel jLabel5 = null;
-	private ZapTextField txtReverseProxyHttpsPort = null;
 	private JLabel jLabel7 = null;
     public OptionsLocalProxyPanel() {
         super();
@@ -135,7 +137,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			panelLocalProxy.add(jLabel, gridBagConstraints4);
 			panelLocalProxy.add(getTxtProxyIp(), gridBagConstraints5);
 			panelLocalProxy.add(jLabel1, gridBagConstraints6);
-			panelLocalProxy.add(getTxtProxyPort(), gridBagConstraints7);
+			panelLocalProxy.add(getSpinnerProxyPort(), gridBagConstraints7);
 			panelLocalProxy.add(jLabel6, gridBagConstraints15);
 		}
 		return panelLocalProxy;
@@ -209,7 +211,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			jLabel3.setText(Constant.messages.getString("options.proxy.local.label.rev.port"));
 			panelReverseProxy.add(jLabel2, gridBagConstraints101);
 			panelReverseProxy.add(getTxtReverseProxyIp(), gridBagConstraints11);
-			panelReverseProxy.add(getTxtReverseProxyHttpPort(), gridBagConstraints13);
+			panelReverseProxy.add(getSpinnerReverseProxyHttpPort(), gridBagConstraints13);
 			panelReverseProxy.setVisible(true);
 			jLabel5.setText("HTTPS port (eg 443)");
 			gridBagConstraints3.weightx = 0.5D;
@@ -236,7 +238,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			panelReverseProxy.add(jLabel3, gridBagConstraints12);
 			panelReverseProxy.add(jLabel7, gridBagConstraints51);
 			panelReverseProxy.add(jLabel5, gridBagConstraints41);
-			panelReverseProxy.add(getTxtReverseProxyHttpsPort(), gridBagConstraints3);
+			panelReverseProxy.add(getSpinnerReverseProxyHttpsPort(), gridBagConstraints3);
 		}
 		return panelReverseProxy;
 	}
@@ -355,26 +357,28 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	
 	
 	/**
-	 * This method initializes txtProxyPort	
+	 * This method initializes spinnerProxyPort	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return ZapPortNumberSpinner
 	 */    
-	private ZapTextField getTxtProxyPort() {
-		if (txtProxyPort == null) {
-			txtProxyPort = new ZapTextField();
+	private ZapPortNumberSpinner getSpinnerProxyPort() {
+		if (spinnerProxyPort == null) {
+			// ZAP: Do not allow invalid port numbers
+			spinnerProxyPort = new ZapPortNumberSpinner(8080);
 		}
-		return txtProxyPort;
+		return spinnerProxyPort;
 	}
 	/**
-	 * This method initializes txtProxyPortSSL	
+	 * This method initializes spinnerReverseProxyHttpPort	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return ZapPortNumberSpinner
 	 */    
-	private ZapTextField getTxtReverseProxyHttpPort() {
-		if (txtReverseProxyHttpPort == null) {
-			txtReverseProxyHttpPort = new ZapTextField();
+	private ZapPortNumberSpinner getSpinnerReverseProxyHttpPort() {
+		if (spinnerReverseProxyHttpPort == null) {
+			// ZAP: Do not allow invalid port numbers
+			spinnerReverseProxyHttpPort = new ZapPortNumberSpinner(80);
 		}
-		return txtReverseProxyHttpPort;
+		return spinnerReverseProxyHttpPort;
 	}
 	/**
 	 * This method initializes this
@@ -400,84 +404,35 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	    
 	    // set Local Proxy parameters
 	    txtProxyIp.setText(proxyParam.getProxyIp());
-	    txtProxyPort.setText(Integer.toString(proxyParam.getProxyPort()));
+		// ZAP: Do not allow invalid port numbers
+	    spinnerProxyPort.setValue(proxyParam.getProxyPort());
 	    
 	    // set reverse proxy param
         txtReverseProxyIp.setText(proxyParam.getReverseProxyIp());
-        txtReverseProxyHttpPort.setText(Integer.toString(proxyParam.getReverseProxyHttpPort()));
-        txtReverseProxyHttpsPort.setText(Integer.toString(proxyParam.getReverseProxyHttpsPort()));
+    	// ZAP: Do not allow invalid port numbers
+        spinnerReverseProxyHttpPort.setValue(proxyParam.getReverseProxyHttpPort());
+        spinnerReverseProxyHttpsPort.setValue(proxyParam.getReverseProxyHttpsPort());
 
         chkReverseProxy.setSelected(proxyParam.isUseReverseProxy());
         setReverseProxyEnabled(proxyParam.isUseReverseProxy());
 	}
 	
 	public void validateParam(Object obj) throws Exception {
-
-	    int proxyPort = 0;
-//	    int proxyPortSSL = 0;
-	    int reverseProxyHttpPort = 0;
-	    int reverseProxyHttpsPort = 0;
-	    
-	    try {
-	        proxyPort = Integer.parseInt(txtProxyPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtProxyPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.port"));
-	    }
-
-	    try {
-	        reverseProxyHttpPort = Integer.parseInt(txtReverseProxyHttpPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtReverseProxyHttpPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
-	    }
-	    
-	    try {
-	        reverseProxyHttpsPort = Integer.parseInt(txtReverseProxyHttpsPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtReverseProxyHttpsPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
-	    }
-
 	}
 
 	
 	public void saveParam(Object obj) throws Exception  {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ProxyParam proxyParam = optionsParam.getProxyParam();
-	    int proxyPort = 0;
-	    int reverseProxyHttpPort = 0;
-	    int reverseProxyHttpsPort = 0;
-	    
-	    try {
-	        proxyPort = Integer.parseInt(txtProxyPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtProxyPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.port"));
-	    }
-
-	    try {
-	        reverseProxyHttpPort = Integer.parseInt(txtReverseProxyHttpPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtReverseProxyHttpPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
-	    }
-
-	    try {
-	        reverseProxyHttpsPort = Integer.parseInt(txtReverseProxyHttpsPort.getText());
-	    } catch (NumberFormatException nfe) {
-	        txtReverseProxyHttpsPort.requestFocus();
-	        throw new Exception(Constant.messages.getString("options.proxy.local.error.rev.port"));
-	    }
-
-	    
 	    
 	    proxyParam.setProxyIp(txtProxyIp.getText());
-	    proxyParam.setProxyPort(proxyPort);
+		// ZAP: Do not allow invalid port numbers
+	    proxyParam.setProxyPort(spinnerProxyPort.getValue());
 
 	    proxyParam.setReverseProxyIp(txtReverseProxyIp.getText());
-	    proxyParam.setReverseProxyHttpPort(reverseProxyHttpPort);
-	    proxyParam.setReverseProxyHttpsPort(reverseProxyHttpsPort);
+		// ZAP: Do not allow invalid port numbers
+	    proxyParam.setReverseProxyHttpPort(spinnerReverseProxyHttpPort.getValue());
+	    proxyParam.setReverseProxyHttpsPort(spinnerReverseProxyHttpsPort.getValue());
 	    proxyParam.setUseReverseProxy(getChkReverseProxy().isSelected());
 	    
 	}
@@ -499,45 +454,46 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 		return chkReverseProxy;
 	}
 	/**
-	 * This method initializes ZapTextField	
+	 * This method initializes spinnerReverseProxyHttpsPort	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return ZapPortNumberSpinner
 	 */    
-	private ZapTextField getTxtReverseProxyHttpsPort() {
-		if (txtReverseProxyHttpsPort == null) {
-			txtReverseProxyHttpsPort = new ZapTextField();
+	private ZapPortNumberSpinner getSpinnerReverseProxyHttpsPort() {
+		if (spinnerReverseProxyHttpsPort == null) {
+			// ZAP: Do not allow invalid port numbers
+			spinnerReverseProxyHttpsPort = new ZapPortNumberSpinner(443);
 		}
-		return txtReverseProxyHttpsPort;
+		return spinnerReverseProxyHttpsPort;
 	}
 	
 	private void setReverseProxyEnabled(boolean isEnabled) {
 
 	    txtProxyIp.setEditable(!isEnabled);
-	    txtProxyPort.setEditable(!isEnabled);
+	    spinnerProxyPort.setEditable(!isEnabled);
 	    
 	    txtReverseProxyIp.setEditable(isEnabled);
-        txtReverseProxyHttpPort.setEditable(isEnabled);
-        txtReverseProxyHttpsPort.setEditable(isEnabled);
+	    spinnerReverseProxyHttpPort.setEditable(isEnabled);
+	    spinnerReverseProxyHttpsPort.setEditable(isEnabled);
         
 	    Color color = Color.WHITE;
 
 	    if (isEnabled) {
 		    txtProxyIp.setBackground(panelProxy.getBackground());
-		    txtProxyPort.setBackground(panelProxy.getBackground());
+		    spinnerProxyPort.setBackground(panelProxy.getBackground());
 		    
 		    txtReverseProxyIp.setBackground(Color.WHITE);
-		    txtReverseProxyHttpPort.setBackground(Color.WHITE);
-		    txtReverseProxyHttpsPort.setBackground(Color.WHITE);
+		    spinnerReverseProxyHttpPort.setBackground(Color.WHITE);
+		    spinnerReverseProxyHttpsPort.setBackground(Color.WHITE);
 	        
 	        
 	    } else {
 
 	        txtProxyIp.setBackground(Color.WHITE);
-		    txtProxyPort.setBackground(Color.WHITE);
+		    spinnerProxyPort.setBackground(Color.WHITE);
 		    
 		    txtReverseProxyIp.setBackground(panelProxy.getBackground());
-		    txtReverseProxyHttpPort.setBackground(panelProxy.getBackground());
-		    txtReverseProxyHttpsPort.setBackground(panelProxy.getBackground());
+		    spinnerReverseProxyHttpPort.setBackground(panelProxy.getBackground());
+		    spinnerReverseProxyHttpsPort.setBackground(panelProxy.getBackground());
 	        
 	    }
 	}
