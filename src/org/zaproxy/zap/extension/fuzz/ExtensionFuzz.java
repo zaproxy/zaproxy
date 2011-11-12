@@ -108,11 +108,11 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, boolean fuzzHeader, 
 			int startOffset, int endOffset, AntiCsrfToken acsrfToken, 
-			boolean showTokenRequests, boolean followRedirects) {
+			boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
 		this.getFuzzerPanel().scanStarted();
 
 		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(msg, fuzzers, customFuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects);
+		fuzzerThread.setTarget(msg, fuzzers, customFuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects, urlEncode);
 		fuzzerThread.addFuzzerListener(this);
 		fuzzerThread.start();
 

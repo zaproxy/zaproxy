@@ -48,11 +48,12 @@ public class FuzzProcess  implements Runnable {
 	private Encoder encoder = new Encoder();
 	private boolean showTokenRequests = false;
 	private boolean followRedirects = false;
+	private boolean urlEncode = true;
 	private ExtensionAntiCSRF extAntiCSRF = null; 
 
 	public FuzzProcess(ConnectionParam connectionParam, HttpMessage msg,
 			boolean fuzzHeader, int startOffset, int endOffset,
-			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects) {
+			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
 		this.connectionParam = connectionParam;
 		this.msg = msg.cloneAll();
 		this.fuzzHeader = fuzzHeader;
@@ -61,6 +62,8 @@ public class FuzzProcess  implements Runnable {
 		this.fuzz = fuzz;
 		this.acsrfToken = acsrfToken;
 		this.showTokenRequests = showTokenRequests;
+		this.followRedirects = followRedirects;
+		this.urlEncode = urlEncode;
 		this.extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
@@ -102,7 +105,15 @@ public class FuzzProcess  implements Runnable {
 			} else {
 				orig = msg.getRequestBody().toString();
 			}
-			String changed = orig.substring(0, startOffset) + encoder.getURLEncode(fuzz) + orig.substring(endOffset);
+			
+			String fuzzString;
+			if (urlEncode) {
+				fuzzString = encoder.getURLEncode(fuzz);
+			} else {
+				fuzzString = fuzz;
+			}
+			
+			String changed = orig.substring(0, startOffset) + fuzzString + orig.substring(endOffset);
 			if (fuzzHeader) {
 				msg.setRequestHeader(changed);
 			} else {

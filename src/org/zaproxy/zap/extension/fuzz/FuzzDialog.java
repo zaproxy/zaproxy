@@ -67,6 +67,7 @@ public class FuzzDialog extends AbstractDialog {
 	private JCheckBox enableTokens = null;
 	private JCheckBox showTokenRequests = null;
 	private JCheckBox followRedirects = null;
+	private JCheckBox urlEncode = null;
 	private JButton cancelButton = null;
 	private JButton startButton = null;
 	private int selectionStart = -1;
@@ -139,15 +140,18 @@ public class FuzzDialog extends AbstractDialog {
 			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.followredirects")), getGBC(0, 4, 3, 1.0D));
 			jPanel.add(getFollowRedirects(), getGBC(1, 4, 1, 0.0D));
 
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 5, 1, 0.25D));
-			jPanel.add(getCategoryField(), getGBC(1, 5, 3, 0.75D));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.urlencode")), getGBC(0, 5, 3, 1.0D));
+			jPanel.add(getUrlEncode(), getGBC(1, 5, 1, 0.0D));
 
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 6, 1, 0.25D));
-			jPanel.add(new JScrollPane(getFuzzersField()), getGBC(1, 6, 3, 1.0D, 0.75D));
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.category")), getGBC(0, 6, 1, 0.25D));
+			jPanel.add(getCategoryField(), getGBC(1, 6, 3, 0.75D));
+
+			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.fuzzer")), getGBC(0, 7, 1, 0.25D));
+			jPanel.add(new JScrollPane(getFuzzersField()), getGBC(1, 7, 3, 1.0D, 0.75D));
 			
-			jPanel.add(new JLabel(""), getGBC(1, 7, 1, 0.50));
-			jPanel.add(getStartButton(), getGBC(2, 7, 1, 0.25));
-			jPanel.add(getCancelButton(), getGBC(3, 7, 1, 0.25));
+			jPanel.add(new JLabel(""), getGBC(1, 8, 1, 0.50));
+			jPanel.add(getStartButton(), getGBC(2, 8, 1, 0.25));
+			jPanel.add(getCancelButton(), getGBC(3, 8, 1, 0.25));
 		}
 		return jPanel;
 	}
@@ -184,7 +188,15 @@ public class FuzzDialog extends AbstractDialog {
 		}
 		return followRedirects;
 	}
-	
+
+	public JCheckBox getUrlEncode() {
+		if (urlEncode == null) {
+			urlEncode = new JCheckBox();
+			urlEncode.setSelected(true);
+		}
+		return urlEncode;
+	}
+
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
@@ -230,7 +242,7 @@ public class FuzzDialog extends AbstractDialog {
 				        	}
 			        		extension.startFuzzers(httpMessage, fuzzers, customFuzzers, fuzzHeader, 
 			        				selectionStart, selectionEnd, token, 
-			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected());
+			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected(), getUrlEncode().isSelected());
 							
 						} catch (NoSuchFuzzerException e) {
 							log.error(e.getMessage(), e);
