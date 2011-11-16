@@ -125,7 +125,7 @@ public class FuzzerThread implements Runnable {
 		
 		int total = 0;
 		for (FileFuzzer fuzzer : customFuzzers) {
-			total += (int)fuzzer.getLength();
+			total += fuzzer.getLength();
 		}
 		extension.scanProgress(0, total);
 		

@@ -33,41 +33,48 @@ import org.apache.log4j.Logger;
 
 public class FileFuzzer {
 
-	private long length = -1;
+	private int length = -1;
 	private List<String> fuzzStrs = new ArrayList<String>();
 	private Iterator<String> iter = null;
     private static Logger log = Logger.getLogger(FileFuzzer.class);
 
 	protected FileFuzzer(File file) {
+		BufferedReader in = null;
+		
 		try {
-			length = 0;
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
 			String line;
 
 			while ((line = in.readLine()) != null) {
-				if (line != null && line.trim().length() > 0 && ! line.startsWith("#")) {
+				if (line.trim().length() > 0 && ! line.startsWith("#")) {
 					fuzzStrs.add(line);
-					length++;
 				}
 			}
-
-			in.close();
-			
-			iter = fuzzStrs.iterator();
 			
 		} catch (FileNotFoundException e) {
 			log.error(e.getMessage(), e);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+			}
 		}
+		
+		length = fuzzStrs.size();
+		iter = fuzzStrs.iterator();
 	}
 	
 	public Iterator<String> getIterator() {
-		return null;
+		return iter;
 	}
 	
-	public long getLength() {
+	public int getLength() {
 		return length;
 	}
 	
