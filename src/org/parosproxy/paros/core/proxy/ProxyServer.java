@@ -21,6 +21,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2011/11/15 Warn the user if the host is unknown
 
 package org.parosproxy.paros.core.proxy;
  
@@ -126,7 +127,15 @@ public class ProxyServer implements Runnable {
    	            proxySocket.setSoTimeout(PORT_TIME_OUT);
    	            isProxyRunning = true;
    	            
-   	        } catch (Exception e) {
+   	        } catch(UnknownHostException e) {
+            	// ZAP: Warn the user if the host is unknown
+            	if (View.isInitialised()) {
+            		View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+            	} else {
+            		System.out.println(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+            	}
+            	return -1;
+            } catch(Exception e) {
    	            if (!isDynamicPort) {
    	            	// ZAP: Warn the user if we cant listen on the static port
    	            	if (View.isInitialised()) {

@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2011/11/02 Added brute force options
+// ZAP: 2011/11/15 Removed the getConfig method and the config field, now it's used the method of the base class.
 
 package org.parosproxy.paros.model;
 
@@ -27,9 +28,6 @@ import java.io.File;
 import java.util.Vector;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
@@ -71,7 +69,6 @@ public class OptionsParam extends AbstractParam {
 	private SessionParam sessionParam = new SessionParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
-	private XMLConfiguration config = null;
 	private boolean gui = true;
 	private File userDirectory = null;
 	
@@ -163,21 +160,6 @@ public class OptionsParam extends AbstractParam {
         }
         return result;
     }
-
-    
-    public FileConfiguration getConfig() {
-	    if (config == null) {
-	        try {
-//                config = new XMLConfiguration(Constant.FILE_CONFIG);
-                config = new XMLConfiguration(Constant.getInstance().FILE_CONFIG);
-
-            } catch (ConfigurationException e) {
-                e.printStackTrace();
-            }
-	    }
-        return config;
-    }
-  
 
     /* (non-Javadoc)
      * @see org.parosproxy.paros.common.AbstractParam#parse()

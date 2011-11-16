@@ -19,11 +19,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/27 Catch any exception when loading the config file 
+// ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations
+//      removed duplicated method calls and removed an unnecessary method (load())
 
 package org.parosproxy.paros.common;
 
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
  *
@@ -39,7 +41,7 @@ abstract public class AbstractParam {
      */
     public void load(FileConfiguration config) {
         this.config = config;
-        parse();
+        
         try {
             parse();
         } catch (Exception e) {
@@ -49,18 +51,7 @@ abstract public class AbstractParam {
     
     public void load(String fileName) {
         try {
-            config = new XMLConfiguration(fileName);
-            load();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void load() throws Exception {
-        config.load();
-        parse();
-        try {
-            config.load();
+            config = new ZapXmlConfiguration(fileName);
             parse();
         } catch (Exception e) {
             e.printStackTrace();

@@ -21,6 +21,9 @@
  */
 // ZAP: 2011/08/03 Revamped upgrade for 1.3.2
 // ZAP: 2011/10/05 Write backup file to user dir
+// ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
+//      Changed to use the correct file when an error occurs during the load of the configuration file.
+//      Removed the calls XMLConfiguration.load() as they are not needed, the XMLConfiguration constructor used already does that.
 
 package org.parosproxy.paros;
 
@@ -40,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
  *
@@ -271,9 +275,9 @@ public final class Constant {
         try {
 	        try {
 	            
-	            XMLConfiguration config = new XMLConfiguration(FILE_CONFIG);
+	            // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
+	            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
 	            config.setAutoSave(false);
-	            config.load();
 	
 	            long ver = config.getLong("version");
 	            
@@ -326,11 +330,13 @@ public final class Constant {
 	        } catch (ConfigurationException e) {
 	            //  if there is any error in config file (eg config file not exist),
 	            //  overwrite previous configuration file 
-	            copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+	            // ZAP: changed to use the correct file
+	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
 	
 	        } catch (NoSuchElementException e) {
 	            //  overwrite previous configuration file if config file corrupted
-	            copier.copy(new File(FILE_CONFIG_DEFAULT),f);                        
+	            // ZAP: changed to use the correct file
+	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
 	            
 	        }
         } catch (Exception e) {
@@ -345,9 +351,9 @@ public final class Constant {
         Locale locale = Locale.ENGLISH;
         try {
             // Select the correct locale
-            XMLConfiguration config = new XMLConfiguration(FILE_CONFIG);
+            // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
+            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
             config.setAutoSave(false);
-            config.load();
 
             lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
             if (lang.length() == 0) {
@@ -377,18 +383,18 @@ public final class Constant {
     
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
-        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
+        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
+        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
         newConfig.setAutoSave(false);
-        newConfig.load();
 
         copyAllProperties(newConfig, config, "pscans");                
 	}
     
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
-        XMLConfiguration newConfig = new XMLConfiguration(FILE_CONFIG_DEFAULT);
+        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
+        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
         newConfig.setAutoSave(false);
-        newConfig.load();
 
         copyProperty(newConfig, config, "view.editorView");
         copyProperty(newConfig, config, "view.brkPanelView");
