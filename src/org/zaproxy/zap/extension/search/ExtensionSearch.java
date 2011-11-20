@@ -37,6 +37,8 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
  */
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
+	public static final String NAME = "ExtensionSearch2"; 
+
 	public enum Type {All, URL, Request, Response, Header, Fuzz};
 
 	private SearchPanel searchPanel = null;
@@ -67,7 +69,8 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionSearch");
+        this.setName(NAME);
+        this.setOrder(20);
 
 	}
 	

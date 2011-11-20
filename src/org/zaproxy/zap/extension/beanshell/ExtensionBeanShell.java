@@ -61,7 +61,7 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionBeanShell");
-			
+        this.setOrder(38);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

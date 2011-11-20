@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Explicitly depreciated
+
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.EventQueue;
@@ -475,6 +477,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
         arguments[ARG_SPIDER_IDX] = new CommandLineArgument("-spider", 0, null, "", "-spider : run spider.  See other parameters");
         arguments[ARG_URL_IDX] = new CommandLineArgument("-seed", -1, "https{0,1}://\\S+", "Seed should be a URL", "-seed {URL1} {URL2} ... : Add seeds to the spider for crawling.");
         return arguments;
+    }
+
+    @Override
+    public boolean isDepreciated () {
+    	return true;
     }
 
   }  //  @jve:decl-index=0:

@@ -45,6 +45,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	 */
 	private void initialize() {
         this.setName("ExtensionAPI");
+        this.setOrder(10);
 
         API.getInstance().registerApiImplementor(new CoreAPI());
 	}

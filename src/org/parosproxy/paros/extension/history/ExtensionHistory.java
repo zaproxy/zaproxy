@@ -24,6 +24,7 @@
 // ZAP: 2011/07/23 Use new add alert popup
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 // ZAP: 2011/10/23 Fix add note and manage tags dialogs
+// ZAP: 2011/11/20 Set order
 
 package org.parosproxy.paros.extension.history;
 
@@ -129,6 +130,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */
 	private void initialize() {
         this.setName("ExtensionHistory");
+        this.setOrder(16);
 
         ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 

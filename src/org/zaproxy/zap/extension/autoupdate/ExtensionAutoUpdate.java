@@ -65,7 +65,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 	 */
 	private void initialize() {
         this.setName("ExtensionAutoUpdate");
-			
+        this.setOrder(40);
 	}
 
 	/**

@@ -44,6 +44,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	public ExtensionDynSSL() {
 		super();
 		this.setName(EXTENSION_ID);
+        this.setOrder(54);
 	}
 
 	@Override

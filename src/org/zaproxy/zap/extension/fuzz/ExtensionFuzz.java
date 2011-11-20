@@ -73,6 +73,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	 */
 	private void initialize() {
         this.setName(NAME);
+        this.setOrder(48);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

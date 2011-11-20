@@ -86,6 +86,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	 */
 	private void initialize() {
         this.setName("ExtensionCompare");
+        this.setOrder(44);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

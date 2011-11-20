@@ -20,6 +20,7 @@
  */
 
 // ZAP: 2011/08/04 Changed for cleanup
+// ZAP: 2011/11/20 Set order
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -69,7 +70,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	 */
 	private void initialize() {
 		this.setName("ExtensionManualRequest");
-
+        this.setOrder(36);
 	}
 
 	public void hook(ExtensionHook extensionHook) {

@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2011/11/20 Handle dialogs with no children
+
 
 package org.parosproxy.paros.view;
  
@@ -567,12 +569,14 @@ public class AbstractParamDialog extends AbstractDialog {
             		node = getTreeNodeFromPanelName(nameLastSelectedPanel);
             	} else if (showRoot) {
 	                node = (DefaultMutableTreeNode) getTreeModel().getRoot();
-	            } else {
+	            } else if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount() > 0){
 	                node = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
 	            }
             }
-        	showParamPanel(node.toString());
-            getTreeParam().setSelectionPath(new TreePath(node.getPath()));
+            if (node != null) {
+            	showParamPanel(node.toString());
+            	getTreeParam().setSelectionPath(new TreePath(node.getPath()));
+            }
         } catch (Exception e) {
         	// ZAP: log errors
         	log.error(e.getMessage(), e);

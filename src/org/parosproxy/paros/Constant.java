@@ -24,6 +24,7 @@
 // ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
 //      Changed to use the correct file when an error occurs during the load of the configuration file.
 //      Removed the calls XMLConfiguration.load() as they are not needed, the XMLConfiguration constructor used already does that.
+// ZAP: 2011/11/20 Support for extension factory
 
 package org.parosproxy.paros;
 
@@ -95,6 +96,7 @@ public final class Constant {
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     public static final String FOLDER_FILTER = "filter";
+    public static final String FOLDER_EXTENSION = "extension";
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
     public static final String MESSAGES_PREFIX = "Messages";

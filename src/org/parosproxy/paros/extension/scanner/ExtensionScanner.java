@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Explicitly depreciated
+
 package org.parosproxy.paros.extension.scanner;
 
 import java.awt.EventQueue;
@@ -599,5 +601,10 @@ public class ExtensionScanner extends ExtensionAdaptor implements ScannerListene
 	public void notifyNewMessage(HttpMessage msg) {
 		// Ignore
 	}
-	
+
+    @Override
+    public boolean isDepreciated () {
+    	return true;
+    }
+
 }

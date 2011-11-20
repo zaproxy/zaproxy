@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Explicitly depreciated
+
 package org.parosproxy.paros.extension.patternsearch;
 
 import java.sql.SQLException;
@@ -154,4 +156,9 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 	    }
 	    return result;
 	}
- }
+
+    @Override
+    public boolean isDepreciated () {
+    	return true;
+    }
+}

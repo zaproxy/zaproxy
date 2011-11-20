@@ -60,7 +60,7 @@ public class ExtensionCopy extends ExtensionAdaptor implements ClipboardOwner {
 	 */
 	private void initialize() {
         this.setName("ExtensionCopy");
-			
+        this.setOrder(6);
 	}
 	
 

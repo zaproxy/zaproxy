@@ -74,7 +74,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	 */
 	private void initialize() {
         this.setName("ExtensionBruteForce");
-
+        this.setOrder(32);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

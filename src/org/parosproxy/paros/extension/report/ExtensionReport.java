@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Set order
+
 package org.parosproxy.paros.extension.report;
 
 import javax.swing.JMenuItem;
@@ -58,6 +60,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
      */
     public ExtensionReport(String name) {
         super(name);
+        this.setOrder(14);
     }
 
 	/**

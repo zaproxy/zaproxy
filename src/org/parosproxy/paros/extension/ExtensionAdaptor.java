@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Support for extension factory
+
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.model.Model;
@@ -29,12 +31,15 @@ import org.parosproxy.paros.model.Session;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionAdaptor implements Extension {
+public abstract class ExtensionAdaptor implements Extension {
 
     private String name = this.getClass().getName();
+    private String description;
     private Model model = null;
     private ViewDelegate view = null;
     private ExtensionHook extensionHook = null;
+    private int order = 0;
+    private boolean enabled = true;
     
     public ExtensionAdaptor() {
     }
@@ -115,5 +120,37 @@ public class ExtensionAdaptor implements Extension {
         this.extensionHook = extensionHook;
     }
 
-    
+    @Override
+    public boolean isDepreciated () {
+    	return false;
+    }
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
+	public String getDescription() {
+		if (this.description == null || this.description.length() == 0) {
+			return this.getName();
+		}
+		return this.description;
+	}
+
+	protected void setDescription(String description) {
+		this.description = description;
+	}
+
 }

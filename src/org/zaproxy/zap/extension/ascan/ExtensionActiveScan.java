@@ -121,6 +121,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	 */
 	private void initialize() {
         this.setName("ExtensionActiveScan");
+        this.setOrder(28);
 			
         API.getInstance().registerApiImplementor(new ActiveScanAPI(this));
 

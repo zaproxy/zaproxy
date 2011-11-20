@@ -78,7 +78,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	 */
 	private void initialize() {
         this.setName("ExtensionBreak");
-        
+        this.setOrder(24);
 	}
 	
 	/**

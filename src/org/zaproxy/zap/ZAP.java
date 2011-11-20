@@ -222,11 +222,13 @@ public class ZAP {
 		    
 		    // check root certificate
 		    ExtensionDynSSL extension = (ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension("ExtensionDynSSL");
-		    DynSSLParam dynsslparam = extension.getParams();
-		    if (dynsslparam.getRootca() == null) {
-		    	DynamicSSLWelcomeDialog dlg = new DynamicSSLWelcomeDialog(View.getSingleton().getMainFrame(), true);
-		    	dlg.setVisible(true);
-		    	dlg.dispose();
+		    if (extension != null) {
+			    DynSSLParam dynsslparam = extension.getParams();
+			    if (dynsslparam.getRootca() == null) {
+			    	DynamicSSLWelcomeDialog dlg = new DynamicSSLWelcomeDialog(View.getSingleton().getMainFrame(), true);
+			    	dlg.setVisible(true);
+			    	dlg.dispose();
+			    }
 		    }
 	    } else if (cmdLine.isDaemon()) {
 	    	runDaemon();

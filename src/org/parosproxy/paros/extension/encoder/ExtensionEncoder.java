@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Explicitly depreciated
+
 package org.parosproxy.paros.extension.encoder;
 
 import javax.swing.JMenuItem;
@@ -98,4 +100,9 @@ public class ExtensionEncoder extends ExtensionAdaptor {
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuItemEncoder());
 	    }
 	}
-  }
+
+    @Override
+    public boolean isDepreciated () {
+    	return true;
+    }
+}

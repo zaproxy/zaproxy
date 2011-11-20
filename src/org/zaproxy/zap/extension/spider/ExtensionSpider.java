@@ -48,9 +48,10 @@ import org.zaproxy.zap.view.SiteMapListener;
 public class ExtensionSpider extends ExtensionAdaptor 
 		implements SessionChangedListener, ProxyListener, SiteMapListener {
 
+	public static final String NAME = "ExtensionSpider2"; 
+
 	private SpiderPanel spiderPanel = null;
     private PopupMenuSpider popupMenuSpider = null;
-    // TODO testing
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 	private org.parosproxy.paros.core.spider.SpiderParam params = null;
     private Logger logger = Logger.getLogger(ExtensionSpider.class);
@@ -78,7 +79,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionSpider");
+        this.setOrder(30);
+        this.setName(NAME);
         
         API.getInstance().registerApiImplementor(new SpiderAPI(this));
 

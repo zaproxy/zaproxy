@@ -44,6 +44,8 @@ import org.parosproxy.paros.view.View;
 
 public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 
+	public static final String NAME = "ExtensionReveal"; 
+
 	private static final String ATT_DISABLED 	= "DISABLED";
 	private static final String ATT_READONLY 	= "READONLY";
 	private static final String ATT_TYPE 		= "TYPE";
@@ -52,6 +54,16 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 	private boolean reveal = false;
 	private JToggleButton revealButton = null;
 	private Logger logger = Logger.getLogger(this.getClass());
+
+	public ExtensionReveal() {
+		super();
+		initialize();
+	}
+
+	private void initialize() {
+        this.setName(NAME);
+        this.setOrder(18);
+	}
 
 	public void hook(ExtensionHook extensionHook) {
 	    extensionHook.addProxyListener(this);

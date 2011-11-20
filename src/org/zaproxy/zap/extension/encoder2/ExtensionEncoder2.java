@@ -64,6 +64,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionEncode2");
+        this.setOrder(22);
 	}
 	
 

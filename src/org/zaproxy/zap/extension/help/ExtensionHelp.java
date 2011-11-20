@@ -73,6 +73,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionHelp");
+        this.setOrder(42);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

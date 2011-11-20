@@ -59,7 +59,8 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionLog4j");
-        
+        this.setOrder(56);
+
 		if (Constant.PROGRAM_VERSION.equals(Constant.DEV_VERSION)) {
 			// Only enable if this is a developer build, ie build from source
         

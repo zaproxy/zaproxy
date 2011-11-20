@@ -57,7 +57,8 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionInvoke");
-        
+        this.setOrder(46);
+
         List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvoke();
         
         for (InvokableApp app: apps) {

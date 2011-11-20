@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Set order
+
 package org.parosproxy.paros.extension.state;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -63,7 +65,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	 */
 	private void initialize() {
         this.setName("ExtensionState");
-			
+        this.setOrder(12);
 	}
 	
 

@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Support for extension factory
+
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.model.Model;
@@ -38,6 +40,8 @@ import org.parosproxy.paros.model.Session;
 public interface Extension {
     
     public String getName();
+    
+    public String getDescription();
     
     /**
      * Initialize plugin during startup.  This phase is carried out before all others.
@@ -82,4 +86,14 @@ public interface Extension {
     
     public void hook(ExtensionHook pluginHook);
     
+    public boolean isDepreciated ();
+    
+    public int getOrder();
+    
+    public void setOrder(int order);
+
+	public boolean isEnabled();
+	
+	public void setEnabled(boolean enabled);
+
 }

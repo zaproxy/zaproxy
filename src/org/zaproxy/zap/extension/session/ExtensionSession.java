@@ -38,7 +38,7 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
 
 	private void initialize() {
         this.setName(NAME);
-
+        this.setOrder(52);
 	}
 
 	public void hook(ExtensionHook extensionHook) {

@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/09 Added recursive option and logging
+
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -35,6 +37,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.apache.log4j.Logger;
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -44,16 +48,24 @@ public class DynamicLoader extends URLClassLoader {
 
     private String directory = "";
     private Vector<String> listClassName = new Vector<String>();
+    private Logger logger = Logger.getLogger(DynamicLoader.class);
     
     public DynamicLoader(String directory, String packageName) {
+    	this(directory, packageName, false);
+    }
+    
+    public DynamicLoader(String directory, String packageName, boolean recurse) {
         super(new URL[0]);
         this.directory = directory;
-        checkLocal(packageName);
+        checkLocal(packageName, recurse);
         searchJars();
     }
     
     private void searchJars() {
         File dir = new File(directory);
+        if (! dir.exists() || dir.isFile()) {
+        	return;
+        }
         File[] listFile = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String fileName) {
                 if (fileName.endsWith(".jar")) {
@@ -77,7 +89,7 @@ public class DynamicLoader extends URLClassLoader {
      * Check local jar (paros.jar) or related package if any target file is found.
      *
      */
-    private void checkLocal(String packageName) {
+    private void checkLocal(String packageName, boolean recurse) {
         if (packageName == null || packageName.equals("")) {
             return;
         }
@@ -96,13 +108,13 @@ public class DynamicLoader extends URLClassLoader {
             try {
                 parseJarFile(new File(new URI(jarFile)));
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+            	logger.error(e.getMessage(), e);
             }
         } else {
             try {
-                parseClassDir(new File(new URI(local.toString())), packageName);
+                parseClassDir(new File(new URI(local.toString())), packageName, recurse);
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+            	logger.error(e.getMessage(), e);
             }
         }
     }
@@ -125,17 +137,18 @@ public class DynamicLoader extends URLClassLoader {
                     listClass.add(obj);
                 }
             } catch (Throwable e) {
-                //e.printStackTrace();
+            	// Often not an error
+            	logger.debug(e.getMessage(), e);
             }
         }
         
         return listClass;
     }
 
-    private void parseClassDir(File file, String packageName) {
+    private void parseClassDir(File file, String packageName, final boolean recurse) {
         File[] listFile = file.listFiles(new FilenameFilter() {
             public boolean accept(File file, String fileName) {
-                if (fileName.endsWith(".class")) {
+                if (fileName.endsWith(".class") || (file.isDirectory() && recurse & ! fileName.startsWith("."))) {
                     return true;
                 }
                 return false;
@@ -144,6 +157,10 @@ public class DynamicLoader extends URLClassLoader {
         
         for (int i=0; i<listFile.length; i++) {
             File entry = listFile[i];
+            if (recurse && entry.isDirectory()) {
+            	parseClassDir (entry, packageName, recurse);
+            	continue;
+            }
             if (!entry.isFile()) {
                 continue;
             }
@@ -174,7 +191,7 @@ public class DynamicLoader extends URLClassLoader {
                 listClassName.add(className);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e.getMessage(), e);
         } finally {
             if (jarFile != null) {
                 try {
@@ -186,6 +203,7 @@ public class DynamicLoader extends URLClassLoader {
         try {
             this.addURL(file.toURI().toURL());
         } catch (MalformedURLException e1) {
+        	logger.error(e1.getMessage(), e1);
         }
     }
     

@@ -71,6 +71,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 	 */
 	private void initialize() {
         this.setName("ExtensionPortScan");
+        this.setOrder(34);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {

@@ -49,6 +49,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	}
 
 	private void initialize() {
+        this.setOrder(26);
         this.setName(NAME);
 
 	}

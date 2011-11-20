@@ -92,6 +92,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	 */
 	private void initialize() {
         this.setName(NAME);
+        this.setOrder(58);
 
         API.getInstance().registerApiImplementor(new ParamsAPI(this));
 	}

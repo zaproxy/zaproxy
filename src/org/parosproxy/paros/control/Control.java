@@ -22,6 +22,7 @@
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/10/29 Support for parameters
+// ZAP: 2011/11/20 Changed to use ExtensionFactory
 
 package org.parosproxy.paros.control;
 
@@ -29,38 +30,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.PluginFactory;
-import org.parosproxy.paros.extension.edit.ExtensionEdit;
-import org.parosproxy.paros.extension.filter.ExtensionFilter;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
-import org.parosproxy.paros.extension.option.ExtensionOption;
-import org.parosproxy.paros.extension.report.ExtensionReport;
-import org.parosproxy.paros.extension.state.ExtensionState;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
-import org.zaproxy.zap.extension.api.ExtensionAPI;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
-import org.zaproxy.zap.extension.beanshell.ExtensionBeanShell;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.extension.bruteforce.ExtensionBruteForce;
-import org.zaproxy.zap.extension.compare.ExtensionCompare;
-import org.zaproxy.zap.extension.copy.ExtensionCopy;
-import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
-import org.zaproxy.zap.extension.encoder2.ExtensionEncoder2;
-import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
-import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.invoke.ExtensionInvoke;
-import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
-import org.zaproxy.zap.extension.params.ExtensionParams;
-import org.zaproxy.zap.extension.portscan.ExtensionPortScan;
-import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
-import org.zaproxy.zap.extension.reveal.ExtensionReveal;
-import org.zaproxy.zap.extension.search.ExtensionSearch;
-import org.zaproxy.zap.extension.session.ExtensionSession;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
+import org.zaproxy.zap.control.ExtensionFactory;
 
 
 
@@ -111,63 +84,7 @@ public class Control extends AbstractControl {
     }
     
     protected void addExtension() {
-
-        // should be the first ext to load
-        getExtensionLoader().addExtension(new ExtensionOption());
-        getExtensionLoader().addExtension(new ExtensionEdit());
-        getExtensionLoader().addExtension(new ExtensionCopy());
-
-        getExtensionLoader().addExtension(new ExtensionFilter());
-        
-        // ZAP: Lots of changes here!
-        getExtensionLoader().addExtension(new ExtensionAPI());
-
-        // Replaced extensions
-        //getExtensionLoader().addExtension(new ExtensionPatternSearch());
-        //getExtensionLoader().addExtension(new ExtensionTrap());
-        //getExtensionLoader().addExtension(new ExtensionEncoder());
-        //getExtensionLoader().addExtension(new ExtensionScanner());
-
-        getExtensionLoader().addExtension(new ExtensionState());
-
-        // Moved report extension above history so Generate Report is above the Exports 
-        getExtensionLoader().addExtension(new ExtensionReport());
-        getExtensionLoader().addExtension(new ExtensionHistory());
-
-        getExtensionLoader().addExtension(new ExtensionReveal());
-
-        getExtensionLoader().addExtension(new ExtensionSearch());
-        getExtensionLoader().addExtension(new ExtensionEncoder2());
-        getExtensionLoader().addExtension(new ExtensionBreak());
-        
-        getExtensionLoader().addExtension(new ExtensionActiveScan());
-        getExtensionLoader().addExtension(new ExtensionPassiveScan());
-        // This is now the ZAP spider extension
-        getExtensionLoader().addExtension(new ExtensionSpider());
-        getExtensionLoader().addExtension(new ExtensionBruteForce());
-        getExtensionLoader().addExtension(new ExtensionPortScan());
-        
-        getExtensionLoader().addExtension(new ExtensionManualRequestEditor());
-        getExtensionLoader().addExtension(new ExtensionBeanShell());
-        // This is now the ZAP autoupdate extension
-        getExtensionLoader().addExtension(new ExtensionAutoUpdate());
-
-        getExtensionLoader().addExtension(new ExtensionHelp());
-        getExtensionLoader().addExtension(new ExtensionCompare());
-        getExtensionLoader().addExtension(new ExtensionInvoke());
-//        getExtensionLoader().addExtension(new ExtensionHexView());
-        getExtensionLoader().addExtension(new ExtensionFuzz());
-        getExtensionLoader().addExtension(new ExtensionAntiCSRF());
-        getExtensionLoader().addExtension(new ExtensionSession());
-        
-        // ZAP: adding connection SSL options right after regular ones
-        getExtensionLoader().addExtension(new ExtensionDynSSL());
-
-        getExtensionLoader().addExtension(new ExtensionLog4j());
-
-        getExtensionLoader().addExtension(new ExtensionParams());
-        //getExtensionLoader().addExtension(new ExtensionDiff());
-
+    	ExtensionFactory.loadAllExtension(getExtensionLoader(), model.getOptionsParam().getConfig());
     }
     
     public MenuFileControl getMenuFileControl() {

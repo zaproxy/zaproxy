@@ -63,7 +63,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	private void initialize() {
         this.setName(NAME);
-
+        this.setOrder(50);
 	}
 
 	public void hook(ExtensionHook extensionHook) {

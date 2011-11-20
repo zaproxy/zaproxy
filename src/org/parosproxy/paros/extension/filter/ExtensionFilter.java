@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Set order and name
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;
@@ -40,6 +42,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
+	public static final String NAME = "ExtensionFilter"; 
 	private static final Logger LOG = Logger.getLogger(ExtensionFilter.class);
 	
 	private JMenuItem menuToolsFilter = null;
@@ -51,11 +54,13 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
      */
     public ExtensionFilter() {
         super();
+        this.setOrder(8);
     }
 
 
     
     public void init() {
+        this.setName(NAME);
         filterFactory.loadAllFilter();
         // ZAP: changed to init(Model)
         Thread t = new Thread(this);

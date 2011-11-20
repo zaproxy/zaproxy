@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/20 Set order
+
 package org.parosproxy.paros.extension.edit;
 
 import javax.swing.JFrame;
@@ -62,7 +64,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionEdit");
-			
+        this.setOrder(4);
 	}
 	
 
