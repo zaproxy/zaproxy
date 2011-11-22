@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/09 Added recursive option and logging
+// ZAP: 2011/11/22 Added parseJarFile(File file, String packageName) to take into account the package name
+//      when the local jar is loaded. Removed warnings (getFilteredObeject).
 
 package org.parosproxy.paros.common;
 
@@ -106,7 +108,8 @@ public class DynamicLoader extends URLClassLoader {
             jarFile = jarFile.substring(0, pos);
             //System.out.println(jarFile);
             try {
-                parseJarFile(new File(new URI(jarFile)));
+                // ZAP: changed to take into account the package name
+                parseJarFile(new File(new URI(jarFile)), packageName);
             } catch (URISyntaxException e) {
             	logger.error(e.getMessage(), e);
             }
@@ -120,9 +123,10 @@ public class DynamicLoader extends URLClassLoader {
     }
     
     
-    public Vector<Object> getFilteredObject (Class classType) {
+    // ZAP: removed warnings
+    public Vector<Object> getFilteredObject (Class<?> classType) {
         String className = "";
-        Class cls = null;
+        Class<?> cls = null;
         Vector<Object> listClass = new Vector<Object>();
         for (int i=0; i<listClassName.size(); i++) {
             className = (String) listClassName.get(i);
@@ -189,6 +193,41 @@ public class DynamicLoader extends URLClassLoader {
                 }
                 className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
                 listClassName.add(className);
+            }
+        } catch (Exception e) {
+        	logger.error(e.getMessage(), e);
+        } finally {
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        try {
+            this.addURL(file.toURI().toURL());
+        } catch (MalformedURLException e1) {
+        	logger.error(e1.getMessage(), e1);
+        }
+    }
+    
+    // ZAP: added to take into account the package name
+    private void parseJarFile(File file, String packageName) {
+        JarFile jarFile = null;
+        ZipEntry entry = null;
+        String className = "";
+        try {
+            jarFile = new JarFile(file);
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                entry = (ZipEntry) entries.nextElement();
+                if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
+                    continue;
+                }
+                className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
+                if (className.indexOf(packageName) >= 0) {
+                    listClassName.add(className);
+                }
             }
         } catch (Exception e) {
         	logger.error(e.getMessage(), e);
