@@ -31,7 +31,6 @@ public class HighlighterManager extends Observable {
 	
 	public void reinitHighlights(LinkedList<HighlightSearchEntry> list) {
 		this.highlights = (LinkedList<HighlightSearchEntry>) list.clone();
-		System.out.println("Now have: " + list.size());
 		
 		setChanged();
 		notifyObservers(null);
