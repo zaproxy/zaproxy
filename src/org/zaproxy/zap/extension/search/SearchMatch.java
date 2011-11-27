@@ -22,9 +22,19 @@ package org.zaproxy.zap.extension.search;
 
 import org.parosproxy.paros.network.HttpMessage;
 
+/*
+ * Points to a specific string in a request/response header/body 
+ * of a httpmessage.
+ * 
+ * Counted in chars from start/end of the header or from the body.
+ */
 public class SearchMatch {
 
-	public enum Location {REQUEST_HEAD, REQUEST_BODY, RESPONSE_HEAD, RESPONSE_BODY};
+	public enum Location {
+		REQUEST_HEAD, 
+		REQUEST_BODY, 
+		RESPONSE_HEAD, 
+		RESPONSE_BODY };
 	
 	private Location location;
 	private int start;
