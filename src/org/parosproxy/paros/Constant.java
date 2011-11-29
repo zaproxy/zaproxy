@@ -146,6 +146,7 @@ public final class Constant {
 	public static URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png");		// Yellow
 	public static URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png");		// Orange
 	public static URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png");	// Red
+	public static URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
