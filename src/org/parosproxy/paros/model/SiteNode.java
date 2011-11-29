@@ -21,6 +21,7 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 // ZAP: 2011/11/04 Correct getHierarchicNodeName
+// ZAP: 2011/11/29 Added blank image to node names to fix redrawing issue
 
 package org.parosproxy.paros.model;
 
@@ -51,7 +52,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     
     private String getMaxAlertString() {
     	if (alerts.size() == 0) {
-    		return "";
+        	return "&nbsp;<img src=\"" + Constant.BLANK_IMAGE_URL + "\">";	// Use the blank image to fix resizing issues
     	}
     	int highest = -1;
 
@@ -70,11 +71,11 @@ public class SiteNode extends DefaultMutableTreeNode {
     	case Alert.RISK_HIGH:
     		return "&nbsp;<img src=\"" + Constant.HIGH_FLAG_IMAGE_URL + "\">";
     	}
-    	return "";
+    	return "&nbsp;<img src=\"" + Constant.BLANK_IMAGE_URL + "\">";	// Use the blank image to fix resizing issues
     }
     
     public String toString() {
-    	return "<html>" + nodeName + getMaxAlertString() + "</html>";
+    	return "<html><body>" + nodeName + getMaxAlertString() + "</body></html>";
     }
     
     public static String cleanName(String name) {
