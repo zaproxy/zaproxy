@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag and fixed regex
 // ZAP: 2011/08/17 Check with double quotes as well as single 
+// ZAP: 2011/11/30 Depreciated
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -39,6 +40,12 @@ import org.parosproxy.paros.network.HttpMessage;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
+
+	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
 
     private static final String XSS_SCRIPT_1 = "alert('" + Constant.getEyeCatcher() + "');";
     private static final String XSS_SCRIPT_2 = "alert(\"" + Constant.getEyeCatcher() + "\");";

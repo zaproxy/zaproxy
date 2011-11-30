@@ -14,6 +14,12 @@ import org.zaproxy.zap.model.Vulnerability;
 
 public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 
+	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
+
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_8");
     private static Logger log = Logger.getLogger(TestCrossSiteScriptInTag.class);
 

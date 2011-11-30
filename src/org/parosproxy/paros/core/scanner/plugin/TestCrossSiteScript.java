@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/27 Added tests prefixed with single and double quotes
+// ZAP: 2011/11/30 Depreciated
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -36,6 +37,12 @@ import org.parosproxy.paros.network.HttpMessage;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class TestCrossSiteScript extends AbstractAppParamPlugin {
+
+	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
 
 	// should not be changed to static as Global may not be ready
 //	private static final String XSS1 = "<SCRIPT>alert(" + '"' + Constant.getEyeCatcher() + '"' + ");</SCRIPT>";

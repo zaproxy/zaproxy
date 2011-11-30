@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/11/30 Depreciated
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -36,6 +38,12 @@ import org.parosproxy.paros.network.HttpMessage;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
+
+	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
 
 	// should not be changed to static as Global may not be ready
 

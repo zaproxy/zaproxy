@@ -17,6 +17,12 @@ import org.zaproxy.zap.model.Vulnerability;
 
 public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
 
+	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
+	@Override
+	public boolean isDepreciated() {
+		return true;
+	}
+
 	private static final String BAD_SITE = "http://badsite.com";
 	private static final String SRC_ATT_INJ= " src=" + BAD_SITE;
 	
