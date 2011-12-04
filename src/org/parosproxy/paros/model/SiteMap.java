@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/09/19 Handle multipart node name
+// ZAP: 2011/12/04 Support deleting alerts
 
 package org.parosproxy.paros.model;
 
@@ -136,6 +137,9 @@ public class SiteMap extends DefaultTreeModel {
     }
     
     public synchronized SiteNode findNode(HttpMessage msg) {
+    	if (msg == null || msg.getRequestHeader() == null) {
+    		return null;
+    	}
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
@@ -192,6 +196,10 @@ public class SiteMap extends DefaultTreeModel {
     }
 
     public synchronized SiteNode findNode(URI uri) {
+    	return this.findNode(uri, "GET");
+    }
+    
+    public synchronized SiteNode findNode(URI uri, String method) {
         SiteNode resultNode = null;
         
         String scheme = null;
@@ -227,7 +235,7 @@ public class SiteMap extends DefaultTreeModel {
                 folder = tokenizer.nextToken();
                 if (folder != null && !folder.equals("")) {
                     if (tokenizer.countTokens() == 0) {
-                        String leafName = getLeafName(folder, uri);
+                        String leafName = getLeafName(folder, uri, method);
                         resultNode = findChild(resultNode, leafName);
                     } else {
                     	resultNode = findChild(resultNode, folder);
@@ -443,8 +451,11 @@ public class SiteMap extends DefaultTreeModel {
     }
     
     private String getLeafName(String nodeName, URI uri) {
-    	// Currently only support GETs
-        String leafName = "GET:"+nodeName;
+    	return this.getLeafName(nodeName, uri, "GET");
+    }
+    
+    private String getLeafName(String nodeName, URI uri, String methos) {
+        String leafName = methos + ":" + nodeName;
         
         String query = "";
 

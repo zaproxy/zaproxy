@@ -18,12 +18,15 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2011/12/04 Support deleting alerts
+
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -84,6 +87,9 @@ public class Alert implements Comparable<Object>  {
             		historyRef.getHttpMessage());
             // ZAP: Set up the Alert History Id
 
+        } catch (HttpMalformedHeaderException e) {
+        	// ZAP: Just an indication the history record doesnt exist
+        	logger.debug(e.getMessage(), e);
         } catch (Exception e) {
         	// ZAP: Log the exception
         	logger.error(e.getMessage(), e);

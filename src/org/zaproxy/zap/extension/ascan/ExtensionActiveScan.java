@@ -80,6 +80,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
 	private PopupMenuAlertEdit popupMenuAlertEdit = null;
+	private PopupMenuAlertDelete popupMenuAlertDelete = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -135,6 +136,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu());
@@ -244,20 +246,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             addAlertToDisplay(alert, ref);
             
             // The node node may have a new alert flag...
-        	this.nodeChanged(ref.getSiteNode());
+        	this.siteNodeChanged(ref.getSiteNode());
         	
         } catch (Exception e) {
         	logger.error(e.getMessage(), e);
         }
     }
     
-    private void nodeChanged(TreeNode node) {
+    private void siteNodeChanged(TreeNode node) {
     	if (node == null) {
     		return;
     	}
     	SiteMap siteTree = this.getModel().getSession().getSiteTree();
     	siteTree.nodeChanged(node);
-    	nodeChanged(node.getParent());
+    	siteNodeChanged(node.getParent());
     }
 
     private void addAlertToDisplay(final Alert alert, final HistoryReference ref) {
@@ -287,10 +289,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     private void addAlertToDisplayEventHandler (Alert alert, HistoryReference ref) {
 
-        if (getView() != null) {
-        	treeAlert.addPath(alert);
-            getAlertPanel().expandRoot();
-        }
+       	treeAlert.addPath(alert);
+        getAlertPanel().expandRoot();
         
 		SiteMap siteTree = this.getModel().getSession().getSiteTree();
 		SiteNode node = siteTree.findNode(alert.getMessage());
@@ -352,7 +352,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     	logger.debug("updateAlert " + alert.getAlert() + " " + alert.getUri());
 		updateAlertInDB(alert);
 		if (alert.getHistoryRef() != null) {
-			this.nodeChanged(alert.getHistoryRef().getSiteNode());
+			this.siteNodeChanged(alert.getHistoryRef().getSiteNode());
 		}
 	}
 
@@ -459,6 +459,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			popupMenuAlertEdit.setExtension(this);
 		}
 		return popupMenuAlertEdit;
+	}
+
+	private PopupMenuAlertDelete getPopupMenuAlertDelete() {
+		if (popupMenuAlertDelete == null) {
+			popupMenuAlertDelete = new PopupMenuAlertDelete();
+			popupMenuAlertDelete.setExtension(this);
+		}
+		return popupMenuAlertDelete;
 	}
 
 	/**
@@ -635,11 +643,27 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		SiteNode node = siteTree.findNode(alert.getMessage());
 		if (node != null &&  node.hasAlert(alert)) {
 			node.deleteAlert(alert);
+			siteNodeChanged(node);
 		}
-		
-        if (getView() != null) {
-        	treeAlert.deletePath(alert);
-        }
+       	treeAlert.deletePath(alert);
+
+       	node = siteTree.findNode(alert.getMessage().getRequestHeader().getURI(), "POST");
+		if (node != null &&  node.hasAlert(alert)) {
+			// Nasty check to make sure we delete the same alert on a POST op
+		    try {
+		    	List<Alert> alerts = node.getAlerts();
+		    	for (Alert a : alerts) {
+		    		if (alert.equals(a)) {
+		    			getModel().getDb().getTableAlert().deleteAlert(a.getAlertId());
+		    			break;
+		    		}
+		    	}
+			} catch (SQLException e) {
+	            logger.error(e.getMessage(), e);
+			}
+			node.deleteAlert(alert);
+			siteNodeChanged(node);
+		}
 
         AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
         tree.recalcAlertCounts();

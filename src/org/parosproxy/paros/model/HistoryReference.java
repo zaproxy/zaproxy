@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/07/23 Added TYPE_FUZZER
+// ZAP: 2011/12/04 Support deleting alerts
 
 package org.parosproxy.paros.model;
 
@@ -86,7 +87,11 @@ public class HistoryReference {
 
     public HistoryReference(int historyId) throws HttpMalformedHeaderException, SQLException {
 		RecordHistory history = null;		
+
 		history = staticTableHistory.read(historyId);
+		if (history == null) {
+			throw new HttpMalformedHeaderException();
+		}
 		HttpMessage msg = history.getHttpMessage();
  	   	// ZAP: Support for multiple tags
 		List<RecordTag> tags = staticTableTag.getTagsForHistoryID(historyId);
@@ -146,7 +151,7 @@ public class HistoryReference {
 		// fetch complete message
 		RecordHistory history = staticTableHistory.read(historyId);
 		if (history == null) {
-			return null;
+			throw new HttpMalformedHeaderException();
 		}
 		if (history.getHttpMessage() != null) {
 			// ZAP: Support for multiple tags
