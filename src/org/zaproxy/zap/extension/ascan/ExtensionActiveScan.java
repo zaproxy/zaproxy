@@ -646,6 +646,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			siteNodeChanged(node);
 		}
        	treeAlert.deletePath(alert);
+       	if (alert.getHistoryRef() != null) {
+       		alert.getHistoryRef().deleteAlert(alert);
+       	}
 
        	node = siteTree.findNode(alert.getMessage().getRequestHeader().getURI(), "POST");
 		if (node != null &&  node.hasAlert(alert)) {

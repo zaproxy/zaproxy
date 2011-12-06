@@ -450,12 +450,8 @@ public class SiteMap extends DefaultTreeModel {
         
     }
     
-    private String getLeafName(String nodeName, URI uri) {
-    	return this.getLeafName(nodeName, uri, "GET");
-    }
-    
-    private String getLeafName(String nodeName, URI uri, String methos) {
-        String leafName = methos + ":" + nodeName;
+    private String getLeafName(String nodeName, URI uri, String method) {
+        String leafName = method + ":" + nodeName;
         
         String query = "";
 

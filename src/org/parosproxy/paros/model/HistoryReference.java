@@ -295,6 +295,7 @@ public class HistoryReference {
 		   }
 	   }
 	   this.alerts.add(alert);
+	   alert.setHistoryRef(this);
 	   if (this.siteNode != null) {
 		   siteNode.addAlert(alert);
 	   }
@@ -314,6 +315,10 @@ public class HistoryReference {
 			   return;
 		   }
 	   }
+   }
+   
+   public synchronized void deleteAlert(Alert alert) {
+	   alerts.remove(alert);
    }
    
    public int getHighestAlert() {
