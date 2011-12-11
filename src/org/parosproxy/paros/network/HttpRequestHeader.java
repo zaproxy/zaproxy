@@ -21,6 +21,10 @@
  */
 // ZAP: 2011/08/04 Changed to support Logging
 // ZAP: 2011/10/29 Log errors
+// ZAP: 2011/11/03 Changed isImage() to prevent a NullPointerException when the path doesn't exist
+// ZAP: 2011/12/09 Changed HttpRequestHeader(String method, URI uri, String version) to add
+//                 the Cache-Control header field when the HTTP version is 1.1 and changed a
+//                 if condition to validate the variable version instead of the variable method
 
 package org.parosproxy.paros.network;
 
@@ -120,9 +124,14 @@ public class HttpRequestHeader extends HttpHeader {
         }
 		setHeader(USER_AGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)");
 		setHeader(PRAGMA,"no-cache");
+		// ZAP: added the Cache-Control header field to comply with HTTP/1.1
+		if (version.equalsIgnoreCase(HTTP11)) {
+			setHeader(CACHE_CONTROL,"no-cache");
+		}
 		setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
 		setHeader(ACCEPT_ENCODING,null);
-		if (method.equalsIgnoreCase(HTTP11)) {
+		// ZAP: changed from method to version
+		if (version.equalsIgnoreCase(HTTP11)) {
 		    setContentLength(0);
 		}
 		
