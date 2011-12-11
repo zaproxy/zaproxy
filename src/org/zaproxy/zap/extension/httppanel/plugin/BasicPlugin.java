@@ -120,6 +120,11 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void setHttpMessage(HttpMessage httpMessage) {
+		this.httpMessage = httpMessage;
+	}
 
 	@Override
 	// Combobox event
@@ -142,6 +147,4 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	abstract public void searchBody(Pattern p, List<SearchMatch> matches);
 	abstract public void highlightHeader(SearchMatch sm);
 	abstract public void highlightBody(SearchMatch sm);
-
-	abstract public void setHttpMessage(HttpMessage httpMessage);
 }
