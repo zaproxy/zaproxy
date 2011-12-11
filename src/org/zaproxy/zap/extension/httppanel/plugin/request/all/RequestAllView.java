@@ -2,9 +2,6 @@ package org.zaproxy.zap.extension.httppanel.plugin.request.all;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -12,32 +9,29 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.plugin.BasicPlugin;
-import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableModel;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableView;
-import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class RequestAllView extends BasicPlugin {
 	
 	// Plugins
-	private HttpPanelTextView textView;
-	private HttpPanelHexView hexView;
-	private RequestAllTableView tableView;
+	protected HttpPanelTextView textView;
+	protected HttpPanelHexView hexView;
+	protected RequestAllTableView tableView;
 	
-	private RequestAllModelText modelText;
-	private RequestAllModelText modelHex;
-	private RequestAllTableModel modelTable;
+	// Models
+	protected HttpPanelTextModelInterface modelText;
+	protected HttpPanelTextModelInterface modelHex;
+	protected RequestAllTableModel modelTable;
 	
 
 	public RequestAllView(HttpPanel httpPanel, HttpMessage httpMessage) {
