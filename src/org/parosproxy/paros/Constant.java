@@ -131,7 +131,8 @@ public final class Constant {
     
     // ZAP: Added i18n
     public static ResourceBundle messages = null;
-    
+    public static Locale locale = null;
+
     // ZAP: Added vulnerabilities file
     public String VULNS_CONFIG = "xml/vulnerabilities.xml";
     
@@ -351,7 +352,7 @@ public final class Constant {
         // ZAP: Init i18n
         
         String lang = null;
-        Locale locale = Locale.ENGLISH;
+        locale = Locale.ENGLISH;
         try {
             // Select the correct locale
             // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
@@ -406,9 +407,13 @@ public final class Constant {
 
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
-        Locale locale = new Locale(langArray[0], langArray[1]);
+        locale = new Locale(langArray[0], langArray[1]);
 	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
     }
+	
+	public static Locale getLocale () {
+		return locale;
+	}
     
     public static Constant getInstance() {
         if (instance==null) {

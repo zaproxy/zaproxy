@@ -55,8 +55,9 @@ public class ExtensionFactory {
         	zapLoader = new DynamicLoader(Constant.FOLDER_EXTENSION, "org.zaproxy.zap.extension", true);
         }
         if (parosLoader == null) {
-        	parosLoader = new DynamicLoader(Constant.FOLDER_EXTENSION, "org.parosproxy.paros.extension", true);
+        	parosLoader = new DynamicLoader("", "org.parosproxy.paros.extension", true);
         }
+
         List<Object> listTest = parosLoader.getFilteredObject(Extension.class);
         listTest.addAll(zapLoader.getFilteredObject(Extension.class));
 
