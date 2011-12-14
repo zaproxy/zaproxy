@@ -19,8 +19,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Support for extension factory
+// ZAP: 2011/12/14 Support for extension dependencies
 
 package org.parosproxy.paros.extension;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -152,5 +156,10 @@ public abstract class ExtensionAdaptor implements Extension {
 	protected void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public List<Class<?>> getDependencies() {
+		return new ArrayList<Class<?>>();
+	}
+
 
 }

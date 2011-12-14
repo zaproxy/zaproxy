@@ -19,8 +19,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Support for extension factory
+// ZAP: 2011/12/14 Support for extension dependencies
 
 package org.parosproxy.paros.extension;
+
+import java.util.List;
 
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -95,5 +98,7 @@ public interface Extension {
 	public boolean isEnabled();
 	
 	public void setEnabled(boolean enabled);
+	
+	public List<Class<?>> getDependencies();
 
 }

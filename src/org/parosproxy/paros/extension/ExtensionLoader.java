@@ -18,8 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2011/12/14 Support for extension dependencies
+
 package org.parosproxy.paros.extension;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -92,8 +95,25 @@ public class ExtensionLoader {
     }
     
     public void hookProxyListener(Proxy proxy) {
-        for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = hookList.get(i);
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<ProxyListener> listenerList = hook.getProxyListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    ProxyListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        proxy.addProxyListener(listener);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
+    	iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
             List<ProxyListener> listenerList = hook.getProxyListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -112,8 +132,9 @@ public class ExtensionLoader {
     
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
-        for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = hookList.get(i);
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -127,12 +148,12 @@ public class ExtensionLoader {
                 }
             }
         }
-        
     }
     
     public void optionsChangedAllPlugin(OptionsParam options) {
-        for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = hookList.get(i);
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -145,7 +166,6 @@ public class ExtensionLoader {
                 	logger.error(e.getMessage(), e);
                 }
             }
-            
         }
     }
     
@@ -163,8 +183,9 @@ public class ExtensionLoader {
     }
     
     public void sessionChangedAllPlugin(Session session) {
-        for (int i=0; i<getExtensionCount(); i++) {
-            ExtensionHook hook = hookList.get(i);
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -246,17 +267,21 @@ public class ExtensionLoader {
     private void hookAllExtension() {
         ExtensionHook extHook = null;
         for (int i=0; i<getExtensionCount(); i++) {
-            extHook = new ExtensionHook(model, view);
-            getExtension(i).hook(extHook);
-            hookList.add(extHook);
-            
-            if (view != null) {
-                // no need to hook view if no GUI
-                hookView(view, extHook);
-                hookMenu(view, extHook);
+            try {
+				extHook = new ExtensionHook(model, view);
+				getExtension(i).hook(extHook);
+				hookList.add(extHook);
+				
+				if (view != null) {
+				    // no need to hook view if no GUI
+				    hookView(view, extHook);
+				    hookMenu(view, extHook);
 
-            }
-            hookOptions(extHook);
+				}
+				hookOptions(extHook);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
         }
         
         if (view != null) {

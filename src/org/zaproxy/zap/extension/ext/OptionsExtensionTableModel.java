@@ -67,19 +67,49 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (columnIndex == 0) {
+    		// Check dependencies
+    		List<Class<?>> deps = extensions.get(rowIndex).getDependencies();
+    		for (Class<?>dep : deps) {
+    			Extension ext = getExtension(dep);
+    			if (ext == null || ! ext.isEnabled()) {
+    				return false;
+    			}
+    		}
     		return true;
     	}
         return false;
     }
     
+    private Extension getExtension(Class<?> c) {
+		for (Extension ext: extensions) {
+			if (ext.getClass().equals(c)) {
+				return ext;
+			}
+		}
+    	return null;
+    }
+    
     public void setValueAt(Object value, int row, int col) {
     	if (col == 0) {
     		extensions.get(row).setEnabled((Boolean) value);
+    		// En/Disable dependencies
+    		enableDependants(extensions.get(row), (Boolean) value);
     	}
         fireTableCellUpdated(row, col);
     }
 
-    public String getColumnName(int col) {
+    private void enableDependants(Extension extension, Boolean enabled) {
+    	int row = 0;
+		for (Extension ext: extensions) {
+			if (ext.getDependencies().contains(extension.getClass())) {
+				ext.setEnabled(enabled);
+				this.fireTableCellUpdated(row, 0);
+			}
+			row++;
+		}
+	}
+
+	public String getColumnName(int col) {
         return columnNames[col];
     }
     
