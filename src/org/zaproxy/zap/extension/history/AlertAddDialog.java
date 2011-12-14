@@ -35,10 +35,10 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.scanner.AlertViewPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.alert.AlertViewPanel;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 /**
  *
  * To change the template for this generated type comment go to
@@ -52,8 +52,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 	private JButton btnCancel = null;
 	
 	private ExtensionHistory extension = null;
-	//private ExtensionScanner extScan = null; 
-	private ExtensionActiveScan extScan = null; 
 
 	private HistoryReference historyRef;
 	
@@ -167,18 +165,18 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					Alert alert = alertViewPanel.getAlert();
 					try {
+						ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 						if (alert.getAlertId() >= 0) {
 							// Its an existing alert so save it
-						    if (extScan == null) {
-								extScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
-						    }
-							extScan.updateAlert(alert);
+							if (extAlert != null) {
+								extAlert.updateAlert(alert);
 
-							// Update alert display
-							extScan.displayAlert(alert);
-							
-							// Update alert tree
-							extScan.updateAlertInTree(alertViewPanel.getOriginalAlert(), alert);
+								// Update alert display
+								extAlert.displayAlert(alert);
+								
+								// Update alert tree
+								extAlert.updateAlertInTree(alertViewPanel.getOriginalAlert(), alert);
+							}
 
 							// Update history tree
 							if (historyRef != null) {
@@ -190,10 +188,9 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 							historyRef.addAlert(alert);
 		                    extension.getHistoryList().notifyItemChanged(historyRef);
 						    // Raise it
-						    if (extScan == null) {
-								extScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
-						    }
-							extScan.alertFound(alert, historyRef);
+							if (extAlert != null) {
+								extAlert.alertFound(alert, historyRef);
+							}
 						}
 					} catch (Exception e1) {
 						e1.printStackTrace();

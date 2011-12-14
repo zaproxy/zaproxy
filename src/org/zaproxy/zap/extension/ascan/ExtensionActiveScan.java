@@ -20,29 +20,20 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.ProxyListener;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.db.RecordAlert;
-import org.parosproxy.paros.db.RecordScan;
-import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -51,13 +42,11 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
@@ -72,15 +61,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
     private static final int ARG_SCAN_IDX = 0;
     
-	private AlertTreeModel treeAlert = null;
-	
 	private JMenuItem menuItemPolicy = null;
-	private AlertPanel alertPanel = null;
-	private RecordScan recordScan = null;
 	
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
-	private PopupMenuAlertEdit popupMenuAlertEdit = null;
-	private PopupMenuAlertDelete popupMenuAlertDelete = null;
 	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -135,20 +118,16 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu());
 
-            extensionHook.getHookView().addStatusPanel(getAlertPanel());
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
 	        
 	        this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 
-	    	ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
 	    	ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
 	    }
         extensionHook.addSessionListener(this);
@@ -232,148 +211,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
     
-    public void alertFound(Alert alert, HistoryReference ref) {
-        try {
-        	logger.debug("alertFound " + alert.getAlert() + " " + alert.getUri());
-        	if (ref == null) {
-        		ref = alert.getHistoryRef();
-        	}
-        	if (ref == null) {
-        		ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
-        	}
-            
-            writeAlertToDB(alert, ref);
-            addAlertToDisplay(alert, ref);
-            
-            // The node node may have a new alert flag...
-        	this.siteNodeChanged(ref.getSiteNode());
-        	
-        } catch (Exception e) {
-        	logger.error(e.getMessage(), e);
-        }
-    }
-    
-    private void siteNodeChanged(TreeNode node) {
-    	if (node == null) {
-    		return;
-    	}
-    	SiteMap siteTree = this.getModel().getSession().getSiteTree();
-    	siteTree.nodeChanged(node);
-    	siteNodeChanged(node.getParent());
-    }
-
-    private void addAlertToDisplay(final Alert alert, final HistoryReference ref) {
-        if (getView() == null) {
-    		// Running as a daemon
-    		return;
-    	}
-	    if (EventQueue.isDispatchThread()) {
-	    	addAlertToDisplayEventHandler(alert, ref);
-
-	    } else {
-	        
-	        try {
-	        	// Changed from invokeAndWait due to the number of interupt exceptions
-	        	// And its likely to always to run from a background thread anyway
-	            //EventQueue.invokeAndWait(new Runnable() {
-	            EventQueue.invokeLater(new Runnable() {
-	                public void run() {
-	        	    	addAlertToDisplayEventHandler(alert, ref);
-	                }
-	            });
-	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
-    }
-
-    private void addAlertToDisplayEventHandler (Alert alert, HistoryReference ref) {
-
-       	treeAlert.addPath(alert);
-        getAlertPanel().expandRoot();
-        
-		SiteMap siteTree = this.getModel().getSession().getSiteTree();
-		SiteNode node = siteTree.findNode(alert.getMessage());
-		if (ref != null && (node == null || ! node.hasAlert(alert))) {
-			// Add new alerts to the site tree
-			siteTree.addPath(ref);
-	        ref.addAlert(alert);
-		}
-    }
-
-	/**
-	 * This method initializes alertPanel	
-	 * 	
-	 * @return com.proofsecure.paros.extension.scanner.AlertPanel	
-	 */    
-	AlertPanel getAlertPanel() {
-		if (alertPanel == null) {
-			alertPanel = new AlertPanel();
-			alertPanel.setView(getView());
-			alertPanel.setSize(345, 122);
-			alertPanel.getTreeAlert().setModel(getTreeModel());
-		}
-		
-		return alertPanel;
-	}
-
 	@Override
     public void initView(ViewDelegate view) {
     	super.initView(view);
-    	getAlertPanel().setView(view);
     }
 
-	
-	// ZAP: Changed return type for getTreeModel
-	private AlertTreeModel getTreeModel() {
-	    if (treeAlert == null) {
-	        treeAlert = new AlertTreeModel();
-	    }
-	    return treeAlert;
-	}
-	
-	private void writeAlertToDB(Alert alert, HistoryReference ref) throws HttpMalformedHeaderException, SQLException {
-
-	    TableAlert tableAlert = getModel().getDb().getTableAlert();
-        int scanId = 0;
-        if (recordScan != null) {
-        	scanId = recordScan.getScanId();
-        }
-        RecordAlert recordAlert = tableAlert.write(
-                scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getReliability(),
-                alert.getDescription(), alert.getUri(), alert.getParam(), alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
-        		ref.getHistoryId(), alert.getSourceHistoryId()
-                );
-        
-        alert.setAlertId(recordAlert.getAlertId());
-        
-	}
-	public void updateAlert(Alert alert) throws HttpMalformedHeaderException, SQLException {
-    	logger.debug("updateAlert " + alert.getAlert() + " " + alert.getUri());
-		updateAlertInDB(alert);
-		if (alert.getHistoryRef() != null) {
-			this.siteNodeChanged(alert.getHistoryRef().getSiteNode());
-		}
-	}
-
-	private void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
-
-	    TableAlert tableAlert = getModel().getDb().getTableAlert();
-	    tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(), 
-	    		alert.getReliability(), alert.getDescription(), alert.getUri(),
-	    		alert.getParam(), alert.getOtherInfo(), alert.getSolution(), 
-	    		alert.getReference(), alert.getSourceHistoryId());
-	}
-	
-	public void displayAlert (Alert alert) {
-    	logger.debug("displayAlert " + alert.getAlert() + " " + alert.getUri());
-		this.alertPanel.getAlertViewPanel().displayAlert(alert);
-	}
-	
-	public void updateAlertInTree(Alert originalAlert, Alert alert) {
-		this.getTreeModel().updatePath(originalAlert, alert);
-		
-	}
 
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
@@ -394,25 +236,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
-	    AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
-
-	    DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
-	    
-        while (root.getChildCount() > 0) {
-            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
-        }
-        // ZAP: Reset the alert counts
-	    tree.recalcAlertCounts();
-	    
-	    try {
-            refreshAlert(session);
-            // ZAP: this prevent the UI getting corrupted
-            tree.nodeStructureChanged(root);
-        } catch (SQLException e) {
-        	// ZAP: Print stack trace to Output tab
-        	getView().getOutputPanel().append(e);
-        }
-		
 		// clear all scans and add new hosts
 		this.getActiveScanPanel().reset();
 		SiteNode snroot = (SiteNode)session.getSiteTree().getRoot();
@@ -420,24 +243,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		while (en.hasMoreElements()) {
 			this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);
 		}
-	}
-
-	private void refreshAlert(Session session) throws SQLException {
-		SiteMap siteTree = this.getModel().getSession().getSiteTree();
-
-	    TableAlert tableAlert = getModel().getDb().getTableAlert();
-	    Vector<Integer> v = tableAlert.getAlertList();
-	    
-	    for (int i=0; i<v.size(); i++) {
-	        int alertId = v.get(i).intValue();
-	        RecordAlert recAlert = tableAlert.read(alertId);
-	        Alert alert = new Alert(recAlert);
-			if (alert.getHistoryRef() != null) {
-				// The ref can be null if hrefs are purged
-				addAlertToDisplay(alert, alert.getHistoryRef());
-			}
-	    }
-    	siteTree.nodeStructureChanged((SiteNode)siteTree.getRoot());
 	}
 
 	/**
@@ -451,22 +256,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;
-	}
-
-	private PopupMenuAlertEdit getPopupMenuAlertEdit() {
-		if (popupMenuAlertEdit == null) {
-			popupMenuAlertEdit = new PopupMenuAlertEdit();
-			popupMenuAlertEdit.setExtension(this);
-		}
-		return popupMenuAlertEdit;
-	}
-
-	private PopupMenuAlertDelete getPopupMenuAlertDelete() {
-		if (popupMenuAlertDelete == null) {
-			popupMenuAlertDelete = new PopupMenuAlertDelete();
-			popupMenuAlertDelete.setExtension(this);
-		}
-		return popupMenuAlertDelete;
 	}
 
 	/**
@@ -605,75 +394,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		this.getActiveScanPanel().setExcludeList(urls);
 	}
 
-	public void deleteAlert(Alert alert) {
-    	logger.debug("deleteAlert " + alert.getAlert() + " " + alert.getUri());
-		deleteAlertFromDisplay(alert);
-		
-	    try {
-			getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
-		} catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-		}
-	}
-
-	private void deleteAlertFromDisplay(final Alert alert) {
-        if (getView() == null) {
-    		// Running as a daemon
-    		return;
-    	}
-	    if (EventQueue.isDispatchThread()) {
-	    	deleteAlertFromDisplayEventHandler(alert);
-
-	    } else {
-	        
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                public void run() {
-	                	deleteAlertFromDisplayEventHandler(alert);
-	                }
-	            });
-	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
-    }
-
-    private void deleteAlertFromDisplayEventHandler (Alert alert) {
-		SiteMap siteTree = this.getModel().getSession().getSiteTree();
-		SiteNode node = siteTree.findNode(alert.getMessage());
-		if (node != null &&  node.hasAlert(alert)) {
-			node.deleteAlert(alert);
-			siteNodeChanged(node);
-		}
-       	treeAlert.deletePath(alert);
-       	if (alert.getHistoryRef() != null) {
-       		alert.getHistoryRef().deleteAlert(alert);
-       	}
-
-       	node = siteTree.findNode(alert.getMessage().getRequestHeader().getURI(), "POST");
-		if (node != null &&  node.hasAlert(alert)) {
-			// Nasty check to make sure we delete the same alert on a POST op
-		    try {
-		    	List<Alert> alerts = node.getAlerts();
-		    	for (Alert a : alerts) {
-		    		if (alert.equals(a)) {
-		    			getModel().getDb().getTableAlert().deleteAlert(a.getAlertId());
-		    			break;
-		    		}
-		    	}
-			} catch (SQLException e) {
-	            logger.error(e.getMessage(), e);
-			}
-			node.deleteAlert(alert);
-			siteNodeChanged(node);
-		}
-
-        AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
-        tree.recalcAlertCounts();
-    }
-
     public void addPolicyPanel(AbstractParamPanel panel) {
 		this.policyPanels.add(panel);
 	}
 	
+	@Override
+	public List<Class<?>> getDependencies() {
+		List<Class<?>> deps = new ArrayList<Class<?>>();
+		deps.add(ExtensionAlert.class);
+		
+		return deps;
+	}
 }

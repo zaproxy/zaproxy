@@ -34,11 +34,13 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
@@ -177,7 +179,10 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	@Override
 	public void alertFound(Alert alert) {
-		((ExtensionActiveScan)this.getExtension()).alertFound(alert, alert.getHistoryRef());
+		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+		if (extAlert != null) {
+			extAlert.alertFound(alert, alert.getHistoryRef());
+		}
 	}
 
 

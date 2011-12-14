@@ -16,13 +16,12 @@ import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.scanner.ExtensionScanner;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
 	
@@ -36,8 +35,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private boolean shutDown = false;
 	
 	private ExtensionHistory extHist = null; 
-	private ExtensionScanner extScan = null;
-	private ExtensionActiveScan extAScan = null;
 
 	private TableHistory historyTable = null;
 	private RecordHistory historyRecord = null;
@@ -120,12 +117,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	private void init () {
 		extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
-		if (Control.getSingleton().getExtensionLoader().getExtension("ExtensionScanner") != null) {
-			extScan = (ExtensionScanner) Control.getSingleton().getExtensionLoader().getExtension("ExtensionScanner");
-		}
-		if (Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan") != null) {
-			extAScan = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
-		}
 	}
 		
 	public void raiseAlert(int id, Alert alert) {
@@ -151,11 +142,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 			logger.error(e.getMessage(), e);
 		}
 	    // Raise the alert
-		if (extAScan != null) {
-			extAScan.alertFound(alert, href);
-		}
-		if (extScan != null) {
-			extScan.alertFound(alert);
+		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+		if (extAlert != null) {
+			extAlert.alertFound(alert, href);
 		}
 
 	}

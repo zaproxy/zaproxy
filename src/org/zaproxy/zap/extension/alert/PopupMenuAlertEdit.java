@@ -17,34 +17,35 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.ascan;
+package org.zaproxy.zap.extension.alert;
 
 import java.awt.Component;
 
-import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenu;
-import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 
 
 /**
- * ZAP: New Popup Menu Alert Delete
+ * ZAP: New Popup Menu Alert Edit
  */
-public class PopupMenuAlertDelete extends ExtensionPopupMenu {
+public class PopupMenuAlertEdit extends ExtensionPopupMenu {
 
 	private static final long serialVersionUID = 1L;
 
-	private ExtensionActiveScan extension = null;
+	private ExtensionAlert extension = null;
+
+	private ExtensionHistory extHist = null; 
 
     /**
      * 
      */
-    public PopupMenuAlertDelete() {
+    public PopupMenuAlertEdit() {
         super();
  		initialize();
     }
@@ -52,7 +53,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenu {
     /**
      * @param label
      */
-    public PopupMenuAlertDelete(String label) {
+    public PopupMenuAlertEdit(String label) {
         super(label);
     }
 
@@ -62,37 +63,30 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenu {
 	 * @return void
 	 */
 	private void initialize() {
-        this.setText(Constant.messages.getString("scanner.delete.popup"));
+        this.setText(Constant.messages.getString("scanner.edit.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-			    TreePath[] paths = (TreePath[]) extension.getAlertPanel().getTreeAlert().getSelectionPaths();
-			    if (paths != null) {
-			    	if (View.getSingleton().showConfirmDialog(Constant.messages.getString("scanner.delete.confirm")) 
-			    			!= JOptionPane.OK_OPTION) {
-			    		return;
-			    	}
-			    	for (TreePath path : paths) {
-			    		DefaultMutableTreeNode node = (DefaultMutableTreeNode)  path.getLastPathComponent();
-			    		deleteNode(node);
-			    	}
+        	    
+			    DefaultMutableTreeNode node = (DefaultMutableTreeNode) extension.getAlertPanel().getTreeAlert().getLastSelectedPathComponent();
+			    if (node != null && node.getUserObject() != null) {
+			        Object obj = node.getUserObject();
+			        if (obj instanceof Alert) {
+			            Alert alert = (Alert) obj;
+			            
+						if (extHist == null) {
+							extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+						}
+						if (extHist != null) {
+							extHist.showAlertAddDialog(alert);
+						}
+			        }
 			    }
+        	    
         	}
         });
 			
-	}
-	
-	private void deleteNode(DefaultMutableTreeNode node) {
-		while (node.getChildCount() > 0) {
-			deleteNode((DefaultMutableTreeNode)node.getChildAt(0));
-		}
-	    if (node.getUserObject() != null) {
-	        Object obj = node.getUserObject();
-	        if (obj instanceof Alert) {
-	            extension.deleteAlert((Alert) obj);
-	        }
-	    }
 	}
 	
     public boolean isEnableForComponent(Component invoker) {
@@ -101,7 +95,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenu {
                 JTree tree = (JTree) invoker;
                 if (tree.getLastSelectedPathComponent() != null) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                    if (!node.isRoot()) {
+                    if (!node.isRoot() && node.getUserObject() != null) {
                         return true;
                     }
                 }
@@ -111,7 +105,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenu {
         return false;
     }
     
-    void setExtension(ExtensionActiveScan extension) {
+    void setExtension(ExtensionAlert extension) {
         this.extension = extension;
     }
 }

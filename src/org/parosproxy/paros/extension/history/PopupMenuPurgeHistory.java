@@ -36,7 +36,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.PopupPurgeMenu;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 
 /**
@@ -125,11 +125,11 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
         }
         extension.getHistoryList().removeElement(ref);
         
-		ExtensionActiveScan extAscan = 
-			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
-		if (extAscan != null) {
+		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+
+		if (extAlert != null) {
 	        for (Alert alert : ref.getAlerts()) {
-				extAscan.deleteAlert(alert);
+				extAlert.deleteAlert(alert);
 	        }
 		}
         

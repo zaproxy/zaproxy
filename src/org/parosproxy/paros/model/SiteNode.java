@@ -229,15 +229,5 @@ public class SiteNode extends DefaultMutableTreeNode {
 	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
 	 	}
-	 	
-	 	// Need to do this here as the alerts currently record 'duplicate' history refs..
-	 	// .. maybe they should
-	 	if (this.historyReference != null) {
-	 		this.historyReference.deleteAlert(alert);
-	 	}
-	 	for (HistoryReference href : pastHistoryList) {
-	 		href.deleteAlert(alert);
-	 	}
-	 	
 	}
 }

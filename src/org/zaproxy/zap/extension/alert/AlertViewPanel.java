@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2011 The ZAP Development team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.ascan;
+package org.zaproxy.zap.extension.alert;
 
 
 import java.awt.CardLayout;
@@ -109,7 +109,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private void initialize() {
 		cardLayout = new CardLayout();
         this.setLayout(cardLayout);
-        this.setName("Alert View");
+        this.setName("AlertView");
 
         if (! editable) {
         	this.add(getDefaultPane(), getDefaultPane().getName());

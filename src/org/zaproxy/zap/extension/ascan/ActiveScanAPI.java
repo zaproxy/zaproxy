@@ -28,12 +28,14 @@ import net.sf.json.xml.XMLSerializer;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -140,7 +142,10 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	@Override
 	public void alertFound(Alert alert) {
-		extension.alertFound(alert, alert.getHistoryRef());
+		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+		if (extAlert != null) {
+			extAlert.alertFound(alert, alert.getHistoryRef());
+		}
 	}
 
 	@Override

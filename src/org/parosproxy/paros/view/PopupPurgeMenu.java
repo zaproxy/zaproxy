@@ -34,7 +34,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class PopupPurgeMenu extends ExtensionPopupMenu {
 
@@ -115,13 +115,12 @@ public class PopupPurgeMenu extends ExtensionPopupMenu {
             ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
             ext.getHistoryList().removeElement(node.getHistoryReference());
 
-    		ExtensionActiveScan extAscan = 
-    			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+    		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 
             if (node.getHistoryReference()!= null) {
-        		if (extAscan != null) {
+        		if (extAlert != null) {
         	        for (Alert alert : node.getHistoryReference().getAlerts()) {
-        				extAscan.deleteAlert(alert);
+        				extAlert.deleteAlert(alert);
         	        }
         		}
                 node.getHistoryReference().delete();
@@ -131,7 +130,9 @@ public class PopupPurgeMenu extends ExtensionPopupMenu {
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
 				for (Alert alert : ref.getAlerts()) {
-        			extAscan.deleteAlert(alert);
+	        		if (extAlert != null) {
+	        			extAlert.deleteAlert(alert);
+	        		}
        	        }
                 ext.getHistoryList().removeElement(ref);
                 ref.delete();
