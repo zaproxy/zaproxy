@@ -104,6 +104,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 			if (ext.getDependencies().contains(extension.getClass())) {
 				ext.setEnabled(enabled);
 				this.fireTableCellUpdated(row, 0);
+				enableDependants(ext, enabled); 
 			}
 			row++;
 		}
