@@ -111,23 +111,6 @@ public class ExtensionLoader {
                 }
             }
     	}
-    	iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
-            List<ProxyListener> listenerList = hook.getProxyListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
-                try {
-                    ProxyListener listener = listenerList.get(j);
-                    if (listener != null) {
-                        proxy.addProxyListener(listener);
-                    }
-                } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
-                }
-            }
-        }
-        
     }
     
     // ZAP: Added support for site map listeners
