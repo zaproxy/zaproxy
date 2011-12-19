@@ -18,12 +18,17 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import java.util.zip.GZIPInputStream;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -41,8 +46,10 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class CoreAPI extends ApiImplementor {
 
@@ -252,7 +259,7 @@ public class CoreAPI extends ApiImplementor {
 		ja.put("reliability", Alert.MSG_RELIABILITY[alert.getReliability()]);
 		ja.put("url", alert.getUri());
 		ja.put("other", alert.getOtherInfo());
-		ja.put("param", alert.getParam());
+		ja.put("param", XMLStringUtil.escapeControlChrs(alert.getParam()));
 		ja.put("reference", alert.getReference());
 		ja.put("solution", alert.getSolution());
 		return ja;
@@ -265,12 +272,37 @@ public class CoreAPI extends ApiImplementor {
 	 */
 	private JSONObject httpMessageToJSON(HttpMessage hm) {
 		JSONObject ja = new JSONObject();
-		ja.put("cookieParams", hm.getCookieParamsAsString().toString());
+		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(hm.getCookieParamsAsString().toString()));
 		ja.put("note", hm.getNote().toString());
-		ja.put("requestHeader", hm.getRequestHeader().toString());
-		ja.put("requestBody", hm.getRequestBody().toString());
-		ja.put("responseHeader", hm.getResponseHeader().toString());
-		ja.put("responseBody", hm.getResponseBody().toString());
+		ja.put("requestHeader", XMLStringUtil.escapeControlChrs(hm.getRequestHeader().toString()));
+		ja.put("requestBody", XMLStringUtil.escapeControlChrs(hm.getRequestBody().toString()));
+		ja.put("responseHeader", XMLStringUtil.escapeControlChrs(hm.getResponseHeader().toString()));
+		
+		if (HttpHeader.GZIP.equals(hm.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+			// Uncompress gziped content
+			try {
+				ByteArrayInputStream bais = new ByteArrayInputStream(hm.getResponseBody().getBytes());
+				GZIPInputStream gis = new GZIPInputStream(bais);
+				InputStreamReader isr = new InputStreamReader(gis);
+				BufferedReader br = new BufferedReader(isr);
+				StringBuffer sb = new StringBuffer();
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+				br.close();
+				isr.close();
+				gis.close();
+				bais.close();
+				ja.put("responseBody", XMLStringUtil.escapeControlChrs(sb.toString()));
+			} catch (IOException e) {
+				//this.log.error(e.getMessage(), e);
+				System.out.println(e);
+			}
+		} else {
+			ja.put("responseBody", XMLStringUtil.escapeControlChrs(hm.getResponseBody().toString()));
+		}
+		
 		return ja;
 	}
 
@@ -342,7 +374,9 @@ public class CoreAPI extends ApiImplementor {
 				int sessionId = ((Integer) v.get(i)).intValue();
 				RecordHistory recAlert = tableHistory.read(sessionId);
 				HttpMessage msg = recAlert.getHttpMessage();
-				mgss.add(msg);
+				if ( ! msg.getRequestHeader().isImage()) {
+					mgss.add(msg);
+				}
 			}
 			return mgss;
 		} catch (SQLException e) {

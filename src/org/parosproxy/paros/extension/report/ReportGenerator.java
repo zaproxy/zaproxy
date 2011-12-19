@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/11/04 Correct entityEncode
+// ZAP: 2011/12/19 Escape invalid XML characters
 
 package org.parosproxy.paros.extension.report;
 
@@ -41,6 +42,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ReportGenerator {
 
@@ -205,10 +207,9 @@ public class ReportGenerator {
 			return result;
 		}
 
-		// The escapeXml function doesnt escape null chrs, which will cause problems later
-		result = result.replaceAll("\0", "%00");
+		// The escapeXml function doesnt cope with some 'special' chrs
 		
-		return StringEscapeUtils.escapeXml(result);
+		return StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(result));
 	}
 	
 	/**
