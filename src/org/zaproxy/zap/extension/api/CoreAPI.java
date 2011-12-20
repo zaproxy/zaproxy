@@ -374,7 +374,7 @@ public class CoreAPI extends ApiImplementor {
 				int sessionId = ((Integer) v.get(i)).intValue();
 				RecordHistory recAlert = tableHistory.read(sessionId);
 				HttpMessage msg = recAlert.getHttpMessage();
-				if ( ! msg.getRequestHeader().isImage()) {
+				if ( ! msg.getRequestHeader().isImage() && ! msg.getResponseHeader().isImage()) {
 					mgss.add(msg);
 				}
 			}
