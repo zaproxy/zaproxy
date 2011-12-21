@@ -35,6 +35,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
 
 	private static final long serialVersionUID = 1L;
 	private SearchResult searchResult = null;
+    private JLabel txtId = null;
     private JLabel method = null;
     private JLabel url = null;
     private JLabel stringFound = null;
@@ -55,16 +56,15 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
      */
     private void initialize() {
 
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints2.gridy = 0;
-        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.weightx = 0.75D;
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints2.ipadx = 4;
-        gridBagConstraints2.ipady = 1;
-        gridBagConstraints2.gridx = 3;
-        
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0,0,0,0);
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.0D;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 1;
+        gridBagConstraints.gridx = 0;
+
         GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
         gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
         gridBagConstraints1.gridy = 0;
@@ -73,17 +73,37 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         gridBagConstraints1.ipadx = 4;
         gridBagConstraints1.ipady = 1;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.gridx = 2;
+        gridBagConstraints1.gridx = 1;
         
-        GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
-        gridBagConstraints0.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints0.gridy = 0;
-        gridBagConstraints0.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints0.weightx = 0.0D;
-        gridBagConstraints0.ipadx = 4;
-        gridBagConstraints0.ipady = 1;
-        gridBagConstraints0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints0.gridx = 1;
+        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
+        gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints2.weightx = 0.0D;
+        gridBagConstraints2.ipadx = 4;
+        gridBagConstraints2.ipady = 1;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints2.gridx = 2;
+        
+        GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+        gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
+        gridBagConstraints3.gridy = 0;
+        gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints3.weightx = 0.75D;
+        gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints3.ipadx = 4;
+        gridBagConstraints3.ipady = 1;
+        gridBagConstraints3.gridx = 3;
+        
+        txtId = new JLabel();
+        txtId.setText(" ");
+        txtId.setBackground(java.awt.SystemColor.text);
+        txtId.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        txtId.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        txtId.setPreferredSize(new java.awt.Dimension(40,15));
+        txtId.setMinimumSize(new java.awt.Dimension(40,15));
+        txtId.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+        txtId.setOpaque(true);
         
         method = new JLabel();
         method.setText(" ");
@@ -118,20 +138,29 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         	this.setSize(328, 11);
         }
         this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-        this.add(method, gridBagConstraints0);
-        this.add(url, gridBagConstraints1);
-        this.add(stringFound, gridBagConstraints2);
+
+        this.add(txtId, gridBagConstraints);
+        this.add(method, gridBagConstraints1);
+        this.add(url, gridBagConstraints2);
+        this.add(stringFound, gridBagConstraints3);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         searchResult = (SearchResult) value;
         
+        if (searchResult.getMessage().getHistoryRef() != null) {
+        	txtId.setText(Integer.toString(searchResult.getMessage().getHistoryRef().getHistoryId()));
+        } else {
+            txtId.setText("");
+        }
         method.setText(searchResult.getMessage().getRequestHeader().getMethod());
         url.setText(searchResult.getMessage().getRequestHeader().getURI().toString());
         stringFound.setText(searchResult.getStringFound());
         
         if (isSelected) {
+            txtId.setBackground(list.getSelectionBackground());
+            txtId.setForeground(list.getSelectionForeground());
         	method.setBackground(list.getSelectionBackground());
         	method.setForeground(list.getSelectionForeground());
         	url.setBackground(list.getSelectionBackground());
@@ -142,11 +171,13 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         } else {
             Color darker = new Color(list.getBackground().getRGB() & 0xFFECECEC);
             
-            method.setBackground(list.getBackground());
+            txtId.setBackground(list.getBackground());
+            txtId.setForeground(list.getForeground());
+            method.setBackground(darker);
             method.setForeground(list.getForeground());
-            url.setBackground(darker);
+            url.setBackground(list.getBackground());
             url.setForeground(list.getForeground());
-            stringFound.setBackground(list.getBackground());
+            stringFound.setBackground(darker);
             stringFound.setForeground(list.getForeground());
 
         }

@@ -25,6 +25,7 @@
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 // ZAP: 2011/10/23 Fix add note and manage tags dialogs
 // ZAP: 2011/11/20 Set order
+// ZAP: 2011/12/21 Added 'show in history' popup
 
 package org.parosproxy.paros.extension.history;
 
@@ -56,6 +57,7 @@ import org.zaproxy.zap.extension.history.PopupMenuAlert;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuResendMessage;
+import org.zaproxy.zap.extension.history.PopupMenuShowInHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
 /**
@@ -101,6 +103,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuTag popupMenuTag = null;
     // ZAP: Added Export URLs
 	private PopupMenuExportURLs popupMenuExportURLs = null;
+	private PopupMenuShowInHistory popupMenuShowInHistory = null;
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
@@ -184,13 +187,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDeleteHistory());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory());
 
 	        // same as PopupMenuExport but for File menu
             // ZAP: Move 'export' menu items to Report menu
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
-
+            
             /*
             if (isEnableForNativePlatform()) {
                 // preload for faster loading
@@ -201,6 +205,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	}
 	
+	private PopupMenuShowInHistory getPopupMenuShowInHistory() {
+		if (popupMenuShowInHistory == null) {
+			popupMenuShowInHistory = new PopupMenuShowInHistory(Constant.messages.getString("history.showinhistory.popup"));
+			popupMenuShowInHistory.setExtension(this);
+		}
+		return popupMenuShowInHistory;
+	}
+
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -783,6 +795,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			popupMenuResendMessage.setExtension(this);
 		}
 		return popupMenuResendMessage;
+	}
+
+	public void showInHistory(HistoryReference href) {
+		this.getLogPanel().display(href);
+		this.getLogPanel().setTabFocus();
 	}
 	
 }
