@@ -325,6 +325,22 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private Thread thread = null;
     private LogPanelCellRenderer logPanelCellRenderer = null;  //  @jve:decl-index=0:visual-constraint="10,304"
     
+    protected void display(final HistoryReference historyRef) {
+    	this.readAndDisplay(historyRef);
+    	for (int i = 0; i < listLog.getModel().getSize(); i++) {
+    		// Bit nasty, but its the only way I've found...
+    		if (((HistoryReference)listLog.getModel().getElementAt(i)).getHistoryId() == historyRef.getHistoryId()) {
+    			listLog.setSelectedIndex(i);
+    			listLog.ensureIndexIsVisible(i);
+    			break;
+    			/* Doesnt work - the records are not always in order
+    		} else if (((HistoryReference)listLog.getModel().getElementAt(i)).getHistoryId() > historyRef.getHistoryId()) {
+    			break;
+    			*/
+    		}
+    	}
+    }
+
     private void readAndDisplay(final HistoryReference historyRef) {
 
         synchronized(displayQueue) {
