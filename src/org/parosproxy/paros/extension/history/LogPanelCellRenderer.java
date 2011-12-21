@@ -71,7 +71,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.gridx = 8;
         gridBagConstraints6.gridy = 0;
-        gridBagConstraints6.weightx = 0.25D;
+        gridBagConstraints6.weightx = 0.40D;
         gridBagConstraints6.ipadx = 4;
         gridBagConstraints6.ipady = 1;
         //gridBagConstraints6.insets = new java.awt.Insets(0,2,0,0);
@@ -156,7 +156,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
         gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
         gridBagConstraints2.gridy = 0;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.weightx = 0.75D;
+        gridBagConstraints2.weightx = 0.60D;
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints2.ipadx = 4;
         gridBagConstraints2.ipady = 1;
@@ -182,8 +182,8 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
         txtURI.setText(" ");
         txtURI.setBackground(java.awt.SystemColor.text);
         txtURI.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        txtURI.setPreferredSize(new java.awt.Dimension(420,15));
-        txtURI.setMinimumSize(new java.awt.Dimension(420,15));
+        txtURI.setPreferredSize(new java.awt.Dimension(350,15));
+        txtURI.setMinimumSize(new java.awt.Dimension(350,15));
         txtURI.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
         txtURI.setOpaque(true);
         txtMethod = new JLabel();
