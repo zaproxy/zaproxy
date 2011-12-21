@@ -465,37 +465,33 @@ public class HttpRequestHeader extends HttpHeader {
 	// Construct new GET url of request
 	// Based on getParams
 	public void setGetParams(TreeSet<HtmlParameter> getParams) {
-		String uri = "";
-		
-		if (getParams.size() == 0) {
+		if (mUri == null || getParams.isEmpty()) {
 			return;
 		}
 		
+		StringBuilder sbQuery = new StringBuilder();
 		for(HtmlParameter parameter: getParams) {
 			if (parameter.getType() != HtmlParameter.Type.url) {
 				continue;
 			}
 			
-			uri += parameter.getName() + "=" + parameter.getValue();
-			uri += "&";
+			sbQuery.append(parameter.getName());
+			sbQuery.append('=');
+			sbQuery.append(parameter.getValue());
+			sbQuery.append('&');
 		}
 		
-		if (uri.length() < 1) {
+		if (sbQuery.length() < 1) {
 			return;
 		}
 		
-		uri = uri.substring(0, uri.length() - 1);
+		String query = sbQuery.substring(0, sbQuery.length() - 1);
 
 		try {
-			String a = "";
-			a += mUri.getScheme() + "://";
-			a += mUri.getHost() + mUri.getPath() + "?";
-			a += uri;
-			setURI( new URI(a));
+			//The previous behaviour was escaping the query,
+			//so it is maintained with the use of setQuery.
+			mUri.setQuery(query);
 		} catch (URIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
