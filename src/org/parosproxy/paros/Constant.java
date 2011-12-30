@@ -96,7 +96,6 @@ public final class Constant {
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     public static final String FOLDER_FILTER = "filter";
-    public static final String FOLDER_EXTENSION = "extension";
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
     public static final String MESSAGES_PREFIX = "Messages";

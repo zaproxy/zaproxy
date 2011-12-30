@@ -52,7 +52,7 @@ public class ExtensionFactory {
     
     public synchronized static void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
         if (zapLoader == null) {
-        	zapLoader = new DynamicLoader(Constant.FOLDER_EXTENSION, "org.zaproxy.zap.extension", true);
+        	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension", true);
         }
         if (parosLoader == null) {
         	parosLoader = new DynamicLoader("", "org.parosproxy.paros.extension", true);
