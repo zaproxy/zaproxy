@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/30 Depreciated
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -144,7 +145,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
         //result = msg.getResponseBody().toString();
         if (matchBodyPattern(msg, patternXSS3, sb)) {
         	// ZAP: Changed XSS level to HIGH
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS3, null, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, XSS3, null, msg);
 			return;
 		}
 		

@@ -52,6 +52,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.utils.ZapTextField;
 /**
  *
  * To change the template for this generated type comment go to
@@ -70,6 +71,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private JLabel alertRisk = null;
 	private JLabel alertReliability = null;
 	private JLabel alertParam = null;
+	private JLabel alertAttack = null;
 	private ZapTextArea alertDescription = null;
 	private ZapTextArea alertOtherInfo = null;
 	private ZapTextArea alertSolution = null;
@@ -79,6 +81,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private JComboBox alertEditRisk = null;
 	private JComboBox alertEditReliability = null;
 	private JComboBox alertEditParam = null;
+	private ZapTextField alertEditAttack = null;
 	private DefaultComboBoxModel nameListModel = null;
 	private DefaultComboBoxModel paramListModel = null;
 	
@@ -200,14 +203,14 @@ public class AlertViewPanel extends AbstractPanel {
 				alertEditRisk = new JComboBox(Alert.MSG_RISK);
 				alertEditReliability = new JComboBox(Alert.MSG_RELIABILITY);
 				alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[Alert.SUSPICIOUS]);
-				alertEditParam = new JComboBox();
+				alertEditAttack = new ZapTextField();
 				
 				paramListModel = new DefaultComboBoxModel();
 				paramListModel.addElement("");	// Default is empty so user can type anything in
+				alertEditParam = new JComboBox();
 				alertEditParam.setModel(paramListModel);
-				
 				alertEditParam.setEditable(true);
-				
+
 			} else {
 				alertName = new JLabel();
 				Font f = alertName.getFont();
@@ -216,10 +219,11 @@ public class AlertViewPanel extends AbstractPanel {
 				alertRisk = new JLabel();
 				alertReliability = new JLabel();
 				alertParam = new JLabel();
+				alertAttack = new JLabel();
 			}
 			
 			alertDescription = createZapTextArea();
-			JScrollPane descSp = createJScrollPane("Description");
+			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
 			descSp.setViewportView(alertDescription);
 			alertDescription.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
@@ -231,7 +235,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertOtherInfo = createZapTextArea();
-			JScrollPane otherSp = createJScrollPane("Other Info");
+			JScrollPane otherSp = createJScrollPane(Constant.messages.getString("alert.label.other"));
 			otherSp.setViewportView(alertOtherInfo);
 			alertOtherInfo.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
@@ -243,7 +247,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertSolution = createZapTextArea();
-			JScrollPane solutionSp = createJScrollPane("Solution");
+			JScrollPane solutionSp = createJScrollPane(Constant.messages.getString("alert.label.solution"));
 			solutionSp.setViewportView(alertSolution);
 			alertSolution.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
@@ -255,7 +259,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertReference = createZapTextArea();
-			JScrollPane referenceSp = createJScrollPane("Reference");
+			JScrollPane referenceSp = createJScrollPane(Constant.messages.getString("alert.label.ref"));
 			referenceSp.setViewportView(alertReference);
 			alertReference.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
@@ -322,11 +326,15 @@ public class AlertViewPanel extends AbstractPanel {
 			gbc30.gridx = 0;
 			gbc30.insets = new java.awt.Insets(1,1,1,1);
 			gbc30.anchor = java.awt.GridBagConstraints.WEST;
-			gbc30.fill = java.awt.GridBagConstraints.BOTH;
-			gbc30.weightx = 1.0D;
-			gbc30.weighty = 1.0D;
-			gbc30.gridwidth = 2;
-			gbc30.gridheight = 1;
+			//gbc20.weightx = 0.5D;
+
+			java.awt.GridBagConstraints gbc31 = new GridBagConstraints();
+			gbc31.gridy = 4;
+			gbc31.gridx = 1;
+			gbc31.insets = new java.awt.Insets(1,1,1,1);
+			gbc31.anchor = java.awt.GridBagConstraints.WEST;
+			gbc31.fill = java.awt.GridBagConstraints.BOTH;
+			gbc31.weightx = 1.0D;
 
 			java.awt.GridBagConstraints gbc40 = new GridBagConstraints();
 			gbc40.gridy = 5;
@@ -361,28 +369,43 @@ public class AlertViewPanel extends AbstractPanel {
 			gbc60.gridwidth = 2;
 			gbc60.gridheight = 1;
 
+			java.awt.GridBagConstraints gbc70 = new GridBagConstraints();
+			gbc70.gridy = 8;
+			gbc70.gridx = 0;
+			gbc70.insets = new java.awt.Insets(1,1,1,1);
+			gbc70.anchor = java.awt.GridBagConstraints.WEST;
+			gbc70.fill = java.awt.GridBagConstraints.BOTH;
+			gbc70.weightx = 1.0D;
+			gbc70.weighty = 1.0D;
+			gbc70.gridwidth = 2;
+			gbc70.gridheight = 1;
+
 			if (editable) {
 				alertDisplay.add(alertEditName, gbc00);
-				alertDisplay.add(new JLabel("Risk: "), gbc10);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc10);
 				alertDisplay.add(alertEditRisk, gbc11);
-				alertDisplay.add(new JLabel("Reliability: "), gbc12);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc12);
 				alertDisplay.add(alertEditReliability, gbc13);
-				alertDisplay.add(new JLabel("Parameter: "), gbc20);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc20);
 				alertDisplay.add(alertEditParam, gbc21);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc30);
+				alertDisplay.add(alertEditAttack, gbc31);
 			} else {
 				alertDisplay.add(alertName, gbc00);
-				alertDisplay.add(new JLabel("Risk: "), gbc10);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc10);
 				alertDisplay.add(alertRisk, gbc11);
-				alertDisplay.add(new JLabel("Reliability: "), gbc12);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc12);
 				alertDisplay.add(alertReliability, gbc13);
-				alertDisplay.add(new JLabel("Parameter: "), gbc20);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc20);
 				alertDisplay.add(alertParam, gbc21);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc30);
+				alertDisplay.add(alertAttack, gbc31);
 			}
 			
-			alertDisplay.add(descSp, gbc30);
-			alertDisplay.add(otherSp, gbc40);
-			alertDisplay.add(solutionSp, gbc50);
-			alertDisplay.add(referenceSp, gbc60);
+			alertDisplay.add(descSp, gbc40);
+			alertDisplay.add(otherSp, gbc50);
+			alertDisplay.add(solutionSp, gbc60);
+			alertDisplay.add(referenceSp, gbc70);
 			
 		}
 		return alertDisplay;
@@ -397,6 +420,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEditRisk.setSelectedItem(Alert.MSG_RISK[alert.getRisk()]);
 			alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[alert.getReliability()]);
 			alertEditParam.setSelectedItem(alert.getParam());
+			alertEditAttack.setText(alert.getAttack());
 			alertDescription.setText(alert.getDescription());
 			alertOtherInfo.setText(alert.getOtherInfo());
 			alertSolution.setText(alert.getSolution());
@@ -427,6 +451,7 @@ public class AlertViewPanel extends AbstractPanel {
 			
 			alertReliability.setText(Alert.MSG_RELIABILITY[alert.getReliability()]);
 			alertParam.setText(alert.getParam());
+			alertAttack.setText(alert.getAttack());
 			alertDescription.setText(alert.getDescription());
 			alertOtherInfo.setText(alert.getOtherInfo());
 			alertSolution.setText(alert.getSolution());
@@ -488,10 +513,10 @@ public class AlertViewPanel extends AbstractPanel {
 	}
 
 	public void setParamNames(String[] paramNames) {
-		alertEditParam = new JComboBox(paramNames);
 		for (String param : paramNames) {
 			paramListModel.addElement(param);
 		}
+
 	}
 
 	public Alert getAlert() {
@@ -532,6 +557,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alert.setDetail(alertDescription.getText(), 
 					uri, 
 					(String)alertEditParam.getSelectedItem(), 
+					alertEditAttack.getText(),
 					alertOtherInfo.getText(), 
 					alertSolution.getText(), 
 					alertReference.getText(), 

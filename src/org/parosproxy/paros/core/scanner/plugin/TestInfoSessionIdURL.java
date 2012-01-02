@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Matcher;
@@ -139,7 +140,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
 
 				if (kb == null || !kb.equals(sessionIdValue)) {
 				    getKb().add("sessionId/nameValue", sessionIdValue);
-					bingo(Alert.RISK_LOW, Alert.WARNING, null, "", sessionIdValue, base);
+					bingo(Alert.RISK_LOW, Alert.WARNING, "", "", "", sessionIdValue, base);
 				}
 				kb = getKb().getString("sessionId/name");
 				getKb().add("sessionId/name", sessionIdName);
@@ -181,7 +182,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
 				linkHostName = matcher.group(1);
 				String host = msg.getRequestHeader().getURI().getHost();
 				if (host.compareToIgnoreCase(linkHostName) != 0) {
-					bingo(risk, Alert.WARNING, alertReferer, descReferer, null, null, linkHostName, solutionReferer, msg);
+					bingo(risk, Alert.WARNING, alertReferer, descReferer, null, "", "", linkHostName, solutionReferer, msg);
 				}
 			}
 		}

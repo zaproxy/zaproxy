@@ -75,7 +75,7 @@ public class CookieHttpOnlyScanner extends PluginPassiveScanner implements Passi
 		    		"If a malicious script can be run on this page then the cookie will be accessible and can be transmitted to another site. " +
 		    		"If this is a session cookie then session hijacking may be possible.", 
 		    		msg.getRequestHeader().getURI().toString(),
-		    		cookie, "", 
+		    		cookie, "", "",
 		    		"Ensure that the HttpOnly flag is set for all cookies.", 
 		            "www.owasp.org/index.php/HttpOnly", 
 		            msg);

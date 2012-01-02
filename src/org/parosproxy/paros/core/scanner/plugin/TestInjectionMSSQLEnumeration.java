@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -214,7 +215,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	    String result = sb.toString();
 	    if (result.length() > 0) {
 	        getKb().add("sql/mssql/username", result);
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "db user name: " + result, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "", "db user name: " + result, msg);
 
 	    }
 	}
@@ -295,7 +296,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	        String result = sb.toString();
 	        if (result.length() > 0) {
 	            getKb().add("sql/mssql/tablename", result);
-	            bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "table: " + result, msg);
+	            bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "", "table: " + result, msg);
 	            
 	        }
 	    }

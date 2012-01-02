@@ -67,6 +67,7 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner implements P
 				    		"The credentials can be read and then reused by someone with access to the network. ",
 				    		msg.getRequestHeader().getURI().toString(),
 				    		"", HttpHeader.WWW_AUTHENTICATE + ": " + auth, 
+				    		"",
 				    		"Protect the connection using HTTPS or use a stronger authentication mechanism", 
 				            "www.owasp.org/index.php/Category:Authentication_Vulnerability", 
 				            msg);

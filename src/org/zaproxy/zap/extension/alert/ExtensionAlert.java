@@ -173,6 +173,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 			// Add new alerts to the site tree
 			siteTree.addPath(ref);
 	        ref.addAlert(alert);
+	        this.siteNodeChanged(ref.getSiteNode());
 		}
     }
 
@@ -216,7 +217,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
         RecordAlert recordAlert = tableAlert.write(
                 scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getReliability(),
-                alert.getDescription(), alert.getUri(), alert.getParam(), alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
+                alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(), 
+                alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
         		ref.getHistoryId(), alert.getSourceHistoryId()
                 );
         
@@ -237,7 +239,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	    TableAlert tableAlert = getModel().getDb().getTableAlert();
 	    tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(), 
 	    		alert.getReliability(), alert.getDescription(), alert.getUri(),
-	    		alert.getParam(), alert.getOtherInfo(), alert.getSolution(), 
+	    		alert.getParam(), alert.getAttack(), alert.getOtherInfo(), alert.getSolution(), 
 	    		alert.getReference(), alert.getSourceHistoryId());
 	}
 	

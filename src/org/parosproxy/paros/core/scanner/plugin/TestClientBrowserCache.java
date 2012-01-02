@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -137,7 +139,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
 		}
 		
 		if (result) {
-		    bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, null, "", msg);
+		    bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, null, "", "", msg);
 		}
 
     }

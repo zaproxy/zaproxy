@@ -18,6 +18,7 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/01/02 Separate param and attack
 
 
 package org.parosproxy.paros.db;
@@ -39,6 +40,7 @@ public class RecordAlert {
     private String description = "";
     private String uri = "";
     private String param = "";
+    private String attack = "";
     private String otherInfo = "";
     private String solution = "";
     private String reference = "";
@@ -51,7 +53,7 @@ public class RecordAlert {
 	}
 
 	public RecordAlert(int alertId, int scanId, int pluginId, String alert, 
-			int risk, int reliability, String description, String uri, String query, 
+			int risk, int reliability, String description, String uri, String param, String attack, 
 			String otherInfo, String solution, String reference, int historyId,
 			int sourceHistoryId) {
 	    setAlertId(alertId);
@@ -62,12 +64,19 @@ public class RecordAlert {
 	    setReliability(reliability);
 	    setDescription(description);
 	    setUri(uri);
-	    setParam(query);
+	    setParam(param);
+	    setAttack(attack);
 	    setOtherInfo(otherInfo);
 	    setSolution(solution);
 	    setReference(reference);
 	    setHistoryId(historyId);
 	    setSourceHistoryId(sourceHistoryId);
+	    
+	    if ((attack == null || attack.length() == 0) && param.indexOf("=") > 0) {
+	    	// 'old' alerts will have attack in the param field
+	    	setAttack(param.substring(param.indexOf("=")+1));
+	    	setParam(param.substring(0, param.indexOf("=")));
+	    }
 	}
 
 	
@@ -240,4 +249,12 @@ public class RecordAlert {
     public void setSourceHistoryId(int sourceHistoryId) {
         this.sourceHistoryId = sourceHistoryId;
     }
+
+    public String getAttack() {
+		return attack;
+	}
+
+    public void setAttack(String attack) {
+		this.attack = attack;
+	}
 }

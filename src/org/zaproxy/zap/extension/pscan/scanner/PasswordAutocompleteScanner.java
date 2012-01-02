@@ -81,6 +81,7 @@ public class PasswordAutocompleteScanner extends PluginPassiveScanner implements
 							    		"AUTOCOMPLETE attribute is not disabled in HTML FORM/INPUT element containing password type input.  Passwords may be stored in browsers and retrieved.", 
 							    		msg.getRequestHeader().getURI().toString(),
 							    		inputElement.getName(), 
+							    		"",
 							    		"", 
 							    		"Turn off AUTOCOMPLETE attribute in form or individual input elements containing password by using AUTOCOMPLETE='OFF'", 
 							            "http://msdn.microsoft.com/library/default.asp?url=/workshop/author/forms/autocomplete_ovr.asp", 

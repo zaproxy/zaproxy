@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/12/04 Support deleting alerts
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner;
 
@@ -54,6 +55,7 @@ public class Alert implements Comparable<Object>  {
 	private String 	description = "";
 	private String 	uri = "";
 	private String 	param = "";
+	private String 	attack = "";
 	private String 	otherInfo = "";
 	private String 	solution = "";
 	private String	reference = "";
@@ -82,7 +84,7 @@ public class Alert implements Comparable<Object>  {
         try {
         	historyRef = new HistoryReference(recordAlert.getHistoryId());
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-            		recordAlert.getParam(), recordAlert.getOtherInfo(), 
+            		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
             		recordAlert.getSolution(), recordAlert.getReference(), 
             		historyRef.getHttpMessage());
             // ZAP: Set up the Alert History Id
@@ -104,7 +106,7 @@ public class Alert implements Comparable<Object>  {
 		historyRef = ref;
         try {
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-            		recordAlert.getParam(), recordAlert.getOtherInfo(), 
+            		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
             		recordAlert.getSolution(), recordAlert.getReference(), 
             		ref == null ? null : ref.getHttpMessage());
         } catch (Exception e) {
@@ -125,10 +127,12 @@ public class Alert implements Comparable<Object>  {
 	
 	
 
-	public void setDetail(String description, String uri, String param, String otherInfo, String solution, String reference, HttpMessage msg) {
+	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
+			String solution, String reference, HttpMessage msg) {
 		setDescription(description);
 		setUri(uri);
 		setParam(param);
+		setAttack(attack);
 		setOtherInfo(otherInfo);
 		setSolution(solution);
 		setReference(reference);
@@ -233,7 +237,7 @@ public class Alert implements Comparable<Object>  {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskReliability(this.risk, this.reliability);
 		item.setAlert(this.alert);
-		item.setDetail(this.description, this.uri, this.param, this.otherInfo, this.solution, this.reference, this.message);
+		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.message);
 		return item;
 	}
 	
@@ -367,6 +371,7 @@ public class Alert implements Comparable<Object>  {
         StringBuffer sb = new StringBuffer(200);
         sb.append("  <uri>" + breakNoSpaceString(replaceEntity(uri)) + "</uri>\r\n");
         sb.append("  <param>" + breakNoSpaceString(replaceEntity(param)) + "</param>\r\n");
+        sb.append("  <attack>" + breakNoSpaceString(replaceEntity(attack)) + "</attack>\r\n");
         sb.append("  <otherinfo>" + breakNoSpaceString(replaceEntity(otherInfo)) + "</otherinfo>\r\n");
         return sb.toString();
     }
@@ -388,6 +393,14 @@ public class Alert implements Comparable<Object>  {
 		if (historyRef != null) {
 			this.sourceHistoryId = historyRef.getHistoryId();
 		}
+	}
+
+	public String getAttack() {
+		return attack;
+	}
+
+	public void setAttack(String attack) {
+		this.attack = attack;
 	}
     
 }	

@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
@@ -116,7 +118,7 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
                 msg.getRequestBody().setLength(0);
                 sendAndReceive(msg);
                 if (isFileExist(msg)) {
-                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, uri.toString(), "", "", msg);
+                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, uri.toString(), "", "", "", msg);
                 }
             } catch (Exception e) {
             }

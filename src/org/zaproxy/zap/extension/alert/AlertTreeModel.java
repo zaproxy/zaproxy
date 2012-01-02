@@ -235,7 +235,7 @@ class AlertTreeModel extends DefaultTreeModel {
                 
                 Alert tmp = (Alert) child.getUserObject();
 
-                if (tmp.getParam().equals(alert.getParam())) {;
+                if (tmp.getParam().equals(alert.getParam()) && tmp.getAttack().equals(alert.getAttack())) {
                 	return child;
                 }
             }

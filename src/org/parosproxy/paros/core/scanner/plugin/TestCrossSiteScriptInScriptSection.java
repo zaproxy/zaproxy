@@ -21,6 +21,7 @@
 // ZAP: 2011/08/02 No longer switched on -sp flag and fixed regex
 // ZAP: 2011/08/17 Check with double quotes as well as single 
 // ZAP: 2011/11/30 Depreciated
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -142,7 +143,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 
         if (matchBodyPattern(msg, PATTERN_XSS_SCRIPT_1, null)) {
         	// ZAP: Changed XSS level to HIGH
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_SCRIPT_1, null, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, XSS_SCRIPT_1, null, msg);
 			return;
 		}
 		
@@ -157,7 +158,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
 
         if (matchBodyPattern(msg, PATTERN_XSS_SCRIPT_2, null)) {
         	// ZAP: Changed XSS level to HIGH
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_SCRIPT_2, null, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, XSS_SCRIPT_2, null, msg);
 			return;
 		}
 

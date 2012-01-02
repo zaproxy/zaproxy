@@ -260,6 +260,7 @@ public class CoreAPI extends ApiImplementor {
 		ja.put("url", alert.getUri());
 		ja.put("other", alert.getOtherInfo());
 		ja.put("param", XMLStringUtil.escapeControlChrs(alert.getParam()));
+		ja.put("attack", XMLStringUtil.escapeControlChrs(alert.getAttack()));
 		ja.put("reference", alert.getReference());
 		ja.put("solution", alert.getSolution());
 		return ja;

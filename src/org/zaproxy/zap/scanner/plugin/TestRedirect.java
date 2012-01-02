@@ -123,7 +123,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
             	// Its a redirect, did it go to the target?
             	if (msg.getResponseHeader().getHeader(HttpHeader.LOCATION).startsWith(redirect)) {
             		// It did, so the param is vulnerable
-            		bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
+            		bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, redirect, null, msg);
             	}
     			return;
             }

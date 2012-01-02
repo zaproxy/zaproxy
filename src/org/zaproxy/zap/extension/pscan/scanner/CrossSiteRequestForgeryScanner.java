@@ -116,6 +116,7 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner impleme
 				    		msg.getRequestHeader().getURI().toString(),
 				    		"", 
 				    		"", 
+				    		"",
 				    		getSolution(), 
 				            getReference(), 
 				            msg);

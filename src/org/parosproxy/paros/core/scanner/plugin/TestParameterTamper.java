@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -124,7 +125,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     
     public void scan(HttpMessage msg, String param, String value) {
 
-		String bingoQuery = null;
+		String attack = null;
 		
 		// always try normal query first
 		HttpMessage normalMsg = getNewMsg();
@@ -145,14 +146,16 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 			msg = getNewMsg();
 			if (i==0) {
 			    // remove entire parameter when i=0;
-				bingoQuery = setParameter(msg, null, null);			    
+				setParameter(msg, null, null);
+				attack = null;
 			} else {
-				bingoQuery = setParameter(msg, param, PARAM_LIST[i]);
+				setParameter(msg, param, PARAM_LIST[i]);
+				attack = PARAM_LIST[i];
 
 			}
 			try {
                 sendAndReceive(msg);
-    			if (checkResult(msg, bingoQuery, normalMsg.getResponseBody().toString())) {
+    			if (checkResult(msg, param, attack, normalMsg.getResponseBody().toString())) {
     			    return;
     			}
 
@@ -166,7 +169,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 		
 	}
 
-	private boolean checkResult(HttpMessage msg, String query, String normalHTTPResponse) {
+	private boolean checkResult(HttpMessage msg, String param, String attack, String normalHTTPResponse) {
 
 		StringBuffer sb = new StringBuffer();
 
@@ -182,7 +185,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 		
 		if (matchBodyPattern(msg, patternErrorJava1, sb) && matchBodyPattern(msg, patternErrorJava2, null)) {
 
-			bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, (query == null || query.length() == 0)? "nil" : query, sb.toString(), msg);
+			bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, param, attack, sb.toString(), msg);
 			return true;
 		} else if (matchBodyPattern(msg, patternErrorVBScript, sb)
 				|| matchBodyPattern(msg, patternErrorODBC1, sb)
@@ -190,7 +193,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
                 || matchBodyPattern(msg, patternErrorJet, sb)
                 || matchBodyPattern(msg, patternErrorTomcat, sb)
                 || matchBodyPattern(msg, patternErrorPHP, sb)) {
-			bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, "", (query == null || query.length() == 0)? "nil" : query, sb.toString(), msg);
+			bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, "", param, attack, sb.toString(), msg);
 
 			return true;
 		}

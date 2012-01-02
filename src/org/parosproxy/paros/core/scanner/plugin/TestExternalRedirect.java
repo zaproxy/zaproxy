@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -149,7 +150,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
 		setParameter(msg, param, redirect);
 		try {
 		    sendAndReceive(msg, false);
-			if (checkResult(msg, param + "=" + redirect)) {
+			if (checkResult(msg, param, redirect)) {
 			    return;
 			}
 
@@ -160,7 +161,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
 		
 	}
 
-	private boolean checkResult(HttpMessage msg, String query) {
+	private boolean checkResult(HttpMessage msg, String param, String attack) {
 	    if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.MOVED_PERMANENTLY
 	            && msg.getResponseHeader().getStatusCode() != HttpStatusCode.FOUND) {
 	        // not redirect page, return;
@@ -169,7 +170,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
 
 	    String locationHeader = msg.getResponseHeader().getHeader(HttpHeader.LOCATION);
 	    if (locationHeader != null && locationHeader.startsWith(redirect1)) {
-			bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, query, "", msg);
+			bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, param, attack , "", msg);
 			return true;
 		}
 		

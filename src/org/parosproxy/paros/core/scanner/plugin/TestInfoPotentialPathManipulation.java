@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -129,7 +130,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
             matcher = patternFilePath[i].matcher(value);
             if (matcher.find()) {
                 matchedFilePath = matcher.group(0);
-                bingo(Alert.RISK_INFO, Alert.SUSPICIOUS, "", (query == null || query.length() == 0)? "nil" : query, matchedFilePath , msg);
+                bingo(Alert.RISK_INFO, Alert.SUSPICIOUS, "", param, value, matchedFilePath , msg);
                 return;
             }
         }

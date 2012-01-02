@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -198,7 +199,6 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 
         //protected void check(boolean isBody, String paramKey, String paramValue, String query, int insertPos) throws IOException {
 
-		String bingoQuery = null;
 		String displayURI = null;
 		String newQuery = null;
 		
@@ -224,7 +224,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		newQuery = setParameter(msg, param, value+SQL_CHECK_ERR);
 		sendAndReceive(msg);
 		mResBodyError	= msg.getResponseBody().toString();
-		if (checkANDResult(msg, newQuery)) {
+		if (checkANDResult(msg, param, value+SQL_CHECK_ERR)) {
 			return;
 		}
 
@@ -232,12 +232,12 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		// blind sql injections
         
         for (int i=0; i<SQL_AND.length;i++) {
-            bingoQuery = setParameter(msg, param, value+SQL_AND[i]);
+            setParameter(msg, param, value+SQL_AND[i]);
             sendAndReceive(msg);
             
             displayURI = msg.getRequestHeader().getURI().toString();
             
-            if (checkANDResult(msg, bingoQuery)) {
+            if (checkANDResult(msg, param, value+SQL_AND[i])) {
                 return;
             }
             
@@ -254,7 +254,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
                     // build a always false AND query.  Result should be different to prove the SQL works.
                     if (resBodyANDErr.compareTo(mResBodyNormal) != 0) {
                         getKb().add(msg.getRequestHeader().getURI(), "sql/and", new Boolean(true));
-                        bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, bingoQuery, "", msg);
+                        bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, param, value + SQL_AND_ERR[i], "", msg);
                         return;
                     } else {
                         // OR check is used to figure out if there is any diffrence if a AND query return nothing
@@ -264,7 +264,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
                         
                         if (resBodyOR.compareTo(mResBodyNormal) != 0) {
                             getKb().add(msg.getRequestHeader().getURI(), "sql/or", new Boolean(true));
-                            bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, newQuery, "", msg);
+                            bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, param, value + SQL_OR[i], "", msg);
                             return;    
                         }
                     }
@@ -281,14 +281,14 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		newQuery = setParameter(msg, param, value + SQL_DELAY_1);
 		sendAndReceive(msg);
 				
-		if (checkTimeResult(msg, newQuery, defaultTimeUsed, msg.getTimeElapsedMillis())) {
+		if (checkTimeResult(msg, param, value + SQL_DELAY_1, defaultTimeUsed, msg.getTimeElapsedMillis())) {
 			return;
 		}
 
 		newQuery = setParameter(msg, param, value + SQL_DELAY_2);
 		sendAndReceive(msg);
 				
-		if (checkTimeResult(msg, newQuery, defaultTimeUsed, msg.getTimeElapsedMillis())) {
+		if (checkTimeResult(msg, param, value + SQL_DELAY_2, defaultTimeUsed, msg.getTimeElapsedMillis())) {
 			return;
 		}
 
@@ -408,7 +408,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 
 			sendAndReceive(msg);
 
-			if (checkTimeResult(msg, newQuery, defaultTimeUsed, msg.getTimeElapsedMillis())) {
+			if (checkTimeResult(msg, param, value + "'" + sbInsertValue.toString() + SQL_BLIND_MS_INSERT, defaultTimeUsed, msg.getTimeElapsedMillis())) {
 			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
 				return;
 			}
@@ -422,7 +422,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 			newQuery = setParameter(msg, param, value + sbInsertValue.toString() + SQL_BLIND_MS_INSERT);
 			sendAndReceive(msg);
 		
-			if (checkTimeResult(msg, newQuery, defaultTimeUsed, msg.getTimeElapsedMillis())) {
+			if (checkTimeResult(msg, param, value + sbInsertValue.toString() + SQL_BLIND_MS_INSERT, defaultTimeUsed, msg.getTimeElapsedMillis())) {
 			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));			    
 				return;
 			}
@@ -432,7 +432,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 	}
 
 
-	private boolean checkANDResult(HttpMessage msg, String query) {
+	private boolean checkANDResult(HttpMessage msg, String param, String attack) {
 
 		StringBuffer sb = new StringBuffer();
 
@@ -448,11 +448,11 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		if (matchBodyPattern(msg, patternErrorODBC1, sb)
 				|| matchBodyPattern(msg, patternErrorODBC2, sb)) {
 			// check for ODBC error.  Almost certain.
-			bingo(Alert.RISK_HIGH, Alert.WARNING, null, query, sb.toString(), msg);
+			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, attack, sb.toString(), msg);
 			return true;
 		} else if (matchBodyPattern(msg, patternErrorGeneric, sb)) {
 			// check for other sql error (JDBC) etc.  Suspicious.
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, query, sb.toString(), msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, attack, sb.toString(), msg);
 			return true;
 		}
 		
@@ -461,9 +461,9 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 	}
 
 	
-	private boolean checkTimeResult(HttpMessage msg, String query, long defaultTimeUsed, long timeUsed) {
+	private boolean checkTimeResult(HttpMessage msg, String param, String attack, long defaultTimeUsed, long timeUsed) {
 
-		boolean result = checkANDResult(msg, query);
+		boolean result = checkANDResult(msg, param, attack);
 		if (result) {
 			return result;
 		}
@@ -471,7 +471,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 
 		if (timeUsed > defaultTimeUsed + TIME_SPREAD - 500) {		
 			// allow 500ms discrepancy
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, query, "", msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, attack, "", msg);
 			return true;
 		}			
 		return false;

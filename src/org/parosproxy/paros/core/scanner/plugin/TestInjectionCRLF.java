@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.Random;
@@ -126,7 +127,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
             bingoQuery = setParameter(msg, param, PARAM_LIST[i]);
             try {
                 sendAndReceive(msg, false);
-                if (checkResult(msg, bingoQuery)) {
+                if (checkResult(msg, param, PARAM_LIST[i])) {
                     return;
                 }
 
@@ -138,7 +139,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
         
     }
 
-    private boolean checkResult(HttpMessage msg, String query) {
+    private boolean checkResult(HttpMessage msg, String param, String attack) {
         // no need to bother if response OK or not.
 //      if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK
 //          && !HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode())) {
@@ -147,7 +148,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
         
         Matcher matcher = patternCookieTamper.matcher(msg.getResponseHeader().toString());
         if (matcher.find()) {
-            bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, query, "", msg);
+            bingo(Alert.RISK_MEDIUM, Alert.WARNING, null, param, attack, "", msg);
             return true;
         }
         

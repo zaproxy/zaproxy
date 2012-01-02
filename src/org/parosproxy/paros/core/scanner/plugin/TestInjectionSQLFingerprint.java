@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -183,7 +184,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 		defaultTimeUsed = System.currentTimeMillis() - lastTime;
 		mResBodyError	= msg.getResponseBody().toString();
 		
-		if (checkResult(msg, newQuery)) {
+		if (checkResult(msg, param, value+SQL_CHECK_ERR)) {
 		    return;
 		}
 		
@@ -265,7 +266,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 	}
 
 
-	private boolean checkResult(HttpMessage msg, String query) {
+	private boolean checkResult(HttpMessage msg, String param, String attack) {
 
 	    StringBuffer sb = new StringBuffer();
 	    boolean isSqlError = false;
@@ -283,7 +284,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 		    
 		} else if (matchBodyPattern(msg, patternErrorGeneric, sb)) {
 			// check for other sql error (JDBC) etc.  Suspicious.
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, query, sb.toString(), msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, attack, sb.toString(), msg);
 			isSqlError = true;
 			
 		}

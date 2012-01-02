@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/27 Added tests prefixed with single and double quotes
 // ZAP: 2011/11/30 Depreciated
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -211,12 +212,12 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
                 
                 if (result.charAt(pos-1) != '"' && result.charAt(pos+XSS[i].length()) != '"') {
                     // check if adjacent character is double quote.  If so, maybe OK
-                    bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS[i], null, msg);
+                    bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, XSS[i], null, msg);
                     return;
                 }
             } else {
             	// ZAP: Changed XSS level to HIGH
-		        bingo(Alert.RISK_HIGH, Alert.WARNING, null, param + "=" + XSS[i], null, msg);
+		        bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, XSS[i], null, msg);
                 return;
 		    }
 		}

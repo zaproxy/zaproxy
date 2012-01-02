@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/30 Support for scanner levels
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner;
 
@@ -254,8 +255,8 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo
      * @param msg
      */
-	protected void bingo(int risk, int reliability, String uri, String param, String otherInfo, HttpMessage msg) {
-	    bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, otherInfo, this.getSolution(), msg);
+	protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo, HttpMessage msg) {
+	    bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(), msg);
 	}
 
 	/**
@@ -272,7 +273,8 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	 * @param solution
 	 * @param msg
 	 */
-	protected void bingo(int risk, int reliability, String name, String description, String uri, String param, String otherInfo, String solution, HttpMessage msg) {
+	protected void bingo(int risk, int reliability, String name, String description, String uri, 
+			String param, String attack, String otherInfo, String solution, HttpMessage msg) {
 		log.debug("New alert pluginid=" + + this.getId() + " " + name + " uri=" + uri);
 	    Alert alert = new Alert(this.getId(), risk, reliability, name);
 	    if (uri == null || uri.equals("")) {
@@ -281,7 +283,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	    if (param == null) {
 	        param = "";
 	    }
-	    alert.setDetail(description, uri, param, otherInfo, solution, this.getReference(), msg);
+	    alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(), msg);
 	    parent.alertFound(alert);
 	}
 

@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
+// ZAP: 2012/01/02 Separate param and attack
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -251,7 +252,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 	    String result = sb.toString();
 	    if (result.length() > 0) {
 	        getKb().add("sql/oracle/username", result);
-			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "current db user name: " + result, msg);
+			bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "", "current db user name: " + result, msg);
 
 	    }
 	}
@@ -333,7 +334,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 	        String result = sb.toString();
 	        if (result.length() > 0) {
 	            getKb().add("sql/oracle/tablename", result);
-	            bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "table name: " + result, msg);
+	            bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, "", "", "table name: " + result, msg);
 	            
 	        }
 	    }

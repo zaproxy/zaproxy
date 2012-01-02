@@ -120,7 +120,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 						// Possible false positive, need to enhance the check to catch edge cases
 						if (this.getLevel().equals(Level.HIGH)) {
 							// Report anyway
-							bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param + "=" + XSS_ATTACKS[i], null, msg);
+							bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param, XSS_ATTACKS[i], null, msg);
 						}
 					} else {
 						if (this.getLevel().equals(Level.LOW)) {
@@ -130,7 +130,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 							}
 						}
 						
-						bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param + "=" + XSS_ATTACKS[i], null, msg);
+						bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, XSS_ATTACKS[i], null, msg);
 						return;
 						
 					}

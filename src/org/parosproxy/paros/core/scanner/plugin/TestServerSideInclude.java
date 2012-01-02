@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/02 Separate param and attack
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -111,7 +112,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
             sendAndReceive(msg);
     		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIUnix, null)) {    		    
-    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
+    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, SSI_UNIX, null, msg);
     			return;
     		}
 
@@ -124,7 +125,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
             sendAndReceive(msg);
     		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIUnix, null)) {    		    
-    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
+    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, SSI_UNIX2, null, msg);
     			return;
     		}
 
@@ -138,7 +139,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
             sendAndReceive(msg);
     		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIWin, null)) {    		    
-    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
+    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, SSI_WIN, null, msg);
     			return;
     		}
 
@@ -151,7 +152,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
             sendAndReceive(msg);
     		//result = msg.getResponseBody().toString();
     		if (matchBodyPattern(msg, patternSSIWin, null)) {    		    
-    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, null, msg);
+    			bingo(Alert.RISK_HIGH, Alert.WARNING, null, param, SSI_WIN2, null, msg);
     			return;
     		}
 

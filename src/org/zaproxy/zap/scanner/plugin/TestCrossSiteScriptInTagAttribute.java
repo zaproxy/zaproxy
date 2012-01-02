@@ -151,7 +151,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     	        			for (String vuln : VULN_ATTS) {
     	        				// Check all of the vulnerable attributes
 	    	        			if (vuln.equalsIgnoreCase(att.getName())) {
-	    							bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, 
+	    							bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, Constant.getEyeCatcher(),
 	    									"Tag=" + element.getStartTag().getName() + ", attribute=" + att.getName(), msg);
 	    							return;
 	    	        			}
@@ -189,7 +189,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
 	        			String srcValue = element.getAttributeValue("src");
             			
         				if (srcValue != null && srcValue.toLowerCase().indexOf(BAD_SITE) >= 0) {
-	    					bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, null, msg);
+	    					bingo(Alert.RISK_HIGH, Alert.SUSPICIOUS, null, param, value + SRC_ATT_INJ, null, msg);
 	    					return;
         				}
             		}
