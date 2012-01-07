@@ -69,7 +69,7 @@ public class LocaleUtils {
 	        Locale loc = null;
 	        if (langArray.length == 1) loc = new Locale(langArray[0]);
 	        if (langArray.length == 2) loc = new Locale(langArray[0], langArray[1]);
-	        if (langArray.length == 3) loc = new Locale(langArray[0], langArray[1], langArray[3]);
+	        if (langArray.length == 3) loc = new Locale(langArray[0], langArray[1], langArray[2]);
 	        if (loc != null) {
 	        	desc = loc.getDisplayLanguage(loc);
 	        }

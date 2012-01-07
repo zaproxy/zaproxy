@@ -275,7 +275,13 @@ public class ZAP {
 			for (String ls : LocaleUtils.getAvailableLocales()){
 				String[] langArray = ls.split("_");
 				if (systloc.getLanguage().equals(langArray[0])) {
-					userloc = systloc;
+					if (langArray.length == 1) {
+						userloc = new Locale(langArray[0]);
+					} else if (langArray.length == 2) {
+						userloc = new Locale(langArray[0], langArray[1]);
+					} else if (langArray.length == 3) {
+						userloc = new Locale(langArray[0], langArray[1], langArray[2]);
+					}
 					break;
 				}
 			}
