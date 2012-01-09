@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/01/09 Changed to not follow redirections.
 
 package org.parosproxy.paros.core.spider;
 
@@ -312,7 +313,9 @@ public class Spider {
         log.info("spider started.");
         isStop = false;
         httpSender = new HttpSender(connectionParam, true);
-        httpSender.setFollowRedirect(true);
+        // ZAP: Do not follow redirections because the request
+        // is not updated, the redirections will be handled manually.
+        httpSender.setFollowRedirect(false);
 
         for (int i=0; i<spiderThread.length; i++) {
             if (spiderThread[i] != null && spiderThread[i].isAlive()) {

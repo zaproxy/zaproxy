@@ -18,6 +18,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/01/09 Commented the "HttpStatusCode.isSuccess" validations and
+//                 added code to handle the redirect responses.
 
 package org.parosproxy.paros.core.spider;
 
@@ -30,6 +32,7 @@ import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 
@@ -172,8 +175,26 @@ public class SpiderThread extends Thread {
 //            }
             
             
-            if (!HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode())) {
-                return;
+            // ZAP: Use all responses as they can contain something useful to the 
+            // passive scanners.
+            //if (!HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode())) {
+            //    return;
+            //}
+            
+            // ZAP: Now that all responses are used and there are no automatic 
+            // redirections they need to be manually checked.
+            if (HttpStatusCode.isRedirection(msg.getResponseHeader().getStatusCode())) {
+                String location = msg.getResponseHeader().getHeader(HttpHeader.LOCATION);
+                if (location != null && !location.isEmpty()) {
+                    try {
+                        HttpMessage newMsg = new HttpMessage(new HttpRequestHeader(HttpRequestHeader.GET, new URI(location, true), HttpHeader.HTTP11));
+                        foundURI(newMsg, msg.getRequestHeader().getURI().toString(), depth);
+                    } catch (HttpMalformedHeaderException e) {
+                        e.printStackTrace();
+                    } catch (URIException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             if (msg.getResponseHeader().getContentLength() > 200000) {
@@ -268,9 +289,11 @@ public class SpiderThread extends Thread {
 
     private boolean isNeglectResponse(HttpResponseHeader resHeader) {
         
-        if (!HttpStatusCode.isSuccess(resHeader.getStatusCode())) {
-            return true;
-        }
+        // ZAP: Use all responses as they can contain something useful
+    	// to the passive scanners.
+        //if (!HttpStatusCode.isSuccess(resHeader.getStatusCode())) {
+        //    return true;
+        //}
         
         if (resHeader.isImage()) {
             return true;
