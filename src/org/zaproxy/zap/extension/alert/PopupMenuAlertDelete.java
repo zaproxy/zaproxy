@@ -28,14 +28,14 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.view.View;
 
 
 /**
  * ZAP: New Popup Menu Alert Delete
  */
-public class PopupMenuAlertDelete extends ExtensionPopupMenu {
+public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 

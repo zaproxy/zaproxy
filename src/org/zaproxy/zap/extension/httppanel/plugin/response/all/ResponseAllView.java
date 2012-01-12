@@ -6,8 +6,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.plugin.request.all.RequestAllView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 
 public class ResponseAllView extends RequestAllView {
 
@@ -31,9 +29,9 @@ public class ResponseAllView extends RequestAllView {
 	@Override
 	protected void initPlugins() {
 		// Plugins - View
-		textView = new HttpPanelTextView(modelText, MessageType.Full, httpPanel.isEditable());
+		textView = new HttpResponseAllPanelTextView(modelText, httpPanel.isEditable());
 		//tableView = new RequestAllTableView(modelTable, MessageType.Full, httpPanel.isEditable());
-		hexView = new HttpPanelHexView(modelText, MessageType.Full, httpPanel.isEditable());
+		hexView = new HttpPanelHexView(modelText, httpPanel.isEditable());
 		
 		views.put(textView.getName(), textView);
 		//views.put(tableView.getName(), tableView);

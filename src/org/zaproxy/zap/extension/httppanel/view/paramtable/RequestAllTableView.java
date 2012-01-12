@@ -14,31 +14,27 @@ import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinInterface;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinMagic;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinUrlencode;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 
 public class RequestAllTableView implements HttpPanelView {
 
 	private JTable table;
 	private JPanel mainPanel;
 	private RequestAllTableModel httpPanelTabularModel;
-	private MessageType messageType;
 	private boolean isEditable = false;
 	private JComboBox comboBox = null;
 	private LinkedList<ParamAddinInterface> addins;
 	private boolean isChanged = false;
 	
-	protected static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
+	protected static final Logger log = Logger.getLogger(RequestAllTableView.class);
 
 	
-	public RequestAllTableView(RequestAllTableModel httpPanelTabularModel, MessageType messageType, boolean editable) {
+	public RequestAllTableView(RequestAllTableModel httpPanelTabularModel, boolean editable) {
 		this.httpPanelTabularModel = httpPanelTabularModel;
-		this.messageType = messageType;
 		this.isEditable = editable;
 		init();
 		initAddins();
@@ -54,7 +50,6 @@ public class RequestAllTableView implements HttpPanelView {
 		addins.add( new ParamAddinUrlencode());
 		
 		// Add combobox editor to table
-		String[] items;
 		comboBox = new RequestAllTableRenderer();
 		comboBox.addItem("AddIns");
 		for(ParamAddinInterface addin: addins) {

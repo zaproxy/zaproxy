@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Changed the method parse to use only CRLF as line separator.
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -338,33 +339,25 @@ abstract public class HttpHeader implements java.io.Serializable{
      * @throws Exception
      */
     protected boolean parse(String data) throws Exception {
+        if(data == null || data.isEmpty()) {
+            return true;
+        }
 
+        // ZAP: Replace all "\n" with "\r\n" to parse correctly
+        String newData = data.replaceAll("(?<!\r)\n", CRLF);
+        // ZAP: always use CRLF to comply with HTTP specification
+        // even if the data it's not directly used.
+        mLineDelimiter = CRLF;
+        
+		String[] split = patternCRLF.split(newData);
+		mStartLine = split[0];
+		
         String 	token = null,
 				name = null,
 				value = null;
         int pos = 0;
-        Pattern pattern = null;
-
-        if(data == null || data.equals("")) {
-            return true;
-        }
-
-        if ((pos = data.indexOf(CRLF)) < 0) {
-        	if ((pos = data.indexOf(LF)) < 0) {
-        		return false;
-        	} else {
-        		mLineDelimiter = LF;
-        		pattern = patternLF;
-        	}
-        } else {
-        	mLineDelimiter = CRLF;
-        	pattern = patternCRLF;
-        }
         
-		String[] split = pattern.split(data);
-		mStartLine = split[0];
-
-		StringBuffer sb = new StringBuffer(2048);
+        StringBuilder sb = new StringBuilder(2048);
 		for (int i=1; i<split.length; i++)
 		{
 			token = split[i];

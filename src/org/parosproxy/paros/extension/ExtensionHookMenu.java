@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.extension;
 
 
@@ -30,7 +32,7 @@ import javax.swing.JMenuItem;
 public class ExtensionHookMenu {
     
     public static final JMenuItem MENU_SEPARATOR = new JMenuItem();
-    public static final ExtensionPopupMenu POPUP_MENU_SEPARATOR = new ExtensionPopupMenu();
+    public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR = new ExtensionPopupMenuItem();
     
     private Vector<JMenuItem> newMenuList = new Vector<JMenuItem>();
     private Vector<JMenuItem> fileMenuItemList = new Vector<JMenuItem>();
@@ -116,7 +118,7 @@ public class ExtensionHookMenu {
      * when the popup menu can be used.
      * @param menuItem
      */
-    public void addPopupMenuItem(ExtensionPopupMenu menuItem) {
+    public void addPopupMenuItem(ExtensionPopupMenuItem menuItem) {
         getPopupMenus().add(menuItem);        
     }
     
@@ -132,7 +134,7 @@ public class ExtensionHookMenu {
         return MENU_SEPARATOR;
     }
 
-    public ExtensionPopupMenu getPopupMenuSeparator() {
+    public ExtensionPopupMenuItem getPopupMenuSeparator() {
         return POPUP_MENU_SEPARATOR;
     }
 }

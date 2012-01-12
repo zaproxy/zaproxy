@@ -13,14 +13,11 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
-
-import bsh.This;
 
 public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected JButton buttonShowView;
@@ -36,7 +33,7 @@ public abstract class BasicPlugin implements PluginInterface, ActionListener {
 	protected HttpPanelView currentView;
 	protected Hashtable<String, HttpPanelView> views = new Hashtable<String, HttpPanelView>();
 	
-	protected static Logger log = Logger.getLogger(BasicPlugin.class);
+	protected static final Logger log = Logger.getLogger(BasicPlugin.class);
     
 	public BasicPlugin(HttpPanel httpPanel, HttpMessage httpMessage) {
 		this.httpPanel = httpPanel;

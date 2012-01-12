@@ -1,45 +1,109 @@
 package org.zaproxy.zap.extension.httppanel.view.text;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
+import javax.swing.Action;
+import javax.swing.JPopupMenu;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextArea;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.highlighter.HighlightSearchEntry;
 import org.zaproxy.zap.extension.highlighter.HighlighterManager;
+import org.zaproxy.zap.extension.httppanel.view.text.menus.SyntaxMenu;
+import org.zaproxy.zap.extension.httppanel.view.text.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.utils.ZapTextArea;
 
 /* ZAP Text Area
  * Which enhanced functionality. Used to display HTTP Message request / response, or parts of it.
  */
-public class HttpPanelTextArea extends ZapTextArea implements Observer {
+public abstract class HttpPanelTextArea extends RSyntaxTextArea implements Observer {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
+	private static Logger log = Logger.getLogger(HttpPanelTextArea.class);
+	
+	public static final String PLAIN_SYNTAX_LABEL = Constant.messages.getString("http.panel.text.syntax.plain");
 	
 	private HttpMessage httpMessage;
-	private MessageType messageType;
+	private Vector<SyntaxStyle> syntaxStyles;
 	
-	public enum MessageType {
-		Header,
-		Body,
-		Full
-	};
+	private static SyntaxMenu syntaxMenu = null;
+	private static ViewMenu viewMenu = null;
+	private static TextAreaMenuItem cutAction = null;
+	private static TextAreaMenuItem copyAction = null;
+	private static TextAreaMenuItem pasteAction = null;
+	private static TextAreaMenuItem deleteAction = null;
+	private static TextAreaMenuItem undoAction = null;
+	private static TextAreaMenuItem redoAction = null;
+	private static TextAreaMenuItem selectAllAction = null;
 	
-	public HttpPanelTextArea(HttpMessage httpMessage, MessageType messageType) {
+	static {
+		//Hack to set the language that is used by ZAP.
+		RTextArea.setLocaleI18n(Constant.getLocale());
+	}
+	
+	public HttpPanelTextArea(HttpMessage httpMessage) {
+		((RSyntaxDocument)getDocument()).setTokenMakerFactory(getTokenMakerFactory());
+		setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+		
+		syntaxStyles = new Vector<SyntaxStyle>();
+		addSyntaxStyle(PLAIN_SYNTAX_LABEL, SyntaxConstants.SYNTAX_STYLE_NONE);
+		
+		if (syntaxMenu == null) {
+			initActions();
+		}
+		
+		setPopupMenu(null);
+		
 		this.httpMessage = httpMessage;
-		this.messageType = messageType;
+		
+		setHyperlinksEnabled(false);
+
+		setAntiAliasingEnabled(false);
+
+		setLineWrap(true);
+		
+		setHighlightCurrentLine(false);
+		setFadeCurrentLineHighlight(false);
+
+		setWhitespaceVisible(false);
+		setEOLMarkersVisible(false);
+		
+		setMarkOccurrences(false);
+
+		setBracketMatchingEnabled(false);
+		setAnimateBracketMatching(false);
+		
+		setAutoIndentEnabled(false);
+		setCloseCurlyBraces(false);
+		setCloseMarkupTags(false);
+		setClearWhitespaceLinesEnabled(false);
+		
 		initHighlighter();
+	}
+	
+	@Override
+	protected JPopupMenu createPopupMenu() {
+		return null;
 	}
 	
 	private void initHighlighter() {
@@ -83,43 +147,9 @@ public class HttpPanelTextArea extends ZapTextArea implements Observer {
 		}
 	}
 	
+	
 	// Return selected text
-	public SearchMatch getTextSelection() {
-		SearchMatch sm = null;
-		
-		if (messageType.equals(MessageType.Header)) {
-			sm = new SearchMatch(
-					httpMessage,
-					SearchMatch.Location.REQUEST_HEAD, 
-					getSelectionStart(),
-					getSelectionEnd());
-		} else if (messageType.equals(MessageType.Body)) {
-			sm = new SearchMatch(
-					httpMessage,
-					SearchMatch.Location.REQUEST_BODY, 
-					getSelectionStart(),
-					getSelectionEnd());
-		} else if (messageType.equals(MessageType.Full)) {
-			int headerLen = httpMessage.getRequestHeader().toString().length();
-			if (getSelectionStart() < headerLen) {
-				sm = new SearchMatch(
-					httpMessage,
-					SearchMatch.Location.REQUEST_HEAD, 
-					getSelectionStart(),
-					getSelectionEnd());
-			} else {
-				sm = new SearchMatch(
-					httpMessage,
-					SearchMatch.Location.REQUEST_BODY, 
-					getSelectionStart() - headerLen,
-					getSelectionEnd() - headerLen);
-			}
-		} else {
-			log.debug("MessageType unknown");
-		}
-		
-		return sm;
-	}
+	public abstract SearchMatch getTextSelection();
 	
 	@Override
 	// Apply highlights after a setText()
@@ -129,20 +159,17 @@ public class HttpPanelTextArea extends ZapTextArea implements Observer {
 	}
 
 	// highlight a specific SearchMatch in the editor
-	public void highlight(SearchMatch sm) {
+	public abstract void highlight(SearchMatch sm);
+	
+	protected void highlight(int start, int end) {
 		Highlighter hilite = this.getHighlighter();
 		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
-		
-		int len = this.getText().length();
-		if (sm.getStart() > len || sm.getEnd() > len) {
-			return;
-		}
 		
 		try {
 			// DOBIN
 			removeAllHighlights();
-			hilite.addHighlight(sm.getStart(), sm.getEnd(), painter);
-			this.setCaretPosition(sm.getStart());
+			hilite.addHighlight(start, end, painter);
+			this.setCaretPosition(start);
 		} catch (BadLocationException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -150,7 +177,6 @@ public class HttpPanelTextArea extends ZapTextArea implements Observer {
 	
 	private void removeAllHighlights() {
 		Highlighter hilite = this.getHighlighter();
-		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
 		hilite.removeAllHighlights();
 	}
 
@@ -172,10 +198,6 @@ public class HttpPanelTextArea extends ZapTextArea implements Observer {
 		this.invalidate();
 	}
 	
-	public MessageType getMessageType() {
-		return messageType;
-	}
-	
 	public void setHttpMessage(HttpMessage httpMessage) {
 		this.httpMessage = httpMessage;
 	}
@@ -184,4 +206,125 @@ public class HttpPanelTextArea extends ZapTextArea implements Observer {
 		return httpMessage;
 	}
 	
+	public Vector<SyntaxStyle> getSyntaxStyles() {
+		return syntaxStyles;
+	}
+	
+	protected void addSyntaxStyle(String label, String styleKey) {
+		syntaxStyles.add(new SyntaxStyle(label, styleKey));
+	}
+	
+	protected abstract CustomTokenMakerFactory getTokenMakerFactory();
+	
+	private static synchronized void initActions() {
+		if (syntaxMenu == null) {
+			syntaxMenu = new SyntaxMenu();
+			viewMenu = new ViewMenu();
+			
+			undoAction = new TextAreaMenuItem(RTextArea.UNDO_ACTION, true, false);
+			redoAction = new TextAreaMenuItem(RTextArea.REDO_ACTION, false, true);
+
+			cutAction = new TextAreaMenuItem(RTextArea.CUT_ACTION, false, false);
+			copyAction = new TextAreaMenuItem(RTextArea.COPY_ACTION, false, false);
+			pasteAction = new TextAreaMenuItem(RTextArea.PASTE_ACTION, false, false);
+			deleteAction = new TextAreaMenuItem(RTextArea.DELETE_ACTION, false, true);
+			
+			selectAllAction = new TextAreaMenuItem(RTextArea.SELECT_ALL_ACTION, false, true);
+			
+			View.getSingleton().getPopupMenu().addMenu(syntaxMenu);
+			View.getSingleton().getPopupMenu().addMenu(viewMenu);
+			
+			View.getSingleton().getPopupMenu().addMenu(undoAction);
+			View.getSingleton().getPopupMenu().addMenu(redoAction);
+			
+			View.getSingleton().getPopupMenu().addMenu(cutAction);
+			View.getSingleton().getPopupMenu().addMenu(copyAction);
+			View.getSingleton().getPopupMenu().addMenu(pasteAction);
+			View.getSingleton().getPopupMenu().addMenu(deleteAction);
+			
+			View.getSingleton().getPopupMenu().addMenu(selectAllAction);
+		}
+	}
+	
+	public static class SyntaxStyle {
+		private String label;
+		private String styleKey;
+		
+		public SyntaxStyle(String label, String styleKey) {
+			this.label = label;
+			this.styleKey = styleKey;
+		}
+		
+		public String getLabel() {
+			return label;
+		}
+		
+		public String getStyleKey() {
+			return styleKey;
+		}
+	}
+	
+	protected static class CustomTokenMakerFactory extends AbstractTokenMakerFactory {
+		
+		@Override
+		protected Map<String, String> createTokenMakerKeyToClassNameMap() {
+			HashMap<String, String> map = new HashMap<String, String>();
+
+			String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
+			map.put(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");
+			
+			return map;
+		}
+	}
+	
+	private static class TextAreaMenuItem extends ExtensionPopupMenuItem {
+		
+		private static final long serialVersionUID = -8369459846515841057L;
+		
+		private int actionId;
+		private boolean precedeWithSeparator;
+		private boolean succeedWithSeparator;
+		
+		public TextAreaMenuItem(int actionId, boolean precedeWithSeparator, boolean succeedWithSeparator) throws IllegalArgumentException {
+			this.actionId = actionId;
+			this.precedeWithSeparator = precedeWithSeparator;
+			this.succeedWithSeparator = succeedWithSeparator;
+			Action action = RTextArea.getAction(actionId);
+			if(action == null) {
+				throw new IllegalArgumentException("Action not found with id: " + actionId);
+			}
+			setAction(action);
+		}
+		
+		public boolean isEnableForComponent(Component invoker) {
+			if (invoker instanceof HttpPanelTextArea) {
+				HttpPanelTextArea httpPanelTextArea = (HttpPanelTextArea)invoker;
+				
+				switch(actionId) {
+					case RTextArea.CUT_ACTION:
+						if (!httpPanelTextArea.isEditable()) {
+							this.setEnabled(false);
+						}
+					break;
+					case RTextArea.DELETE_ACTION:
+					case RTextArea.PASTE_ACTION:
+						this.setEnabled(httpPanelTextArea.isEditable());
+					break;
+				}
+				
+				return true;
+			}
+			return false;
+		}
+		
+		@Override
+		public boolean precedeWithSeparator() {
+			return precedeWithSeparator;
+		}
+		
+		@Override
+		public boolean succeedWithSeparator() {
+			return succeedWithSeparator;
+		}
+	}
 }

@@ -27,7 +27,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
@@ -39,7 +39,7 @@ import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 
-public abstract class PopupMenuHistoryReference extends ExtensionPopupMenu {
+public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
 	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce};
 	

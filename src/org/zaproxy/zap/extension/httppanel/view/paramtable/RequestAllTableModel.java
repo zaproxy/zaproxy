@@ -1,18 +1,14 @@
 package org.zaproxy.zap.extension.httppanel.view.paramtable;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpMessage;
 
 public class RequestAllTableModel extends AbstractTableModel {
 	private static final String[] columnNames = {

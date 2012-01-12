@@ -24,10 +24,10 @@ import java.awt.Component;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 
-public class PopupMenuPortScan extends ExtensionPopupMenu {
+public class PopupMenuPortScan extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionPortScan extension = null;

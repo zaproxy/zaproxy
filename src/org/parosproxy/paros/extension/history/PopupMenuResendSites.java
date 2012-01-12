@@ -17,6 +17,8 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -25,7 +27,7 @@ import java.sql.SQLException;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
@@ -38,7 +40,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuResendSites extends ExtensionPopupMenu {
+public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 

@@ -33,7 +33,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
@@ -45,7 +45,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuExportURLs extends ExtensionPopupMenu {
+public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private static final String CRLF = "\r\n";

@@ -26,7 +26,7 @@ import javax.swing.JList;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 
 
@@ -35,7 +35,7 @@ import org.parosproxy.paros.model.HistoryReference;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuAddBreakHistory extends ExtensionPopupMenu {
+public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionBreak extension = null;

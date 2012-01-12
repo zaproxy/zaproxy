@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;
@@ -27,9 +29,9 @@ import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-public class PopupFindMenu extends ExtensionPopupMenu {
+public class PopupFindMenu extends ExtensionPopupMenuItem {
     private JTextComponent lastInvoker = null;
     private JFrame parentFrame = null;
     

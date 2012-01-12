@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.params;
 import java.awt.Component;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 
 /**
@@ -30,7 +30,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenu;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuParamSearch extends ExtensionPopupMenu {
+public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 

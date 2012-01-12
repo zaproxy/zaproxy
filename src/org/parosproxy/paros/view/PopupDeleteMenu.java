@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -28,13 +30,13 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 
-public class PopupDeleteMenu extends ExtensionPopupMenu {
+public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 

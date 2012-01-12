@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -61,7 +60,7 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	protected HttpMessage httpMessage;
 	protected List<HttpPanelView> views = new ArrayList<HttpPanelView>();
 	
-	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
+	private static Logger log = Logger.getLogger(HttpPanel.class);
 
 	private JPanel panelOptions;
 	private JPanel panelButtons;
@@ -132,10 +131,10 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 		
 		// restore default view
 		String defaultView = Model.getSingleton().getOptionsParam().getViewParam().getDefaultView(viewType);
-		if (defaultView != "") {
+		if (!defaultView.isEmpty()) {
 			switchView(defaultView);
 		} else {
-			switchView("Split");			
+			switchView("Split");
 		}
 
 		loadData();
@@ -243,8 +242,6 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 		saveData();
 	
 		String name = buttonViewLink.get(e.getSource());
-
-		currentPlugin.getButton().setBackground(Color.LIGHT_GRAY);
 		switchView(name);
 		
 		loadData();
@@ -277,14 +274,20 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	}
 	
 	private void switchView(String name) {
+		if (this.currentPlugin != null) {
+			currentPlugin.getButton().setBackground(Color.LIGHT_GRAY);
+		}
+		
 		this.currentPlugin = viewLink.get(name);
+		
 		if (this.currentPlugin == null) {
 			log.error("HttpPanel: could not find plugin with name: " + name);
 			return;
 		}
+		
 		currentPlugin.getButton().setBackground(Color.gray);
 		
-		this.currentPlugin.setHttpMessage(httpMessage);
+		updateContent();
 		
 		CardLayout cl = (CardLayout)(getPanelContent().getLayout());
 		cl.show(panelContent, name);
@@ -302,12 +305,18 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	 ***/
 
 	public void highlightHeader(SearchMatch sm) {
-		switchView("Split");
+		if (!("Split".equals(currentPlugin.getName()) || 
+			"All".equals(currentPlugin.getName()))) {
+			switchView("Split");
+		}
 		currentPlugin.highlightHeader(sm);
 	}
 
 	public void highlightBody(SearchMatch sm) {
-		switchView("Split");
+		if (!("Split".equals(currentPlugin.getName()) || 
+			"All".equals(currentPlugin.getName()))) {
+			switchView("Split");
+		}
 		currentPlugin.highlightBody(sm);
 	}
 
@@ -316,7 +325,8 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 	}
 
 	public void bodySearch(Pattern p, List<SearchMatch> matches) {
-		viewLink.get("Split").searchBody(p, matches);	}
+		viewLink.get("Split").searchBody(p, matches);
+	}
 
 	public void addHeaderPanel(JPanel aPanel) {
 		panelStandard.add(aPanel);

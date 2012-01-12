@@ -26,7 +26,7 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -36,7 +36,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 
-public class PopupExcludeFromProxyMenu extends ExtensionPopupMenu {
+public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 

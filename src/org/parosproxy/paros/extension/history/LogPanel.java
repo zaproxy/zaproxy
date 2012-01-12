@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+ // ZAP: 2012/01/12 Changed the method valueChanged of the ListSelectionListener.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -279,13 +280,16 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				    if (listLog.getSelectedValue() == null) {
-				        return;
-				    }
-                    
-					final HistoryReference historyRef = (HistoryReference) listLog.getSelectedValue();
-
-                    readAndDisplay(historyRef);
+					// ZAP: Changed to only display the message when there are no more selection changes.
+					if (!e.getValueIsAdjusting()) {
+					    if (listLog.getSelectedValue() == null) {
+					        return;
+					    }
+	                    
+						final HistoryReference historyRef = (HistoryReference) listLog.getSelectedValue();
+	
+	                    readAndDisplay(historyRef);
+					}
 
 				}
 

@@ -26,9 +26,10 @@ import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 
-public class PopupCopyMenu extends ExtensionPopupMenu {
+public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 1L;
 	private JTextComponent lastInvoker = null;
     private JFrame parentFrame = null;
@@ -59,7 +60,7 @@ public class PopupCopyMenu extends ExtensionPopupMenu {
 	}
 	
     public boolean isEnableForComponent(Component invoker) {
-        if (invoker instanceof JTextComponent) {
+    	if (invoker instanceof JTextComponent && !(invoker instanceof HttpPanelTextArea)) {
             setLastInvoker((JTextComponent) invoker);
             Container c = getLastInvoker().getParent();
             while (!(c instanceof JFrame)) {

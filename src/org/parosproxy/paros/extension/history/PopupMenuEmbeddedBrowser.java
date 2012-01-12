@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -26,7 +28,7 @@ import javax.swing.JList;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -41,7 +43,7 @@ import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenu {
+public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionHistory extension = null;

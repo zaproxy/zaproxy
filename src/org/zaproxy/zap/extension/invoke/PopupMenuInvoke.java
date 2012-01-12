@@ -27,13 +27,13 @@ import javax.swing.JTree;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 
-public class PopupMenuInvoke extends ExtensionPopupMenu {
+public class PopupMenuInvoke extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
     private Component invoker = null;

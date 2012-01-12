@@ -26,9 +26,9 @@ import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-public class PopupEncoder2Menu extends ExtensionPopupMenu {
+public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private JTextComponent lastInvoker = null;

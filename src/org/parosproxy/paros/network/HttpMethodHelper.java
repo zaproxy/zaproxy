@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Changed the method createRequestMethod to always use CRLF
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -178,20 +179,18 @@ public class HttpMethodHelper {
 		
 		// set various headers
 		int pos = 0;
-		Pattern pattern = null;
-		String delimiter = CRLF;
+		// ZAP: changed to always use CRLF, like the HttpHeader
+		Pattern pattern = patternCRLF;
+		String delimiter = header.getLineDelimiter();
+		
+		// ZAP: Shouldn't happen as the HttpHeader always uses CRLF
+		if (delimiter.equals(LF)) {
+			delimiter = LF;
+			pattern = patternLF;
+		} 
 		
 		String msg = header.getHeadersAsString();
-		if ((pos = msg.indexOf(CRLF)) < 0) {
-			if ((pos = msg.indexOf(LF)) < 0) {
-				delimiter = LF;
-				pattern = patternLF;
-			}
-		} else {
-			delimiter = CRLF;
-			pattern = patternCRLF;
-		}
-	        
+		
 		String[] split = pattern.split(msg);
 		String token = null;
 		String name = null;

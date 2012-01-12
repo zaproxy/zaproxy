@@ -4,9 +4,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.plugin.request.split.RequestSplitView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 
 /*
  * ResponseSplitView is identical to RequestSplitView
@@ -22,6 +20,11 @@ public class ResponseSplitView extends RequestSplitView {
 	public boolean isRequest() {
 		return false;
 	}
+	
+	@Override
+	protected HttpPanelTextView createHttpPanelTextView() {
+		return new HttpResponseHeaderPanelTextView(modelTextHeader, httpPanel.isEditable());
+	}
 
 	@Override
 	protected void initModel() {
@@ -33,8 +36,8 @@ public class ResponseSplitView extends RequestSplitView {
 	
 	@Override
 	protected void initPlugins() {
-		viewBodyText = new HttpPanelTextView(modelTextBody, MessageType.Body, httpPanel.isEditable());
-		viewBodyHex = new HttpPanelHexView(modelTextBody, MessageType.Body, httpPanel.isEditable());
+		viewBodyText = new HttpResponseBodyPanelTextView(modelTextBody, httpPanel.isEditable());
+		viewBodyHex = new HttpPanelHexView(modelTextBody, httpPanel.isEditable());
 		
 		views.put(viewBodyText.getName(), viewBodyText);
 		views.put(viewBodyHex.getName(), viewBodyHex);

@@ -354,20 +354,25 @@ public class FuzzDialog extends AbstractDialog {
 			
 			if (source instanceof HttpPanelTextArea) {
 				HttpPanelTextArea ta = (HttpPanelTextArea) source;
-				if (ta.getSelectedText().length() > selectionFieldLength) {
-					getSelectionField().setText(ta.getSelectedText().substring(0, selectionFieldLength) + "...");
-				} else {
-					getSelectionField().setText(ta.getSelectedText());
-				}
+				
 				sm = ta.getTextSelection();
 				selectionStart = sm.getStart();
 				selectionEnd = sm.getEnd();
 				httpMessage = sm.getMessage();
 				
+				String selectedText = "";
 				if (sm.getLocation().equals(SearchMatch.Location.REQUEST_HEAD)) {
 					fuzzHeader = true;
+					selectedText = httpMessage.getRequestHeader().toString().substring(selectionStart, selectionEnd);
 				} else {
 					fuzzHeader = false;
+					selectedText = httpMessage.getRequestBody().toString().substring(selectionStart, selectionEnd);
+				}
+				
+				if (selectedText.length() > selectionFieldLength) {
+					getSelectionField().setText(selectedText.substring(0, selectionFieldLength) + "...");
+				} else {
+					getSelectionField().setText(selectedText);
 				}
 			} else {
 				System.out.println("FAIL");

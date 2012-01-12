@@ -6,12 +6,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 
 public class RequestPostTableView implements HttpPanelView {
@@ -19,13 +17,11 @@ public class RequestPostTableView implements HttpPanelView {
 	private JTable tableBody;
 	private JPanel mainPanel;
 	private RequestPostTableModel httpPanelTabularModel;
-	private MessageType messageType;
 	private HttpPanelTextModelInterface model;
 	private boolean isEditable = false;
 
-	public RequestPostTableView(HttpPanelTextModelInterface modelTextBody, MessageType body, boolean editable) {
+	public RequestPostTableView(HttpPanelTextModelInterface modelTextBody, boolean editable) {
 		httpPanelTabularModel = new RequestPostTableModel();
-		this.messageType = body;
 		this.model = modelTextBody;
 		this.isEditable = editable;
 		init();	

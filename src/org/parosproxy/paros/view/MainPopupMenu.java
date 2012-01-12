@@ -18,6 +18,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//      ExtensionPopupMenuItem, added the methods addMenu(ExtensionPopupMenu menu),
+//      removeMenu(ExtensionPopupMenu menu), handleMenu and handleMenuItem and
+//      changed the method show to use the methods handleMenu and handleMenuItem.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -30,7 +34,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.parosproxy.paros.extension.ExtensionHookMenu;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.zaproxy.zap.extension.ExtensionPopupMenu;
 
 public class MainPopupMenu extends JPopupMenu {
 
@@ -79,50 +84,86 @@ public class MainPopupMenu extends JPopupMenu {
 	
 	public synchronized void show(Component invoker, int x, int y) {
 	    
-	    boolean isFirst = true;
-	    ExtensionPopupMenu menu = null;
+	    ExtensionPopupMenuItem menuItem = null;
 	    
 	    for (int i=0; i<getComponentCount(); i++) {
 	        try {
-	            if (getComponent(i) != null && getComponent(i) instanceof ExtensionPopupMenu) {
-	                menu = (ExtensionPopupMenu) getComponent(i);
+	            if (getComponent(i) != null && getComponent(i) instanceof ExtensionPopupMenuItem) {
+	                menuItem = (ExtensionPopupMenuItem) getComponent(i);
 	                // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
-	                menu.setVisible(menu.isEnableForComponent(invoker));
+	                menuItem.setVisible(menuItem.isEnableForComponent(invoker));
 	            }
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
 	    }
 	    
-	    
 	    for (int i=0; i<itemList.size(); i++) {
-	        menu = (ExtensionPopupMenu) itemList.get(i);
-	        try {
-	            if (menu == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
-	                this.addSeparator();
-	                continue;
-	            }
-	            
-	            if (menu.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
-	            	if (menu.isSubMenu()) {
-	            		if (menu.precedeWithSeparator()) {
-	            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
-	            		}
-	            		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
-	            		
-	            	} else {
-	            		if (menu.precedeWithSeparator()) {
-	    	                this.addSeparator();
-	            		}
-	            		this.add(menu);
-	            	}
-	                isFirst = false;
-	            }
-	        } catch (Exception e) {
-	            e.printStackTrace();
+	        if (itemList.get(i) instanceof ExtensionPopupMenuItem) {
+	        	handleMenuItem(invoker, (ExtensionPopupMenuItem)itemList.get(i));
+	        } else if(itemList.get(i) instanceof ExtensionPopupMenu) {
+	        	handleMenu(invoker, (ExtensionPopupMenu)itemList.get(i));
 	        }
 	    }
 	    super.show(invoker, x, y);
+	}
+	
+	private void handleMenuItem(Component invoker, ExtensionPopupMenuItem menuItem) {
+		try {
+            if (menuItem == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
+                this.addSeparator();
+            } else {
+	            if (menuItem.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
+	            	if (menuItem.isSubMenu()) {
+	            		if (menuItem.precedeWithSeparator()) {
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).addSeparator();
+	            		}
+	            		getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
+	            		if (menuItem.succeedWithSeparator()) {
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
+	            		}
+	            		
+	            	} else {
+	            		if (menuItem.precedeWithSeparator()) {
+	    	                this.addSeparator();
+	            		}
+	            		this.add(menuItem);
+	            		if (menuItem.succeedWithSeparator()) {
+	    	                this.addSeparator();
+	            		}
+	            	}
+	            }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
+	
+	private void handleMenu(Component invoker, ExtensionPopupMenu menu) {
+		try {
+            if (menu.isEnableForComponent(invoker)) {
+            	if (menu.isSubMenu()) {
+            		if (menu.precedeWithSeparator()) {
+            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            		}
+            		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
+            		if (menu.succeedWithSeparator()) {
+            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            		}
+            		
+            	} else {
+            		if (menu.precedeWithSeparator()) {
+    	                this.addSeparator();
+            		}
+            		this.add(menu);
+            		if (menu.succeedWithSeparator()) {
+    	                this.addSeparator();
+            		}
+            	}
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 	
 	// ZAP: Added support for submenus
@@ -162,6 +203,14 @@ public class MainPopupMenu extends JPopupMenu {
 
 	// ZAP: added addMenu and removeMenu to support dynamic changing of menus
 
+	public void addMenu(ExtensionPopupMenuItem menu) {
+		itemList.add(menu);
+	}
+	
+	public void removeMenu(ExtensionPopupMenuItem menu) {
+		itemList.remove(menu);
+	}
+	
 	public void addMenu(ExtensionPopupMenu menu) {
 		itemList.add(menu);
 	}

@@ -3,11 +3,8 @@ package org.zaproxy.zap.extension.httppanel.plugin.request.split;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -21,15 +18,11 @@ import javax.swing.JSplitPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.plugin.BasicPlugin;
-import org.zaproxy.zap.extension.httppanel.plugin.PluginInterface;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
 import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -42,7 +35,7 @@ public class RequestSplitView extends BasicPlugin  {
 	protected JPanel panelHeader;
 	protected JSplitPane splitMain;
 
-	protected static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
+	protected static final Logger log = Logger.getLogger(RequestSplitView.class);
 
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
@@ -85,7 +78,7 @@ public class RequestSplitView extends BasicPlugin  {
 		panelMainSwitchable.setLayout(new CardLayout());
 
 		// Header
-		viewHeaderText = new HttpPanelTextView(modelTextHeader, MessageType.Header, httpPanel.isEditable());
+		viewHeaderText = createHttpPanelTextView();
 		panelHeader.setLayout(new BorderLayout());
 		panelHeader.add(viewHeaderText.getPane(), BorderLayout.CENTER);
 
@@ -109,10 +102,14 @@ public class RequestSplitView extends BasicPlugin  {
 		httpPanel.addHttpDataView(this);
 	}
 	
+	protected HttpPanelTextView createHttpPanelTextView() {
+		return new HttpRequestHeaderPanelTextView(modelTextHeader, httpPanel.isEditable());
+	}
+	
 	protected void initPlugins() {
-		viewBodyText = new HttpPanelTextView(modelTextBody, MessageType.Body, httpPanel.isEditable());
-		viewBodyTable = new RequestPostTableView(modelTextBody, MessageType.Body, httpPanel.isEditable());
-		viewBodyHex = new HttpPanelHexView(modelTextBody, MessageType.Body, httpPanel.isEditable());
+		viewBodyText = new HttpRequestBodyPanelTextView(modelTextBody, httpPanel.isEditable());
+		viewBodyTable = new RequestPostTableView(modelTextBody, httpPanel.isEditable());
+		viewBodyHex = new HttpPanelHexView(modelTextBody, httpPanel.isEditable());
 		
 		views.put(viewBodyText.getName(), viewBodyText);
 		views.put(viewBodyTable.getName(), viewBodyTable);

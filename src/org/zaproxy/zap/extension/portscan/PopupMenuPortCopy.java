@@ -28,9 +28,9 @@ import java.awt.datatransfer.Transferable;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-public class PopupMenuPortCopy extends ExtensionPopupMenu implements ClipboardOwner {
+public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements ClipboardOwner {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionPortScan extension = null;

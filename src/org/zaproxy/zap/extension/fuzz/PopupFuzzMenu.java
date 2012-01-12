@@ -25,12 +25,12 @@ import java.awt.Container;
 import javax.swing.JFrame;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 
-public class PopupFuzzMenu extends ExtensionPopupMenu {
+public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private Component lastInvoker = null;

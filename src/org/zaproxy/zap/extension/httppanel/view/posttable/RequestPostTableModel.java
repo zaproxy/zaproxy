@@ -85,7 +85,7 @@ public class RequestPostTableModel extends AbstractTableModel {
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
     public Object getValueAt(int row, int col) {
-        String[] cell = (String[]) listPair.get(row);
+        String[] cell = listPair.get(row);
         return cell[col];
     }
 
@@ -140,7 +140,7 @@ public class RequestPostTableModel extends AbstractTableModel {
         }
         
         for (int i=0; i<listPair.size(); i++) {
-            String[] cell = (String[]) listPair.get(i);
+            String[] cell = listPair.get(i);
             try {
             	String name = URLEncoder.encode(cell[0],"UTF8");
             	String value = URLEncoder.encode(cell[1],"UTF8");
@@ -180,7 +180,7 @@ public class RequestPostTableModel extends AbstractTableModel {
             listPair.add(cell);
         }
         
-        cell = (String[]) listPair.get(row);
+        cell = listPair.get(row);
         cell[col] = (String) value;
         fireTableCellUpdated(row, col);
         

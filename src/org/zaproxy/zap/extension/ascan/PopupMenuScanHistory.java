@@ -25,7 +25,7 @@ import java.awt.Component;
 import javax.swing.JList;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 
@@ -35,7 +35,7 @@ import org.parosproxy.paros.model.SiteNode;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuScanHistory extends ExtensionPopupMenu {
+public class PopupMenuScanHistory extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionActiveScan extension = null;

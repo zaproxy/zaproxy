@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.search;
 
 import java.awt.CardLayout;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 
 import javax.swing.DefaultListModel;
@@ -97,18 +98,32 @@ public class SearchPanel extends AbstractPanel {
 		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
         
-        resultsList.setName("listSearch");
+		resultsModel = new DefaultListModel();
+		resultsList.setModel(resultsModel);
+		
+		resultsList.setName("listSearch");
 		resultsList.setFixedCellHeight(16);	// Significantly speeds up rendering
 
-        resultsList.addMouseListener(new java.awt.event.MouseAdapter() { 
-			public void mousePressed(java.awt.event.MouseEvent e) {    
-			    if (SwingUtilities.isRightMouseButton(e)) { 
-			        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-			    }	
+		resultsList.addMouseListener(new java.awt.event.MouseAdapter() {
+			public void mousePressed(java.awt.event.MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e)) { 
+					View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+				}
 			}
 		});
-
-
+		
+		resultsList.setCellRenderer(getSearchPanelCellRenderer());
+		resultsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+			public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+				if (resultsList.getSelectedValue() == null) {
+					return;
+				}
+				
+				if(!e.getValueIsAdjusting()) {
+					displayMessage(((SearchResult)resultsList.getSelectedValue()));
+				}
+			}
+		});
 	}
 	
 	/**
@@ -281,35 +296,37 @@ public class SearchPanel extends AbstractPanel {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			
-			resetSearchResults();
 			jScrollPane.setViewportView(resultsList);
-			
 		}
 		return jScrollPane;
 	}
 
 	public void resetSearchResults() {
-		resultsModel = new DefaultListModel();
-		resultsList.setModel(resultsModel);
-        resultsList.setCellRenderer(getSearchPanelCellRenderer());
-
-		resultsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
-
-			public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-			    if (resultsList.getSelectedValue() == null) {
-			        return;
-			    }
-			    
-			    displayMessage(((SearchResult)resultsList.getSelectedValue()));
-			}
-		});
+		resultsModel.clear();
 	}
 
 	public void addSearchResult(SearchResult str) {
 		resultsModel.addElement(str);
 		if (resultsModel.size() == 1) {
-			this.highlightFirstResult();
+			final Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					if (EventQueue.isDispatchThread()) {
+						highlightFirstResult();
+					} else {
+						try {
+							EventQueue.invokeAndWait(new Runnable() {
+								@Override
+								public void run() {
+									highlightFirstResult();
+								}
+							});
+						} catch (Exception e) {
+						}
+					}
+				}
+			});
+			t.start();
 		}
 	}
 
@@ -407,6 +424,7 @@ public class SearchPanel extends AbstractPanel {
     protected void highlightFirstResult() {
 		if (resultsList.getModel().getSize() > 0) {
 			resultsList.setSelectedIndex(0);
+    		resultsList.ensureIndexIsVisible(0);
 			resultsList.requestFocus();
 		}
     }
@@ -424,34 +442,39 @@ public class SearchPanel extends AbstractPanel {
     		highlightMatch(sm);
     	} else {
     		// Next record
-        	if (resultsList.getSelectedIndex() < resultsList.getModel().getSize()) {
+        	if (resultsList.getSelectedIndex() < resultsList.getModel().getSize()-1) {
         		resultsList.setSelectedIndex(resultsList.getSelectedIndex() + 1);
+        		resultsList.ensureIndexIsVisible(resultsList.getSelectedIndex());
+        	} else {
+        		this.highlightFirstResult();
         	}
     	}
     }
 
     private void highlightLastResult (SearchResult sr) {
-    	
     	highlightMatch(sr.getLastMatch(requestPanel, responsePanel));
     }
 
     protected void highlightPrevResult () {
-
-    	SearchResult sr = (SearchResult)resultsList.getSelectedValue();
-    	if (sr != null) {
-	    	SearchMatch sm = sr.getPrevMatch();
-	    	
-	    	if (sm != null) {
-	    		highlightMatch(sm);
-	    	} else {
-	    		// Previous record
-	        	if (resultsList.getSelectedIndex() > 0) {
-	        		resultsList.setSelectedIndex(resultsList.getSelectedIndex() - 1);
-	        		highlightLastResult((SearchResult)resultsList.getSelectedValue());
-	        	}
-	    	}
-    	} else {
+    	if (resultsList.getSelectedValue() == null) {
     		this.highlightFirstResult();
+    		return;
+    	}
+    	
+    	SearchResult sr = (SearchResult)resultsList.getSelectedValue();
+    	SearchMatch sm = sr.getPrevMatch();
+    	
+    	if (sm != null) {
+    		highlightMatch(sm);
+    	} else {
+    		// Previous record
+        	if (resultsList.getSelectedIndex() > 0) {
+        		resultsList.setSelectedIndex(resultsList.getSelectedIndex() - 1);
+        	} else {
+        		resultsList.setSelectedIndex(resultsList.getModel().getSize()-1);
+        	}
+    		resultsList.ensureIndexIsVisible(resultsList.getSelectedIndex());
+    		highlightLastResult((SearchResult)resultsList.getSelectedValue());
     	}
     }
 

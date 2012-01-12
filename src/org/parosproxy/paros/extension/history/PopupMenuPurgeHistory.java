@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
+//                 ExtensionPopupMenuItem
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -29,7 +31,7 @@ import javax.swing.JTree;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -44,7 +46,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuPurgeHistory extends ExtensionPopupMenu {
+public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;
     private JTree treeSite = null;

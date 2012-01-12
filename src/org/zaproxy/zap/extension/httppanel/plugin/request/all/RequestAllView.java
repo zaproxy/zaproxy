@@ -16,7 +16,6 @@ import org.zaproxy.zap.extension.httppanel.plugin.BasicPlugin;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableModel;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.RequestAllTableView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextModelInterface;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -70,9 +69,11 @@ public class RequestAllView extends BasicPlugin {
 	
 	protected void initPlugins() {
 		// Plugins - View
-		textView = new HttpPanelTextView(modelText, MessageType.Full, httpPanel.isEditable());
-		tableView = new RequestAllTableView(modelTable, MessageType.Full, httpPanel.isEditable());
-		hexView = new HttpPanelHexView(modelText, MessageType.Full, httpPanel.isEditable());
+		textView = new HttpRequestAllPanelTextView(modelText, httpPanel.isEditable());
+		//textView.setDocument(new HighlightedDocument(SyntaxType.HTTPREQ_2PHASE));
+		//textView.setStyleKey("text/httphtml");
+		tableView = new RequestAllTableView(modelTable, httpPanel.isEditable());
+		hexView = new HttpPanelHexView(modelText, httpPanel.isEditable());
 		
 		views.put(textView.getName(), textView);
 		views.put(tableView.getName(), tableView);
@@ -122,27 +123,37 @@ public class RequestAllView extends BasicPlugin {
 		// currentView.getModel().save();
 		currentView.save();
 	}
-	
 
-	//// Not implemented
+	@Override
 	public void searchHeader(Pattern p, List<SearchMatch> matches) {
-		// TODO Auto-generated method stub
-		
+//		Matcher m;
+//		
+//		m = p.matcher(modelText.getData());
+//		while (m.find()) {
+//			matches.add(
+//					new SearchMatch(SearchMatch.Location.REQUEST_HEAD,	m.start(), m.end()));
+//		}
 	}
 
+	@Override
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
-		// TODO Auto-generated method stub
-		
+//		Matcher m;
+//
+//		m = p.matcher(modelText.getData());
+//		while (m.find()) {
+//			matches.add(
+//					new SearchMatch(SearchMatch.Location.REQUEST_HEAD,	m.start(), m.end()));
+//		}
 	}
 
+	@Override
 	public void highlightHeader(SearchMatch sm) {
-		// TODO Auto-generated method stub
-		
+		textView.highlight(sm);
 	}
 
+	@Override
 	public void highlightBody(SearchMatch sm) {
-		// TODO Auto-generated method stub
-		
+		textView.highlight(sm);
 	}
 
 	@Override

@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.params;
 import java.awt.Component;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HtmlParameter;
 
 
@@ -31,7 +31,7 @@ import org.parosproxy.paros.network.HtmlParameter;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuRemoveSession extends ExtensionPopupMenu {
+public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 

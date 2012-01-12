@@ -7,26 +7,24 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea.MessageType;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
-public class HttpPanelTextView implements HttpPanelView {
+public abstract class HttpPanelTextView implements HttpPanelView {
 
 	private HttpPanelTextArea httpPanelTextArea;
 	private JScrollPane scrollPane;
 	private JPanel mainPanel;
 	
-	private MessageType messageType;
 	private HttpPanelTextModelInterface model;
 	
 	private boolean isEditable = false;
 	
-	public HttpPanelTextView(HttpPanelTextModelInterface model, MessageType messageType, boolean isEditable) {
-		this.messageType = messageType;
+	public HttpPanelTextView(HttpPanelTextModelInterface model, boolean isEditable) {
 		this.model = model;
 		this.isEditable = isEditable;
 		init();
@@ -36,30 +34,35 @@ public class HttpPanelTextView implements HttpPanelView {
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		
-		httpPanelTextArea = new HttpPanelTextArea(model.getHttpMessage(), messageType);
-		httpPanelTextArea.setLineWrap(true);
+		httpPanelTextArea = createHttpPanelTextArea(model.getHttpMessage());
 		httpPanelTextArea.setEditable(isEditable);
-        httpPanelTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
-        	
-        	public void mousePressed(java.awt.event.MouseEvent e) {
-				mouseClicked(e);
-			}
-				
+		httpPanelTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
 			public void mouseReleased(java.awt.event.MouseEvent e) {
-				mouseClicked(e);
-			}
-			
-			public void mouseClicked(java.awt.event.MouseEvent e) {
 				// right mouse button action
-				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { 
+					if (!httpPanelTextArea.isFocusOwner()) {
+						httpPanelTextArea.requestFocusInWindow();
+					}
+
 					View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
 				}
 			}
-        });
+		});
 		
-		scrollPane = new JScrollPane(httpPanelTextArea);
+		scrollPane = new RTextScrollPane(httpPanelTextArea, false);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
 		mainPanel.add(scrollPane, BorderLayout.CENTER);
 	}
+	
+	/**
+	 * Classes that what to extend the functionalities of a HttpPanelTextArea
+	 * should override this method and return the appropriate extended HttpPanelTextArea
+	 * 
+	 * @return a HttpPanelTextArea
+	 */
+	protected abstract HttpPanelTextArea createHttpPanelTextArea(HttpMessage httpMessage);
 	
 	public void setHttpMessage(HttpMessage httpMessage) {
 		httpPanelTextArea.setHttpMessage(httpMessage);
@@ -69,10 +72,10 @@ public class HttpPanelTextView implements HttpPanelView {
 		httpPanelTextArea.highlight(sm);
 	}
 	
-	
 	public void load() {
 		httpPanelTextArea.setText(model.getData());
 		httpPanelTextArea.setCaretPosition(0);
+		httpPanelTextArea.discardAllEdits();
 	}
 	
 	public void save() {
@@ -91,7 +94,6 @@ public class HttpPanelTextView implements HttpPanelView {
 
 	@Override
 	public boolean isEnabled(HttpMessage msg) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
@@ -114,5 +116,4 @@ public class HttpPanelTextView implements HttpPanelView {
 	public void setEditable(boolean editable) {
 		httpPanelTextArea.setEditable(editable);
 	}
-	
 }

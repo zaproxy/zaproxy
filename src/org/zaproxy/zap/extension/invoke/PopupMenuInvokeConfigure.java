@@ -26,9 +26,9 @@ import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-public class PopupMenuInvokeConfigure extends ExtensionPopupMenu {
+public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
     /**
