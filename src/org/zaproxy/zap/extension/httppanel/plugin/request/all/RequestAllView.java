@@ -70,8 +70,6 @@ public class RequestAllView extends BasicPlugin {
 	protected void initPlugins() {
 		// Plugins - View
 		textView = new HttpRequestAllPanelTextView(modelText, httpPanel.isEditable());
-		//textView.setDocument(new HighlightedDocument(SyntaxType.HTTPREQ_2PHASE));
-		//textView.setStyleKey("text/httphtml");
 		tableView = new RequestAllTableView(modelTable, httpPanel.isEditable());
 		hexView = new HttpPanelHexView(modelText, httpPanel.isEditable());
 		
