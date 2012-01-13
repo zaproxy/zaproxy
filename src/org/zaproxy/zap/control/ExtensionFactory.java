@@ -67,10 +67,17 @@ public class ExtensionFactory {
             for (int i=0; i<listTest.size(); i++) {
                 Extension extension = (Extension) listTest.get(i);
                 if (mapAllExtension.containsKey(extension.getName())) {
-                	log.error("Duplicate extension name: " + extension.getName() + " " + 
-                			extension.getClass().getCanonicalName() +
-                			" " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
-                	//continue;
+                	if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
+                		// Same name, same class so ignore
+                    	log.error("Duplicate extension: " + extension.getName() + " " + 
+                    			extension.getClass().getCanonicalName());
+                		continue;
+                	} else {
+                		// Same name but different class, log but still load it
+                    	log.error("Duplicate extension name: " + extension.getName() + " " + 
+                    			extension.getClass().getCanonicalName() +
+                    			" " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
+                	}
                 }
                 if (extension.isDepreciated()) {
                 	log.debug("Depreciated extension " + extension.getName());
