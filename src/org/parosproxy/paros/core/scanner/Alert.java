@@ -283,7 +283,9 @@ public class Alert implements Comparable<Object>  {
     
     private String breakNoSpaceString(String text) {
         String result = null;
-        result = text.replaceAll("&amp;","&amp;<wbr/>");
+        if (text != null) {
+        	result = text.replaceAll("&amp;","&amp;<wbr/>");
+        }
         return result;
         
     }
