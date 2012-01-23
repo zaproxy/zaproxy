@@ -22,6 +22,7 @@ package org.zaproxy.zap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Locale;
 
 import javax.swing.JFrame;
@@ -58,6 +59,7 @@ public class ZAP {
     private CommandLine cmdLine = null;
 
     static {
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLogger());
 
 	    // set SSLConnector as socketfactory in HttpClient.
 	    ProtocolSocketFactory sslFactory = null;
@@ -371,6 +373,17 @@ public class ZAP {
 	        System.exit(1);
 	    }
 	    return shown;
+	}
+
+	private static class UncaughtExceptionLogger implements UncaughtExceptionHandler {
+		private static Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
+
+		@Override
+		public void uncaughtException(Thread t, Throwable e) {
+			if (!(e instanceof ThreadDeath)) {
+				logger.error("Exception in thread \"" + t.getName() + "\"", e);
+			}
+		}
 	}
 
 }
