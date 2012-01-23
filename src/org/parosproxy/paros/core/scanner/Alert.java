@@ -20,6 +20,8 @@
 */
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/01/23 Changed the method compareTo to compare the fields 
+//                 correctly with each other.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -182,7 +184,6 @@ public class Alert implements Comparable<Object>  {
 	
 	public int compareTo(Object o2) throws ClassCastException {
 		Alert alert2 = (Alert) o2;
-		int result = 0;
 		
 		if (risk < alert2.risk) {
 			return -1;
@@ -196,17 +197,19 @@ public class Alert implements Comparable<Object>  {
 			return 1;
 		}
 		
-		result = alert.compareToIgnoreCase(alert2.alert);
+		int result = alert.compareToIgnoreCase(alert2.alert);
 		if (result != 0) {
 			return result;
 		}
 		
-		result = alert.compareToIgnoreCase(alert2.uri);
+		// ZAP: changed to compare the field uri with alert2.uri
+		result = uri.compareToIgnoreCase(alert2.uri);
 		if (result != 0) {
 			return result;
 		}
 		
-		result = alert.compareToIgnoreCase(alert2.param);
+		// ZAP: changed to compare the field param with alert2.param
+		result = param.compareToIgnoreCase(alert2.param);
 		if (result != 0) {
 			return result;
 		}
