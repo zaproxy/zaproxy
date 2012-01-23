@@ -28,7 +28,7 @@ abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelTextAre
 	public AutoDetectSyntaxHttpPanelTextArea(HttpMessage httpMessage) {
 		super(httpMessage);
 		
-		isAutoDetectSyntax = false;
+		isAutoDetectSyntax = true;
 	}
 	
 	@Override
