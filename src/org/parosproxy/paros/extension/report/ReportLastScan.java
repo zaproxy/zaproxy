@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/10/01 Fixed filename problem (issue 161)
+// ZAP: 2012/01/24 Changed outer XML (issue 268) c/o Alla
 
 package org.parosproxy.paros.extension.report;
 
@@ -135,14 +136,12 @@ public class ReportLastScan {
 	    StringBuffer sb = new StringBuffer(500);
 	    // ZAP: Dont require scan to have been run
 
-	    sb.append("<?xml version=\"1.0\"?>");
-	    sb.append("<report>\r\n");
-	    sb.append("Report generated at " + ReportGenerator.getCurrentDateTimeString() + ".\r\n");
-	    sb.append(getAlertXML(model.getDb(), null));
-	    sb.append("</report>");	
+ 	    sb.append("<?xml version=\"1.0\"?>");
+ 	    sb.append("<OWASPZAPReport version=\"" + Constant.PROGRAM_VERSION + "\" generated=\"" + ReportGenerator.getCurrentDateTimeString()+ "\">\r\n");
+ 	    sb.append(getAlertXML(model.getDb(), null));
+ 	    sb.append("</OWASPZAPReport>");
 	    
 	    File report = ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
-	    
 	    
 	    return report;
     }
