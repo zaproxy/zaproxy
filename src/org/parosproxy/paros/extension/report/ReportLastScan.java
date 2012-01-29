@@ -20,7 +20,6 @@
  */
 // ZAP: 2011/10/01 Fixed filename problem (issue 161)
 // ZAP: 2012/01/24 Changed outer XML (issue 268) c/o Alla
-
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
@@ -44,29 +43,33 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
 import edu.stanford.ejalbert.BrowserLauncher;
-
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.extension.ExtensionLoader;
+import org.parosproxy.paros.extension.XmlReporterExtension;
+import org.parosproxy.paros.model.SiteMap;
+import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.extension.portscan.PortScanPanel;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 /**
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Generation - Code and Comments
  */
 public class ReportLastScan {
 
-	private Logger logger = Logger.getLogger(ReportLastScan.class);
-    
-    public ReportLastScan() {
-        
-    }
+    private Logger logger = Logger.getLogger(ReportLastScan.class);
 
-    
+    public ReportLastScan() {
+    }
 
     private String getAlertXML(Database db, RecordScan recordScan) throws SQLException {
 
         Connection conn = null;
         PreparedStatement psAlert = null;
         StringBuffer sb = new StringBuffer();
-        
+
         // prepare table connection
         try {
             conn = db.getDatabaseServer().getNewConnection();
@@ -84,21 +87,21 @@ public class ReportLastScan {
 
             StringBuffer sbURLs = new StringBuffer(100);
             String s = null;
-            
+
             // get each alert from table
             while (rs.next()) {
                 int alertId = rs.getInt(1);
                 recordAlert = db.getTableAlert().read(alertId);
                 alert = new Alert(recordAlert);
-                
+
                 // ZAP: Ignore false positives
                 if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-                	continue;
+                    continue;
                 }
 
-                if (lastAlert != null && 
-                		(alert.getPluginId() != lastAlert.getPluginId() ||
-                				alert.getRisk() != lastAlert.getRisk())) {
+                if (lastAlert != null
+                        && (alert.getPluginId() != lastAlert.getPluginId()
+                        || alert.getRisk() != lastAlert.getRisk())) {
                     s = lastAlert.toPluginXML(sbURLs.toString());
                     sb.append(s);
                     sbURLs.setLength(0);
@@ -115,166 +118,208 @@ public class ReportLastScan {
             if (lastAlert != null) {
                 sb.append(lastAlert.toPluginXML(sbURLs.toString()));
             }
-                
 
-            
+
+
         } catch (SQLException e) {
-        	logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         } finally {
             if (conn != null) {
                 conn.close();
             }
-            
+
         }
-        
+
         //exit
         return sb.toString();
     }
-    
-    public File generate(String fileName, Model model, String xslFile) throws Exception {
-        
-	    StringBuffer sb = new StringBuffer(500);
-	    // ZAP: Dont require scan to have been run
 
- 	    sb.append("<?xml version=\"1.0\"?>");
- 	    sb.append("<OWASPZAPReport version=\"" + Constant.PROGRAM_VERSION + "\" generated=\"" + ReportGenerator.getCurrentDateTimeString()+ "\">\r\n");
- 	    sb.append(getAlertXML(model.getDb(), null));
- 	    sb.append("</OWASPZAPReport>");
-	    
-	    File report = ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
-	    
-	    return report;
+    public File generate(String fileName, Model model, String xslFile) throws Exception {
+
+        StringBuffer sb = new StringBuffer(500);
+        // ZAP: Dont require scan to have been run
+
+        sb.append("<?xml version=\"1.0\"?>");
+        sb.append("<OWASPZAPReport version=\"" + Constant.PROGRAM_VERSION + "\" generated=\"" + ReportGenerator.getCurrentDateTimeString() + "\">\r\n");
+        // sb.append(getAlertXML(model.getDb(), null));
+        sb.append(siteXML());
+        sb.append("</OWASPZAPReport>");
+
+        File report = ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
+
+        return report;
+    }
+
+    private StringBuilder siteXML() {
+        StringBuilder report = new StringBuilder();
+        SiteMap siteMap = Control.getSingleton().getSession().getSiteTree();
+        SiteNode root = (SiteNode) siteMap.getRoot();
+        int siteNumber = root.getChildCount();
+        for (int i = 0; i < siteNumber; i++) {
+            SiteNode site = (SiteNode) root.getChildAt(i);
+            String siteName = PortScanPanel.cleanSiteName(site, true);
+            String[] hostAndPort = siteName.split(":");
+            boolean isSSL = (site.getNodeName().startsWith("https"));
+            String siteStart = "<site name=\"" + XMLStringUtil.escapeControlChrs(site.getNodeName()) + "\"" +
+                    " host=\"" + XMLStringUtil.escapeControlChrs(hostAndPort[0])+ "\""+
+                    " port=\"" + XMLStringUtil.escapeControlChrs(hostAndPort[1])+ "\""+
+                    " ssl=\"" + String.valueOf(isSSL) + "\"" +
+                    ">";
+            StringBuilder extensionsXML = getExtensionsXML(site);
+            String siteEnd = "</site>";
+            report.append(siteStart);
+            report.append(extensionsXML);
+            report.append(siteEnd);
+        }
+        return report;
     }
     
-	public void generateHtml(ViewDelegate view, Model model) {		
+    public StringBuilder getExtensionsXML(SiteNode site) {
+        StringBuilder extensionXml = new StringBuilder();
+        ExtensionLoader loader = Control.getSingleton().getExtensionLoader();
+        int extensionCount = loader.getExtensionCount();
+        for(int i=0; i<extensionCount; i++) {
+            Extension extension = loader.getExtension(i);
+            if(extension instanceof XmlReporterExtension) {
+                extensionXml.append(((XmlReporterExtension)extension).getXml(site));
+            }
+        }
+        return extensionXml;
+    }
 
-	    // ZAP: Allow scan report file name to be specified
-	    try{
-		    JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
-		    chooser.setFileFilter(new FileFilter() {
-		           public boolean accept(File file) {
-		                if (file.isDirectory()) {
-		                    return true;
-		                } else if (file.isFile() && 
-		                		file.getName().toLowerCase().endsWith(".htm")) {
-		                    return true;
-		                } else if (file.isFile() && 
-		                		file.getName().toLowerCase().endsWith(".html")) {
-		                    return true;
-		                }
-		                return false;
-		            }
-		           public String getDescription() {
-		               return Constant.messages.getString("file.format.html");
-		           }
-		    });
-		    
-			File file = null;
-		    int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
-		    if(rc == JFileChooser.APPROVE_OPTION) {
-	    		file = chooser.getSelectedFile();
-	    		if (file != null) {
-		            Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-		    		String fileNameLc = file.getAbsolutePath().toLowerCase();
-		    		if (! fileNameLc.endsWith(".htm") &&
-		    				! fileNameLc.endsWith(".html")) {
-		    		    file = new File(file.getAbsolutePath() + ".html");
-		    		}
-	    		}
-	    		
-	    		if (! file.getParentFile().canWrite()) {
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.write.error"),
-									new Object[] {file.getAbsolutePath()}));
-					return;
-	    		}
-    		
-	    		File report = generate(file.getAbsolutePath(), model, "xml/report.html.xsl");
-	    		if (report == null) {
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.unknown.error"),
-									new Object[] {file.getAbsolutePath()}));
-	    		    return;
-	    		}
-	    		
-	    		try {
-					BrowserLauncher bl = new BrowserLauncher();
-					bl.openURLinBrowser("file://" + report.getAbsolutePath());
-				} catch (Exception e) {
-		        	logger.error(e.getMessage(), e);
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-									new Object[] {report.getAbsolutePath()}));
-				}
-		    }
-  			
-    	} catch (Exception e){
-        	logger.error(e.getMessage(), e);
-      		view.showWarningDialog("File creation error."); 
-    	}
-	}
-	
-	public void generateXml(ViewDelegate view, Model model) {		
+    public void generateHtml(ViewDelegate view, Model model) {
 
-	    // ZAP: Allow scan report file name to be specified
-	    try{
-		    JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
-		    chooser.setFileFilter(new FileFilter() {
-		           public boolean accept(File file) {
-		                if (file.isDirectory()) {
-		                    return true;
-		                } else if (file.isFile() && 
-		                		file.getName().toLowerCase().endsWith(".xml")) {
-		                    return true;
-		                }
-		                return false;
-		            }
-		           public String getDescription() {
-		               return Constant.messages.getString("file.format.xml");
-		           }
-		    });
-		    
-			File file = null;
-		    int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
-		    if(rc == JFileChooser.APPROVE_OPTION) {
-	    		file = chooser.getSelectedFile();
-	    		if (file != null) {
-		            Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-		    		String fileNameLc = file.getAbsolutePath().toLowerCase();
-		    		if (! fileNameLc.endsWith(".xml")) {
-		    		    file = new File(file.getAbsolutePath() + ".xml");
-		    		}
-	    		}
+        // ZAP: Allow scan report file name to be specified
+        try {
+            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+            chooser.setFileFilter(new FileFilter() {
 
-	    		if (! file.getParentFile().canWrite()) {
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.write.error"),
-									new Object[] {file.getAbsolutePath()}));
-					return;
-	    		}
+                public boolean accept(File file) {
+                    if (file.isDirectory()) {
+                        return true;
+                    } else if (file.isFile()
+                            && file.getName().toLowerCase().endsWith(".htm")) {
+                        return true;
+                    } else if (file.isFile()
+                            && file.getName().toLowerCase().endsWith(".html")) {
+                        return true;
+                    }
+                    return false;
+                }
 
-	    		File report = generate(file.getAbsolutePath(), model, "xml/report.xml.xsl");
-	    		if (report == null) {
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.unknown.error"),
-									new Object[] {file.getAbsolutePath()}));
-	    		    return;
-	    		}
-	    		
-	    		try {
-					BrowserLauncher bl = new BrowserLauncher();
-					bl.openURLinBrowser("file://" + report.getAbsolutePath());
-				} catch (Exception e) {
-		        	logger.error(e.getMessage(), e);
-					view.showMessageDialog(
-							MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-									new Object[] {report.getAbsolutePath()}));
-				}
-		    }
-  			
-    	} catch (Exception e){
-        	logger.error(e.getMessage(), e);
-      		view.showWarningDialog(Constant.messages.getString("report.unexpected.warning")); 
-    	}
-	}
+                public String getDescription() {
+                    return Constant.messages.getString("file.format.html");
+                }
+            });
+
+            File file = null;
+            int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
+            if (rc == JFileChooser.APPROVE_OPTION) {
+                file = chooser.getSelectedFile();
+                if (file != null) {
+                    Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
+                    String fileNameLc = file.getAbsolutePath().toLowerCase();
+                    if (!fileNameLc.endsWith(".htm")
+                            && !fileNameLc.endsWith(".html")) {
+                        file = new File(file.getAbsolutePath() + ".html");
+                    }
+                }
+
+                if (!file.getParentFile().canWrite()) {
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.write.error"),
+                            new Object[]{file.getAbsolutePath()}));
+                    return;
+                }
+
+                File report = generate(file.getAbsolutePath(), model, "xml/report.html.xsl");
+                if (report == null) {
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.unknown.error"),
+                            new Object[]{file.getAbsolutePath()}));
+                    return;
+                }
+
+                try {
+                    BrowserLauncher bl = new BrowserLauncher();
+                    bl.openURLinBrowser("file://" + report.getAbsolutePath());
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.complete.warning"),
+                            new Object[]{report.getAbsolutePath()}));
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            view.showWarningDialog("File creation error.");
+        }
+    }
+
+    public void generateXml(ViewDelegate view, Model model) {
+
+        // ZAP: Allow scan report file name to be specified
+        try {
+            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+            chooser.setFileFilter(new FileFilter() {
+
+                public boolean accept(File file) {
+                    if (file.isDirectory()) {
+                        return true;
+                    } else if (file.isFile()
+                            && file.getName().toLowerCase().endsWith(".xml")) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                public String getDescription() {
+                    return Constant.messages.getString("file.format.xml");
+                }
+            });
+
+            File file = null;
+            int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
+            if (rc == JFileChooser.APPROVE_OPTION) {
+                file = chooser.getSelectedFile();
+                if (file != null) {
+                    Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
+                    String fileNameLc = file.getAbsolutePath().toLowerCase();
+                    if (!fileNameLc.endsWith(".xml")) {
+                        file = new File(file.getAbsolutePath() + ".xml");
+                    }
+                }
+
+                if (!file.getParentFile().canWrite()) {
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.write.error"),
+                            new Object[]{file.getAbsolutePath()}));
+                    return;
+                }
+
+                File report = generate(file.getAbsolutePath(), model, "xml/report.xml.xsl");
+                if (report == null) {
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.unknown.error"),
+                            new Object[]{file.getAbsolutePath()}));
+                    return;
+                }
+
+                try {
+                    BrowserLauncher bl = new BrowserLauncher();
+                    bl.openURLinBrowser("file://" + report.getAbsolutePath());
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                    view.showMessageDialog(
+                            MessageFormat.format(Constant.messages.getString("report.complete.warning"),
+                            new Object[]{report.getAbsolutePath()}));
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            view.showWarningDialog(Constant.messages.getString("report.unexpected.warning"));
+        }
+    }
 }

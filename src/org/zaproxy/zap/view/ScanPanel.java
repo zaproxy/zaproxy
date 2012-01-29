@@ -494,7 +494,9 @@ public abstract class ScanPanel extends AbstractPanel {
 			}
 		} else if (ssl) {
 			site += ":443";
-		}
+		} else {
+                        site += ":80";
+                }
 		return site;
 	}
 	
@@ -698,11 +700,11 @@ public abstract class ScanPanel extends AbstractPanel {
 		return scanParam;
 	}
     
-    protected GenericScanner getScanThread (String site) {
+    public GenericScanner getScanThread (String site) {
     	return scanMap.get(site);
     }
 
-    protected Map<String, GenericScanner> getScanThreads () {
+    public Map<String, GenericScanner> getScanThreads () {
     	return scanMap;
     }
 
