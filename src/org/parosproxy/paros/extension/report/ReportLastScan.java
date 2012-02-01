@@ -22,35 +22,32 @@
 // ZAP: 2012/01/24 Changed outer XML (issue 268) c/o Alla
 package org.parosproxy.paros.extension.report;
 
+import edu.stanford.ejalbert.BrowserLauncher;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordScan;
-import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
-
-import edu.stanford.ejalbert.BrowserLauncher;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
-import org.parosproxy.paros.extension.XmlReporterExtension;
+import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.portscan.PortScanPanel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.utils.XMLStringUtil;
+import org.zaproxy.zap.view.ScanPanel;
 
 /**
  *
@@ -152,12 +149,12 @@ public class ReportLastScan {
 
     private StringBuilder siteXML() {
         StringBuilder report = new StringBuilder();
-        SiteMap siteMap = Control.getSingleton().getSession().getSiteTree();
+        SiteMap siteMap = Model.getSingleton().getSession().getSiteTree();
         SiteNode root = (SiteNode) siteMap.getRoot();
         int siteNumber = root.getChildCount();
         for (int i = 0; i < siteNumber; i++) {
             SiteNode site = (SiteNode) root.getChildAt(i);
-            String siteName = PortScanPanel.cleanSiteName(site, true);
+            String siteName = ScanPanel.cleanSiteName(site, true);
             String[] hostAndPort = siteName.split(":");
             boolean isSSL = (site.getNodeName().startsWith("https"));
             String siteStart = "<site name=\"" + XMLStringUtil.escapeControlChrs(site.getNodeName()) + "\"" +

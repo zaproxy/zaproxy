@@ -487,16 +487,21 @@ public abstract class ScanPanel extends AbstractPanel {
 			// Alert counts
 			site = site.substring(0, site.indexOf(" ("));
 		}
-		if (! incPort) {
-			// Strip the port off
-			if (site.indexOf(":") >= 0) {
-				site = site.substring(0, site.indexOf(":"));
-			}
-		} else if (ssl) {
-			site += ":443";
-		} else {
-                        site += ":80";
-                }
+                // does site already contain port number ?
+                if(site.indexOf(":")>=0) {
+                    if (! incPort) { // We dont't want the port number, strip it off
+			site = site.substring(0, site.indexOf(":"));
+                    } // otherwise keep it                   
+                } else { // The site does not contain the port number
+                    if(incPort) { // But we want it! Add it
+                        if (ssl) {
+                            site += ":443";
+                        } else {
+                            site += ":80";
+                        }
+                    }
+                } // Site does not contain the port number and we don't want it
+                // Nothing to do
 		return site;
 	}
 	

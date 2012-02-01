@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.parosproxy.paros.extension;
+package org.zaproxy.zap.extension;
 
 import org.parosproxy.paros.model.SiteNode;
 

@@ -1,9 +1,7 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.Enumeration;
-
 import javax.swing.DefaultListModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;

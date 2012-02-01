@@ -152,8 +152,5 @@ public class Control extends AbstractControl {
 		this.getProxy().setIgnoreList(urls);
     }
     
-    public Session getSession() {
-        return model.getSession();
-    }
 
 }
