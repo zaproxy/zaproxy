@@ -20,9 +20,7 @@ package org.zaproxy.zap.extension.spider;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 import javax.swing.DefaultListModel;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.spider.Spider;

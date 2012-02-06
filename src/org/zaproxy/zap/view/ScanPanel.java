@@ -19,31 +19,13 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-
+import java.util.*;
+import javax.swing.*;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
@@ -527,6 +509,10 @@ public abstract class ScanPanel extends AbstractPanel {
 			if (nodeName.toLowerCase().startsWith("https:")) {
 				nodeName += ":443";
 			}
+			if (nodeName.toLowerCase().startsWith("http:") && 
+                                nodeName.toLowerCase().lastIndexOf(":")==nodeName.toLowerCase().indexOf(":")) { // Does not contain port number (second column)
+				nodeName += ":80";
+			}                        
 			if (nodeName.indexOf("//") >= 0) {
 				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
 			}
