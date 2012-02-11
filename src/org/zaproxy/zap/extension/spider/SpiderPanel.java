@@ -61,7 +61,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
      * 
      */
     public SpiderPanel(ExtensionSpider extension, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
-        super("spider", new ImageIcon(extension.getClass().getResource("/resource/icon/spider.png")), extension, portScanParam);
+        super("spider", new ImageIcon(extension.getClass().getResource("/resource/icon/16/spider.png")), extension, portScanParam);
     }
 
 	@Override

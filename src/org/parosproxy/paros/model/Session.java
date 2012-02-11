@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 
 package org.parosproxy.paros.model;
 
@@ -169,7 +170,7 @@ public class Session extends FileXML {
 		
 		//historyList.removeAllElements();
 
-		SiteNode newRoot = new SiteNode(Constant.messages.getString("tab.sites"));
+		SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
 		siteTree.setRoot(newRoot);
 
 		// update history reference
@@ -309,7 +310,6 @@ public class Session extends FileXML {
 		}
 		
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
-
 	}
 	
     /**

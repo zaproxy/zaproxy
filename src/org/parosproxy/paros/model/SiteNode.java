@@ -22,9 +22,11 @@
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 // ZAP: 2011/11/04 Correct getHierarchicNodeName
 // ZAP: 2011/11/29 Added blank image to node names to fix redrawing issue
+// ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap 
 
 package org.parosproxy.paros.model;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
@@ -43,19 +46,23 @@ public class SiteNode extends DefaultMutableTreeNode {
     private HistoryReference historyReference = null;
     private Vector<HistoryReference> pastHistoryList = new Vector<HistoryReference>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
+    private SiteMap siteMap = null;
 	private List<Alert> alerts = new ArrayList<Alert>();
+	private boolean justSpidered = false;
+    private static Logger log = Logger.getLogger(SiteNode.class);
 	
-    public SiteNode(String nodeName) {
+    public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
+        this.siteMap = siteMap;
         this.nodeName = nodeName;
+        if (type == HistoryReference.TYPE_SPIDER) {
+        	this.justSpidered = true;
+        }
     }
     
-    private String getMaxAlertString() {
-    	if (alerts.size() == 0) {
-        	return "&nbsp;<img src=\"" + Constant.BLANK_IMAGE_URL + "\">";	// Use the blank image to fix resizing issues
-    	}
+    private String getIcons() {
+    	StringBuffer sb = new StringBuffer();
     	int highest = -1;
-
     	for (Alert alert : this.getAlerts()) {
     		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
     			highest = alert.getRisk();
@@ -63,35 +70,52 @@ public class SiteNode extends DefaultMutableTreeNode {
     	}
     	switch (highest) {
     	case Alert.RISK_INFO:
-    		return "&nbsp;<img src=\"" + Constant.INFO_FLAG_IMAGE_URL + "\">";
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.INFO_FLAG_IMAGE_URL);
+    		sb.append("\">&nbsp;");
+    		break;
     	case Alert.RISK_LOW:
-    		return "&nbsp;<img src=\"" + Constant.LOW_FLAG_IMAGE_URL + "\">";
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.LOW_FLAG_IMAGE_URL);
+    		sb.append("\">&nbsp;");
+    		break;
     	case Alert.RISK_MEDIUM:
-    		return "&nbsp;<img src=\"" + Constant.MED_FLAG_IMAGE_URL + "\">";
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.MED_FLAG_IMAGE_URL);
+    		sb.append("\">&nbsp;");
+    		break;
     	case Alert.RISK_HIGH:
-    		return "&nbsp;<img src=\"" + Constant.HIGH_FLAG_IMAGE_URL + "\">";
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.HIGH_FLAG_IMAGE_URL);
+    		sb.append("\">&nbsp;");
+    		break;
     	}
-    	return "&nbsp;<img src=\"" + Constant.BLANK_IMAGE_URL + "\">";	// Use the blank image to fix resizing issues
+    	if (justSpidered) {
+        	sb.append("&nbsp;<img src=\"");
+        	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
+        	sb.append("\">&nbsp;");
+    	}
+    	return sb.toString();
     }
     
     public String toString() {
-    	return "<html><body>" + nodeName + getMaxAlertString() + "</body></html>";
+    	return "<html><body>" + getIcons() + nodeName + "</body></html>";
     }
     
     public static String cleanName(String name) {
     	String cname = name;
-    	if (cname.startsWith("<html>")) {
-    		cname = cname.substring(6);
+    	if (cname.startsWith("<html><body>")) {
+    		cname = cname.substring(12);
     	}
     	if (cname.indexOf("&nbsp;") > 0) {
-    		cname = cname.substring(0, cname.indexOf("&nbsp;"));
+    		cname = cname.substring(cname.lastIndexOf("&nbsp;")+6);
     	}
-    	if (cname.indexOf("</html>") > 0) {
-    		cname = cname.substring(0, cname.indexOf("</html>"));
+    	if (cname.indexOf("</body></html>") > 0) {
+    		cname = cname.substring(0, cname.indexOf("</body></html>"));
     	}
     	return cname;
     }
-    
+
     public String getNodeName() {
     	return this.nodeName;
     }
@@ -140,6 +164,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 //                getPastHistoryReference().add(getHistoryReference());
 //            }
             
+        	if (this.justSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        		this.justSpidered = false;
+        		this.nodeChanged();
+        	}
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {
                 getPastHistoryReference().add(getHistoryReference());
@@ -149,6 +177,29 @@ public class SiteNode extends DefaultMutableTreeNode {
         this.historyReference = historyReference;
         this.historyReference.setSiteNode(this);
     }    
+    
+    private void nodeChanged() {
+    	if (this.siteMap == null) {
+    		return;
+    	}
+        if (EventQueue.isDispatchThread()) {
+        	nodeChangedEventHandler();
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                    	nodeChangedEventHandler();
+                    }
+                });
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private void nodeChangedEventHandler() {
+		this.siteMap.nodeChanged(this);
+    }
     
     public Vector<HistoryReference> getPastHistoryReference() {
         return pastHistoryList;
@@ -173,6 +224,7 @@ public class SiteNode extends DefaultMutableTreeNode {
  			   (! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
  			((SiteNode)this.getParent()).addAlert(alert);
     	}
+		this.nodeChanged();
     }
     
     public void updateAlert(Alert alert) {
@@ -229,5 +281,37 @@ public class SiteNode extends DefaultMutableTreeNode {
 	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
 	 	}
+		this.nodeChanged();
 	}
+	
+	public boolean hasHistoryType (int type) {
+		if (this.historyReference == null) {
+			return false;
+		}
+		if (this.historyReference.getHistoryType() == type) {
+			return true;
+		}
+		for (HistoryReference href : this.pastHistoryList) {
+			if (href.getHistoryType() == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasJustHistoryType (int type) {
+		if (this.historyReference == null) {
+			return false;
+		}
+		if (this.historyReference.getHistoryType() != type) {
+			return false;
+		}
+		for (HistoryReference href : this.pastHistoryList) {
+			if (href.getHistoryType() != type) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }

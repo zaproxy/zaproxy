@@ -1,7 +1,5 @@
 package org.zaproxy.zap.extension.pscan;
 
-import javax.swing.tree.TreeNode;
-
 import net.htmlparser.jericho.MasonTagTypes;
 import net.htmlparser.jericho.MicrosoftTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
@@ -17,9 +15,7 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
@@ -135,8 +131,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 			if (href != null) {
 				href.addAlert(alert);
 				extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
-	            // The node node may have a new alert flag...
-	        	this.nodeChanged(href.getSiteNode());
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -149,15 +143,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 	}
 	
-    private void nodeChanged(TreeNode node) {
-    	if (node == null) {
-    		return;
-    	}
-    	SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
-    	siteTree.nodeChanged(node);
-    	nodeChanged(node.getParent());
-    }
-
 	public void addTag(int id, String tag) {
 		if (extHist == null) {
 			init();
@@ -204,5 +189,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	public void shutdown() {
 		this.shutDown = true;
+	}
+	//@Override - related change not committed yet!
+	public void sessionAboutToChange(Session session) {
 	}
 }

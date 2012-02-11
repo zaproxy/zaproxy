@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/09/19 Handle multipart node name
 // ZAP: 2011/12/04 Support deleting alerts
+// ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 
 package org.parosproxy.paros.model;
 
@@ -54,7 +55,7 @@ public class SiteMap extends DefaultTreeModel {
     private static Logger log = Logger.getLogger(SiteMap.class);
     
     public static SiteMap createTree(Model model) {
-        SiteNode root = new SiteNode(Constant.messages.getString("tab.sites"));
+        SiteNode root = new SiteNode(null, -1, Constant.messages.getString("tab.sites"));
         return new SiteMap(root, model);        
     }
     
@@ -280,7 +281,7 @@ public class SiteMap extends DefaultTreeModel {
      * @param msg
      * @return 
      */
-    public synchronized void addPath(HistoryReference ref, HttpMessage msg) {
+    public synchronized SiteNode addPath(HistoryReference ref, HttpMessage msg) {
         
         URI uri = msg.getRequestHeader().getURI();
         
@@ -330,13 +331,14 @@ public class SiteMap extends DefaultTreeModel {
             	// No leaf found, which means the parent was really the leaf
             	// The parent will have been added with a 'blank' href, so replace it with the real one
             	parent.setHistoryReference(ref);
+            	leaf = parent;
             }
             
         } catch (Exception e) {
             // ZAP: Added error
             log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
         }
-        
+        return leaf;
     }
     
     private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, SQLException {
@@ -344,7 +346,7 @@ public class SiteMap extends DefaultTreeModel {
     	log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);    	
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
-            SiteNode newNode = new SiteNode(nodeName);
+            SiteNode newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
                 if (nodeName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
@@ -384,7 +386,7 @@ public class SiteMap extends DefaultTreeModel {
         String leafName = getLeafName(nodeName, msg);
         SiteNode node = findChild(parent, leafName);
         if (node == null) {
-            node = new SiteNode(leafName);
+            node = new SiteNode(this, ref.getHistoryType(), leafName);
             node.setHistoryReference(ref);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
@@ -560,4 +562,5 @@ public class SiteMap extends DefaultTreeModel {
 		
         return historyRef;
     }
+    
 }
