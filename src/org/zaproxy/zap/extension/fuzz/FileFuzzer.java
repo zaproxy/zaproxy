@@ -33,12 +33,17 @@ import org.apache.log4j.Logger;
 
 public class FileFuzzer {
 
+	private File file = null;
 	private int length = -1;
 	private List<String> fuzzStrs = new ArrayList<String>();
 	private Iterator<String> iter = null;
     private static Logger log = Logger.getLogger(FileFuzzer.class);
 
 	protected FileFuzzer(File file) {
+		this.file = file;
+	}
+	
+	private void init() {
 		BufferedReader in = null;
 		
 		try {
@@ -71,15 +76,28 @@ public class FileFuzzer {
 	}
 	
 	public Iterator<String> getIterator() {
+		if (length == -1) {
+			init();
+		}
 		return iter;
 	}
 	
 	public int getLength() {
+		if (length == -1) {
+			init();
+		}
 		return length;
 	}
 	
 	public boolean hasNext() {
+		if (length == -1) {
+			init();
+		}
 		return iter.hasNext();
+	}
+	
+	public String getFileName() {
+		return this.file.getName();
 	}
 
 }

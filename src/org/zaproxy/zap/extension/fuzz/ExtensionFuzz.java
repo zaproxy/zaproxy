@@ -24,12 +24,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
+import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
+import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -44,12 +48,17 @@ import org.zaproxy.zap.extension.search.SearchResult;
 public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	public final static String NAME = "ExtensionFuzz";
+	public final static String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
+	
     private PopupFuzzMenu popupFuzzMenu = null;
     private FuzzerThread fuzzerThread = null;
     private FuzzerParam fuzzerParam = null;
     private FuzzerPanel fuzzerPanel = null;
     private OptionsFuzzerPanel optionsFuzzerPanel = null;
     private boolean fuzzing = false;
+    private Database jbroFuzzDB = new Database();
+	private List <String> fuzzerCategories = new ArrayList<String>();
+	private Map<String, DirCategory> catMap = new HashMap<String, DirCategory>();
     
 	/**
      * 
@@ -74,6 +83,10 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	private void initialize() {
         this.setName(NAME);
         this.setOrder(48);
+
+        // Initialise the file based fuzzers
+		addFileFuzzers(new File(Constant.getInstance().FUZZER_DIR), null);
+        Collections.sort(fuzzerCategories);
 	}
 	
 	public void hook(ExtensionHook extensionHook) {
@@ -155,11 +168,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 		FuzzDialog fuzzDialog;
 		
 		if (tokens == null || tokens.size() == 0) {
-			fuzzDialog = new FuzzDialog(frame, false, false);            
-			fuzzDialog.setExtension(this);
+			fuzzDialog = new FuzzDialog(this, frame, false, false);            
 		} else {
-			fuzzDialog = new FuzzDialog(frame, false, true);            
-			fuzzDialog.setExtension(this);
+			fuzzDialog = new FuzzDialog(this, frame, false, true);            
 			fuzzDialog.setAntiCsrfTokens(tokens);
 		}
 		fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
@@ -194,7 +205,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	private OptionsFuzzerPanel getOptionsFuzzerPanel() {
 		if (optionsFuzzerPanel == null) {
-			optionsFuzzerPanel = new OptionsFuzzerPanel();
+			optionsFuzzerPanel = new OptionsFuzzerPanel(this);
 		}
 		return optionsFuzzerPanel;
 	}
@@ -227,25 +238,106 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	public boolean isFuzzing() {
 		return fuzzing;
 	}
-
-	public List<String> getFileList() {
-		List <String> fileList = new ArrayList<String>();
-		File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
-		File[] customFiles = customDir.listFiles();
-		if (customFiles != null) {
-			Arrays.sort(customFiles);
-			for (File file : customFiles) {
-				if (! file.isDirectory()) {
-					fileList.add(file.getName());
+	
+	private void addFileFuzzers(File dir, String parent) {
+		boolean addedFuzzer = false;
+		File[] files = dir.listFiles();
+		DirCategory dirCat;
+		if (parent == null) {
+			dirCat = new DirCategory("");
+		} else if (parent.length() == 0) {
+			// Gets rid of the first slash :)
+			dirCat = new DirCategory(dir.getName());
+		} else {
+			dirCat = new DirCategory(parent + " / " + dir.getName());
+		}
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					if (! file.getName().toLowerCase().startsWith("docs")) {
+						// Ignore all files under 'docs.*' folders
+						addFileFuzzers(file, dirCat.getName());
+					}
+				} else if (file.getName().toLowerCase().endsWith(".txt") &&
+						! file.getName().startsWith("_") && 
+						! file.getName().toLowerCase().startsWith("readme")){
+					dirCat.addFuzzer(new FileFuzzer(file));
+					addedFuzzer = true;
 				}
 			}
 		}
-		Collections.sort(fileList);
-		return fileList;
+		if (addedFuzzer) {
+			// Dont add 'empty' categories / directories
+			this.fuzzerCategories.add(dirCat.getName());
+			this.catMap.put(dirCat.getName(), dirCat);
+		}
 	}
 
-	public FileFuzzer getFileFuzzer(String string) {
+	public FileFuzzer getCustomFileFuzzer(String string) {
 		return new FileFuzzer(new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + string));
 	}
+	
+	public List<String> getCustomFileList() {
+        List <String> fileList = new ArrayList<String>();
+        File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
+        File[] customFiles = customDir.listFiles();
+        if (customFiles != null) {
+                Arrays.sort(customFiles);
+                for (File file : customFiles) {
+                        if (! file.isDirectory()) {
+                                fileList.add(file.getName());
+                        }
+                }
+        }
+        Collections.sort(fileList);
+        return fileList;
+}
 
+	public List<String> getFileFuzzerCategories() {
+		return fuzzerCategories;
+	}
+
+	public List <String> getFileFuzzerNames(String category) {
+		List <String> fuzzers = new ArrayList<String>();
+		DirCategory dirCat = this.catMap.get(category);
+		if (dirCat != null) {
+			for (FileFuzzer ff : dirCat.getFuzzers()) {
+				fuzzers.add(ff.getFileName());
+			}
+		}
+		return fuzzers;
+	}
+
+	public FileFuzzer getFileFuzzer(String category, String name) {
+		DirCategory dirCat = this.catMap.get(category);
+		if (dirCat != null) {
+			return dirCat.getFileFuzzer(name);
+		}
+		return null;
+	}
+
+	public List<String> getJBroFuzzCategories() {
+		List <String> categories = new ArrayList<String>();
+		String[] allCats = jbroFuzzDB.getAllCategories();
+		Arrays.sort(allCats);
+		for (String category : allCats) {
+			categories.add(JBROFUZZ_CATEGORY_PREFIX + category);
+		}
+		return categories;
+	}
+
+	public List <String> getJBroFuzzFuzzerNames(String category) {
+		List <String> fuzzerNames = new ArrayList<String>();
+		String jbfCategory = category.substring(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX.length());
+		String [] fuzzers = jbroFuzzDB.getPrototypeNamesInCategory(jbfCategory);
+		Arrays.sort(fuzzers);
+		for (String fuzzer : fuzzers) {
+			fuzzerNames.add(fuzzer);
+		}
+		return fuzzerNames;
+	}
+
+	public Fuzzer getJBroFuzzer(String name) throws NoSuchFuzzerException {
+		return jbroFuzzDB.createFuzzer(jbroFuzzDB.getIdFromName(name), 1);
+	}
 }

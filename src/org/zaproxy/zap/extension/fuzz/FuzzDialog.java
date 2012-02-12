@@ -26,7 +26,6 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -42,7 +41,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
@@ -78,7 +76,7 @@ public class FuzzDialog extends AbstractDialog {
 	private boolean incAcsrfToken = false;
 	private FuzzerDialogTokenPane tokenPane = new FuzzerDialogTokenPane();
 	
-	private Database fuzzDB = new Database();
+	//private Database jbroFuzzDB = new Database();
 
     private static Logger log = Logger.getLogger(FuzzDialog.class);
 
@@ -95,8 +93,9 @@ public class FuzzDialog extends AbstractDialog {
      * @param arg1
      * @throws HeadlessException
      */
-    public FuzzDialog(Frame arg0, boolean modal, boolean incAcsrfToken) throws HeadlessException {
+    public FuzzDialog(ExtensionFuzz extension, Frame arg0, boolean modal, boolean incAcsrfToken) throws HeadlessException {
         super(arg0, modal);
+        this.extension = extension;
         this.incAcsrfToken = incAcsrfToken;
  		initialize();
     }
@@ -224,23 +223,28 @@ public class FuzzDialog extends AbstractDialog {
 			        if (names != null && names.length > 0) {
 				        try {
 				        	Fuzzer [] fuzzers = null;;
-				        	FileFuzzer [] customFuzzers = null;
+				        	FileFuzzer [] fileFuzzers = null;
 				    		if (isCustomCategory()) {
-				    			customFuzzers = new FileFuzzer[names.length];
+				    			fileFuzzers = new FileFuzzer[names.length];
 					        	for (int i=0; i < names.length; i++) {
-					        		customFuzzers[i] = extension.getFileFuzzer(names[i].toString());
+					        		fileFuzzers[i] = extension.getCustomFileFuzzer(names[i].toString());
 					        	}
-				    		} else {
+				    		} else if (isJBroFuzzCategory()) {
 					        	fuzzers = new Fuzzer[names.length];
 					        	for (int i=0; i < names.length; i++) {
-							        fuzzers[i] = fuzzDB.createFuzzer(fuzzDB.getIdFromName(names[i].toString()), 1);
+							        fuzzers[i] = extension.getJBroFuzzer(names[i].toString());
+					        	}
+				    		} else {
+				    			fileFuzzers = new FileFuzzer[names.length];
+					        	for (int i=0; i < names.length; i++) {
+					        		fileFuzzers[i] = extension.getFileFuzzer((String)getCategoryField().getSelectedItem(), names[i].toString());
 					        	}
 				    		}
 				        	AntiCsrfToken token = null;
 				        	if (getEnableTokens().isSelected() && tokenPane.isEnable()) {
 				        		token = tokenPane.getToken();
 				        	}
-			        		extension.startFuzzers(httpMessage, fuzzers, customFuzzers, fuzzHeader, 
+			        		extension.startFuzzers(httpMessage, fuzzers, fileFuzzers, fuzzHeader, 
 			        				selectionStart, selectionEnd, token, 
 			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected(), getUrlEncode().isSelected());
 							
@@ -275,21 +279,28 @@ public class FuzzDialog extends AbstractDialog {
 		return Constant.messages.getString("fuzz.category.custom").equals(getCategoryField().getSelectedItem());
 	}
 	
+	private boolean isJBroFuzzCategory() {
+		return ((String)getCategoryField().getSelectedItem()).startsWith(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX);
+	}
+	
 	private JComboBox getCategoryField() {
 		if (categoryField == null) {
 			categoryField = new JComboBox();
-			
-			String[] allCats = fuzzDB.getAllCategories();
-			
-			Arrays.sort(allCats);
-			
-			for (String category : allCats) {
+
+			// Add File based fuzzers (fuzzdb)
+			for (String category : extension.getFileFuzzerCategories()) {
 				categoryField.addItem(category);
 			}
+			
+			// Add jbrofuzz fuzzers
+			for (String category : extension.getJBroFuzzCategories()) {
+				categoryField.addItem(category);
+			}
+
+			// Custom category
 			categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
 			
 			categoryField.addActionListener(new ActionListener() {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					setFuzzerNames();
@@ -307,18 +318,20 @@ public class FuzzDialog extends AbstractDialog {
 		}
 		
 		if (isCustomCategory()) {
-			List<String> fuzzers = extension.getFileList();
+			List<String> fuzzers = extension.getCustomFileList();
 			for (String fuzzer : fuzzers) {
 				fuzzerModel.addElement(fuzzer);
 			}
+		} else if (isJBroFuzzCategory()) {
+			for (String fuzzer : extension.getJBroFuzzFuzzerNames(category)) {
+				fuzzerModel.addElement(fuzzer);
+			}
 		} else {
-			String [] fuzzers = fuzzDB.getPrototypeNamesInCategory(category);
-			Arrays.sort(fuzzers);
+			List<String> fuzzers = extension.getFileFuzzerNames(category);
 			for (String fuzzer : fuzzers) {
 				fuzzerModel.addElement(fuzzer);
 			}
 		}
-
 	}
 	
 	private JLabel getSelectionField() {

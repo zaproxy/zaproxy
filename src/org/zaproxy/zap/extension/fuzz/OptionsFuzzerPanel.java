@@ -25,7 +25,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.filechooser.FileFilter;
 
-import org.owasp.jbrofuzz.core.Database;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.OptionsParam;
@@ -45,18 +43,17 @@ import org.parosproxy.paros.view.View;
 public class OptionsFuzzerPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
+	private ExtensionFuzz extension = null;
 	private JPanel panelPortScan = null;
 	private JSlider sliderThreadsPerScan = null;
 	private JComboBox categoryField = null;
 	private JButton addFileButton = null;
 
-	private Database fuzzDB = new Database();
-
-    public OptionsFuzzerPanel() {
+    public OptionsFuzzerPanel(ExtensionFuzz extension) {
         super();
+		this.extension = extension;
  		initialize();
     }
-    
 
 	/**
 	 * This method initializes this
@@ -183,13 +180,14 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 		if (categoryField == null) {
 			categoryField = new JComboBox();
 			
-			String[] allCats = fuzzDB.getAllCategories();
-			
-			Arrays.sort(allCats);
-			
-			for (String category : allCats) {
+			for (String category : extension.getFileFuzzerCategories()) {
 				categoryField.addItem(category);
 			}
+			
+			for (String category : extension.getJBroFuzzCategories()) {
+				categoryField.addItem(category);
+			}
+			
 			categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
 		}
 		return categoryField;
@@ -198,10 +196,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    FuzzerParam param = (FuzzerParam) options.getParamSet(FuzzerParam.class);
-	    if (param == null) {
-	    	// TODO what?
-		    //getSliderThreadsPerScan().setValue(FuzzerParam.DEFAULT_THREAD_PER_SCAN);
-	    } else {
+	    if (param != null) {
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
 		    this.getDefaultCategory().setSelectedItem(param.getDefaultCategory());
 	    }
@@ -272,8 +267,8 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 				    	FileCopier copier = new FileCopier();
 				    	File newFile = new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + 
 				    							fcCommand.getSelectedFile().getName());
-				    	// TODO
-				    	if (newFile.exists() /*|| extension.getFileList().contains(newFile.getName())*/) {
+
+				    	if (newFile.exists()) {
 							View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.duplicate.error"));
 				    		
 				    	} else if ( ! newFile.getParentFile().canWrite()) {
@@ -295,8 +290,6 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 		}
 		return addFileButton;
 	}
-
-	
 
 	@Override
 	public String getHelpIndex() {
