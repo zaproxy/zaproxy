@@ -139,7 +139,8 @@ public final class Constant {
     public String DIRBUSTER_DIR = "dirbuster";
     public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
-    public String FUZZER_CUSTOM_DIR = "fuzzers";
+    public String FUZZER_DIR = "fuzzers";
+    public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
 
 	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
 	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
