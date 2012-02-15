@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.Component;
 
+import javax.swing.ImageIcon;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;

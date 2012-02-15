@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -76,6 +77,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	//private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
+	private JButton optionsButton = null;
 	private JList fuzzResultList = null;
 	private JProgressBar progressBar = null;
 
@@ -174,6 +176,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			//Dummy
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsy = new GridBagConstraints();
 
 			gridBagConstraints5.gridx = 4;
 			gridBagConstraints5.gridy = 0;
@@ -202,19 +205,22 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			gridBagConstraints9.gridy = 0;
 			gridBagConstraints9.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints9.anchor = java.awt.GridBagConstraints.EAST;
-			
 
 			gridBagConstraints10.gridx = 9;
 			gridBagConstraints10.gridy = 0;
 			gridBagConstraints10.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints10.anchor = java.awt.GridBagConstraints.EAST;
-			
 
-			gridBagConstraintsx.gridx = 10;
+			gridBagConstraintsx.gridx = 20;
 			gridBagConstraintsx.gridy = 0;
+			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.WEST;
-			
+
+			gridBagConstraintsy.gridx = 21;
+			gridBagConstraintsy.gridy = 0;
+			gridBagConstraintsy.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraintsy.anchor = java.awt.GridBagConstraints.WEST;
 
 			JLabel t1 = new JLabel();
 
@@ -224,6 +230,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			panelToolbar.add(getProgressBar(), gridBagConstraints8);
 
 			panelToolbar.add(t1, gridBagConstraintsx);
+			panelToolbar.add(getOptionsButton(), gridBagConstraintsy);
 		}
 		return panelToolbar;
 	}
@@ -289,6 +296,21 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		return pauseScanButton;
 	}
 
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.options"));
+			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl().options(
+							Constant.messages.getString("fuzz.options.title"));
+				}
+			});
+		}
+		return optionsButton;
+	}
 
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {

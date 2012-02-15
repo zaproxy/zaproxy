@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -53,6 +53,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -101,6 +102,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
+	private JButton optionsButton = null;
 	//private JButton launchButton = null;
 	private JList bruteForceList = null;
 	private JProgressBar progressBar = null;
@@ -211,6 +213,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			//Dummy
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsy = new GridBagConstraints();
 
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
@@ -259,23 +262,24 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			gridBagConstraints9.gridy = 0;
 			gridBagConstraints9.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints9.anchor = java.awt.GridBagConstraints.EAST;
-			
 
 			gridBagConstraints10.gridx = 9;
 			gridBagConstraints10.gridy = 0;
 			gridBagConstraints10.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints10.anchor = java.awt.GridBagConstraints.EAST;
-			
 
-			gridBagConstraintsx.gridx = 10;
+			gridBagConstraintsx.gridx = 20;
 			gridBagConstraintsx.gridy = 0;
-			//gridBagConstraintsx.weightx = 1.0;
+			gridBagConstraintsx.weightx = 1.0;
 			//gridBagConstraintsx.weighty = 1.0;
 			gridBagConstraintsx.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.WEST;
 			
+			gridBagConstraintsy.gridx = 21;
+			gridBagConstraintsy.gridy = 0;
+			gridBagConstraintsy.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraintsy.anchor = java.awt.GridBagConstraints.WEST;
 
-			JLabel t1 = new JLabel();
 
 			panelToolbar.add(new JLabel(Constant.messages.getString("bruteforce.toolbar.site.label")), gridBagConstraints1);
 			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
@@ -289,8 +293,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints9);
 			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints10);
 
-			panelToolbar.add(t1, gridBagConstraintsx);
+			panelToolbar.add(new JLabel(), gridBagConstraintsx);	// Filler
 			//panelToolbar.add(getLaunchButton(), gridBagConstraintsx);
+			panelToolbar.add(getOptionsButton(), gridBagConstraintsy);
 		}
 		return panelToolbar;
 	}
@@ -386,6 +391,22 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			});
 		}
 		return pauseScanButton;
+	}
+
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.options"));
+			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl().options(
+							Constant.messages.getString("bruteforce.options.title"));
+				}
+			});
+		}
+		return optionsButton;
 	}
 
 	// Not working yet:)

@@ -164,33 +164,34 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			menuItemPolicy = new JMenuItem();
 			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
 			menuItemPolicy.addActionListener(new java.awt.event.ActionListener() { 
-
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-					PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
-				    dialog.initParam(getModel().getOptionsParam());
-				    for (AbstractParamPanel panel : policyPanels) {
-				    	dialog.addPolicyPanel(panel);
-				    }
-				    // TODO This could be done in a cleaner way...
-					ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-					dialog.addPolicyPanel(pscan.getPolicyPanel());
-
-					int result = dialog.showDialog(false);
-					if (result == JOptionPane.OK_OPTION) {
-					    try {
-			                getModel().getOptionsParam().getConfig().save();
-			            } catch (ConfigurationException ce) {
-			            	logger.error(ce.getMessage(), ce);
-			                getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));	// ZAP: i18n
-			                return;
-			            }
-					}					
+					showPolicyDialog();
 				}
 			});
 
 		}
 		return menuItemPolicy;
+	}
+	
+	protected void showPolicyDialog() {
+		PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
+	    dialog.initParam(getModel().getOptionsParam());
+	    for (AbstractParamPanel panel : policyPanels) {
+	    	dialog.addPolicyPanel(panel);
+	    }
+	    // TODO This could be done in a cleaner way...
+		ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+		dialog.addPolicyPanel(pscan.getPolicyPanel());
+
+		int result = dialog.showDialog(false);
+		if (result == JOptionPane.OK_OPTION) {
+		    try {
+                getModel().getOptionsParam().getConfig().save();
+            } catch (ConfigurationException ce) {
+            	logger.error(ce.getMessage(), ce);
+                getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));
+            }
+		}					
 	}
 
     /* (non-Javadoc)
@@ -404,5 +405,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		deps.add(ExtensionAlert.class);
 		
 		return deps;
+	}
+
+	// Override disabled as this change hasnt been checked in yet
+	// @Override
+	public void sessionAboutToChange(Session session) {
 	}
 }

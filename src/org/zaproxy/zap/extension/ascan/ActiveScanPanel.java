@@ -19,13 +19,25 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.*;
+
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -57,6 +69,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
 
+	private JButton optionsButton = null;
+
     private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
 
     /**
@@ -67,6 +81,30 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     	// 'fire' icon
         super("ascan", new ImageIcon(extension.getClass().getResource("/resource/icon/16/093.png")), extension, null);
     }
+
+	@Override
+	protected int addToolBarElements(JToolBar panelToolbar, Location loc, int x) {
+		// Override to add elements into the toolbar
+		if (Location.beforeButtons.equals(loc)) {
+			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
+		}
+		return x;
+	}
+	
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
+			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/equalizer.png")));
+			optionsButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					((ExtensionActiveScan)getExtension()).showPolicyDialog();
+				}
+			});
+		}
+		return optionsButton;
+	}
 
 
 	@Override

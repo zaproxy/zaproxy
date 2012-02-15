@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Component;
 
+import javax.swing.ImageIcon;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
@@ -70,7 +71,8 @@ public class PopupMenuActiveScanNode extends ExtensionPopupMenuItem {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("ascan.node.popup"));
-        
+        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/093.png")));
+
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {    

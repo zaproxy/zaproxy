@@ -21,6 +21,8 @@
 package org.zaproxy.zap.view;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -43,6 +45,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
 	private JButton btnSession = null;
+	private JButton btnOptions = null;
 
 	private JButton btnExpandSites = null;
 	private JButton btnExpandReports = null;
@@ -84,6 +87,7 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnOpen());
 		toolbar.add(getBtnSave());
 		toolbar.add(getBtnSession());
+		toolbar.add(getBtnOptions());
 		
 		toolbar.addSeparator();
 
@@ -202,6 +206,21 @@ public class MainToolbarPanel extends JPanel {
 			});
 		}
 		return btnSession;
+	}
+
+	private JButton getBtnOptions() {
+		if (btnOptions == null) {
+			btnOptions = new JButton();
+			btnOptions.setToolTipText(Constant.messages.getString("menu.tools.options"));
+			btnOptions.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			btnOptions.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl().options();
+				}
+			});
+		}
+		return btnOptions;
 	}
 
 	private JButton getBtnExpandSites() {

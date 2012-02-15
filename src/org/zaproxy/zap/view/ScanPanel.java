@@ -19,16 +19,36 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.*;
-import javax.swing.*;
+import java.util.Set;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.model.Model;
@@ -41,6 +61,7 @@ import org.zaproxy.zap.utils.SortedComboBoxModel;
 public abstract class ScanPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 
+	protected enum Location {start, beforeSites, beforeButtons, beforeProgressBar, afterProgressBar};
 	public String prefix;
 	
 	private ExtensionAdaptor extension = null;
@@ -58,6 +79,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
+	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
 	private Map <String, GenericScanner> scanMap = new HashMap <String, GenericScanner>();
 	private AbstractParam scanParam = null;
@@ -139,7 +161,22 @@ public abstract class ScanPanel extends AbstractPanel {
 		return panelCommand;
 	}
 	
-	/**/
+	protected GridBagConstraints getGBC(int gridx, int gridy) {
+		return this.getGBC(gridx, gridy, 0.0, new Insets(0,0,0,0));
+	}
+
+	private GridBagConstraints getGBC(int gridx, int gridy, Double weightx, Insets insets) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = gridx;
+		gbc.gridy = gridy;
+		gbc.weightx = weightx;
+		if (weightx > 0.0) {
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		}
+		gbc.insets = insets;
+		gbc.anchor = java.awt.GridBagConstraints.WEST;
+		return gbc;
+	}
 
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
@@ -153,85 +190,37 @@ public abstract class ScanPanel extends AbstractPanel {
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName(prefix + ".toolbar");
 			
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
+			int x = 0;
 
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+			x = this.addToolBarElements(panelToolbar, Location.start, x);
 			
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.gridy = 0;
-			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints3.gridx = 2;
-			gridBagConstraints3.gridy = 0;
-			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints4.gridx = 3;
-			gridBagConstraints4.gridy = 0;
-			gridBagConstraints4.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints5.gridx = 4;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints6.gridx = 5;
-			gridBagConstraints6.gridy = 0;
-			gridBagConstraints6.weightx = 1.0;
-			gridBagConstraints6.weighty = 1.0;
-			gridBagConstraints6.insets = new java.awt.Insets(0,5,0,5);	// Slight indent
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-			gridBagConstraints7.gridx = 6;
-			gridBagConstraints7.gridy = 0;
-			gridBagConstraints7.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints8.gridx = 7;
-			gridBagConstraints8.gridy = 0;
-			gridBagConstraints8.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints8.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraintsx.gridx = 8;
-			gridBagConstraintsx.gridy = 0;
-			gridBagConstraintsx.weightx = 1.0;
-			gridBagConstraintsx.weighty = 1.0;
-			gridBagConstraintsx.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraintsx.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			panelToolbar.add(new JLabel(Constant.messages.getString(prefix + ".toolbar.site.label")), getGBC(x++,0));
+			panelToolbar.add(getSiteSelect(), getGBC(x++,0));
 			
+			x = this.addToolBarElements(panelToolbar, Location.beforeButtons, x);
 
-			JLabel t1 = new JLabel();
-
-			panelToolbar.add(new JLabel(Constant.messages.getString(prefix + ".toolbar.site.label")), gridBagConstraints1);
-			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
+			panelToolbar.add(getStartScanButton(), getGBC(x++,0));
+			panelToolbar.add(getPauseScanButton(), getGBC(x++,0));
+			panelToolbar.add(getStopScanButton(), getGBC(x++,0));
 			
-			panelToolbar.add(getStartScanButton(), gridBagConstraints3);
-			panelToolbar.add(getPauseScanButton(), gridBagConstraints4);
-			panelToolbar.add(getStopScanButton(), gridBagConstraints5);
-			panelToolbar.add(getProgressBar(), gridBagConstraints6);
-			panelToolbar.add(getActiveScansNameLabel(), gridBagConstraints7);
-			panelToolbar.add(getActiveScansValueLabel(), gridBagConstraints8);
+			x = this.addToolBarElements(panelToolbar, Location.beforeProgressBar, x);
 			
-			// TODO allow implementing classes to add extra elements
+			panelToolbar.add(getProgressBar(), getGBC(x++,0, 1.0, new Insets(0,5,0,5)));
 			
-			panelToolbar.add(t1, gridBagConstraintsx);
+			panelToolbar.add(getActiveScansNameLabel(), getGBC(x++,0));
+			panelToolbar.add(getActiveScansValueLabel(), getGBC(x++,0));
+			
+			x = this.addToolBarElements(panelToolbar, Location.afterProgressBar, x);
+			
+			panelToolbar.add(new JLabel(), getGBC(x++,0, 1.0, new Insets(0,0,0,0)));	// Spacer
+			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
 		}
 		return panelToolbar;
+	}
+
+	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int x) {
+		// Override to add elements into the toolbar
+		return x;
 	}
 
 	private JLabel getActiveScansNameLabel() {
@@ -342,6 +331,22 @@ public abstract class ScanPanel extends AbstractPanel {
 			});
 		}
 		return pauseScanButton;
+	}
+
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.options"));
+			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl().options(
+							Constant.messages.getString(prefix + ".options.title"));
+				}
+			});
+		}
+		return optionsButton;
 	}
 
 	protected JComboBox getSiteSelect() {

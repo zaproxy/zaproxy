@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.awt.Component;
 
+import javax.swing.ImageIcon;
 import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
@@ -75,7 +76,8 @@ public class PopupMenuBruteForceSite extends ExtensionPopupMenuItem {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("bruteforce.site.popup"));
-        
+        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));
+
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
