@@ -53,9 +53,17 @@ public class SessionParam extends AbstractParam {
     	}
     	if (this.tokens.size() == 0) {
     		// These are the default ones
+    		this.tokens.add("asp.net_sessionid");
     		this.tokens.add("aspsessionid");
+    		this.tokens.add("siteserver");
+    		this.tokens.add("cfid");
+    		this.tokens.add("cftoken");
     		this.tokens.add("jsessionid");
     		this.tokens.add("phpsessid");
+    		this.tokens.add("sessid");
+    		this.tokens.add("sid");
+    		this.tokens.add("viewstate");
+    		this.tokens.add("zenid");
     	}
     }
 
