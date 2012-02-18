@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/08/30 Support for scanner levels
+// ZAP: 2012/02/18 Dont log errors for temporary hrefs
 
 package org.parosproxy.paros.core.scanner;
 
@@ -168,7 +169,7 @@ public class HostProcess implements Runnable {
             msg = node.getHistoryReference().getHttpMessage();
             
             if (msg == null) {
-            	// TODO for some reason this happens for intermediate nodes after a session has been saved
+            	// Likely to be a temporary node
             	return;
             }
             if (parentScanner.excludeUrl(msg.getRequestHeader().getURI())) {
@@ -183,7 +184,11 @@ public class HostProcess implements Runnable {
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 
         } catch (Exception e ) {
-            log.error(e.getMessage(), e);
+        	if (node != null) {
+        		log.error(e.getMessage() + " " + node.getNodeName(), e);
+        	} else {
+        		log.error(e.getMessage(), e);
+        	}
             return;
         }
         
