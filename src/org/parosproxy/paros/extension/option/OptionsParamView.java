@@ -107,7 +107,7 @@ public class OptionsParamView extends AbstractParam {
 	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
-	    reveal = getConfig().getBoolean(REVEAL_OPTION, true);
+	    reveal = getConfig().getBoolean(REVEAL_OPTION, false);
 	    
 	    defaultReqViewManual = getConfig().getString(DEFAULT_VIEW_REQ_MANUAL, "");
 	    defaultReqViewProxy = getConfig().getString(DEFAULT_VIEW_REQ_PROXY, "");
