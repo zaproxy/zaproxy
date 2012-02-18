@@ -117,7 +117,7 @@ public abstract class PopupMenuHttpMessage extends ExtensionPopupMenuItem {
 	        		
 	        		if (msg != null) {
 	            	    try {
-	            	    	performAction(msg.cloneRequest());
+	            	    	performAction(msg.cloneAll());
 	                    } catch (Exception e1) {
 	    					log.error(e1.getMessage(), e1);
 	                    }
