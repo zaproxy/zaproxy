@@ -28,8 +28,8 @@ import java.util.Locale;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -45,7 +45,6 @@ import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.dynssl.DynSSLParam;
 import org.zaproxy.zap.extension.dynssl.DynamicSSLWelcomeDialog;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
-import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
@@ -212,7 +211,9 @@ public class ZAP {
 		    
 
 		    if (firstTime) {
-		    	ExtensionHelp.showHelp();
+		    	// Disabled for now - we have too many popups occuring when you first start up
+		    	// be nice to have a clean start up wizard...
+		    	// ExtensionHelp.showHelp();
 		    } else {
 		    	// Dont auto check for updates the first time, no chance of any proxy having been set
 			    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate)
