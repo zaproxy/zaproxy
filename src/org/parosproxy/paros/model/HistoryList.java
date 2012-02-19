@@ -69,4 +69,10 @@ public class HistoryList extends DefaultListModel {
     	return null;
     }
     
+    @Override
+    public void clear() {
+    	super.clear();
+    	historyIdToIndex.clear();
+    }
+    
 }
