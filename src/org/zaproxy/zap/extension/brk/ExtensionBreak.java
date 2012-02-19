@@ -286,4 +286,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		removeBreakPointAtRow(getSelectedBreakPointRow());
 	}
 
-  }
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
+}

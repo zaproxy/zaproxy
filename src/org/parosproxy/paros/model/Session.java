@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.model;
 
@@ -74,7 +75,7 @@ public class Session extends FileXML {
 	 * Constructor for the current session.  The current system time will be used as the session ID.
 	 * @param sessionId
 	 */
-	public Session(Model model) {
+	protected Session(Model model) {
 		super(ROOT);
 
 		/*try {
@@ -97,7 +98,7 @@ public class Session extends FileXML {
 		
 	}
 	
-	public void discard() {
+	protected void discard() {
 	    try {
 	        model.getDb().getTableHistory().deleteHistorySession(getSessionId());
         } catch (SQLException e) {
@@ -143,7 +144,7 @@ public class Session extends FileXML {
     }
 
     
-    public void open(final File file, final SessionListener callback) {
+    protected void open(final File file, final SessionListener callback) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 Exception thrownException = null;
@@ -161,7 +162,7 @@ public class Session extends FileXML {
         t.start();
     }
 
-	public void open(String fileName) throws SQLException, SAXException, IOException, Exception {
+	protected void open(String fileName) throws SQLException, SAXException, IOException, Exception {
 
 		readAndParseFile(fileName);
 		model.getDb().close(false);
@@ -268,7 +269,7 @@ public class Session extends FileXML {
 	 * @param fileName
 	 * @param callback
 	 */
-    public void save(final String fileName, final SessionListener callback) {
+    protected void save(final String fileName, final SessionListener callback) {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 Exception thrownException = null;
@@ -293,7 +294,7 @@ public class Session extends FileXML {
      * @param fileName
      * @throws Exception
      */
-	public void save(String fileName) throws Exception {
+	protected void save(String fileName) throws Exception {
 	    saveFile(fileName);
 		if (isNewState()) {
 		    model.moveSessionDb(fileName);

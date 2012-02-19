@@ -19,13 +19,16 @@
  */
 package org.zaproxy.zap.extension.params;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpMessage;
 
 public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	private long id = -1;
@@ -35,6 +38,7 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	private int timesUsed = 0;
 	private Set<String> flags = new HashSet<String>();
 	private Set<String> values = new HashSet<String>();
+	private List<HttpMessage> msgs = new ArrayList<HttpMessage>();
 	
 	public HtmlParameterStats(String site, String name, HtmlParameter.Type type, String value, Set<String> flags) {
 		this.site = site;
@@ -149,18 +153,7 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	}
 
 	public JSONObject toJSON() {
-		// TODO Auto-generated method stub
 		JSONObject ja = new JSONObject();
-
-		/*
-		private long id = -1;
-		private String site;
-		private String name;
-		private HtmlParameter.Type type;
-		private int timesUsed = 0;
-		private Set<String> flags = new HashSet<String>();
-		private Set<String> values = new HashSet<String>();
-		*/
 		
 		ja.put("site", this.site);
 		ja.put("name", this.name);
@@ -180,6 +173,16 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 		ja.put("values", valueArray);
 
 		return ja;
+	}
+
+	public void addHttpMessage(HttpMessage msg) {
+		if (msgs.size() < 5) {
+			msgs.add(msg);
+		}
+	}
+	
+	public List<HttpMessage> getHttpMessages() {
+		return this.msgs;
 	}
 
 }

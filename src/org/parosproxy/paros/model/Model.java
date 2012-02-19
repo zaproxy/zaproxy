@@ -18,11 +18,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/02/18 Rationalised session handling
+
 package org.parosproxy.paros.model;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -50,6 +55,7 @@ public class Model {
 	private String currentDBNameUntitled = "";
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(Model.class);
+	private List <SessionListener> sessionListeners = new ArrayList<SessionListener>();
 	
 	public Model() {
 	    // make sure the variable here will not refer back to model itself.
@@ -59,8 +65,6 @@ public class Model {
 	    optionsParam = new OptionsParam();
 
 	}
-	
-
     
 	/**
 	 * @return Returns the optionsParam.
@@ -87,13 +91,52 @@ public class Model {
 	    }
 		return session;
 	}
+
 	/**
-	 * @param session The session to set.
+	 * This method should typically only be called from the Control class
+	 * @return Returns the session.
 	 */
-	public void setSession(Session paramSession) {
-		session = paramSession;
+	public Session newSession() {
+	    session = new Session(this);
+		return session;
+	}
+
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+	public void openSession(String fileName) throws SQLException, SAXException, IOException, Exception {
+		getSession().open(fileName);
 	}
 	
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+    public void openSession(final File file, final SessionListener callback) {
+    	getSession().open(file, callback);
+    }
+
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+    public void saveSession(final String fileName, final SessionListener callback) {
+    	getSession().save(fileName, callback);
+    }
+    
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+    public void saveSession(String fileName) throws Exception {
+    	getSession().save(fileName);
+    }
+    
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+	public void discardSession() {
+		getSession().discard();
+	}
+
+
 	public void init() throws SAXException, IOException, Exception {
 	    db = Database.getSingleton();
 	    
@@ -158,7 +201,7 @@ public class Model {
         
     }
     
-    public void copySessionDb(String currentFile, String destFile) throws Exception {
+    protected void copySessionDb(String currentFile, String destFile) throws Exception {
         
         getDb().close(false);
         
@@ -187,7 +230,9 @@ public class Model {
         
     }
 
-    
+	/**
+	 * This method should typically only be called from the Control class
+	 */
     public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
 
         getDb().close(false);
@@ -251,4 +296,8 @@ public class Model {
 	    DBNAME_COPY++;
     }
 
+    public void addSessionListener(SessionListener listener) {
+    	this.sessionListeners.add(listener);
+    }
+    
 }

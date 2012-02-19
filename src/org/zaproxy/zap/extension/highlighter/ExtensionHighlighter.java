@@ -114,4 +114,7 @@ implements SessionChangedListener, /*ProxyListener, */ SiteMapListener {
     }
     */
 	
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

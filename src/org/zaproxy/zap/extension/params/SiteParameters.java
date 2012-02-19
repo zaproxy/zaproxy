@@ -29,6 +29,7 @@ import net.sf.json.JSONArray;
 
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 
 public class SiteParameters {
@@ -60,7 +61,7 @@ public class SiteParameters {
 		return null;
 	}
 	
-	public HtmlParameterStats addParam(String site, HtmlParameter param) {
+	public HtmlParameterStats addParam(String site, HtmlParameter param, HttpMessage msg) {
 		Map<String, HtmlParameterStats> params = null;
 		HtmlParameterStats p;
 		
@@ -87,6 +88,7 @@ public class SiteParameters {
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
 		}
+		p.addHttpMessage(msg);
 		return p;
 	}
 

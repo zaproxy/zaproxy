@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Explicitly depreciated
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.extension.spider;
 
@@ -484,4 +485,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
     	return true;
     }
 
-  }  //  @jve:decl-index=0:
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
+}  //  @jve:decl-index=0:

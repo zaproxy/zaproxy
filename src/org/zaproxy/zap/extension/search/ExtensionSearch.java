@@ -199,4 +199,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         return menuPrev;
     }
 
-  }
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
+}

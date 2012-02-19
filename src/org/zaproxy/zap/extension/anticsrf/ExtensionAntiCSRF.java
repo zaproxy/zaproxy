@@ -159,6 +159,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	@Override
 	public void sessionChanged(Session session) {
+		if (session == null) {
+			// Closedown
+			return;
+		}
+
 		valueToToken = new HashMap<String, AntiCsrfToken>();
 		urlToToken = new HashMap<String, AntiCsrfToken>();
 		// search for tokens...
@@ -194,4 +199,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return this.getParam().getTokens().contains(name.toLowerCase());
 	}
 	
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

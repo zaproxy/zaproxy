@@ -183,10 +183,13 @@ public class ExtensionParams extends ExtensionAdaptor
 	
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
-		// clear all scans and add new hosts
+		// Clear all scans
 		siteParamsMap = new HashMap <String, SiteParameters>();
-
 		this.getParamsPanel().reset();
+		if (session == null) {
+			// Closedown
+			return;
+		}
 		
 		// Repopulate
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
@@ -236,7 +239,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			params = msg.getCookieParams();
 			iter = params.iterator();
 			while (iter.hasNext()) {
-				persist(sps.addParam(site, iter.next()));
+				persist(sps.addParam(site, iter.next(), msg));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -246,7 +249,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		params = msg.getUrlParams();
 		iter = params.iterator();
 		while (iter.hasNext()) {
-			persist(sps.addParam(site, iter.next()));
+			persist(sps.addParam(site, iter.next(), msg));
 		}
 
 		// Form Parameters
@@ -262,7 +265,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			if (extAntiCSRF != null && extAntiCSRF.isAntiCsrfToken(param.getName())) {
 				param.addFlag(HtmlParameter.Flags.anticsrf.name());
 			}
-			persist(sps.addParam(site, param));
+			persist(sps.addParam(site, param, msg));
 		}
 		
 		return true;
@@ -317,7 +320,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		TreeSet<HtmlParameter> params = msg.getCookieParams();
 		Iterator<HtmlParameter> iter = params.iterator();
 		while (iter.hasNext()) {
-			persist(sps.addParam(site, iter.next()));
+			persist(sps.addParam(site, iter.next(), msg));
 		}
 
 		// TODO Only do if response URL different to request? 
@@ -354,7 +357,8 @@ public class ExtensionParams extends ExtensionAdaptor
 		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
 		if (item != null) {
 			ExtensionSearch extSearch = 
-				(ExtensionSearch) Control.getSingleton().getExtensionLoader().getExtension("ExtensionSearch");
+				(ExtensionSearch) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.NAME);
+
 			if (extSearch != null) {
 				if (HtmlParameter.Type.url.equals(item.getType())) {
 					extSearch.search("[?&]" + item.getName() + "=.*", ExtensionSearch.Type.URL, true, false);
@@ -365,7 +369,6 @@ public class ExtensionParams extends ExtensionAdaptor
 					extSearch.search(/*".*" + */item.getName() + "=.*", ExtensionSearch.Type.Request, true, false);
 				}
 			}
-			
 		}
 	}
 
@@ -454,4 +457,11 @@ public class ExtensionParams extends ExtensionAdaptor
 		}
 	}
 
+	public HtmlParameterStats getSelectedParam() {
+		return this.getParamsPanel().getSelectedParam();
+	}
+
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

@@ -18,12 +18,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to ExtensionPopupMenuItem
+// ZAP: 2012/02/18 Issue 274 Confirm purge/delete
+
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -65,6 +67,15 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
         	    if (invoker.getName().equals("treeSite")) {
         	        JTree tree = (JTree) invoker;
                     TreePath[] paths = tree.getSelectionPaths();
+                    
+                    if (paths.length > 0) {
+	        	        int result = View.getSingleton().showConfirmDialog(
+	        	        		Constant.messages.getString("sites.purge.warning"));
+	        	        if (result != JOptionPane.YES_OPTION) {
+	        	            return;
+	        	        }
+                    }
+                    
                     SiteMap map = (SiteMap) tree.getModel();
                     for (int i=0; i<paths.length;i++) {
                         SiteNode node = (SiteNode) paths[i].getLastPathComponent(); 

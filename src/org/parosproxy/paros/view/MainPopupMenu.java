@@ -22,6 +22,8 @@
 //      ExtensionPopupMenuItem, added the methods addMenu(ExtensionPopupMenu menu),
 //      removeMenu(ExtensionPopupMenu menu), handleMenu and handleMenuItem and
 //      changed the method show to use the methods handleMenu and handleMenuItem.
+// ZAP: 2012/02/19 Removed the Delete button
+
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -78,7 +80,7 @@ public class MainPopupMenu extends JPopupMenu {
         
 	    // added pre-set popup menu here
 //        this.add(getPopupFindMenu());
-        this.add(getPopupDeleteMenu());
+        //this.add(getPopupDeleteMenu());
         this.add(getPopupPurgeMenu());
 	}
 	

@@ -65,6 +65,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					// Either just started or there are no new records 
 					try {
 						Thread.sleep(mainSleep);
+						if (shutDown) {
+							return;
+						}
 						lastId = historyTable.lastIndex();
 					} catch (InterruptedException e) {
 						// New URL, but give it a chance to be processed first
@@ -78,6 +81,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 				try {
 					historyRecord = historyTable.read(currentId);
 				} catch (Exception e) {
+					if (shutDown) {
+						return;
+					}
 					logger.error("Failed to read record " + currentId + " from History table", e);
 				}
 
@@ -98,6 +104,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 								scanner.scanHttpResponseReceive(historyRecord.getHttpMessage(), historyRecord.getHistoryId(), src);
 							}
 						} catch (Exception e) {
+							if (shutDown) {
+								return;
+							}
 							logger.error("Scanner " + scanner.getName() + 
 									" failed on record " + currentId + " from History table", e);
 						}
@@ -105,6 +114,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					
 				}
 			} catch (Exception e) {
+				if (shutDown) {
+					return;
+				}
 				logger.error("Failed on record " + currentId + " from History table", e);
 			}
 		}
@@ -190,7 +202,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	public void shutdown() {
 		this.shutDown = true;
 	}
-	//@Override - related change not committed yet!
+	
+	@Override
 	public void sessionAboutToChange(Session session) {
 	}
 }

@@ -198,7 +198,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 
 	    	    //log.info("opening session file " + file.getAbsolutePath());
 	    	    //WaitMessageDialog waitMessageDialog = View.getSingleton().getWaitMessageDialog("Loading session file.  Please wait ...");
-	    		session.open(file, this);
+	    		cmpModel.openSession(file, this);
 
 				Database db = new Database();
 				db.open(file.getAbsolutePath());
@@ -357,5 +357,8 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public void sessionSaved(Exception e) {
 		
+	}
+	@Override
+	public void sessionAboutToChange(Session session) {
 	}
 }

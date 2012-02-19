@@ -71,4 +71,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 		//API.getInstance().setSession(session);
 	}
 
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

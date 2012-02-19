@@ -120,7 +120,7 @@ public class CoreAPI extends ApiImplementor {
 						filename);
 			}
 			try {
-				session.save(filename);
+		    	Control.getSingleton().saveSession(filename);
 			} catch (Exception e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						e.getMessage());

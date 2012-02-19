@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/02/18 Rationalised session handling
+
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.model.Session;
@@ -35,4 +37,10 @@ public interface SessionChangedListener {
      */
     public void sessionChanged(Session session);
     
+    /**
+     * sessionAboutToChange may be called by non-event thread.  Should handle with care in
+     * all the listener.  Use EventThread for each GUI event.
+     * @param session
+     */
+    public void sessionAboutToChange(Session session);
 }

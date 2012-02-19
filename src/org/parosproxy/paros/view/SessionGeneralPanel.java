@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 i19n
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.view;
 
@@ -30,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.ZapTextArea;
@@ -154,7 +156,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    session.setSessionDesc(getTxtDescription().getText());
 	    // ZAP Save session details
 	    if ( ! session.isNewState()) {
-	    	session.save(session.getFileName());
+	    	Control.getSingleton().saveSession(session.getFileName());
 	    }
 	}
 

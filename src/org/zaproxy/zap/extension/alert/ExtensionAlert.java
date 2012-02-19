@@ -431,4 +431,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         xml.append("</alerts>");
         return xml.toString();
     }
+
+    @Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

@@ -342,9 +342,6 @@ public class ParamsPanel extends AbstractPanel{
 	}
 	
 	protected HtmlParameterStats getSelectedParam() {
-		System.out.println("PP.getSelectedParam row " + this.getParamsTable().getSelectedRow());
-		System.out.println("PP.getSelectedParam val0 " + this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 0));
-		System.out.println("PP.getSelectedParam val1 " + this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 1));
 
 		// TODO type is localized :(
 		String type = (String) this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 0);

@@ -21,6 +21,7 @@
 // ZAP: 2011/08/04 Changed to support new HttpPanel interface 
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/05/31 Added option to dynamically change the display
+// ZAP: 2012/02/18 Changed default to be 'bottom full'
 
 package org.parosproxy.paros.view;
 
@@ -63,7 +64,7 @@ public class View implements ViewDelegate {
 	private OutputPanel outputPanel = null;
 	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
 	
-	private static int displayOption = DISPLAY_OPTION_LEFT_FULL;
+	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 	
 	/**
 	 * @return Returns the mainFrame.

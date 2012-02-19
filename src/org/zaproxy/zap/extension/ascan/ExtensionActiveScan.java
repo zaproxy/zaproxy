@@ -237,8 +237,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
-		// clear all scans and add new hosts
+		// Clear all scans
 		this.getActiveScanPanel().reset();
+		if (session == null) {
+			// Closedown
+			return;
+		}
+		// Add new hosts
 		SiteNode snroot = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = snroot.children();
 		while (en.hasMoreElements()) {

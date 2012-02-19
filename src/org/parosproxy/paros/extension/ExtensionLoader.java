@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/12/14 Support for extension dependencies
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.extension;
 
@@ -166,6 +167,7 @@ public class ExtensionLoader {
     }
     
     public void sessionChangedAllPlugin(Session session) {
+    	logger.debug("sessionChangedAllPlugin");
     	Iterator<ExtensionHook> iter = hookList.iterator();
     	while (iter.hasNext()) {
             ExtensionHook hook = iter.next();
@@ -185,12 +187,31 @@ public class ExtensionLoader {
         }
     }
     
+    public void sessionAboutToChangeAllPlugin(Session session) {
+    	logger.debug("sessionAboutToChangeAllPlugin");
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<SessionChangedListener> listenerList = hook.getSessionListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    SessionChangedListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        listener.sessionAboutToChange(session);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
 
     public void startAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
             getExtension(i).start();
         }
-        
     }
     
     public void startLifeCycle() {

@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -115,7 +116,7 @@ public class SessionExcludeFromSpiderPanel extends AbstractParamPanel {
 	    session.setExcludeFromSpiderRegexs(getModel().getLines());
 	    // ZAP Save session details
 	    if ( ! session.isNewState()) {
-	    	session.save(session.getFileName());
+	    	Control.getSingleton().saveSession(session.getFileName());
 	    }
 	}
 	

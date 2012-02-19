@@ -23,26 +23,27 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2011/11/20 Changed to use ExtensionFactory
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.control;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
-
-
 
 /**
  *
  * Overall control with interaction on model and view.
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class Control extends AbstractControl {
+public class Control extends AbstractControl implements SessionListener {
 
     private static Logger log = Logger.getLogger(Control.class);
 
@@ -50,6 +51,8 @@ public class Control extends AbstractControl {
     private Proxy proxy = null;
     private MenuFileControl menuFileControl = null;
     private MenuToolsControl menuToolsControl = null;
+    
+    private SessionListener lastCallback = null;
     
     private Control(Model model, View view) {
         super(model, view);
@@ -126,31 +129,103 @@ public class Control extends AbstractControl {
 
     
     public void runCommandLineNewSession(String fileName) throws Exception {
+	    log.debug("runCommandLineNewSession " + fileName);
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
-		Session session = new Session(model);
-	    log.info("new session file created");
-	    model.setSession(session);
-		control.getExtensionLoader().sessionChangedAllPlugin(session);
+    	Session session = Model.getSingleton().getSession();
+    	try {
+    		Model.getSingleton().openSession(fileName);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 
 		if (!fileName.endsWith(".session")) {
 		    fileName += ".session";
 		}
-		session.save(fileName);
+		Model.getSingleton().saveSession(fileName);
+	    log.info("New session file created");
+		control.getExtensionLoader().sessionChangedAllPlugin(session);
 		getExtensionLoader().runCommandLine();
 	}
     
     public void runCommandLineOpenSession(String fileName) {
+	    log.debug("runCommandLineOpenSession " + fileName);
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
-		Session session = new Session(model);
-	    log.info("new session file created");
-	    model.setSession(session);
+    	Session session = Model.getSingleton().getSession();
+    	try {
+    		Model.getSingleton().openSession(fileName);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	    log.info("New session file created");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
-		
     }
 
     public void setExcludeFromProxyUrls(List<String> urls) {
 		this.getProxy().setIgnoreList(urls);
     }
     
+    public void openSession(final File file, final SessionListener callback) {
+	    log.info("Open Session");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		lastCallback = callback;
+    	model.openSession(file, this);
+		// The session is opened in a thread, so notify the listeners via the callback
+    }
 
+	public Session newSession() {
+	    log.info("New Session");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		Session session = model.newSession();
+		getExtensionLoader().sessionChangedAllPlugin(session);
+
+		return session;
+	}
+	
+    public void saveSession(final String fileName) {
+    	this.saveSession(fileName, null);
+    }
+
+    public void saveSession(final String fileName, final SessionListener callback) {
+	    log.info("Save Session");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		lastCallback = callback;
+		model.saveSession(fileName, this);
+		// The session is saved in a thread, so notify the listeners via the callback
+    }
+
+	
+	public void discardSession() {
+	    log.info("Discard Session");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		model.discardSession();
+		getExtensionLoader().sessionChangedAllPlugin(null);
+	}
+
+	public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
+	    log.info("Create and Open Untitled Db");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		model.createAndOpenUntitledDb();
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+	}
+
+	@Override
+	public void sessionOpened(File file, Exception e) {
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		if (lastCallback != null) {
+			lastCallback.sessionOpened(file, e);
+			lastCallback = null;
+		}
+		
+	}
+
+	@Override
+	public void sessionSaved(Exception e) {
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		if (lastCallback != null) {
+			lastCallback.sessionSaved(e);
+			lastCallback = null;
+		}
+	}
 }

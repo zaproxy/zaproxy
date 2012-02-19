@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
-import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -54,14 +53,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	private void initialize() {
         this.setOrder(26);
         this.setName(NAME);
-
 	}
 
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
         extensionHook.addProxyListener(getPassiveScanThread());
-        extensionHook.addSessionListener(getPassiveScanThread());
+        extensionHook.addSessionListener(this);
+        //extensionHook.addSessionListener(getPassiveScanThread());
         extensionHook.getHookView().addOptionPanel(
         		getOptionsPassiveScan(getPassiveScanThread()));
 
@@ -170,7 +169,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 	@Override
 	public void sessionChanged(Session session) {
-		// Need to detect db closing
+		// Will create a new thread if one doesnt exist
+		getPassiveScanThread();
 	}
 	
 	@Override
@@ -181,4 +181,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		return deps;
 	}
 
+	@Override
+	public void sessionAboutToChange(Session session) {
+		getPassiveScanThread().shutdown();
+		this.pst = null;
+	}
 }

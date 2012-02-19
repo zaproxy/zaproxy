@@ -26,6 +26,7 @@
 // ZAP: 2011/10/23 Fix add note and manage tags dialogs
 // ZAP: 2011/11/20 Set order
 // ZAP: 2011/12/21 Added 'show in history' popup
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.extension.history;
 
@@ -38,6 +39,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -88,7 +90,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private int stateFilter = FILTER_NONE;
 
 	
-	private PopupMenuDeleteHistory popupMenuDeleteHistory = null;
+	//private PopupMenuDeleteHistory popupMenuDeleteHistory = null;
 	private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
 	//private PopupMenuResend popupMenuResend = null;
 	private ManualRequestEditorDialog resendDialog = null;
@@ -110,6 +112,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private AlertAddDialog dialogAlertAdd = null;
 	private ManageTagsDialog manageTags = null;
     private PopupMenuAlert popupMenuAlert = null;
+    
+	private Logger logger = Logger.getLogger(ExtensionHistory.class);
+
 
     /**
      * 
@@ -185,7 +190,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
 
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDeleteHistory());
+	        //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDeleteHistory());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory());
 
@@ -238,13 +243,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    getLogPanel().getListLog().setModel(getHistoryList());
 		getView().getRequestPanel().clearView(true);
 		getView().getResponsePanel().clearView(false);
+		if (session == null) {
+			// Closedown
+			return;
+		}
 
 		try {
 		    List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
 
 		    buildHistory(getHistoryList(), list);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	    
 	}
@@ -273,7 +282,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            
 	            buildHistory(getHistoryList(), list);
 	        } catch (SQLException e) {
-	        	e.printStackTrace();
+				logger.error(e.getMessage(), e);
 	        }
 	    }
 	}
@@ -287,7 +296,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            
 	            buildHistory(getHistoryList(), list, historyFilter);
 	        } catch (SQLException e) {
-	        	e.printStackTrace();
+				logger.error(e.getMessage(), e);
 	        }
 	    }
 	}
@@ -306,8 +315,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	                    historyRef.loadAlerts();
 	                    historyList.addElement(historyRef);
 	            } catch (Exception e) {
-	            	e.printStackTrace();
-	            };
+	    			logger.error(e.getMessage(), e);
+	            }
 	        }
 	    }
 
@@ -329,8 +338,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     	historyList.addElement(historyRef);
                     }
 	            } catch (Exception e) {
-	            	e.printStackTrace();
-	            };
+	    			logger.error(e.getMessage(), e);
+	            }
 	        }
 	    }
 	}
@@ -420,8 +429,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	try {
 			dialog.setAllTags(getModel().getDb().getTableTag().getAllTags());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 
 		int exit = dialog.showDialog();
@@ -484,7 +492,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 * This method initializes popupMenuDeleteHistory	
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.PopupMenuDeleteHistory	
-	 */    
+	 */
+	/*
 	private PopupMenuDeleteHistory getPopupMenuDeleteHistory() {
 		if (popupMenuDeleteHistory == null) {
 			popupMenuDeleteHistory = new PopupMenuDeleteHistory();
@@ -492,6 +501,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return popupMenuDeleteHistory;
 	}
+	*/
 	/**
 	 * This method initializes popupMenuPurgeHistory	
 	 * 	
@@ -759,8 +769,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		try {
 			manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
     	manageTags.setTags(tags);
     	manageTags.setHistoryRef(ref);
@@ -802,4 +811,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		this.getLogPanel().setTabFocus();
 	}
 	
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

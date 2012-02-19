@@ -144,9 +144,14 @@ public class ExtensionSpider extends ExtensionAdaptor
 	
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
-		// clear all scans and add new hosts
+		// clear all scans
 		this.getSpiderPanel().clear();
 		this.getSpiderPanel().reset();
+		if (session == null) {
+			// Closedown
+			return;
+		}
+		// Add new hosts
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
@@ -212,4 +217,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		return excludeList;
 	}
 
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

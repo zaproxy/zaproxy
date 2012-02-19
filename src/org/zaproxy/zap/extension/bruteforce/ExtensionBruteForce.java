@@ -142,8 +142,13 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	
 	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
-		// clear all scans and add new hosts
+		// Clear all scans
 		this.getBruteForcePanel().reset();
+		if (session == null) {
+			// Closedown
+			return;
+		}
+		// Add new hosts
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
@@ -230,4 +235,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		this.getBruteForcePanel().setDefaultFile(file);
 	}
 
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 }

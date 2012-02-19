@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Set order
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.extension.state;
 
@@ -139,5 +140,8 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
         getModel().getOptionsParam().getConnectionParam().setHttpState(new HttpState());
     }
 
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 
 }

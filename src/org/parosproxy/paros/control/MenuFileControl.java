@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Improved error logging
+// ZAP: 2012/02/18 Rationalised session handling
 
 package org.parosproxy.paros.control;
  
@@ -75,7 +76,7 @@ public class MenuFileControl implements SessionListener {
 			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
 				return;
 			}
-			model.getSession().discard();
+			control.discardSession();
 	    }
 
 	    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
@@ -89,7 +90,6 @@ public class MenuFileControl implements SessionListener {
 	    });
 	    t.start();
 	    dialog.setVisible(true);
-	    
 	}
 	
 	public void newSession(boolean isPromptNewSession) throws ClassNotFoundException, Exception {
@@ -99,16 +99,14 @@ public class MenuFileControl implements SessionListener {
 				if (view.showConfirmDialog(Constant.messages.getString("menu.file.discardSession")) != JOptionPane.OK_OPTION) {
 					return;
 				}
-				model.getSession().discard();
+				control.discardSession();
 		    } else if (view.showConfirmDialog(Constant.messages.getString("menu.file.closeSession")) != JOptionPane.OK_OPTION) {
 				return;
 			}
-			model.createAndOpenUntitledDb();
+			control.createAndOpenUntitledDb();
 		}
 		
-		Session session = new Session(model);
-	    log.info("new session file created");
-	    model.setSession(session);
+		Session session = control.newSession();
 
 		view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 
@@ -120,12 +118,9 @@ public class MenuFileControl implements SessionListener {
 //		    saveAsSession();
 //		}
 
-		control.getExtensionLoader().sessionChangedAllPlugin(session);
 		// refresh display
-		
 		view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
 		view.getOutputPanel().clear();
-		
 	}
 	
 	public void openSession() {
@@ -153,10 +148,9 @@ public class MenuFileControl implements SessionListener {
 	    			return;
 	    		}
                 model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-	    		Session session = model.getSession();
 	    	    log.info("opening session file " + file.getAbsolutePath());
 	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));	// ZAP: i18n
-	    		session.open(file, this);
+	    	    control.openSession(file, this);
 	    		waitMessageDialog.setVisible(true);
 			} catch (Exception e) {
 	            log.error(e.getMessage(), e);
@@ -173,7 +167,7 @@ public class MenuFileControl implements SessionListener {
 	    
 		try {
     	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSession"));	// ZAP: i18n   
-    		session.save(session.getFileName(), this);
+    		control.saveSession(session.getFileName(), this);
     	    log.info("saving session file " + session.getFileName());
     	    // ZAP: If the save is quick the dialog can already be null here
     	    if (waitMessageDialog != null) {
@@ -228,7 +222,7 @@ public class MenuFileControl implements SessionListener {
     		
     		try {
 	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSession"));	// ZAP: i18n
-	    	    session.save(fileName, this);
+	    	    control.saveSession(fileName, this);
         	    log.info("save as session file " + session.getFileName());
         	    waitMessageDialog.setVisible(true);
     		} catch (Exception e) {
