@@ -57,7 +57,8 @@ abstract public class HttpHeader implements java.io.Serializable{
 	public static final String COOKIE			= "Cookie";
 	public static final String SET_COOKIE		= "Set-Cookie";
 	public static final String SET_COOKIE2		= "Set-Cookie2";
-	
+	public static final String X_XSS_PROTECTION = "X-XSS-Protection";
+
 	public static final String HTTP09 	= "HTTP/0.9";
 	public static final String HTTP10 	= "HTTP/1.0";
 	public static final String HTTP11 	= "HTTP/1.1";
