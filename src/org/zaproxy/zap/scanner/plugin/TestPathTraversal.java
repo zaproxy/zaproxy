@@ -38,8 +38,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
 		"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f" + 
 				"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
 		// Windows
-		"\\Windows\\system.ini",
-		"..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\Windows\\system.ini",
+		"%5cWindows%5csystem.ini",
 		"..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5cWindows%5csystem.ini",
 		"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c" +
 				"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cWindows%5csystem.ini",
@@ -52,7 +51,6 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
 		"root:.:0:0",
 		"root:.:0:0",
 		// Windows
-		"\\[drivers\\]",
 		"\\[drivers\\]",
 		"\\[drivers\\]",
 		"\\[drivers\\]",
@@ -136,6 +134,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
 	        Matcher matcher = null;
 
 			for (int i=0; i < TARGETS.length; i++) {
+				msg = msg.cloneRequest();
 				setEscapedParameter(msg, param, TARGETS[i]);
 	            sendAndReceive(msg);
 				String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();

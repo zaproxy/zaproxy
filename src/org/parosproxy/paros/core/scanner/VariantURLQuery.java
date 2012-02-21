@@ -18,9 +18,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/02/21 Added logging
+
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -31,6 +34,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLQuery extends VariantAbstractQuery {
 
+    private static Logger log = Logger.getLogger(VariantURLQuery.class);
+
     public VariantURLQuery() {
         super();
     }
@@ -39,7 +44,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
         try {
             parse(msg.getRequestHeader().getURI().getQuery());
         } catch (URIException e) {
-            e.printStackTrace();
+        	log.error(e.getMessage(), e);
         }
     }
     
@@ -51,7 +56,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
                 msg.getRequestHeader().getURI().setQuery(query);
         	}
         } catch (URIException e) {
-            e.printStackTrace();
+        	log.error(e.getMessage() + query, e);
         }
     }
 
