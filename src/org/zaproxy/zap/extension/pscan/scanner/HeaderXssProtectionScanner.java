@@ -46,7 +46,7 @@ public class HeaderXssProtectionScanner extends PluginPassiveScanner implements 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 			Vector<String> xssHeaderProtection = msg.getResponseHeader().getHeaders(HttpHeader.X_XSS_PROTECTION);
-			if (xssHeaderProtection != null && msg.getResponseBody().length() > 0 && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode()) && msg.getResponseHeader().isText()){
+			if (msg.getRequestHeader().getSecure() && xssHeaderProtection != null && msg.getResponseBody().length() > 0 && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode()) && msg.getResponseHeader().isText()){
 			for (String xssHeaderProtectionParam : xssHeaderProtection) {
 				if (xssHeaderProtectionParam.toLowerCase().indexOf("1") < 0) {
 					this.raiseAlert(msg, id, xssHeaderProtectionParam);
@@ -61,7 +61,9 @@ public class HeaderXssProtectionScanner extends PluginPassiveScanner implements 
 		    	alert.setDetail(
 		    			"The x-xss-protection header has been disabled by the web application", 
 		    	    msg.getRequestHeader().getURI().toString(),
-		    	    xssHeaderProtection, "", 
+		    	    xssHeaderProtection,
+		    	    "", 
+		    	    "",
 		    	    "Enable the IE's XSS filter. If it must be disabled for any reasons, ensure that the application is properly protected against XSS vulnerability", 
 		            "https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet", 
 		            msg);

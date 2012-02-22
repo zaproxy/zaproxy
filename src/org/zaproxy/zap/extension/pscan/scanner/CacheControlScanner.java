@@ -28,7 +28,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-import com.sittinglittleduck.DirBuster.HTTPHeader;
+//import com.sittinglittleduck.DirBuster.HTTPHeader;
 
 public class CacheControlScanner extends PluginPassiveScanner implements PassiveScanner  {
 
@@ -51,7 +51,7 @@ public class CacheControlScanner extends PluginPassiveScanner implements Passive
 			Vector<String> cacheControl = msg.getResponseHeader().getHeaders(HttpHeader.CACHE_CONTROL);
 			if (cacheControl != null) {
 				for (String cacheControlDirective : cacheControl) {
-					if (cacheControlDirective.toLowerCase().indexOf("no-store") < 0 | cacheControlDirective.toLowerCase().indexOf("no-cache") < 0 | cacheControlDirective.toLowerCase().indexOf("must-revalidate") < 0 | cacheControlDirective.toLowerCase().indexOf("private") < 0) {
+					if (cacheControlDirective.toLowerCase().indexOf("no-store") < 0 || cacheControlDirective.toLowerCase().indexOf("no-cache") < 0 || cacheControlDirective.toLowerCase().indexOf("must-revalidate") < 0 || cacheControlDirective.toLowerCase().indexOf("private") < 0) {
 						this.raiseAlert(msg, id, cacheControlDirective);
 					}
 				}
@@ -75,7 +75,8 @@ public class CacheControlScanner extends PluginPassiveScanner implements Passive
 		    	alert.setDetail(
 		    	    "The cache-control and pragma HTTPHeader have not been set properly allowing the browser and proxies to cache content", 
 		    	    msg.getRequestHeader().getURI().toString(),
-		    	    cacheControl, "", 
+		    	    cacheControl,
+		    	    "", "", 
 		    	    "Whenever possible ensure the cache-control HTTPHeader is set with no-cache, no-store, must-revalidate, private, and the pragma HTTPHeader is set with no-cache.", 
 		            "https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Web_Content_Caching", 
 		            msg);
