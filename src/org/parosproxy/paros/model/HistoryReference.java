@@ -20,7 +20,6 @@
 */
 // ZAP: 2011/07/23 Added TYPE_FUZZER
 // ZAP: 2011/12/04 Support deleting alerts
-// ZAP: 2012/02/18 Dont log errors for temporary hrefs
 
 package org.parosproxy.paros.model;
 
@@ -150,10 +149,6 @@ public class HistoryReference {
 
 	public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, SQLException {
 		// fetch complete message
-		if (this.historyType == TYPE_TEMPORARY) {
-			// There is no message
-			return null;
-		}
 		RecordHistory history = staticTableHistory.read(historyId);
 		if (history == null) {
 			throw new HttpMalformedHeaderException("No history reference for id " + historyId + " type=" + historyType);
