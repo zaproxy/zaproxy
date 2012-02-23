@@ -24,7 +24,6 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
@@ -45,11 +44,13 @@ public class HeaderXssProtectionScanner extends PluginPassiveScanner implements 
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-			Vector<String> xssHeaderProtection = msg.getResponseHeader().getHeaders(HttpHeader.X_XSS_PROTECTION);
-			if (msg.getRequestHeader().getSecure() && xssHeaderProtection != null && msg.getResponseBody().length() > 0 && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode()) && msg.getResponseHeader().isText()){
-			for (String xssHeaderProtectionParam : xssHeaderProtection) {
-				if (xssHeaderProtectionParam.toLowerCase().indexOf("1") < 0) {
-					this.raiseAlert(msg, id, xssHeaderProtectionParam);
+			if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()){
+				Vector<String> xssHeaderProtection = msg.getResponseHeader().getHeaders(HttpHeader.X_XSS_PROTECTION);
+				if (xssHeaderProtection != null) {
+					for (String xssHeaderProtectionParam : xssHeaderProtection) {
+					if (xssHeaderProtectionParam.toLowerCase().indexOf("1") < 0) {
+						this.raiseAlert(msg, id, xssHeaderProtectionParam);
+					}
 				}
 			}
 		}

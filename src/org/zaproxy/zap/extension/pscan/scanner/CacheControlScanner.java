@@ -28,7 +28,6 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-//import com.sittinglittleduck.DirBuster.HTTPHeader;
 
 public class CacheControlScanner extends PluginPassiveScanner implements PassiveScanner  {
 
@@ -47,7 +46,7 @@ public class CacheControlScanner extends PluginPassiveScanner implements Passive
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (!msg.getRequestHeader().getURI().toString().toLowerCase().endsWith(".css") && !msg.getResponseHeader().isImage() && msg.getResponseBody().length() > 0) {
+		if (msg.getRequestHeader().getSecure() && !msg.getRequestHeader().getURI().toString().toLowerCase().endsWith(".css") && !msg.getResponseHeader().isImage() && msg.getResponseBody().length() > 0) {
 			Vector<String> cacheControl = msg.getResponseHeader().getHeaders(HttpHeader.CACHE_CONTROL);
 			if (cacheControl != null) {
 				for (String cacheControlDirective : cacheControl) {

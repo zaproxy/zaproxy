@@ -51,6 +51,8 @@ This list the alerts
 10012	Password Autocomplete in browser
 10013	Weak HTTP authentication over an unsecured connection
 10014	Cross Site Request Forgery
+10015	Incomplete or no cache-control and pragma HTTPHeader set
+10016   IE8's XSS protection filter not disabled
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
