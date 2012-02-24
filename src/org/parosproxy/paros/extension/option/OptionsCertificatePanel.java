@@ -98,6 +98,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private AliasTableModel aliasTableModel;
 	private DriverConfiguration driverConfig;
 	
+	// Issue 182
+	private boolean retry = true;
+	
 	private final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
 	
 	public OptionsCertificatePanel() {
@@ -550,6 +553,25 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			
 			int ksIndex = contextManager.initPKCS11(name, library, slot, slotListIndex, kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
+			// Issue 182
+			retry = true;
+		} catch (NullPointerException e) {
+			// Issue 182: Try to instantiate the PKCS11 provider twice if there are
+			// conflicts with other software (eg. Firefox), that is accessing it too.
+			if (retry) {
+				// Try two times only
+				retry = false;
+				addPkcs11ButtonActionPerformed(evt);
+			} else {
+				JOptionPane.showMessageDialog(null, new String[] {
+						Constant.messages.getString("options.cert.error"),
+						Constant.messages.getString("options.cert.error.pkcs11")}, 
+						Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+				// Error message changed to explain that user should try to add it again... 
+				retry = true;
+				logger.warn("Couldn't add key from "+name, e);
+			}
+			return;
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					Constant.messages.getString("options.cert.error"),

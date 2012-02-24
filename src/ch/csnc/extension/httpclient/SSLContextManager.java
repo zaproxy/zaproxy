@@ -322,8 +322,17 @@ public class SSLContextManager {
             Class pkcs11Class = Class.forName("sun.security.pkcs11.SunPKCS11");
             Constructor c = pkcs11Class.getConstructor(new Class[] { InputStream.class });
             pkcs11 = (Provider) c.newInstance(new Object[] { is });
-        } catch (Exception e) {
+        }catch (InstantiationException e) {
         	log.error("Error instantiating the PKCS11 provider", e);
+        }catch (IllegalAccessException e) {
+        	log.error("Error illegally accessing the PKCS11 provider", e);
+        }catch (IllegalArgumentException e) {
+        	log.error("Error illegally argumening the PKCS11 provider", e);
+        }catch (InvocationTargetException e){
+        	//log.error("Error in the invocation of the PKCS11 provider", e);
+        	// Issue 182 - OptionsCertificatePanel will try to add the PKCS11 provider again...
+        }catch (Exception e) {
+        	log.error("Error creating the PKCS11 provider", e);
         }
         
         Security.addProvider(pkcs11);
