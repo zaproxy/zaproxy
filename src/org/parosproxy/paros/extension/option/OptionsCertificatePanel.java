@@ -59,6 +59,9 @@ import ch.csnc.extension.util.DriverConfiguration;
 public class OptionsCertificatePanel extends AbstractParamPanel implements Observer{
 
 	private static final long serialVersionUID = 4350957038174673492L;
+	
+	// Maximum number of login attempts per smartcard
+	private static final int MAX_LOGIN_ATTEMPTS = 3; 
 
 	private javax.swing.JButton addPkcs11Button;
 	private javax.swing.JButton addPkcs12Button;
@@ -100,6 +103,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	
 	// Issue 182
 	private boolean retry = true;
+	
+	// Keep track of login attempts on PKCS11 smartcards to avoid blocking the smartcard
+	private static int login_attempts = 0;
 	
 	private final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
 	
@@ -552,6 +558,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			}
 			
 			int ksIndex = contextManager.initPKCS11(name, library, slot, slotListIndex, kspass);
+			// The PCKS11 driver/smartcard was initialized properly: reset login attempts
+			login_attempts = 0;
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 			// Issue 182
 			retry = true;
@@ -569,6 +577,34 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 						Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
 				// Error message changed to explain that user should try to add it again... 
 				retry = true;
+				logger.warn("Couldn't add key from "+name, e);
+			}
+			return;
+		} catch (java.io.IOException e) {
+			if (e.getMessage().equals("load failed") && e.getCause().getClass().getName().equals("javax.security.auth.login.FailedLoginException")) {
+				// Exception due to a failed login attempt: BAD PIN or password
+				login_attempts++;
+				String attempts = new String(" ("+login_attempts+"/"+MAX_LOGIN_ATTEMPTS+") ");
+				if (login_attempts == (MAX_LOGIN_ATTEMPTS-1)) {
+					// Last attempt before blocking the smartcard
+					JOptionPane.showMessageDialog(null, new String[] {
+							Constant.messages.getString("options.cert.error"),
+							Constant.messages.getString("options.cert.error.wrongpassword"), 
+							Constant.messages.getString("options.cert.error.wrongpasswordlast"), attempts},
+							Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+					logger.warn("PKCS#11: Incorrect PIN or password"+attempts+": "+name+" *LAST TRY BEFORE BLOCKING*");
+				} else { 
+					JOptionPane.showMessageDialog(null, new String[] {
+							Constant.messages.getString("options.cert.error"),
+							Constant.messages.getString("options.cert.error.wrongpassword"), attempts}, 
+							Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+					logger.warn("PKCS#11: Incorrect PIN or password"+attempts+": "+name);
+				}
+			}else{
+				JOptionPane.showMessageDialog(null, new String[] {
+						Constant.messages.getString("options.cert.error"),
+						Constant.messages.getString("options.cert.error.password")}, 
+						Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
 				logger.warn("Couldn't add key from "+name, e);
 			}
 			return;
