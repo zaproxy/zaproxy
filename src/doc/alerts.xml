@@ -53,6 +53,7 @@ This list the alerts
 10014	Cross Site Request Forgery
 10015	Incomplete or no cache-control and pragma HTTPHeader set
 10016   IE8's XSS protection filter not disabled
+10017	Cross-domain JavaScript source file inclusion
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
