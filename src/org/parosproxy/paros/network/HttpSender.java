@@ -48,6 +48,9 @@ public class HttpSender {
     private static ProtocolSocketFactory sslFactory = null;
     private static Protocol protocol = null;
 
+    // Issue 90
+    private static boolean allowUnsafeSSLRenegotiation = false;
+    
     static {
         
 	    try {
@@ -88,7 +91,21 @@ public class HttpSender {
     public static SSLConnector getSSLConnector() {
         return (SSLConnector) protocol.getSocketFactory();
     }
-    
+
+    public static void setAllowUnsafeSSLRenegotiation(boolean enabled) {
+    	allowUnsafeSSLRenegotiation = enabled;
+    	
+    	if (allowUnsafeSSLRenegotiation) {
+			log.info("Unsafe SSL renegotiation enabled.");
+		} else {
+			log.info("Unsafe SSL renegotiation disabled.");
+		}
+    	
+       	String value = String.valueOf(allowUnsafeSSLRenegotiation).toLowerCase();
+    	System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", value);
+    		    		
+    }
+   
     private void checkState() {
         if (param.isHttpStateEnabled()) {            
             client.setState(param.getHttpState());

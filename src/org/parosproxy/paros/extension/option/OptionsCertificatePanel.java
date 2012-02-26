@@ -95,6 +95,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JLabel textLabel;
 	private javax.swing.JCheckBox useClientCertificateCheckBox;
 	private javax.swing.JCheckBox usePkcs11ExperimentalSliSupportCheckBox;
+	private javax.swing.JCheckBox enableUnsafeSSLRenegotiationCheckBox;
 
 	private SSLContextManager contextManager;
 	private DefaultListModel keyStoreListModel;
@@ -191,6 +192,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			pkcs11PasswordField = new javax.swing.JPasswordField();
 			cryptoApiPanel = new javax.swing.JPanel();
 			useClientCertificateCheckBox = new javax.swing.JCheckBox();
+			enableUnsafeSSLRenegotiationCheckBox = new javax.swing.JCheckBox();
+			enableUnsafeSSLRenegotiationCheckBox.setEnabled(true);
 			textLabel = new javax.swing.JLabel();
 			certificateLabel = new javax.swing.JLabel();
 			certificateTextField = new ZapTextField();
@@ -428,6 +431,15 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				}
 			});
 
+			enableUnsafeSSLRenegotiationCheckBox.setText(Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"));
+			enableUnsafeSSLRenegotiationCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+			enableUnsafeSSLRenegotiationCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+			enableUnsafeSSLRenegotiationCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					enableUnsafeSSLRenegotiationCheckBoxActionPerformed(evt);
+				}
+			});
+			
 			textLabel.setText(Constant.messages.getString("options.cert.label.addkeystore"));
 
 			certificateLabel.setText(Constant.messages.getString("options.cert.label.activecerts"));
@@ -458,6 +470,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 													.addComponent(certificatejTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
 													.addGroup(certificatePanelLayout.createSequentialGroup()
 															.addGroup(certificatePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+																	.addComponent(enableUnsafeSSLRenegotiationCheckBox)
 																	.addComponent(useClientCertificateCheckBox)
 																	.addComponent(certificateLabel)
 																	.addGroup(javax.swing.GroupLayout.Alignment.TRAILING, certificatePanelLayout.createSequentialGroup()
@@ -473,6 +486,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 							.addContainerGap()
 							.addComponent(textLabel)
 							.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(enableUnsafeSSLRenegotiationCheckBox)
 							.addComponent(useClientCertificateCheckBox)
 							.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 							.addComponent(certificatejTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
@@ -782,7 +796,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	}//GEN-LAST:event_deleteButtonActionPerformed
 
 	private void useClientCertificateCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useClientCertificateCheckBoxActionPerformed
-		
+		// The enable unsafe SSL renegotiation checkbox is independent of using a client certificate (although commonly related)
+		// enableUnsafeSSLRenegotiationCheckBox.setEnabled(useClientCertificateCheckBox.isSelected());
+
 		//keyStore tab
 		certificatejTabbedPane.setEnabled(useClientCertificateCheckBox.isSelected() );
 
@@ -816,6 +832,20 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	}//GEN-LAST:event_useClientCertificateCheckBoxActionPerformed
 
+	// Issue 90: Add GUI support for unsecure (unsafe) SSL/TLS renegotiation
+	private void enableUnsafeSSLRenegotiationCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
+		
+		boolean enabled = enableUnsafeSSLRenegotiationCheckBox.isSelected();
+		
+		org.parosproxy.paros.network.HttpSender.setAllowUnsafeSSLRenegotiation(enabled);
+		
+		if (enabled) {
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.label.enableunsafesslrenegotiationwarning")}, 
+					Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"), JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+		
 	private void usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
 		Model.getSingleton().getOptionsParam().getExperimentalFeaturesParam().setSlotListIndexSupport(usePkcs11ExperimentalSliSupportCheckBox.isSelected());
 	}
