@@ -32,6 +32,7 @@ public class HttpResponseHeader extends HttpHeader {
 	private static final String _CONTENT_TYPE_IMAGE = "image";
 	private static final String _CONTENT_TYPE_TEXT = "text";
 	private static final String _CONTENT_TYPE_HTML = "html";
+	private static final String _CONTENT_TYPE_JAVASCRIPT = "text/javasript";
 	
 	
 	static final Pattern patternStatusLine
@@ -160,6 +161,19 @@ public class HttpResponseHeader extends HttpHeader {
 			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_TEXT) > -1) {
 				return true;
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
+	
+	public boolean isJavaScript() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
 				return true;
 			}
 		}
