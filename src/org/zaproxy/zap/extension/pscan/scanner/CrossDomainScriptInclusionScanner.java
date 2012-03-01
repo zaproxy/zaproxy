@@ -47,18 +47,14 @@ public class CrossDomainScriptInclusionScanner  extends PluginPassiveScanner imp
 					String src = sourceElement.getAttributeValue("src");
 						if (src != null && !isScriptFromOtherDomain(msg.getRequestHeader().getHostName(), src)) {
 							this.raiseAlert(msg, id, src);
-						}
-					
-				}
-				
+						}	
+				}	
 			}
-			
-
 		}
 	}
 
 	private void raiseAlert(HttpMessage msg, int id, String crossDomainScript) {
-		Alert alert = new Alert(getId(), Alert.RISK_LOW, Alert.RISK_HIGH, 
+		Alert alert = new Alert(getId(), Alert.RISK_LOW, Alert.WARNING, 
 		    	getName());
 		    	alert.setDetail(
 		    			"The page at the following URL includes one or more script files from a third-party domain", 
@@ -89,7 +85,7 @@ public class CrossDomainScriptInclusionScanner  extends PluginPassiveScanner imp
 
 	private boolean isScriptFromOtherDomain (String host, String scriptURL){
 		boolean result = false;
-		if(scriptURL.toLowerCase().contains(host.toLowerCase())){
+		if(scriptURL.toLowerCase().contains(host.toLowerCase()) && !scriptURL.startsWith("/")){
 			result = true;
 		}
 		return result;
