@@ -54,6 +54,10 @@ This list the alerts
 10015	Incomplete or no cache-control and pragma HTTPHeader set
 10016   IE8's XSS protection filter not disabled
 10017	Cross-domain JavaScript source file inclusion
+10018	Untrusted domains in JavaScript source code
+10019	Content-Type header missing
+10020	X-Frame-Options header not set
+10021	X-Content-Type-Options header missing
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
