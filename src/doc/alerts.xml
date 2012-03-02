@@ -58,6 +58,8 @@ This list the alerts
 10019	Content-Type header missing
 10020	X-Frame-Options header not set
 10021	X-Content-Type-Options header missing
+10022	Information disclosure - database error messages
+10023	Information disclosure - debug error messages
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
