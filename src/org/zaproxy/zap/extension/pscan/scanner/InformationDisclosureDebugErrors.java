@@ -73,7 +73,7 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(debugErrorFile));
 			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#") && body.toString().contains(line)) {
+				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
 					return true;
 				}
 			}

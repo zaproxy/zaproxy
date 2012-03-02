@@ -51,16 +51,16 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 		
 	}
 	
-	private void raiseAlert(HttpMessage msg, int id, String infoDisclosureDBError) {
+	private void raiseAlert(HttpMessage msg, int id, String infoDisclosureInURL) {
 		Alert alert = new Alert(getId(), Alert.RISK_INFO, Alert.WARNING, 
 		    	getName());
 		    	alert.setDetail(
-		    			"The response request appeared to contain common error messages returned by platforms such as ASP.NET, and Web-servers such as IIS and Apache. You can configure the list of common debug messages", 
+		    			"The request appeared to contain sensitive information leaked in the URL. This can violate PCI and most organizational compliance policies. You can configure the list of strings for this check to add or remove values specific to your environment", 
 		    	    msg.getRequestHeader().getURI().toString(),
-		    	    infoDisclosureDBError,
+		    	    infoDisclosureInURL,
 		    	    "", 
 		    	    "",
-		    	    "Disable debugging messages before pushing to production", 
+		    	    "Do not pass sensitive information in URI's", 
 		            "", 
 		            msg);
 	
@@ -78,21 +78,19 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 				}
 			}
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading debug error file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading URL information disclosure file. Error:" + e.getMessage());
 		}
 		return false;
 	}
 
 	@Override
 	public void setParent(PassiveScanThread parent) {
-		// TODO Auto-generated method stub
-		
+		this.parent = parent;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Information disclosure - sensitive informations in URL";
 	}
 	
 	private int getId() {

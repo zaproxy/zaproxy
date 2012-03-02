@@ -73,7 +73,7 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(databaseErrorFile));
 			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#") && body.toString().contains(line)) {
+				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
 					return true;
 				}
 			}
