@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.search;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -108,6 +109,19 @@ public class SearchPanel extends AbstractPanel {
 			public void mousePressed(java.awt.event.MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) { 
 					View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					
+					// Select list item on right click
+				    int Idx = resultsList.locationToIndex( e.getPoint() );
+				    if ( Idx >= 0 ) {
+				    	Rectangle Rect = resultsList.getCellBounds( Idx, Idx );
+				    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
+				    }
+				    if ( Idx < 0 || !resultsList.getSelectionModel().isSelectedIndex( Idx ) ) {
+				    	resultsList.getSelectionModel().clearSelection();
+				    	if ( Idx >= 0 ) {
+				    		resultsList.getSelectionModel().setSelectionInterval( Idx, Idx );
+				    	}
+				    }
 				}
 			}
 		});

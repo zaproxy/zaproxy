@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -136,6 +137,18 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			messageList.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mousePressed(java.awt.event.MouseEvent e) {    
 				    if (SwingUtilities.isRightMouseButton(e)) {
+						// Select list item on right click
+					    int Idx = messageList.locationToIndex( e.getPoint() );
+					    if ( Idx >= 0 ) {
+					    	Rectangle Rect = messageList.getCellBounds( Idx, Idx );
+					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
+					    }
+					    if ( Idx < 0 || !messageList.getSelectionModel().isSelectedIndex( Idx ) ) {
+					    	messageList.getSelectionModel().clearSelection();
+					    	if ( Idx >= 0 ) {
+					    		messageList.getSelectionModel().setSelectionInterval( Idx, Idx );
+					    	}
+					    }
 				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 				    }	
 				}

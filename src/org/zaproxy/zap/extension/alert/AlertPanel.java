@@ -24,6 +24,7 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 
 import javax.swing.ImageIcon;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -44,6 +46,7 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
@@ -246,9 +249,28 @@ public class AlertPanel extends AbstractPanel {
 				
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+				    if (SwingUtilities.isRightMouseButton(e)) {
+						// Select site list item on right click
+				    	TreePath tp = treeAlert.getPathForLocation( e.getPoint().x, e.getPoint().y );
+				    	if ( tp != null ) {
+				    		boolean select = true;
+				    		// Only select a new item if the current item is not
+				    		// already selected - this is to allow multiple items
+				    		// to be selected
+					    	if (treeAlert.getSelectionPaths() != null) {
+					    		for (TreePath t : treeAlert.getSelectionPaths()) {
+					    			if (t.equals(tp)) {
+					    				select = false;
+					    				break;
+					    			}
+					    		}
+					    	}
+					    	if (select) {
+					    		treeAlert.getSelectionModel().setSelectionPath(tp);
+					    	}
+				    	}
 				        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }
+				    }	
 				    if (e.getClickCount() > 1) {
 				    	// Its a double click - edit the alert
 					    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();

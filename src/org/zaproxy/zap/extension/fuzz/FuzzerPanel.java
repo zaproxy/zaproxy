@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.fuzz;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -371,6 +372,18 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	        fuzzResultList.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mousePressed(java.awt.event.MouseEvent e) {    
 				    if (SwingUtilities.isRightMouseButton(e)) {
+						// Select list item on right click
+					    int Idx = fuzzResultList.locationToIndex( e.getPoint() );
+					    if ( Idx >= 0 ) {
+					    	Rectangle Rect = fuzzResultList.getCellBounds( Idx, Idx );
+					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
+					    }
+					    if ( Idx < 0 || !fuzzResultList.getSelectionModel().isSelectedIndex( Idx ) ) {
+					    	fuzzResultList.getSelectionModel().clearSelection();
+					    	if ( Idx >= 0 ) {
+					    		fuzzResultList.getSelectionModel().setSelectionInterval( Idx, Idx );
+					    	}
+					    }
 				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 				    }	
 				}
