@@ -31,6 +31,36 @@
 		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
+		<name>Spanish DNIe - Windows (x86)</name>
+		<path>C:\WINDOWS\System32\UsrPkcs11.dll</path>
+		<slot>1</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Spanish DNIe - Windows (x64)</name>
+		<path>C:\WINDOWS\SysWOW64\UsrPkcs11.dll</path>
+		<slot>1</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Spanish DNIe - Linux (x86)</name>
+		<path>/usr/lib/opensc-pkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Spanish DNIe - Linux (x64)</name>
+		<path>/usr/lib64/opensc-pkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Spanish DNIe - Mac OS X</name>
+		<path>/Library/OpenSC/lib/opensc-pkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+		<driver>
 		<name>Switzerland SuisseID - Windows (x86)</name>
 		<path>C:\WINDOWS\System32\siecap11.dll</path>
 		<slot>3</slot>
