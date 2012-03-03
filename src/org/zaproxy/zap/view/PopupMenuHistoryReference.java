@@ -20,10 +20,13 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JList;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -47,6 +50,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	private JTree treeInvoker = null;
     private JList listInvoker = null;
     private Invoker lastInvoker = null;
+    private boolean multiSelect = false;
 
     private static Logger log = Logger.getLogger(PopupMenuHistoryReference.class);
 
@@ -54,8 +58,16 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
      * @param label
      */
     public PopupMenuHistoryReference(String label) {
+    	this(label, false);
+    }
+
+    /**
+     * @param label
+     */
+    public PopupMenuHistoryReference(String label, boolean multiSelect) {
         super(label);
         this.setText(label);
+        this.multiSelect = multiSelect;
         this.initialize();
     }
 
@@ -70,18 +82,23 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		log.debug("actionPerformed " + lastInvoker.name() + " " + e.getActionCommand());
-        	    HistoryReference ref = getSelectedHistoryReference();
 
         	    try {
-	        		if (ref != null) {
-	            	    try {
-	            	    	performAction(ref);
-	                    } catch (Exception e1) {
-	    					log.error(e1.getMessage(), e1);
-	                    }
-	        		} else {
-	        			log.error("PopupMenuHistoryReference invoker " + lastInvoker + " failed to get history ref");
-	        		}
+        	    	if (multiSelect) {
+            	    	performActions(getSelectedHistoryReferences());
+        	    		
+        	    	} else {
+	            	    HistoryReference ref = getSelectedHistoryReference();
+		        		if (ref != null) {
+		            	    try {
+		            	    	performAction(ref);
+		                    } catch (Exception e1) {
+		    					log.error(e1.getMessage(), e1);
+		                    }
+		        		} else {
+		        			log.error("PopupMenuHistoryReference invoker " + lastInvoker + " failed to get history ref");
+		        		}
+        	    	}
 				} catch (Exception e2) {
 					log.error(e2.getMessage(), e2);
 				}
@@ -141,81 +158,140 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 		
 	}
 	
+	private List<HistoryReference> getSelectedHistoryReferences() {
+	    List <HistoryReference> refs = new ArrayList<HistoryReference>();
+	    TreePath[] treePaths = null;
+	    Object[] objArray = null;
+		HttpMessage msg = null;
+    	try {
+    		switch (lastInvoker) {
+    		case sites:
+    		    treePaths = treeInvoker.getSelectionPaths();
+    		    if (treePaths != null) {
+	                for (TreePath path : treePaths) {
+	                    SiteNode node = (SiteNode) path.getLastPathComponent();
+	                    refs.add(node.getHistoryReference());
+	                }
+    		    }
+                break;
+
+    		case history:
+        	    objArray = listInvoker.getSelectedValues();
+        	    if (objArray != null) {
+        	    	for (Object obj : objArray) {
+        	    		refs.add((HistoryReference)obj);
+        	    	}
+        	    }
+				break;
+
+    		case alerts:
+    		    // Only support single items
+    			AlertNode aNode = (AlertNode) treeInvoker.getLastSelectedPathComponent();
+        	    if (aNode.getUserObject() != null) {
+        	        if (aNode.getUserObject() instanceof Alert) {
+        	            Alert alert = (Alert) aNode.getUserObject();
+        	            refs.add(alert.getHistoryRef());
+        	        }
+        	    }
+				break;
+    		case ascan:
+        	    objArray = listInvoker.getSelectedValues();
+        	    if (objArray != null) {
+        	    	for (Object obj : objArray) {
+                	    msg = (HttpMessage) obj;
+                        refs.add(new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_SCANNER, msg));
+        	    	}
+        	    }
+				break;
+    		case search:
+        	    objArray = listInvoker.getSelectedValues();
+        	    if (objArray != null) {
+        	    	for (Object obj : objArray) {
+                	    SearchResult sr = (SearchResult) obj;
+                	    if (sr != null) {
+                	    	msg = sr.getMessage();
+                    	    if (msg != null) {
+                    	    	refs.add(msg.getHistoryRef());
+                    	    }
+                	    }
+        	    	}
+        	    }
+				break;
+    		case fuzz:
+        	    objArray = listInvoker.getSelectedValues();
+        	    if (objArray != null) {
+        	    	for (Object obj : objArray) {
+                	    msg = (HttpMessage) obj;
+                        refs.add(new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_FUZZER, msg));
+        	    	}
+        	    }
+				break;
+    		case bruteforce:
+        	    objArray = listInvoker.getSelectedValues();
+        	    if (objArray != null) {
+        	    	for (Object obj : objArray) {
+                	    BruteForceItem bfi = (BruteForceItem)obj;
+            	    	refs.add(new HistoryReference(bfi.getHistoryId()));
+        	    	}
+        	    }
+				break;
+    		}
+		} catch (Exception e2) {
+			log.error(e2.getMessage(), e2);
+		}
+    	return refs;
+		
+	}
+	
     public boolean isEnableForComponent(Component invoker) {
     	boolean display = false;
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
         	this.lastInvoker = Invoker.history;
             this.listInvoker = (JList) invoker;
-            
-            if (((JList)invoker).getSelectedIndex() >= 0) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
         	this.lastInvoker = Invoker.sites;
         	this.treeInvoker = (JTree) invoker;
-		    SiteNode node = (SiteNode) treeInvoker.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot()) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
         	this.lastInvoker = Invoker.alerts;
         	this.treeInvoker = (JTree) invoker;
-
         	JTree tree = (JTree) invoker;
             if (tree.getLastSelectedPathComponent() != null) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                if (!node.isRoot() && node.getUserObject() != null) {
-                    this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-                } else {
+            	if (tree.getSelectionCount() > 1) {
+                	// Note - the Alerts tree only supports single selections
                     this.setEnabled(false);
-                }
+            	} else {
+	                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+	                if (!node.isRoot() && node.getUserObject() != null) {
+	                    this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
+	                } else {
+	                    this.setEnabled(false);
+	                }
+            	}
             }
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals("listSearch")) {
         	this.lastInvoker = Invoker.search;
             this.listInvoker = (JList) invoker;
-
-            if (((JList)invoker).getSelectedIndex() >= 0) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.ascan;
             this.listInvoker = (JList) invoker;
-
-            if (((JList)invoker).getSelectedIndex() >= 0) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.fuzz;
             this.listInvoker = (JList) invoker;
-
-            if (((JList)invoker).getSelectedIndex() >= 0) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
             this.listInvoker = (JList) invoker;
-
-            if (((JList)invoker).getSelectedIndex() >= 0) {
-                this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
-            } else {
-                this.setEnabled(false);
-            }
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else {
         	log.debug("Popup " + this.getName() + 
@@ -230,11 +306,33 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         return false;
     }
 
+    public boolean isEnabledForHistoryReferences (List<HistoryReference> hrefs) {
+    	// Can Override if required 
+    	if (hrefs.size() == 0) {
+    		return false;
+    	} else if (hrefs.size() > 1 && ! multiSelect) {
+    		return false;
+    	}
+    	for (HistoryReference href : hrefs) {
+    		if (! this.isEnabledForHistoryReference(href)) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+
     public boolean isEnabledForHistoryReference (HistoryReference href) {
     	// Can Override if required 
     	return href != null && href.getHistoryType() != HistoryReference.TYPE_TEMPORARY;
     }
-    
+
+    public void performActions (List<HistoryReference> hrefs) throws Exception {
+    	// Can Override if required 
+    	for (HistoryReference href : hrefs) {
+    		this.performAction(href);
+    	}
+    }
+
     public abstract void performAction (HistoryReference href) throws Exception;
 
     public abstract boolean isEnableForInvoker(Invoker invoker);
