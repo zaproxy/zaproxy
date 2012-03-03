@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/30 Support for scanner levels
+// ZAP: 2012/03/03 Added getLevel(boolean incDefault) 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -125,6 +126,8 @@ public interface Plugin extends Runnable {
 	public int getDelayInMs();
 	
 	public void setDelayInMs(int delay);
+	
+	public Level getLevel(boolean incDefault);
 	
 	public Level getLevel();
 	

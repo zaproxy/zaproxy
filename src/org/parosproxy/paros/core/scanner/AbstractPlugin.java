@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/03 Added getLevel(boolean incDefault)
 
 package org.parosproxy.paros.core.scanner;
 
@@ -330,6 +331,10 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
     
 	public Level getLevel() {
+		return this.getLevel(false);
+	}
+	
+	public Level getLevel(boolean incDefault) {
 		Level level = null;
 		try {
 			level = Level.valueOf(getProperty("level"));
@@ -339,14 +344,22 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 		}
 		if (level == null) {
 			if (this.isEnabled()) {
-				level = defaultLevel;
+				if (incDefault) {
+					level = Level.DEFAULT;
+				} else {
+					level = defaultLevel;
+				}
 				log.debug("getLevel default: " + level.name());
 			} else {
 				level = Level.OFF;
 				log.debug("getLevel not enabled: " + level.name());
 			}
 		} else if (level.equals(Level.DEFAULT)) {
-			level = defaultLevel;
+			if (incDefault) {
+				level = Level.DEFAULT;
+			} else {
+				level = defaultLevel;
+			}
 			log.debug("getLevel default: " + level.name());
 		}
 		return level;
