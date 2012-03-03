@@ -21,11 +21,14 @@
 // ZAP: 2011/09/19 Handle multipart node name
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
+// ZAP: 2012/03/03 Moved popups to stdmenus extension
 
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -48,6 +51,8 @@ public class SiteMap extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 2311091007687218751L;
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
+	
+	private static Map<Integer, SiteNode> hrefMap = new HashMap<Integer, SiteNode>();
 
 	private Model model = null;
 
@@ -56,6 +61,7 @@ public class SiteMap extends DefaultTreeModel {
     
     public static SiteMap createTree(Model model) {
         SiteNode root = new SiteNode(null, -1, Constant.messages.getString("tab.sites"));
+        hrefMap = new HashMap<Integer, SiteNode>();
         return new SiteMap(root, model);        
     }
     
@@ -323,9 +329,7 @@ public class SiteMap extends DefaultTreeModel {
                     } else {
                         parent = findAndAddChild(parent, folder, ref, msg);
                     }
-                    
                 }
-                
             }
             if (leaf == null) {
             	// No leaf found, which means the parent was really the leaf
@@ -338,6 +342,11 @@ public class SiteMap extends DefaultTreeModel {
             // ZAP: Added error
             log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
         }
+        
+        if (hrefMap.get(ref.getHistoryId()) == null) {
+            hrefMap.put(ref.getHistoryId(), leaf);
+        }
+
         return leaf;
     }
     
@@ -357,6 +366,7 @@ public class SiteMap extends DefaultTreeModel {
             insertNodeInto(newNode, parent, pos);
             result = newNode;
             result.setHistoryReference(createReference(result, baseRef, baseMsg));
+            hrefMap.put(result.getHistoryReference().getHistoryId(), result);
             
         }
         // ZAP: Cope with getSiteNode() returning null
@@ -388,6 +398,9 @@ public class SiteMap extends DefaultTreeModel {
         if (node == null) {
             node = new SiteNode(this, ref.getHistoryType(), leafName);
             node.setHistoryReference(ref);
+            
+            hrefMap.put(ref.getHistoryId(), node);
+            
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
                 if (leafName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
@@ -414,6 +427,7 @@ public class SiteMap extends DefaultTreeModel {
                 node.getPastHistoryReference().add(ref);
                 ref.setSiteNode(node);
             }
+            hrefMap.put(ref.getHistoryId(), node);
         }
         return node;
     }
@@ -562,5 +576,8 @@ public class SiteMap extends DefaultTreeModel {
 		
         return historyRef;
     }
-    
+
+    public SiteNode getSiteNode (int href) {
+    	return hrefMap.get(href);
+    }
 }

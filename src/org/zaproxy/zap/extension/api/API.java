@@ -70,6 +70,14 @@ public class API {
 		implementors.put(impl.getPrefix(), impl);
 	}
 	
+	public boolean isEnabled() {
+		// Check API is enabled (its always enabled if run from the cmdline)
+		if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
 		String url = requestHeader.getURI().toString();
@@ -85,8 +93,7 @@ public class API {
 		String name = null;
 		
 		try {
-			// Check API is enabled (its always enabled if run from the cmdline)
-			if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
+			if ( ! isEnabled()) {
 				throw new ApiException(ApiException.Type.DISABLED);
 			}
 			

@@ -21,6 +21,8 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/01/12 Renamed the class from ExtensionPopupMenu to ExtensionPopupMenuItem 
 //                 and added the method succeedWithSeparator
+// ZAP: 2012/03/03 Added setters for separators
+
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -35,6 +37,11 @@ public class ExtensionPopupMenuItem extends JMenuItem {
 	public static final int ATTACK_MENU_INDEX = 0;
 	public static final int EXCLUDE_MENU_INDEX = 1;
 	public static final int INVOKE_MENU_INDEX = 2;
+	
+	private int menuIndex = -1;
+	private int parentMenuIndex = -1;
+	private boolean precedeWithSeparator = false;
+	private boolean succeedWithSeparator = false;
 
 	public ExtensionPopupMenuItem() {
         super();
@@ -52,8 +59,20 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     	return null;
     }
     
+    public int getMenuIndex() {
+    	return menuIndex;
+    }
+    
+    public void setMenuIndex(int menuIndex) {
+    	this.menuIndex = menuIndex;
+    }
+    
     public int getParentMenuIndex() {
-    	return -1;
+    	return parentMenuIndex;
+    }
+    
+    public void setParentMenuIndex(int parentMenuIndex) {
+    	this.parentMenuIndex = parentMenuIndex;
     }
     
     // ZAP: Support submenus
@@ -63,11 +82,19 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     
     // ZAP: Added precedeWithSeparator
     public boolean precedeWithSeparator() {
-    	return false;
+    	return precedeWithSeparator;
+    }
+    
+    public void setPrecedeWithSeparator(boolean precede) {
+    	this.precedeWithSeparator = precede;
     }
     
     // ZAP: Added succeedWithSeparator
     public boolean succeedWithSeparator() {
-    	return false;
+    	return succeedWithSeparator;
+    }
+    
+    public void setSucceedWithSeparator(boolean succeed) {
+    	this.succeedWithSeparator = succeed;
     }
 }

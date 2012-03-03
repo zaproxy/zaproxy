@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -52,11 +53,11 @@ public class ExtensionSpider extends ExtensionAdaptor
 
 	private SpiderPanel spiderPanel = null;
     private PopupMenuSpider popupMenuSpider = null;
+    private PopupMenuSpiderSite popupMenuSpiderSite = null;
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 	private org.parosproxy.paros.core.spider.SpiderParam params = null;
     private Logger logger = Logger.getLogger(ExtensionSpider.class);
 	private List<String> excludeList = null;
-	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
     
 	/**
      * 
@@ -97,20 +98,14 @@ public class ExtensionSpider extends ExtensionAdaptor
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addStatusPanel(getSpiderPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpider());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu());
+            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpider());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite());
 
         	ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 	    }
         extensionHook.addOptionsParamSet(getSpiderParam());
 	}
 	
-	private PopupExcludeFromSpiderMenu getPopupExcludeFromSpiderMenu() {
-		if (popupExcludeFromSpiderMenu == null) {
-			popupExcludeFromSpiderMenu = new PopupExcludeFromSpiderMenu();
-		}
-		return popupExcludeFromSpiderMenu;
-	}
 	protected org.parosproxy.paros.core.spider.SpiderParam getSpiderParam() {
 		if (params == null) {
 			params = new org.parosproxy.paros.core.spider.SpiderParam();
@@ -190,6 +185,14 @@ public class ExtensionSpider extends ExtensionAdaptor
         return popupMenuSpider;
     }
 
+    private PopupMenuSpiderSite getPopupMenuSpiderSite() {
+        if (popupMenuSpiderSite == null) {
+        	popupMenuSpiderSite = new PopupMenuSpiderSite(Constant.messages.getString("spider.site.popup"));
+        	//popupMenuSpider.setExtensionSite(this);
+        }
+        return popupMenuSpiderSite;
+    }
+
 	private OptionsSpiderPanel getOptionsSpiderPanel() {
 		if (optionsSpiderPanel == null) {
 			optionsSpiderPanel = new OptionsSpiderPanel();
@@ -197,7 +200,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		return optionsSpiderPanel;
 	}
 	
-	protected void spiderSite(SiteNode node, boolean incPort) {
+	public void spiderSite(SiteNode node, boolean incPort) {
 		this.getSpiderPanel().scanSite(node, incPort);
 	}
 	

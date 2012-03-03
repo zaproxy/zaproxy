@@ -27,6 +27,7 @@
 // ZAP: 2011/11/20 Set order
 // ZAP: 2011/12/21 Added 'show in history' popup
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/03/03 Moved popups to stdmenus extension
 
 package org.parosproxy.paros.extension.history;
 
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
@@ -50,6 +50,7 @@ import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
@@ -58,8 +59,6 @@ import org.zaproxy.zap.extension.history.NotesAddDialog;
 import org.zaproxy.zap.extension.history.PopupMenuAlert;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
-import org.zaproxy.zap.extension.history.PopupMenuResendMessage;
-import org.zaproxy.zap.extension.history.PopupMenuShowInHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
 /**
@@ -69,43 +68,28 @@ import org.zaproxy.zap.extension.history.PopupMenuTag;
  */
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
 
-    private static final int FILTER_NONE = 0;
-    private static final int FILTER_REQUEST = 1;
-    private static final int FILTER_RESPONSE = 2;
-    
+	public static final String NAME = "ExtensionHistory";
+
 	private LogPanel logPanel = null;  //  @jve:decl-index=0:visual-constraint="161,134"
 	private ProxyListenerLog proxyListener = null;
 	private HistoryList historyList = null;
     private String filter = "";
     
-    // ZAP: Disabled the platform specific browser
-    //private EmbeddedBrowser browser = null;
-    private static BrowserDialog browserDialog = null;
-    	
 	private HistoryFilterDialog filterDialog = null;
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
-	private JCheckBoxMenuItem menuFilterHistoryByRequest = null;  //  @jve:decl-index=0:visual-constraint="68,100"
-	private JCheckBoxMenuItem menuFilterHistoryByResponse = null;
-	private int stateFilter = FILTER_NONE;
-
 	
 	//private PopupMenuDeleteHistory popupMenuDeleteHistory = null;
 	private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
-	//private PopupMenuResend popupMenuResend = null;
 	private ManualRequestEditorDialog resendDialog = null;
-	private PopupMenuResendMessage popupMenuResendMessage = null;
 	
 	private PopupMenuExportMessage popupMenuExportMessage = null;
 	private PopupMenuExportMessage popupMenuExportMessage2 = null;
     private PopupMenuExportResponse popupMenuExportResponse = null;
     private PopupMenuExportResponse popupMenuExportResponse2 = null;
-    private PopupMenuEmbeddedBrowser popupMenuEmbeddedBrowser = null;
-    private PopupMenuEmbeddedBrowser popupMenuEmbeddedBrowser2 = null;
     private PopupMenuTag popupMenuTag = null;
     // ZAP: Added Export URLs
 	private PopupMenuExportURLs popupMenuExportURLs = null;
-	private PopupMenuShowInHistory popupMenuShowInHistory = null;
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
@@ -137,7 +121,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionHistory");
+        this.setName(NAME);
         this.setOrder(16);
 
         ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
@@ -168,31 +152,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    if (getView() != null) {
 		    ExtensionHookView pv = extensionHook.getHookView();
 		    pv.addStatusPanel(getLogPanel());
-		    //pv.addWorkPanel(getRequestPanel());
-		    //pv.addWorkPanel(getResponsePanel());
 		    getLogPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 		    
-
-		    extensionHook.getHookMenu().addViewMenuItem(getPopupMenuEmbeddedBrowser2());
-            // Removed the separator in the View menu
-		    //extensionHook.getHookMenu().addViewMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-            // ZAP Removed 'Filter History by..' menu iteams - replaced by filter plus
-	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByRequest());
-	        //extensionHook.getHookMenu().addViewMenuItem(getMenuFilterHistoryByResponse());
-
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEmbeddedBrowser());
 
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
 
 	        //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDeleteHistory());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory());
 
 	        // same as PopupMenuExport but for File menu
             // ZAP: Move 'export' menu items to Report menu
@@ -210,14 +180,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	}
 	
-	private PopupMenuShowInHistory getPopupMenuShowInHistory() {
-		if (popupMenuShowInHistory == null) {
-			popupMenuShowInHistory = new PopupMenuShowInHistory(Constant.messages.getString("history.showinhistory.popup"));
-			popupMenuShowInHistory.setExtension(this);
-		}
-		return popupMenuShowInHistory;
-	}
-
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -311,15 +273,22 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            int historyId = ((Integer) dbList.get(i)).intValue();
 
 	            try {
+	            	SiteNode sn = getModel().getSession().getSiteTree().getSiteNode(historyId);
+	            	if (sn != null && sn.getHistoryReference() != null && 
+	            			sn.getHistoryReference().getHistoryId() == historyId) {
+	            		historyRef = sn.getHistoryReference();
+	            	} else {
 	                    historyRef = new HistoryReference(historyId);
-	                    historyRef.loadAlerts();
-	                    historyList.addElement(historyRef);
+	                    historyRef.setSiteNode(sn);
+	            	}
+                    historyRef.loadAlerts();
+                    historyList.addElement(historyRef);
+	                    
 	            } catch (Exception e) {
 	    			logger.error(e.getMessage(), e);
 	            }
 	        }
 	    }
-
    }
 	
 	private void buildHistory(HistoryList historyList, List<Integer> dbList,
@@ -362,46 +331,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return filterPlusDialog;
 	}
-	/**
-	 * This method initializes menuFilterHistoryByRequest	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private JCheckBoxMenuItem getMenuFilterHistoryByRequest() {
-		if (menuFilterHistoryByRequest == null) {
-			menuFilterHistoryByRequest = new JCheckBoxMenuItem();
-			menuFilterHistoryByRequest.setText("Filter History by Request...");
-			menuFilterHistoryByRequest.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-				    int result = showFilterDialog(true);
-				    switch(result)
-				    {
-				    case -1:	menuFilterHistoryByRequest.setSelected(false);
-				    			menuFilterHistoryByResponse.setSelected(false);
-				    			stateFilter = FILTER_NONE;
-				    			break;
-				    case 0:		menuFilterHistoryByRequest.setSelected(false);
-				    			menuFilterHistoryByResponse.setSelected(false);
-				        		if (stateFilter == FILTER_REQUEST) {
-				        			menuFilterHistoryByRequest.setSelected(true);
-				        		} else if (stateFilter == FILTER_RESPONSE) {
-				        		    menuFilterHistoryByResponse.setSelected(true);
-				        		}
-				        		break;
-				    case 1:		menuFilterHistoryByRequest.setSelected(true);
-				    			menuFilterHistoryByResponse.setSelected(false);
-				    			stateFilter = FILTER_REQUEST;
-				    			break;
-				    }
-				}
-			});
-
-		}
-		return menuFilterHistoryByRequest;
-	}
-	
 	private int showFilterDialog(boolean isRequest) {
 		HistoryFilterDialog dialog = getFilterDialog();
 		dialog.setModal(true);
@@ -452,43 +382,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	/**
-	 * This method initializes menuFilterHistoryByResponse	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private JCheckBoxMenuItem getMenuFilterHistoryByResponse() {
-		if (menuFilterHistoryByResponse == null) {
-			menuFilterHistoryByResponse = new JCheckBoxMenuItem();
-			menuFilterHistoryByResponse.setText("Filter History by Response...");
-			menuFilterHistoryByResponse.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    int result = showFilterDialog(false);
-				    switch(result) {
-			    case -1:	menuFilterHistoryByRequest.setSelected(false);
-			    			menuFilterHistoryByResponse.setSelected(false);
-			    			stateFilter = FILTER_NONE;
-			    			break;
-
-			    case 0:		menuFilterHistoryByRequest.setSelected(false);
-			    			menuFilterHistoryByResponse.setSelected(false);
-			        		if (stateFilter == FILTER_REQUEST) {
-			        			menuFilterHistoryByRequest.setSelected(true);
-			        		} else if (stateFilter == FILTER_RESPONSE) {
-			        		    menuFilterHistoryByResponse.setSelected(true);
-			        		}
-			        		break;
-			    case 1:		menuFilterHistoryByRequest.setSelected(false);
-			    			menuFilterHistoryByResponse.setSelected(true);
-			    			stateFilter = FILTER_RESPONSE;
-			    			break;
-			    }
-
-				}
-			});
-		}
-		return menuFilterHistoryByResponse;
-	}
-	/**
 	 * This method initializes popupMenuDeleteHistory	
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.PopupMenuDeleteHistory	
@@ -515,20 +408,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return popupMenuPurgeHistory;
 	}
-	/**
-	 * This method initializes popupMenuResend	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.PopupMenuResend	
-	 */    
-	/*
-	private PopupMenuResend getPopupMenuResend() {
-		if (popupMenuResend == null) {
-			popupMenuResend = new PopupMenuResend();
-			popupMenuResend.setExtension(this);
-		}
-		return popupMenuResend;
-	}
-	*/
 	/**
 	 * This method initializes resendDialog	
 	 * 	
@@ -595,34 +474,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return popupMenuExportResponse2;
     }
 
-    /**
-     * This method initializes popupMenuEmbeddedBrowser	
-     * 	
-     * @return org.parosproxy.paros.extension.history.PopupMenuEmbeddedBrowser	
-     */
-    private PopupMenuEmbeddedBrowser getPopupMenuEmbeddedBrowser() {
-        if (popupMenuEmbeddedBrowser == null) {
-            popupMenuEmbeddedBrowser = new PopupMenuEmbeddedBrowser();
-            popupMenuEmbeddedBrowser.setExtension(this);
-
-        }
-        return popupMenuEmbeddedBrowser;
-    }
-
-    /**
-     * This method initializes popupMenuEmbeddedBrowser2	
-     * 	
-     * @return org.parosproxy.paros.extension.history.PopupMenuEmbeddedBrowser	
-     */
-    private PopupMenuEmbeddedBrowser getPopupMenuEmbeddedBrowser2() {
-        if (popupMenuEmbeddedBrowser2 == null) {
-            popupMenuEmbeddedBrowser2 = new PopupMenuEmbeddedBrowser();
-            popupMenuEmbeddedBrowser2.setExtension(this);
-
-        }
-        return popupMenuEmbeddedBrowser2;
-    }
-
     private PopupMenuTag getPopupMenuTag() {
         if (popupMenuTag == null) {
             popupMenuTag = new PopupMenuTag();
@@ -640,88 +491,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
         return popupMenuNote;
     }
-    
-    private PopupMenuAlert getPopupMenuAlert() {
-        if (popupMenuAlert == null) {
-            popupMenuAlert = new PopupMenuAlert(Constant.messages.getString("history.alert.popup"));
-            popupMenuAlert.setExtension(this);
-        }
-        return popupMenuAlert;
-    }
-    // ZAP: Disabled the platform specific browser
-    /*
-    boolean browserDisplay(HistoryReference ref, HttpMessage msg) {
-        
-        boolean isShow = false;
-        String contentType = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        if (contentType != null) {
-            if (contentType.indexOf("text/html") >= 0 || contentType.indexOf("text/plain") >= 0) {
-                isShow = true;
-            } else if (msg.getResponseHeader().isImage()) {
-                isShow = true;
-            } else if (contentType.indexOf("application/pdf") >= 0)  {
-                isShow = true;
-            }
-        }
-
-        if (!isShow) {
-            return isShow;
-        }
-        
-        try {
-            if (!getBrowserDialog().isVisible()) {
-                getBrowserDialog().setVisible(true);
-            }
-            
-            browser = getBrowserDialog().getEmbeddedBrowser();
-            browser.stop();
-            browser.setVisible(true);
-            CacheProcessingItem item = new CacheProcessingItem(ref, msg);
-            Proxy proxy = Control.getSingleton().getProxy();
-            proxy.setEnableCacheProcessing(true);
-            proxy.addCacheProcessingList(item);
-            
-            getBrowserDialog().setURLTitle(msg.getRequestHeader().getURI().toString());
-            if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-                browser.setURL(new java.net.URL(msg.getRequestHeader().getURI().toString()), msg.getRequestBody().toString());
-            } else {
-                browser.setURL(new java.net.URL(msg.getRequestHeader().getURI().toString()));
-            }
-        } catch (Exception e) {
-            
-        }
-        
-        return isShow;
-    }
-    */
-    
-    /**
-     * This method initializes browserDialog    
-     *  
-     * @return org.parosproxy.paros.extension.history.BrowserDialog 
-     */
-    /*
-    BrowserDialog getBrowserDialog() {
-        if (browserDialog == null) {
-            browserDialog = new BrowserDialog(getView().getMainFrame(), false);
-        }
-        return browserDialog;
-    }
-
-    private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
-//  private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
-
-    static boolean isEnableForNativePlatform() {
-      String os_name = System.getProperty("os.name");
-      Matcher matcher = patternWindows.matcher(os_name);
-      if (matcher.find()) {
-          return true;
-      }
-      
-      return false;
-
-    }
-    */
     
     private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
     	dialogNotesAdd.getTxtDisplay().setText(note);
@@ -798,13 +567,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return popupMenuExportURLs;
 	}
 
-	private PopupMenuResendMessage getPopupMenuResendMessage() {
-		if (popupMenuResendMessage == null) {
-			popupMenuResendMessage = new PopupMenuResendMessage(Constant.messages.getString("history.resend.popup"));
-			popupMenuResendMessage.setExtension(this);
-		}
-		return popupMenuResendMessage;
-	}
 
 	public void showInHistory(HistoryReference href) {
 		this.getLogPanel().display(href);

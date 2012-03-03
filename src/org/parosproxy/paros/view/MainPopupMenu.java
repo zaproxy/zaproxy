@@ -23,6 +23,7 @@
 //      removeMenu(ExtensionPopupMenu menu), handleMenu and handleMenuItem and
 //      changed the method show to use the methods handleMenu and handleMenuItem.
 // ZAP: 2012/02/19 Removed the Delete button
+// ZAP: 2012/03/03 Moved popups to stdmenus extension
 
 package org.parosproxy.paros.view;
 
@@ -129,7 +130,11 @@ public class MainPopupMenu extends JPopupMenu {
 	            		if (menuItem.precedeWithSeparator()) {
 	    	                this.addSeparator();
 	            		}
-	            		this.add(menuItem);
+						if (menuItem.getMenuIndex() > menuItem.getComponentCount()) {
+							this.add(menuItem);
+						} else {
+							this.add(menuItem, menuItem.getMenuIndex());
+						}
 	            		if (menuItem.succeedWithSeparator()) {
 	    	                this.addSeparator();
 	            		}
@@ -157,7 +162,8 @@ public class MainPopupMenu extends JPopupMenu {
             		if (menu.precedeWithSeparator()) {
     	                this.addSeparator();
             		}
-            		this.add(menu);
+
+            		this.add(menu, menu.getMenuIndex());
             		if (menu.succeedWithSeparator()) {
     	                this.addSeparator();
             		}

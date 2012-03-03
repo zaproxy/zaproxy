@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/03 Moved popups to stdmenus extension
+
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -210,5 +212,13 @@ public class SiteMapPanel extends JPanel {
 	// ZAP: Added addSiteMapListenners
 	public void addSiteMapListenner (SiteMapListener listenner) {
 		this.listenners.add(listenner);
+	}
+	
+	public void showInSites (SiteNode node) {
+		TreeNode[] path = node.getPath();
+		TreePath tp = new TreePath(path);
+		treeSite.setExpandsSelectedPaths(true);
+		treeSite.setSelectionPath(tp);
+		treeSite.scrollPathToVisible(tp);
 	}
 }

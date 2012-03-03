@@ -40,8 +40,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
-import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -60,15 +58,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
     
     private static final int ARG_SCAN_IDX = 0;
+
+	public static final String NAME = "ExtensionActiveScan";
     
 	private JMenuItem menuItemPolicy = null;
-	
-	private ManualRequestEditorDialog manualRequestEditorDialog = null;
-	private PopupMenuActiveScanSites popupMenuActiveScanSites = null;
-	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
-	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
-	// Shouldnt really be here...
-	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	
 	private OptionsScannerPanel optionsScannerPanel = null;
 	private ActiveScanPanel activeScanPanel = null;
@@ -79,8 +72,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     private PopupMenuScanHistory popupMenuScanHistory = null;
     
-	private HistoryList historyList = null;
-
     private Logger logger = Logger.getLogger(ExtensionActiveScan.class);
 
     /**
@@ -104,7 +95,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	 * @return void
 	 */
 	private void initialize() {
-        this.setName("ExtensionActiveScan");
+        this.setName(NAME);
         this.setOrder(28);
 			
         API.getInstance().registerApiImplementor(new ActiveScanAPI(this));
@@ -117,11 +108,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
-
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSites());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu());
 
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
@@ -147,7 +133,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return activeScanPanel;
 	}
 	
-	void startScan(SiteNode startNode) {
+	public void startScan(SiteNode startNode) {
 		this.getActiveScanPanel().scanSite(startNode, true);
 	}
 
@@ -251,18 +237,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 	}
 
-	/**
-	 * This method initializes manualRequestEditorDialog	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.ManualRequestEditorDialog	
-	 */    
-	ManualRequestEditorDialog getManualRequestEditorDialog() {
-		if (manualRequestEditorDialog == null) {
-			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, false, this);
-			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
-		}
-		return manualRequestEditorDialog;
-	}
 
 	/**
 	 * This method initializes optionsScannerPanel	
@@ -353,43 +327,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getActiveScanPanel().nodeSelected(node, true);
-	}
-
-	private PopupMenuActiveScanSites getPopupMenuActiveScanSites() {
-		if (popupMenuActiveScanSites == null) {
-			popupMenuActiveScanSites = new PopupMenuActiveScanSites();
-			popupMenuActiveScanSites.setExtension(this);
-		}
-		return popupMenuActiveScanSites;
-	}
-
-	private PopupMenuActiveScanNode getPopupMenuActiveScanNode() {
-		if (popupMenuActiveScanNode == null) {
-			popupMenuActiveScanNode = new PopupMenuActiveScanNode();
-			popupMenuActiveScanNode.setExtension(this);
-		}
-		return popupMenuActiveScanNode;
-	}
-	
-	private PopupExcludeFromScanMenu getPopupExcludeFromScanMenu() {
-		if (popupExcludeFromScanMenu == null) {
-			popupExcludeFromScanMenu = new PopupExcludeFromScanMenu();
-		}
-		return popupExcludeFromScanMenu;
-	}
-
-	private PopupExcludeFromProxyMenu getPopupExcludeFromProxyMenu() {
-		if (popupExcludeFromProxyMenu == null) {
-			popupExcludeFromProxyMenu = new PopupExcludeFromProxyMenu();
-		}
-		return popupExcludeFromProxyMenu;
-	}
-
-	public HistoryList getHistoryList() {
-	    if (historyList == null) {
-	        historyList = new HistoryList();
-	    }
-	    return historyList;
 	}
 
 	public boolean isScanning(SiteNode node) {

@@ -17,14 +17,22 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import javax.swing.JMenuItem;
+
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DesktopUtils;
 
 public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedListener {
 
+	public static final String API_URL = "http://zap/";
+	
 	private OptionsApiPanel optionsApiPanel = null;
+	private JMenuItem menuAPI = null;
 	
     public ExtensionAPI() {
         super();
@@ -55,6 +63,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
         extensionHook.addSessionListener(this);
 	    if (getView() != null) {
 	    	extensionHook.getHookView().addOptionPanel(getOptionsAPIPanel());
+	    	extensionHook.getHookMenu().addToolsMenuItem(getMenuAPI());
 	    }
 
 	}
@@ -64,6 +73,27 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 			optionsApiPanel = new OptionsApiPanel();
 		}
 		return optionsApiPanel;
+	}
+
+	private JMenuItem getMenuAPI() {
+		if (menuAPI == null) {
+			menuAPI = new JMenuItem();
+			menuAPI.setText(Constant.messages.getString("api.menu.tools.url"));
+			menuAPI.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			
+			menuAPI.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					if (API.getInstance().isEnabled()) {
+						DesktopUtils.openUrlInBrowser(API_URL);
+					} else {
+						View.getSingleton().showWarningDialog(Constant.messages.getString("api.warning.enable"));
+					}
+				}
+			});
+
+		}
+		return menuAPI;
 	}
 
 	@Override

@@ -19,24 +19,17 @@
  */
 package org.zaproxy.zap.extension.invoke;
 
-import java.awt.Component;
 import java.io.File;
-
-import javax.swing.JList;
-import javax.swing.JTree;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.PopupMenuHttpMessage;
 
-public class PopupMenuInvoke extends ExtensionPopupMenuItem {
+public class PopupMenuInvoke extends PopupMenuHttpMessage {
 
 	private static final long serialVersionUID = 1L;
-    private Component invoker = null;
     private String command = null;
     private File workingDir = null;
     private String parameters = null;
@@ -50,7 +43,6 @@ public class PopupMenuInvoke extends ExtensionPopupMenuItem {
      */
     public PopupMenuInvoke(String label) {
         super(label);
-        this.initialize();
     }
 
     @Override
@@ -66,85 +58,6 @@ public class PopupMenuInvoke extends ExtensionPopupMenuItem {
     @Override
     public int getParentMenuIndex() {
     	return INVOKE_MENU_INDEX;
-    }
-
-    /**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-        this.setText(this.getText());
-        
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		HistoryReference hr = null;
-				HttpMessage msg = null;
-        		
-        		if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
-        			JTree treeSite = (JTree) invoker;
-        			hr = ((SiteNode) treeSite.getLastSelectedPathComponent()).getHistoryReference();
-
-        		} else if (invoker instanceof JList && invoker.getName().equals("ListLog")) {
-                	JList histLog = (JList) invoker;
-                	Object obj = histLog.getSelectedValue();
-                	if (obj != null && obj instanceof HistoryReference) {
-                		
-            			hr = (HistoryReference) obj;
-                	}
-        		}
-        		if (hr != null) {
-        			try {
-        				msg = hr.getHttpMessage();
-					} catch (Exception e1) {
-						logger.error(e1.getMessage(), e1);
-					}
-        		}
-
-        		try {
-	        		if (command != null) {
-	        			InvokeAppWorker iaw = 
-	        					new InvokeAppWorker(command, workingDir, parameters, captureOutput, outputNote, msg);
-	        			iaw.execute();
-	        		}
-        		} catch (Exception e1) {
-        			View.getSingleton().showWarningDialog(e1.getMessage());
-        			logger.error(e1.getMessage(), e1);
-
-        		}
-        	}
-        });
-	}
-	
-	
-    public boolean isEnableForComponent(Component invoker) {
-        this.invoker = invoker;
-		if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
-			// The Sites tree
-			JTree treeSite = (JTree) invoker;
-		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot()) {
-		    	// Enabled only for a non root node (which is just "Sites"
-		        this.setEnabled(true);
-		    } else {
-		        this.setEnabled(false);
-		    }
-            return true;
-        } else if (invoker instanceof JList && invoker.getName().equals("ListLog")) {
-        	// The history log
-        	JList histLog = (JList) invoker;
-        	
-        	Object obj = histLog.getSelectedValue();
-        	if (obj != null && obj instanceof HistoryReference) {
-        		// Enabled for all rows
-		        this.setEnabled(true);
-        	} else {
-		        this.setEnabled(false);
-        	}
-            return true;
-		}
-        return false;
     }
 
 	public String getCommand() {
@@ -185,6 +98,26 @@ public class PopupMenuInvoke extends ExtensionPopupMenuItem {
 
 	public void setOutputNote(boolean outputNote) {
 		this.outputNote = outputNote;
+	}
+
+	@Override
+	public boolean isEnableForInvoker(Invoker invoker) {
+		return true;
+	}
+
+	@Override
+	public void performAction(HttpMessage msg) throws Exception {
+		try {
+    		if (command != null) {
+    			InvokeAppWorker iaw = 
+    					new InvokeAppWorker(command, workingDir, parameters, captureOutput, outputNote, msg);
+    			iaw.execute();
+    		}
+		} catch (Exception e1) {
+			View.getSingleton().showWarningDialog(e1.getMessage());
+			logger.error(e1.getMessage(), e1);
+
+		}
 	}
 
 }

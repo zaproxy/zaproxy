@@ -19,44 +19,53 @@
  */
 package org.zaproxy.zap.view;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteNode;
 
-public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
+public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
+
+	public PopupMenuSiteNode(String label) {
+		super(label);
+	}
+
+	public PopupMenuSiteNode(String label, boolean multiSelect) {
+		super(label, multiSelect);
+	}
 
 	private static final long serialVersionUID = 1L;
 
-    private static Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
-
-    /**
-     * @param label
-     */
-    public PopupMenuHttpMessage(String label) {
-        super(label);
+    private SiteNode getSiteNode (HistoryReference href) {
+    	if (href == null) {
+    		return null;
+    	}
+		SiteNode sn = href.getSiteNode();
+		if (sn == null) {
+			sn = Model.getSingleton().getSession().getSiteTree().getSiteNode(href.getHistoryId());
+		}
+		return sn;
     }
 
     public boolean isEnabledForHistoryReference (HistoryReference href) {
-    	try {
-			return href != null && this.isEnabledForHttpMessage(href.getHttpMessage());
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return false;
+		SiteNode sn = this.getSiteNode(href);
+		if (sn != null) {
+			return this.isEnabledForSiteNode(sn);
+		}
+		return false;
+    }
+    
+    public boolean isEnabledForSiteNode (SiteNode sn) {
+    	// Can Override if required 
+    	return true;
+    }
+    
+    public void performAction (HistoryReference href) throws Exception {
+		SiteNode sn = this.getSiteNode(href);
+		if (sn != null) {
+			this.performAction(sn);
 		}
     }
 
-    public boolean isEnabledForHttpMessage (HttpMessage msg) {
-    	// Can Override if required 
-    	return msg != null;
-    }
-    public void performAction (HistoryReference href) throws Exception {
-    	if (href != null && href.getHttpMessage() != null) {
-    		this.performAction(href.getHttpMessage());
-    	}
-    }
-
-    public abstract void performAction (HttpMessage msg) throws Exception;
-
-    public abstract boolean isEnableForInvoker(Invoker invoker);
+    public abstract void performAction (SiteNode sn) throws Exception;
 
 }

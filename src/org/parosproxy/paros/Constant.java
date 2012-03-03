@@ -25,6 +25,7 @@
 //      Changed to use the correct file when an error occurs during the load of the configuration file.
 //      Removed the calls XMLConfiguration.load() as they are not needed, the XMLConfiguration constructor used already does that.
 // ZAP: 2011/11/20 Support for extension factory
+// ZAP: 2012/03/03 Added ZAP homepage
 
 package org.parosproxy.paros;
 
@@ -55,6 +56,7 @@ public final class Constant {
 	// ZAP: rebrand
     public static final String PROGRAM_NAME     = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
+    public static final String ZAP_HOMEPAGE		= "http://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag

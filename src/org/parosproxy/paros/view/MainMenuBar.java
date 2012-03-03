@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/03 Moved popups to stdmenus extension
+
 package org.parosproxy.paros.view;
 
 import javax.swing.JMenu;
@@ -28,6 +30,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.MenuFileControl;
 import org.parosproxy.paros.control.MenuToolsControl;
+import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.AboutDialog;
 
 public class MainMenuBar extends JMenuBar {
@@ -50,6 +53,7 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuAnalyse = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
+	private JMenuItem menuHomepage = null;
 	/**
 	 * This method initializes 
 	 * 
@@ -365,6 +369,7 @@ public class MainMenuBar extends JMenuBar {
 			menuHelp = new JMenu();
 			menuHelp.setText(Constant.messages.getString("menu.help")); // ZAP: i18n
 			menuHelp.add(getMenuHelpAbout());
+			menuHelp.add(getMenuHomepage());
 		}
 		return menuHelp;
 	}
@@ -412,4 +417,22 @@ public class MainMenuBar extends JMenuBar {
         }
         return menuAnalyse;
     }
-   }
+    
+	private JMenuItem getMenuHomepage() {
+		if (menuHomepage == null) {
+			menuHomepage = new JMenuItem();
+			menuHomepage.setText(Constant.messages.getString("menu.help.home"));
+			menuHomepage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			
+			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
+
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_HOMEPAGE);
+				}
+			});
+
+		}
+		return menuHomepage;
+	}
+
+}
