@@ -19,14 +19,11 @@
  */
 package org.zaproxy.zap.extension.bruteforce;
 
-import java.awt.Component;
-
 import javax.swing.ImageIcon;
-import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.view.PopupMenuSiteNode;
 
 
 /**
@@ -34,25 +31,17 @@ import org.parosproxy.paros.model.SiteNode;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class PopupMenuBruteForceSite extends ExtensionPopupMenuItem {
+public class PopupMenuBruteForceSite extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionBruteForce extension = null;
-    private JTree treeSite = null;
     
-    /**
-     * 
-     */
-    public PopupMenuBruteForceSite() {
-        super();
- 		initialize();
-    }
-
     /**
      * @param label
      */
     public PopupMenuBruteForceSite(String label) {
         super(label);
+        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));
     }
 
     @Override
@@ -69,54 +58,43 @@ public class PopupMenuBruteForceSite extends ExtensionPopupMenuItem {
     public int getParentMenuIndex() {
     	return ATTACK_MENU_INDEX;
     }
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("bruteforce.site.popup"));
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        		if (treeSite != null) {
-        		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-        		    if (node != null) {
-        		    	extension.bruteForceSite(node);
-        		    }
-        		}
-        	}
-        });
-			
-	}
 	
-    public boolean isEnableForComponent(Component invoker) {
-        treeSite = getTree(invoker);
-        if (treeSite != null) {
-		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot() && ! extension.isScanning(node)) {
-		        this.setEnabled(true);
-		    } else {
-		        this.setEnabled(false);
-		    }
-            return true;
-        }
-        return false;
+	@Override
+	public void performAction(SiteNode node) throws Exception {
+	    if (node != null) {
+	    	// Loop up to get the top parent
+			while (node.getParent() != null && node.getParent().getParent() != null) {
+				node = (SiteNode) node.getParent();
+			}
+	    	extension.bruteForceSite(node);
+	    }
+	}
+
+	@Override
+    public boolean isEnabledForSiteNode (SiteNode node) {
+	    if (node != null && ! node.isRoot() && ! extension.isScanning(node)) {
+	        this.setEnabled(true);
+	    } else {
+	        this.setEnabled(false);
+	    }
+        return true;
     }
 
-    private JTree getTree(Component invoker) {
-        if (invoker instanceof JTree) {
-            JTree tree = (JTree) invoker;
-            if (tree.getName().equals("treeSite")) {
-                return tree;
-            }
-        }
-
-        return null;
-    }
-    
+	@Override
+	public boolean isEnableForInvoker(Invoker invoker) {
+		switch (invoker) {
+		case alerts:
+		case ascan:
+		case bruteforce:
+		case fuzz:
+			return false;
+		case history:
+		case sites:
+		case search:
+		default:
+			return true;
+		}
+	}
     
     void setExtension(ExtensionBruteForce extension) {
         this.extension = extension;
