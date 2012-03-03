@@ -19,34 +19,23 @@
  */
 package org.zaproxy.zap.extension.portscan;
 
-import java.awt.Component;
-
 import javax.swing.ImageIcon;
-import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.view.PopupMenuSiteNode;
 
-public class PopupMenuPortScan extends ExtensionPopupMenuItem {
+public class PopupMenuPortScan extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionPortScan extension = null;
-    private JTree treeSite = null;
     
-    /**
-     * 
-     */
-    public PopupMenuPortScan() {
-        super();
- 		initialize();
-    }
-
     /**
      * @param label
      */
     public PopupMenuPortScan(String label) {
         super(label);
+        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/187.png")));
     }
 
     @Override
@@ -63,59 +52,46 @@ public class PopupMenuPortScan extends ExtensionPopupMenuItem {
     public int getParentMenuIndex() {
     	return ATTACK_MENU_INDEX;
     }
-
-    /**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("ports.site.popup"));
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/187.png")));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        		if (treeSite != null) {
-        		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-        		    if (node != null) {
-        		    	extension.portScanSite(node);
-        		    }
-        		}
-
-        	}
-        });
-			
-	}
-	
-    public boolean isEnableForComponent(Component invoker) {
-        treeSite = getTree(invoker);
-        if (treeSite != null) {
-		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot() && ! extension.isScanning(node)) {
-		        this.setEnabled(true);
-		    } else {
-		        this.setEnabled(false);
-		    }
-            return true;
-        }
-        return false;
-    }
-
-    private JTree getTree(Component invoker) {
-        if (invoker instanceof JTree) {
-            JTree tree = (JTree) invoker;
-            if (tree.getName().equals("treeSite")) {
-                return tree;
-            }
-        }
-
-        return null;
-    }
-    
     
     void setExtension(ExtensionPortScan extension) {
         this.extension = extension;
     }
-    	
+    
+	@Override
+	public void performAction(SiteNode node) throws Exception {
+	    if (node != null) {
+	    	// Loop up to get the top parent
+			while (node.getParent() != null && node.getParent().getParent() != null) {
+				node = (SiteNode) node.getParent();
+			}
+	    	extension.portScanSite(node);
+	    }
+	}
+
+	@Override
+    public boolean isEnabledForSiteNode (SiteNode node) {
+	    if (node != null && ! node.isRoot() && ! extension.isScanning(node)) {
+	        this.setEnabled(true);
+	    } else {
+	        this.setEnabled(false);
+	    }
+        return true;
+    }
+
+	@Override
+	public boolean isEnableForInvoker(Invoker invoker) {
+		switch (invoker) {
+		case alerts:
+		case ascan:
+		case bruteforce:
+		case fuzz:
+			return false;
+		case history:
+		case sites:
+		case search:
+		default:
+			return true;
+		}
+	}
+
 }

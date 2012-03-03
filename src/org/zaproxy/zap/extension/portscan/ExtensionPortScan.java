@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -165,7 +166,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 
     private PopupMenuPortScan getPopupMenuPortScan() {
         if (popupMenuPortScan == null) {
-            popupMenuPortScan = new PopupMenuPortScan();
+            popupMenuPortScan = new PopupMenuPortScan(Constant.messages.getString("ports.site.popup"));
             popupMenuPortScan.setExtension(this);
         }
         return popupMenuPortScan;
