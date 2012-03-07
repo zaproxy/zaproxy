@@ -61,6 +61,7 @@ This list the alerts
 10022	Information disclosure - database error messages
 10023	Information disclosure - debug error messages
 10024	Information disclosure - sensitive informations in URL
+10025	Information disclosure - sensitive informations on HTTP Referrer header
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
