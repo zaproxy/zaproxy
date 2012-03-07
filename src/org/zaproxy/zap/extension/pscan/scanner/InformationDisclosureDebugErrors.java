@@ -45,8 +45,9 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
-			if (DoesRequestContainsDebugErrorMessage(msg.getResponseBody())) {
-				this.raiseAlert(msg, id, "");
+			String parameter;
+			if ((parameter = DoesRequestContainsDebugErrorMessage(msg.getResponseBody())) != null) {
+				this.raiseAlert(msg, id, parameter);
 			}
 		}
 	}
@@ -67,20 +68,21 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
     	parent.raiseAlert(id, alert);
 	}
 	
-	private boolean DoesRequestContainsDebugErrorMessage (HttpBody body) {
+	private String DoesRequestContainsDebugErrorMessage (HttpBody body) {
 		String line = null;
 		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(debugErrorFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
-					return true;
+					reader.close();
+					return line;
 				}
 			}
 		} catch (IOException e) {
 			logger.debug("Error on opening/reading debug error file. Error:" + e.getMessage());
 		}
-		return false;
+		return null;
 	}
 	
 	@Override

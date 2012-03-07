@@ -45,8 +45,9 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
-			if (DoesRequestContainsDBErrorMessage(msg.getResponseBody())) {
-				this.raiseAlert(msg, id, "");
+			String parameter;
+			if ((parameter = DoesRequestContainsDBErrorMessage(msg.getResponseBody())) != null) {
+				this.raiseAlert(msg, id, parameter);
 			}
 		}
 	}
@@ -67,20 +68,21 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
     	parent.raiseAlert(id, alert);
 	}
 	
-	private boolean DoesRequestContainsDBErrorMessage (HttpBody body) {
+	private String DoesRequestContainsDBErrorMessage (HttpBody body) {
 		String line = null;
 		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(databaseErrorFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
-					return true;
+					reader.close();
+					return line;
 				}
 			}
 		} catch (IOException e) {
 			logger.debug("Error on opening/reading database error file. Error:" + e.getMessage());
 		}
-		return false;
+		return null;
 	}
 
 	@Override
