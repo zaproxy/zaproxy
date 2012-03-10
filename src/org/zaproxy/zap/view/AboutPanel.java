@@ -41,7 +41,7 @@ public class AboutPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final String PRODUCT = Constant.PROGRAM_NAME;
 	private static final String VERSION = "Version " + Constant.PROGRAM_VERSION;
-	private static final String COPYRIGHT = "Copyright (C) 2010-2011 OWASP ZAP Attack Proxy Project";
+	private static final String COPYRIGHT = "Copyright (C) 2010-2012 OWASP ZAP Attack Proxy Project";
 	private static final String LICENSE_DETAIL = "<html><body><p>This program is free software; "
 		+ "you can redistribute it and/or modify it under the terms of the Apache License, "
 		+ "Version 2.0.  This program is distributed in the hope that it will be useful, but "
