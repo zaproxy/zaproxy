@@ -161,5 +161,8 @@ public abstract class ExtensionAdaptor implements Extension {
 		return new ArrayList<Class<?>>();
 	}
 
-
+	@Override
+	public boolean isCore() {
+		return false;
+	}
 }

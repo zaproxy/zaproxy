@@ -60,4 +60,10 @@ public class ExtensionExtension extends ExtensionAdaptor {
 		}
 		return optionsExceptionsPanel;
 	}
+	
+	@Override
+	public boolean isCore() {
+		return true;
+	}
+
 }

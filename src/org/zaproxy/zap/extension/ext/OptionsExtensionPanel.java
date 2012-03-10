@@ -86,8 +86,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	@Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-	    //AntiCsrfParam param = optionsParam.getAntiCsrfParam();
-	    //getAntiCsrfModel().setTokens(param.getTokens());
 		List<Extension> exts = extensionModel.getExtensions();
 		for (Extension ext : exts) {
             ext.setEnabled(optionsParam.getConfig().getBoolean("ext." + ext.getName(), true));
@@ -119,7 +117,8 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 			tableExt.setModel(getExtensionModel());
 			tableExt.setRowHeight(18);
 			tableExt.getColumnModel().getColumn(0).setPreferredWidth(80);
-			tableExt.getColumnModel().getColumn(1).setPreferredWidth(400);
+			tableExt.getColumnModel().getColumn(1).setPreferredWidth(80);
+			tableExt.getColumnModel().getColumn(2).setPreferredWidth(320);
 		}
 		return tableExt;
 	}

@@ -34,6 +34,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 
 	private static final String[] columnNames = {
 				Constant.messages.getString("options.ext.label.enabled"),
+				Constant.messages.getString("options.ext.label.core"),
 				Constant.messages.getString("options.ext.label.extension")};
     
     private List<Extension> extensions = ExtensionFactory.getAllExtensions();
@@ -58,6 +59,11 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         if (ext != null) {
         	if (col == 0) {
         		return ext.isEnabled();
+        	} else if (col == 1) {
+        		if (ext.isCore()) {
+        			return Constant.messages.getString("options.ext.label.iscore");
+        		}
+        		return "";
         	} else {
         		return ext.getDescription();
         	}
@@ -67,6 +73,10 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (columnIndex == 0) {
+    		// Dont allow enabled core extensions to be edited via the UI (can edit the config file directly;)
+    		if (extensions.get(rowIndex).isCore() && extensions.get(rowIndex).isEnabled()) {
+    			return false;
+    		}
     		// Check dependencies
     		List<Class<?>> deps = extensions.get(rowIndex).getDependencies();
     		for (Class<?>dep : deps) {

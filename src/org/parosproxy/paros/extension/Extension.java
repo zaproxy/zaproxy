@@ -100,5 +100,7 @@ public interface Extension {
 	public void setEnabled(boolean enabled);
 	
 	public List<Class<?>> getDependencies();
-
+	
+	public boolean isCore ();
+	
 }

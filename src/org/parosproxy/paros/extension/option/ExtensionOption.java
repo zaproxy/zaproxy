@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Set order
+// ZAP: 2012/03/10 Issue 279: Flag as a core extension 
 
 package org.parosproxy.paros.extension.option;
 
@@ -27,7 +28,6 @@ import javax.swing.JCheckBoxMenuItem;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
 import org.zaproxy.zap.extension.lang.OptionsLangPanel;
 import org.zaproxy.zap.extension.option.OptionsCheckForUpdatesPanel;
 
@@ -61,7 +61,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
-	        ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookMenu().addViewMenuItem(getMenuViewImage());
 	        
 	        extensionHook.getHookView().addOptionPanel(getOptionsConnectionPanel());
@@ -135,5 +134,11 @@ public class ExtensionOption extends ExtensionAdaptor {
 			optionsLangPanel = new OptionsLangPanel();
 		}
 		return optionsLangPanel;
+	}
+	
+	@Override
+	public boolean isCore() {
+		// Really need this in order to configure basic functionality
+		return true;
 	}
 }
