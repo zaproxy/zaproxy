@@ -522,18 +522,17 @@ public class HttpMessage {
 	public String getCookieParamsAsString() {
 		String cookie = "";
 		
-		Vector<String> cookies = null;
+		Vector<String> cookies = new Vector<String>();
         if (! this.getRequestHeader().isEmpty()) {
-        	cookies = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-        } else if (! this.getResponseHeader().isEmpty()) {
-        	cookies = this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE);
-        	cookies.addAll(this.getRequestHeader().getHeaders(HttpHeader.SET_COOKIE2));
-        } else {
-        	return cookie;
+        	addAll(cookies,this.getRequestHeader().getHeaders(HttpHeader.COOKIE));
+        }
+        if (! this.getResponseHeader().isEmpty()) {
+        	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE));
+        	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2));
         }
 		
         // Fix error requesting cookies, but there are none
-        if (cookies == null) {
+        if (cookies.size() == 0) {
         	return cookie;
         }
         
@@ -543,19 +542,20 @@ public class HttpMessage {
         return cookie;
 	}
 	
+	private void addAll (Vector<String> dest, Vector<String> src) {
+		if (src != null) {
+			dest.addAll(src);
+		}
+	}
+	
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
 		Vector<String> cookies = new Vector<String>();
+
 	    if (! this.getResponseHeader().isEmpty()) {
-	    	cookies = this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE);
-	    	if (cookies == null) {
-	    		cookies = new Vector<String>();
-	    	}
-	    	Vector<String> cookies2 = this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2);
-	    	if (cookies2 != null) {
-	    		cookies.addAll(cookies2);
-	    	}
+	    	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE));
+	    	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2));
 	    	
 	    } else if (! this.getRequestHeader().isEmpty()) {
     		Vector<String> cookieLines = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
