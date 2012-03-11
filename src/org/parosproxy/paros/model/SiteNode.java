@@ -23,6 +23,7 @@
 // ZAP: 2011/11/04 Correct getHierarchicNodeName
 // ZAP: 2011/11/29 Added blank image to node names to fix redrawing issue
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap 
+// ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
 
 package org.parosproxy.paros.model;
 
@@ -34,6 +35,7 @@ import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -99,21 +101,14 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public String toString() {
-    	return "<html><body>" + getIcons() + nodeName + "</body></html>";
+    	return "<html><body>" + getIcons() + StringEscapeUtils.escapeHtml(nodeName) + "</body></html>";
     }
     
-    public static String cleanName(String name) {
-    	String cname = name;
-    	if (cname.startsWith("<html><body>")) {
-    		cname = cname.substring(12);
+    public boolean isParentOf (String nodeName) {
+    	if (nodeName == null) {
+    		return false;
     	}
-    	if (cname.indexOf("&nbsp;") > 0) {
-    		cname = cname.substring(cname.lastIndexOf("&nbsp;")+6);
-    	}
-    	if (cname.indexOf("</body></html>") > 0) {
-    		cname = cname.substring(0, cname.indexOf("</body></html>"));
-    	}
-    	return cname;
+        return nodeName.compareTo(this.nodeName) < 0;
     }
 
     public String getNodeName() {

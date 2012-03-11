@@ -22,6 +22,7 @@
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
+// ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
 
 package org.parosproxy.paros.model;
 
@@ -358,7 +359,7 @@ public class SiteMap extends DefaultTreeModel {
             SiteNode newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
-                if (nodeName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
+            	if (((SiteNode)parent.getChildAt(i)).isParentOf(nodeName)) {
                     pos = i;
                     break;
                 }
@@ -403,7 +404,7 @@ public class SiteMap extends DefaultTreeModel {
             
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
-                if (leafName.compareTo(SiteNode.cleanName(parent.getChildAt(i).toString())) < 0) {
+            	if (((SiteNode)parent.getChildAt(i)).isParentOf(nodeName)) {
                     pos = i;
                     break;
                 }
