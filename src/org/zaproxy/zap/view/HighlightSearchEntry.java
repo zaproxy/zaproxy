@@ -1,4 +1,4 @@
-package org.zaproxy.zap.extension.highlighter;
+package org.zaproxy.zap.view;
 
 import java.awt.Color;
 

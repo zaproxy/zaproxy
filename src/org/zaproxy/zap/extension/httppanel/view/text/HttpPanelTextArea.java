@@ -26,11 +26,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.highlighter.HighlightSearchEntry;
-import org.zaproxy.zap.extension.highlighter.HighlighterManager;
 import org.zaproxy.zap.extension.httppanel.view.text.menus.SyntaxMenu;
 import org.zaproxy.zap.extension.httppanel.view.text.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.view.HighlightSearchEntry;
+import org.zaproxy.zap.view.HighlighterManager;
 
 /* ZAP Text Area
  * Which enhanced functionality. Used to display HTTP Message request / response, or parts of it.

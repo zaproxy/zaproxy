@@ -1,4 +1,4 @@
-package org.zaproxy.zap.extension.highlighter;
+package org.zaproxy.zap.view;
 
 import java.awt.Color;
 import java.util.LinkedList;
@@ -26,7 +26,6 @@ public class HighlighterManager extends Observable {
 	
 	public HighlighterManager() {
 		highlights = new LinkedList<HighlightSearchEntry>();
-		readConfigFile();
 	}
 	
 	public void reinitHighlights(LinkedList<HighlightSearchEntry> list) {
@@ -34,19 +33,6 @@ public class HighlighterManager extends Observable {
 		
 		setChanged();
 		notifyObservers(null);
-	}
-	
-	public void readConfigFile() {
-		try {
-			this.highlights = Model.getSingleton().getOptionsParam().getOptionsHighlight().getHighlights(); 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void writeConfigFile() {
-		Model.getSingleton().getOptionsParam().getOptionsHighlight().save(highlights);
 	}
 	
 	public void addHighlightEntry(String token, SearchMatch.Location type, boolean isActive) {
@@ -63,9 +49,6 @@ public class HighlighterManager extends Observable {
 	
 	public void removeHighlightEntry(int id) {
 		highlights.remove(id);
-		
-		// TODO
-		writeConfigFile();
 		
 		// null means the observers call getHighlights() to rebuild all highlights
 		setChanged();
