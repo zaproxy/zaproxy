@@ -30,7 +30,6 @@ import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
-import org.parosproxy.paros.extension.option.OptionsHighlight;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -68,7 +67,6 @@ public class OptionsParam extends AbstractParam {
 	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	private SessionParam sessionParam = new SessionParam();
-	private OptionsHighlight optionsHighlight = new OptionsHighlight();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private boolean gui = true;
@@ -139,24 +137,8 @@ public class OptionsParam extends AbstractParam {
     public OptionsParamCertificate getCertificateParam() {
         return certificateParam;
     }
-
     
-    /**
-     * @param certificateParam The certificateParam to set.
-     */
-    public void setOptionsHighlight(OptionsHighlight optionsHighlight) {
-        this.optionsHighlight = optionsHighlight;
-    }
-    
-    /**
-     * @return Returns the highlightParam.
-     */
-    public OptionsHighlight getOptionsHighlight() {
-        return optionsHighlight;
-    }
-
-    
-    public void addParamSet(AbstractParam paramSet) {
+     public void addParamSet(AbstractParam paramSet) {
         paramSetList.add(paramSet);
 	    paramSet.load(getConfig());
     }
@@ -194,7 +176,6 @@ public class OptionsParam extends AbstractParam {
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
 		getSessionParam().load(getConfig());
-		getOptionsHighlight().load(getConfig());
 		
 		String userDir = null;
 		try {
