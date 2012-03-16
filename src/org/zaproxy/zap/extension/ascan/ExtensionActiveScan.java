@@ -40,6 +40,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -57,9 +58,14 @@ import org.zaproxy.zap.view.SiteMapListener;
 public class ExtensionActiveScan extends ExtensionAdaptor implements  
 		SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
     
+    private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
+    
     private static final int ARG_SCAN_IDX = 0;
 
 	public static final String NAME = "ExtensionActiveScan";
+
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
     
 	private JMenuItem menuItemPolicy = null;
 	
@@ -71,8 +77,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private List<AbstractParamPanel> policyPanels = new ArrayList<AbstractParamPanel>();
 
     private PopupMenuScanHistory popupMenuScanHistory = null;
-    
-    private Logger logger = Logger.getLogger(ExtensionActiveScan.class);
 
     /**
      * 
@@ -305,6 +309,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
+	}
+	
+	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
 		String site = msg.getRequestHeader().getHostName();
@@ -349,8 +358,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return deps;
 	}
 
-	// Override disabled as this change hasnt been checked in yet
-	// @Override
+	@Override
 	public void sessionAboutToChange(Session session) {
 	}
 }

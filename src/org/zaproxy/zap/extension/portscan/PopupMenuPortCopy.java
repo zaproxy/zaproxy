@@ -69,18 +69,18 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
                     return;
                 }
                 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (Object obj: objs) {
                 	Integer port = (Integer) obj;
                 	sb.append(port);
-                	sb.append("\t");
+                	sb.append('\t');
             		if (Constant.messages.containsKey("port." + port)) {
             			sb.append(Constant.messages.getString("port." + port));
             		} else {
             			sb.append(Constant.messages.getString("port.unknown"));
             		}
 
-                	sb.append("\n");
+                	sb.append('\n');
                 }
                 setClipboardContents(sb.toString());
         	}

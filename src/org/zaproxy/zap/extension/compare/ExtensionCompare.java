@@ -220,7 +220,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 				        sset.addAll(curMap.keySet());
 				        sset.addAll(cmpMap.keySet());
 				        
-					    StringBuffer sb = new StringBuffer(500);
+				        StringBuilder sb = new StringBuilder(500);
 					    sb.append("<?xml version=\"1.0\"?>");
 					    sb.append(CRLF);
 					    sb.append("<report>");

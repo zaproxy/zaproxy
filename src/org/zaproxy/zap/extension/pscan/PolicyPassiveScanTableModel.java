@@ -35,7 +35,6 @@ import org.parosproxy.paros.Constant;
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	// TODO i18n
     private static final String[] columnNames = {
 									Constant.messages.getString("ascan.policy.table.testname"), 
 									Constant.messages.getString("ascan.policy.table.enabled")};
@@ -53,8 +52,8 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         fireTableDataChanged();
     }
     
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+    @Override
+	public Class<?> getColumnClass(int c) {
         if (c == 1) {
             return Boolean.class;
         }
@@ -62,10 +61,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 1) {
             return true;
@@ -73,6 +74,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         return false;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
     	PluginPassiveScanner test = listScanners.get(row);
@@ -85,6 +87,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         fireTableCellUpdated(row, col);
     }
     
+    @Override
     public int getColumnCount() {
         return 2;
     }
@@ -92,6 +95,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
     	if (listScanners == null) {
     		return 0;
@@ -102,6 +106,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
     	PassiveScanner test = listScanners.get(row);
         Object result = null;

@@ -36,6 +36,9 @@ public class ExtensionPopupMenu extends JMenu {
         super(label);
     }
     
+    /**
+	 * @param invoker  
+	 */
     public boolean isEnableForComponent(Component invoker) {
         return true;
     }

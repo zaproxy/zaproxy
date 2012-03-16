@@ -54,12 +54,12 @@ public class GenericMethod extends EntityEnclosingMethod {
 
     public GenericMethod(String method) {
         super();
-        this.method = new String(method);
+        this.method = method;
     }
     
     public GenericMethod(String method, String uri) {
         super(uri);
-        this.method = new String(method);
+        this.method = method;
     }
 
 
@@ -88,9 +88,8 @@ public class GenericMethod extends EntityEnclosingMethod {
         log.trace("enter GenericMethod.hasRequestContent()");
         if (!this.params.isEmpty()) {
             return true;
-        } else {
-            return super.hasRequestContent();
         }
+        return super.hasRequestContent();
     }
 
     /**
@@ -126,9 +125,8 @@ public class GenericMethod extends EntityEnclosingMethod {
                 FORM_URL_ENCODED_CONTENT_TYPE
             );
             return entity;
-        } else {
-            return super.generateRequestEntity();
         }
+        return super.generateRequestEntity();
     }
     
     /**
@@ -169,7 +167,7 @@ public class GenericMethod extends EntityEnclosingMethod {
         Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
-            NameValuePair parameter = (NameValuePair) iter.next();
+            NameValuePair parameter = iter.next();
 
             if (paramName.equals(parameter.getName())) {
                 return parameter;
@@ -292,7 +290,7 @@ public class GenericMethod extends EntityEnclosingMethod {
         Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
-            NameValuePair pair = (NameValuePair) iter.next();
+            NameValuePair pair = iter.next();
 
             if (paramName.equals(pair.getName())) {
                 iter.remove();
@@ -330,7 +328,7 @@ public class GenericMethod extends EntityEnclosingMethod {
         Iterator<NameValuePair> iter = this.params.iterator();
 
         while (iter.hasNext()) {
-            NameValuePair pair = (NameValuePair) iter.next();
+            NameValuePair pair = iter.next();
 
             if (paramName.equals(pair.getName())
                 && paramValue.equals(pair.getValue())) {

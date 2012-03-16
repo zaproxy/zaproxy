@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to ExtensionPopupMenuItem
 // ZAP: 2012/02/18 Issue 274 Confirm purge/delete
+// ZAP: 2012/03/15 Changed so no ConcurrentModificationException is thrown.
 
 package org.parosproxy.paros.view;
 
@@ -32,7 +33,6 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -132,21 +132,23 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 
             if (node.getHistoryReference()!= null) {
         		if (extAlert != null) {
-        	        for (Alert alert : node.getHistoryReference().getAlerts()) {
-        				extAlert.deleteAlert(alert);
-        	        }
+        			//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
+        			while (!node.getHistoryReference().getAlerts().isEmpty()) {
+        				extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
+        			}
         		}
                 node.getHistoryReference().delete();
             }
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
-                HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
-				for (Alert alert : ref.getAlerts()) {
-	        		if (extAlert != null) {
-	        			extAlert.deleteAlert(alert);
-	        		}
-       	        }
+                HistoryReference ref = node.getPastHistoryReference().get(0);
+                if (extAlert != null) {
+	        		//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
+        			while (!ref.getAlerts().isEmpty()) {
+        				extAlert.deleteAlert(ref.getAlerts().get(0));
+        			}
+	            }
                 ext.getHistoryList().removeElement(ref);
                 ref.delete();
                 node.getPastHistoryReference().remove(0);

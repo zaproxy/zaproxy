@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the method checkResult to use the class StringBuilder 
+//      instead of StringBuffer.
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -171,8 +174,6 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 
 	private boolean checkResult(HttpMessage msg, String param, String attack, String normalHTTPResponse) {
 
-		StringBuffer sb = new StringBuffer();
-
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK
 			&& !HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode())) {
 			return false;
@@ -182,6 +183,8 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 		if (msg.getResponseBody().toString().equals(normalHTTPResponse)) {
 			return false;
 		}
+
+		StringBuilder sb = new StringBuilder();
 		
 		if (matchBodyPattern(msg, patternErrorJava1, sb) && matchBodyPattern(msg, patternErrorJava2, null)) {
 

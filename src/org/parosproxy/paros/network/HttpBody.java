@@ -19,48 +19,48 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed to use byte[] instead of StringBuffer.
+
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+
+import org.apache.log4j.Logger;
 
 /**
  * Abstract a HTTP body in request or response messages.
  */
-public class HttpBody {
+public abstract class HttpBody {
 
-	private StringBuffer body = null;
-	public static final String STORAGE_CHARSET = "8859_1";
-	public static final String DEFAULT_CHARSET = "8859_1";
-	private String charset = DEFAULT_CHARSET;
-	private boolean isChangedCharset = false;
-    private String cacheString = null;
-	//private static Pattern patternCharset = Pattern.compile("<META +[^>]+charset=['\"]*([^>'\"])+['\"]*>", Pattern.CASE_INSENSITIVE| Pattern.MULTILINE);
-	private static final Pattern patternCharset = Pattern.compile("<META +[^>]+charset *= *['\\x22]?([^>'\\x22;]+)['\\x22]? *>", Pattern.CASE_INSENSITIVE);
+	private static final Logger log = Logger.getLogger(HttpBody.class);
 	
+	public static final String DEFAULT_CHARSET = "8859_1";
+
+	private byte[] body;
+	private int pos;
+    private String cachedString;
+	private String charset = DEFAULT_CHARSET;
+	protected boolean isChangedCharset;
+    
 	public HttpBody() {
-	    body = new StringBuffer();
-        cacheString = null;
+		body = new byte[0];
 	}
 
 	/**
-	 *	Preallocate HttpBody of a certain size.  A maximum of 256K is fixed to avoid overwhelming
+	 *	Preallocate HttpBody of a certain size.  A maximum of 128K is fixed to avoid overwhelming
 	 * 	by incorrect contentlength.
 	 */
 	public HttpBody(int capacity) {
-	    
-	    if (capacity>0) {
+	    if (capacity > 0) {
 	        if (capacity > 128000) {
 	            capacity = 128000;
 	        }
-	        body = new StringBuffer(capacity);
+	        body = new byte[capacity];
 	    } else {
-	        body = new StringBuffer();
+	    	body = new byte[0];
 	    }
-        cacheString = null;
-
+        pos = 0;
 	}
 	
 	/**
@@ -68,39 +68,39 @@ public class HttpBody {
 	 * @param data
 	 */
 	public HttpBody(String data) {
-	    this();
-		if (data == null)
-			return;
 		setBody(data);
-        cacheString = null;
-
 	}
 
 	public void setBody(byte[] buf) {
-	    //body.setLength(0);
-	    body = new StringBuffer(buf.length);
-	    append(buf);
-        cacheString = null;
-
+		if (buf == null) {
+			return;
+		}
+		cachedString = null;
+		
+		body = new byte[buf.length];
+		System.arraycopy(buf, 0, body, 0, buf.length);
+		
+		pos = body.length;
 	}
 	
 	/**
 	 * Set this HttpBody to store the data supplied.
 	 * @param data
-	 * @throws UnsupportedEncodingException
 	 */
 	public void setBody(String data)  {
-	    byte[] buf = null;
-	    try {
-		    //data = new String(data.getBytes(getCharset()), STORAGE_CHARSET);
-		    buf = data.getBytes(getCharset());
-
-		} catch (UnsupportedEncodingException e) {
-		    e.printStackTrace();
+		if (data == null) {
+			return ;
 		}
-		setBody(buf);
-        cacheString = null;
-
+		
+		cachedString = null;
+		
+		try {
+			body = data.getBytes(charset);
+		} catch (UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		pos = body.length;
 	}
 
 	/**
@@ -109,124 +109,126 @@ public class HttpBody {
 	 * @param len
 	 */
 	public void append(byte[] buf, int len) {
-		if (buf == null)
+		if (buf == null) {
 			return;
-		
-		String temp = null;
-		try {
-			temp = new String(buf, 0, len, STORAGE_CHARSET);
-		} catch (Exception e) {
-			temp = new String(buf, 0, len);
 		}
-		body.append(temp);
-        cacheString = null;
-
+		
+		if (pos + len > body.length) {
+			byte[] newBody = new byte[body.length+len];
+			System.arraycopy(body, 0, newBody, 0, body.length);
+			System.arraycopy(buf, 0, newBody, body.length, len);
+			body = newBody;
+			pos = body.length;
+		} else {
+			System.arraycopy(buf, 0, body, pos, len);
+			pos += len;
+		}
+		
+        cachedString = null;
 	}
 	
 	/**
 	 * Append a byte array to this body.
+	 * 
 	 * @param buf
 	 */
 	public void append(byte[] buf) {
-		if (buf == null)
+		if (buf == null) {
 			return;
+		}
 		append(buf, buf.length);
-        cacheString = null;
-
 	}
 
 	/**
 	 * Append a String to this body.
+	 * 
 	 * @param buf
 	 */
 	public void append(String buf) {
-		if (buf == null)
+		if (buf == null) {
 			return;
-
-		body.append(buf);
-        cacheString = null;
-
+		}
+	    try {
+	    	append(buf.getBytes(charset));
+		} catch (UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	/**
 	 * Get the content of the body as String.
 	 */
+	@Override
 	public String toString() {
-
-        if (cacheString != null) {
-            return cacheString;
+        if (cachedString != null) {
+            return cachedString;
         }
         
-	    if (isChangedCharset) {
-            cacheString = toString(getCharset());
-            isChangedCharset = false;
-            return cacheString;
-	    }
-	    
-        // undetermined charset;
-	    String html = body.toString();
+        cachedString = createCachedString(charset);
 
-	    Matcher matcher = patternCharset.matcher(html);
-		if (matcher.find()) {
-			setCharset(matcher.group(1));
-		} else {
-		    String utf8 = toUTF8();
-		    if (utf8 != null) {
-                // assume to be UTF8
-		        setCharset("UTF8");
-                isChangedCharset = false;
-                cacheString = utf8;
-                return cacheString;
-		    }
-		    
-		}
-	    cacheString = toString(getCharset());
-		return cacheString;
+        return cachedString;
 	}
 	
-	public String toString(String charset) {
-	    String result = "";
+	protected String createCachedString(String charset) {
+		String result = "";
+		
 		try {
-		    if (charset.equalsIgnoreCase(STORAGE_CHARSET)) {
-		        result = body.toString();
-		    } else {
-		        result = new String(getBytes(), charset);
-		    }
-		} catch (UnsupportedEncodingException e) {
-		    result = body.toString();
-		}
-		return result;
-	    
-	}
-	
-	public byte[] getBytes() {
-		byte[] result = null;
-		try {
-			result = body.toString().getBytes(STORAGE_CHARSET);
+			if (isChangedCharset) {
+				result = new String(getBytes(), charset);
+				isChangedCharset = false;
+			} else {
+				result = new String(getBytes(), DEFAULT_CHARSET);
+				isChangedCharset = false;
+			}
+		} catch (UnsupportedEncodingException e1) {
+			log.error(e1.getMessage(), e1);
 			
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			try {
+				result = new String(getBytes(), DEFAULT_CHARSET);
+			} catch(UnsupportedEncodingException e2) {
+				log.error(e2.getMessage(), e2);
+			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the contents of the body as an array of bytes.
+	 * 
+	 * The returned array of bytes mustn't be modified.
+	 * Is returned a reference instead of a copy to avoid more memory allocations.
+	 * 
+	 * @return a reference to the content of this body as <code>byte[]</code>.
+	 */
+	public byte[] getBytes() {
+		return body;
 	}
 
 	/**
 	 * Current length of the body.
-	 * @return
+	 * 
+	 * @return the current length of the body.
 	 */
 	public int length() {
-		return body.length();
+		return body.length;
 	}
 
 	/**
 	 * Set the current length of this body.  If the current content is
 	 * longer, the excessive data will be truncated.
-	 * @param length
+	 * 
+	 * @param length the new length to set.
 	 */
 	public void setLength(int length) {
-		body.setLength(length);
-        cacheString = null;
-
+		if (body.length != length) {
+			pos = Math.min(body.length, length);
+	
+			byte[] newBody = new byte[length];
+			System.arraycopy(body, 0, newBody, 0, length);
+			body = newBody;
+			
+			cachedString = null;
+		}
 	}
 	
 	
@@ -237,58 +239,41 @@ public class HttpBody {
     public String getCharset() {
         return charset;
     }
+    
     /**
      * @param charset The charset to set.
      */
     public void setCharset(String charset) {
-        if (charset == null || charset.equals("")) {
+        if (charset == null || charset.equals("") || charset.equalsIgnoreCase(this.charset)) {
             return;
         }
         this.charset = charset;
-        isChangedCharset = true;
+        this.isChangedCharset = true;
+        this.cachedString = null;
     }
     
-    private String toUTF8() {
-        byte[] buf1 = getBytes();
-        String utf8 = null;
-        byte[] buf2 = null;
-        try {
-            utf8 = new String(buf1, "UTF8");
-            buf2 = utf8.getBytes("UTF8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("UTF8 not supported.  Using 8859_1 instead.");
-            return body.toString();
-        }
-
-        if (buf1.length != buf2.length) {
-            return null;
-        }
-
-//        for(int i=0; i<buf1.length; i++) {
-//            if (buf1[i] != buf2[i]) {
-//                return null;
-//            }
-//        }
-        
-        return utf8;
-    }
-
-	// Construct a HTTP POST Body from the variables in postParams
-	public void setFormParams(TreeSet<HtmlParameter> postParams) {
-		String postData = "";
-		
-		for(HtmlParameter parameter: postParams) {
-			if (parameter.getType() != HtmlParameter.Type.form) {
-				continue;
-			}
-			
-			postData += parameter.getName() + "=" + parameter.getValue();
-			postData += "&";
-		}
-		postData = postData.substring(0, postData.length() - 1);
-		
-		this.setBody(postData);
+	@Override
+	public int hashCode() {
+		return 31 + Arrays.hashCode(body);
 	}
-    
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (object == null) {
+			return false;
+		}
+		if (getClass() != object.getClass()) {
+			return false;
+		}
+		HttpBody otherBody = (HttpBody) object;
+		if (!Arrays.equals(body, otherBody.body)) {
+			return false;
+		}
+		return true;
+	}
+	
     
 }

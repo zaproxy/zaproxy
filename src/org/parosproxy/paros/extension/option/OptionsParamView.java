@@ -19,24 +19,24 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
+// ZAP: 2012/03/15 Removed the options of the http panels.
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
 
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.extension.httppanel.HttpPanelView;
 
 // ZAP: Added support for selecting the locale
 
 public class OptionsParamView extends AbstractParam {
+	
+	public static final String BASE_VIEW_KEY = "view";
 
 	private static final String PROCESS_IMAGES = "view.processImages";
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
-	public static final String EDITORVIEW_OPTION = "view.editorView";
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
 	public static final String SHOW_MAIN_TOOLBAR_OPTION = "view.showMainToolbar";
 	public static final String DEFAULT_LOCALE = "en_GB";
@@ -45,26 +45,8 @@ public class OptionsParamView extends AbstractParam {
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String REVEAL_OPTION = "view.reveal";
-	public static final String PLUGIN_VIEW = "view.plugin.";
 
-	public static final String DEFAULT_VIEW_REQ_MANUAL = "view.defaultViewReqManual";
-	public static final String DEFAULT_VIEW_REQ_PROXY = "view.defaultViewReqProxy";
-	public static final String DEFAULT_VIEW_REQ_HISTORY = "view.defaultViewReqHistory";
-	public static final String DEFAULT_VIEW_RES_MANUAL = "view.defaultViewResManual";
-	public static final String DEFAULT_VIEW_RES_PROXY = "view.defaultViewResProxy";
-	public static final String DEFAULT_VIEW_RES_HISTORY = "view.defaultViewResHistory";
-	
-	public static enum ViewType {
-		req_manual,
-		req_proxy,
-		req_history,
-		res_manual,
-		res_proxy,
-		res_history
-	};
-	
 	private int advancedViewEnabled = 0;
-	private int editorViewOption;
 	private int processImages = 0;
 	private int showMainToolbar = 1;
 	private String configLocale = "";
@@ -76,13 +58,6 @@ public class OptionsParamView extends AbstractParam {
 	private boolean warnOnTabDoubleClick = false;
 	private boolean reveal = false;
 	
-	private String defaultReqViewManual = "";
-	private String defaultReqViewProxy = "";
-	private String defaultReqViewHistory = "";
-	private String defaultResViewManual = "";
-	private String defaultResViewProxy = "";
-	private String defaultResViewHistory = "";
-
 	
     /**
      * @param rootElementName
@@ -100,7 +75,6 @@ public class OptionsParamView extends AbstractParam {
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
-	    editorViewOption = getConfig().getInt(EDITORVIEW_OPTION, 2);
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
 	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
 	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
@@ -108,13 +82,6 @@ public class OptionsParamView extends AbstractParam {
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    reveal = getConfig().getBoolean(REVEAL_OPTION, false);
-	    
-	    defaultReqViewManual = getConfig().getString(DEFAULT_VIEW_REQ_MANUAL, "");
-	    defaultReqViewProxy = getConfig().getString(DEFAULT_VIEW_REQ_PROXY, "");
-	    defaultReqViewHistory = getConfig().getString(DEFAULT_VIEW_REQ_HISTORY, "");
-	    defaultResViewManual = getConfig().getString(DEFAULT_VIEW_RES_MANUAL, "");
-	    defaultResViewProxy = getConfig().getString(DEFAULT_VIEW_RES_PROXY, "");
-	    defaultResViewHistory = getConfig().getString(DEFAULT_VIEW_RES_HISTORY, "");
     }
 
 	/**
@@ -183,15 +150,6 @@ public class OptionsParamView extends AbstractParam {
 		return configLocale;
 	}
 
-	public int getEditorViewOption() {
-		return editorViewOption;
-	}
-	
-	public void setEditorViewOption(int idx) {
-		editorViewOption = idx;
-		getConfig().setProperty(EDITORVIEW_OPTION, Integer.toString(editorViewOption));
-	}
-	
 	public int getBrkPanelViewOption() {
 		return brkPanelViewOption;
 	}
@@ -253,66 +211,6 @@ public class OptionsParamView extends AbstractParam {
 	public void setReveal(boolean reveal) {
 		this.reveal = reveal;
 		getConfig().setProperty(REVEAL_OPTION, reveal);
-	}
-	
-	public void setDefaultView(OptionsParamView.ViewType viewType, String view) {
-		if (viewType == null) {
-			return;
-		}
-		
-		if (viewType == ViewType.req_history) {
-			defaultReqViewHistory = view;
-			getConfig().setProperty(DEFAULT_VIEW_REQ_HISTORY, view);
-		} else if (viewType == ViewType.req_proxy) {
-			defaultReqViewProxy = view;
-			getConfig().setProperty(DEFAULT_VIEW_REQ_PROXY, view);
-		} else if (viewType == ViewType.req_manual) {
-			defaultReqViewManual = view;
-			getConfig().setProperty(DEFAULT_VIEW_REQ_MANUAL, view);
-		} else if (viewType == ViewType.res_history) {
-			defaultResViewHistory = view;
-			getConfig().setProperty(DEFAULT_VIEW_RES_HISTORY, view);
-		} else if (viewType == ViewType.res_proxy) {
-			defaultResViewProxy = view;
-			getConfig().setProperty(DEFAULT_VIEW_RES_PROXY, view);
-		} else if (viewType == ViewType.res_manual) {
-			defaultResViewManual = view;
-			getConfig().setProperty(DEFAULT_VIEW_RES_MANUAL, view);
-		}
-	}
-	
-	public String getDefaultView(OptionsParamView.ViewType viewType) {
-		if (viewType == ViewType.req_history) {
-			return defaultReqViewHistory;
-		} else if (viewType == ViewType.req_proxy) {
-			return defaultReqViewProxy;
-		} else if (viewType == ViewType.req_manual) {
-			return defaultReqViewManual;
-		} else if (viewType == ViewType.res_history) {
-			return defaultResViewHistory;
-		} else if (viewType == ViewType.res_proxy) {
-			return defaultResViewProxy;
-		} else if (viewType == ViewType.res_manual) {
-			return defaultResViewManual;
-		}
-			
-		return "Split";
-	}
-
-	public String getPluginView(String name, boolean isRequest) {
-		if (isRequest) {
-			return (String) getConfig().getProperty(PLUGIN_VIEW + "Request" + name);
-		} else {
-			return (String) getConfig().getProperty(PLUGIN_VIEW + "Response" + name);
-		}
-	}
-
-	public void setPluginView(String pluginName, boolean isRequest, String viewEntry) {
-		if (isRequest) {
-			getConfig().setProperty(PLUGIN_VIEW + "Request" + pluginName, viewEntry);
-		} else {
-			getConfig().setProperty(PLUGIN_VIEW + "Response" + pluginName, viewEntry);
-		}
 	}
 	
 }

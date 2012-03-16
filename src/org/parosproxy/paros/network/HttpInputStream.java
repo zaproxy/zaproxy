@@ -19,6 +19,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed to use the classes HttpRequestBody and HttpResponseBody
+//      Added @Override annotation where appropriate.
+
 package org.parosproxy.paros.network;
 
 import java.io.BufferedInputStream;
@@ -29,6 +32,8 @@ import java.net.SocketTimeoutException;
 import javax.net.ssl.SSLSocket;
 
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpResponseBody;
 
 /**
  *
@@ -96,7 +101,7 @@ public class HttpInputStream extends BufferedInputStream {
 	}
 
 	/**
-	 * Check if the current StringBuffer trailing characters is an HTTP header end (empty CRLF).
+	 * Check if the current StringBuilder trailing characters is an HTTP header end (empty CRLF).
 	 * @param sb
 	 * @return true - if end of HTTP header.
 	 */
@@ -122,13 +127,37 @@ public class HttpInputStream extends BufferedInputStream {
 	 * @param method
 	 * @return Http body
 	 */
-	public synchronized HttpBody readBody(HttpHeader httpHeader) {
+	public synchronized HttpRequestBody readRequestBody(HttpHeader httpHeader) {
 
 		int contentLength = httpHeader.getContentLength();	// -1 = default to unlimited length until connection close
+		
+		HttpRequestBody body = (contentLength > 0) ? new HttpRequestBody(contentLength) : new HttpRequestBody();
+		
+		readBody(contentLength, body);
+		
+		return body;
+	}
+
+	/**
+	 * Read Http body from input stream as a string basing on the content length on the method.
+	 * @param method
+	 * @return Http body
+	 */
+	public synchronized HttpResponseBody readResponseBody(HttpHeader httpHeader) {
+
+		int contentLength = httpHeader.getContentLength();	// -1 = default to unlimited length until connection close
+		
+		HttpResponseBody body = (contentLength > 0) ? new HttpResponseBody(contentLength) : new HttpResponseBody();
+		
+		readBody(contentLength, body);
+		
+		return body;
+	}
+
+	private void readBody(int contentLength, HttpBody body) {
+		
 		int readBodyLength = 0;
 		int len = 0;
-		
-		HttpBody body = (contentLength > 0) ? new HttpBody(contentLength) : new HttpBody();
 		
 		try {
 			while (contentLength == -1 || readBodyLength < contentLength) {
@@ -144,17 +173,14 @@ public class HttpInputStream extends BufferedInputStream {
 		} catch (IOException e) {
 			// read until IO error occur - eg connection close
 		}
-		
-        
-		return body;
 	}
-
+	
 	/**
 	 * 
 	 * @param contentLength		Content length read to be read.  -1 = unlimited until connection close.
 	 * @param readBodyLength 	Body length read so far
 	 * @param data				Buffer storing the read bytes.
-	 * @return					Numfer of bytes read in buffer
+	 * @return					Number of bytes read in buffer
 	 * @throws IOException
 	 */
 	private int readBody(int contentLength, int readBodyLength, byte[] buffer) throws IOException {
@@ -187,6 +213,7 @@ public class HttpInputStream extends BufferedInputStream {
 		mSocket = socket;
 	}
 
+	@Override
 	public int available() throws IOException {
 		int avail = 0;
 //		int oneByte = -1;
@@ -212,23 +239,28 @@ public class HttpInputStream extends BufferedInputStream {
 		return avail;
 	}
 	
+	@Override
 	public int read() throws IOException {
 		//return in.read();
 		return super.read();
 
 	}
+	
+	@Override
 	public int read(byte[] b) throws IOException {
 
 		return super.read(b);
 
 	}
 	
+	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 
 		return super.read(b, off, len);
 
 	}
 
+	@Override
 	public void close() {
 		try {
 

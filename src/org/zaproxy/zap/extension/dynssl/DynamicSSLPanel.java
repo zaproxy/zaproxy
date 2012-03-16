@@ -69,7 +69,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 
 	private KeyStore rootca;
 
-	private final Logger logger = Logger.getLogger(DynamicSSLPanel.class);
+	private static final Logger logger = Logger.getLogger(DynamicSSLPanel.class);
 
 	/**
 	 * Create the panel.

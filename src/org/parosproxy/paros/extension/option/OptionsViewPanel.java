@@ -18,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Removed the options to change the display of the ManualRequestEditorDialog,
+//      now they are changed dynamically.
+
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
@@ -48,11 +51,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkAskOnExit = null;
 	private JCheckBox chkWmUiHandling = null;
 	
-	private JComboBox editorViewSelect = null;
 	private JComboBox brkPanelViewSelect = null;
 	private JComboBox displaySelect = null;
 	
-	private JLabel editorViewLabel = null;
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
 	private JLabel wmUiHandlingLabel = null;
@@ -108,8 +109,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc5_1 = new GridBagConstraints();
 			GridBagConstraints gbc6_0 = new GridBagConstraints();
 			GridBagConstraints gbc6_1 = new GridBagConstraints();
-			GridBagConstraints gbc7_0 = new GridBagConstraints();
-			GridBagConstraints gbc7_1 = new GridBagConstraints();
 			
 			GridBagConstraints gbcX = new GridBagConstraints();
 
@@ -241,24 +240,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc6_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc6_1.weightx = 1.0D;
 			
-			gbc7_0.gridx = 0;
-			gbc7_0.gridy = 7;
-			gbc7_0.ipadx = 0;
-			gbc7_0.ipady = 0;
-			gbc7_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc7_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc7_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc7_0.weightx = 1.0D;
-			
-			gbc7_1.gridx = 1;
-			gbc7_1.gridy = 7;
-			gbc7_1.ipadx = 0;
-			gbc7_1.ipady = 0;
-			gbc7_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc7_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc7_1.weightx = 1.0D;
-
 			gbcX.gridx = 0;
 			gbcX.gridy = 8;
 			gbcX.ipadx = 0;
@@ -271,7 +252,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 			
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
-			editorViewLabel = new JLabel(Constant.messages.getString("view.options.label.editorView"));
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
 			advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
 			wmUiHandlingLabel = new JLabel(Constant.messages.getString("view.options.label.wmuihandler"));
@@ -282,26 +262,23 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(displayLabel, gbc0_0);
 			panelMisc.add(getDisplaySelect(), gbc0_1);
 
-			panelMisc.add(editorViewLabel, gbc1_0);
-			panelMisc.add(getEditorViewSelect(), gbc1_1);
-			
-			panelMisc.add(brkPanelViewLabel, gbc2_0);
-			panelMisc.add(getBrkPanelViewSelect(), gbc2_1);
+			panelMisc.add(brkPanelViewLabel, gbc1_0);
+			panelMisc.add(getBrkPanelViewSelect(), gbc1_1);
 
-			panelMisc.add(advancedViewLabel, gbc3_0);
-			panelMisc.add(getChkAdvancedView(), gbc3_1);
+			panelMisc.add(advancedViewLabel, gbc2_0);
+			panelMisc.add(getChkAdvancedView(), gbc2_1);
 			
-			panelMisc.add(wmUiHandlingLabel, gbc4_0);
-			panelMisc.add(getChkWmUiHandling(), gbc4_1);
+			panelMisc.add(wmUiHandlingLabel, gbc3_0);
+			panelMisc.add(getChkWmUiHandling(), gbc3_1);
 
-			panelMisc.add(askOnExitLabel, gbc5_0);
-			panelMisc.add(getChkAskOnExit(), gbc5_1);
+			panelMisc.add(askOnExitLabel, gbc4_0);
+			panelMisc.add(getChkAskOnExit(), gbc4_1);
 			
-			panelMisc.add(showMainToolbarLabel, gbc6_0);
-			panelMisc.add(getChkShowMainToolbar(), gbc6_1);
+			panelMisc.add(showMainToolbarLabel, gbc5_0);
+			panelMisc.add(getChkShowMainToolbar(), gbc5_1);
 			
-			panelMisc.add(processImagesLabel, gbc7_0);
-			panelMisc.add(getChkProcessImages(), gbc7_1);
+			panelMisc.add(processImagesLabel, gbc6_0);
+			panelMisc.add(getChkProcessImages(), gbc6_1);
 			
 			panelMisc.add(new JLabel(""), gbcX);
 
@@ -355,16 +332,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return displaySelect;
 	}
 	
-	private JComboBox getEditorViewSelect() {
-		if (editorViewSelect == null) {
-			editorViewSelect = new JComboBox();
-			editorViewSelect.addItem(Constant.messages.getString("view.options.label.display.vertical"));
-			editorViewSelect.addItem(Constant.messages.getString("view.options.label.display.horizontal"));
-			editorViewSelect.addItem(Constant.messages.getString("view.options.label.display.tabs"));
-		}
-		return editorViewSelect; 
-	}
-	
 	private JComboBox getBrkPanelViewSelect() {
 		if (brkPanelViewSelect == null) {
 			brkPanelViewSelect = new JComboBox();
@@ -391,7 +358,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
-	    editorViewSelect.setSelectedIndex(options.getViewParam().getEditorViewOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
 	    getChkShowMainToolbar().setSelected(options.getViewParam().getShowMainToolbar() > 0);
 	    chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
@@ -407,7 +373,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
-	    options.getViewParam().setEditorViewOption(editorViewSelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
 	    options.getViewParam().setShowMainToolbar((getChkShowMainToolbar().isSelected()) ? 1 : 0);
 	    options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);

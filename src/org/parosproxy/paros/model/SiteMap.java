@@ -23,6 +23,8 @@
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
+// ZAP: 2012/03/15 Changed the methods getQueryParamString and createReference to 
+//      use the class StringBuilder instead of StringBuffer 
 
 package org.parosproxy.paros.model;
 
@@ -526,10 +528,10 @@ public class SiteMap extends DefaultTreeModel {
 
     
     private String getQueryParamString(SortedSet<String> querySet) {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         Iterator<String> iterator = querySet.iterator();
         for (int i=0; iterator.hasNext(); i++) {
-            String name = (String) iterator.next();
+            String name = iterator.next();
             if (name == null) {
                 continue;
             }
@@ -545,7 +547,7 @@ public class SiteMap extends DefaultTreeModel {
 
         String result = "";
         if (sb.length()>0) {
-            result = "(" + sb.toString() + ")";
+        	result = sb.insert(0, '(').append(')').toString();
         } 
         
         return result;
@@ -553,7 +555,7 @@ public class SiteMap extends DefaultTreeModel {
     
     private HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, SQLException, URIException, NullPointerException {
         TreeNode[] path = node.getPath();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String nodeName;
         for (int i=1; i<path.length; i++) {
         	// ZAP Cope with error counts in the node names

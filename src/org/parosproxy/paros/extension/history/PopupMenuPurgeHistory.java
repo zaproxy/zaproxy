@@ -19,7 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+//      ExtensionPopupMenuItem.
+// ZAP: 2012/03/15 Changed the method purgeHistory to clear the displayQueue of
+//      the LogPanel.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -30,7 +32,6 @@ import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -126,13 +127,15 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
             return;
         }
         extension.getHistoryList().removeElement(ref);
+        extension.getLogPanel().clearDisplayQueue();
         
 		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 
 		if (extAlert != null) {
-	        for (Alert alert : ref.getAlerts()) {
-				extAlert.deleteAlert(alert);
-	        }
+			//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
+			while (!ref.getAlerts().isEmpty()) {
+				extAlert.deleteAlert(ref.getAlerts().get(0));
+			}
 		}
         
         ref.delete();

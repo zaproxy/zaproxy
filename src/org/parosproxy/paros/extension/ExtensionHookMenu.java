@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 //                 ExtensionPopupMenuItem
+// ZAP: 2012/03/15 Added the method addPopupMenuItem(ExtensionPopupMenu menu).
+
 package org.parosproxy.paros.extension;
 
 
@@ -28,6 +30,8 @@ import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
+import org.zaproxy.zap.extension.ExtensionPopupMenu;
 
 public class ExtensionHookMenu {
     
@@ -120,6 +124,11 @@ public class ExtensionHookMenu {
      */
     public void addPopupMenuItem(ExtensionPopupMenuItem menuItem) {
         getPopupMenus().add(menuItem);        
+    }
+    
+    // ZAP: Added the method.
+    public void addPopupMenuItem(ExtensionPopupMenu menu) {
+        getPopupMenus().add(menu);
     }
     
     public void addHelpMenuItem(JMenuItem menuItem) {

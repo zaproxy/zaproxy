@@ -20,6 +20,8 @@
 */
 // ZAP: 2011/07/23 Added TYPE_FUZZER
 // ZAP: 2011/12/04 Support deleting alerts
+// ZAP: 2012/03/15 Changed the method getDisplay to use the class StringBuilder 
+//      instead of StringBuffer.
 
 package org.parosproxy.paros.model;
 
@@ -221,12 +223,12 @@ public class HistoryReference {
    }
    
    private String getDisplay(HttpMessage msg) {
-       StringBuffer sb = new StringBuffer(Integer.toString(historyId) + " ");
+	   StringBuilder sb = new StringBuilder(Integer.toString(historyId));
+	   sb.append(' ');
        sb.append(msg.getRequestHeader().getPrimeHeader());
        if (!msg.getResponseHeader().isEmpty()) {
-           sb.append(" \t=> " + msg.getResponseHeader().getPrimeHeader());
-           String diffTimeString = "\t [" + decimalFormat.format((double) (msg.getTimeElapsedMillis()/1000.0)) + " s]";
-           sb.append(diffTimeString);
+           sb.append(" \t=> ").append(msg.getResponseHeader().getPrimeHeader());
+           sb.append("\t [").append(decimalFormat.format(msg.getTimeElapsedMillis()/1000.0)).append(" s]");
        }
        
        return sb.toString();

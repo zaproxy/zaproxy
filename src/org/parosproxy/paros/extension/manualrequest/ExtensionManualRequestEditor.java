@@ -21,6 +21,9 @@
 
 // ZAP: 2011/08/04 Changed for cleanup
 // ZAP: 2011/11/20 Set order
+// ZAP: 2012/03/15 Changed to reset the message of the ManualRequestEditorDialog  
+//      when a new session is created. Added the key configuration to the 
+//      ManualRequestEditorDialog.
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -31,7 +34,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -41,7 +45,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionManualRequestEditor extends ExtensionAdaptor {
+public class ExtensionManualRequestEditor extends ExtensionAdaptor implements SessionChangedListener {
 
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
 	private JMenuItem menuManualRequestEditor = null;
@@ -76,9 +80,9 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		if (getView() != null) {
-			ExtensionHookView pv = extensionHook.getHookView();
-
 			extensionHook.getHookMenu().addToolsMenuItem(getMenuManualRequestEditor());
+			
+			extensionHook.addSessionListener(this);
 		}
 	}
 
@@ -96,14 +100,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
 					if (dialog.getHttpMessage() == null || dialog.getHttpMessage().getRequestHeader().isEmpty()) {
-						HttpMessage msg = new HttpMessage();
-						try {
-							URI uri = new URI("http://www.any_domain_name.org/path", true);
-							msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
-							dialog.setHttpMessage(msg);
-						} catch (Exception e1) {
-							logger.error(e1.getMessage(), e1);
-						}
+						setDefaultMessageToManualRequestEditor();
 					}
 					dialog.setVisible(true);
 				}
@@ -119,10 +116,33 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor {
 	 */    
 	ManualRequestEditorDialog getManualRequestEditorDialog() {
 		if (manualRequestEditorDialog == null) {
-			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
+			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this, "manual");
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;
 	}
 
+	@Override
+	public void sessionChanged(Session session) {
+		if (manualRequestEditorDialog != null) {
+			manualRequestEditorDialog.clear();
+			setDefaultMessageToManualRequestEditor();
+		}
+	}
+
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
+	
+	private void setDefaultMessageToManualRequestEditor() {
+		HttpMessage msg = new HttpMessage();
+		try {
+			URI uri = new URI("http://www.any_domain_name.org/path", true);
+			msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+			manualRequestEditorDialog.setHttpMessage(msg);
+		} catch (Exception e1) {
+			logger.error(e1.getMessage(), e1);
+		}
+	}
+	
 }

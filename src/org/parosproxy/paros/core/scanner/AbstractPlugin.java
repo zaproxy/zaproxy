@@ -21,6 +21,8 @@
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault)
+// ZAP: 2102/03/15 Changed the type of the parameter "sb" of the method matchBodyPattern to 
+//      StringBuilder.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -427,13 +429,13 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	
     /**
      * Check if the given pattern can be found in the msg body.  If the supplied
-     * StringBuffer is not null, append the result to the StringBuffer.
+     * StringBuilder is not null, append the result to the StringBuilder.
      * @param msg
      * @param pattern
      * @param sb
      * @return true if the pattern can be found.
      */
-	protected boolean matchBodyPattern(HttpMessage msg, Pattern pattern, StringBuffer sb) {
+	protected boolean matchBodyPattern(HttpMessage msg, Pattern pattern, StringBuilder sb) { // ZAP: Changed the type of the parameter "sb" to StringBuilder.
 		Matcher matcher = pattern.matcher(msg.getResponseBody().toString());
 		boolean result = matcher.find();
 		if (result) {

@@ -22,7 +22,7 @@ public class RequestUtils {
 		if (prevMethod.equals(HttpRequestHeader.POST)) {
 			// Was POST, move all params onto the URL
 			if (body != null && body.length() > 0) {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				if (uri.getQuery() != null) {
 					sb.append(uri.getQuery());
 				}
@@ -30,7 +30,7 @@ public class RequestUtils {
 				String [] params = body.split("&");
 				for (String param : params) {
 					if (sb.length() > 0) {
-						sb.append("&");
+						sb.append('&');
 					}
 					String[] nv = param.split("=");
 					if (nv.length == 1) {
@@ -51,17 +51,17 @@ public class RequestUtils {
 			// To be a port, move all URL query params into the body
 			String query = uri.getQuery();
 			if (query != null) {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				String [] params = query.split("&");
 				for (String param : params) {
 					if (sb.length() > 0) {
-						sb.append("&");
+						sb.append('&');
 					}
 					sb.append(param);
 					String[] nv = param.split("=");
 					if (nv.length == 1) {
 						// Cope with URL params with no values e.g. http://www.example.com/test?key
-						sb.append("=");
+						sb.append('=');
 					}
 				}
 				body = sb.toString();

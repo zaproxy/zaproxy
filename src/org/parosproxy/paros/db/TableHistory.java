@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
+// ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies instead of String.
 
 package org.parosproxy.paros.db;
 
@@ -35,7 +36,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
@@ -155,23 +155,23 @@ public class TableHistory extends AbstractTable {
 	public synchronized RecordHistory write(long sessionId, int histType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
 	    
 	    String reqHeader = "";
-	    String reqBody = "";
+	    byte[] reqBody = new byte[0];
 	    String resHeader = "";
-	    String resBody = "";
+	    byte[] resBody = reqBody;
 	    String method = "";
 	    String uri = "";
         int statusCode = 0;
 	    
 	    if (!msg.getRequestHeader().isEmpty()) {
 	        reqHeader = msg.getRequestHeader().toString();
-	        reqBody = msg.getRequestBody().toString(HttpBody.STORAGE_CHARSET);
+	        reqBody = msg.getRequestBody().getBytes();
 	        method = msg.getRequestHeader().getMethod();
 	        uri = msg.getRequestHeader().getURI().toString();
 	    }
 
 	    if (!msg.getResponseHeader().isEmpty()) {
 	        resHeader = msg.getResponseHeader().toString();
-	        resBody = msg.getResponseBody().toString(HttpBody.STORAGE_CHARSET);
+	        resBody = msg.getResponseBody().getBytes();
             statusCode = msg.getResponseHeader().getStatusCode();
 	    }
 	    
@@ -182,7 +182,7 @@ public class TableHistory extends AbstractTable {
 	
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
-	        String reqHeader, String reqBody, String resHeader, String resBody, String tag) throws HttpMalformedHeaderException, SQLException {
+	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag) throws HttpMalformedHeaderException, SQLException {
 
 		psWrite1.setLong(1, sessionId);
 		psWrite1.setInt(2, histType);
@@ -191,9 +191,9 @@ public class TableHistory extends AbstractTable {
 		psWrite1.setString(5, method);
 		psWrite1.setString(6, uri);        
 		psWrite1.setString(7, reqHeader);
-		psWrite1.setString(8, reqBody);
+		psWrite1.setBytes(8, reqBody);
 		psWrite1.setString(9, resHeader);
-		psWrite1.setString(10, resBody);
+		psWrite1.setBytes(10, resBody);
 		psWrite1.setString(11, tag);
 
         if (isExistStatusCode) {
@@ -231,9 +231,9 @@ public class TableHistory extends AbstractTable {
 						rs.getLong(TIMESENTMILLIS),
 						rs.getInt(TIMEELAPSEDMILLIS),
 						rs.getString(REQHEADER),
-						rs.getString(REQBODY),
+						rs.getBytes(REQBODY),
 						rs.getString(RESHEADER),
-						rs.getString(RESBODY),
+						rs.getBytes(RESBODY),
 	                    rs.getString(TAG),
 	                    rs.getString(NOTE)			// ZAP: Added note
 				);
@@ -379,10 +379,10 @@ public class TableHistory extends AbstractTable {
 	    psDeleteTemp.execute();
 	}
 	
-	public boolean containsURI(long sessionId, int historyType, String method, String uri, String body) throws SQLException {
+	public boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body) throws SQLException {
 	    psContainsURI.setString(1, uri);
         psContainsURI.setString(2, method);
-	    psContainsURI.setString(3, body);
+	    psContainsURI.setBytes(3, body);
 	    psContainsURI.setLong(4, sessionId);
 	    psContainsURI.setInt(5, historyType);
 	    ResultSet rs = psContainsURI.executeQuery();
@@ -418,7 +418,7 @@ public class TableHistory extends AbstractTable {
         }
         psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
         psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
-        psReadCache.setString(3, reqMsg.getRequestBody().toString(HttpBody.STORAGE_CHARSET));
+        psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
 
         psReadCache.setInt(4, ref.getHistoryId());        
         psReadCache.setInt(5, ref.getHistoryId()+200);
@@ -463,7 +463,7 @@ public class TableHistory extends AbstractTable {
         }
         psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
         psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
-        psReadCache.setString(3, reqMsg.getRequestBody().toString(HttpBody.STORAGE_CHARSET));
+        psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
         psReadCache.setLong(4, ref.getSessionId());
         
         rs = psReadCache.executeQuery();

@@ -14,12 +14,18 @@ import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
+
+	private static final Logger logger = Logger.getLogger(PassiveScanThread.class);
+
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
 	
 	@SuppressWarnings("unused")
 	private OptionsPassiveScan options = null;
@@ -35,9 +41,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private TableHistory historyTable = null;
 	private RecordHistory historyRecord = null;
 	
-	private Logger logger = Logger.getLogger(this.getClass());
 
 	public PassiveScanThread (PassiveScannerList passiveScannerList) {
+		super("ZAP-PassiveScanner");
+		
 		this.scannerList = passiveScannerList;
 		
 		MicrosoftTagTypes.register();
@@ -172,6 +179,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 	}
 
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
+	}
+	
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// Ignore

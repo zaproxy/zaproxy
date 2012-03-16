@@ -75,19 +75,17 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
         	
-        	HtmlParameterStats item = (HtmlParameterStats) extension.getParamsPanel().getSelectedParam();
+        	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
         	// Note that only form params are currently supported
         	if (item != null) {
         		if (HtmlParameter.Type.form.equals(item.getType())) {
         			if (! item.getFlags().contains(HtmlParameter.Flags.anticsrf.name())) {
                 		this.setEnabled(true);
                 		return true;
-        			} else {
-        				return false;
         			}
-        		} else {
-            		this.setEnabled(false);
+        			return false;
         		}
+            	this.setEnabled(false);
         		return true;
         	}
         }

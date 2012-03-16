@@ -92,7 +92,7 @@ public class ParamsTableModel extends AbstractTableModel {
 		if (param.getValues().size() == 1) {
 			return 0;
 		}
-		return (int)(param.getValues().size() * 100 / param.getTimesUsed());
+		return (param.getValues().size() * 100 / param.getTimesUsed());
 	}
 
 	public HtmlParameterStats getHtmlParameterStatsAtRow(int row) {

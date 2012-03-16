@@ -151,30 +151,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	private BreakPointsTableModel getBreakPointsModel() {
 		return (BreakPointsTableModel)this.getBreakPointsPanel().getBreakPoints().getModel();
 	}
-
-	public void sessionChanged(final Session session)  {
-	    if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
-
-	    } else {
-	        
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            
-	        }
-	    }
-	}
-	
-	private void sessionChangedEventHandler(Session session) {
-	    getBreakPanel().setMessage(null, true);
-	    getBreakPanel().setMessage(null, false);
-	}
-	
 	
 	private ProxyListenerBreak getProxyListenerBreak() {
         if (proxyListener == null) {
@@ -287,6 +263,36 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
 	@Override
-	public void sessionAboutToChange(Session session) {
+	public void sessionChanged(Session session)  {
+	}
+
+	@Override
+	public void sessionAboutToChange(final Session session) {
+		if (EventQueue.isDispatchThread()) {
+			sessionChangedEventHandler(session);
+	    } else {
+	        
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                public void run() {
+	        		    sessionChangedEventHandler(session);
+	                }
+	            });
+	        } catch (Exception e) {
+	            
+	        }
+	    }
+	}
+	
+	/**
+	 * @param session  
+	 */
+	private void sessionChangedEventHandler(Session session) {
+	    getBreakPanel().reset();
+	}
+	
+	@Override
+	public void destroy() {
+		breakPanel.savePanels();
 	}
 }

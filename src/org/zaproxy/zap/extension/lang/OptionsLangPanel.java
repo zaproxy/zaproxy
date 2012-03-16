@@ -178,7 +178,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 			importButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent evt) {
-					if (fileTextField.getText() != "") {
+					if (!fileTextField.getText().equals("")) {
 						LangImporter.importLanguagePack(fileTextField.getText());
 						fileTextField.setText("");
 						loadLocales();

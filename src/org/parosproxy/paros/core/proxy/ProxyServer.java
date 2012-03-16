@@ -22,6 +22,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/11/15 Warn the user if the host is unknown
+// ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
 
 package org.parosproxy.paros.core.proxy;
  
@@ -32,6 +33,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -54,6 +57,7 @@ public class ProxyServer implements Runnable {
 	protected ProxyParam proxyParam = new ProxyParam();
 	protected ConnectionParam connectionParam = new ConnectionParam();
 	protected Vector<ProxyListener> listenerList = new Vector<ProxyListener>();
+    private static Comparator<ProxyListener> listenersComparator; // ZAP: Added listenersComparator.
 	protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<CacheProcessingItem>();
@@ -114,7 +118,7 @@ public class ProxyServer implements Runnable {
 	
 		isProxyRunning	= false;
 
-		thread = new Thread(this);
+		thread = new Thread(this, "ZAP-ProxyServer"); // ZAP: Set the name of the thread.
 		thread.setDaemon(true);   
         // the priority below should be higher than normal to allow fast accept on the server socket
    	    thread.setPriority(Thread.NORM_PRIORITY+1);
@@ -227,7 +231,8 @@ public class ProxyServer implements Runnable {
 	}
 	
 	public void addProxyListener(ProxyListener listener) {
-		listenerList.add(listener);		
+		listenerList.add(listener);
+		Collections.sort(listenerList, getListenersComparator()); // ZAP: Sort the listeners.
 	}
 	
 	public void removeProxyListener(ProxyListener listener) {
@@ -287,4 +292,34 @@ public class ProxyServer implements Runnable {
 		return ignore;
 	}
     
+	// ZAP: Added the method.
+	private Comparator<ProxyListener> getListenersComparator() {
+		if(listenersComparator == null) {
+			createListenersComparator();
+		}
+		
+		return listenersComparator;
+	}
+	
+	// ZAP: Added the method.
+	synchronized private void createListenersComparator() {
+		if (listenersComparator == null) {
+			listenersComparator = new Comparator<ProxyListener>() {
+				
+				@Override
+				public int compare(ProxyListener o1, ProxyListener o2) {
+					int order1 = o1.getProxyListenerOrder();
+					int order2 = o2.getProxyListenerOrder();
+					
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					}
+					
+					return 0;
+				}
+			};
+		}
+	}
 }

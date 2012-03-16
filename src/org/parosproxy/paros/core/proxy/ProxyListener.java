@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Added the method getProxyListenerOrder.
+
 package org.parosproxy.paros.core.proxy;
  
 import org.parosproxy.paros.network.HttpMessage;
@@ -30,6 +32,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface ProxyListener {
 
+	public int getProxyListenerOrder(); // ZAP: added method.
+	
 	public boolean onHttpRequestSend(HttpMessage msg);
 	public boolean onHttpResponseReceive(HttpMessage msg);
 	

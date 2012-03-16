@@ -318,7 +318,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	
 	private void setActiveScanLabels() {
 		getActiveScansValueLabel().setText(""+activeScans.size());
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		Iterator <String> iter = activeScans.iterator();
 		sb.append("<html>");
 		while (iter.hasNext()) {
@@ -326,8 +326,11 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			sb.append("<br>");
 		}
 		sb.append("</html>");
-		getActiveScansNameLabel().setToolTipText(sb.toString());
-		getActiveScansValueLabel().setToolTipText(sb.toString());
+		
+		final String toolTip = sb.toString();
+		
+		getActiveScansNameLabel().setToolTipText(toolTip);
+		getActiveScansValueLabel().setToolTipText(toolTip);
 		
 		scanStatus.setScanCount(activeScans.size());
 	}
@@ -428,7 +431,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	private void launchDirBuster() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("/usr/bin/java -classpath ");
 		
 		sb.append("lib/BrowserLauncher2-1_3.jar:");
@@ -538,15 +541,15 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		try {
 			msg = new HistoryReference(sr.getHistoryId()).getHttpMessage();
 	        if (msg.getRequestHeader().isEmpty()) {
-	            requestPanel.setMessage(null, true);
+	            requestPanel.clearView(true);
 	        } else {
-	            requestPanel.setMessage(msg, true);
+	            requestPanel.setMessage(msg);
 	        }
 	        
 	        if (msg.getResponseHeader().isEmpty()) {
-	            responsePanel.setMessage(null, false);
+	            responsePanel.clearView(false);
 	        } else {
-	            responsePanel.setMessage(msg, false);
+	            responsePanel.setMessage(msg, true);
 	        }
 		} catch (Exception e) {
 			log.error("Failed to access message id " + sr.getHistoryId(), e);

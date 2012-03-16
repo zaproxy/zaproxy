@@ -20,8 +20,11 @@
 */
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/01/02 Separate param and attack
-// ZAP: 2012/01/23 Changed the method compareTo to compare the fields 
-//                 correctly with each other.
+// ZAP: 2012/01/23 Changed the method compareTo to compare the fields correctly 
+//      with each other.
+// ZAP: 2012/03/15 Changed the methods toPluginXML and getUrlParamXML to use the class
+//      StringBuilder instead of StringBuffer and replaced some string concatenations with 
+//      calls to the method append of the class StringBuilder.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -245,23 +248,23 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	public String toPluginXML(String urls) {
-		StringBuffer sb = new StringBuffer(150);
+		StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
 		sb.append("<alertitem>\r\n");
-		sb.append("  <pluginid>" + pluginId + "</pluginid>\r\n");
-		sb.append("  <alert>" + alert + "</alert>\r\n");
-		sb.append("  <riskcode>" + risk + "</riskcode>\r\n");
-		sb.append("  <reliability>" + reliability + "</reliability>\r\n");
-		sb.append("  <riskdesc>" + replaceEntity(MSG_RISK[risk] + " (" + MSG_RELIABILITY[reliability] + ")") + "</riskdesc>\r\n");
-        sb.append("  <desc>" + paragraph(replaceEntity(description)) + "</desc>\r\n");
+		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
+		sb.append("  <alert>").append(alert).append("</alert>\r\n");
+		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
+		sb.append("  <reliability>").append(reliability).append("</reliability>\r\n");
+		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_RELIABILITY[reliability] + ")")).append("</riskdesc>\r\n");
+        sb.append("  <desc>").append(paragraph(replaceEntity(description))).append("</desc>\r\n");
 
         sb.append(urls);
 
-        sb.append("  <solution>" + paragraph(replaceEntity(solution)) + "</solution>\r\n");
+        sb.append("  <solution>").append(paragraph(replaceEntity(solution))).append("</solution>\r\n");
         // ZAP: Added otherInfo to the report
         if (otherInfo != null && otherInfo.length() > 0) {
-            sb.append("  <otherinfo>" + paragraph(replaceEntity(otherInfo)) + "</otherinfo>\r\n");
+            sb.append("  <otherinfo>").append(paragraph(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
         }
-		sb.append("  <reference>" + paragraph(replaceEntity(reference)) + "</reference>\r\n");
+		sb.append("  <reference>" ).append(paragraph(replaceEntity(reference))).append("</reference>\r\n");
 		
 		sb.append("</alertitem>\r\n");
 		return sb.toString();
@@ -373,11 +376,11 @@ public class Alert implements Comparable<Object>  {
     }
     
     public String getUrlParamXML() {
-        StringBuffer sb = new StringBuffer(200);
-        sb.append("  <uri>" + breakNoSpaceString(replaceEntity(uri)) + "</uri>\r\n");
-        sb.append("  <param>" + breakNoSpaceString(replaceEntity(param)) + "</param>\r\n");
-        sb.append("  <attack>" + breakNoSpaceString(replaceEntity(attack)) + "</attack>\r\n");
-        sb.append("  <otherinfo>" + breakNoSpaceString(replaceEntity(otherInfo)) + "</otherinfo>\r\n");
+    	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
+        sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
+        sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
+        sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
+        sb.append("  <otherinfo>").append(breakNoSpaceString(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
         return sb.toString();
     }
 

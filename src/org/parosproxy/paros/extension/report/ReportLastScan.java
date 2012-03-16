@@ -20,6 +20,9 @@
  */
 // ZAP: 2011/10/01 Fixed filename problem (issue 161)
 // ZAP: 2012/01/24 Changed outer XML (issue 268) c/o Alla
+// ZAP: 2012/03/15 Changed the methods getAlertXML and generate to use the class 
+//      StringBuilder instead of StringBuffer.
+
 package org.parosproxy.paros.extension.report;
 
 import edu.stanford.ejalbert.BrowserLauncher;
@@ -65,7 +68,7 @@ public class ReportLastScan {
 
         Connection conn = null;
         PreparedStatement psAlert = null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         // prepare table connection
         try {
@@ -82,7 +85,7 @@ public class ReportLastScan {
             Alert alert = null;
             Alert lastAlert = null;
 
-            StringBuffer sbURLs = new StringBuffer(100);
+            StringBuilder sbURLs = new StringBuilder(100);
             String s = null;
 
             // get each alert from table
@@ -133,11 +136,11 @@ public class ReportLastScan {
 
     public File generate(String fileName, Model model, String xslFile) throws Exception {
 
-        StringBuffer sb = new StringBuffer(500);
+    	StringBuilder sb = new StringBuilder(500);
         // ZAP: Dont require scan to have been run
 
         sb.append("<?xml version=\"1.0\"?>");
-        sb.append("<OWASPZAPReport version=\"" + Constant.PROGRAM_VERSION + "\" generated=\"" + ReportGenerator.getCurrentDateTimeString() + "\">\r\n");
+        sb.append("<OWASPZAPReport version=\"").append(Constant.PROGRAM_VERSION).append("\" generated=\"").append(ReportGenerator.getCurrentDateTimeString()).append("\">\r\n");
         // sb.append(getAlertXML(model.getDb(), null));
         sb.append(siteXML());
         sb.append("</OWASPZAPReport>");

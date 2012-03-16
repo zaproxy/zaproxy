@@ -17,6 +17,9 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2012/03/15 Changed the methods toShortString and toLongString to use the class StringBuilder 
+//      instead of StringBuffer.
+
 package org.parosproxy.paros.extension.history;
 
 import java.util.ArrayList;
@@ -138,14 +141,14 @@ public class HistoryFilter {
 	}
 	
 	public String toShortString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(Constant.messages.getString("history.filter.label.filter"));
 		sb.append(" ");
 		boolean empty = true;
 		if (methodList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(" ");
+				sb.append(' ');
 			}
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.methods"));
@@ -153,7 +156,7 @@ public class HistoryFilter {
 		if (codeList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(" ");
+				sb.append(' ');
 			} else {
 				sb.append(", ");
 			}
@@ -163,7 +166,7 @@ public class HistoryFilter {
 		if (tagList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(" ");
+				sb.append(' ');
 			} else {
 				sb.append(", ");
 			}
@@ -173,7 +176,7 @@ public class HistoryFilter {
 		if (riskList.size() > 0 || reliabilityList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(" ");
+				sb.append(' ');
 			} else {
 				sb.append(", ");
 			}
@@ -183,7 +186,7 @@ public class HistoryFilter {
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(" ");
+				sb.append(' ');
 			} else {
 				sb.append(", ");
 			}
@@ -197,9 +200,9 @@ public class HistoryFilter {
 	}
 	
 	public String toLongString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(Constant.messages.getString("history.filter.label.filter"));
-		sb.append(" ");
+		sb.append(' ');
 		boolean empty = true;
 		if (methodList.size() > 0) {
 			empty = false;
@@ -207,7 +210,7 @@ public class HistoryFilter {
 			sb.append(": ");
 			for (String method : methodList) {
 				sb.append(method);
-				sb.append(" ");
+				sb.append(' ');
 			}
 		}
 		if (codeList.size() > 0) {
@@ -225,23 +228,23 @@ public class HistoryFilter {
 					inBlock = true;
 				} else if (inBlock){
 					// no longer in a consecutive set of codes
-					sb.append("-");
+					sb.append('-');
 					sb.append(lastCode);
-					sb.append(" ");
+					sb.append(' ');
 					sb.append(code);
 					inBlock = false;
 				} else {
 					// Not in a block of codes
-					sb.append(" ");
+					sb.append(' ');
 					sb.append(code);
 				}
 				lastCode = code;
 			}
 			if (inBlock) {
 				// finish off the series
-				sb.append("-");
+				sb.append('-');
 				sb.append(lastCode);
-				sb.append(" ");
+				sb.append(' ');
 			}
 		}
 		if (tagList.size() > 0) {
@@ -250,7 +253,7 @@ public class HistoryFilter {
 			sb.append(": ");
 			for (String tag : tagList) {
 				sb.append(tag);
-				sb.append(" ");
+				sb.append(' ');
 			}
 		}
 		if (riskList.size() > 0 || reliabilityList.size() > 0) {
@@ -259,11 +262,11 @@ public class HistoryFilter {
 			sb.append(": ");
 			for (String risk : riskList) {
 				sb.append(risk);
-				sb.append(" ");
+				sb.append(' ');
 			}
 			for (String rel : reliabilityList) {
 				sb.append(rel);
-				sb.append(" ");
+				sb.append(' ');
 			}
 		}
 		if (note != null && ! note.equals(NOTES_IGNORE)) {

@@ -18,6 +18,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the method getListCellRendererComponent to use the 
+//      class StringBuilder instead of StringBuffer.
+
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Color;
@@ -255,7 +259,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
             txtReason.setText(msg.getResponseHeader().getReasonPhrase());
             txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
             // ZAP: Support for multiple tags
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (String tag : msg.getTags()) {
             	if (sb.length() > 0) {
                 	sb.append(", ");

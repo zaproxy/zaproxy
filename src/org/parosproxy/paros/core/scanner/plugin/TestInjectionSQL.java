@@ -19,6 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the methods testBlindINSERT and checkANDResult to use 
+//      the class StringBuilder instead of StringBuffer.
+
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -311,7 +315,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		long defaultTimeUsed = 0;
 
 		int TRY_COUNT = 5;
-		StringBuffer sbInsertValue = new StringBuffer();
+		StringBuilder sbInsertValue = new StringBuilder();
 
 		/*	below code is useless because insert can be detected by next section.
 			If not, it's likely non MS-SQL and no multiple statement is allowed.
@@ -396,7 +400,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		
 
 		// try insert param using INSERT and timing
-		sbInsertValue = new StringBuffer();
+		sbInsertValue = new StringBuilder();
 		for (int i=0; i<TRY_COUNT; i++) {
 			
 			if (i>0) {
@@ -434,12 +438,12 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 
 	private boolean checkANDResult(HttpMessage msg, String param, String attack) {
 
-		StringBuffer sb = new StringBuffer();
-
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK
 			&& !HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode())) {
 			return false;
 		}
+
+		StringBuilder sb = new StringBuilder();
 
 		if (matchBodyPattern(msg, patternErrorODBCMSSQL, sb)) {
 		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));

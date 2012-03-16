@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Changed the method parse to use only CRLF as line separator.
+// ZAP: 2012/03/15 Removed an unnecessary try catch block and unnecessary casting.
+//      Reworked the method getCharset.
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -166,7 +168,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 			return null;
 		}
 		
-		return (String) (v.firstElement());
+		return v.firstElement();
 	}
     
 	/**
@@ -205,25 +207,19 @@ abstract public class HttpHeader implements java.io.Serializable{
 			// header value not found, append to end
 			addHeader(name, value);
 		} else {
-			try {
-				pattern = getHeaderRegex(name);
-				Matcher matcher = pattern.matcher(mMsgHeader);
-				if (value == null) {
-					// delete header
-					mMsgHeader = matcher.replaceAll("");
-				} else {
-					// replace header
-					String newString = name + ": " + value + mLineDelimiter;
-					mMsgHeader = matcher.replaceAll(newString);
-				}
+			pattern = getHeaderRegex(name);
+			Matcher matcher = pattern.matcher(mMsgHeader);
+			if (value == null) {
+				// delete header
+				mMsgHeader = matcher.replaceAll("");
+			} else {
+				// replace header
+				String newString = name + ": " + value + mLineDelimiter;
+				mMsgHeader = matcher.replaceAll(newString);
+			}
 
-				// set into hashtable
-				replaceInternalHeaderFields(name, value);
-				
-			}
-			catch (Exception e) {
-			}
-			
+			// set into hashtable
+			replaceInternalHeaderFields(name, value);
 		}
     }
     
@@ -503,11 +499,11 @@ abstract public class HttpHeader implements java.io.Serializable{
     
 	public String getCharset() {
 	    String contentType = getHeader(CONTENT_TYPE);
-	    String charset = "";
 	    if (contentType == null) {
 	        return null;
 	    }
-	    
+
+	    String charset = null;
 	    Matcher matcher = patternCharset.matcher(contentType);
 	    if (matcher.find()) {
 	        charset = matcher.group(1);

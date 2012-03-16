@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the methods checkResult, checkDBUserName and checkDBTableName
+//      to use the class StringBuilder instead of StringBuffer.
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -160,13 +163,14 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 		long lastTime = 0;
 
 		int TRY_COUNT = 10;
-		StringBuffer sb = new StringBuffer();
 
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK
 			&& !HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode())) {
 			return false;
 		}
 
+		StringBuilder sb = new StringBuilder();
+		
 		if (matchBodyPattern(msg, patternErrorODBCMSSQL, sb)) {
 		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
 		}
@@ -187,7 +191,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	private void checkDBUserName(HttpMessage msg, String param, String value) throws HttpException, IOException {
 	    
 	    int charValue = 0;
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    byte[] byteArray = new byte[1];
 	    
 	    for (int i=0; i<20; i++) {
@@ -274,11 +278,11 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	private void checkDBTableName(HttpMessage msg, String param, String value) throws HttpException, IOException {
 	    
 	    int charValue = 0;
-	    StringBuffer sb = null;
+	    StringBuilder sb = null;
 	    byte[] byteArray = new byte[1];
 
 	    for (int row=1; row<4; row++) {
-	        sb = new StringBuffer();
+	        sb = new StringBuilder();
 		    
 	        for (int i=0; i<10; i++) {
 	            charValue = 0;

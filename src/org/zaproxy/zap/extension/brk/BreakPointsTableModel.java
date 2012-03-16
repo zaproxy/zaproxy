@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.brk;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -31,7 +30,7 @@ public class BreakPointsTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 	private static final int COLUMN_COUNT = 2;
 	
-	private final Vector<String> columnNames;
+	private final String[] columnNames;
 	private List<BreakPoint> breakPoints;
 
 	private int lastAddedRow;
@@ -39,9 +38,9 @@ public class BreakPointsTableModel extends AbstractTableModel {
 	
 	public BreakPointsTableModel() {
 		super();
-		columnNames = new Vector<String>(COLUMN_COUNT);
-		columnNames.add(Constant.messages.getString("brk.table.header.enabled"));
-		columnNames.add(Constant.messages.getString("brk.table.header.url"));
+		columnNames = new String[COLUMN_COUNT];
+		columnNames[0] = Constant.messages.getString("brk.table.header.enabled");
+		columnNames[1] = Constant.messages.getString("brk.table.header.url");
 
 		breakPoints = Collections.synchronizedList(new ArrayList<BreakPoint>());
 		
@@ -54,7 +53,6 @@ public class BreakPointsTableModel extends AbstractTableModel {
 	}
 	
 	public int getColumnCount() {
-		columnNames.add("");
 		return COLUMN_COUNT;
 	}
 
@@ -64,14 +62,14 @@ public class BreakPointsTableModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int col) {
-		return columnNames.get(col);
+		return columnNames[col];
 	}
 
 	public Object getValueAt(int row, int col) {
 		Object obj = null;
 		BreakPoint breakPoint = breakPoints.get(row);
 		if (col == 0) {
-			obj = breakPoint.isEnabled();
+			obj = Boolean.valueOf(breakPoint.isEnabled());
 		} else if (col == 1) {
 			obj = breakPoint.getUrl();
 		}
@@ -123,18 +121,18 @@ public class BreakPointsTableModel extends AbstractTableModel {
 						
 						lastEditedRow = row;
 						return;
-					} else {
-						newBrkPt.setEnabled(brk.isEnabled());
-						breakPoints.add(i, newBrkPt);
-						this.fireTableRowsInserted(i, i);
-						
-						int r = i<row?row+1:row;
-						breakPoints.remove(r);
-						this.fireTableRowsDeleted(r, r);
-						
-						lastEditedRow = i>row?i-1:i;
-						return;
 					}
+					
+					newBrkPt.setEnabled(brk.isEnabled());
+					breakPoints.add(i, newBrkPt);
+					this.fireTableRowsInserted(i, i);
+					
+					int r = i<row?row+1:row;
+					breakPoints.remove(r);
+					this.fireTableRowsDeleted(r, r);
+					
+					lastEditedRow = i>row?i-1:i;
+					return;
 				} else if (cmp == 0) {
 					breakPoints.remove(row);
 					this.fireTableRowsDeleted(row, row);
@@ -184,14 +182,14 @@ public class BreakPointsTableModel extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int col) {
 		if (col == 0) {
 			if (value instanceof Boolean) {
-				breakPoints.get(row).setEnabled((Boolean)value);
+				breakPoints.get(row).setEnabled(((Boolean)value).booleanValue());
 				this.fireTableCellUpdated(row, col);
 			}
 		}
 	}
 
 	@Override
-	public Class<? extends Object> getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
 		return getValueAt(0, c).getClass();
 	}
 

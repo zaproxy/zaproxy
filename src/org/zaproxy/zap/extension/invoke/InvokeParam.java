@@ -93,7 +93,7 @@ public class InvokeParam extends AbstractParam {
             getConfig().clearProperty(INVOKE + ".A"+i);
         }
         for (int i=0; i<listAuth.size(); i++) {
-            app = (InvokableApp) listAuth.get(i);            
+            app = listAuth.get(i);            
             getConfig().setProperty(getInvoke(i, INVOKE_NAME), app.getDisplayName());
             if (app.getWorkingDirectory() != null) {
                 getConfig().setProperty(getInvoke(i, INVOKE_DIRECTORY), app.getWorkingDirectory().getAbsolutePath());

@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Set order and name
+// ZAP: 2012/03/15 Added the method getProxyListenerOrder. Set the name of the 
+//      extension filter thread.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -42,8 +44,10 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
+	private static final Logger log = Logger.getLogger(ExtensionFilter.class);
+	
 	public static final String NAME = "ExtensionFilter"; 
-	private static final Logger LOG = Logger.getLogger(ExtensionFilter.class);
+	public static final int PROXY_LISTENER_ORDER = 0;
 	
 	private JMenuItem menuToolsFilter = null;
 	private FilterFactory filterFactory = new FilterFactory();
@@ -63,7 +67,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
         this.setName(NAME);
         filterFactory.loadAllFilter();
         // ZAP: changed to init(Model)
-        Thread t = new Thread(this);
+        Thread t = new Thread(this, "ZAP-ExtensionFilter"); // ZAP: Set the name of the extension filter thread.
         t.setDaemon(true);
         t.start();
     }
@@ -79,7 +83,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
             try {
                 filter.init(model);
             } catch (Exception ignore) {
-            	LOG.warn("Error initializing filter. Continuing.", ignore);
+            	log.warn("Error initializing filter. Continuing.", ignore);
             }
         }
 	}
@@ -92,7 +96,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
             try {
                 filter.initView(view);
             } catch (Exception ignore) {
-            	LOG.warn("Error initializing view for filter. Continuing.", ignore);
+            	log.warn("Error initializing view for filter. Continuing.", ignore);
             }
         }
     }
@@ -128,6 +132,11 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	    extensionHook.addProxyListener(this);
 	}
 
+	// ZAP: Added the method.
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
+	}
 
 
     /* (non-Javadoc)

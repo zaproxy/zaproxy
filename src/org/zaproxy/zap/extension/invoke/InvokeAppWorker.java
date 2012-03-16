@@ -114,41 +114,54 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 		Process proc = pb.start();
 
 		if (captureOutput) {
-			BufferedReader brErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-			BufferedReader brOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			String line;
-			boolean isOutput = false;
-			StringBuffer sb = new StringBuffer();
-			if (msg.getNote() != null) {
-				sb.append(msg.getNote());
-				sb.append("\n");	
-			}
-
-			// Show any error messages
-			while ((line = brErr.readLine()) != null) {
-				View.getSingleton().getOutputPanel().append(line + "\n");
-				sb.append(line);	
-				sb.append("\n");	
-				isOutput = true;
-			}
-			// Show any stdout messages
-			while ((line = brOut.readLine()) != null) {
-				View.getSingleton().getOutputPanel().append(line + "\n");
-				sb.append(line);	
-				sb.append("\n");	
-				isOutput = true;
-			}
-			if (isOutput) {
-				// Somethings been written, switch to the Output tab
-				View.getSingleton().getOutputPanel().setTabFocus();
-			}
-			brOut.close();
-			brErr.close();
-
-			if (outputNote) {
-				HistoryReference hr = msg.getHistoryRef();
-				if (hr != null) {
-					hr.setNote(sb.toString());
+			BufferedReader brErr = null;
+			BufferedReader brOut = null;
+			try {
+				brErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+				brOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+				String line;
+				boolean isOutput = false;
+				StringBuilder sb = new StringBuilder();
+				if (msg.getNote() != null) {
+					sb.append(msg.getNote());
+					sb.append('\n');	
+				}
+	
+				// Show any error messages
+				while ((line = brErr.readLine()) != null) {
+					View.getSingleton().getOutputPanel().append(line + "\n");
+					sb.append(line);	
+					sb.append('\n');	
+					isOutput = true;
+				}
+				// Show any stdout messages
+				while ((line = brOut.readLine()) != null) {
+					View.getSingleton().getOutputPanel().append(line + "\n");
+					sb.append(line);	
+					sb.append('\n');	
+					isOutput = true;
+				}
+				if (isOutput) {
+					// Somethings been written, switch to the Output tab
+					View.getSingleton().getOutputPanel().setTabFocus();
+				}
+				
+				if (outputNote) {
+					HistoryReference hr = msg.getHistoryRef();
+					if (hr != null) {
+						hr.setNote(sb.toString());
+					}
+				}
+			
+			} finally {
+				try {
+					if (brOut != null) {
+						brOut.close();
+					}
+				} finally {
+					if (brErr != null) {
+						brErr.close();
+					}
 				}
 			}
 		}

@@ -249,7 +249,7 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
             txtReason.setText(msg.getResponseHeader().getReasonPhrase());
             txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
             // ZAP: Support for multiple tags
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (String tag : msg.getTags()) {
             	if (sb.length() > 0) {
                 	sb.append(", ");

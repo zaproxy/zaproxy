@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the methods testMSBlindINSERT and checkResult to use 
+//      the class StringBuilder instead of StringBuffer.
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -227,11 +230,11 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 		long defaultTimeUsed = 0;
 
 		int TRY_COUNT = 5;
-		StringBuffer sbInsertValue = null;
+		StringBuilder sbInsertValue = null;
 		
 
 		// try insert param using INSERT and timing
-		sbInsertValue = new StringBuffer();
+		sbInsertValue = new StringBuilder();
 		for (int i=0; i<TRY_COUNT; i++) {
 			// guess at most 10 parameters.
 			
@@ -268,13 +271,13 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 
 	private boolean checkResult(HttpMessage msg, String param, String attack) {
 
-	    StringBuffer sb = new StringBuffer();
 	    boolean isSqlError = false;
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK
 			&& !HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode())) {
 		    return false;
 		}
 
+		StringBuilder sb = new StringBuilder();
 		
 		if (matchBodyPattern(msg, patternErrorODBC1, sb)
 				|| matchBodyPattern(msg, patternErrorODBC2, sb)) {

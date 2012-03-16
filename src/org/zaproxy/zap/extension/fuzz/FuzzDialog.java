@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.fuzz;
 
-import java.awt.Component;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,10 +44,7 @@ import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
-import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class FuzzDialog extends AbstractDialog {
 
@@ -68,10 +64,7 @@ public class FuzzDialog extends AbstractDialog {
 	private JCheckBox urlEncode = null;
 	private JButton cancelButton = null;
 	private JButton startButton = null;
-	private int selectionStart = -1;
-	private int selectionEnd = -1;
-	private boolean fuzzHeader = true;
-	private HttpMessage httpMessage;
+	private FuzzableHttpMessage fuzzableHttpMessage;
 
 	private boolean incAcsrfToken = false;
 	private FuzzerDialogTokenPane tokenPane = new FuzzerDialogTokenPane();
@@ -244,9 +237,9 @@ public class FuzzDialog extends AbstractDialog {
 				        	if (getEnableTokens().isSelected() && tokenPane.isEnable()) {
 				        		token = tokenPane.getToken();
 				        	}
-			        		extension.startFuzzers(httpMessage, fuzzers, fileFuzzers, fuzzHeader, 
-			        				selectionStart, selectionEnd, token, 
+			        		extension.startFuzzers(fuzzableHttpMessage, fuzzers, fileFuzzers, token, 
 			        				getShowTokenRequests().isSelected(), getFollowRedirects().isSelected(), getUrlEncode().isSelected());
+			        		fuzzableHttpMessage = null;
 							
 						} catch (NoSuchFuzzerException e) {
 							log.error(e.getMessage(), e);
@@ -361,36 +354,17 @@ public class FuzzDialog extends AbstractDialog {
 	public void reset() {
 	}
 
-	public void setSelection(Component source) {
-		if (source != null) {
-			SearchMatch sm = null;
+	public void setSelection(FuzzableComponent fuzzableComponent) {
+		if (fuzzableComponent != null) {
+			String selectedText = fuzzableComponent.getFuzzTarget();
 			
-			if (source instanceof HttpPanelTextArea) {
-				HttpPanelTextArea ta = (HttpPanelTextArea) source;
-				
-				sm = ta.getTextSelection();
-				selectionStart = sm.getStart();
-				selectionEnd = sm.getEnd();
-				httpMessage = sm.getMessage();
-				
-				String selectedText = "";
-				if (sm.getLocation().equals(SearchMatch.Location.REQUEST_HEAD)) {
-					fuzzHeader = true;
-					selectedText = httpMessage.getRequestHeader().toString().substring(selectionStart, selectionEnd);
-				} else {
-					fuzzHeader = false;
-					selectedText = httpMessage.getRequestBody().toString().substring(selectionStart, selectionEnd);
-				}
-				
-				if (selectedText.length() > selectionFieldLength) {
-					getSelectionField().setText(selectedText.substring(0, selectionFieldLength) + "...");
-				} else {
-					getSelectionField().setText(selectedText);
-				}
+			this.fuzzableHttpMessage = fuzzableComponent.getFuzzableHttpMessage(); 
+			
+			if (selectedText.length() > selectionFieldLength) {
+				getSelectionField().setText(selectedText.substring(0, selectionFieldLength) + "...");
 			} else {
-				System.out.println("FAIL");
+				getSelectionField().setText(selectedText);
 			}
-
 		} else {
 			System.out.println("error");
 		}

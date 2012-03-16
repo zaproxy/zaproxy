@@ -16,6 +16,7 @@
  * along with this program; if not, see http://www.gnu.org/copyleft/
  * 
  */
+// ZAP: 2012/03/15 Changed to use only one label for each alert.
 
 package org.parosproxy.paros.view;
 
@@ -23,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -39,10 +41,6 @@ public class MainFooterPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JToolBar footerToolbarLeft = null;
 	private JToolBar footerToolbarRight = null;
-	private JLabel flagHigh = null;
-	private JLabel flagMedium = null;
-	private JLabel flagLow = null;
-	private JLabel flagInfo = null;
 	private JLabel alertHigh = null;
 	private JLabel alertMedium = null;
 	private JLabel alertLow = null;
@@ -99,16 +97,12 @@ public class MainFooterPanel extends JPanel {
 		// Common alerts (Left)
 		footerToolbarLeft.add(new JLabel(Constant.messages.getString("footer.alerts.label")));
 		
-		footerToolbarLeft.add(getAlertFlagHigh());
 		footerToolbarLeft.add(getAlertHigh(0));
 		
-		footerToolbarLeft.add(getAlertFlagMedium());
 		footerToolbarLeft.add(getAlertMedium(0));
 		
-		footerToolbarLeft.add(getAlertFlagLow());
 		footerToolbarLeft.add(getAlertLow(0));
 		
-		footerToolbarLeft.add(getAlertFlagInfo());
 		footerToolbarLeft.add(getAlertInfo(0));
 		
 		// Current Scans (Right)
@@ -152,53 +146,12 @@ public class MainFooterPanel extends JPanel {
 	public void addSeparator() {
 		getToolbarLeft().addSeparator();
 	}
-
-	private JLabel getAlertFlagHigh() {
-		if (flagHigh == null) {
-			flagHigh = new JLabel();
-			flagHigh.setToolTipText(Constant.messages.getString("footer.alerts.high.tooltip"));
-			ImageIcon iconHigh = new ImageIcon(Constant.HIGH_FLAG_IMAGE_URL); // Red
-			flagHigh.setIcon(iconHigh);
-		}
-		return flagHigh;
-	}
-	
-	private JLabel getAlertFlagMedium() {
-		if (flagMedium == null) {
-			flagMedium = new JLabel();
-			flagMedium.setToolTipText(Constant.messages.getString("footer.alerts.medium.tooltip"));
-			ImageIcon iconMedium = new ImageIcon(Constant.MED_FLAG_IMAGE_URL); // Orange
-			flagMedium.setIcon(iconMedium);
-		}
-		return flagMedium;
-	}
-	
-	private JLabel getAlertFlagLow() {
-		if (flagLow == null) {
-			flagLow = new JLabel();
-			flagLow.setToolTipText(Constant.messages.getString("footer.alerts.low.tooltip"));
-			ImageIcon iconLow = new ImageIcon(Constant.LOW_FLAG_IMAGE_URL); // Yellow
-			flagLow.setIcon(iconLow);
-		}
-		return flagLow;
-	}
-	
-	private JLabel getAlertFlagInfo() {
-		if (flagInfo == null) {
-			flagInfo = new JLabel();
-			flagInfo.setToolTipText(Constant.messages.getString("footer.alerts.info.tooltip"));
-			ImageIcon iconLow = new ImageIcon(Constant.INFO_FLAG_IMAGE_URL); // Blue
-			flagInfo.setIcon(iconLow);
-		}
-		return flagInfo;
-	}
 	
 	private JLabel getAlertHigh(int alert) {
 		if (alertHigh == null) {
-			alertHigh = new JLabel();
+			alertHigh = createAlertLabel(Constant.messages.getString("footer.alerts.high.tooltip"), Constant.HIGH_FLAG_IMAGE_URL); // Red flag
 		}
-		//FIXME Fix this ugly hack for adding some space between the icons
-		alertHigh.setText("  " + alert + "  ");
+		alertHigh.setText(String.valueOf(alert));
 		return alertHigh;
 	}
 	
@@ -208,10 +161,9 @@ public class MainFooterPanel extends JPanel {
 
 	private JLabel getAlertMedium(int alert) {
 		if (alertMedium == null) {
-			alertMedium = new JLabel();
+			alertMedium = createAlertLabel(Constant.messages.getString("footer.alerts.medium.tooltip"), Constant.MED_FLAG_IMAGE_URL); // Orange flag
 		}
-		//FIXME Fix this ugly hack for adding some space between the icons
-		alertMedium.setText("  " + alert + "  ");
+		alertMedium.setText(String.valueOf(alert));
 		return alertMedium;
 	}
 	
@@ -221,10 +173,9 @@ public class MainFooterPanel extends JPanel {
 
 	private JLabel getAlertLow(int alert) {
 		if (alertLow == null) {
-			alertLow = new JLabel();
+			alertLow = createAlertLabel(Constant.messages.getString("footer.alerts.low.tooltip"), Constant.LOW_FLAG_IMAGE_URL); // Yellow flag
 		}
-		//FIXME Fix this ugly hack for adding some space between the icons
-		alertLow.setText("  " + alert + "  ");
+		alertLow.setText(String.valueOf(alert));
 		return alertLow;
 	}
 	
@@ -234,11 +185,19 @@ public class MainFooterPanel extends JPanel {
 
 	private JLabel getAlertInfo(int alert) {
 		if (alertInfo == null) {
-			alertInfo = new JLabel();
+			alertInfo = createAlertLabel(Constant.messages.getString("footer.alerts.info.tooltip"), Constant.INFO_FLAG_IMAGE_URL); // Blue flag
 		}
-		//FIXME Fix this ugly hack for adding some space between the icons
-		alertInfo.setText("  " + alert + "  ");
+		alertInfo.setText(String.valueOf(alert));
 		return alertInfo;
+	}
+	
+	private JLabel createAlertLabel(String toolTip, URL icon) {
+		JLabel label = new JLabel();
+		label.setToolTipText(toolTip);
+		label.setIcon(new ImageIcon(icon));
+		label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		
+		return label;
 	}
 	
 	public void setAlertInfo (int alert) {

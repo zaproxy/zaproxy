@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
+// ZAP: 2012/03/15 Changed so the change display option stays visually selected.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -57,8 +58,10 @@ public class MainFrame extends AbstractFrame {
 	 */
 	public MainFrame(int displayOption) {
 		super();
-		this.displayOption = displayOption;
+		this.displayOption = -1;
 		initialize();
+		
+		changeDisplayOption(displayOption);
 	}
 
 	/**
@@ -181,6 +184,7 @@ public class MainFrame extends AbstractFrame {
 		if (this.displayOption != displayOption) {
 			this.displayOption = displayOption;
 			this.getWorkbench().changeDisplayOption(displayOption);
+			this.getMainToolbarPanel().setDisplayOption(displayOption);
 			Model.getSingleton().getOptionsParam().getViewParam().setDisplayOption(displayOption);
 		}
 	}

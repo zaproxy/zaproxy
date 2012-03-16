@@ -22,6 +22,8 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/05/31 Added option to dynamically change the display
 // ZAP: 2012/02/18 Changed default to be 'bottom full'
+// ZAP: 2012/03/15 Changed to set the configuration key to the HttpPanels, load
+//      the configuration and disable the response panel.
 
 package org.parosproxy.paros.view;
 
@@ -38,6 +40,7 @@ import javax.swing.JToggleButton;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -174,21 +177,23 @@ public class View implements ViewDelegate {
 
     public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
-            requestPanel = new HttpPanelRequest(false, null, null, OptionsParamView.ViewType.req_history);
+            requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
-            requestPanel.setName(Constant.messages.getString("request.panel.title"));	// ZAP: i18n
+            requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
+            requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
         }
         return requestPanel;
     }
     
     public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
-            responsePanel = new HttpPanelResponse(false, null, null, OptionsParamView.ViewType.res_history);
+            responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
-            responsePanel.setName(Constant.messages.getString("response.panel.title"));	// ZAP: i18n
-            responsePanel.clearView(false);
+            responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
+            responsePanel.setEnableViewSelect(false);
+            responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
         }
         return responsePanel;
     }

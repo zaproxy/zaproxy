@@ -28,19 +28,24 @@ import javax.swing.text.JTextComponent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.OptionsChangedListener;
+import org.parosproxy.paros.model.OptionsParam;
 
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionEncoder2 extends ExtensionAdaptor {
+public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChangedListener {
 
     private EncodeDecodeDialog encodeDecodeDialog = null;
     
     private JMenuItem menuEncode = null;
     private PopupEncoder2Menu popupEncodeMenu = null;
 	private JMenuItem toolsMenuEncoder = null;
+
+	private EncodeDecodeParamPanel optionsPanel;
+	private EncodeDecodeParam params;
 
     /**
      * 
@@ -71,13 +76,17 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-	    if (getView() != null) {	        
+	    if (getView() != null) {
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuEncode());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEncode());
 	        
 	        extensionHook.getHookMenu().addToolsMenuItem(getToolsMenuItemEncoder());
-	    }
 
+	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
+	        extensionHook.addOptionsParamSet(getParams());
+	        
+	        extensionHook.addOptionsChangedListener(this);
+	    }
 	}
 
 	private JMenuItem getToolsMenuItemEncoder() {
@@ -97,7 +106,8 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
 	
     private void showEncodeDecodeDialog(JFrame frame, JTextComponent lastInvoker) {
         if (encodeDecodeDialog == null) {
-            encodeDecodeDialog = new EncodeDecodeDialog();            
+            encodeDecodeDialog = new EncodeDecodeDialog();
+            encodeDecodeDialog.updateOptions(getParams());
             /*
             // TODO doesnt work yet
             ExtensionHelp.enablePopupHelpKey(
@@ -119,7 +129,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
     }
 
     /**
-     * This method initializes menuFind	
+     * This method initializes menuEncode	
      * 	
      * @return javax.swing.JMenuItem	
      */
@@ -138,7 +148,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
     }
 
     /**
-     * This method initializes popupMenuFind	
+     * This method initializes popupEncodeMenu	
      * 	
      * @return org.parosproxy.paros.extension.ExtensionPopupMenu	
      */
@@ -155,4 +165,25 @@ public class ExtensionEncoder2 extends ExtensionAdaptor {
         }
         return popupEncodeMenu;
     }
+
+	private EncodeDecodeParamPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new EncodeDecodeParamPanel();
+		}
+		return optionsPanel;
+	}
+
+	public EncodeDecodeParam getParams() {
+		if (params == null) {
+			params = new EncodeDecodeParam();
+		}
+		return params;
+	}
+	
+	@Override
+	public void optionsChanged(OptionsParam optionsParam) {
+		if (encodeDecodeDialog != null) {
+			encodeDecodeDialog.updateOptions(getParams());
+		}
+	}
 }

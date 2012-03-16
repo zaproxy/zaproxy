@@ -188,7 +188,7 @@ public class ZAP {
 	        	// Dont use a parent of the MainFrame - that will initialise it with English!
 				final Locale userloc = determineUsersSystemLocale();
 		    	if (userloc == null) {
-		    		// Only show the dialog, when the user's langauge can't be guessed.
+		    		// Only show the dialog, when the user's language can't be guessed.
 					final LocaleDialog dialog = new LocaleDialog(null, true);
 					dialog.init(Model.getSingleton().getOptionsParam());
 					dialog.setVisible(true);
@@ -341,14 +341,14 @@ public class ZAP {
 
 	}
 
-	private void runDaemon() throws ClassNotFoundException, Exception {
+	private void runDaemon() throws Exception {
 		// start in a background thread
         final Thread t = new Thread(new Runnable() {
             @Override
 			public void run() {
         		Control.initSingletonWithoutView();
             }});
-        t.run();
+        t.start();
 	}
 
 	private boolean showLicense() {
@@ -376,8 +376,8 @@ public class ZAP {
 	    return shown;
 	}
 
-	private static class UncaughtExceptionLogger implements UncaughtExceptionHandler {
-		private static Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
+	private static final class UncaughtExceptionLogger implements UncaughtExceptionHandler {
+		private static final Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
 
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {

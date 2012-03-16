@@ -20,10 +20,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/10/29 Fixed cookie parsing
+// ZAP: 2012/03/15 Changed to use the classes HttpRequestBody and HttpResponseBody.
+//      Changed to use the byte[] body. Changed to use the class StringBuilder 
+//      instead of StringBuffer. Reworked some methods.
 
 package org.parosproxy.paros.network;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -33,6 +38,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpResponseBody;
 
 
 /**
@@ -46,9 +53,9 @@ public class HttpMessage {
 	//private static Pattern staticPatternParam2 = Pattern.compile(";", Pattern.CASE_INSENSITIVE);
 
 	private HttpRequestHeader mReqHeader = new HttpRequestHeader();
-	private HttpBody mReqBody = new HttpBody();
+	private HttpRequestBody mReqBody = new HttpRequestBody();
 	private HttpResponseHeader mResHeader = new HttpResponseHeader();
-	private HttpBody mResBody = new HttpBody();
+	private HttpResponseBody mResBody = new HttpResponseBody();
 	private Object userObject = null;
 	private int timeElapsed = 0;
 	private long timeSent = 0;
@@ -86,9 +93,9 @@ public class HttpMessage {
 	    setRequestHeader(reqHeader);
 	}
 	
-	public HttpMessage(HttpRequestHeader reqHeader, HttpBody reqBody) {
+	public HttpMessage(HttpRequestHeader reqHeader, HttpRequestBody reqBody) {
 		setRequestHeader(reqHeader);
-		setRequestBody(reqBody);	    
+		setRequestBody(reqBody);
 	}
 
 	/**
@@ -98,15 +105,15 @@ public class HttpMessage {
 	 * @param resHeader
 	 * @param resBody
 	 */
-	public HttpMessage(HttpRequestHeader reqHeader, HttpBody reqBody,
-			HttpResponseHeader resHeader, HttpBody resBody) {
+	public HttpMessage(HttpRequestHeader reqHeader, HttpRequestBody reqBody,
+			HttpResponseHeader resHeader, HttpResponseBody resBody) {
 		setRequestHeader(reqHeader);
 		setRequestBody(reqBody);
 		setResponseHeader(resHeader);
 		setResponseBody(resBody);		
 	}
 	
-	public HttpMessage(String reqHeader, String reqBody, String resHeader, String resBody) throws HttpMalformedHeaderException {
+	public HttpMessage(String reqHeader, byte[] reqBody, String resHeader, byte[] resBody) throws HttpMalformedHeaderException {
 		setRequestHeader(reqHeader);
 		setRequestBody(reqBody);
 		if (resHeader != null && !resHeader.equals("")) {
@@ -148,10 +155,10 @@ public class HttpMessage {
 	}
 
 	/**
-	 * Get the requeset body of this message.
+	 * Get the request body of this message.
 	 * @return.  Null = response header not exist yet.
 	 */
-	public HttpBody getRequestBody() {
+	public HttpRequestBody getRequestBody() {
 		return mReqBody;
 	}
 
@@ -159,7 +166,7 @@ public class HttpMessage {
 	 * Set the request body of this message.
 	 * @param reqBody
 	 */
-	public void setRequestBody(HttpBody reqBody) {
+	public void setRequestBody(HttpRequestBody reqBody) {
 		mReqBody = reqBody;
 	}
 
@@ -167,7 +174,7 @@ public class HttpMessage {
 	 * Get the response body of this message.
 	 * @return
 	 */
-	public HttpBody getResponseBody() {
+	public HttpResponseBody getResponseBody() {
 		return mResBody;
 	}
 
@@ -175,7 +182,7 @@ public class HttpMessage {
 	 * Set the response body of this message.
 	 * @param resBody
 	 */
-	public void setResponseBody(HttpBody resBody) {
+	public void setResponseBody(HttpResponseBody resBody) {
 		mResBody = resBody;
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
 
@@ -193,6 +200,12 @@ public class HttpMessage {
 	}
 
 	public void setRequestBody(String body) {
+	    getRequestBody().setCharset(getRequestHeader().getCharset());
+		getRequestBody().setBody(body);
+
+	}
+	
+	public void setRequestBody(byte[] body) {
 		getRequestBody().setBody(body);
 	    getRequestBody().setCharset(getRequestHeader().getCharset());
 
@@ -200,11 +213,19 @@ public class HttpMessage {
 
 	public void setResponseBody(String body) {
 	    if (mReqBody == null) {
-	        mReqBody = new HttpBody();
+	        mReqBody = new HttpRequestBody();
+	    }
+	    getResponseBody().setCharset(getResponseHeader().getCharset());
+		getResponseBody().setBody(body);
+
+	}
+	
+	public void setResponseBody(byte[] body) {
+	    if (mReqBody == null) {
+	        mReqBody = new HttpRequestBody();
 	    }
 		getResponseBody().setBody(body);
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
-
 	}
 
 	/**
@@ -253,7 +274,7 @@ public class HttpMessage {
             }
             
             if (this.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-                return this.getRequestBody().toString(HttpBody.STORAGE_CHARSET).equalsIgnoreCase(msg.getRequestBody().toString(HttpBody.STORAGE_CHARSET));
+                return this.getRequestBody().equals(msg.getRequestBody());
             }
             
             result = true;
@@ -355,8 +376,8 @@ public class HttpMessage {
         //the POST body part must also be the same set
 	    if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
 	        
-	        query1 = this.getRequestBody().toString(HttpBody.STORAGE_CHARSET);
-	        query2 = msg.getRequestBody().toString(HttpBody.STORAGE_CHARSET);
+	        query1 = this.getRequestBody().toString();
+	        query2 = msg.getRequestBody().toString();
 	        set1 = getParamNameSet(query1);
 		    set2 = getParamNameSet(query2);	        
 
@@ -455,13 +476,13 @@ public class HttpMessage {
 			if (query == null) {
 				query = "";
 			}
-			SortedSet pns = this.getParamNameSet(query);
-			Iterator iterator = pns.iterator();
-			for (int i=0; iterator.hasNext(); i++) {
-			    String name = (String) iterator.next();
-			    if (name != null) {
-			    	v.add(name);
-			    }
+			SortedSet<String> pns = this.getParamNameSet(query);
+			Iterator<String> iterator = pns.iterator();
+			while (iterator.hasNext()) {
+				String name = iterator.next();
+				if (name != null) {
+					v.add(name);
+				}
 			}
 			if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
 				// Get the param names from the POST
@@ -471,13 +492,13 @@ public class HttpMessage {
 				}
 				pns = this.getParamNameSet(query);
 			    iterator = pns.iterator();
-			    for (int i=0; iterator.hasNext(); i++) {
-			        String name = (String) iterator.next();
+			    while (iterator.hasNext()) {
+					String name = iterator.next();
 			        if (name != null) {
 			        	v.add(name);
 			        }
-			    }
-				
+					
+				}
 			}
 		} catch (URIException e) {
 			log.error(e.getMessage(), e);
@@ -505,10 +526,12 @@ public class HttpMessage {
 	// ZAP: Added getFormParams
 	public TreeSet<HtmlParameter> getFormParams() {
 		String query = null;
-		if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+		// use the body even if it's not POST, this allows the user to add/edit the POST
+		// params when the method is other than POST.
+		//if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
 			// Get the param names from the POST
 			query = this.getRequestBody().toString();
-		}
+		//}
 		if (query == null) {
 			query = "";
 		}
@@ -520,9 +543,7 @@ public class HttpMessage {
 	}
 	
 	public String getCookieParamsAsString() {
-		String cookie = "";
-		
-		Vector<String> cookies = new Vector<String>();
+		List<String> cookies = new LinkedList<String>();
         if (! this.getRequestHeader().isEmpty()) {
         	addAll(cookies,this.getRequestHeader().getHeaders(HttpHeader.COOKIE));
         }
@@ -532,17 +553,18 @@ public class HttpMessage {
         }
 		
         // Fix error requesting cookies, but there are none
-        if (cookies.size() == 0) {
-        	return cookie;
+        if (cookies.isEmpty()) {
+        	return "";
         }
         
+        StringBuilder sb = new StringBuilder();
         for (String header: cookies) {
-        	cookie += header;
+        	sb.append(header);
         }
-        return cookie;
+        return sb.toString();
 	}
 	
-	private void addAll (Vector<String> dest, Vector<String> src) {
+	private void addAll (List<String> dest, Vector<String> src) {
 		if (src != null) {
 			dest.addAll(src);
 		}
@@ -551,34 +573,14 @@ public class HttpMessage {
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
-		Vector<String> cookies = new Vector<String>();
-
+		
+	    if (! this.getRequestHeader().isEmpty()) {
+	    	set.addAll(this.getRequestHeader().getCookieParams());
+        }
 	    if (! this.getResponseHeader().isEmpty()) {
-	    	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE));
-	    	addAll(cookies,this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2));
-	    	
-	    } else if (! this.getRequestHeader().isEmpty()) {
-    		Vector<String> cookieLines = this.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-    		if (cookieLines != null) {
-	    		for (String cookieLine : cookieLines) {
-	        		if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
-	        			// HttpCookie wont parse lines starting with "Cookie:"
-	        			cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
-	        		}
-	            	// These can be comma separated type=value
-	        		String [] cookieArray = cookieLine.split(";");
-	        		for (String cookie : cookieArray) {
-	        			cookies.add(cookie);
-	        		}
-	    		}
-    		}
-        }
+	    	set.addAll(this.getResponseHeader().getCookieParams());
+	    }
 
-        if (cookies != null) {
-        	for (String cookie : cookies) {
-    			set.add(new HtmlParameter(cookie));
-        	}
-        }
 		return set;
 	}
 	
@@ -603,7 +605,7 @@ public class HttpMessage {
                 newMsg.getResponseHeader().setMessage(this.getResponseHeader().toString());
             } catch (HttpMalformedHeaderException e) {
             }
-            newMsg.setResponseBody(this.getResponseBody().toString(HttpBody.STORAGE_CHARSET));
+            newMsg.setResponseBody(this.getResponseBody().getBytes());
         }
 
         return newMsg;
@@ -617,7 +619,7 @@ public class HttpMessage {
             } catch (HttpMalformedHeaderException e) {
                 e.printStackTrace();
             }
-            newMsg.setRequestBody(this.getRequestBody().toString(HttpBody.STORAGE_CHARSET));
+            newMsg.setRequestBody(this.getRequestBody().getBytes());
         }
         return newMsg;
     }
@@ -712,7 +714,7 @@ public class HttpMessage {
 			if (prevMethod.equals(HttpRequestHeader.POST)) {
 				// Was POST, move all params onto the URL
 				if (body != null && body.length() > 0) {
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					if (uri.getQuery() != null) {
 						sb.append(uri.getQuery());
 					}
@@ -720,7 +722,7 @@ public class HttpMessage {
 					String[] params = body.split("&");
 					for (String param : params) {
 						if (sb.length() > 0) {
-							sb.append("&");
+							sb.append('&');
 						}
 						String[] nv = param.split("=");
 						if (nv.length == 1) {
@@ -742,18 +744,18 @@ public class HttpMessage {
 				// To be a port, move all URL query params into the body
 				String query = uri.getQuery();
 				if (query != null) {
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					String[] params = query.split("&");
 					for (String param : params) {
 						if (sb.length() > 0) {
-							sb.append("&");
+							sb.append('&');
 						}
 						sb.append(param);
 						String[] nv = param.split("=");
 						if (nv.length == 1) {
 							// Cope with URL params with no values e.g.
 							// http://www.example.com/test?key
-							sb.append("=");
+							sb.append('=');
 						}
 					}
 					body = sb.toString();

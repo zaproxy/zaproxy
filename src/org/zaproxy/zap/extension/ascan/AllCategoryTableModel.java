@@ -115,7 +115,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
     private boolean isPluginCategoryEnabled(int category) {
         for (int i=0; i<allPlugins.size(); i++) {
-            Plugin plugin = (Plugin) allPlugins.get(i);
+            Plugin plugin = allPlugins.get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -128,7 +128,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     
     private void setPluginCategoryEnabled(int category, boolean enabled) {
         for (int i=0; i<allPlugins.size(); i++) {
-            Plugin plugin = (Plugin) allPlugins.get(i);
+            Plugin plugin = allPlugins.get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -139,7 +139,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     
     void setAllCategoryEnabled(boolean enabled) {
         for (int i=0; i<allPlugins.size(); i++) {
-            Plugin plugin = (Plugin) allPlugins.get(i);
+            Plugin plugin = allPlugins.get(i);
             plugin.setEnabled(enabled);            
         }
         fireTableDataChanged();        
@@ -148,7 +148,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     
     boolean isAllCategoryEnabled() {
         for (int i=0; i<allPlugins.size(); i++) {
-            Plugin plugin = (Plugin) allPlugins.get(i);
+            Plugin plugin = allPlugins.get(i);
             if (!plugin.isEnabled()) {
                 return false;
             }

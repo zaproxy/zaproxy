@@ -42,7 +42,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.search.SearchResult;
 
 public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
@@ -120,28 +119,27 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 
 
-	public void startFuzzers (HttpMessage msg, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, boolean fuzzHeader, 
-			int startOffset, int endOffset, AntiCsrfToken acsrfToken, 
+	public void startFuzzers (FuzzableHttpMessage fuzzableHttpMessage, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, AntiCsrfToken acsrfToken, 
 			boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
 		this.getFuzzerPanel().scanStarted();
 
 		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(msg, fuzzers, customFuzzers, fuzzHeader, startOffset, endOffset, acsrfToken, showTokenRequests, followRedirects, urlEncode);
+		fuzzerThread.setTarget(fuzzableHttpMessage, fuzzers, customFuzzers, acsrfToken, showTokenRequests, followRedirects, urlEncode);
 		fuzzerThread.addFuzzerListener(this);
 		fuzzerThread.start();
 
 	}
 	
 	public void stopFuzzers() {
-		fuzzerThread.stop();		
+		fuzzerThread.stop();
 	}
 
 	public void pauseFuzzers() {
-		fuzzerThread.pause();		
+		fuzzerThread.pause();
 	}
 
 	public void resumeFuzzers() {
-		fuzzerThread.resume();		
+		fuzzerThread.resume();
 	}
 	
 	public List<SearchResult> searchFuzzResults(Pattern pattern, boolean inverse) {
@@ -153,28 +151,31 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
     }
 
     private void showFuzzDialog(JFrame frame, Component invoker) {
-		List<AntiCsrfToken> tokens = null;
-
+    	if (!(invoker instanceof FuzzableComponent)) {
+    		return;
+    	}
+    	
+    	FuzzableComponent fuzzableComponent = (FuzzableComponent)invoker;
+		FuzzableHttpMessage fuzzableHttpMessage = fuzzableComponent.getFuzzableHttpMessage();
+		
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
+		List<AntiCsrfToken> tokens = null;
 		if (extAntiCSRF != null) {
-			if (invoker instanceof HttpPanelTextArea) {
-				HttpPanelTextArea ta = (HttpPanelTextArea) invoker;
-				tokens = extAntiCSRF.getTokens(ta.getHttpMessage());
-			}
+			tokens = extAntiCSRF.getTokens(fuzzableHttpMessage.getHttpMessage());
 		}
 		
 		FuzzDialog fuzzDialog;
 		
 		if (tokens == null || tokens.size() == 0) {
-			fuzzDialog = new FuzzDialog(this, frame, false, false);            
+			fuzzDialog = new FuzzDialog(this, frame, false, false);
 		} else {
-			fuzzDialog = new FuzzDialog(this, frame, false, true);            
+			fuzzDialog = new FuzzDialog(this, frame, false, true);
 			fuzzDialog.setAntiCsrfTokens(tokens);
 		}
 		fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
-		fuzzDialog.setSelection(invoker);
+		fuzzDialog.setSelection(fuzzableComponent);
 		fuzzDialog.setVisible(true);
         
     }

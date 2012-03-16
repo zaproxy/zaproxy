@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/14 Changed to use the internationalised strings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 
 
@@ -36,7 +38,12 @@ import org.parosproxy.paros.core.scanner.Plugin;
 public class CategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	private static final String[] columnNames = {"Test Name", "Enabled"};
+	
+	// ZAP: i18n
+	private static final String[] columnNames = {
+		Constant.messages.getString("ascan.policy.table.testname"), 
+		Constant.messages.getString("ascan.policy.table.enabled") };
+	
     private Vector<Plugin> listTestCategory = new Vector<Plugin>();
     
     /**
@@ -48,7 +55,7 @@ public class CategoryTableModel extends DefaultTableModel {
     public void setTable(int category, List<Plugin> allTest) {
         listTestCategory.clear();
         for (int i=0; i<allTest.size(); i++) {
-            Plugin test = (Plugin) allTest.get(i);
+            Plugin test = allTest.get(i);
             if (test.getCategory() == category) {
                 listTestCategory.add(test);
             }
@@ -57,29 +64,32 @@ public class CategoryTableModel extends DefaultTableModel {
         
     }
 
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+    @Override
+	public Class<?> getColumnClass(int c) {
         if (c == 1) {
             return Boolean.class;
         }
         return String.class;
         
     }
-    
+
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
-    
+
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 1) {
             return true;
         }
         return false;
     }
-    
+
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
-        Plugin test = (Plugin) listTestCategory.get(row);
+        Plugin test = listTestCategory.get(row);
         switch (col) {
         	case 0:	break;
         	case 1: test.setEnabled(((Boolean) value).booleanValue());
@@ -87,7 +97,8 @@ public class CategoryTableModel extends DefaultTableModel {
         }
         fireTableCellUpdated(row, col);
     }
-    
+
+    @Override
     public int getColumnCount() {
         return 2;
     }
@@ -95,6 +106,7 @@ public class CategoryTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return getTestList().size();
     }
@@ -102,8 +114,9 @@ public class CategoryTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
-        Plugin test = (Plugin) listTestCategory.get(row);
+        Plugin test = listTestCategory.get(row);
         Object result = null;
         switch (col) {
         	case 0:	result = test.getName();

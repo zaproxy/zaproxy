@@ -33,6 +33,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.extension.spider.OptionsSpiderPanel;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -48,15 +49,19 @@ import org.zaproxy.zap.view.SiteMapListener;
  */
 public class ExtensionSpider extends ExtensionAdaptor 
 		implements SessionChangedListener, ProxyListener, SiteMapListener {
+	
+    private static final Logger logger = Logger.getLogger(ExtensionSpider.class);
 
-	public static final String NAME = "ExtensionSpider2"; 
+	public static final String NAME = "ExtensionSpider2";
+
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
 
 	private SpiderPanel spiderPanel = null;
     private PopupMenuSpider popupMenuSpider = null;
     private PopupMenuSpiderSite popupMenuSpiderSite = null;
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 	private org.parosproxy.paros.core.spider.SpiderParam params = null;
-    private Logger logger = Logger.getLogger(ExtensionSpider.class);
 	private List<String> excludeList = null;
     
 	/**
@@ -152,6 +157,11 @@ public class ExtensionSpider extends ExtensionAdaptor
 		while (en.hasMoreElements()) {
 			this.getSpiderPanel().addSite(en.nextElement().getNodeName(), true);
 		}
+	}
+	
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
 
 	private static final long serialVersionUID = 1L;
 
-    private static Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
+    private static final Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
 
     /**
      * @param label
@@ -36,6 +36,7 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
         super(label);
     }
 
+    @Override
     public boolean isEnabledForHistoryReference (HistoryReference href) {
     	try {
 			return href != null && this.isEnabledForHttpMessage(href.getHttpMessage());
@@ -49,6 +50,8 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
     	// Can Override if required 
     	return msg != null;
     }
+    
+    @Override
     public void performAction (HistoryReference href) throws Exception {
     	if (href != null && href.getHttpMessage() != null) {
     		this.performAction(href.getHttpMessage());
@@ -57,6 +60,7 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
 
     public abstract void performAction (HttpMessage msg) throws Exception;
 
+    @Override
     public abstract boolean isEnableForInvoker(Invoker invoker);
 
 }

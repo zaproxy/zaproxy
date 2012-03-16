@@ -73,6 +73,7 @@ public class OptionsInvokeTableModel extends AbstractTableModel {
         return result;
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
@@ -97,13 +98,14 @@ public class OptionsInvokeTableModel extends AbstractTableModel {
     public InvokableApp getInvokableApp(int index) {
     	return this.listApps.get(index);
     }
-    
+
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
-    
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+
+    @Override
+	public Class<String> getColumnClass(int c) {
         return String.class;
     }
 

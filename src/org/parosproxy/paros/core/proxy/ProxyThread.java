@@ -21,6 +21,10 @@
  */
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/03/15 Removed unnecessary castings from methods notifyListenerRequestSend,
+//      notifyListenerResponseReceive and isProcessCache. Set the name of the proxy thread.
+//      Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
+//      call from readBody to readRequestBody of the class HttpInputStream. 
 
 package org.parosproxy.paros.core.proxy;
 
@@ -38,7 +42,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -49,6 +52,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.network.HttpRequestBody;
 
 
 class ProxyThread implements Runnable {
@@ -96,7 +100,7 @@ class ProxyThread implements Runnable {
 			log.warn(e.getMessage(), e);
 		}
 
-		thread = new Thread(this);
+		thread = new Thread(this, "ZAP-ProxyThread"); // ZAP: Set the name of the thread.
 		thread.setDaemon(true);
 		thread.setPriority(Thread.NORM_PRIORITY-1);
 	}
@@ -189,7 +193,7 @@ class ProxyThread implements Runnable {
 	
 	protected void processHttp(HttpRequestHeader requestHeader, boolean isSecure) throws IOException {
 
-		HttpBody reqBody = null;
+		HttpRequestBody reqBody = null; // ZAP: Replaced the class HttpBody with the class HttpRequestBody.
 		boolean isFirstRequest = true;
 		HttpMessage msg = null;
         
@@ -224,7 +228,7 @@ class ProxyThread implements Runnable {
 			msg.setRequestHeader(requestHeader);
 			
 			if (msg.getRequestHeader().getContentLength() > 0) {
-				reqBody		= httpIn.readBody(requestHeader);
+				reqBody		= httpIn.readRequestBody(requestHeader); // ZAP: Changed to call the method readRequestBody.
 				msg.setRequestBody(reqBody);
 			}
             
@@ -500,7 +504,7 @@ class ProxyThread implements Runnable {
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
-			listener = (ProxyListener) listenerList.get(i);
+			listener = listenerList.get(i);
 			try {
 			    if (! listener.onHttpRequestSend(httpMessage)) {
 			    	return false;
@@ -525,7 +529,7 @@ class ProxyThread implements Runnable {
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
-			listener = (ProxyListener) listenerList.get(i);
+			listener = listenerList.get(i);
 			try {
 			    if (!listener.onHttpResponseReceive(httpMessage)) {
 			    	return false;
@@ -598,7 +602,7 @@ class ProxyThread implements Runnable {
             return false;
         }
         
-        CacheProcessingItem item = (CacheProcessingItem) parentServer.getCacheProcessingList().get(0);
+        CacheProcessingItem item = parentServer.getCacheProcessingList().get(0);
         if (msg.equals(item.message)) {
             HttpMessage newMsg = item.message.cloneAll();
             msg.setResponseHeader(newMsg.getResponseHeader());

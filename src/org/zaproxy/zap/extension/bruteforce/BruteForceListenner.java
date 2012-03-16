@@ -29,5 +29,5 @@ public interface BruteForceListenner {
 	
 	public void scanProgress(String host, int port, int done, int todo);
 	
-    public void foundDir(URL url, int statusCode, String responce, String baseCase, String rawResponce, BaseCase baseCaseObj);
+    public void foundDir(URL url, int statusCode, String response, String baseCase, String rawResponse, BaseCase baseCaseObj);
 }

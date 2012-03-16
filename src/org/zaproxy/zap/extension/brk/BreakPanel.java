@@ -23,16 +23,17 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.tab.Tab;
@@ -43,8 +44,12 @@ import org.zaproxy.zap.extension.tab.Tab;
  * 
  */
 public class BreakPanel extends AbstractPanel implements Tab {
+
 	private static final long serialVersionUID = 1L;
 
+	private static final String REQUEST_PANEL = "request";
+	private static final String RESPONSE_PANEL = "response";
+	
 	private HttpPanelRequest requestPanel;
 	private HttpPanelResponse responsePanel;
 
@@ -77,31 +82,32 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		panelContent = new JPanel(new CardLayout());
 		this.add(panelContent, BorderLayout.CENTER);
 
-		requestPanel = new HttpPanelRequest(true, null, null, OptionsParamView.ViewType.req_proxy);
-		responsePanel = new HttpPanelResponse(true, null, null,  OptionsParamView.ViewType.res_proxy);
+		requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".break.");
+		requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
+		responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".break.");
+		responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 
-		panelContent.add(requestPanel, "request");
-		panelContent.add(responsePanel, "response");
+		panelContent.add(requestPanel, REQUEST_PANEL);
+		panelContent.add(responsePanel, RESPONSE_PANEL);
 
 		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
 		case 0:
 			// If the user decided to disable the main toolbar, the break
 			// buttons have to be force to be displayed in the break panel
 			if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
-				JPanel panelCommand = getPanelCommand();
-				this.add(panelCommand, BorderLayout.NORTH);
+				this.add(getPanelCommand(), BorderLayout.NORTH);
 			} else {
 				getPanelMainToolbarCommand();
 			}
 			break;
 		case 1:
-			requestPanel.addHeaderPanel(getPanelCommand());
-			responsePanel.addHeaderPanel(getPanelCommand());
+			requestPanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+			responsePanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
 			break;
 		case 2:
-			requestPanel.addHeaderPanel(getPanelCommand());
-			responsePanel.addHeaderPanel(getPanelCommand());
+			requestPanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+			responsePanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 			getPanelMainToolbarCommand();
 			break;
 		default:
@@ -139,21 +145,19 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * 
 	 * @return javax.swing.JPanel
 	 */
-	private JPanel getPanelCommand() {
-		JPanel panelCommand = new JPanel();
-		Box box = Box.createHorizontalBox();
+	private JToolBar getPanelCommand() {
+		JToolBar panelCommand = new JToolBar();
+		panelCommand.setFloatable(false);
+		panelCommand.setBorder(BorderFactory.createEmptyBorder());
+		panelCommand.setRollover(true);
 		
-		panelCommand.setLayout(new BoxLayout(panelCommand,BoxLayout.X_AXIS));
 		panelCommand.setName("Command");
 
-		box.add(Box.createGlue());
-		box.add(breakToolbarFactory.getBtnBreakRequest());
-		box.add(breakToolbarFactory.getBtnBreakResponse());
-		box.add(breakToolbarFactory.getBtnStep());
-		box.add(breakToolbarFactory.getBtnContinue());
-		box.add(breakToolbarFactory.getBtnDrop());
-
-		panelCommand.add(box);
+		panelCommand.add(breakToolbarFactory.getBtnBreakRequest());
+		panelCommand.add(breakToolbarFactory.getBtnBreakResponse());
+		panelCommand.add(breakToolbarFactory.getBtnStep());
+		panelCommand.add(breakToolbarFactory.getBtnContinue());
+		panelCommand.add(breakToolbarFactory.getBtnDrop());
 
 		return panelCommand;
 	}
@@ -170,11 +174,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		CardLayout cl = (CardLayout)(panelContent.getLayout());
 
 		if (isRequest) {
-			cl.show(panelContent, "request");
-			requestPanel.setMessage(msg);
+			cl.show(panelContent, REQUEST_PANEL);
+			requestPanel.setMessage(msg, true);
+			requestPanel.setEditable(true);
 		} else {
-			cl.show(panelContent, "response");
-			responsePanel.setMessage(msg);
+			cl.show(panelContent, RESPONSE_PANEL);
+			responsePanel.setMessage(msg, true);
+			responsePanel.setEditable(true);
 		}
 		
 		breakToolbarFactory.gotMessage(isRequest);
@@ -186,23 +192,37 @@ public class BreakPanel extends AbstractPanel implements Tab {
 
 		if (isRequest) {
 			requestPanel.saveData();
-			cl.show(panelContent, "request");
+			cl.show(panelContent, REQUEST_PANEL);
 			requestPanel.setMessage(msg);
 		} else {
 			responsePanel.saveData();
 			responsePanel.getHttpMessage().getResponseHeader().setContentLength(responsePanel.getHttpMessage().getResponseBody().length());
-			cl.show(panelContent, "response");
+			cl.show(panelContent, RESPONSE_PANEL);
 			responsePanel.setMessage(msg);
 		}
 	}
 
-	public void clearView() {
-		responsePanel.clearView(false);
-		requestPanel.clearView(false);
-	}
-	
 	public boolean isToBeDropped() {
 		return breakToolbarFactory.isToBeDropped();
+	}
+
+	public void savePanels() {
+		requestPanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
+		responsePanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
+	}
+	
+	public void clearAndDisableRequest() {
+		requestPanel.clearView(false);
+		requestPanel.setEditable(false);
+	}
+	
+	public void clearAndDisableResponse() {
+		responsePanel.clearView(false);
+		responsePanel.setEditable(false);
+	}
+
+	public void reset() {
+		breakToolbarFactory.reset();
 	}
 
 }

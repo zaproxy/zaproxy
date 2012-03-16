@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
+//      instead of StringBuffer.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -219,7 +221,7 @@ public class Analyser {
 	private String getPathRegex(URI uri) throws URIException {
 	    URI newUri = (URI) uri.clone();
 	    String query = newUri.getQuery();
-	    StringBuffer sb = new StringBuffer(100);
+	    StringBuilder sb = new StringBuilder(100);
 		
 		// case should be sensitive
 		//sb.append("(?i)");

@@ -38,7 +38,7 @@ public class SortedListModel extends DefaultListModel {
 
 		for (index = 0; index < size; index++)
 		{
-			Comparable c = (Comparable)getElementAt( index );
+			Comparable<Object> c = (Comparable<Object>)getElementAt( index );
 
 			if (c.compareTo(element) > 0)
 				break;

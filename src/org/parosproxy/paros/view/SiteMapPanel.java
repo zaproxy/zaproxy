@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
+// ZAP: 2012/03/15 Changed to initiate the tree with a default model. Changed to
+//      clear the http panels when the root node is selected.
 
 package org.parosproxy.paros.view;
 
@@ -31,6 +33,8 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -107,7 +111,7 @@ public class SiteMapPanel extends JPanel {
 	 */    
 	public JTree getTreeSite() {
 		if (treeSite == null) {
-			treeSite = new JTree();
+			treeSite = new JTree(new DefaultTreeModel(new DefaultMutableTreeNode()));
 			treeSite.setShowsRootHandles(true);
 			treeSite.setName("treeSite");
 			treeSite.setToggleClickCount(1);
@@ -154,12 +158,12 @@ public class SiteMapPanel extends JPanel {
 
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
 
-				    HttpMessage msg = null;
 				    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
 				    if (node == null) {
 				        return;
 				    }
 				    if (!node.isRoot()) {
+				    	HttpMessage msg = null;
                         try {
                             msg = node.getHistoryReference().getHttpMessage();
                         } catch (Exception e1) {
@@ -171,13 +175,27 @@ public class SiteMapPanel extends JPanel {
 
                         HttpPanel reqPanel = getView().getRequestPanel();
 				        HttpPanel resPanel = getView().getResponsePanel();
-				        reqPanel.setMessage(msg, true);
-			            resPanel.setMessage(msg, false);
+				        
+				        if (msg.getRequestHeader().isEmpty()) {
+				        	reqPanel.clearView(true);
+				        } else {
+				        	reqPanel.setMessage(msg);
+				        }
+				        
+				        if (msg.getResponseHeader().isEmpty()) {
+				        	resPanel.clearView(false);
+				        } else {
+				        	resPanel.setMessage(msg, true);
+				        }
 
 			        	// ZAP: Call SiteMapListenners
 			            for (SiteMapListener listener : listenners) {
 			            	listener.nodeSelected(node);
 			            }
+				    } else {
+				    	// ZAP: clear the views when the root is selected
+                        getView().getRequestPanel().clearView(true);
+				        getView().getResponsePanel().clearView(false);
 				    }
 	
 				}

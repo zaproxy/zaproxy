@@ -31,6 +31,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -45,13 +46,17 @@ import org.zaproxy.zap.view.SiteMapListener;
  */
 public class ExtensionPortScan extends ExtensionAdaptor
         implements SessionChangedListener, ProxyListener, SiteMapListener, XmlReporterExtension {
+	
+    private static final Logger logger = Logger.getLogger(ExtensionPortScan.class);
 
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+	
     private PortScanPanel portScanPanel = null;
     private PopupMenuPortScan popupMenuPortScan = null;
     private OptionsPortScanPanel optionsPortScanPanel = null;
     private PopupMenuPortCopy popupMenuPortCopy = null;
     private PortScanParam params = null;
-    private Logger logger = Logger.getLogger(ExtensionPortScan.class);
 
     /**
      *
@@ -145,6 +150,11 @@ public class ExtensionPortScan extends ExtensionAdaptor
         }
     }
 
+    @Override
+    public int getProxyListenerOrder() {
+    	return PROXY_LISTENER_ORDER;
+    }
+    
     @Override
     public boolean onHttpRequestSend(HttpMessage msg) {
         // The panel will handle duplicates

@@ -36,7 +36,7 @@ public class WebUI {
 			RequestType reqType, String name) throws ApiException {
 		// Generate HTML UI
 		//contentType = "text/html";
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<head>\n");
 		sb.append("<title>");
 		sb.append(Constant.messages.getString("api.html.title"));

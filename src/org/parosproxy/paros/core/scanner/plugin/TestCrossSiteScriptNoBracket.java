@@ -20,6 +20,8 @@
  */
 // ZAP: 2011/11/30 Depreciated
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the method scan to use the class StringBuilder 
+//      instead of StringBuffer.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -141,7 +143,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
 		//	return;
 		//}
 
-        StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
         //result = msg.getResponseBody().toString();
         if (matchBodyPattern(msg, patternXSS3, sb)) {
         	// ZAP: Changed XSS level to HIGH

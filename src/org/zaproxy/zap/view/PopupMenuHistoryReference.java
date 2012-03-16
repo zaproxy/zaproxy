@@ -52,7 +52,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
 
-    private static Logger log = Logger.getLogger(PopupMenuHistoryReference.class);
+    private static final Logger log = Logger.getLogger(PopupMenuHistoryReference.class);
 
     /**
      * @param label
@@ -80,6 +80,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		log.debug("actionPerformed " + lastInvoker.name() + " " + e.getActionCommand());
 
@@ -243,6 +244,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 		
 	}
 	
+	@Override
     public boolean isEnableForComponent(Component invoker) {
     	boolean display = false;
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {

@@ -53,40 +53,50 @@ public class LangImporter {
 		int langFileCount = 0;
 		String message = "";
 		
+		ZipFile zipFile = null;
 		try {
 			File F = new File(languagePack);
-			ZipFile zipFile = new ZipFile(F.getAbsolutePath());
-			Enumeration enumeration = zipFile.entries();
-
-			
+			zipFile = new ZipFile(F.getAbsolutePath());
+			Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 			
 			while (enumeration.hasMoreElements()) {
-				ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
+				ZipEntry zipEntry = enumeration.nextElement();
 				
 				if (!zipEntry.isDirectory()) {
-					BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(zipEntry));
-
-					int size;
-					byte[] buffer = new byte[2048];
-					String name = zipEntry.getName();
-					
-					matcher = pattern.matcher(name);
-					if (matcher.find()) {
-						langFileCount++;
-						
-						BufferedOutputStream bos = new BufferedOutputStream(
-								new FileOutputStream(name),
-								buffer.length);
+					BufferedInputStream bis = null;
+					try {
+						bis = new BufferedInputStream(zipFile.getInputStream(zipEntry));
 	
-						while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
-							bos.write(buffer, 0, size);
-						}
+						int size;
+						byte[] buffer = new byte[2048];
+						String name = zipEntry.getName();
 						
-						bos.flush();
-						bos.close();
+						matcher = pattern.matcher(name);
+						if (matcher.find()) {
+							langFileCount++;
+							
+							BufferedOutputStream bos = null;
+							try {
+								bos = new BufferedOutputStream(
+										new FileOutputStream(name),
+										buffer.length);
+			
+								while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
+									bos.write(buffer, 0, size);
+								}
+								
+								bos.flush();
+							} finally {
+								if (bos != null) {
+									bos.close();
+								}
+							}
+						}
+					} finally {
+						if (bis != null) {
+							bis.close();
+						}
 					}
-					
-					bis.close();
 				}
 			}
 			
@@ -95,6 +105,14 @@ public class LangImporter {
 		} catch (IOException e) {
 			message = MSG_FILE_NOT_FOUND;
 			logger.error(e.getMessage());
+		} finally {
+			if (zipFile != null) {
+				try {
+					zipFile.close();
+				} catch (IOException e) {
+					logger.error(e.getMessage());
+				}
+			}
 		}
 		
 		JOptionPane.showMessageDialog(null,

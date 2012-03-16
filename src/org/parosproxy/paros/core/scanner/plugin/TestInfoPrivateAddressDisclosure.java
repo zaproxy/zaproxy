@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/03/15 Changed the method scan to use the class StringBuilder 
+//      instead of String.
+
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Matcher;
@@ -131,15 +134,15 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
         
         HttpMessage msg = getBaseMsg();
 		String txtBody = msg.getResponseBody().toString();
-		String txtFound = "";
 		Matcher matcher = patternPrivateIP.matcher(txtBody);
+		StringBuilder sbTxtFound = new StringBuilder();
 		
 		while (matcher.find()) {
-			txtFound += matcher.group() + "\n";
+			sbTxtFound.append(matcher.group()).append("\n");
 		}
 		
-		if (txtFound != "") {
-			bingo(Alert.RISK_LOW, Alert.WARNING, null, "", "", txtFound, msg);
+		if (sbTxtFound.length() != 0) {
+			bingo(Alert.RISK_LOW, Alert.WARNING, null, "", "", sbTxtFound.toString(), msg);
 		}
 		
     }

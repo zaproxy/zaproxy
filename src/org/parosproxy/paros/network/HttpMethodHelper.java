@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Changed the method createRequestMethod to always use CRLF
+// ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -351,23 +352,23 @@ public class HttpMethodHelper {
 	*/
 	
 	public static void updateHttpRequestHeaderSent(HttpRequestHeader req, HttpMethod httpMethodSent) {
-		StringBuffer sb = new StringBuffer(200);
-		String name = null;
-		String value = null;
-
 		// Not used yet, no need to update request.
 		if (!httpMethodSent.hasBeenUsed()) {
 		    return;
 		}
 		
+		StringBuilder sb = new StringBuilder(200);
+		String name = null;
+		String value = null;
+		
 		// add status line
-		sb.append(req.getPrimeHeader() + CRLF);
+		sb.append(req.getPrimeHeader()).append(CRLF);
 
 		Header[] header = httpMethodSent.getRequestHeaders();
 		for (int i=0; i<header.length; i++) {
 			name = header[i].getName();
 			value = header[i].getValue();
-			sb.append(name + ": " + value + CRLF);
+			sb.append(name).append(": ").append(value).append(CRLF);
 		}
 		
 		sb.append(CRLF);
@@ -379,18 +380,18 @@ public class HttpMethodHelper {
 	}
 	
 	private static String getHttpResponseHeaderAsString(HttpMethod httpMethod) {
-		StringBuffer sb = new StringBuffer(200);
+		StringBuilder sb = new StringBuilder(200);
 		String name = null;
 		String value = null;
 
 		// add status line
-		sb.append(httpMethod.getStatusLine().toString() + CRLF);
+		sb.append(httpMethod.getStatusLine().toString()).append(CRLF);
 
 		Header[] header = httpMethod.getResponseHeaders();
 		for (int i=0; i<header.length; i++) {
 			name = header[i].getName();
 			value = header[i].getValue();
-			sb.append(name + ": " + value + CRLF);
+			sb.append(name).append(": ").append(value).append(CRLF);
 		}
 		
 		sb.append(CRLF);
@@ -404,13 +405,13 @@ public class HttpMethodHelper {
 
 	/*
 	public static String getHttpRequestHeaderAsString(HttpMethod httpMethod) {
-		StringBuffer sb = new StringBuffer(200);
+		StringBuilder sb = new StringBuilder(200);
 		String name = null;
 		String value = null;
 
 		// add status line
 		try {
-			sb.append(httpMethod.getName() + " " + httpMethod.getURI().toString() + " " + httpMethod.getParams().getVersion() + CRLF);
+			sb.append(httpMethod.getName()).append(' ').append(httpMethod.getURI().toString()).append(' ').append(httpMethod.getParams().getVersion()).append(CRLF);
 		} catch (URIException e) {
 			
 		}
@@ -419,7 +420,7 @@ public class HttpMethodHelper {
 		for (int i=0; i<header.length; i++) {
 			name = header[i].getName();
 			value = header[i].getValue();
-			sb.append(name + ": " + value + CRLF);
+			sb.append(name).append(": ").append(value).append(CRLF);
 		}
 		
 		sb.append(CRLF);

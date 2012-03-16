@@ -232,10 +232,10 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		HistoryReference historyRef = null;
         try {
         	historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+            siteTree.addPath(historyRef, msg);
         } catch (Exception e) {
         	log.warn(e.getMessage(), e);
         }
-        siteTree.addPath(historyRef, msg);
 	}
 
     public Spider getSpider() {

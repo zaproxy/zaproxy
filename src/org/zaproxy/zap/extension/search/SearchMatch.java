@@ -24,7 +24,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /*
  * Points to a specific string in a request/response header/body 
- * of a httpmessage.
+ * of a HttpMessage.
  * 
  * Counted in chars from start/end of the header or from the body.
  */

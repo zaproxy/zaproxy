@@ -20,6 +20,9 @@
  */
 
 // ZAP: 2011/08/04 Changed to support new Features
+// ZAP: 2011/08/04 Changed to support new interface
+// ZAP: 2012/03/15 Changed so the display options can be modified dynamically.
+//
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -27,20 +30,18 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -53,14 +54,13 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.tab.Tab;
 
-// ZAP: 2011/08/04 Changed to support new interface
 
 /**
  *
@@ -82,17 +82,17 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 
 	// Window
 	private JPanel panelWindow = null; // ZAP
-	private JPanel panelHeader = null;
+//	private JPanel panelHeader = null;
 
 	private HttpPanelRequest requestPanel = null;
 	private HttpPanelResponse responsePanel = null;
 
-	private JComponent panelMain = null;
-	private JPanel panelContent = null;
+//	private JComponent panelMain = null;
+//	private JPanel panelContent = null;
 
-	private JCheckBox chkFollowRedirect = null;
-	private JCheckBox chkUseTrackingSessionState = null;
-	private JComboBox comboChangeMethod = null;
+	private JToggleButton followRedirect = null;
+	private JToggleButton useTrackingSessionState = null;
+	//private JComboBox comboChangeMethod = null;
 
 	private JButton btnSend = null;
 
@@ -103,16 +103,23 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private HistoryList historyList = null;
 	private Extension extension = null;
 	private HttpMessage httpMessage = null;
-
+	
+	private String configurationKey;
+	
+	private RequestResponsePanel requestResponsePanel;
+	
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param parent
+	 * @param modal
 	 * @throws HeadlessException
 	 */
-	public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension) throws HeadlessException {
+	public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension, String configurationKey) throws HeadlessException {
 		super();
 		this.isSendEnabled = isSendEnabled;
 		this.extension = extension;
+		
+		this.configurationKey = OptionsParamView.BASE_VIEW_KEY + "." + configurationKey + ".";
+		
 		this.setPreferredSize(new Dimension(700, 800));
 		initialize();
 	}
@@ -123,13 +130,21 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * @return void
 	 */
 	private void initialize() {
-		this.requestPanel = getRequestPanel();
-
+		
+		requestResponsePanel = new RequestResponsePanel(configurationKey, getRequestPanel(), getResponsePanel());
+		
+		requestResponsePanel.addEndButton(getBtnSend());
+		requestResponsePanel.addSeparator();
+		requestResponsePanel.addToolbarButton(getButtonUseTrackingSessionState());
+		requestResponsePanel.addToolbarButton(getButtonFollowRedirect());
+		
+		requestResponsePanel.loadConfig();
+		
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				getHttpSender().shutdown();
-				getResponsePanel().clearView(false);
+				saveConfig();
 			}
 		});
 
@@ -142,35 +157,10 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			panelWindow = new JPanel();
 			panelWindow.setLayout(new BorderLayout());
 
-			panelHeader = getPanelHeader();
-			panelWindow.add(panelHeader, BorderLayout.NORTH);
-
-			panelContent = getPanelContent();
-			panelWindow.add(panelContent);
+			panelWindow.add(requestResponsePanel);
 		}
 
 		return panelWindow;
-	}
-
-	private JPanel getPanelHeader() {
-		if (panelHeader == null) {
-			panelHeader = new JPanel();
-			panelHeader.setLayout(new BorderLayout());
-
-			final JPanel panelLeft = new JPanel();
-			final JPanel panelMiddle = new JPanel();
-			final JPanel panelRight = new JPanel();
-
-			panelLeft.add(getBtnSend());
-			panelRight.add(getChkUseTrackingSessionState());
-			panelRight.add(getChkFollowRedirect());
-
-			panelHeader.add(panelLeft, BorderLayout.LINE_START);
-			panelHeader.add(panelMiddle, BorderLayout.CENTER);
-			panelHeader.add(panelRight, BorderLayout.LINE_END);
-		}
-
-		return panelHeader;
 	}
 
 	/**
@@ -180,58 +170,11 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private HttpPanelRequest getRequestPanel() {
 		if (requestPanel == null) {
-			requestPanel = new HttpPanelRequest(true, extension, httpMessage, OptionsParamView.ViewType.req_manual);
+			requestPanel = new HttpPanelRequest(true, extension, httpMessage, configurationKey);
+			requestPanel.setEnableViewSelect(true);
+			requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return requestPanel;
-	}
-
-	/**
-	 * This method initializes jTabbedPane
-	 *
-	 * @return javax.swing.JTabbedPane
-	 */
-	private JComponent getPanelTab() {
-		JSplitPane splitPane = null;
-		Dimension frameSize = null;
-
-		if (panelMain == null) {
-			switch(Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption()) {
-			case 0:
-				splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
-				this.panelMain = splitPane;
-				panelMain.setDoubleBuffered(true);
-
-				frameSize = this.getSize();
-				splitPane.setDividerLocation(frameSize.height / 2);
-
-				break;
-
-			case 1:
-				splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getRequestPanel(), getResponsePanel());
-				this.panelMain = splitPane;
-				panelMain.setDoubleBuffered(true);
-
-				frameSize = this.getSize();
-				splitPane.setDividerLocation(frameSize.width / 2);
-
-				this.panelMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getRequestPanel(), getResponsePanel());
-				panelMain.setDoubleBuffered(true);
-				break;
-
-			case 2:
-				final JTabbedPane tabbedPane = new JTabbedPane();
-				tabbedPane.addTab(Constant.messages.getString("manReq.tab.request"), null, getRequestPanel(), null);
-				tabbedPane.addTab(Constant.messages.getString("manReq.tab.response"), null, getResponsePanel(), null);
-				this.panelMain = tabbedPane;
-				break;
-
-			default:
-				this.panelMain = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getRequestPanel(), getResponsePanel());
-				panelMain.setDoubleBuffered(true);
-			}
-		}
-
-		return panelMain;
 	}
 
 	/**
@@ -241,7 +184,9 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
-			responsePanel = new HttpPanelResponse(false, extension, httpMessage, OptionsParamView.ViewType.res_manual);
+			responsePanel = new HttpPanelResponse(false, extension, httpMessage, configurationKey);
+			responsePanel.setEnableViewSelect(true);
+			responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return responsePanel;
 	}
@@ -268,14 +213,14 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		switchToTab(0);
 
 		final boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
-		getChkUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+		getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
 		super.setVisible(show);
 
 	}
 
 	private HttpSender getHttpSender() {
 		if (httpSender == null) {
-			httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), getChkUseTrackingSessionState().isSelected());
+			httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), getButtonUseTrackingSessionState().isSelected());
 
 		}
 		return httpSender;
@@ -306,53 +251,37 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	public void setHttpMessage(HttpMessage httpMessage) {
 		setMessage(httpMessage);
 	}
-
-	/**
-	 * This method initializes jPanel
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getPanelContent() {
-		if (panelContent == null) {
-			final GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
-			panelContent = new JPanel();
-			panelContent.setLayout(new GridBagLayout());
-			gridBagConstraints31.gridx = 0;
-			gridBagConstraints31.gridy = 0;
-			gridBagConstraints31.weightx = 1.0;
-			gridBagConstraints31.weighty = 1.0;
-			gridBagConstraints31.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			panelContent.add(getPanelTab(), gridBagConstraints31);
-		}
-		return panelContent;
+	
+	public void clear() {
+		requestPanel.clearView();
+		responsePanel.clearView();
 	}
 
 	/**
-	 * This method initializes chkFollowRedirect
+	 * This method initializes followRedirect
 	 *
-	 * @return javax.swing.JCheckBox
+	 * @return javax.swing.JToggleButton
 	 */
-	private JCheckBox getChkFollowRedirect() {
-		if (chkFollowRedirect == null) {
-			chkFollowRedirect = new JCheckBox();
-			chkFollowRedirect.setText(Constant.messages.getString("manReq.checkBox.followRedirect"));
-			chkFollowRedirect.setSelected(true);
+	private JToggleButton getButtonFollowRedirect() {
+		if (followRedirect == null) {
+			followRedirect = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/16/118.png"))); // Arrow turn around left
+			followRedirect.setToolTipText(Constant.messages.getString("manReq.checkBox.followRedirect"));
+			followRedirect.setSelected(true);
 		}
-		return chkFollowRedirect;
+		return followRedirect;
 	}
 
 	/**
-	 * This method initializes jCheckBox
+	 * This method initializes useTrackingSessionState
 	 *
-	 * @return javax.swing.JCheckBox
+	 * @return javax.swing.JToggleButton
 	 */
-	private JCheckBox getChkUseTrackingSessionState() {
-		if (chkUseTrackingSessionState == null) {
-			chkUseTrackingSessionState = new JCheckBox();
-			chkUseTrackingSessionState.setText(Constant.messages.getString("manReq.checkBox.useSession"));
+	private JToggleButton getButtonUseTrackingSessionState() {
+		if (useTrackingSessionState == null) {
+			useTrackingSessionState = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/fugue/cookie.png"))); // Cookie
+			useTrackingSessionState.setToolTipText(Constant.messages.getString("manReq.checkBox.useSession"));
 		}
-		return chkUseTrackingSessionState;
+		return useTrackingSessionState;
 	}
 
 	private void addHistory(HttpMessage msg, int type) {
@@ -388,11 +317,11 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	}
 
 	/**
-	 * This method initializes jButton
+	 * This method initializes btnSend
 	 *
 	 * @return javax.swing.JButton
 	 */
-	 private JButton getBtnSend() {
+	private JButton getBtnSend() {
 		if (btnSend == null) {
 			btnSend = new JButton();
 			btnSend.setText(Constant.messages.getString("manReq.button.send"));		// ZAP: i18n
@@ -405,73 +334,298 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			});
 		}
 		return btnSend;
-	 }
+	}
 
-	 private void btnSendAction() {
-		 btnSend.setEnabled(false);
+	private void btnSendAction() {
+		btnSend.setEnabled(false);
 
-		 // Get current HttpMessage
-		 requestPanel.saveData();
-		 final HttpMessage msg = requestPanel.getHttpMessage();
-		 msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+		// Get current HttpMessage
+		requestPanel.saveData();
+		final HttpMessage msg = requestPanel.getHttpMessage();
+		msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 
-		 // Send Request, Receive Response
-		 send(msg);
+		// Send Request, Receive Response
+		send(msg);
 
-		 // redraw request, as it could have changed
-		 requestPanel.updateContent();
+		// redraw request, as it could have changed
+		requestPanel.updateContent();
+	}
 
-		 btnSend.setEnabled(true);
-	 }
+	private void send(final HttpMessage msg) {
+		final Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					getHttpSender().sendAndReceive(msg, getButtonFollowRedirect().isSelected());
 
-	 private void send(final HttpMessage msg) {
-		 final Thread t = new Thread(new Runnable() {
-			 @Override
-			 public void run() {
-				 try {
-					 getHttpSender().sendAndReceive(msg, getChkFollowRedirect().isSelected());
+					EventQueue.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							if (!msg.getResponseHeader().isEmpty()) {
+								// Indicate UI new response arrived
+								switchToTab(1);
+								responsePanel.updateContent();
 
-					 EventQueue.invokeAndWait(new Runnable() {
-						 @Override
-						 public void run() {
-							 if (!msg.getResponseHeader().isEmpty()) {
-								 // Indicate UI new response arrived
-								 switchToTab(1);
-								 responsePanel.updateContent();
+								final int finalType = HistoryReference.TYPE_MANUAL;
+								final Thread t = new Thread(new Runnable() {
+									@Override
+									public void run() {
+										addHistory(msg, finalType);
+									}
+								});
+								t.start();
+							}
+						}
+					});
+				} catch (final HttpMalformedHeaderException mhe) {
+					requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");
+				} catch (final IOException ioe) {
+					requestPanel.getExtension().getView().showWarningDialog("IO error in sending request.");
+				} catch (final Exception e) {
+					// ZAP: Log exceptions
+					log.error(e.getMessage(), e);
+				} finally {
+					btnSend.setEnabled(true);
+				}
+			}
+		});
+		t.setPriority(Thread.NORM_PRIORITY);
+		t.start();
+	}
 
-								 final int finalType = HistoryReference.TYPE_MANUAL;
-								 final Thread t = new Thread(new Runnable() {
-									 @Override
-									 public void run() {
-										 addHistory(msg, finalType);
-									 }
-								 });
-								 t.start();
-							 }
-						 }
-					 });
-				 } catch (final NullPointerException npe) {
-					 requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");
-				 } catch (final HttpMalformedHeaderException mhe) {
-					 requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");
-				 } catch (final IOException ioe) {
-					 requestPanel.getExtension().getView().showWarningDialog("IO error in sending request.");
-				 } catch (final Exception e) {
-					 // ZAP: Log exceptions
-					 log.error(e.getMessage(), e);
-				 } finally {
-					 btnSend.setEnabled(true);
-				 }
-			 }
-		 });
-		 t.setPriority(Thread.NORM_PRIORITY);
-		 t.start();
-	 }
+	private void switchToTab(int i) {
+		if (requestResponsePanel != null) {
+			requestResponsePanel.switchToTab(i);
+		}
+	}
+	
+	private void saveConfig() {
+		requestResponsePanel.saveConfig();
+	}
 
-	 private void switchToTab(int i) {
-		 if (Model.getSingleton().getOptionsParam().getViewParam().getEditorViewOption() == 2) {
-			 final JTabbedPane tab = (JTabbedPane) getPanelTab();
-			 tab.setSelectedIndex(i);
-		 }
-	 }
+	private static final class RequestResponsePanel extends JPanel {
+		
+		private static final String REQUEST_CAPTION = Constant.messages.getString("manReq.tab.request");
+		private static final String RESPONSE_CAPTION = Constant.messages.getString("manReq.tab.response");
+
+		private static final String TABS_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.tabs");
+		private static final String ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.above");
+		private static final String SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.sidebyside");
+		
+		private static final String SELECTEDLAYOUT_CONFIG_KEY = "selectedlayout";
+		private static final String HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY = "horizontalDividerLocation";
+		private static final String VERTICAL_DIVIDER_LOCATION_CONFIG_KEY = "verticalDividerLocation";
+
+		private static final long serialVersionUID = -3335708932021769432L;
+		
+		private static final int TABS_VIEW = 0;
+		private static final int ABOVE_VIEW = 1;
+		private static final int SIDE_BY_SIDE_VIEW = 2;
+		
+		private final HttpPanelRequest requestPanel;
+		private final HttpPanelResponse responsePanel;
+		
+		private int currentView;
+		private JComponent currentViewPanel;
+		private JToggleButton currentButtonView;
+		
+		private JToggleButton tabsButtonView;
+		private JToggleButton aboveButtonView;
+		private JToggleButton sideBySideButtonView;
+		
+		private String configurationKey;
+		
+		private int verticalDividerLocation;
+		private int horizontalDividerLocation;
+		
+		public RequestResponsePanel(String configurationKey, HttpPanelRequest request, HttpPanelResponse response) throws IllegalArgumentException {
+			super(new BorderLayout());
+			if (request == null || response == null) {
+				throw new IllegalArgumentException("The request and response panels cannot be null.");
+			}
+			
+			this.configurationKey = configurationKey;
+
+			this.requestPanel = request;
+			this.responsePanel = response;
+			
+			this.currentView = -1;
+			
+			tabsButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_tabbed.png")));
+			tabsButtonView.setToolTipText(TABS_VIEW_TOOL_TIP);
+			
+			tabsButtonView.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					changeView(TABS_VIEW);
+				}
+			});
+			
+			addToolbarButton(tabsButtonView);
+			
+			aboveButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_vertical_split.png")));
+			aboveButtonView.setToolTipText(ABOVE_VIEW_TOOL_TIP);
+			
+			aboveButtonView.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					changeView(ABOVE_VIEW);
+				}
+			});
+			
+			addToolbarButton(aboveButtonView);
+			
+			sideBySideButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_horizontal_split.png")));
+			sideBySideButtonView.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
+			
+			sideBySideButtonView.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					changeView(SIDE_BY_SIDE_VIEW);
+				}
+			});
+			
+			addToolbarButton(sideBySideButtonView);
+		}
+		
+		public void loadConfig() {
+			verticalDividerLocation = Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, -1);
+			horizontalDividerLocation = Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, -1);
+			
+			changeView(Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, TABS_VIEW));
+			
+			requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
+			responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
+		}
+		
+		public void saveConfig() {
+			switch(currentView) {
+			case ABOVE_VIEW:
+				verticalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
+				break;
+			case SIDE_BY_SIDE_VIEW:
+				horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
+				break;
+			}
+			
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(verticalDividerLocation));
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(horizontalDividerLocation));
+			
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, Integer.valueOf(currentView));
+			
+			requestPanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
+			responsePanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
+		}
+
+		public void addToolbarButton(JToggleButton button) {
+			requestPanel.addOptions(button, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+		}
+		
+		public void addSeparator() {
+			requestPanel.addOptionsSeparator();
+		}
+		
+		public void addEndButton(JButton button) {
+			requestPanel.addOptions(button, HttpPanel.OptionsLocation.END);
+		}
+
+		public void switchToTab(int i) {
+			if (currentView == TABS_VIEW) {
+				((JTabbedPane) currentViewPanel).setSelectedIndex(i);
+			}
+		}
+
+		public void changeView(int newView) {
+			if (newView != currentView) {
+				final int oldView = currentView;
+				currentView = newView;
+				
+				if (oldView != -1) {
+					this.removeAll();
+					currentButtonView.setSelected(false);
+					
+					switch(oldView) {
+					case ABOVE_VIEW:
+						verticalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
+						break;
+					case SIDE_BY_SIDE_VIEW:
+						horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
+						break;
+					}
+				}
+				
+				switch (newView) {
+				case TABS_VIEW:
+					switchToTabsView();
+					break;
+				case ABOVE_VIEW:
+					switchToAboveView();
+					break;
+				case SIDE_BY_SIDE_VIEW:
+					switchToSideBySideView();
+					break;
+				default:
+					switchToTabsView();
+					break;
+				}
+				
+				currentButtonView.setSelected(true);
+				
+				this.add(currentViewPanel);
+				
+				this.validate();
+				this.repaint();
+			}
+		}
+		
+		private void switchToTabsView() {
+			currentView = TABS_VIEW;
+			currentButtonView = tabsButtonView;
+			
+			final JTabbedPane tabbedPane = new JTabbedPane();
+			tabbedPane.addTab(REQUEST_CAPTION, null, requestPanel, null);
+			tabbedPane.addTab(RESPONSE_CAPTION, null, responsePanel, null);
+			tabbedPane.setSelectedIndex(0);
+			
+			currentViewPanel = tabbedPane;
+		}
+		
+		private void switchToAboveView() {
+			currentView = ABOVE_VIEW;
+			currentButtonView = aboveButtonView;
+			
+			currentViewPanel = createSplitPane(JSplitPane.VERTICAL_SPLIT);
+		}
+		
+		private void switchToSideBySideView() {
+			currentView = SIDE_BY_SIDE_VIEW;
+			currentButtonView = sideBySideButtonView;
+			
+			currentViewPanel = createSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		}
+		
+		private JSplitPane createSplitPane(int orientation) {
+			final JTabbedPane tabbedPaneRequest = new JTabbedPane();
+			tabbedPaneRequest.addTab(REQUEST_CAPTION, null, requestPanel, null);
+
+			final JTabbedPane tabbedPaneResponse = new JTabbedPane();
+			tabbedPaneResponse.addTab(RESPONSE_CAPTION, null, responsePanel, null);
+			
+			final JSplitPane splitPane = new JSplitPane(orientation, tabbedPaneRequest, tabbedPaneResponse);
+			splitPane.setDividerSize(3);
+			splitPane.setContinuousLayout(false);
+			splitPane.setDoubleBuffered(true);
+			
+			int dividerLocation;
+			if (orientation == JSplitPane.HORIZONTAL_SPLIT) {
+				dividerLocation = horizontalDividerLocation;
+			} else {
+				dividerLocation = verticalDividerLocation;
+			}
+			splitPane.setDividerLocation(dividerLocation);
+			
+			return splitPane;
+		}
+
+	}
 }

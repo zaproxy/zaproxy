@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed to reflect the changes in the Encoder class.
+
 package org.parosproxy.paros.extension.encoder;
 
 import java.awt.Frame;
@@ -25,6 +27,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.InputEvent;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JButton;
@@ -310,7 +313,11 @@ public class EncoderDialog extends AbstractDialog {
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtDecode.setText("");
-                    txtDecode.setText(getEncoder().getBase64Encode(txtEncode.getText()));
+                    try {
+						txtDecode.setText(getEncoder().getBase64Encode(txtEncode.getText()));
+					} catch (NullPointerException e1) {
+					} catch (IOException e1) {
+					}
 
 				}
 			});
@@ -380,7 +387,11 @@ public class EncoderDialog extends AbstractDialog {
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtEncode.setText("");
-                    txtEncode.setText(getEncoder().getBase64Decode(txtDecode.getText()));
+                    try {
+						txtEncode.setText(getEncoder().getBase64Decode(txtDecode.getText()));
+					} catch (IllegalArgumentException e1) {
+					} catch (IOException e1) {
+					}
 
 				}
 			});

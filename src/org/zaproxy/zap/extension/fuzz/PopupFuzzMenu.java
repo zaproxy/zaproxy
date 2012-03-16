@@ -26,9 +26,6 @@ import javax.swing.JFrame;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 
 public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
@@ -66,42 +63,24 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 	public boolean isEnableForComponent(Component invoker) {
 		boolean visible = false;
 
-		if (invoker instanceof HttpPanelTextArea) {
-			HttpPanelTextArea txt = (HttpPanelTextArea) invoker;
+		if (invoker instanceof FuzzableComponent) {
 			visible = true;
-
-			Component parent = invoker.getParent();
-			while (parent != null) {
-				if (parent instanceof HttpPanelRequest) {
-					visible = true;
-					break;
-				} else if (parent instanceof HttpPanelResponse) {
-					visible = false;
-					break;
-				}
-				parent = parent.getParent();
-			}
-
-        	if (visible) {
-        		
-            	String sel = txt.getSelectedText();
-            	if (sel == null || sel.length() == 0 || extension.isFuzzing()) {
-            		this.setEnabled(false);
-            	} else {
-            		this.setEnabled(true);
-            	}
-                setLastInvoker( invoker);
-                Container c = getLastInvoker().getParent();
-                while (!(c instanceof JFrame)) {
-                    c = c.getParent();
-                }
-                setParentFrame((JFrame) c);
-                visible = true;
+			
+			FuzzableComponent fuzzableComponent = (FuzzableComponent)invoker;
+			
+        	if (!fuzzableComponent.canFuzz() || extension.isFuzzing()) {
+        		this.setEnabled(false);
         	} else {
-        		// Its not the request tab
-                setLastInvoker(null);
+        		this.setEnabled(true);
         	}
+            setLastInvoker(invoker);
+            Container c = getLastInvoker().getParent();
+            while (!(c instanceof JFrame)) {
+                c = c.getParent();
+            }
+            setParentFrame((JFrame) c);
         } else {
+        	// Its not fuzzable
             setLastInvoker(null);
         }
         return visible;

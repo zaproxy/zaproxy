@@ -74,7 +74,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
 
            // delete past reference in node
            while (node.getPastHistoryReference().size() > 0) {
-               HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
+               HistoryReference ref = node.getPastHistoryReference().get(0);
                if (ext != null) {
             	   ext.getHistoryList().removeElement(ref);
                }

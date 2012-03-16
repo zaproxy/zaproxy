@@ -29,7 +29,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -63,13 +62,6 @@ public class MenuFileControl implements SessionListener {
 	public void exit() {
 	    boolean isNewState = model.getSession().isNewState();
 	    boolean askOnExit = Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
-
-	    // Save config
-		try {
-			Model.getSingleton().getOptionsParam().getConfig().save();
-		} catch (ConfigurationException e) {
-			log.warn("Error saving config", e);
-		}
 	    
 	    if (isNewState && askOnExit) {
 	    	// ZAP: i18n

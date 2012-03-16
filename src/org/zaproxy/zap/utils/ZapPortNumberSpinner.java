@@ -51,7 +51,7 @@ public class ZapPortNumberSpinner extends JSpinner {
 	}
 
 	public void changeToDefaultValue() {
-		super.setValue(defaultPortNumber);
+		super.setValue(Integer.valueOf(defaultPortNumber));
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class ZapPortNumberSpinner extends JSpinner {
 			return;
 		}
 		
-		super.setValue(intValue);
+		super.setValue(Integer.valueOf(intValue));
 	}
 
 	@Override
@@ -85,8 +85,8 @@ public class ZapPortNumberSpinner extends JSpinner {
 		public PortNumberFormatter() {
 			setValueClass(Integer.class);
 
-			setMinimum(MIN_PORT);
-			setMaximum(MAX_PORT);
+			setMinimum(Integer.valueOf(MIN_PORT));
+			setMaximum(Integer.valueOf(MAX_PORT));
 			setAllowsInvalid(false);
 
 			setFormat(new PortNumberFormat());
@@ -103,10 +103,10 @@ public class ZapPortNumberSpinner extends JSpinner {
 				if (e.getMessage().equals("Value not within min/max range")) {
 					final int value = ((Number)getFormat().parseObject(text)).intValue();
 					if (value < MIN_PORT) {
-						o = MIN_PORT;
+						o = Integer.valueOf(MIN_PORT);
 						throwException = false;
 					} else if (value > MAX_PORT) {
-						o = MAX_PORT;
+						o = Integer.valueOf(MAX_PORT);
 						throwException = false;
 					}
 				}
@@ -145,7 +145,7 @@ public class ZapPortNumberSpinner extends JSpinner {
 		public Object parseObject(String source, ParsePosition pos) {
 			if (source.isEmpty()) {
 				pos.setIndex(1);
-				return MIN_PORT;
+				return Integer.valueOf(MIN_PORT);
 			}
 			
 			Object val = numberFormat.parseObject(source, pos);

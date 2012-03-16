@@ -106,7 +106,7 @@ public class ExtensionFactory {
             // Add the ordered extensions
             Iterator<Integer> iter = mapOrderToExtension.keySet().iterator();
             while (iter.hasNext()) {
-            	int order = iter.next();
+            	Integer order = iter.next();
             	Extension ext = mapOrderToExtension.get(order);
             	if (ext.isEnabled()) {
             		log.debug("Ordered extension " + order + " " + ext.getName());
@@ -128,7 +128,7 @@ public class ExtensionFactory {
     }
     
     public static Extension getExtension(int id) {
-        Extension test = (Extension) mapAllExtension.get(new Integer(id));
+        Extension test = mapAllExtension.get(new Integer(id));
         return test;
     }
     

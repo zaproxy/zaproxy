@@ -69,12 +69,12 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
                     return;
                 }
                 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (Object obj: objs) {
                 	BruteForceItem item = (BruteForceItem)obj;
 
                 	sb.append(item.getUrl());
-                	sb.append("\n");
+                	sb.append('\n');
                 }
                 setClipboardContents(sb.toString());
         	}

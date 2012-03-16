@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Explicitly depreciated
+// ZAP: 2012/03/15 Although it is deprecated, changed the method search to use the 
+//      class StringBuilder instead of StringBuffer.
 
 package org.parosproxy.paros.extension.patternsearch;
 
@@ -120,7 +122,8 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 	}
 	
 	public String search(String filter, boolean isRequest){
-	    String result="";
+	    StringBuilder sbResult = new StringBuilder();
+	    String result = "";
 	    Session session = getModel().getSession();
         Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		Matcher matcher = null;
@@ -128,30 +131,31 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 		getHistoryList();
 	    synchronized (historyList) {
 	        try {
-	            List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL, filter,isRequest);
+	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL, filter,isRequest);
 	            int last = list.size();
 	            for (int index=0;index < last;index++){
-	                int v = ((Integer)(list.get(index))).intValue();
+	                int v = list.get(index).intValue();
 	                try {
                         HttpMessage message = getModel().getDb().getTableHistory().read(v).getHttpMessage();
 
                         if (isRequest){
-                            matcher = pattern.matcher(message.getRequestHeader().toString()+ message.getRequestBody().toString());    
+                            matcher = pattern.matcher(message.getRequestHeader().toString()+ message.getRequestBody().toString());
                         }
                         else{
-                            matcher = pattern.matcher(message.getResponseHeader().toString()+ message.getResponseBody().toString());    
+                            matcher = pattern.matcher(message.getResponseHeader().toString()+ message.getResponseBody().toString());
                         }
                 		while (matcher.find()) {
-                		    if (result.indexOf(matcher.group(0))==-1)
-                		            result += "\r\n" + matcher.group(0);
+                		    if (sbResult.indexOf(matcher.group(0))==-1)
+                		    	sbResult.append("\r\n").append(matcher.group(0));
                 		}                
                 		
                     } catch (HttpMalformedHeaderException e1) {
                         e1.printStackTrace();
-                    }	               
-	            }	            
+                    }
+	            }
 	        } catch (SQLException e) {}
-
+	        
+	        result = sbResult.toString();
 	        getView().getOutputPanel().append(result);
 	    }
 	    return result;

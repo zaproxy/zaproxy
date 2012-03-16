@@ -28,6 +28,8 @@
 // ZAP: 2011/12/21 Added 'show in history' popup
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
+// ZAP: 2012/03/15 Changed the method getResendDialog to pass the configuration key
+//      to the ManualRequestEditorDialog.
 
 package org.parosproxy.paros.extension.history;
 
@@ -415,7 +417,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
-			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this);
+			resendDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this, "resend");
 			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return resendDialog;

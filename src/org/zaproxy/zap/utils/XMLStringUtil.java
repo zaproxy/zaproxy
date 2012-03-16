@@ -38,7 +38,7 @@ public class XMLStringUtil {
 		if (str == null) {
 			return null;
 		}
-		StringBuffer sb = new StringBuffer(str.length());
+		StringBuilder sb = new StringBuilder(str.length());
 		for (int i=0; i < str.length(); i++) {
 			char chr = str.charAt(i);
 			if (illegalChrSet.contains(chr)) {
@@ -56,7 +56,7 @@ public class XMLStringUtil {
 		if (str == null) {
 			return null;
 		}
-		StringBuffer sb = new StringBuffer(str.length());
+		StringBuilder sb = new StringBuilder(str.length());
 		for (int i=0; i < str.length(); i++) {
 			char chr = str.charAt(i);
 			if (! illegalChrSet.contains(chr)) {

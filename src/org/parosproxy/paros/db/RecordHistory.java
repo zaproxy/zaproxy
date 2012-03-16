@@ -18,6 +18,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/03/15 Changed the RecordHistory constructor to receive a byte[]
+//      instead of String in the parameters reqBody and resBody.
 
 
 package org.parosproxy.paros.db;
@@ -45,7 +47,7 @@ public class RecordHistory {
 	}
 
 	// ZAP: Added note to RecordHistory constructor
-	public RecordHistory(int historyId, int historyType, long sessionId, long timeSentMillis, int timeElapsedMillis, String reqHeader, String reqBody, String resHeader, String resBody, String tag, String note) throws HttpMalformedHeaderException {
+	public RecordHistory(int historyId, int historyType, long sessionId, long timeSentMillis, int timeElapsedMillis, String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException {
 		setHistoryId(historyId);
 		setHistoryType(historyType);
         setSessionId(sessionId);

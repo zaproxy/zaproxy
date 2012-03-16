@@ -41,22 +41,27 @@ public class SingleColumnTableModel extends AbstractTableModel {
         this.columnNames = new String[] {columnName};
     }
 
+    @Override
     public int getColumnCount() {
         return 1;
     }
 
+    @Override
     public int getRowCount() {
         return lines.size();
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         return lines.get(row);
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return true;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
     	lines.set(row, (String)value);
         checkAndAppendNewRow();
@@ -93,6 +98,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
   	  	fireTableDataChanged();
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
@@ -111,8 +117,8 @@ public class SingleColumnTableModel extends AbstractTableModel {
         }
     }
     
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+    @Override
+	public Class<?> getColumnClass(int c) {
         return String.class;
         
     }

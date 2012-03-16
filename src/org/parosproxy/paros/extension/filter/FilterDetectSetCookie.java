@@ -19,10 +19,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/03/15 Changed to use StringBuilder and replaced some string concatenations 
+//      with calls to the method append of the class StringBuilder. Reworked some code.
 
 package org.parosproxy.paros.extension.filter;
 
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,12 +44,9 @@ import org.parosproxy.paros.network.HttpResponseHeader;
  */
 public class FilterDetectSetCookie extends FilterAdaptor {
 
-    private static final String DELIM = "\t";   
     private static final String CRLF = "\r\n";
     
     private	Pattern pattern = Pattern.compile("^ *"+ "Set-[Cc]ookie" + " *: *([^\\r\\n]*)" + "\\r\\n", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    private Matcher matcher = null;
-    private Vector result = null; 
 
     
     /* (non-Javadoc)
@@ -83,9 +84,9 @@ public class FilterDetectSetCookie extends FilterAdaptor {
         }
         
         if (resHeader.getHeader("Set-cookie") != null) {
-            String content = resHeader.toString();
-            matcher = pattern.matcher(content);
-            result = new Vector();
+            Matcher matcher = pattern.matcher(resHeader.toString());
+            List<String> result = new LinkedList<String>();
+            
             while (matcher.find()){
                 String cookie = matcher.group(1);
                 if (cookie != null){
@@ -105,22 +106,20 @@ public class FilterDetectSetCookie extends FilterAdaptor {
             }
             
             if (result.size() >0){
-                content = matcher.replaceAll("");
+            	StringBuilder sbContent = new StringBuilder(matcher.replaceAll(""));
                 
-                for (int i = 0;i< result.size(); i++){
-                    content += "Set-Cookie: " + result.get(i).toString() + "\r\n";
+                Iterator<String> it = result.iterator();
+                while (it.hasNext()) {
+                	sbContent.append("Set-Cookie: ").append(it.next()).append(CRLF);
                 }
-                try{
+                
+                try {
                     //	resHeader = new HttpResponseHeader(content);
-                    resHeader.setMessage(content);
-                }
-                catch (Exception e){
+                    resHeader.setMessage(sbContent.toString());
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
-            
-            result.clear();  		
-            
         }
     }
 }

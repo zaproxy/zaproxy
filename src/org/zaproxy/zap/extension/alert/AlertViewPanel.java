@@ -188,10 +188,10 @@ public class AlertViewPanel extends AbstractPanel {
 									alertSolution.setText(v.getSolution());
 								}
 								if (v.getReferences() != null) {
-									StringBuffer sb = new StringBuffer();
+									StringBuilder sb = new StringBuilder();
 									for (String ref : v.getReferences()) {
 										sb.append(ref);
-										sb.append("\n");
+										sb.append('\n');
 									}
 									alertReference.setText(sb.toString());
 								}

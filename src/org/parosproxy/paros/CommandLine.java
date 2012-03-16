@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
+// ZAP: 2012/03/15 Removed unnecessary castings from methods parse, getArgument and getHelp.
+//      Changed to use the class StringBuilder instead of the class StringBuffer in the method getHelp.
 package org.parosproxy.paros;
 
 import java.util.Hashtable;
@@ -106,7 +108,7 @@ public class CommandLine {
 	        found = false;
 	        
 		    for (int j=0; j<commandList.size() && !found; j++) {
-		        CommandLineArgument[] extArg = (CommandLineArgument[]) commandList.get(j);
+		        CommandLineArgument[] extArg = commandList.get(j);
 		        for (int k=0; k<extArg.length && !found; k++)
 		        if (args[i].compareToIgnoreCase(extArg[k].getName()) == 0) {
 		            
@@ -228,7 +230,7 @@ public class CommandLine {
 	}
 
 	public String getArgument(String keyword) {
-        return (String) keywords.get(keyword);
+        return keywords.get(keyword);
     }
 
     // ZAP: Made public and rebranded
@@ -244,15 +246,15 @@ public class CommandLine {
 	
 	// ZAP: Rebranded
     public String getHelp() {
-        StringBuffer sb = new StringBuffer(getHelpGeneral());        
+    	StringBuilder sb = new StringBuilder(getHelpGeneral());        
         sb.append("Command line usage:\r\n");
         sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} (-daemon)\r\n");
         sb.append("options:\r\n\r\n");
 
         for (int i=0; i<commandList.size(); i++) {
-	        CommandLineArgument[] extArg = (CommandLineArgument[]) commandList.get(i);
+	        CommandLineArgument[] extArg = commandList.get(i);
 	        for (int j=0; j<extArg.length; j++) {
-	            sb.append(extArg[j].getHelpMessage() + "\r\n");
+	            sb.append(extArg[j].getHelpMessage()).append("\r\n");
 	        }
         }
         

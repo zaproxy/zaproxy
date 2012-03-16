@@ -19,7 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+//      ExtensionPopupMenuItem.
+// ZAP: 2012/03/15 Changed the method initialize to check if "fw" is not null before closing.
+//      Made the "log" final.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -48,7 +50,7 @@ import org.parosproxy.paros.model.HistoryReference;
 public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(PopupMenuExportMessage.class);
+    private static final Logger log = Logger.getLogger(PopupMenuExportMessage.class);
 
     private static final String CRLF = "\r\n";
     private ExtensionHistory extension = null;
@@ -116,7 +118,9 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
                 	log.warn(e1.getMessage(), e1);
                 } finally {
             	    try {
-            	        fw.close();
+            	    	if (fw != null) {
+            	    		fw.close();
+            	    	}
             	    } catch (Exception e2) {
                     	// ZAP: Log exceptions
                     	log.warn(e2.getMessage(), e2);

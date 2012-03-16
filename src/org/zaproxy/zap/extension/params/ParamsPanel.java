@@ -211,7 +211,7 @@ public class ParamsPanel extends AbstractPanel{
 		return jScrollPane;
 	}
 	
-	private void setParamsTableColumnSizes(JTable table) {
+	private void setParamsTableColumnSizes() {
 		
 		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
 		paramsTable.getColumnModel().getColumn(0).setMaxWidth(200);
@@ -248,7 +248,7 @@ public class ParamsPanel extends AbstractPanel{
 			paramsTable.setRowSelectionAllowed(true);
 			paramsTable.setAutoCreateRowSorter(true);
 
-			this.setParamsTableColumnSizes(paramsTable);
+			this.setParamsTableColumnSizes();
 
 			paramsTable.setName(PANEL_NAME);
 			paramsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
@@ -315,7 +315,7 @@ public class ParamsPanel extends AbstractPanel{
 			
 			this.getParamsTable().setModel(extension.getSiteParameters(site).getModel());
 			
-			this.setParamsTableColumnSizes(paramsTable);
+			this.setParamsTableColumnSizes();
 
 			currentSite = site;
 		}

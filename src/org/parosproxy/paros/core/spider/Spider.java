@@ -20,6 +20,9 @@
 */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/01/09 Changed to not follow redirections.
+// ZAP: 2012/03/15 Changed the methods isInVisitedLink and isQueued to use 
+//      getRequestBody().getBytes() instead of getRequestBody().toString().
+
 
 package org.parosproxy.paros.core.spider;
 
@@ -414,7 +417,7 @@ public class Spider {
         
         try {
             if (model.getDb().getTableHistory().containsURI(session.getSessionId(), HistoryReference.TYPE_SPIDER_VISITED,
-                    msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().toString())) {
+                    msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().getBytes())) {
                 return true;
             }
         } catch (Exception e) {
@@ -452,7 +455,7 @@ public class Spider {
         
         try {
             return model.getDb().getTableHistory().containsURI(session.getSessionId(), HistoryReference.TYPE_SPIDER_SEED,
-                    msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().toString());
+                    msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().getBytes());
         } catch (SQLException e) {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);

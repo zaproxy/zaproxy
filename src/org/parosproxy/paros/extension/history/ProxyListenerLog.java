@@ -19,6 +19,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the method addHistory to use the class StringBuilder 
+//      instead of StringBuffer. Added the method getProxyListenerOrder.
+
 package org.parosproxy.paros.extension.history;
  
 //import org.apache.commons.httpclient.HttpMethod;
@@ -46,9 +49,16 @@ import org.parosproxy.paros.view.View;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class ProxyListenerLog implements ProxyListener {
+
+	// ZAP: Added logger
+    private static final Logger log = Logger.getLogger(ProxyListenerLog.class);
+
+    // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the HttpMessage 
+	// to the DB and must let other listeners change the HttpMessage before saving it.
+    // Note: other listeners can be notified after this one but they shouldn't change the HttpMessage 
+    // as that changes will not be saved to the DB.
+    public static final int PROXY_LISTENER_ORDER = 5000;
     
-    // ZAP: Added logger
-    private static Logger log = Logger.getLogger(ProxyListenerLog.class);
 	private ViewDelegate view = null;
 	private Model model = null;
 	private HistoryList historyList = null;
@@ -73,6 +83,12 @@ public class ProxyListenerLog implements ProxyListener {
 	
 	public void setHistoryFilter (HistoryFilter historyFilter) {
 		this.historyFilter = historyFilter;
+	}
+	
+	// ZAP: Added method.
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
 	}
 	
 	/* (non-Javadoc)
@@ -164,7 +180,7 @@ public class ProxyListenerLog implements ProxyListener {
                         addHistoryInEventQueue(historyRef);
                 	}
                 } else {
-                    StringBuffer sb = new StringBuffer();
+                	StringBuilder sb = new StringBuilder();
                     sb.append(msg.getRequestHeader().toString());
                     sb.append(msg.getRequestBody().toString());
                     if (!msg.getResponseHeader().isEmpty()) {

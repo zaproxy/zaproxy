@@ -25,13 +25,15 @@
 // ZAP: 2011/10/29 Log errors
 // ZAP: 2011/11/03 Changed isImage() to prevent a NullPointerException when the path doesn't exist
 // ZAP: 2011/12/09 Changed HttpRequestHeader(String method, URI uri, String version) to add
-//                 the Cache-Control header field when the HTTP version is 1.1 and changed a
-//                 if condition to validate the variable version instead of the variable method
+//      the Cache-Control header field when the HTTP version is 1.1 and changed a if condition to 
+//      validate the variable version instead of the variable method.
+// ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some methods.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.TreeSet;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,9 @@ import org.apache.log4j.Logger;
 public class HttpRequestHeader extends HttpHeader {
 
     private static final long serialVersionUID = 4156598327921777493L;
+    
+    private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
+    
     // method list
     public final static String OPTIONS = "OPTIONS";
     public final static String GET = "GET";
@@ -64,7 +69,6 @@ public class HttpRequestHeader extends HttpHeader {
     private String mHostName = "";
     private int mHostPort = 80;
     private boolean mIsSecure = false;
-    private Logger log = Logger.getLogger(this.getClass());
 
     /**
      * Constructor for an empty header.
@@ -375,10 +379,9 @@ public class HttpRequestHeader extends HttpHeader {
         }
         if (this.getSecure()) {
             return 443;
-        } else {
-            return 80;
         }
-
+        
+        return 80;
     }
 
     /**
@@ -427,7 +430,7 @@ public class HttpRequestHeader extends HttpHeader {
         URI uri = null;
 
         int len = sUri.length();
-        StringBuffer sb = new StringBuffer(len);
+        StringBuilder sb = new StringBuilder(len);
         char[] charray = new char[1];
         String s = null;
 
@@ -455,7 +458,7 @@ public class HttpRequestHeader extends HttpHeader {
 
                 try {
                     String hex = sUri.substring(i + 1, i + 3);
-                    int parsed = Integer.parseInt(hex, 16);
+                    Integer.parseInt(hex, 16);
                     sb.append(ch);
                 } catch (Exception e) {
                     charray[0] = ch;
@@ -480,7 +483,16 @@ public class HttpRequestHeader extends HttpHeader {
     // Construct new GET url of request
     // Based on getParams
     public void setGetParams(TreeSet<HtmlParameter> getParams) {
-        if (mUri == null || getParams.isEmpty()) {
+        if (mUri == null) {
+            return;
+        }
+    
+        if (getParams.isEmpty()) {
+            try {
+                mUri.setQuery("");
+            } catch (URIException e) {
+            	log.error(e.getMessage(), e);
+            }
             return;
         }
 
@@ -496,7 +508,12 @@ public class HttpRequestHeader extends HttpHeader {
             sbQuery.append('&');
         }
 
-        if (sbQuery.length() < 1) {
+        if (sbQuery.length() <= 2) {
+        	try {
+                mUri.setQuery("");
+            } catch (URIException e) {
+            	log.error(e.getMessage(), e);
+            }
             return;
         }
 
@@ -507,30 +524,57 @@ public class HttpRequestHeader extends HttpHeader {
             //so it is maintained with the use of setQuery.
             mUri.setQuery(query);
         } catch (URIException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	log.error(e.getMessage(), e);
         }
     }
 
     // Construct new "Cookie:" line in request header,
     // based on cookieParams
     public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
-        String data = "";
+    	if (cookieParams.isEmpty()) {
+    		setHeader(HttpHeader.COOKIE, null);
+    	}
+    	
+    	StringBuilder sbData = new StringBuilder();
 
         for (HtmlParameter parameter : cookieParams) {
             if (parameter.getType() != HtmlParameter.Type.cookie) {
                 continue;
             }
 
-            data += parameter.getName() + "=" + parameter.getValue();
-            data += "; ";
+            sbData.append(parameter.getName());
+            sbData.append('=');
+            sbData.append(parameter.getValue());
+            sbData.append("; ");
         }
 
-        if (data.length() <= 2) {
+        if (sbData.length() <= 3) {
+        	setHeader(HttpHeader.COOKIE, null);
             return;
         }
 
-        data = data.substring(0, data.length() - 2);
+        final String data = sbData.substring(0, sbData.length() - 2);
         setHeader(HttpHeader.COOKIE, data);
+    }
+    
+    public TreeSet<HtmlParameter> getCookieParams() {
+		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		
+    	Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
+		if (cookieLines != null) {
+    		for (String cookieLine : cookieLines) {
+        		if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
+        			// HttpCookie wont parse lines starting with "Cookie:"
+        			cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
+        		}
+            	// These can be comma separated type=value
+        		String [] cookieArray = cookieLine.split(";");
+        		for (String cookie : cookieArray) {
+        			set.add(new HtmlParameter(cookie));
+        		}
+    		}
+		}
+    	
+    	return set;
     }
 }

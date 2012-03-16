@@ -26,6 +26,7 @@
 //      Removed the calls XMLConfiguration.load() as they are not needed, the XMLConfiguration constructor used already does that.
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2012/03/03 Added ZAP homepage
+// ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method copyAllProperties.
 
 package org.parosproxy.paros;
 
@@ -378,9 +379,8 @@ public final class Constant {
     	toConfig.setProperty(key, fromConfig.getProperty(key));
     }
     
-    @SuppressWarnings("unchecked")
 	private void copyAllProperties(XMLConfiguration fromConfig, XMLConfiguration toConfig, String prefix) {
-    	Iterator iter = fromConfig.getKeys(prefix);
+    	Iterator<?> iter = fromConfig.getKeys(prefix);
     	while (iter.hasNext()) {
     		String key = (String)iter.next();
     		copyProperty(fromConfig, toConfig, key);

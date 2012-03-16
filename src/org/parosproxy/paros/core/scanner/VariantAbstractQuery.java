@@ -18,6 +18,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the methods (the private) setParameter and paramAppend to 
+//      use the class StringBuilder instead of StringBuffer. Removed unnecessary 
+//      castings in the method setParameter. Made a change in the method parse.
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
@@ -38,7 +42,7 @@ abstract public class VariantAbstractQuery implements Variant {
     abstract protected void buildMessage(HttpMessage msg, String query, boolean escaped);
     
     /**
-     * Return encoded mutate of the value.  To be overriden by subclass.
+     * Return encoded mutate of the value.  To be overridden by subclass.
      * @param msg
      * @param value
      * @return Encoded value
@@ -67,8 +71,7 @@ abstract public class VariantAbstractQuery implements Variant {
 					value = keyValue[i].substring(pos+1);
 				} else {
 				    key = keyValue[i];
-				    value = null;
-				    
+				    // ZAP: Removed "value = null;" the value is already initialized to null.
 				}
 				listParam.add(new NameValuePair(key, value, i));
 
@@ -83,7 +86,7 @@ abstract public class VariantAbstractQuery implements Variant {
     }
 
     /**
-     * If name and value = null, not to append entire paramter.
+     * If name and value = null, not to append entire parameter.
      */
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
     	return this.setParameter(msg, originalPair, name, value, false);
@@ -95,11 +98,11 @@ abstract public class VariantAbstractQuery implements Variant {
     
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
 
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         NameValuePair pair = null;
         boolean isAppended = false;
         for (int i=0; i<getParamList().size(); i++) {
-            pair = (NameValuePair) getParamList().get(i);
+            pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
                 String encodedValue = getEncodedValue(msg, value);
                 isAppended = paramAppend(sb, name, encodedValue);
@@ -120,14 +123,14 @@ abstract public class VariantAbstractQuery implements Variant {
     }
 
     /**
-     * Set the name value pair into the StringBuffer.  If both name and value is null,
-     * not to append whole paramter.
+     * Set the name value pair into the StringBuilder.  If both name and value is null,
+     * not to append whole parameter.
      * @param sb
      * @param name Null = not to append parameter.
      * @param value null = not to append parameter value.
-     * @return true = paretmer changed.
+     * @return true = parameter changed.
      */
-    private boolean paramAppend(StringBuffer sb, String name, String value) {
+    private boolean paramAppend(StringBuilder sb, String name, String value) {
         boolean isEdited = false;
         if (name != null) {
             sb.append(name);

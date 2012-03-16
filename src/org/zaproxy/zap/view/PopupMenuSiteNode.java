@@ -54,6 +54,9 @@ public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
 		return false;
     }
     
+    /**
+	 * @param sn
+	 */
     public boolean isEnabledForSiteNode (SiteNode sn) {
     	// Can Override if required 
     	return true;

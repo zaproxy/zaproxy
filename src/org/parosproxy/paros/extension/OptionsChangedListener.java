@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the first letter of the method OptionsChanged to lower case.
+
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.model.OptionsParam;
@@ -28,6 +30,6 @@ import org.parosproxy.paros.model.OptionsParam;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public interface OptionsChangedListener {
-    public void OptionsChanged(OptionsParam optionsParam);
+    public void optionsChanged(OptionsParam optionsParam);
     
 }

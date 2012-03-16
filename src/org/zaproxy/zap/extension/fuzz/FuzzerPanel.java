@@ -407,8 +407,17 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
     private void displayMessage(HttpMessage msg) {
 		try {
-			requestPanel.setMessage(msg);
-			responsePanel.setMessage(msg);
+			if (msg.getRequestHeader().isEmpty()) {
+	            requestPanel.clearView(true);
+	        } else {
+	            requestPanel.setMessage(msg);
+	        }
+	        
+	        if (msg.getResponseHeader().isEmpty()) {
+	            responsePanel.clearView(false);
+	        } else {
+	            responsePanel.setMessage(msg, true);
+	        }
 			
 			// The fuzz payload is recorded in the note
 			

@@ -78,6 +78,8 @@ public class FileFuzzer {
 	public Iterator<String> getIterator() {
 		if (length == -1) {
 			init();
+		} else {
+			iter = fuzzStrs.iterator();
 		}
 		return iter;
 	}

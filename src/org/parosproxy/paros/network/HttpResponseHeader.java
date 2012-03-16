@@ -19,8 +19,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Added the @Override annotation to the appropriate methods.
+//      Moved to his class the method getCookieParams().
 package org.parosproxy.paros.network;
 
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +58,7 @@ public class HttpResponseHeader extends HttpHeader {
         setMessage(data);
     }
 
+    @Override
     public void clear() {
         super.clear();
         mStatusCodeString = "";
@@ -60,6 +66,8 @@ public class HttpResponseHeader extends HttpHeader {
         mReasonPhrase	= "";
         
     }
+    
+    @Override
 	public void setMessage(String data) throws HttpMalformedHeaderException {
 		super.setMessage(data);
 		try {
@@ -75,6 +83,7 @@ public class HttpResponseHeader extends HttpHeader {
 
 	}
 	
+    @Override
 	public void setVersion(String version) {
 		mVersion = version.toUpperCase();
 	}
@@ -117,6 +126,7 @@ public class HttpResponseHeader extends HttpHeader {
         return true;
     }
 
+    @Override
 	public int getContentLength() {
 		int len = super.getContentLength();
 
@@ -140,7 +150,7 @@ public class HttpResponseHeader extends HttpHeader {
 		return res;
 	}
 
-
+	@Override
 	public boolean isImage() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
 
@@ -154,6 +164,7 @@ public class HttpResponseHeader extends HttpHeader {
 
 	}
 
+	@Override
 	public boolean isText() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
 
@@ -186,6 +197,7 @@ public class HttpResponseHeader extends HttpHeader {
 		return patternPartialStatusLine.matcher(data).find();
 	}
 	
+	@Override
 	public String getPrimeHeader() {
 		String prime = getVersion() + " " + getStatusCode();
 		if (getReasonPhrase() != null && !getReasonPhrase().equals("")) {
@@ -194,6 +206,27 @@ public class HttpResponseHeader extends HttpHeader {
 		return prime;
 	}
 	
+	public TreeSet<HtmlParameter> getCookieParams() {
+		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		
+		Vector<String> cookies = getHeaders(HttpHeader.SET_COOKIE);
+    	if (cookies != null) {
+    		Iterator<String> it = cookies.iterator();
+    		while (it.hasNext()) {
+				set.add(new HtmlParameter(it.next()));
+			}
+    	}
+    	
+    	Vector<String> cookies2 = getHeaders(HttpHeader.SET_COOKIE2);
+    	if (cookies2 != null) {
+    		Iterator<String> it = cookies2.iterator();
+    		while (it.hasNext()) {
+				set.add(new HtmlParameter(it.next()));
+			}
+    	}
+    	
+    	return set;
+	}
 
 
 }

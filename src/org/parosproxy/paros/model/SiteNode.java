@@ -24,6 +24,9 @@
 // ZAP: 2011/11/29 Added blank image to node names to fix redrawing issue
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap 
 // ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
+// ZAP: 2012/03/15 Changed the method toString to use the class StringBuilder 
+//      and reworked the method toString and getIcons. Renamed the method 
+//      getIcons to appendIcons.
 
 package org.parosproxy.paros.model;
 
@@ -62,8 +65,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
     }
     
-    private String getIcons() {
-    	StringBuffer sb = new StringBuffer();
+    private void appendIcons(StringBuilder sb) {
     	int highest = -1;
     	for (Alert alert : this.getAlerts()) {
     		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
@@ -97,11 +99,18 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
-    	return sb.toString();
     }
     
+    @Override
     public String toString() {
-    	return "<html><body>" + getIcons() + StringEscapeUtils.escapeHtml(nodeName) + "</body></html>";
+    	StringBuilder sb = new StringBuilder();
+    	
+    	sb.append("<html><body>");
+    	appendIcons(sb);
+    	sb.append(StringEscapeUtils.escapeHtml(nodeName));
+    	sb.append("</body></html>");
+    	
+    	return sb.toString();
     }
     
     public boolean isParentOf (String nodeName) {
@@ -182,6 +191,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         } else {
             try {
                 EventQueue.invokeLater(new Runnable() {
+                    @Override
                     public void run() {
                     	nodeChangedEventHandler();
                     }

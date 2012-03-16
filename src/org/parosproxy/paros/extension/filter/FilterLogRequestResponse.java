@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/03/15 Changed the method onHttpResponseReceive to use the class StringBuilder 
+//      instead of StringBuffer.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -79,13 +81,13 @@ public class FilterLogRequestResponse extends FilterAdaptor {
         if (!httpMessage.getRequestHeader().isText() || httpMessage.getRequestHeader().isImage() || httpMessage.getResponseHeader().isImage()) {
             return;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(httpMessage.getRequestHeader().toString());
-        sb.append(httpMessage.getRequestBody().toString() + CRLF);
+        sb.append(httpMessage.getRequestBody().toString()).append(CRLF);
         
         if (!httpMessage.getResponseHeader().isEmpty()) {
             sb.append(httpMessage.getResponseHeader().toString());
-            sb.append(httpMessage.getResponseBody().toString() + CRLF);
+            sb.append(httpMessage.getResponseBody().toString()).append(CRLF);
         }
         
         writeLogFile(sb.toString());

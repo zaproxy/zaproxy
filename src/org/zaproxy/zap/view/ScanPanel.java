@@ -165,7 +165,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		return this.getGBC(gridx, gridy, 0.0, new Insets(0,0,0,0));
 	}
 
-	private GridBagConstraints getGBC(int gridx, int gridy, Double weightx, Insets insets) {
+	private GridBagConstraints getGBC(int gridx, int gridy, double weightx, Insets insets) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = gridx;
 		gbc.gridy = gridy;
@@ -218,6 +218,11 @@ public abstract class ScanPanel extends AbstractPanel {
 		return panelToolbar;
 	}
 
+	/**
+	 * @param panelToolbar2
+	 * @param loc
+	 * @param x
+	 */
 	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int x) {
 		// Override to add elements into the toolbar
 		return x;
@@ -257,7 +262,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	
 	private void setActiveScanLabelsEventHandler() {
 		getActiveScansValueLabel().setText(""+activeScans.size());
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		Iterator <String> iter = activeScans.iterator();
 		sb.append("<html>");
 		while (iter.hasNext()) {
@@ -265,8 +270,10 @@ public abstract class ScanPanel extends AbstractPanel {
 			sb.append("<br>");
 		}
 		sb.append("</html>");
-		getActiveScansNameLabel().setToolTipText(sb.toString());
-		getActiveScansValueLabel().setToolTipText(sb.toString());
+		
+		final String toolTip = sb.toString();
+		getActiveScansNameLabel().setToolTipText(toolTip);
+		getActiveScansValueLabel().setToolTipText(toolTip);
 
 		scanStatus.setScanCount(activeScans.size());
 	}

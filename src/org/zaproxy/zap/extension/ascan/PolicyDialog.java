@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/14 Changed to use the internationalised string.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Frame;
@@ -40,6 +41,9 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 public class PolicyDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String POLICY = Constant.messages.getString("ascan.policy.dialog.title"); // ZAP: i18n
+	
 	private static final String[] ROOT = {};
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
 	private List<AbstractParamPanel> additionalPanels = new ArrayList<AbstractParamPanel>();
@@ -50,12 +54,12 @@ public class PolicyDialog extends AbstractParamDialog {
         
     }
     public PolicyDialog(Frame parent) throws HeadlessException {
-        super(parent, true, "Policy", Constant.messages.getString("ascan.policy.title"));
+        super(parent, true, POLICY, Constant.messages.getString("ascan.policy.title"));
         initialize();
     }
 
     private void initialize() {
-                this.setTitle("Policy");
+                this.setTitle(POLICY);
                 this.setSize(550, 400);
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
         for (int i=0; i<Category.getAllNames().length; i++) {

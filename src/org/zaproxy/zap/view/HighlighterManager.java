@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.Observable;
 
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 /*

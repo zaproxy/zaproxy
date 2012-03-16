@@ -141,8 +141,8 @@ public class Alert {
 	}
 	
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("\tAlert: " + getAlert() + ", ");
+		StringBuilder sb = new StringBuilder();
+		sb.append("\tAlert: ").append(getAlert()).append(", ");
 		sb.append("Risk: ");
 		if (getRisk() != null) {
 			sb.append(getRisk().name());
@@ -157,9 +157,9 @@ public class Alert {
 			sb.append("null");
 		}
 		sb.append(", ");
-		sb.append("Url: " + getUrl() + ", ");
-		sb.append("Param: " + getParam() + ", ");
-		sb.append("Other: " + getOther());
+		sb.append("Url: ").append(getUrl()).append(", ");
+		sb.append("Param: ").append(getParam()).append(", ");
+		sb.append("Other: ").append(getOther());
 		return sb.toString();
 	}
 	

@@ -67,7 +67,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-			    TreePath[] paths = (TreePath[]) extension.getAlertPanel().getTreeAlert().getSelectionPaths();
+			    TreePath[] paths = extension.getAlertPanel().getTreeAlert().getSelectionPaths();
 			    if (paths != null) {
 			    	if (View.getSingleton().showConfirmDialog(Constant.messages.getString("scanner.delete.confirm")) 
 			    			!= JOptionPane.OK_OPTION) {

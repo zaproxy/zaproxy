@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -33,6 +34,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
@@ -45,6 +47,9 @@ import org.zaproxy.zap.utils.ZapTextArea;
 public class EncodeDecodeDialog extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger log = Logger.getLogger(EncodeDecodeDialog.class);
+	
 	private JTabbedPane jTabbed = null;
 	private JPanel jPanel = null;
 
@@ -208,7 +213,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return jPanel;
 	}
 
-	private ZapTextArea newField(Boolean editable) {
+	private ZapTextArea newField(boolean editable) {
 		final ZapTextArea field = new ZapTextArea();
 		field.setLineWrap(true);
 		field.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
@@ -347,14 +352,24 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private void updateEncodeDecodeFields() {
 
 		// Base 64
-		base64EncodeField.setText(getEncoder().getBase64Encode(getInputField().getText()));
+		try {
+			base64EncodeField.setText(getEncoder().getBase64Encode(getInputField().getText()));
+		} catch (NullPointerException e) {
+			log.error(e.getMessage(), e);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}
+		
 		try {
 			base64DecodeField.setText(getEncoder().getBase64Decode(getInputField().getText()));
-		} catch (final Exception e) {
-			// Not unexpected
-			base64DecodeField.setText("");
+			base64DecodeField.setEnabled(base64DecodeField.getText().length() > 0);
+		} catch (IOException e) {
+			base64DecodeField.setText(e.getMessage());
+			base64DecodeField.setEnabled(false);
+		} catch (IllegalArgumentException e) {
+			base64DecodeField.setText(e.getMessage());
+			base64DecodeField.setEnabled(false);
 		}
-		base64DecodeField.setEnabled(base64DecodeField.getText().length() > 0);
 
 		// URLs
 		urlEncodeField.setText(getEncoder().getURLEncode(getInputField().getText()));
@@ -427,6 +442,13 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	public void setInputField (String text) {
 		this.getInputField().setText(text);
 		this.updateEncodeDecodeFields();
+	}
+
+	public void updateOptions(EncodeDecodeParam options) {
+		getEncoder().setBase64Charset(options.getBase64Charset());
+		getEncoder().setBase64DoBreakLines(options.isBase64DoBreakLines());
+		
+		updateEncodeDecodeFields();
 	}
 
 }

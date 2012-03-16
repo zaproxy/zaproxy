@@ -387,8 +387,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                     href.deleteAlert(alert);
                     try {
                         node = siteTree.findNode(href.getHttpMessage());
-                        node.deleteAlert(alert);
-                        siteNodeChanged(node);
+                        if (node != null) {
+	                        node.deleteAlert(alert);
+	                        siteNodeChanged(node);
+                        }
                         if (href.getAlerts().size() == 0) {
                             toDelete.add(href);
                         }

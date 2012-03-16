@@ -286,7 +286,7 @@ public class CoreAPI extends ApiImplementor {
 				GZIPInputStream gis = new GZIPInputStream(bais);
 				InputStreamReader isr = new InputStreamReader(gis);
 				BufferedReader br = new BufferedReader(isr);
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				String line = null;
 				while ((line = br.readLine()) != null) {
 					sb.append(line);
@@ -344,7 +344,7 @@ public class CoreAPI extends ApiImplementor {
 			Vector<Integer> v = tableAlert.getAlertList();
 
 			for (int i = 0; i < v.size(); i++) {
-				int alertId = ((Integer) v.get(i)).intValue();
+				int alertId = v.get(i).intValue();
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
@@ -372,7 +372,7 @@ public class CoreAPI extends ApiImplementor {
 					.getSingleton().getSession().getSessionId());
 			ArrayList<HttpMessage> mgss = new ArrayList<HttpMessage>();
 			for (int i = 0; i < v.size(); i++) {
-				int sessionId = ((Integer) v.get(i)).intValue();
+				int sessionId = v.get(i).intValue();
 				RecordHistory recAlert = tableHistory.read(sessionId);
 				HttpMessage msg = recAlert.getHttpMessage();
 				if ( ! msg.getRequestHeader().isImage() && ! msg.getResponseHeader().isImage()) {

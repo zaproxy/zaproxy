@@ -55,6 +55,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount() {
         return 3;
     }
@@ -62,6 +63,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return defns.size();
     }
@@ -69,8 +71,9 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
-    	RegexAutoTagScanner defn = (RegexAutoTagScanner) defns.get(row);
+    	RegexAutoTagScanner defn = defns.get(row);
         Object result = null;
         switch (col) {
         	case 0:	result = defn.getName();
@@ -84,6 +87,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
         return result;
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
@@ -96,12 +100,13 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
   	  	fireTableDataChanged();
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
     
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+    @Override
+	public Class<String> getColumnClass(int c) {
         return String.class;
     }
     

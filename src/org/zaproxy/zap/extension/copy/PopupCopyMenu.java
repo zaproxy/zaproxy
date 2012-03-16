@@ -27,7 +27,7 @@ import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanelviews.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 
 public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 1L;
@@ -59,8 +59,9 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("copy.copy.popup"));
 	}
 	
+	@Override
     public boolean isEnableForComponent(Component invoker) {
-    	if (invoker instanceof JTextComponent && !(invoker instanceof HttpPanelTextArea)) {
+    	if (invoker instanceof JTextComponent && !(invoker instanceof HttpPanelSyntaxHighlightTextArea)) {
             setLastInvoker((JTextComponent) invoker);
             Container c = getLastInvoker().getParent();
             while (!(c instanceof JFrame)) {
@@ -69,11 +70,10 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
             setParentFrame((JFrame) c);
            	this.setEnabled(((JTextComponent) invoker).getSelectedText() != null);
             return true;
-        } else {
-            setLastInvoker(null);
-            return false;
         }
-
+    	
+        setLastInvoker(null);
+        return false;
     }
 
     /**

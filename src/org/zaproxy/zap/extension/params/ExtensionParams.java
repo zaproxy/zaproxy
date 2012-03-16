@@ -272,13 +272,13 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 	
 	private String setToString (Set<String> set) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (set == null) {
 			return "";
 		}
 		for (String str : set) {
 			if (sb.length() > 0) {
-				sb.append(",");
+				sb.append(',');
 			}
 			// Escape all commas in the values
 			sb.append(str.replace(",", "%2C"));
@@ -354,7 +354,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	
 	protected void searchForSelectedParam() {
 
-		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
+		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		if (item != null) {
 			ExtensionSearch extSearch = 
 				(ExtensionSearch) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.NAME);
@@ -373,7 +373,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 
 	public void addAntiCsrfToken() {
-		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
+		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
@@ -393,7 +393,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 
 	public void removeAntiCsrfToken() {
-		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
+		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
@@ -424,7 +424,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 
 	public void addSessionToken() {
-		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
+		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
 		ExtensionSession extSession = 
 			(ExtensionSession) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSession.NAME);
@@ -441,7 +441,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 
 	public void removeSessionToken() {
-		HtmlParameterStats item = (HtmlParameterStats) this.getParamsPanel().getSelectedParam();
+		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
 		ExtensionSession extSession = 
 				(ExtensionSession) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSession.NAME);

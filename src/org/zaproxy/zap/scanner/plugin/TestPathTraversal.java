@@ -109,10 +109,10 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
      */
     public String getReference() {
     	if (vuln != null) {
-    		StringBuffer sb = new StringBuffer();
+    		StringBuilder sb = new StringBuilder();
     		for (String ref : vuln.getReferences()) {
     			if (sb.length() > 0) {
-    				sb.append("\n");
+    				sb.append('\n');
     			}
     			sb.append(ref);
     		}

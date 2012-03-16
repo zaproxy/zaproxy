@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.json.JSON;
@@ -71,13 +72,13 @@ public abstract class ApiImplementor {
 	}
 	
 	private String jsonToHTML (JSON json) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		jsonToHTML(json, sb);
 		return sb.toString();
 		
 	}
 	@SuppressWarnings("unchecked")
-	private void jsonToHTML (JSON json, StringBuffer sb) {
+	private void jsonToHTML (JSON json, StringBuilder sb) {
 		if (json == null || json.isEmpty()) {
 			return;
 		}
@@ -97,11 +98,11 @@ public abstract class ApiImplementor {
 			sb.append("</table>\n");
 		} else if (json instanceof JSONObject){
 			JSONObject jo = (JSONObject)json;
-			Set set = jo.entrySet();
-			Iterator<Map.Entry> itor = set.iterator();
+			Set<?> set = jo.entrySet();
+			Iterator<Map.Entry<?, ?>> itor = (Iterator<Entry<?, ?>>) set.iterator();
 			sb.append("<table border=\"1\">\n");
 			while (itor.hasNext()) {
-				Map.Entry me = itor.next();
+				Map.Entry<?, ?> me = itor.next();
 				sb.append("<tr><td>\n");
 				sb.append(StringEscapeUtils.escapeHtml(me.getKey().toString()));
 				sb.append("</td>\n");

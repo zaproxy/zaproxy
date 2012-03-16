@@ -18,6 +18,11 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/03/15 Changed the method buildPostQueryString to use the class StringBuilder 
+//      instead of StringBuffer. Removed unnecessary castings in the methods collect, 
+//      getFormQuery and addSelectField. Replaced the class HttpBody with the new class 
+//      HttpRequestBody.
+
 package org.parosproxy.paros.core.spider;
 
 import java.io.UnsupportedEncodingException;
@@ -26,11 +31,11 @@ import java.util.Vector;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.network.HttpRequestBody;
 
 public class Collector {
 
@@ -61,9 +66,9 @@ public class Collector {
         
         if (list.contains(msg)) {
             return true;
-        } else {
-            list.add(msg);            
         }
+        
+        list.add(msg);
         return false;
     }
     
@@ -128,7 +133,7 @@ public class Collector {
         
 	    Vector<HttpMessage> formQueryList = getFormsQuery(html);
 	    for (int i=0; i<formQueryList.size(); i++) {
-	        msg = (HttpMessage) formQueryList.get(i);
+	        msg = formQueryList.get(i);
 	        try {
 	            parent.foundURI(msg, html.getURI().toString(), currentDepth);
 	        } catch (URIException e) {
@@ -183,7 +188,7 @@ public class Collector {
 		Vector<HttpMessage> qryList		= new Vector<HttpMessage>();
 		String queryString = "";
 		HttpRequestHeader reqHeader = null;
-		HttpBody reqBody = null;
+		HttpRequestBody reqBody = null;
 		
 		if (form.getAction()==null) {
 		    return qryList;
@@ -248,7 +253,7 @@ public class Collector {
 			for (int i=0; i<qryStrList.size(); i++) {
 			    HttpMessage msg = null;
 				URI uri = null;
-				String qryStr = (String) qryStrList.elementAt(i);
+				String qryStr = qryStrList.elementAt(i);
 				if (form.getMethod().equalsIgnoreCase(Form.GET)) {
 				    String action = (form.getAction().indexOf(QUESTION) <0) ? form.getAction()+QUESTION+qryStr : form.getAction()+AMPERSAND+qryStr;				    
 					uri = new URI(baseURI, action, true);
@@ -261,7 +266,7 @@ public class Collector {
                     }
 				    uri = new URI(baseURI, form.getAction(), true);
 				    reqHeader = new HttpRequestHeader(form.getMethod().trim().toUpperCase(), uri, HttpHeader.HTTP11);
-				    reqBody = new HttpBody(qryStr);
+				    reqBody = new HttpRequestBody(qryStr);
 				    reqHeader.setContentLength(reqBody.length());
 				    msg = new HttpMessage(reqHeader, reqBody);
 				} else {
@@ -299,7 +304,7 @@ public class Collector {
 					newQryList.addElement(queryString);
 				} else {
 					for (int j=0; j<qry.size(); j++) {
-						queryString = (String) qry.elementAt(j);
+						queryString = qry.elementAt(j);
 						queryString = buildPostQueryString(queryString, select.getName(), value);
 						newQryList.addElement(queryString);
 					}
@@ -314,7 +319,7 @@ public class Collector {
 	private static final String AMPERSAND	= "&";
 	private static final String QUESTION	= "?";
 	private String buildPostQueryString(String oldQuery, String newField, String newValue) {
-		StringBuffer result = new StringBuffer(oldQuery);
+		StringBuilder result = new StringBuilder(oldQuery);
 		if (oldQuery.length() > 0) {
 			result.append(AMPERSAND);
 		}

@@ -78,7 +78,6 @@ public class BreakPanelToolbarFactory {
 		setContinue(false);
 	}
 
-
 	public boolean isBreakRequest() {
 		return isBreakRequest;
 	}
@@ -363,6 +362,19 @@ public class BreakPanelToolbarFactory {
 		boolean drop = toBeDropped;
 		toBeDropped = false;
 		return drop;
+	}
+
+	public void reset() {
+		if (isBreakRequest()) {
+			toggleBreakRequest();
+		}
+
+		if (isBreakResponse()) {
+			toggleBreakResponse();
+		}
+
+		toBeDropped = true;
+		setContinue(true);
 	}
 
 }

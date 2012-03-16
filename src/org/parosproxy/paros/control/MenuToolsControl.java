@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed the method options to notify all OptionsChangedListener that the
+//      options have changed.
 package org.parosproxy.paros.control;
 
 import javax.swing.JOptionPane;
@@ -72,6 +74,9 @@ public class MenuToolsControl {
                 view.showWarningDialog("Error saving options.");
                 return;
             }
+		    // ZAP: Notify all OptionsChangedListener.
+		    control.getExtensionLoader().optionsChangedAllPlugin(model.getOptionsParam());
+		    
 		    control.getProxy().stopServer();
 		    control.getProxy().startServer();
 		}

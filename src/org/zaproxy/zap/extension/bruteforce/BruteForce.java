@@ -29,14 +29,16 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
+import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.utils.SortedListModel;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
+import com.sittinglittleduck.DirBuster.ExtToCheck;
 
 public class BruteForce extends Thread implements BruteForceListenner {
 
@@ -97,7 +99,6 @@ public class BruteForce extends Thread implements BruteForceListenner {
 
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
         try {
@@ -115,7 +116,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
-			Vector extsVector = new Vector();
+			Vector<ExtToCheck> extsVector = new Vector<ExtToCheck>();
 			String exts = "php";
 			String startPoint = "/";
 			if (directory != null) {
@@ -187,7 +188,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	}
 
 	public int getWorkTotal() {
-		return (int)this.manager.getTotal();
+		return this.manager.getTotal();
 	}
 
 	public DefaultListModel getList() {
@@ -214,8 +215,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	}
 
 	@Override
-	public void foundDir(URL url, int statusCode, String responce,
-			String baseCase, String rawResponce, BaseCase baseCaseObj) {
+	public void foundDir(URL url, int statusCode, String response,
+			String baseCase, String rawResponse, BaseCase baseCaseObj) {
 		String reason = "";
 		HttpResponseHeader resHeader = null;
 		int historyId = -1;
@@ -223,8 +224,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		try {
 			// Analyse and store the request
 			HttpRequestHeader reqHeader; 
-			HttpBody reqBody;
-			HttpBody resBody;
+			HttpRequestBody reqBody;
+			HttpResponseBody resBody;
 
 			// Manually set up the header the DirBuster code uses
 			reqHeader = new HttpRequestHeader(HttpRequestHeader.GET + " " + url.toString() + " " + HttpHeader.HTTP11 + 
@@ -235,11 +236,11 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	        reqHeader.setHeader(HttpHeader.PROXY_CONNECTION,"Keep-Alive");
 			reqHeader.setContentLength(0);
 			
-			reqBody = new HttpBody(null);
+			reqBody = new HttpRequestBody();
 
-			int bodyOffset = rawResponce.indexOf(HttpHeader.CRLF + HttpHeader.CRLF);
-			resHeader = new HttpResponseHeader(rawResponce.substring(0, bodyOffset));
-			resBody = new HttpBody(rawResponce.substring(bodyOffset + (HttpHeader.CRLF + HttpHeader.CRLF).length()));
+			int bodyOffset = rawResponse.indexOf(HttpHeader.CRLF + HttpHeader.CRLF);
+			resHeader = new HttpResponseHeader(rawResponse.substring(0, bodyOffset));
+			resBody = new HttpResponseBody(rawResponse.substring(bodyOffset + (HttpHeader.CRLF + HttpHeader.CRLF).length()));
 
 			HttpMessage msg = new HttpMessage(reqHeader, reqBody, resHeader, resBody);
 

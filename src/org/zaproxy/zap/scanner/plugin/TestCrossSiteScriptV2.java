@@ -83,10 +83,10 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
      */
     public String getReference() {
     	if (vuln != null) {
-    		StringBuffer sb = new StringBuffer();
+    		StringBuilder sb = new StringBuilder();
     		for (String ref : vuln.getReferences()) {
     			if (sb.length() > 0) {
-    				sb.append("\n");
+    				sb.append('\n');
     			}
     			sb.append(ref);
     		}
@@ -116,9 +116,8 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
         if (Plugin.Level.HIGH.equals(this.getLevel())) {
         	// High level, so check all results are in the expected context
         	return hca.getHtmlContexts(attack, targetContext, ignoreFlags);
-        } else {
-        	return hca.getHtmlContexts(attack);
         }
+        return hca.getHtmlContexts(attack);
     }
     	
     public void scan(HttpMessage msg, String param, String value) {

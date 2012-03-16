@@ -24,8 +24,6 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.event.InputEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -46,7 +44,6 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
@@ -363,16 +360,20 @@ public class AlertPanel extends AbstractPanel {
 	private void setMessage(HttpMessage msg) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
-	    requestPanel.clearView(true);
+	    
 	    HttpMessage newMsg = msg.cloneAll();
 	    
-	    if (!msg.getRequestHeader().isEmpty()) {
-	        requestPanel.setMessage(newMsg, true);
+	    
+	    if (msg.getRequestHeader().isEmpty()) {
+	    	requestPanel.clearView(true);
+	    } else {
+	        requestPanel.setMessage(newMsg);
 	    }
 
-	    responsePanel.clearView(false);
-	    if (!msg.getResponseHeader().isEmpty()) {
-	        responsePanel.setMessage(newMsg, false);
+	    if (msg.getResponseHeader().isEmpty()) {
+	    	responsePanel.clearView(false);
+	    } else {
+	        responsePanel.setMessage(newMsg, true);
 	    }
 
 	}

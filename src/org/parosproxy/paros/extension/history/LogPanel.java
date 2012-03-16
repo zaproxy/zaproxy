@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- // ZAP: 2012/01/12 Changed the method valueChanged of the ListSelectionListener.
+// ZAP: 2012/01/12 Changed the method valueChanged of the ListSelectionListener.
+// ZAP: 2012/03/15 Changed to allow clear the displayQueue. 
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -325,7 +327,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     
 
     
-    private Vector displayQueue = new Vector();
+    private Vector<HistoryReference> displayQueue = new Vector<HistoryReference>();
     private Thread thread = null;
     private LogPanelCellRenderer logPanelCellRenderer = null;  //  @jve:decl-index=0:visual-constraint="10,304"
     
@@ -345,6 +347,12 @@ public class LogPanel extends AbstractPanel implements Runnable {
     	}
     }
 
+    public void clearDisplayQueue() {
+    	synchronized(displayQueue) {
+    		displayQueue.clear();
+    	}
+    }
+    
     private void readAndDisplay(final HistoryReference historyRef) {
 
         synchronized(displayQueue) {
@@ -359,6 +367,10 @@ public class LogPanel extends AbstractPanel implements Runnable {
                 }
             }
             */
+            if (displayQueue.size() > 0) {
+                displayQueue.clear();
+            }
+            
             displayQueue.add(historyRef);
 
         }
@@ -383,15 +395,15 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private void displayMessage(HttpMessage msg) {
         
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.clearView(true);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.clearView(false);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg, true);
         }
     }
 
@@ -406,7 +418,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
                     break;
                 }
                 
-                ref = (HistoryReference) displayQueue.get(0);
+                ref = displayQueue.get(0);
                 displayQueue.remove(0);
             }
             

@@ -38,8 +38,7 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 		super( items );
 	}
 
-	@SuppressWarnings("unchecked")
-	public SortedComboBoxModel(Vector items) {
+	public SortedComboBoxModel(Vector<?> items) {
 		super( items );
 	}
 
@@ -52,7 +51,7 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 
 		for (index = 0; index < size; index++)
 		{
-			Comparable c = (Comparable)getElementAt( index );
+			Comparable<Object> c = (Comparable<Object>)getElementAt( index );
 
 			if (c.compareTo(element) > 0)
 				break;

@@ -179,15 +179,15 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     	}
     	
         if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null, true);
+            requestPanel.clearView(true);
         } else {
-            requestPanel.setMessage(msg, true);
+            requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader() != null && msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null, false);
+            responsePanel.clearView(false);
         } else {
-            responsePanel.setMessage(msg, false);
+            responsePanel.setMessage(msg, true);
         }
     }
 

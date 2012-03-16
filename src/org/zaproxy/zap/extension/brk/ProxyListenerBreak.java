@@ -27,19 +27,25 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.ZapTextArea;
 
 public class ProxyListenerBreak implements ProxyListener {
+
+    private static final Logger log = Logger.getLogger(ProxyListenerBreak.class);
+    
+    //Should be the last one before the listener that saves the HttpMessage to the DB, this way 
+	//the HttpMessage will be correctly shown to the user (to edit it) because it could have been changed 
+	//by other ProxyListener.
+    public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER -1;
 	
 	private static java.lang.Object semaphore = new java.lang.Object();
 	private BreakPanel breakPanel = null;
 	private Model model = null;
 	private ExtensionBreak extension = null;
-    private static Logger log = Logger.getLogger(ProxyListenerBreak.class);
 
 	public ProxyListenerBreak(Model model, ExtensionBreak extension) {
 	    this.model = model;
@@ -60,6 +66,11 @@ public class ProxyListenerBreak implements ProxyListener {
 		this.breakPanel = breakPanel;
 	}
 	
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
 	 */
@@ -73,7 +84,7 @@ public class ProxyListenerBreak implements ProxyListener {
 			return true;
 		}
 		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
-		// but be reset when the next break pooint is hit
+		// but be reset when the next break point is hit
 		getBreakPanel().breakPointHit();
 
 		synchronized(semaphore) {
@@ -82,7 +93,7 @@ public class ProxyListenerBreak implements ProxyListener {
 				waitUntilContinue(msg, true);
 			}
 		}
-		getBreakPanel().clearView();
+		clearAndDisableRequest();
 		return ! getBreakPanel().isToBeDropped();
 	}
 
@@ -127,8 +138,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				public void run() {
-				    getBreakPanel().getMessage(msg, isRequest);
-					getBreakPanel().setMessage(null, isRequest);
+					getBreakPanel().getMessage(msg, isRequest);
 				}
 			});
 		} catch (Exception ie) {
@@ -152,7 +162,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
         
 		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
-		// but be reset when the next break pooint is hit
+		// but be reset when the next break point is hit
 		getBreakPanel().breakPointHit();
 
 		synchronized(semaphore) {
@@ -162,20 +172,9 @@ public class ProxyListenerBreak implements ProxyListener {
 				waitUntilContinue(msg, false);
 			}
 		}
-		getBreakPanel().clearView();
+		clearAndDisableResponse();
 
 		return ! getBreakPanel().isToBeDropped();
-	}
-	
-	public String getHeaderFromZapTextArea(ZapTextArea txtArea) {
-		String msg = txtArea.getText();
-		String result = msg.replaceAll("\\n", "\r\n");
-		result = result.replaceAll("(\\r\\n)*\\z", "") + "\r\n\r\n";
-		return result;
-	}
-	
-	public String replaceHeaderForZapTextArea(String msg) {
-		return msg.replaceAll("\\r\\n", "\n");
 	}
 	
 	public boolean isSkipImage(HttpHeader header) {
@@ -184,7 +183,6 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 		
 		return false;
-			
 	}
 
 	private boolean isBreakPoint(HttpMessage msg, boolean request) {
@@ -231,4 +229,35 @@ public class ProxyListenerBreak implements ProxyListener {
         return false;
 	}
 	
+	private void clearAndDisableRequest() {
+		if (EventQueue.isDispatchThread()) {
+			getBreakPanel().clearAndDisableRequest();
+		} else {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					public void run() {
+						getBreakPanel().clearAndDisableRequest();
+					}
+				});
+			} catch (Exception e) {
+				log.warn(e.getMessage(), e);
+			}
+		}
+	}
+	
+	private void clearAndDisableResponse() {
+		if (EventQueue.isDispatchThread()) {
+			getBreakPanel().clearAndDisableResponse();
+		} else {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					public void run() {
+						getBreakPanel().clearAndDisableResponse();
+					}
+				});
+			} catch (Exception e) {
+				log.warn(e.getMessage(), e);
+			}
+		}
+	}
 }

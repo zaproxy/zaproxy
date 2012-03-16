@@ -17,8 +17,7 @@ public class ClassLoaderUtil {
     private static Logger log = Logger.getLogger(ClassLoaderUtil.class);
 
     // Parameters
-    @SuppressWarnings("unchecked")
-	private static final Class[] parameters = new Class[]{URL.class};
+	private static final Class<?>[] parameters = new Class[]{URL.class};
 
     /**
      * Add file to CLASSPATH

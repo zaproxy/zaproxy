@@ -18,14 +18,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/03/15 Changed to allow the modifying of the charset and the break lines while
+//      encoding of the Base64. Changed to use the updated Base64 class. Changed to use 
+//      StringBuilder instead of StringBuffer. Replaced some string concatenations with calls to the 
+//      method append of the class StringBuilder.
+
 package org.parosproxy.paros.extension.encoder;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Vector;
 
 /**
  *
@@ -34,8 +39,15 @@ import java.util.Vector;
  */
 public class Encoder {
     
-	private final static String CODEPAGE = "8859_1";
+	private int base64EncodeOptions;
+	private String base64Charset;
 
+	public Encoder() {
+		setBase64DoBreakLines(true);
+
+		this.base64Charset = "UTF-8";
+	}
+	
     public String getURLEncode(String msg) {
         String result = "";
         try {
@@ -70,93 +82,75 @@ public class Encoder {
     }
 	
 	public String getHexString(byte[] buf) {
-		StringBuffer sb = new StringBuffer(20);
+		StringBuilder sb = new StringBuilder(20);
 		for (int i=0; i<buf.length; i++) {
-			int digit = ((int) buf[i]) & 0xFF;
+			int digit = buf[i] & 0xFF;
 			String hexDigit = Integer.toHexString(digit).toUpperCase();
 			if (hexDigit.length() == 1) {
 				sb.append('0');
 			}
 			sb.append(hexDigit);
 		}
-		return sb.toString();			
+		return sb.toString();
 			
 	}
 
 	public byte[] getBytes(String buf) {
 	    byte[] result = null;
 	    try {
-	        result = buf.getBytes(CODEPAGE);
-	    } catch (UnsupportedEncodingException e) {}
+	        result = buf.getBytes(base64Charset);
+	    } catch (UnsupportedEncodingException e) { e.printStackTrace(); }
 	    return result;
 	}
 	
-	/**
-	The Base64 decoder perform Base64 decode even if the string is incorrect.
-	This method is used to check if the code is correct.
-	*/
-	public boolean isValidBase64(String buf) {
-		String result = Base64.encodeBytes(Base64.decode(buf));
-		if (buf.equals(result)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public String getBase64Encode(String msg) {
-		String result = "";
-		result = Base64.encodeBytes(getBytes(msg));
-	    return result;
+	public String getBase64Encode(String msg) throws NullPointerException, IOException {
+	    return Base64.encodeBytes(getBytes(msg), base64EncodeOptions);
 	}
 	
-	public String getBase64Decode(String msg) {
-	    String result = "";
-	    if (!isValidBase64(msg)) {
-		    return result;
-		}
-		
-		try {
-			result = new String(Base64.decode(msg), CODEPAGE);
-		} catch (Exception e) {
-		}
-		return result;
+	public String getBase64Decode(String msg) throws IllegalArgumentException, IOException {
+		return new String(Base64.decode(msg, Base64.NO_OPTIONS), base64Charset);
 	}
 	
 	public String getIllegalUTF8Encode(String msg, int bytes) {
 		char [] input_array = msg.toCharArray();
-		Vector<String> output_array = new Vector<String>();
 		
-		for(char c : input_array) {
-			
-			String char_in_hex = "";
-			
-			if (bytes == 4) {
-				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) 0xf0))
-							+ "%" + Integer.toHexString(0xff & ((byte) 0x80))
-							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6))))
-							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
-			} else if (bytes == 3) {
-				
-				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) 0xe0))
-							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6))))
-							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
-			} else {
-				char_in_hex = "%" + Integer.toHexString(0xff & ((byte) (0xc0 | ((c & 0x7f)>>6))))
-							+ "%" + Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f))));
-			}
-			
-			output_array.add(char_in_hex);
+		if (bytes != 4 && bytes != 3) {
+			bytes = 2;
 		}
 		
-		String result = "";
-        for(int i = 0; i < output_array.size(); i++)
-        {
-            result += output_array.get(i);
-        }
+		//numbers of characters * number of bytes * ("%" + Hex + Hex) 
+		StringBuilder sbResult = new StringBuilder(input_array.length * bytes * 3);
+		for(char c : input_array) {
+			
+			if (bytes == 4) {
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) 0xf0)));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) 0x80)));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6)))));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f)))));
+				
+			} else if (bytes == 3) {
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) 0xe0)));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0x80 | ((c & 0x7f)>>6)))));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f)))));
+			} else {
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0xc0 | ((c & 0x7f)>>6)))));
+				sbResult.append('%').append(Integer.toHexString(0xff & ((byte) (0x80 | (c & 0x3f)))));
+			}
+		}
 		
-		return result;
+		return sbResult.toString();
 	}
 	
+	public void setBase64DoBreakLines(boolean doBreakLines) {
+		if (doBreakLines) {
+			base64EncodeOptions = Base64.DO_BREAK_LINES;
+		} else {
+			base64EncodeOptions = Base64.NO_OPTIONS;
+		}
+	}
+	
+	public void setBase64Charset(String charset) {
+		base64Charset = charset;
+	}
 	
 }

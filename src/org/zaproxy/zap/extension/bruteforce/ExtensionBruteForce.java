@@ -30,6 +30,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -44,6 +45,11 @@ import org.zaproxy.zap.view.SiteMapListener;
 public class ExtensionBruteForce extends ExtensionAdaptor 
 		implements SessionChangedListener, ProxyListener, SiteMapListener {
 
+    private static final Logger logger = Logger.getLogger(ExtensionBruteForce.class);
+    
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+	
 	private BruteForcePanel bruteForcePanel = null;
 	private OptionsBruteForcePanel optionsBruteForcePanel = null;
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
@@ -51,7 +57,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	private PopupMenuBruteForceCopy popupMenuBruteForceCopy = null;
 
 	private BruteForceParam params = null;
-    private Logger logger = Logger.getLogger(ExtensionBruteForce.class);
 
 	/**
      * 
@@ -155,6 +160,11 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		while (en.hasMoreElements()) {
 			this.getBruteForcePanel().addSite(en.nextElement().getNodeName());
 		}
+	}
+	
+	@Override
+	public int getProxyListenerOrder() {
+		return PROXY_LISTENER_ORDER;
 	}
 
 	@Override

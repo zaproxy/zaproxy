@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 
 public class FuzzerThread implements Runnable {
@@ -41,12 +40,9 @@ public class FuzzerThread implements Runnable {
 	private ThreadPool pool = null;
 	private int delayInMs = 0;
 
-	private HttpMessage msg;
+	private FuzzableHttpMessage fuzzableHttpMessage;
 	private Fuzzer[] fuzzers;
 	private FileFuzzer[] customFuzzers;
-	private boolean fuzzHeader;
-	private int startOffset;
-	private int endOffset;
 	private AntiCsrfToken acsrfToken;
 	private boolean showTokenRequests;
 	private boolean followRedirects;
@@ -67,17 +63,13 @@ public class FuzzerThread implements Runnable {
     
     public void start() {
         isStop = false;
-        log.info("fuzzer started");
-        Thread thread = new Thread(this);
+        Thread thread = new Thread(this, "ZAP-FuzzerThread");
         thread.setPriority(Thread.NORM_PRIORITY-2);
         thread.start();
     }
     
     public void stop() {
-        log.info("fuzzer stopped");
-
         isStop = true;
-        
     }
    
 	public void addFuzzerListener(FuzzerListener listener) {
@@ -95,14 +87,11 @@ public class FuzzerThread implements Runnable {
 	}
 
 
-	public void setTarget(HttpMessage msg, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, boolean fuzzHeader, 
-			int startOffset, int endOffset, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
-		this.msg = msg;
+	public void setTarget(FuzzableHttpMessage fuzzableHttpMessage, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, AntiCsrfToken acsrfToken, 
+			boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
+		this.fuzzableHttpMessage = fuzzableHttpMessage;
 		this.fuzzers = fuzzers;
 		this.customFuzzers = customFuzzers;
-		this.fuzzHeader = fuzzHeader;
-		this.startOffset = startOffset;
-		this.endOffset = endOffset;
 		this.acsrfToken = acsrfToken;
 		this.showTokenRequests = showTokenRequests;
 		this.followRedirects = followRedirects;
@@ -110,18 +99,21 @@ public class FuzzerThread implements Runnable {
 	}
 
     public void run() {
+        log.info("fuzzer started");
+        
     	if (customFuzzers != null) {
-    		this.fuzz(msg, customFuzzers, fuzzHeader, startOffset, endOffset);
+    		this.fuzz(fuzzableHttpMessage, customFuzzers);
     	} else {
-    		this.fuzz(msg, fuzzers, fuzzHeader, startOffset, endOffset);
+    		this.fuzz(fuzzableHttpMessage, fuzzers);
     	}
 	    
 	    pool.waitAllThreadComplete(0);
 	    notifyFuzzerComplete();
+
+        log.info("fuzzer stopped");
 	}
 	
-	private void fuzz(HttpMessage msg, FileFuzzer[] customFuzzers,
-			boolean fuzzHeader, int startOffset, int endOffset) {
+	private void fuzz(FuzzableHttpMessage fuzzableHttpMessage, FileFuzzer[] customFuzzers) {
 		
 		int total = 0;
 		for (FileFuzzer fuzzer : customFuzzers) {
@@ -152,8 +144,7 @@ public class FuzzerThread implements Runnable {
 				}
 				
 				String fuzz = iter.next();
-				FuzzProcess fp = new FuzzProcess(connectionParam, 
-						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests, followRedirects, urlEncode);
+				FuzzProcess fp = new FuzzProcess(connectionParam, fuzzableHttpMessage, fuzz, acsrfToken, showTokenRequests, followRedirects, urlEncode);
 				for (FuzzerListener listener : listenerList) {
 					fp.addFuzzerListener(listener);
 				}
@@ -179,7 +170,7 @@ public class FuzzerThread implements Runnable {
 	}
 
 
-	private void fuzz(HttpMessage msg, Fuzzer[] fuzzers, boolean fuzzHeader, int startOffset, int endOffset) {
+	private void fuzz(FuzzableHttpMessage fuzzableHttpMessage, Fuzzer[] fuzzers) {
 	
 		int total = 0;
 		for (Fuzzer fuzzer : fuzzers) {
@@ -209,8 +200,7 @@ public class FuzzerThread implements Runnable {
 				}
 				
 				String fuzz = fuzzer.next();
-				FuzzProcess fp = new FuzzProcess(connectionParam, 
-						msg, fuzzHeader, startOffset, endOffset, fuzz, acsrfToken, showTokenRequests, followRedirects, urlEncode);
+				FuzzProcess fp = new FuzzProcess(connectionParam, fuzzableHttpMessage, fuzz, acsrfToken, showTokenRequests, followRedirects, urlEncode);
 				for (FuzzerListener listener : listenerList) {
 					fp.addFuzzerListener(listener);
 				}

@@ -21,6 +21,12 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/02/18 Dont log errors for temporary hrefs
+// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
+//      instead of StringBuffer and replaced some string concatenations with calls 
+//      to the method append of the class StringBuilder. Removed unnecessary castings 
+//      in the methods scanSingleNode, notifyHostComplete and pluginCompleted. Changed
+//      the methods processPlugin and pluginCompleted to use Long.valueOf instead of 
+//      creating a new Long.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -106,7 +112,7 @@ public class HostProcess implements Runnable {
     
     private void processPlugin(Plugin plugin) {
         log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + " level " + plugin.getLevel());
-        mapPluginStartTime.put(new Long(plugin.getId()), new Long(System.currentTimeMillis()));
+        mapPluginStartTime.put(Long.valueOf(plugin.getId()), Long.valueOf(System.currentTimeMillis()));
         if (plugin instanceof AbstractHostPlugin) {
             scanSingleNode(plugin, startNode);
         } else if (plugin instanceof AbstractAppPlugin) {
@@ -176,7 +182,7 @@ public class HostProcess implements Runnable {
 				return;
             }
 
-            test = (Plugin) plugin.getClass().newInstance();
+            test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
             test.setDelayInMs(plugin.getDelayInMs());
         	test.setDefaultLevel(plugin.getLevel());
@@ -225,7 +231,7 @@ public class HostProcess implements Runnable {
     
     private void notifyHostComplete() {
         long diffTimeMillis = System.currentTimeMillis() - hostProcessStartTime;
-		String diffTimeString = decimalFormat.format((double) (diffTimeMillis/1000.0)) + "s";
+		String diffTimeString = decimalFormat.format(diffTimeMillis/1000.0) + "s";
         log.info("completed host " + hostAndPort + " in " + diffTimeString);
         parentScanner.notifyHostComplete(hostAndPort);
     }
@@ -251,19 +257,19 @@ public class HostProcess implements Runnable {
 	}
 	
 	void pluginCompleted(Plugin plugin) {
-	    Object obj = mapPluginStartTime.get(new Long(plugin.getId()));
-	    StringBuffer sb = new StringBuffer();
+	    Object obj = mapPluginStartTime.get(Long.valueOf(plugin.getId()));
+	    StringBuilder sb = new StringBuilder();
 	    if (isStop) {
 	        sb.append("stopped host/plugin ");
 	    } else {
 	        sb.append("completed host/plugin "); 
 	    }
-	    sb.append(hostAndPort + " | " + plugin.getCodeName());
+	    sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
 	    if (obj != null) {
 	        long startTimeMillis = ((Long) obj).longValue(); 
 	        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-	        String diffTimeString = decimalFormat.format((double) (diffTimeMillis/1000.0)) + "s";
-		    sb.append(" in " + diffTimeString);
+	        String diffTimeString = decimalFormat.format(diffTimeMillis/1000.0) + "s";
+		    sb.append(" in ").append(diffTimeString);
 	    }
 	    log.info(sb.toString());
 	    getPluginFactory().setRunningPluginCompleted(plugin);

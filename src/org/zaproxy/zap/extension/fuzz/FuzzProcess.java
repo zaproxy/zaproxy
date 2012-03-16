@@ -34,31 +34,26 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 
 public class FuzzProcess  implements Runnable {
+	
+    private static final Logger log = Logger.getLogger(FuzzProcess.class);
 
 	private ConnectionParam connectionParam;
+	private FuzzableHttpMessage fuzzableHttpMessage;
 	private HttpMessage msg;
-	private boolean fuzzHeader;
-	private int startOffset;
-	private int endOffset;
 	private String fuzz;
 	private AntiCsrfToken acsrfToken;
 	private List<FuzzerListener> listenerList = new ArrayList<FuzzerListener>();
-    private static Logger log = Logger.getLogger(FuzzProcess.class);
     private List<HttpMessage> tokenRequests = new ArrayList<HttpMessage>();
 	private Encoder encoder = new Encoder();
-	private boolean showTokenRequests = false;
-	private boolean followRedirects = false;
-	private boolean urlEncode = true;
-	private ExtensionAntiCSRF extAntiCSRF = null; 
+	private boolean showTokenRequests;
+	private boolean followRedirects;
+	private boolean urlEncode;
+	private ExtensionAntiCSRF extAntiCSRF; 
 
-	public FuzzProcess(ConnectionParam connectionParam, HttpMessage msg,
-			boolean fuzzHeader, int startOffset, int endOffset,
+	public FuzzProcess(ConnectionParam connectionParam, FuzzableHttpMessage fuzzableHttpMessage,
 			String fuzz, AntiCsrfToken acsrfToken, boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
 		this.connectionParam = connectionParam;
-		this.msg = msg.cloneAll();
-		this.fuzzHeader = fuzzHeader;
-		this.startOffset = startOffset;
-		this.endOffset = endOffset;
+		this.fuzzableHttpMessage = fuzzableHttpMessage;
 		this.fuzz = fuzz;
 		this.acsrfToken = acsrfToken;
 		this.showTokenRequests = showTokenRequests;
@@ -99,12 +94,6 @@ public class FuzzProcess  implements Runnable {
 		
 		// Inject the payload
 		try {
-			String orig;
-			if (fuzzHeader) {
-				orig = msg.getRequestHeader().toString();
-			} else {
-				orig = msg.getRequestBody().toString();
-			}
 			
 			String fuzzString;
 			if (urlEncode) {
@@ -113,12 +102,8 @@ public class FuzzProcess  implements Runnable {
 				fuzzString = fuzz;
 			}
 			
-			String changed = orig.substring(0, startOffset) + fuzzString + orig.substring(endOffset);
-			if (fuzzHeader) {
-				msg.setRequestHeader(changed);
-			} else {
-				msg.setRequestBody(changed);
-			}
+			msg = fuzzableHttpMessage.fuzz(fuzzString);
+			
 			if (tokenValue != null) {
 				// Replace token value - only supported in the body right now
 				String replaced = msg.getRequestBody().toString();
@@ -136,8 +121,12 @@ public class FuzzProcess  implements Runnable {
 			
 		} catch (HttpException e) {
 			log.error(e.getMessage(), e);
+			//FIXME use a cloned HttpMessage as it is needed in the Fuzzer panel, but should be shown an error message instead.
+			msg = fuzzableHttpMessage.getHttpMessage().cloneRequest();
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
+			//FIXME use a cloned HttpMessage as it is needed in the Fuzzer panel, but should be shown an error message instead.
+			msg = fuzzableHttpMessage.getHttpMessage().cloneRequest();
 		}
 		for (FuzzerListener listener : listenerList) {
 			listener.notifyFuzzProcessComplete(this);

@@ -100,7 +100,7 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	}
 	
 	public String getValuesSummary() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (String value: values) {
 			if (sb.length() > 0) {
 				sb.append(", ");
@@ -120,7 +120,7 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	}
 	
 	public String getAllFlags() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (String flag: flags) {
 			if (sb.length() > 0) {
 				sb.append(", ");

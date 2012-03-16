@@ -58,6 +58,7 @@ public class PopupExcludeFromSpiderMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("sites.exclude.spider.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    if (invoker.getName().equals("treeSite")) {
                     Session session = Model.getSingleton().getSession();
@@ -79,7 +80,7 @@ public class PopupExcludeFromSpiderMenu extends ExtensionPopupMenuItem {
         });
 	}
 	
-	
+	@Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;
@@ -92,11 +93,10 @@ public class PopupExcludeFromSpiderMenu extends ExtensionPopupMenuItem {
 		        this.setEnabled(false);
 		    }
             return true;
-        } else {
-            this.invoker = null;
-            return false;
         }
-
+        
+        this.invoker = null;
+        return false;
     }
     
     @Override

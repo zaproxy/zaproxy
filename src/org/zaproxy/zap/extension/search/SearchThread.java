@@ -56,7 +56,6 @@ public class SearchThread extends Thread {
     	this.stopSearch = true;
     }
 
-	@SuppressWarnings("unchecked")
 	public void run() {
 	    Session session = Model.getSingleton().getSession();
         Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
@@ -75,13 +74,13 @@ public class SearchThread extends Thread {
         		return;
         	}
 
-			List list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
+			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
 					break;
 				}
-			    int v = ((Integer)(list.get(index))).intValue();
+			    int v = list.get(index).intValue();
 			    try {
 			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
 			        if (hr.getHistoryType() == HistoryReference.TYPE_MANUAL || 

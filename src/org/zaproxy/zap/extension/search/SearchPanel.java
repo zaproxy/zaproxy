@@ -386,17 +386,16 @@ public class SearchPanel extends AbstractPanel {
     
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
-        // TODO fix?
         if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.setMessage(null);
+            requestPanel.clearView(true);
         } else {
             requestPanel.setMessage(msg);
         }
         
         if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.setMessage(null);
+            responsePanel.clearView(false);
         } else {
-            responsePanel.setMessage(msg);
+            responsePanel.setMessage(msg, true);
         }
         highlightFirstResult(sr);
     }

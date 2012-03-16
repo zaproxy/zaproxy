@@ -20,6 +20,9 @@
 */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/10/29 Support for parameters
+// ZAP: 2012/03/15 Changed the parameter's type of the method removeDatabaseListener to
+//      DatabaseListener instead of SpiderListener. Removed unnecessary castings in the 
+//      methods notifyListenerDatabaseOpen.
 
 package org.parosproxy.paros.db;
 
@@ -27,7 +30,6 @@ import java.sql.SQLException;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.core.spider.SpiderListener;
 
 
 
@@ -126,7 +128,7 @@ public class Database {
 		
 	}
 	
-	public void removeDatabaseListener(SpiderListener listener) {
+	public void removeDatabaseListener(DatabaseListener listener) {
 		listenerList.remove(listener);
 	}
 	
@@ -134,7 +136,7 @@ public class Database {
 	    DatabaseListener listener = null;
 	    
 	    for (int i=0;i<listenerList.size();i++) {
-	        listener = (DatabaseListener) listenerList.get(i);
+	        listener = listenerList.get(i);
 	        listener.databaseOpen(getDatabaseServer());	        
 	    }
 	}

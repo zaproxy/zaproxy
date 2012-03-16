@@ -17,9 +17,8 @@ public class FilenameExtensionFilter implements FilenameFilter {
 	public boolean accept(File dir, String name) {
 		if (ignoreCase) {
 			return name.toLowerCase().endsWith(ext.toLowerCase());
-		} else { 
-			return name.endsWith(ext);
 		}
+		return name.endsWith(ext);
 	}
 
 }

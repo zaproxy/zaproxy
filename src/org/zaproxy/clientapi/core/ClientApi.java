@@ -140,24 +140,24 @@ public class ClientApi {
 				}
 			}
 		}
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (reportAlerts.size() > 0) {
-			sb.append("Found " + reportAlerts.size() + " alerts\n");
+			sb.append("Found ").append(reportAlerts.size()).append(" alerts\n");
 			for (Alert alert: reportAlerts) {
-				sb.append("\t");
+				sb.append('\t');
 				sb.append(alert.toString());
-				sb.append("\n");
+				sb.append('\n');
 			}
 		}
 		if (requireAlerts != null && requireAlerts.size() > 0) {
 			if (sb.length() > 0) {
-				sb.append("\n");
+				sb.append('\n');
 			}
-			sb.append("Not found " + requireAlerts.size() + " alerts\n");
+			sb.append("Not found ").append(requireAlerts.size()).append(" alerts\n");
 			for (Alert alert: requireAlerts) {
-				sb.append("\t");
+				sb.append('\t');
 				sb.append(alert.toString());
-				sb.append("\n");
+				sb.append('\n');
 			}
 		}
 		if (sb.length() > 0) {
