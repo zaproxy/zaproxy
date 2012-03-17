@@ -19,11 +19,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Explicitly depreciated
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.encoder;
 
 import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
@@ -105,4 +107,8 @@ public class ExtensionEncoder extends ExtensionAdaptor {
     public boolean isDepreciated () {
     	return true;
     }
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
+	}
 }

@@ -17,6 +17,9 @@
  */
 package org.zaproxy.zap.extension.log4j;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
@@ -86,4 +89,22 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("log4j.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }

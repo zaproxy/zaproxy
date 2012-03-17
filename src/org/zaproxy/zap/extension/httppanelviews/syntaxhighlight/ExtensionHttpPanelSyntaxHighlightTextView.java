@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanelviews.syntaxhighlight;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
@@ -136,5 +137,9 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 		public Object getOptions() {
 			return null;
 		}
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
 	}
 }

@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanelviews.image;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.network.HttpMessage;
@@ -106,5 +107,9 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		}
 	}
 	
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
 }
 

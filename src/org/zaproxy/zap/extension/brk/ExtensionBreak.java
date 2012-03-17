@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
@@ -264,6 +266,25 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	@Override
 	public void sessionChanged(Session session)  {
+	}
+	
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("brk.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 	@Override

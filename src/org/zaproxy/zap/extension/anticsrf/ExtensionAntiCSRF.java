@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -201,5 +204,24 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("anticsrf.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

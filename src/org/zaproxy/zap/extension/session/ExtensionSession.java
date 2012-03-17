@@ -19,6 +19,10 @@
  */
 package org.zaproxy.zap.extension.session;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -30,9 +34,6 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
 	public static final String NAME = "ExtensionSession"; 
 	
 	private OptionsSessionPanel optionsSessionPanel = null;
-	// Implementation not yet completed!
-	//private PopupMenuGenerateSessionTokens popupMenuGenerateSessionTokens = null;
-	//private GenerateSessionTokensDialog gstDialog = null;
 	
 	public ExtensionSession() {
 		super();
@@ -51,7 +52,6 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
 
 	    if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsSessionPanel());
-	        //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuGenerateSessionTokens());
 	    }
 
 	}
@@ -79,34 +79,25 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
 		return this.getParam().getTokens().contains(name.toLowerCase());
 	}
 
-	/*
-	private PopupMenuGenerateSessionTokens getPopupMenuGenerateSessionTokens() {
-		if (popupMenuGenerateSessionTokens == null) {
-			popupMenuGenerateSessionTokens = new PopupMenuGenerateSessionTokens();
-			popupMenuGenerateSessionTokens.setExtension(this);
-		}
-		return popupMenuGenerateSessionTokens;
-	}
-
-	private GenerateSessionTokensDialog getGenerateSessionTokensDialog() {
-		if (this.gstDialog == null) {
-			this.gstDialog = new GenerateSessionTokensDialog();
-		}
-		return this.gstDialog;
-	}
-	
-	public void generateSessionTokens(HtmlParameterStats item) {
-		List<HttpMessage> msgs = item.getHttpMessages();
-		
-		if (msgs.size() > 0) {
-			this.getGenerateSessionTokensDialog().setSessionToken(item);
-			this.getGenerateSessionTokensDialog().setMessage(msgs.get(0));
-			this.getGenerateSessionTokensDialog().setVisible(true);
-		}
-	}
-	*/
-
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("session.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

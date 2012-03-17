@@ -19,9 +19,12 @@
  */
 package org.zaproxy.zap.extension.dynssl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyStore;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.security.SslCertificateService;
@@ -81,4 +84,22 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 		return params;
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("dynssl.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }

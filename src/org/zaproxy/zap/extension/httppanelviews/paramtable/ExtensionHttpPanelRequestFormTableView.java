@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import javax.swing.JComboBox;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.network.HtmlParameter;
@@ -96,5 +97,9 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 		protected HtmlParameter getDefaultHtmlParameter() {
 			return new HtmlParameter(HtmlParameter.Type.form, "", "");
 		}
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
 	}
 }

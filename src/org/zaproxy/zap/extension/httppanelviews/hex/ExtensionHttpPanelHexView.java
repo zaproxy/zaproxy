@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanelviews.hex;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
@@ -134,5 +135,9 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
 }
 

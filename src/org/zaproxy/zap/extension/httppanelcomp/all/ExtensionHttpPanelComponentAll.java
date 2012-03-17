@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanelcomp.all;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
@@ -67,5 +68,9 @@ public class ExtensionHttpPanelComponentAll extends ExtensionAdaptor {
 		}
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
 }
 

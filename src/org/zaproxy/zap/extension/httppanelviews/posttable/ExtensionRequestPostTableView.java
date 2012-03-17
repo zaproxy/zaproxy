@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanelviews.posttable;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
@@ -50,6 +51,10 @@ public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 		public Object getOptions() {
 			return RequestSplitComponent.ViewComponent.BODY;
 		}
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
 	}
 
 }

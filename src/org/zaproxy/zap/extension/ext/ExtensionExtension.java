@@ -19,18 +19,15 @@
  */
 package org.zaproxy.zap.extension.ext;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 
 public class ExtensionExtension extends ExtensionAdaptor {
 
-	/*
-	 * TODO For dev, not just this c;lass;)
-	 * Record ext state in config file
-	 * Disable exts on load based on config
-	 * Add descs for all used exts
-	 */
-	
 	public static final String NAME = "ExtensionExtension"; 
 	
 	private OptionsExtensionPanel optionsExceptionsPanel = null;
@@ -53,7 +50,7 @@ public class ExtensionExtension extends ExtensionAdaptor {
 	    }
 
 	}
-
+	
 	private OptionsExtensionPanel getOptionsExtensionPanel() {
 		if (optionsExceptionsPanel == null) {
 			optionsExceptionsPanel = new OptionsExtensionPanel(this);
@@ -64,6 +61,25 @@ public class ExtensionExtension extends ExtensionAdaptor {
 	@Override
 	public boolean isCore() {
 		return true;
+	}
+	
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("ext.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 }

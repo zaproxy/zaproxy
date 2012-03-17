@@ -27,6 +27,7 @@
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2012/03/03 Added ZAP homepage
 // ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method copyAllProperties.
+// ZAP: 2012/03/17 Issue 282 ZAP and PAROS team constants
 
 package org.parosproxy.paros;
 
@@ -57,7 +58,10 @@ public final class Constant {
 	// ZAP: rebrand
     public static final String PROGRAM_NAME     = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    public static final String ZAP_HOMEPAGE		= "http://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project";
+    public static final String ZAP_HOMEPAGE		= "http://www.owasp.org/index.php/ZAP";
+    public static final String ZAP_EXTENSIONS_PAGE		= "https://code.google.com/p/zap-extensions/";
+    public static final String ZAP_TEAM			= "ZAP Dev Team";
+    public static final String PAROS_TEAM		= "Chinotec Technologies";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag

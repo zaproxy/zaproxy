@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,9 +111,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	public PolicyPassiveScanPanel getPolicyPanel() {
 		if (policyPanel == null) {
     		policyPanel = new PolicyPassiveScanPanel();
-    		//policyModel = new PolicyPassiveScanTableModel();
-
-    		//policyPanel.setPassiveScanTableModel(policyModel);
 		}
 		return policyPanel;
 	}
@@ -185,5 +184,23 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	public void sessionAboutToChange(Session session) {
 		getPassiveScanThread().shutdown();
 		this.pst = null;
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("pscan.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

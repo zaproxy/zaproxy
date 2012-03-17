@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Set order
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.report;
 
@@ -149,5 +150,8 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	
 	
 
-	
-      }
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
+	}
+}

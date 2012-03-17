@@ -21,6 +21,7 @@
 // ZAP: 2011/11/20 Set order and name
 // ZAP: 2012/03/15 Added the method getProxyListenerOrder. Set the name of the 
 //      extension filter thread.
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.filter;
 
@@ -210,4 +211,8 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
         
     }
     
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
+	}
   }

@@ -1,5 +1,5 @@
 /*
- * Zed Attack Proxy (ZAP) and its related class files.
+* Zed Attack Proxy (ZAP) and its related class files.
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.help;
 
 import java.awt.Component;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.help.CSH;
@@ -208,4 +209,22 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		return helpButton;
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("help.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }

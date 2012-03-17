@@ -21,6 +21,7 @@
 // ZAP: 2011/11/20 Explicitly depreciated
 // ZAP: 2012/03/15 Although it is deprecated, changed the method search to use the 
 //      class StringBuilder instead of StringBuffer.
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.patternsearch;
 
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
@@ -165,4 +167,8 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
     public boolean isDepreciated () {
     	return true;
     }
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
+	}
 }

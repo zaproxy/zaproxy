@@ -17,6 +17,10 @@
  */
 package org.zaproxy.zap.extension.siterefresh;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 
@@ -68,4 +72,22 @@ public class ExtensionSitesRefresh extends ExtensionAdaptor {
 		
 	}
 
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("siterefresh.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }

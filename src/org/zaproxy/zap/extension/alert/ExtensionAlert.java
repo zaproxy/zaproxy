@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordScan;
@@ -447,4 +450,24 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     @Override
 	public void sessionAboutToChange(Session session) {
 	}
+
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("alerts.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
+
 }

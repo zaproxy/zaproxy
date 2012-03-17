@@ -20,9 +20,11 @@
  */
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2011/12/14 Support for extension dependencies
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,4 +167,9 @@ public abstract class ExtensionAdaptor implements Extension {
 	public boolean isCore() {
 		return false;
 	}
+	
+	public URL getURL () {
+		return null;
+	}
+
 }

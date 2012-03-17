@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -360,5 +362,23 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("ascan.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

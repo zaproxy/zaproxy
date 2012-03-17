@@ -19,9 +19,12 @@
  */
 package org.zaproxy.zap.extension.invoke;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -118,5 +121,23 @@ public class ExtensionInvoke extends ExtensionAdaptor {
             this.invokeMenus.add(pmi);
 		}
 		View.getSingleton().getPopupMenu().addMenu(confPopup);
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("invoke.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

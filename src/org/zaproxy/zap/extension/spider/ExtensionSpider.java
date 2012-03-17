@@ -23,6 +23,8 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -232,5 +234,23 @@ public class ExtensionSpider extends ExtensionAdaptor
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("spider.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

@@ -17,6 +17,9 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.swing.JMenuItem;
 
 import org.parosproxy.paros.Constant;
@@ -103,5 +106,24 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("api.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/03/10 Issue 279: Flag as a core extension 
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.option;
 
@@ -140,5 +141,9 @@ public class ExtensionOption extends ExtensionAdaptor {
 	public boolean isCore() {
 		// Really need this in order to configure basic functionality
 		return true;
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
 	}
 }

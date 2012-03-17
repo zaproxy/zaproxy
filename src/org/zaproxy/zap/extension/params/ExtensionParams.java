@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -32,6 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -463,5 +466,23 @@ public class ExtensionParams extends ExtensionAdaptor
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("params.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

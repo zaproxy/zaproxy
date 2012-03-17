@@ -24,6 +24,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -100,6 +102,24 @@ public class ExtensionCopy extends ExtensionAdaptor implements ClipboardOwner {
 	@Override
 	public void lostOwnership(Clipboard arg0, Transferable arg1) {
 		// Ignore
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("copy.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 }

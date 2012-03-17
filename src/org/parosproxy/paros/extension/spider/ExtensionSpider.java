@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/11/20 Explicitly depreciated
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.spider;
 
@@ -487,5 +488,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
 	}
 }  //  @jve:decl-index=0:

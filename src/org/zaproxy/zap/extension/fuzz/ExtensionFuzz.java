@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.Component;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -340,5 +342,24 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 
 	public Fuzzer getJBroFuzzer(String name) throws NoSuchFuzzerException {
 		return jbroFuzzDB.createFuzzer(jbroFuzzDB.getIdFromName(name), 1);
+	}
+	
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("fuzz.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

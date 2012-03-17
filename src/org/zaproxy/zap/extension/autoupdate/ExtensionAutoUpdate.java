@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.autoupdate;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.MessageFormat;
 
 import javax.swing.JMenuItem;
@@ -203,5 +205,24 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 
 	@Override
 	public void componentShown(ComponentEvent e) {
+	}
+
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("autoupdate.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

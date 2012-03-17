@@ -30,6 +30,7 @@
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/03/15 Changed the method getResendDialog to pass the configuration key
 //      to the ManualRequestEditorDialog.
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.history;
 
@@ -577,5 +578,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
 	}
 }

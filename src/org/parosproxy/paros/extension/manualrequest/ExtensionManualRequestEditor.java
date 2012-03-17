@@ -24,6 +24,7 @@
 // ZAP: 2012/03/15 Changed to reset the message of the ManualRequestEditorDialog  
 //      when a new session is created. Added the key configuration to the 
 //      ManualRequestEditorDialog.
+// ZAP: 2012/03/17 Issue 282 Added getAuthor()
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -120,6 +121,11 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 			manualRequestEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return manualRequestEditorDialog;
+	}
+
+	@Override
+	public String getAuthor() {
+		return Constant.PAROS_TEAM;
 	}
 
 	@Override
