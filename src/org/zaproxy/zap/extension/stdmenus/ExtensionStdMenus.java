@@ -17,6 +17,9 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -34,6 +37,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuShowInHistory popupMenuShowInHistory = null;
 	private PopupMenuShowInSites popupMenuShowInSites = null;
 	private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
+	// Still being developed
+	//private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
     private PopupMenuAlert popupMenuAlert = null;
 
 	public ExtensionStdMenus() {
@@ -59,6 +64,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
    			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(4));		// Both are index 4 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(4));		// on purpose ;)
 	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(5));
+	    	//extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(6));
 
 	    }
 	}
@@ -85,6 +91,18 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 		return popupMenuOpenUrlInBrowser;
 	}
 
+	/*
+	private PopupMenuShowResponseInBrowser getPopupMenuShowResponseInBrowser(int menuIndex) {
+		if (popupMenuShowResponseInBrowser == null) {
+			// TODO!
+			popupMenuShowResponseInBrowser = new PopupMenuShowResponseInBrowser(Constant.messages.getString("history.showresponse.popup"));
+			popupMenuShowResponseInBrowser.setMenuIndex(menuIndex);
+		}
+		return popupMenuShowResponseInBrowser;
+	}
+	*/
+	
+	
 	private PopupExcludeFromProxyMenu getPopupExcludeFromProxyMenu(int menuIndex) {
 		if (popupExcludeFromProxyMenu == null) {
 			popupExcludeFromProxyMenu = new PopupExcludeFromProxyMenu();
@@ -140,4 +158,23 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
         }
         return popupMenuAlert;
     }
+
+	@Override
+	public String getAuthor() {
+		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("stdexts.desc");
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }
