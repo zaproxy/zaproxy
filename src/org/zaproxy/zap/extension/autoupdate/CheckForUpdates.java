@@ -25,6 +25,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -57,9 +58,61 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 		return latestVersionName;
 	}
 	
+	private boolean isNewerVersion (String progVersionStr, String latestVersionStr) {
+		boolean newerVersion = false;
+		if (Constant.DEV_VERSION.equals(progVersionStr)) {
+			return false;
+		}
+		if (latestVersionStr != null && latestVersionStr.length() > 0) {
+	    	// Compare the versions
+	    	String [] progVersion = progVersionStr.split("\\.");
+	    	String [] latestVersion = latestVersionStr.split("\\.");
+	    	//boolean newerVersion = false;
+	    	for (int i = 0; i < progVersion.length; i++) {
+	    		if (Constant.ALPHA_VERSION.equals(progVersion[i]) ||
+	    				Constant.BETA_VERSION.equals(progVersion[i])) {
+	    			// Alpha and beta versions will only ever appear in the progVersion,
+	    			// everything has matched up to now so its a newer 'release' quality version
+	    			newerVersion = true;
+	    			break;
+	    		} else if (i < latestVersion.length) {
+    				int progElement;
+    				int latestElement;
+					try {
+						progElement = Integer.parseInt(progVersion[i]);
+						latestElement = Integer.parseInt(latestVersion[i]);
+						if (progVersion[i].equals(latestVersion[i])) {
+							// this element is the same, keep going
+							continue;
+						} else if (latestElement > progElement) {
+							// Previous elements were the same, latest element newer
+        					newerVersion = true;
+        					break;
+        				} else {
+							// Previous elements were the same, latest element older
+        					// This can happen for alpha & beta releases
+        					break;
+        				}
+					} catch (NumberFormatException e) {
+						logger.error(e.getMessage(), e);
+						//System.out.println("Error: " + e);
+	    			}
+	    		}
+	    	}
+	    	if (!newerVersion  && latestVersionStr.startsWith(progVersionStr) 
+	    			&& latestVersion.length > progVersion.length) {
+	    		// All matched up to the progVersion, but the latestVersion is longer and therefore newer
+				newerVersion = true;
+	    	}
+		}
+		return newerVersion;
+	}
+	
 	@Override
 	public void done() {
-		extension.checkComplete(latestVersionName);
+		extension.checkComplete(
+				this.isNewerVersion(Constant.PROGRAM_VERSION, latestVersionName), 
+				latestVersionName);
 	}
 
     private String getLatestVersionName() {
@@ -111,5 +164,39 @@ public class CheckForUpdates extends SwingWorker<String, String> {
         }
         return httpSender;
     }
+    
+	private void compareVersions (String progVersionStr, String latestVersionStr) {
+		if (this.isNewerVersion(progVersionStr, latestVersionStr)) {
+			System.out.println(progVersionStr + "\tis older than " + latestVersionStr);
+		} else {
+			System.out.println(progVersionStr + "\tis NOT older than " + latestVersionStr);
+		}
+	}
+    
+	public static void main(String[] args) throws Exception {
+		// Sanity tests ;)
+		CheckForUpdates cfu = new CheckForUpdates(null);
+		System.out.println("These should all be older:");
+		cfu.compareVersions("1.3.4", "1.4");
+		cfu.compareVersions("1.3.4", "2.0");
+		cfu.compareVersions("1.4", "1.4.1");
+		cfu.compareVersions("1.4.1", "1.4.2");
+		cfu.compareVersions("1.4.2", "1.4.11");
+		cfu.compareVersions("1.4.alpha.1", "1.4");
+		cfu.compareVersions("1.4.beta.1", "1.5");
+		System.out.println();
+		System.out.println("These should all NOT be older:");
+		cfu.compareVersions("1.4", "1.4");
+		cfu.compareVersions("1.4", "1.3.4");
+		cfu.compareVersions("1.4.2", "1.4.1");
+		cfu.compareVersions("1.4.20", "1.4.11");
+		cfu.compareVersions("1.4.alpha.1", "1.3.4");
+		cfu.compareVersions(Constant.DEV_VERSION, "1.5");
+		System.out.println();
+		System.out.println("These should cause errors:");
+		cfu.compareVersions("1.4.1", "1.4.beta.2");
+		cfu.compareVersions("1.4.theta.1", "1.4.3");
+	}
+
 
 }

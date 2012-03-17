@@ -96,31 +96,30 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 		return menuItemCheckUpdate;
 	}
 	
-	public void checkComplete (String latestVersionName) {
+	public void checkComplete (boolean newerVersion, String latestVersionName) {
 		checkForUpdates = null;
 
         if (waitDialog != null) {
             waitDialog.setVisible(false);
             waitDialog = null;
         }
-        // based on simple String compare, works in many cases
-    	// breaks, in cases of 1.2.13 vs. 1.2.1
         if (cancelled) {
         	// Dont report anything to the user
         } else if (latestVersionName.equals("")) {
+        	// Failed to get the latest version
         	if (isManual) {
         		getView().showWarningDialog(
     				Constant.messages.getString("cfu.check.failed"));
         	}
-        } else if (Constant.PROGRAM_VERSION.compareTo(latestVersionName) >= 0) {
+        } else if (newerVersion) {
+            	getView().showMessageDialog(MessageFormat.format(
+            			Constant.messages.getString("cfu.check.newer"),
+            			latestVersionName));
+    	} else {
         	if (isManual) {
         		getView().showMessageDialog(
         			Constant.messages.getString("cfu.check.latest"));
         	}
-        } else {
-        	getView().showMessageDialog(MessageFormat.format(
-        			Constant.messages.getString("cfu.check.newer"),
-        			latestVersionName));
         }
 	}
 	
