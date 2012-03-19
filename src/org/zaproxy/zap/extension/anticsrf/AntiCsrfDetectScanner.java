@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.htmlparser.jericho.Element;
@@ -28,6 +27,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.Plugin.Level;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
@@ -36,8 +36,6 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
 	private Logger logger = Logger.getLogger(this.getClass());
-	private List<String> tokenNames = new ArrayList<String>();
-	private AntiCsrfParam param = null;
 
 	@Override
 	public void setParent (PassiveScanThread parent) {
@@ -107,28 +105,10 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 	}
 
 	public List<String> getTokenNames() {
-		if (tokenNames.size() == 0) {
-			AntiCsrfParam param = this.getParam();
-			if (param != null) {
-				tokenNames.addAll(param.getTokens());
-			}
-		}
-		return tokenNames;
+		// Always get the latest set of token names
+		return ((ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME)).getAntiCsrfTokenNames();
 	}
 	
-	private AntiCsrfParam getParam() {
-		if (param == null) {
-			ExtensionAntiCSRF extAntiCSRF = 
-				(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
-			param = extAntiCSRF.getParam();
-		}
-		return param;
-	}
-
-	public void setTokenNames(List<String> tokenNames) {
-		this.tokenNames = tokenNames;
-	}
-
 	@Override
 	public boolean isEnabled() {
 		// Always enabled
@@ -137,6 +117,17 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	@Override
 	public void setEnabled(boolean enabled) {
+		// Ignore
+	}
+
+	@Override
+	public Level getLevel() {
+		// Always this level
+		return Level.MEDIUM;
+	}
+
+	@Override
+	public void setLevel(Level level) {
 		// Ignore
 	}
 

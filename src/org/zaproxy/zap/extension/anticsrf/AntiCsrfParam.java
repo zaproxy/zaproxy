@@ -69,11 +69,11 @@ public class AntiCsrfParam extends AbstractParam {
 		getConfig().setProperty(TOKENS, tokens);
 	}
 
-	public void addToken(String param) {
+	protected void addToken(String param) {
 		this.tokens.add(param);
 	}
 
-	public void removeToken(String name) {
+	protected void removeToken(String name) {
 		this.tokens.remove(name);
 	}
 	

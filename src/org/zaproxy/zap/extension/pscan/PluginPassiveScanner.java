@@ -20,11 +20,14 @@
 package org.zaproxy.zap.extension.pscan;
 
 import org.apache.commons.configuration.Configuration;
+import org.parosproxy.paros.core.scanner.Plugin.Level;
 
 
 public abstract class PluginPassiveScanner implements PassiveScanner {
 
 	private boolean enabled = true;
+	private Level level = Level.DEFAULT;
+	private Level defaultLevel = Level.MEDIUM;
 	private Configuration config = null;
 
 	@Override
@@ -50,4 +53,22 @@ public abstract class PluginPassiveScanner implements PassiveScanner {
 		this.getConfig().setProperty("pscans." + getClass().getCanonicalName() + ".enabled", this.isEnabled());
 	}
 
+	public Level getLevel() {
+		if (Level.DEFAULT.equals(level)) {
+			return defaultLevel;
+		}
+		return level;
+	}
+	
+	public Level getLevel(boolean incDefault) {
+		return level;
+	}
+	
+	public void setLevel(Level level) {
+		this.level = level;
+	}
+
+	public void setDefaultLevel(Level level) {
+		this.defaultLevel = level;
+	}
 }

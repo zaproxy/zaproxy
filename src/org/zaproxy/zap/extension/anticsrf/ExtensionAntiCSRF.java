@@ -87,8 +87,20 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return optionsAntiCsrfPanel;
 	}
 	
-	public AntiCsrfParam getParam() {
+	protected AntiCsrfParam getParam() {
         return Model.getSingleton().getOptionsParam().getAntiCsrfParam();
+	}
+	
+	public List<String> getAntiCsrfTokenNames() {
+		return this.getParam().getTokens();
+	}
+	
+	public void addAntiCsrfTokenName(String token) {
+		this.getParam().addToken(token);
+	}
+
+	public void removeAntiCsrfTokenName(String token) {
+		this.getParam().removeToken(token);
 	}
 
 

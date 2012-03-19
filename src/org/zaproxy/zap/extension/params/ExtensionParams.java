@@ -382,14 +382,13 @@ public class ExtensionParams extends ExtensionAdaptor
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
 		if (extAntiCSRF != null && item != null) {
-			extAntiCSRF.getParam().addToken(item.getName());
+			extAntiCSRF.addAntiCsrfTokenName(item.getName());
 			item.addFlag(HtmlParameter.Flags.anticsrf.name());
 			// Repaint so change shows up
 			this.getParamsPanel().getParamsTable().repaint();
 
 			// Dont think we need to do this... at least until rescan option implemented ...
 			//Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("options.acsrf.title"));
-			
 			
 		}
 
@@ -402,7 +401,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
 		if (extAntiCSRF != null && item != null) {
-			extAntiCSRF.getParam().removeToken(item.getName());
+			extAntiCSRF.removeAntiCsrfTokenName(item.getName());
 			item.removeFlag(HtmlParameter.Flags.anticsrf.name());
 			// Repaint so change shows up
 			this.getParamsPanel().getParamsTable().repaint();

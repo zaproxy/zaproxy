@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.params;
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.Plugin.Level;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
@@ -66,6 +67,17 @@ public class ParamScanner implements PassiveScanner {
 	@Override
 	public void setEnabled(boolean enabled) {
 		// Ignore
+	}
+
+	@Override
+	public Level getLevel() {
+		// Fixed
+		return Level.MEDIUM;
+	}
+
+	@Override
+	public void setLevel(Level level) {
+		// Always ignore
 	}
 
 }
