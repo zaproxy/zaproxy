@@ -109,7 +109,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		
 		setHyperlinksEnabled(false);
 
-		setAntiAliasingEnabled(false);
+		setAntiAliasingEnabled(true);
 
 		setLineWrap(true);
 		

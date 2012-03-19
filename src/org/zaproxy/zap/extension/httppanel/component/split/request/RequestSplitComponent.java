@@ -88,6 +88,7 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 		
 		splitMain = new JSplitPane();
 		splitMain.setDividerSize(3);
+		splitMain.setResizeWeight(0.5d);
 		splitMain.setContinuousLayout(false);
 		splitMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		

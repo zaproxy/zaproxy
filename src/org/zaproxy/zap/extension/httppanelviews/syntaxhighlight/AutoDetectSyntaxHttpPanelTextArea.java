@@ -70,6 +70,6 @@ abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxH
 	public void saveConfiguration(String key, FileConfiguration fileConfiguration) {
 		super.saveConfiguration(key, fileConfiguration);
 		
-		fileConfiguration.setProperty(key + "syntax." + AUTO_DETECT, isAutoDetectSyntax);
+		fileConfiguration.setProperty(key + "syntax." + AUTO_DETECT, Boolean.valueOf(isAutoDetectSyntax));
 	}
 }

@@ -613,6 +613,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			
 			final JSplitPane splitPane = new JSplitPane(orientation, tabbedPaneRequest, tabbedPaneResponse);
 			splitPane.setDividerSize(3);
+			splitPane.setResizeWeight(0.5d);
 			splitPane.setContinuousLayout(false);
 			splitPane.setDoubleBuffered(true);
 			
