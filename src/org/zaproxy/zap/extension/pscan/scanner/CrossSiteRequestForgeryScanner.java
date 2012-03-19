@@ -69,7 +69,7 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner impleme
 		}
 
 		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
-		List<String> tokenNames = extAntiCSRF.getParam().getTokens();
+		List<String> tokenNames = extAntiCSRF.getAntiCsrfTokenNames();
 		boolean foundCsrfToken = false;
 		
 		if (formElements != null && formElements.size() > 0) {

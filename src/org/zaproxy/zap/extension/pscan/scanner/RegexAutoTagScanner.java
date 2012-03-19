@@ -29,8 +29,9 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
-public class RegexAutoTagScanner implements PassiveScanner {
+public class RegexAutoTagScanner extends PluginPassiveScanner implements PassiveScanner {
 
     // protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
     protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE;
@@ -42,7 +43,6 @@ public class RegexAutoTagScanner implements PassiveScanner {
 	private String requestHeaderRegex = null;
 	private String responseHeaderRegex = null;
 	private String responseBodyRegex = null;
-	private boolean enabled = true;
 
 	private Pattern requestUrlPattern = null;
 	private Pattern requestHeaderPattern = null;
@@ -77,11 +77,11 @@ public class RegexAutoTagScanner implements PassiveScanner {
 		this.type = type;
 	}
 
-	public String getConfig() {
+	public String getConf() {
 		return config;
 	}
 
-	public void setConfig(String config) {
+	public void setConf(String config) {
 		this.config = config;
 	}
 
@@ -104,7 +104,6 @@ public class RegexAutoTagScanner implements PassiveScanner {
 		this.setResponseBodyRegex(responseBodyRegex);
 		this.type = type;
 		this.config = config;
-		this.enabled = enabled;
 	}
 
 	public String getRequestUrlRegex() {
@@ -161,7 +160,7 @@ public class RegexAutoTagScanner implements PassiveScanner {
 	}
 
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		if (! enabled) {
+		if (! this.isEnabled()) {
 			return;
 		}
 		if (getRequestHeaderPattern() != null) {
@@ -169,7 +168,7 @@ public class RegexAutoTagScanner implements PassiveScanner {
 					msg.getRequestHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConfig());
+				parent.addTag(id, this.getConf());
 				return;
 			}
 		}
@@ -178,7 +177,7 @@ public class RegexAutoTagScanner implements PassiveScanner {
 					msg.getRequestHeader().getURI().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConfig());
+				parent.addTag(id, this.getConf());
 				return;
 			}
 		}
@@ -188,17 +187,9 @@ public class RegexAutoTagScanner implements PassiveScanner {
 		return null;
 	}
 
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (! enabled) {
+		if (! this.isEnabled()) {
 			return;
 		}
 		if (getResponseHeaderPattern() != null) {
@@ -206,7 +197,7 @@ public class RegexAutoTagScanner implements PassiveScanner {
 					msg.getResponseHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConfig());
+				parent.addTag(id, this.getConf());
 				return;
 			}
 		}
@@ -215,7 +206,7 @@ public class RegexAutoTagScanner implements PassiveScanner {
 					msg.getResponseBody().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConfig());
+				parent.addTag(id, this.getConf());
 				return;
 			}
 		}
