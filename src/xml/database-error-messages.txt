@@ -29,4 +29,3 @@ Warning: pg_connect()
 Supplied argument is not a valid PostgreSQL result
 unexpected token "END-OF-STATEMENT"
 internal error [IBM][CLI Driver][DB2/6000]
-         
