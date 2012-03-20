@@ -37,7 +37,7 @@ public class HttpResponseHeader extends HttpHeader {
 	private static final String _CONTENT_TYPE_IMAGE = "image";
 	private static final String _CONTENT_TYPE_TEXT = "text";
 	private static final String _CONTENT_TYPE_HTML = "html";
-	private static final String _CONTENT_TYPE_JAVASCRIPT = "text/javasript";
+	private static final String _CONTENT_TYPE_JAVASCRIPT = "javascript";
 	
 	
 	static final Pattern patternStatusLine
@@ -159,9 +159,7 @@ public class HttpResponseHeader extends HttpHeader {
 				return true;
 			}
 		}
-
 		return false;
-
 	}
 
 	@Override
@@ -175,9 +173,7 @@ public class HttpResponseHeader extends HttpHeader {
 				return true;
 			}
 		}
-
 		return false;
-
 	}
 	
 	public boolean isJavaScript() {
@@ -188,9 +184,7 @@ public class HttpResponseHeader extends HttpHeader {
 				return true;
 			}
 		}
-
 		return false;
-
 	}
 
 	public static boolean isStatusLine(String data) {
@@ -224,7 +218,6 @@ public class HttpResponseHeader extends HttpHeader {
 				set.add(new HtmlParameter(it.next()));
 			}
     	}
-    	
     	return set;
 	}
 
