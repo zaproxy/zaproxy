@@ -31,11 +31,11 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-public class InformationDisclosureDebugErrors extends PluginPassiveScanner implements PassiveScanner {
+public class InformationDisclosureDebugErrors extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
-	private String debugErrorFile = "xml/debug-error-messages.txt";
-	private Logger logger = Logger.getLogger(this.getClass());
+	private static final String debugErrorFile = "xml/debug-error-messages.txt";
+	private static final Logger logger = Logger.getLogger(InformationDisclosureDebugErrors.class.getClass());
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
@@ -46,7 +46,7 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
 			String parameter;
-			if ((parameter = DoesRequestContainsDebugErrorMessage(msg.getResponseBody())) != null) {
+			if ((parameter = doesRequestContainsDebugErrorMessage(msg.getResponseBody())) != null) {
 				this.raiseAlert(msg, id, parameter);
 			}
 		}
@@ -68,11 +68,11 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
     	parent.raiseAlert(id, alert);
 	}
 	
-	private String DoesRequestContainsDebugErrorMessage (HttpBody body) {
+	private String doesRequestContainsDebugErrorMessage (HttpBody body) {
 		String line = null;
-		
+		BufferedReader reader = null;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(debugErrorFile));
+			reader = new BufferedReader(new FileReader(debugErrorFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
 					reader.close();
@@ -80,7 +80,12 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner imple
 				}
 			}
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading debug error file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading debug error file. Error: " + e.getMessage());
+		}
+		try {
+			reader.close();
+		} catch (IOException e) {
+			logger.debug("Error on closing the file reader. Error: " + e.getMessage());
 		}
 		return null;
 	}
