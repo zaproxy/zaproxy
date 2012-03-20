@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -46,6 +47,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	private OptionsPassiveScan optionsPassiveScan = null;
 	private PolicyPassiveScanPanel policyPanel = null;
 	private PassiveScanThread pst = null;
+	
+	private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
 	
 	public ExtensionPassiveScan() {
 		super();
@@ -69,11 +72,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	}
 	
 	private void addPassiveScanner (PluginPassiveScanner scanner) {
-		FileConfiguration config = this.getModel().getOptionsParam().getConfig();
-		scanner.setConfig(config);
+		try {
+			FileConfiguration config = this.getModel().getOptionsParam().getConfig();
+			scanner.setConfig(config);
 
-		scannerList.add(scanner);
-		getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+			scannerList.add(scanner);
+			getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+			logger.info("loaded passive scan rule: " + scanner.getName());
+		} catch (Exception e) {
+			logger.error("Failed to load passive scanner " + scanner.getName(), e);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
