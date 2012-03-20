@@ -284,13 +284,17 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         tree.recalcAlertCounts();
         hrefs = new ArrayList<HistoryReference>();
 
+    	if (session == null) {
+    		// Null session indicated we're sutting down
+    		return;
+    	}
+
         try {
             refreshAlert(session);
             // ZAP: this prevent the UI getting corrupted
             tree.nodeStructureChanged(root);
         } catch (SQLException e) {
-            // ZAP: Print stack trace to Output tab
-            getView().getOutputPanel().append(e);
+            logger.error(e.getMessage(), e);
         }
 
     }
