@@ -34,24 +34,24 @@ import org.zaproxy.zap.extension.pscan.PassiveScanner;
 public class InformationDisclosureInURL extends PluginPassiveScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
-	private String URLSensitiveInformationFile = "xml/URL-information-disclosure-messages.txt";
+	private String urlSensitiveInformationFile = "xml/URL-information-disclosure-messages.txt";
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
 		if (msg.getRequestHeader().getURI().toString().indexOf("?") > 0) {
 			String parameter;
-			if ((parameter = DoesURLContainsSensitiveInformation(msg.getRequestHeader().getURI().toString())) != null) {
-				this.raiseAlert(msg, id, parameter);
+			if ((parameter = doesURLContainsSensitiveInformation(msg.getRequestHeader().getURI().toString())) != null) {
+				this.raiseAlert(msg, id, "the URL contains potentially sensitive information", parameter);
 			}
-			if (isCreditCard(msg.getRequestHeader().getURI().toString())) {
-				this.raiseAlert(msg, id, "the URL contains credit card informations");
+			if ((parameter = isCreditCard(msg.getRequestHeader().getURI().toString())) != null) {
+				this.raiseAlert(msg, id, "the URL contains credit card information", parameter);
 			}
-			if (isEmailAddress(msg.getRequestHeader().getURI().toString())) {
-				this.raiseAlert(msg, id, "the URL contains email address(es)");
+			if ((parameter = isEmailAddress(msg.getRequestHeader().getURI().toString())) != null) {
+				this.raiseAlert(msg, id, "the URL contains email address(es)", parameter);
 			}
-			if (isUsSSN(msg.getRequestHeader().getURI().toString())) {
-				this.raiseAlert(msg, id, "the URL contains US Social Security Number(s)");
+			if ((parameter = isUsSSN(msg.getRequestHeader().getURI().toString())) != null) {
+				this.raiseAlert(msg, id, "the URL contains US Social Security Number(s)", parameter);
 			}
 		}
 	}
@@ -61,14 +61,14 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 		
 	}
 	
-	private void raiseAlert(HttpMessage msg, int id, String infoDisclosureInURL) {
+	private void raiseAlert(HttpMessage msg, int id, String param, String other) {
 		Alert alert = new Alert(getId(), Alert.RISK_INFO, Alert.WARNING, 
 		    	getName());
 		    	alert.setDetail(
 		    			"The request appeared to contain sensitive information leaked in the URL. This can violate PCI and most organizational compliance policies. You can configure the list of strings for this check to add or remove values specific to your environment", 
 		    	    msg.getRequestHeader().getURI().toString(),
-		    	    infoDisclosureInURL,
-		    	    "", 
+		    	    param,
+		    	    other, 
 		    	    "",
 		    	    "Do not pass sensitive information in URI's", 
 		            "", 
@@ -77,11 +77,12 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
     	parent.raiseAlert(id, alert);
 	}
 	
-	private String DoesURLContainsSensitiveInformation (String URL) {
+	private String doesURLContainsSensitiveInformation (String URL) {
 		String line = null;
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
+			// TODO cache this :)
+			BufferedReader reader = new BufferedReader(new FileReader(urlSensitiveInformationFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && URL.toLowerCase().contains(line.toLowerCase())) {
 					reader.close();
@@ -108,31 +109,64 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 		return 10024;
 	}
 	
-	private boolean isEmailAddress(String emailAddress) {
+	private String isEmailAddress(String emailAddress) {
 		Pattern emailAddressPattern = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+<\\.[A-Z]{2,4}\\b");
 		Matcher matcher = emailAddressPattern.matcher(emailAddress);
 		if (matcher.find()) {
-			return true;
+			return matcher.group();
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean isCreditCard(String creditCard) {
+	private String isCreditCard(String creditCard) {
 		Pattern creditCardPattern = Pattern.compile("\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})\\b");
 		Matcher matcher = creditCardPattern.matcher(creditCard);
 		if (matcher.find()) {
-			return true;
+			return matcher.group();
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean isUsSSN(String usSSN) {
+	private String isUsSSN(String usSSN) {
 		Pattern usSSNPattern = Pattern.compile("\\b[0-9]{3}-[0-9]{2}-[0-9]{4}\\b");
 		Matcher matcher = usSSNPattern.matcher(usSSN);
 		if (matcher.find()){
-			return true;
+			return matcher.group();
 		}
-		return false;
+		return null;
 	}
+	
+	private static void testUrl (String url) {
+		InformationDisclosureInURL idiu = new InformationDisclosureInURL();
+		System.out.println("Test URL: " + url);
+		if (idiu.doesURLContainsSensitiveInformation(url) != null) {
+			System.out.println(" contains sensitive info: " + idiu.doesURLContainsSensitiveInformation(url));
+		}
+		if (idiu.isCreditCard(url) != null) {
+			System.out.println(" contains credit card: " + idiu.isCreditCard(url));
+		}
+		if (idiu.isEmailAddress(url) != null) {
+			System.out.println(" contains email addr: " + idiu.isEmailAddress(url));
+		}
+		if (idiu.isUsSSN(url) != null) {
+			System.out.println(" contains SSN: " + idiu.isUsSSN(url));
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		System.out.println("These should pass:");
+		testUrl("http://www.google.com");
+		testUrl("http://www.google.com/this/should/be/safe");
+
+		System.out.println("These should fail:");
+		testUrl("http://www.google.com/aaa?email=test@test.com");
+		testUrl("http://www.google.com/bbb?aaa=bbb&email=test@test.com");
+		testUrl("http://www.google.com/ccc?user=tester");
+		testUrl("http://www.google.com/ddd?ssn=987-65-4320");
+		testUrl("http://www.google.com/eee?ccn=378282246310005");
+		
+		
+	}
+
 
 }
