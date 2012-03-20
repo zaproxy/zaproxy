@@ -27,7 +27,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-public class XFrameOptionScanner extends PluginPassiveScanner implements PassiveScanner  {
+public class XFrameOptionScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	
@@ -38,7 +38,7 @@ public class XFrameOptionScanner extends PluginPassiveScanner implements Passive
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText() && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode())){
+		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()){
 			Vector<String> xFrameOption = msg.getResponseHeader().getHeaders(HttpHeader.X_FRAME_OPTION);
 			if (xFrameOption != null) {
 				for (String xFrameOptionParam : xFrameOption) {
@@ -65,8 +65,8 @@ public class XFrameOptionScanner extends PluginPassiveScanner implements Passive
 		    	    xFrameOption,
 		    	    "", 
 		    	    "",
-		    	    "Most modern Web browsers support the X-Frame-Options HTTP header, ensure it's set on all web pages returned by your site", 
-		            "", 
+		    	    "Most modern Web browsers support the X-Frame-Options HTTP header, ensure it's set on all web pages returned by your site (if you expect the page to be framed only by pages on your server (e.g. it's part of a FRAMESET) then you'll want to use SAMEORIGIN, otherwise if you never expect the page to be framed, you should use DENY.",
+		            "http://blogs.msdn.com/b/ieinternals/archive/2010/03/30/combating-clickjacking-with-x-frame-options.aspx?Redirected=true", 
 		            msg);
 	
     	parent.raiseAlert(id, alert);
