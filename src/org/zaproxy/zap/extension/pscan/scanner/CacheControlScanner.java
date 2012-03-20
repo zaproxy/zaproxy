@@ -29,7 +29,7 @@ import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 
-public class CacheControlScanner extends PluginPassiveScanner implements PassiveScanner  {
+public class CacheControlScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	
