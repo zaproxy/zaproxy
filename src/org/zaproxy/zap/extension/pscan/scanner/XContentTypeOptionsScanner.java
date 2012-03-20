@@ -8,12 +8,12 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.parosproxy.paros.network.HttpUserAgent;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
+import org.zaproxy.zap.utils.HttpUserAgent;
 
-public class XContentTypeOptionsScanner  extends PluginPassiveScanner implements PassiveScanner {
+public class XContentTypeOptionsScanner  extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	
@@ -25,7 +25,7 @@ public class XContentTypeOptionsScanner  extends PluginPassiveScanner implements
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode()) && (HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.InternetExplorer) || HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.Chrome))) {
+		if (msg.getResponseBody().length() > 0 && (HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.InternetExplorer) || HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.Chrome))) {
 			Vector<String> xContentTypeOptions = msg.getResponseHeader().getHeaders(HttpHeader.X_CONTENT_TYPE_OPTIONS);
 			if (xContentTypeOptions == null) {
 				this.raiseAlert(msg, id, "");
