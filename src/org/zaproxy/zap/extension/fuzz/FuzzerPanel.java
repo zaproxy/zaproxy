@@ -523,16 +523,18 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		while (enumeration.hasMoreElements()) {
 			HttpMessage msg = enumeration.nextElement();
 			if (msg != null && msg.getRequestBody() != null) {
-	            matcher = pattern.matcher(msg.getResponseBody().toString());
-	            if (matcher.find()) {
-	            	if (! inverse) {
-	            		results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
-	            			pattern.toString(), matcher.group()));
-	            	}
-	            } else if (inverse) {
-            		results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, 
-	            			pattern.toString(), matcher.group()));
-	            }
+				matcher = pattern.matcher(msg.getResponseBody().toString());
+				if (inverse) {
+					if (! matcher.find()) {
+						results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
+					}
+				} else {
+					while (matcher.find()) {
+						results.add(
+								new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(), 
+										new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
+					}
+				}
 			}
 		}
 		return results;
