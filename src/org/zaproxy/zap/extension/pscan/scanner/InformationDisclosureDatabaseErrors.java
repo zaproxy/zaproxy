@@ -29,13 +29,12 @@ import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	private static final String databaseErrorFile = "xml/database-error-messages.txt";
-	private static final Logger logger = Logger.getLogger(InformationDisclosureDatabaseErrors.class.getClass());
+	private static final Logger logger = Logger.getLogger(InformationDisclosureDatabaseErrors.class);
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
