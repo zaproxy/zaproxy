@@ -27,7 +27,7 @@ import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
-public class ContentTypeMissingScanner extends PluginPassiveScanner implements PassiveScanner {
+public class ContentTypeMissingScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	
@@ -39,17 +39,17 @@ public class ContentTypeMissingScanner extends PluginPassiveScanner implements P
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode())) {
+		if (msg.getResponseBody().length() > 0) {
 			Vector<String> contentType = msg.getResponseHeader().getHeaders(HttpHeader.CONTENT_TYPE);
-			if (contentType != null) {
-				for (String contentTypeDirective : contentType) {
-					if (contentTypeDirective.isEmpty()) {
-						this.raiseAlert(msg, id, contentTypeDirective, false);
+				if (contentType != null) {
+					for (String contentTypeDirective : contentType) {
+						if (contentTypeDirective.isEmpty()) {
+							this.raiseAlert(msg, id, contentTypeDirective, false);
+						}
 					}
+				} else {
+					this.raiseAlert(msg, id, "content type missing", false);
 				}
-			} else if (contentType == null) {
-				this.raiseAlert(msg, id, "", true);
-			}
 		}
 	}
 		
