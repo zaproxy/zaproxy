@@ -25,7 +25,7 @@ public class XContentTypeOptionsScanner  extends PluginPassiveScanner {
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && (HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.InternetExplorer) || HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)).equals(HttpUserAgent.Chrome))) {
+		if (msg.getResponseBody().length() > 0) {
 			Vector<String> xContentTypeOptions = msg.getResponseHeader().getHeaders(HttpHeader.X_CONTENT_TYPE_OPTIONS);
 			if (xContentTypeOptions == null) {
 				this.raiseAlert(msg, id, "");
