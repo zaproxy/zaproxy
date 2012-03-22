@@ -47,7 +47,7 @@
 
 		<mkdir dir="${build}" />
 	</target>
-
+	
 	<target name="compile" depends="init" description="compile the source ">
 		<echo message="Compiling the source..." />
 		<!-- Compile the java code from ${src} into ${build} -->
@@ -86,6 +86,9 @@
 		</copy>
 		<copy todir="${dist}/filter">
 			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
+		</copy>
+		<copy todir="${dist}/fuzzers">
+			<fileset dir="${src}/fuzzers" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/plugin">
 			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
@@ -128,6 +131,8 @@
 		</chmod>
 
 		<!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
+
+		<copy file="${src}/resource/zap.ico" todir="${dist}"/>
 
 		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
 			<!--classpath refid="dist.classpath" /-->
