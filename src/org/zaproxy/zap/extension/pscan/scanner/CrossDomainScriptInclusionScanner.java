@@ -23,13 +23,11 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 
-public class CrossDomainScriptInclusionScanner  extends PluginPassiveScanner implements PassiveScanner {
+public class CrossDomainScriptInclusionScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	
@@ -40,12 +38,12 @@ public class CrossDomainScriptInclusionScanner  extends PluginPassiveScanner imp
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText() && HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode())){
+		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()){
 			List<Element> sourceElements = source.getAllElements(HTMLElementName.SCRIPT);
 			if (sourceElements != null) {
 				for (Element sourceElement : sourceElements) {
 					String src = sourceElement.getAttributeValue("src");
-						if (src != null && !isScriptFromOtherDomain(msg.getRequestHeader().getHostName(), src)) {
+						if (src != null && isScriptFromOtherDomain(msg.getRequestHeader().getHostName(), src)) {
 							this.raiseAlert(msg, id, src);
 						}	
 				}	
@@ -85,7 +83,7 @@ public class CrossDomainScriptInclusionScanner  extends PluginPassiveScanner imp
 
 	private boolean isScriptFromOtherDomain (String host, String scriptURL){
 		boolean result = false;
-		if(scriptURL.toLowerCase().contains(host.toLowerCase()) && !scriptURL.startsWith("/")){
+		if(!scriptURL.toLowerCase().startsWith(host.toLowerCase()) && !scriptURL.startsWith("/")){
 			result = true;
 		}
 		return result;
