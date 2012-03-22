@@ -31,11 +31,11 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner implements PassiveScanner  {
+public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
-	private String databaseErrorFile = "xml/database-error-messages.txt";
-	private Logger logger = Logger.getLogger(this.getClass());
+	private static final String databaseErrorFile = "xml/database-error-messages.txt";
+	private static final Logger logger = Logger.getLogger(InformationDisclosureDatabaseErrors.class.getClass());
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
@@ -46,7 +46,7 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
 			String parameter;
-			if ((parameter = DoesRequestContainsDBErrorMessage(msg.getResponseBody())) != null) {
+			if ((parameter = doesRequestContainsDBErrorMessage(msg.getResponseBody())) != null) {
 				this.raiseAlert(msg, id, parameter);
 			}
 		}
@@ -68,11 +68,11 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
     	parent.raiseAlert(id, alert);
 	}
 	
-	private String DoesRequestContainsDBErrorMessage (HttpBody body) {
+	private String doesRequestContainsDBErrorMessage (HttpBody body) {
 		String line = null;
-		
+		BufferedReader reader = null;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(databaseErrorFile));
+			reader = new BufferedReader(new FileReader(databaseErrorFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
 					reader.close();
@@ -80,7 +80,16 @@ public class InformationDisclosureDatabaseErrors extends PluginPassiveScanner im
 				}
 			}
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading database error file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading database error file. Error: " + e.getMessage());
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();			
+				}
+				catch (IOException e) {
+					logger.debug("Error on closing the file reader. Error: " + e.getMessage());
+				}
+			}
 		}
 		return null;
 	}
