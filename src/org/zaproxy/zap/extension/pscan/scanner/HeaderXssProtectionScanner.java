@@ -44,7 +44,7 @@ public class HeaderXssProtectionScanner extends PluginPassiveScanner {
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText() && HttpUserAgent.InternetExplorer.equals(HttpUserAgent.getBrowser(msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT)))){
+		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()){
 			Vector<String> xssHeaderProtection = msg.getResponseHeader().getHeaders(HttpHeader.X_XSS_PROTECTION);
 			if (xssHeaderProtection != null) {
 				for (String xssHeaderProtectionParam : xssHeaderProtection) {
