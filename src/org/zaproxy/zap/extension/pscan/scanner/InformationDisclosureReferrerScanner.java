@@ -31,22 +31,21 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
-public class InformationDisclosureReferrerScanner extends PluginPassiveScanner implements PassiveScanner {
+public class InformationDisclosureReferrerScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
-	private String URLSensitiveInformationFile = "xml/URL-information-disclosure-messages.txt";
-	private Logger logger = Logger.getLogger(this.getClass());
+	private static final String URLSensitiveInformationFile = "xml/URL-information-disclosure-messages.txt";
+	private static final Logger logger = Logger.getLogger(InformationDisclosureReferrerScanner.class);
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		if (!isRequestedURLSameDomainAsHTTPReferrer(msg.getRequestHeader().getHostName(), msg.getRequestHeader().getHeader(HttpHeader.REFERER))) {
+		if (msg.getRequestHeader().getHeader(HttpHeader.REFERER)!= null && !isRequestedURLSameDomainAsHTTPReferrer(msg.getRequestHeader().getHostName(), msg.getRequestHeader().getHeader(HttpHeader.REFERER))) {
 			Vector<String> referrer = msg.getRequestHeader().getHeaders(HttpHeader.REFERER);
 			if (referrer.indexOf("?") > 0) {
 				String parameter;
-				if ((parameter = DoesURLContainsSensitiveInformation(referrer.toString())) != null) {
+				if ((parameter = doesURLContainsSensitiveInformation(referrer.toString())) != null) {
 					this.raiseAlert(msg, id, parameter);
 				}
 				if (isCreditCard(msg.getRequestHeader().getURI().toString())) {
@@ -64,7 +63,7 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner i
 	
 	private boolean isRequestedURLSameDomainAsHTTPReferrer (String host, String referrerURL){
 		boolean result = false;
-		if(referrerURL.toLowerCase().contains(host.toLowerCase())){
+		if(referrerURL.toLowerCase().startsWith(host.toLowerCase()) && !referrerURL.startsWith("/")){
 			result = true;
 		}
 		return result;
@@ -86,11 +85,11 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner i
     	parent.raiseAlert(id, alert);
 	}
 	
-	private String DoesURLContainsSensitiveInformation (String URL) {
+	private String doesURLContainsSensitiveInformation (String URL) {
 		String line = null;
-		
+		BufferedReader reader = null;
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
+			reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("#") && URL.toLowerCase().contains(line.toLowerCase())) {
 					reader.close();
@@ -99,7 +98,16 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner i
 			}
 		} catch (IOException e) {
 			logger.debug("Error on opening/reading URL information disclosure file. Error:" + e.getMessage());
+		} finally {
+			if (reader != null) {
+				try{
+					reader.close();
+				} catch (IOException e) {
+					logger.debug("Error on closing the file reader. Error: " + e.getMessage());
+				}
+			}
 		}
+			
 		return null;
 	}
 
@@ -123,7 +131,7 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner i
 	}
 	
 	private boolean isEmailAddress(String emailAddress) {
-		Pattern emailAddressPattern = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+<\\.[A-Z]{2,4}\\b");
+		Pattern emailAddressPattern = Pattern.compile("\\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}\\b");
 		Matcher matcher = emailAddressPattern.matcher(emailAddress);
 		if (matcher.find()) {
 			return true;
