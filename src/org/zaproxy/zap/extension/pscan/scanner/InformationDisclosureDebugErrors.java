@@ -35,7 +35,7 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	private static final String debugErrorFile = "xml/debug-error-messages.txt";
-	private static final Logger logger = Logger.getLogger(InformationDisclosureDebugErrors.class.getClass());
+	private static final Logger logger = Logger.getLogger(InformationDisclosureDebugErrors.class);
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
@@ -81,11 +81,15 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner {
 			}
 		} catch (IOException e) {
 			logger.debug("Error on opening/reading debug error file. Error: " + e.getMessage());
-		}
-		try {
-			reader.close();
-		} catch (IOException e) {
-			logger.debug("Error on closing the file reader. Error: " + e.getMessage());
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();			
+				}
+				catch (IOException e) {
+					logger.debug("Error on closing the file reader. Error: " + e.getMessage());
+				}
+			}
 		}
 		return null;
 	}
