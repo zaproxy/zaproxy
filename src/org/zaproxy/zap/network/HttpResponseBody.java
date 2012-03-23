@@ -30,7 +30,7 @@ public class HttpResponseBody extends HttpBody {
 	private static final Logger log = Logger.getLogger(HttpResponseBody.class);
 	
 	//private static Pattern patternCharset = Pattern.compile("<META +[^>]+charset=['\"]*([^>'\"])+['\"]*>", Pattern.CASE_INSENSITIVE| Pattern.MULTILINE);
-	private static final Pattern patternCharset = Pattern.compile("<META +[^>]+charset *= *['\\x22]?([^>'\\x22;]+)['\\x22]? *>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern patternCharset = Pattern.compile("<META +[^>]+charset *= *['\\x22]?([^>'\\x22;]+)['\\x22]? *[/]?>", Pattern.CASE_INSENSITIVE);
 	
 	
 	public HttpResponseBody() {
@@ -53,40 +53,45 @@ public class HttpResponseBody extends HttpBody {
 			try {
 				result = new String(getBytes(), charset);
 				isChangedCharset = false;
-			} catch (UnsupportedEncodingException e1) {
-				log.error(e1.getMessage(), e1);
-				
-				try{
-					String html = new String(getBytes(), DEFAULT_CHARSET);
-					Matcher matcher = patternCharset.matcher(html);
-					if (matcher.find()) {
-						result = new String(getBytes(), matcher.group(1));
-						setCharset(matcher.group(1));
-						isChangedCharset = false;
-					} else {
-						String utf8 = toUTF8();
-						if (utf8 != null) {
-							// assume to be UTF8
-							setCharset("UTF8");
-							isChangedCharset = false;
-							result = utf8;
-						} else {
-							result = html;
-						}
-					}
-				} catch(UnsupportedEncodingException e2) {
-					log.error(e2.getMessage(), e2);
+			} catch (UnsupportedEncodingException e) {
+				log.error(e.getMessage(), e);
+
+				result = createCachedStringWithMetaCharset();
+			}
+		} else {
+			result = createCachedStringWithMetaCharset();
+		}
+		
+		return result;
+	}
+	
+	private String createCachedStringWithMetaCharset() {
+		String result = null;
+		String resultDefaultCharset = null;
+		
+		try{
+			resultDefaultCharset = new String(getBytes(), DEFAULT_CHARSET);
+			Matcher matcher = patternCharset.matcher(resultDefaultCharset);
+			if (matcher.find()) {
+				final String charset = matcher.group(1);
+				result = new String(getBytes(), charset);
+				setCharset(charset);
+				isChangedCharset = false;
+			} else {
+				String utf8 = toUTF8();
+				if (utf8 != null) {
+					// assume to be UTF8
+					setCharset("UTF8");
+					isChangedCharset = false;
+					result = utf8;
+				} else {
+					result = resultDefaultCharset;
 				}
 			}
-		} 
-		
-		if (result == null) {
-			try {
-				result = new String(getBytes(), DEFAULT_CHARSET);
-			} catch(UnsupportedEncodingException e) {
-				log.error(e.getMessage(), e);
-				result = "";
-			}
+		} catch(UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
+			
+			result = resultDefaultCharset;
 		}
 		
 		return result;
