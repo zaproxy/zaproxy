@@ -45,7 +45,7 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner {
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
 			String parameter;
-			if ((parameter = doesRequestContainsDebugErrorMessage(msg.getResponseBody())) != null) {
+			if ((parameter = doesResponseContainsDebugErrorMessage(msg.getResponseBody())) != null) {
 				this.raiseAlert(msg, id, parameter);
 			}
 		}
@@ -67,14 +67,14 @@ public class InformationDisclosureDebugErrors extends PluginPassiveScanner {
     	parent.raiseAlert(id, alert);
 	}
 	
-	private String doesRequestContainsDebugErrorMessage (HttpBody body) {
+	private String doesResponseContainsDebugErrorMessage (HttpBody body) {
 		String line = null;
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(debugErrorFile));
+			String sBody = body.toString().toLowerCase();
 			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#") && body.toString().toLowerCase().contains(line.toLowerCase())) {
-					reader.close();
+				if (!line.startsWith("#") && sBody.contains(line.toLowerCase())) {
 					return line;
 				}
 			}
