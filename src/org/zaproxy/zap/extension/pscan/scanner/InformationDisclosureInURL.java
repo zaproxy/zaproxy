@@ -44,7 +44,7 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
 		TreeSet<HtmlParameter> urlParams = msg.getUrlParams();
 		for (HtmlParameter urlParam : urlParams) {
-			if (doesURLContainsSensitiveInformation(urlParam.getName())) {
+			if (doesParamNameContainsSensitiveInformation(urlParam.getName())) {
 				this.raiseAlert(msg, id, "the URL contains sensitive informations. Parameter: " + urlParam.getName() + ", value: " + urlParam.getValue(), "");
 			}
 			if (isCreditCard(urlParam.getValue())) {
@@ -80,16 +80,16 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
     	parent.raiseAlert(id, alert);
 	}
 	
-	private boolean doesURLContainsSensitiveInformation (String URL) {
+	private boolean doesParamNameContainsSensitiveInformation (String pararName) {
 		String line = null;
 		BufferedReader reader = null;
 		try {
 			// TODO cache this :)
 			reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
+			pararName.toLowerCase();
 			while ((line = reader.readLine()) != null) {
 				// performed the check with contains to match if we have passwordApp or whatever as we are only checking against generic strings
-				if (!line.startsWith("#") && URL.toLowerCase().contains(line.toLowerCase())) {
-					reader.close();
+				if (!line.startsWith("#") && pararName.contains(line.toLowerCase())) {
 					return true;
 				}
 			}
@@ -152,8 +152,8 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
 	private static void testUrl (String url) {
 		InformationDisclosureInURL idiu = new InformationDisclosureInURL();
 		System.out.println("Test URL: " + url);
-		if (idiu.doesURLContainsSensitiveInformation(url)) {
-			System.out.println(" contains sensitive info: " + idiu.doesURLContainsSensitiveInformation(url));
+		if (idiu.doesParamNameContainsSensitiveInformation(url)) {
+			System.out.println(" contains sensitive info: " + idiu.doesParamNameContainsSensitiveInformation(url));
 		}
 		if (idiu.isCreditCard(url)) {
 			System.out.println(" contains credit card: " + idiu.isCreditCard(url));
