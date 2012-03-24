@@ -46,7 +46,7 @@ public class ContentTypeMissingScanner extends PluginPassiveScanner {
 						}
 					}
 				} else {
-					this.raiseAlert(msg, id, "content type missing", false);
+					this.raiseAlert(msg, id, "", false);
 				}
 		}
 	}
