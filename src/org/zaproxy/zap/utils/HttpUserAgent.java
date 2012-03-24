@@ -49,7 +49,6 @@ public final class HttpUserAgent {
 					return browserVersion;
 				}
 			}
-			reader.close();
 		} catch (IOException e) {
 			logger.debug("Error on opening/reading IE user agent file. Error:" + e.getMessage());
 		} finally {
@@ -80,9 +79,8 @@ public final class HttpUserAgent {
 					return browserVersion;
 				}
 			}
-			reader.close();
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading IE user agent file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading Firefox user agent file. Error:" + e.getMessage());
 		} finally {
 			if (reader != null){
 				try {
@@ -111,9 +109,8 @@ public final class HttpUserAgent {
 					return browserVersion;
 				}
 			}
-			reader.close();
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading IE user agent file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading Chrome user agent file. Error:" + e.getMessage());
 		} finally {
 			if (reader != null){
 				try {
@@ -142,9 +139,8 @@ public final class HttpUserAgent {
 					return browserVersion;
 				}
 			}
-			reader.close();
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading IE user agent file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading Safari user agent file. Error:" + e.getMessage());
 		} finally {
 			if (reader != null){
 				try {
