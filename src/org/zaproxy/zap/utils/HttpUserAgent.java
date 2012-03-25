@@ -38,6 +38,7 @@ public final class HttpUserAgent {
 		String UserAgentListFile = "xml/internet-explorer-user-agents.txt";
 		String browserVersion = "";
 		BufferedReader reader = null;
+		userAgent = userAgent.toLowerCase();
 		try {
 			reader = new BufferedReader(new FileReader(UserAgentListFile));
 			while ((line = reader.readLine()) != null) {
@@ -45,7 +46,7 @@ public final class HttpUserAgent {
 					browserVersion = line.substring(2, line.length()-1);
 					continue;
 				}
-				if (line.toLowerCase().equals(userAgent.toLowerCase())) {
+				if (line.toLowerCase().equals(userAgent)) {
 					return browserVersion;
 				}
 			}
@@ -68,6 +69,7 @@ public final class HttpUserAgent {
 		String UserAgentListFile = "xml/firefox-user-agents.txt";
 		String browserVersion = "";
 		BufferedReader reader = null;
+		userAgent = userAgent.toLowerCase();
 		try {
 			reader = new BufferedReader(new FileReader(UserAgentListFile));
 			while ((line = reader.readLine()) != null) {
@@ -98,6 +100,7 @@ public final class HttpUserAgent {
 		String UserAgentListFile = "xml/chrome-user-agents.txt";
 		String browserVersion = "";
 		BufferedReader reader = null;
+		userAgent = userAgent.toLowerCase();
 		try {
 			reader = new BufferedReader(new FileReader(UserAgentListFile));
 			while ((line = reader.readLine()) != null) {
