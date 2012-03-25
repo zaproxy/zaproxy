@@ -1,0 +1,5 @@
+<!ELEMENT driver ( name, path, slot ) >
+<!ELEMENT driverConfiguration ( driver+ ) >
+<!ELEMENT name ( #PCDATA ) >
+<!ELEMENT path ( #PCDATA ) >
+<!ELEMENT slot ( #PCDATA ) >
