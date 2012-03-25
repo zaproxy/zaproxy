@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Source;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
@@ -41,30 +43,39 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner {
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		if (msg.getRequestHeader().getHeader(HttpHeader.REFERER)!= null && !isRequestedURLSameDomainAsHTTPReferrer(msg.getRequestHeader().getHostName(), msg.getRequestHeader().getHeader(HttpHeader.REFERER))) {
+		if (msg.getRequestHeader().getHeader(HttpHeader.REFERER) != null && !isRequestedURLSameDomainAsHTTPReferrer(msg.getRequestHeader().getHostName(), msg.getRequestHeader().getHeader(HttpHeader.REFERER))) {
 			Vector<String> referrer = msg.getRequestHeader().getHeaders(HttpHeader.REFERER);
-			if (referrer.indexOf("?") > 0) {
-				String parameter;
-				if ((parameter = doesURLContainsSensitiveInformation(referrer.toString())) != null) {
+			String parameter;
+			for (String referrerValue : referrer) {
+				if ((parameter = doesURLContainsSensitiveInformation(referrerValue)) != null) {
 					this.raiseAlert(msg, id, parameter);
 				}
-				if (isCreditCard(msg.getRequestHeader().getURI().toString())) {
+				if (isCreditCard(referrerValue)) {
 					this.raiseAlert(msg, id, "the URL in the referrer contains credit card informations");
 				}
-				if (isEmailAddress(msg.getRequestHeader().getURI().toString())) {
+				if (isEmailAddress(referrerValue)) {
 					this.raiseAlert(msg, id, "the URL in the referrer contains email address(es)");
 				}
-				if (isUsSSN(msg.getRequestHeader().getURI().toString())) {
+				if (isUsSSN(referrerValue)) {
 					this.raiseAlert(msg, id, "the URL in the referrer contains US Social Security Number(s)");
-				}
+				}	
 			}
 		}
 	}
 	
 	private boolean isRequestedURLSameDomainAsHTTPReferrer (String host, String referrerURL){
 		boolean result = false;
-		if(referrerURL.toLowerCase().startsWith(host.toLowerCase()) && !referrerURL.startsWith("/")){
+		if(referrerURL.startsWith("/")){
 			result = true;
+		} else {
+			try {
+				URI referrerURI = new URI(referrerURL, true);	
+				if(referrerURI.getHost() != null && referrerURI.getHost().toLowerCase().equals(host.toLowerCase())){
+					result = true;
+				}
+			} catch (URIException e) {
+				logger.debug("Error: " + e.getMessage());
+			}
 		}
 		return result;
 	}
@@ -90,14 +101,14 @@ public class InformationDisclosureReferrerScanner extends PluginPassiveScanner {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
+			URL = URL.toLowerCase();
 			while ((line = reader.readLine()) != null) {
-				if (!line.startsWith("#") && URL.toLowerCase().contains(line.toLowerCase())) {
-					reader.close();
+				if (!line.startsWith("#") && URL.contains(line.toLowerCase())) {
 					return line;
 				}
 			}
 		} catch (IOException e) {
-			logger.debug("Error on opening/reading URL information disclosure file. Error:" + e.getMessage());
+			logger.debug("Error on opening/reading URL information disclosure file. Error: " + e.getMessage());
 		} finally {
 			if (reader != null) {
 				try{
