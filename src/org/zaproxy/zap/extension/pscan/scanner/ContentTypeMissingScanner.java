@@ -42,11 +42,11 @@ public class ContentTypeMissingScanner extends PluginPassiveScanner {
 				if (contentType != null) {
 					for (String contentTypeDirective : contentType) {
 						if (contentTypeDirective.isEmpty()) {
-							this.raiseAlert(msg, id, contentTypeDirective, false);
+							this.raiseAlert(msg, id, contentTypeDirective, true);
 						}
 					}
 				} else {
-					this.raiseAlert(msg, id, "", false);
+					this.raiseAlert(msg, id, "", true);
 				}
 		}
 	}
