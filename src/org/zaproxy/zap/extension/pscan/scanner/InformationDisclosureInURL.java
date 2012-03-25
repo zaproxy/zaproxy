@@ -31,9 +31,8 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
-public class InformationDisclosureInURL extends PluginPassiveScanner implements PassiveScanner {
+public class InformationDisclosureInURL extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	private static final String URLSensitiveInformationFile = "xml/URL-information-disclosure-messages.txt";
@@ -80,16 +79,16 @@ public class InformationDisclosureInURL extends PluginPassiveScanner implements 
     	parent.raiseAlert(id, alert);
 	}
 	
-	private boolean doesParamNameContainsSensitiveInformation (String pararName) {
+	private boolean doesParamNameContainsSensitiveInformation (String paramName) {
 		String line = null;
 		BufferedReader reader = null;
 		try {
 			// TODO cache this :)
 			reader = new BufferedReader(new FileReader(URLSensitiveInformationFile));
-			pararName.toLowerCase();
+			paramName = paramName.toLowerCase();
 			while ((line = reader.readLine()) != null) {
 				// performed the check with contains to match if we have passwordApp or whatever as we are only checking against generic strings
-				if (!line.startsWith("#") && pararName.contains(line.toLowerCase())) {
+				if (!line.startsWith("#") && paramName.contains(line.toLowerCase())) {
 					return true;
 				}
 			}
