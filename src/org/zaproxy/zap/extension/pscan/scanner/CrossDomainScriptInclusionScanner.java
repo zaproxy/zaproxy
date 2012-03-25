@@ -21,6 +21,9 @@ import java.util.List;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
@@ -30,6 +33,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 public class CrossDomainScriptInclusionScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
+	private static final Logger logger = Logger.getLogger(CrossDomainScriptInclusionScanner.class);
 	
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
@@ -82,9 +86,18 @@ public class CrossDomainScriptInclusionScanner extends PluginPassiveScanner {
 	}
 
 	private boolean isScriptFromOtherDomain (String host, String scriptURL){
+		if (!scriptURL.startsWith("//") && (scriptURL.startsWith("/") || scriptURL.startsWith("./") || scriptURL.startsWith("../"))) {
+			return false;
+		}
 		boolean result = false;
-		if(!scriptURL.toLowerCase().startsWith(host.toLowerCase()) && !scriptURL.startsWith("/")){
-			result = true;
+		try {
+			URI scriptURI = new URI(scriptURL, true);
+			String scriptHost = scriptURI.getHost();
+			if(scriptHost != null && scriptHost.toLowerCase().equals(host.toLowerCase())){
+				result = true;
+			} 
+		}catch (URIException e) {
+			logger.debug("Error: " + e.getMessage());
 		}
 		return result;
 	}
