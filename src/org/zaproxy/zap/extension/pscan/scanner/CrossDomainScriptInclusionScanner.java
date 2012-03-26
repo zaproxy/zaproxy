@@ -93,7 +93,7 @@ public class CrossDomainScriptInclusionScanner extends PluginPassiveScanner {
 		try {
 			URI scriptURI = new URI(scriptURL, true);
 			String scriptHost = scriptURI.getHost();
-			if(scriptHost != null && scriptHost.toLowerCase().equals(host.toLowerCase())){
+			if(scriptHost != null && !scriptHost.toLowerCase().equals(host.toLowerCase())){
 				result = true;
 			} 
 		}catch (URIException e) {
