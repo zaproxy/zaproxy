@@ -77,7 +77,7 @@ public final class HttpUserAgent {
 					browserVersion = line.substring(2, line.length()-1);
 					continue;
 				}
-				if (line.equals(userAgent)) {
+				if (line.toLowerCase().equals(userAgent)) {
 					return browserVersion;
 				}
 			}
@@ -108,7 +108,7 @@ public final class HttpUserAgent {
 					browserVersion = line.substring(2, line.length()-1);
 					continue;
 				}
-				if (line.equals(userAgent)) {
+				if (line.toLowerCase().equals(userAgent)) {
 					return browserVersion;
 				}
 			}
@@ -138,7 +138,7 @@ public final class HttpUserAgent {
 					browserVersion = line.substring(2, line.length()-1);
 					continue;
 				}
-				if (line.equals(userAgent)) {
+				if (line.toLowerCase().equals(userAgent)) {
 					return browserVersion;
 				}
 			}
