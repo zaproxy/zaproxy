@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.owasp.zaproxy</groupId>
+  <artifactId>zaproxy-parent</artifactId>
+  <version>1.5-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>OWASP Zed Attack Proxy</name>
+  <description>The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications.
+    It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing.
+    ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.
+  </description>
+  <url>https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</url>
+  <inceptionYear>2010</inceptionYear>
+  <licenses>
+    <license>
+        <name>Apache License, Version 2.0</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:http://zaproxy.googlecode.com/svn/trunk</connection>
+    <developerConnection>scm:svn:https://zaproxy.googlecode.com/svn/trunk</developerConnection>
+    <url>http://code.google.com/p/zaproxy/source/browse/#svn%2Ftrunk</url>
+  </scm>
+  <issueManagement>
+    <system>GoogleCode</system>
+    <url>http://code.google.com/p/zaproxy/issues/list</url>
+  </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>ZAProxy Developer Google Group</name>
+      <subscribe>zaproxy-develop+subscribe@googlegroups.com</subscribe>
+      <unsubscribe>zaproxy-develop+unsubscribe@googlegroups.com</unsubscribe>
+      <post>zaproxy-develop@googlegroups.com</post>
+      <archive>http://groups.google.com/group/zaproxy-develop</archive>
+    </mailingList>
+  </mailingLists>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- dependency versions -->
+    <junit.version>4.9</junit.version>
+    <powermock.version>1.4.10</powermock.version>
+  </properties>
+  
+  <modules>
+    <module>zap-help</module>
+    <module>zap</module>
+    <module>zap-client</module>
+    <module>zap-ant-tasks</module>
+    <!-- <module>zap-maven-plugin</module> -->
+    <module>zap-dist</module>
+  </modules>
+
+  <dependencies>
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency> -->
+  </dependencies>
+  <dependencyManagement>
+    <dependencies>
+	    <dependency>
+	      <groupId>net.sf.json-lib</groupId>
+	      <artifactId>json-lib</artifactId>
+	      <version>2.4</version>
+	      <classifier>jdk15</classifier>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+        <version>1.2</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/*.icns</exclude>
+                <exclude>**/*.xml</exclude>
+                <exclude>**/*.properties</exclude>
+                <exclude>**/*.htm</exclude>
+                <exclude>**/*.html</exclude>
+                <exclude>**/*.jhm</exclude>
+                <exclude>**/map2index</exclude>
+                <exclude>**/*.hs</exclude>
+                <exclude>**/*.icns</exclude>
+                <exclude>**/*.txt</exclude>
+                <exclude>**/*.data</exclude>
+                <exclude>**/*.log</exclude>
+                <exclude>**/*.dtd</exclude>
+                <exclude>**/*.xsl</exclude>
+                <exclude>**/*.rtf</exclude>
+                <exclude>**/COPYING</exclude>
+                <exclude>**/*.odt</exclude>
+                <exclude>**/*.plist</exclude>
+                <exclude>**/*.tar.gz</exclude>
+                <exclude>**/*.app</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+    	<plugins>
+    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+    		<plugin>
+    			<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>lifecycle-mapping</artifactId>
+    			<version>1.0.0</version>
+    			<configuration>
+    				<lifecycleMappingMetadata>
+    					<pluginExecutions>
+    						<pluginExecution>
+    							<pluginExecutionFilter>
+    								<groupId>
+    									org.apache.maven.plugins
+    								</groupId>
+    								<artifactId>
+    									maven-antrun-plugin
+    								</artifactId>
+    								<versionRange>[1.7,)</versionRange>
+    								<goals>
+    									<goal>run</goal>
+    								</goals>
+    							</pluginExecutionFilter>
+    							<action>
+    								<ignore></ignore>
+    							</action>
+    						</pluginExecution>
+    					</pluginExecutions>
+    				</lifecycleMappingMetadata>
+    			</configuration>
+    		</plugin>
+    	</plugins>
+    </pluginManagement>
+  </build>
+</project>
