@@ -140,13 +140,13 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
 				String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
 	            matcher = Pattern.compile(PATTERNS[i]).matcher(response);
 	            if (matcher.find()) {
-	                bingo(Alert.RISK_HIGH, Alert.WARNING, "", null, param, TARGETS[i] , msg);
+	                bingo(Alert.RISK_HIGH, Alert.WARNING, "", param, null, TARGETS[i] , msg);
 	                break;
 	            }
 			}
 			
         } catch (Exception e) {
-            log.error(e.getMessage(), e);;
+            log.error(e.getMessage(), e);
         }
 	}
 }
