@@ -26,11 +26,11 @@
     <maxHeapPercent>25</maxHeapPercent>
   </jre>
   <versionInfo>
-    <fileVersion>1.4.0.0</fileVersion>
+    <fileVersion>1.4.0.1</fileVersion>
     <txtFileVersion>1.4.0</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>1.4.0.0</productVersion>
+    <productVersion>1.4.0.1</productVersion>
     <txtProductVersion>1.4.0</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
