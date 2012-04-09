@@ -71,10 +71,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     // Note: Change this before building a release!
-    public static final String PROGRAM_VERSION = "1.4.0";
+    public static final String PROGRAM_VERSION = "1.4.1";
     //public static final String PROGRAM_VERSION = DEV_VERSION;
     
-    private static final long VERSION_TAG = 1004000;
+    private static final long VERSION_TAG = 1004001;
     
     // Old version numbers - for upgrade
 	private static final long V_1_3_1_TAG = 1003001;
