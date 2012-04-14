@@ -270,7 +270,7 @@ public class SearchDialog extends AbstractDialog {
     /**
      * This method initializes txtEncode
      * 
-     * @return javax.swing.ZapTextArea
+     * @return org.zaproxy.zap.utils.ZapTextArea
      */
     private ZapTextArea getTxtPattern() {
         if (txtPattern == null) {

@@ -204,12 +204,12 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	    		addDialog = new BreakAddDialog(getView().getMainFrame(), false);
 	    		addDialog.setPlugin(this);
 	    		addDialog.setVisible(true);
-	    		addDialog.getTxtDisplay().setText(msg);
+	    		addDialog.setBreakPoint(msg);
 	    		
 				canShowDialog = false;
 				currentDialog = Dialogs.ADD_DIALOG;
 	    	} else if (currentDialog == Dialogs.ADD_DIALOG) {
-	    		addDialog.getTxtDisplay().setText(msg);
+	    		addDialog.setBreakPoint(msg);
 	    	}
 		}
     }
@@ -234,13 +234,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	    		editDialog = new BreakEditDialog(getView().getMainFrame(), false);
 	    		editDialog.setPlugin(this);
 	    		editDialog.setVisible(true);
-	    		editDialog.getTxtDisplay().setText(getSelectedBreakPoint().getUrl());
+	    		editDialog.setBreakPoint(getSelectedBreakPoint().getUrl());
 	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
 	    		
 				canShowDialog = false;
 				currentDialog = Dialogs.EDIT_DIALOG;
 	    	} else if (currentDialog == Dialogs.EDIT_DIALOG) {
-	    		editDialog.getTxtDisplay().setText(getSelectedBreakPoint().getUrl());
+	    		editDialog.setBreakPoint(getSelectedBreakPoint().getUrl());
 	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
 	    	}
     	}
@@ -262,10 +262,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	
 	public void removeSelectedBreakPoint() {
 		removeBreakPointAtRow(getSelectedBreakPointRow());
-	}
-
-	@Override
-	public void sessionChanged(Session session)  {
 	}
 	
 	@Override
@@ -290,13 +286,12 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	@Override
 	public void sessionAboutToChange(final Session session) {
 		if (EventQueue.isDispatchThread()) {
-			sessionChangedEventHandler(session);
+			sessionAboutToChange();
 	    } else {
-	        
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
 	                public void run() {
-	        		    sessionChangedEventHandler(session);
+	                	sessionAboutToChange();
 	                }
 	            });
 	        } catch (Exception e) {
@@ -304,11 +299,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	        }
 	    }
 	}
+
+	@Override
+	public void sessionChanged(Session session) {
+		getBreakPanel().init();
+	}
 	
-	/**
-	 * @param session  
-	 */
-	private void sessionChangedEventHandler(Session session) {
+	private void sessionAboutToChange() {
 	    getBreakPanel().reset();
 	}
 	

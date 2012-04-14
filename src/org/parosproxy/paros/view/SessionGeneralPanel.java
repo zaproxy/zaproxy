@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/15 i19n
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 
 package org.parosproxy.paros.view;
 
@@ -117,7 +118,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtSessionName	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtSessionName() {
 		if (txtSessionName == null) {
@@ -128,7 +129,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtDescription	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	private ZapTextArea getTxtDescription() {
 		if (txtDescription == null) {
@@ -143,7 +144,9 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
 	    getTxtSessionName().setText(session.getSessionName());
+	    getTxtSessionName().discardAllEdits();
 	    getTxtDescription().setText(session.getSessionDesc());
+	    getTxtDescription().discardAllEdits();
 	}
 	
 	public void validateParam(Object obj) {

@@ -221,6 +221,10 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		responsePanel.setEditable(false);
 	}
 
+	public void init() {
+		breakToolbarFactory.init();
+	}
+
 	public void reset() {
 		breakToolbarFactory.reset();
 	}

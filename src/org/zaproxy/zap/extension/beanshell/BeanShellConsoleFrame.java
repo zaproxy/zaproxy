@@ -187,6 +187,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 						try {
 							String temp = loadScript(fc.getSelectedFile());
 							getBeanShellPanel().getTxtEditor().setText(temp);
+							getBeanShellPanel().getTxtEditor().discardAllEdits();
 							getBeanShellPanel().setSaved(true);
 							currentScriptFile = fc.getSelectedFile();
 						} catch (IOException ee) {

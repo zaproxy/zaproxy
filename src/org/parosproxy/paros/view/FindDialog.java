@@ -227,7 +227,7 @@ public class FindDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtFind	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtFind() {
 		if (txtFind == null) {

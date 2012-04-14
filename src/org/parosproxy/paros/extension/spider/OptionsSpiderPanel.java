@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/10/15 i18n and removed URLs - these are replaced by the regexs in the session properties
+// ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 
 
 package org.parosproxy.paros.extension.spider;
@@ -204,6 +205,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    getSliderThreads().setValue(param.getThread());
         //getTxtSkipURL().setText(param.getSkipURL());
 	    getTxtScope().setText(param.getScope());
+	    getTxtScope().discardAllEdits();
         getChkPostForm().setSelected(param.isPostForm());
 	}
 	
@@ -269,7 +271,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtScope	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	private ZapTextArea getTxtScope() {
 		if (txtScope == null) {
@@ -323,7 +325,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     /**
      * This method initializes ZapTextArea	
      * 	
-     * @return javax.swing.ZapTextArea	
+     * @return org.zaproxy.zap.utils.ZapTextArea	
      */
     /* Replaced by the regexs in the session properties
     private ZapTextArea getTxtSkipURL() {

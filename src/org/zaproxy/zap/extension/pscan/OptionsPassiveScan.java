@@ -336,12 +336,18 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	        			if (defn != null && defn instanceof RegexAutoTagScanner) {
 	        				RegexAutoTagScanner rats = (RegexAutoTagScanner) defn;
 	        				editName.setText(rats.getName());
+	        				editName.discardAllEdits();
 	        				editType.setText(rats.getType().name());
 	        				editConfig.setText(rats.getConf());
+	        				editConfig.discardAllEdits();
 	        		    	editRequestUrlRegex.setText(rats.getRequestUrlRegex());
+	        		    	editRequestUrlRegex.discardAllEdits();
 	        		    	editRequestHeaderRegex.setText(rats.getRequestHeaderRegex());
+	        		    	editRequestHeaderRegex.discardAllEdits();
 	        		    	editResponseHeaderRegex.setText(rats.getResponseHeaderRegex());
+	        		    	editResponseHeaderRegex.discardAllEdits();
 	        		    	editResponseBodyRegex.setText(rats.getResponseBodyRegex());
+	        		    	editResponseBodyRegex.discardAllEdits();
 	        		    	editEnabled.setSelected(rats.isEnabled());
 	        		    	// Cant change existing names
 	        		    	editName.setEditable(false);
@@ -355,12 +361,18 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	
 	private void clearEditForm() {
 		editName.setText("");
+		editName.discardAllEdits();
 		editType.setText(RegexAutoTagScanner.TYPE.TAG.name());
 		editConfig.setText("");
+		editConfig.discardAllEdits();
     	editRequestUrlRegex.setText("");
+    	editRequestUrlRegex.discardAllEdits();
     	editRequestHeaderRegex.setText("");
+    	editRequestHeaderRegex.discardAllEdits();
     	editResponseHeaderRegex.setText("");
+    	editResponseHeaderRegex.discardAllEdits();
     	editResponseBodyRegex.setText("");
+    	editResponseBodyRegex.discardAllEdits();
     	editEnabled.setSelected(true);
     	editName.setEditable(true);
 	}

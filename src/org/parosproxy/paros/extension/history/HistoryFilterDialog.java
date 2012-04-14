@@ -229,7 +229,7 @@ public class HistoryFilterDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtPattern	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtPattern() {
 		if (txtPattern == null) {

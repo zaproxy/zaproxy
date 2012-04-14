@@ -496,7 +496,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
     
     private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
-    	dialogNotesAdd.getTxtDisplay().setText(note);
+    	dialogNotesAdd.setNote(note);
     	dialogNotesAdd.setHistoryRef(ref);
     	dialogNotesAdd.setVisible(true);
     }

@@ -219,7 +219,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		    if (connectionParam.getProxyChainUserName().equals("")) {
 		    } else {
 		        txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
+		        txtProxyChainRealm.discardAllEdits();
 		        txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
+		        txtProxyChainUserName.discardAllEdits();
 		    }
 	    }
 	}
