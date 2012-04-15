@@ -112,7 +112,6 @@ public abstract class ApiImplementor {
 				} else {
 					sb.append(StringEscapeUtils.escapeHtml(me.getValue().toString()));
 				}
-				sb.append(me.getValue());
 				sb.append("</td></tr>\n");
 			}
 			sb.append("</table>\n");
