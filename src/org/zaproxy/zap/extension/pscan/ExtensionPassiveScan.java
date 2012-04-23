@@ -108,9 +108,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             
             // Dynamically load 'switchable' plugins
            	DynamicLoader zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension.pscan.scanner");
-            List<Object> listTest = zapLoader.getFilteredObject(PluginPassiveScanner.class);
-            for (Object obj : listTest) {
-        		addPassiveScanner((PluginPassiveScanner)obj);
+            List<PluginPassiveScanner> listTest = zapLoader.getFilteredObject(PluginPassiveScanner.class);
+            for (PluginPassiveScanner scanner : listTest) {
+        		addPassiveScanner(scanner);
             }
 		}
 		return scannerList;

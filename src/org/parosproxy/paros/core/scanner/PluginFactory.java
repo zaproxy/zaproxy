@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/30 Support for scanner levels
+// ZAP: 2012/04/23 Changed the method loadAllPlugin to reflect the changes made
+// in the method DynamicLoader.getFilteredObject(Class).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -102,14 +104,14 @@ public class PluginFactory {
         if (zapLoader == null) {
         	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.scanner.plugin");
         }
-        List<Object> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
+        List<AbstractPlugin> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
         listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
 
         synchronized (mapAllPlugin) {
             
             mapAllPlugin.clear();
             for (int i=0; i<listTest.size(); i++) {
-                Plugin plugin = (Plugin) listTest.get(i);
+                Plugin plugin = listTest.get(i);
                 plugin.setConfig(config);
                 plugin.createParamIfNotExist();
                 if (!plugin.isVisible()) {

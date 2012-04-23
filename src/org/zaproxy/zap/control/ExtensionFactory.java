@@ -58,14 +58,14 @@ public class ExtensionFactory {
         	parosLoader = new DynamicLoader("", "org.parosproxy.paros.extension", true);
         }
 
-        List<Object> listTest = parosLoader.getFilteredObject(Extension.class);
+        List<Extension> listTest = parosLoader.getFilteredObject(Extension.class);
         listTest.addAll(zapLoader.getFilteredObject(Extension.class));
 
         synchronized (mapAllExtension) {
             
             mapAllExtension.clear();
             for (int i=0; i<listTest.size(); i++) {
-                Extension extension = (Extension) listTest.get(i);
+                Extension extension = listTest.get(i);
                 if (mapAllExtension.containsKey(extension.getName())) {
                 	if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
                 		// Same name, same class so ignore

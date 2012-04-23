@@ -19,22 +19,31 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/09 Added recursive option and logging
-// ZAP: 2011/11/22 Added parseJarFile(File file, String packageName) to take into account the package name
-//      when the local jar is loaded. Removed warnings (getFilteredObeject).
+// ZAP: 2011/11/22 Added parseJarFile(File file, String packageName) to take
+// into account the package name when the local jar is loaded. Removed warnings
+// (getFilteredObeject).
+// ZAP: 2012/04/23 Changed the constructor DynamicLoader(String, String, boolean),
+// the methods searchJars, checkLocal, getFilteredObject, parseClassDir and
+// parseJarFile, added the classes JarFilenameFilter and ClassRecurseDirFileFilter,
+// removed the instance variable "directory" and changed "listClassName" to use
+// an ArrayList.
 
 package org.parosproxy.paros.common;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -48,9 +57,12 @@ import org.apache.log4j.Logger;
  */
 public class DynamicLoader extends URLClassLoader {
 
-    private String directory = "";
-    private Vector<String> listClassName = new Vector<String>();
-    private Logger logger = Logger.getLogger(DynamicLoader.class);
+    // ZAP: Removed the instance variable "directory".
+
+    private static final Logger logger = Logger.getLogger(DynamicLoader.class);
+
+    // ZAP: Changed to use an ArrayList instead of Vector.
+    private List<String> listClassName = new ArrayList<String>();
     
     public DynamicLoader(String directory, String packageName) {
     	this(directory, packageName, false);
@@ -58,24 +70,21 @@ public class DynamicLoader extends URLClassLoader {
     
     public DynamicLoader(String directory, String packageName, boolean recurse) {
         super(new URL[0]);
-        this.directory = directory;
+        // ZAP: Removed the initialisation of the instance variable "directory".
         checkLocal(packageName, recurse);
-        searchJars();
+        // ZAP: Changed to pass the parameter "directory" to the method searchJars.
+        searchJars(directory);
     }
     
-    private void searchJars() {
+    // ZAP: Changed to receive the directory as parameter instead of using the
+    // instance variable.
+    private void searchJars(String directory) {
         File dir = new File(directory);
         if (! dir.exists() || dir.isFile()) {
         	return;
         }
-        File[] listFile = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String fileName) {
-                if (fileName.endsWith(".jar")) {
-                    return true;
-                }
-                return false;
-            }
-        });
+        // ZAP: Changed to use the class JarFilenameFilter.
+        File[] listFile = dir.listFiles(new JarFilenameFilter());
         
         for (int i=0; i<listFile.length; i++) {
             if (!listFile[i].isFile()) {
@@ -106,16 +115,22 @@ public class DynamicLoader extends URLClassLoader {
             jarFile = local.toString().substring("jar:".length());
             int pos = jarFile.indexOf("!");
             jarFile = jarFile.substring(0, pos);
-            //System.out.println(jarFile);
+            
+            // ZAP: Removed the commented statement.
+            
             try {
-                // ZAP: changed to take into account the package name
+                // ZAP: Changed to take into account the package name
                 parseJarFile(new File(new URI(jarFile)), packageName);
             } catch (URISyntaxException e) {
             	logger.error(e.getMessage(), e);
             }
         } else {
             try {
-                parseClassDir(new File(new URI(local.toString())), packageName, recurse);
+                // ZAP: Changed to pass a FileFilter (ClassRecurseDirFileFilter)
+                // and to pass the "packageName" with the dots already replaced.
+                parseClassDir(new File(new URI(local.toString())),
+                              packageName.replace('.', File.separatorChar),
+                              new ClassRecurseDirFileFilter(recurse));
             } catch (URISyntaxException e) {
             	logger.error(e.getMessage(), e);
             }
@@ -123,13 +138,15 @@ public class DynamicLoader extends URLClassLoader {
     }
     
     
-    // ZAP: removed warnings
-    public Vector<Object> getFilteredObject (Class<?> classType) {
+    // ZAP: Removed warnings, changed to a generic method, removed unnecessary 
+    // cast, changed to return an ArrayList and to use the method 
+    // Constructor.newInstance().
+    public <T> List<T> getFilteredObject (Class<T> classType) {
         String className = "";
         Class<?> cls = null;
-        Vector<Object> listClass = new Vector<Object>();
-        for (int i=0; i<listClassName.size(); i++) {
-            className = (String) listClassName.get(i);
+        List<T> listClass = new ArrayList<T>();
+        for (int i=0; i < listClassName.size(); i++) {
+            className = listClassName.get(i);
             try {
                 cls = loadClass(className);
                 // abstract class or interface cannot be constructed.
@@ -137,8 +154,9 @@ public class DynamicLoader extends URLClassLoader {
                     continue;
                 }
                 if (classType.isAssignableFrom(cls)) {
-                    Object obj = cls.newInstance();
-                    listClass.add(obj);
+                    @SuppressWarnings("unchecked")
+                    Constructor<T> c = (Constructor<T>) cls.getConstructor();
+                    listClass.add(c.newInstance());
                 }
             } catch (Throwable e) {
             	// Often not an error
@@ -149,32 +167,22 @@ public class DynamicLoader extends URLClassLoader {
         return listClass;
     }
 
-    private void parseClassDir(File file, String packageName, final boolean recurse) {
-        File[] listFile = file.listFiles(new FilenameFilter() {
-            public boolean accept(File file, String fileName) {
-                if (fileName.endsWith(".class") || (file.isDirectory() && recurse & ! fileName.startsWith("."))) {
-                    return true;
-                }
-                return false;
-            }
-        });
+    // ZAP: Changed to use only one FileFilter and the packageName is already
+    // passed with the dots replaced.
+    private void parseClassDir(File file, String packageName, FileFilter fileFilter) {
+        File[] listFile = file.listFiles(fileFilter);
         
         for (int i=0; i<listFile.length; i++) {
             File entry = listFile[i];
-            if (recurse && entry.isDirectory()) {
-            	parseClassDir (entry, packageName, recurse);
+            if (entry.isDirectory()) {
+            	parseClassDir (entry, packageName, fileFilter);
             	continue;
             }
-            if (!entry.isFile()) {
-                continue;
-            }
             String fileName = entry.toString();
-            String match = packageName.replace('.', File.separatorChar);
-            int pos = fileName.indexOf(match);
+            int pos = fileName.indexOf(packageName);
             if (pos > 0) {
                 String className = fileName.substring(pos).replaceAll("\\.class$","").replace(File.separatorChar, '.');
                 listClassName.add(className);
-
             }
         }
     }
@@ -187,7 +195,8 @@ public class DynamicLoader extends URLClassLoader {
             jarFile = new JarFile(file);
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
-                entry = (ZipEntry) entries.nextElement();
+                // ZAP: Removed unnecessary cast.
+                entry = entries.nextElement();
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
                     continue;
                 }
@@ -200,18 +209,22 @@ public class DynamicLoader extends URLClassLoader {
             if (jarFile != null) {
                 try {
                     jarFile.close();
-                } catch (IOException e1) {
+                } catch (IOException e) {
+                    // ZAP: Log the exception.
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage(), e);
+                    }
                 }
             }
         }
         try {
             this.addURL(file.toURI().toURL());
-        } catch (MalformedURLException e1) {
-        	logger.error(e1.getMessage(), e1);
+        } catch (MalformedURLException e) {
+        	logger.error(e.getMessage(), e);
         }
     }
     
-    // ZAP: added to take into account the package name
+    // ZAP: Added to take into account the package name
     private void parseJarFile(File file, String packageName) {
         JarFile jarFile = null;
         ZipEntry entry = null;
@@ -220,7 +233,7 @@ public class DynamicLoader extends URLClassLoader {
             jarFile = new JarFile(file);
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
-                entry = (ZipEntry) entries.nextElement();
+                entry = entries.nextElement();
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
                     continue;
                 }
@@ -235,14 +248,51 @@ public class DynamicLoader extends URLClassLoader {
             if (jarFile != null) {
                 try {
                     jarFile.close();
-                } catch (IOException e1) {
+                } catch (IOException e) {
+                    // ZAP: Log the exception.
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage(), e);
+                    }
                 }
             }
         }
         try {
             this.addURL(file.toURI().toURL());
-        } catch (MalformedURLException e1) {
-        	logger.error(e1.getMessage(), e1);
+        } catch (MalformedURLException e) {
+        	logger.error(e.getMessage(), e);
+        }
+    }
+    
+    // ZAP: Added
+    private static final class JarFilenameFilter implements FilenameFilter {
+        
+        @Override
+        public boolean accept(File dir, String fileName) {
+            if (fileName.endsWith(".jar")) {
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    // ZAP: Added
+    private static final class ClassRecurseDirFileFilter implements FileFilter {
+        
+        private boolean recurse;
+        
+        public ClassRecurseDirFileFilter(boolean recurse) {
+            this.recurse = recurse;
+        }
+        
+        @Override
+        public boolean accept(File file) {
+            if (recurse && file.isDirectory() && ! file.getName().startsWith(".")) {
+                return true;
+            } else if (file.isFile() && file.getName().endsWith(".class")) {
+                return true;
+            }
+            
+            return false;
         }
     }
     
