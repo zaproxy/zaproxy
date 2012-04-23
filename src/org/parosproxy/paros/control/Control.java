@@ -24,12 +24,15 @@
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2011/11/20 Changed to use ExtensionFactory
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/04/23 Changed the method shutdown(boolean) to save the configurations
+//      of the main http panels and save the configuration file.
 
 package org.parosproxy.paros.control;
 
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
@@ -110,6 +113,19 @@ public class Control extends AbstractControl implements SessionListener {
      * Override inherited shutdown to add stopping proxy servers.
      */
     public void shutdown(boolean compact) {
+        // ZAP: Save the configurations of the main panels.
+        if (view != null) {
+	        view.getRequestPanel().saveConfig(model.getOptionsParam().getConfig());
+	        view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
+        }
+        
+	    // ZAP: Save the configuration file.
+		try {
+			model.getOptionsParam().getConfig().save();
+		} catch (ConfigurationException e) {
+			log.error("Error saving config", e);
+		}
+		
         getProxy().stopServer();
         super.shutdown(compact);
     }
