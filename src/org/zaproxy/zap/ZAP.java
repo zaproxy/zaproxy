@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.swing.JFrame;
@@ -33,7 +34,9 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -379,11 +382,43 @@ public class ZAP {
 	private static final class UncaughtExceptionLogger implements UncaughtExceptionHandler {
 		private static final Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
 
+		private static boolean loggerConfigured = false;
+		
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {
 			if (!(e instanceof ThreadDeath)) {
-				logger.error("Exception in thread \"" + t.getName() + "\"", e);
+				if (loggerConfigured || isLoggerConfigured()) {
+					logger.error("Exception in thread \"" + t.getName() + "\"", e);
+				} else {
+					System.err.println("Exception in thread \"" + t.getName() + "\"");
+					e.printStackTrace();
+				}
 			}
+		}
+		
+		private static boolean isLoggerConfigured() {
+			if (loggerConfigured) {
+				return true;
+			}
+			
+			@SuppressWarnings("unchecked")
+			Enumeration<Appender> appenders = LogManager.getRootLogger().getAllAppenders();
+			if (appenders.hasMoreElements()) {
+				loggerConfigured = true;
+			} else {
+				
+				@SuppressWarnings("unchecked")
+				Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
+				while (loggers.hasMoreElements()) {
+					Logger c = loggers.nextElement();
+					if (c.getAllAppenders().hasMoreElements()) {
+						loggerConfigured = true;
+						break;
+					}
+				}
+			}
+			
+			return loggerConfigured;
 		}
 	}
 
