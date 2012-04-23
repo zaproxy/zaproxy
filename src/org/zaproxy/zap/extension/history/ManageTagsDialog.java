@@ -99,9 +99,11 @@ public class ManageTagsDialog extends AbstractDialog {
         	this.setSize(panelWidth, panelHeight);
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
+        	@Override
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 
 
+        	@Override
         	public void windowClosing(java.awt.event.WindowEvent e) {
         	}
         });
@@ -282,6 +284,7 @@ public class ManageTagsDialog extends AbstractDialog {
 			btnAdd.setMaximumSize(new java.awt.Dimension(100,40));
 			btnAdd.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					addTag(getTxtTagAdd().getSelectedItem().toString());
 					getTxtTagAdd().setSelectedIndex(0);
@@ -306,6 +309,7 @@ public class ManageTagsDialog extends AbstractDialog {
 			btnDelete.setEnabled(true);
 			btnDelete.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					deleteTags(tagList.getSelectedValues());
 				}
@@ -325,6 +329,7 @@ public class ManageTagsDialog extends AbstractDialog {
 			btnSave.setEnabled(true);
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					save();
 					extension.hideManageTagsDialog();
@@ -345,6 +350,7 @@ public class ManageTagsDialog extends AbstractDialog {
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.hideManageTagsDialog();
 				}

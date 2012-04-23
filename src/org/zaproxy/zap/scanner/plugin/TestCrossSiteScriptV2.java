@@ -36,10 +36,12 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_8");
     private static Logger log = Logger.getLogger(TestCrossSiteScriptV2.class);
 
+    @Override
     public int getId() {
         return 40012;
     }
 
+    @Override
     public String getName() {
     	return Constant.messages.getString("scanner.plugin.xss");
     }
@@ -47,6 +49,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -54,6 +57,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -64,6 +68,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -71,6 +76,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -81,6 +87,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();
@@ -98,6 +105,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
@@ -120,6 +128,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
         return hca.getHtmlContexts(attack);
     }
     	
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
     	
 		try {

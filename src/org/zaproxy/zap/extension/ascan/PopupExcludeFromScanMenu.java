@@ -55,6 +55,7 @@ public class PopupExcludeFromScanMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("sites.exclude.ascan.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    if (invoker.getName().equals("treeSite")) {
                     Session session = Model.getSingleton().getSession();
@@ -76,6 +77,7 @@ public class PopupExcludeFromScanMenu extends ExtensionPopupMenuItem {
 	}
 	
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;

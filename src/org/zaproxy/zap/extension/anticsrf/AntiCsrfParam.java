@@ -44,6 +44,7 @@ public class AntiCsrfParam extends AbstractParam {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
+    @Override
     @SuppressWarnings("unchecked")
 	protected void parse(){
     	try {

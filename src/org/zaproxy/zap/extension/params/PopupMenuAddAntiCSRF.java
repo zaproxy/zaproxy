@@ -65,6 +65,7 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("params.anticrsf.add.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		
         		extension.addAntiCsrfToken();
@@ -72,6 +73,7 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
         });
 	}
 
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
         	

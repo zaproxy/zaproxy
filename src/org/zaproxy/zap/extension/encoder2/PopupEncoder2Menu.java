@@ -60,6 +60,7 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 
 			
 	}
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
         	JTextComponent txt = (JTextComponent) invoker;

@@ -94,6 +94,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
@@ -127,6 +128,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		return spiderPanel;
 	}
 	
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -134,6 +136,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }

@@ -149,6 +149,7 @@ public class ProxyDialog extends AbstractDialog {
 			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					saveAndClose();
 				}

@@ -41,29 +41,39 @@ public abstract class ScanThread extends Thread implements GenericScanner {
 		}
 	}
 
+	@Override
 	public SiteNode getStartNode() {
 		return startNode;
 	}
 
+	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
 	}
 
+	@Override
 	public abstract void stopScan();
 
+	@Override
 	public abstract boolean isStopped();
 
+	@Override
 	public String getSite() {
 		return site;
 	}
 	
+	@Override
 	public abstract int getProgress ();
 
+	@Override
 	public abstract int getMaximum ();
 	
+	@Override
 	public abstract void pauseScan();
 
+	@Override
 	public abstract void resumeScan();
 	
+	@Override
 	public abstract boolean isPaused();
 }

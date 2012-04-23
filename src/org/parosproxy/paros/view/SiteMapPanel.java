@@ -20,7 +20,8 @@
  */
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/03/15 Changed to initiate the tree with a default model. Changed to
-//      clear the http panels when the root node is selected.
+// clear the http panels when the root node is selected.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -117,14 +118,17 @@ public class SiteMapPanel extends JPanel {
 			treeSite.setToggleClickCount(1);
 			treeSite.addMouseListener(new java.awt.event.MouseAdapter() { 
 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
@@ -156,6 +160,7 @@ public class SiteMapPanel extends JPanel {
 
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
+				@Override
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
 
 				    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
@@ -217,6 +222,7 @@ public class SiteMapPanel extends JPanel {
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 				    getTreeSite().expandPath(rootTreePath);
 				}

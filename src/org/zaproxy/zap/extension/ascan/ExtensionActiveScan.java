@@ -108,6 +108,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -156,6 +157,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			menuItemPolicy = new JMenuItem();
 			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
 			menuItemPolicy.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					showPolicyDialog();
 				}
@@ -210,6 +212,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -217,6 +220,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }
@@ -271,6 +275,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
      * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
      */
 	// TODO
+    @Override
     public void execute(CommandLineArgument[] args) {
     	/*
 

@@ -65,6 +65,7 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("params.session.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		
         		extension.removeSessionToken();
@@ -74,10 +75,11 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 			
 	}
 
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
         	
-        	HtmlParameterStats item = (HtmlParameterStats) extension.getParamsPanel().getSelectedParam();
+        	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
         	if (item != null && item.getFlags().contains(HtmlParameter.Flags.session.name())) {
         		this.setEnabled(true);
                 return true;

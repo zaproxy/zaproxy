@@ -69,6 +69,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * @return <tt>"Generic"</tt>
      *
      */
+    @Override
     public String getName() {
         return method;
     }
@@ -84,6 +85,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * @return boolean
      * 
      */
+    @Override
     protected boolean hasRequestContent() {
         log.trace("enter GenericMethod.hasRequestContent()");
         if (!this.params.isEmpty()) {
@@ -100,6 +102,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * 
      * @since 2.0beta1
      */
+    @Override
     protected void clearRequestBody() {
         log.trace("enter GenericMethod.clearRequestBody()");
         this.params.clear();
@@ -112,6 +115,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      * 
      * @since 3.0
      */
+    @Override
     protected RequestEntity generateRequestEntity() {
         if (!this.params.isEmpty()) {
             // Use a ByteArrayRequestEntity instead of a StringRequestEntity.

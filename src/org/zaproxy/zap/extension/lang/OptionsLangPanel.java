@@ -134,12 +134,15 @@ public class OptionsLangPanel extends AbstractParamPanel {
 			fileTextFieldDoc = fileTextField.getDocument();
 			
 			fileTextFieldDoc.addDocumentListener(new DocumentListener() {
+				@Override
 				public void changedUpdate(DocumentEvent e) {
 					updated(e);
 				}
+				@Override
 				public void insertUpdate(DocumentEvent e) {
 					updated(e);
 				}
+				@Override
 				public void removeUpdate(DocumentEvent e) {
 					updated(e);
 				}
@@ -229,6 +232,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		}
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 		loadLocales();
@@ -237,10 +241,12 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	    
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    String selectedLocale = (String) localeSelect.getSelectedItem();

@@ -101,6 +101,7 @@ public class SpiderPanelCellRenderer extends JPanel implements ListCellRenderer 
         this.add(txtDescription, gridBagConstraints2);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         Integer port = (Integer) value;

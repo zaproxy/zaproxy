@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/26 i18n
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and
+// removed unnecessary casts.
 
 package org.parosproxy.paros.view;
 
@@ -52,6 +54,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount() {
         return 5;
     }
@@ -59,6 +62,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return listAuth.size();
     }
@@ -66,8 +70,9 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
-        HostAuthentication auth = (HostAuthentication) listAuth.get(row);
+        HostAuthentication auth = listAuth.get(row);
         Object result = null;
         switch (col) {
         	case 0:	result = auth.getHostName();
@@ -85,13 +90,15 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
         return result;
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return true;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
-        HostAuthentication auth = (HostAuthentication) listAuth.get(row);
+        HostAuthentication auth = listAuth.get(row);
         //Object result = null;
         switch (col) {
         	case 0:	auth.setHostName((String) value);
@@ -115,7 +122,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     public Vector<HostAuthentication> getListAuth() {
         HostAuthentication auth = null;
         for (int i=0; i<listAuth.size();) {
-            auth = (HostAuthentication) listAuth.get(i);
+            auth = listAuth.get(i);
             if (auth.getHostName().equals("")) {
                 listAuth.remove(i);
                 continue;
@@ -135,6 +142,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
   	  	fireTableDataChanged();
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
@@ -142,7 +150,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     private void checkAndAppendNewRow() {
         HostAuthentication auth = null;
         if (listAuth.size() > 0) {
-            auth = (HostAuthentication) listAuth.get(listAuth.size()-1);
+            auth = listAuth.get(listAuth.size()-1);
             if (!auth.getHostName().equals("")) {
                 auth = new HostAuthentication();
                 listAuth.add(auth);
@@ -153,6 +161,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
         }
     }
     
+    @Override
     public Class getColumnClass(int c) {
         if (c == 1) {
             return Integer.class;

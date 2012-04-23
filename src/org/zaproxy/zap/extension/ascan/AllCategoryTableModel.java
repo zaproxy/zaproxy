@@ -57,6 +57,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
         fireTableDataChanged();        
     }
 
+    @Override
     @SuppressWarnings("unchecked")
 	public Class getColumnClass(int c) {
         if (c == 1) {
@@ -66,10 +67,12 @@ public class AllCategoryTableModel extends DefaultTableModel {
         
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 1) {
             return true;
@@ -77,6 +80,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
         return false;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
         switch (col) {
@@ -87,6 +91,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
         fireTableCellUpdated(row, col);
     }
     
+    @Override
     public int getColumnCount() {
         return 2;
     }
@@ -94,6 +99,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return Category.length();
     }
@@ -101,6 +107,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
         Object result = null;
         switch (col) {

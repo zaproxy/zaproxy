@@ -118,6 +118,7 @@ public class BruteForcePanelCellRenderer extends JPanel implements ListCellRende
         this.add(txtReason, gridBagConstraints3);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
     	BruteForceItem item = (BruteForceItem)value;

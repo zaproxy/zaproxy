@@ -74,6 +74,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		startSpider();
 	}
 
+	@Override
 	public void stopScan() {
 		if (spider != null) {
 			spider.stop();
@@ -82,18 +83,22 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.listenner.scanFinshed(site);
 	}
 
+	@Override
 	public boolean isStopped() {
 		return stopScan;
 	}
 
+	@Override
 	public String getSite() {
 		return site;
 	}
 	
+	@Override
 	public int getProgress () {
 		return this.spiderDone;
 	}
 
+	@Override
 	public DefaultListModel getList() {
 		return list;
 	}
@@ -111,6 +116,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 	}
 
+	@Override
 	public void pauseScan() {
 		if (spider != null) {
 			spider.pause();
@@ -118,6 +124,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.isPaused = true;
 	}
 
+	@Override
 	public void resumeScan() {
 		if (spider != null) {
 			spider.resume();
@@ -125,6 +132,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.isPaused = false;
 	}
 	
+	@Override
 	public boolean isPaused() {
 		return this.isPaused;
 	}
@@ -195,6 +203,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	    }
 	}
 	
+	@Override
 	public void spiderComplete() {
         try {
         	extension.getModel().getDb().getTableHistory().deleteHistoryType(
@@ -215,6 +224,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
 	}
 	
+	@Override
 	public void foundURI(HttpMessage msg, boolean isSkip) {
 	    if (extension.getView() != null) {
 	        if (isSkip) {
@@ -225,6 +235,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
         }
 	}
 	
+	@Override
 	public void readURI(HttpMessage msg) {
 
 	    SiteMap siteTree = extension.getModel().getSession().getSiteTree();
@@ -242,6 +253,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	    return spider;
 	}
 	
+	@Override
 	public void spiderProgress(final URI uri, final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
 	    this.spiderDone = numberCrawled;
 	    this.spiderTodo = numberToCrawl;
@@ -250,12 +262,14 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
     /**
      * @return Returns the startNode.
      */
+    @Override
     public SiteNode getStartNode() {
         return startNode;
     }
     /**
      * @param startNode The startNode to set.
      */
+    @Override
     public void setStartNode(SiteNode startNode) {
         this.startNode = startNode;
     }

@@ -32,6 +32,7 @@ public class FilteredZapTextField extends ZapTextField {
 		this.validChars = validChars;
 	}
 	
+	@Override
 	public void processKeyEvent(KeyEvent ev) {
 
 		char c = ev.getKeyChar();

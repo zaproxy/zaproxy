@@ -212,6 +212,7 @@ public class AlertPanel extends AbstractPanel {
 			regEx.setMinimumSize(new java.awt.Dimension(250,25));
 			
 			regEx.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					doSearch();
 				}
@@ -237,13 +238,16 @@ public class AlertPanel extends AbstractPanel {
 			treeAlert.setShowsRootHandles(true);
 			treeAlert.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
 			treeAlert.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
 				    if (SwingUtilities.isRightMouseButton(e)) {
@@ -288,6 +292,7 @@ public class AlertPanel extends AbstractPanel {
 				}
 			});
 			treeAlert.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
+				@Override
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 				    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
 				    if (node != null && node.getUserObject() != null) {
@@ -349,6 +354,7 @@ public class AlertPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 				    getTreeAlert().expandPath(rootTreePath);
 				}

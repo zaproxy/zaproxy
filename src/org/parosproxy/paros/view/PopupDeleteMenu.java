@@ -19,7 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and 
+// removed unnecessary cast.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -59,6 +61,7 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("sites.delete.popup"));	// ZAP: i18n
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    if (invoker.getName().equals("treeSite")) {
         	        JTree tree = (JTree) invoker;
@@ -78,6 +81,7 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 	}
 	
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;
@@ -117,7 +121,7 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
-                HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
+                HistoryReference ref = node.getPastHistoryReference().get(0);
                 ext.getHistoryList().removeElement(ref);
                 node.getPastHistoryReference().remove(0);
             }

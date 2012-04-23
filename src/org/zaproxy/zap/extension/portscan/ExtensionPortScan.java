@@ -85,6 +85,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
         this.setOrder(34);
     }
 
+    @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
         extensionHook.addSessionListener(this);
@@ -118,6 +119,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
         return portScanPanel;
     }
 
+    @Override
     public void sessionChanged(final Session session) {
         if (EventQueue.isDispatchThread()) {
             sessionChangedEventHandler(session);
@@ -126,6 +128,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
             try {
                 EventQueue.invokeAndWait(new Runnable() {
 
+                    @Override
                     public void run() {
                         sessionChangedEventHandler(session);
                     }
@@ -215,6 +218,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
         return this.getPortScanPanel().isScanning(node, false);
     }
 
+    @Override
     public String getXml(SiteNode site) {
         StringBuilder xml = new StringBuilder();
         List<Integer> ports = getPorts(site);

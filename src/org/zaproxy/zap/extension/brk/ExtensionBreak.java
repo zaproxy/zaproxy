@@ -96,6 +96,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return breakPanel;
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -290,6 +291,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	                	sessionAboutToChange();
 	                }

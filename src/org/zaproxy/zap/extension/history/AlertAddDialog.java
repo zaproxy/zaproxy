@@ -87,9 +87,11 @@ public class AlertAddDialog extends AbstractDialog {
         	this.setSize(407, 607);
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
+        	@Override
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 
 
+        	@Override
         	public void windowClosing(java.awt.event.WindowEvent e) {    
         	    btnCancel.doClick();
         	}
@@ -161,6 +163,7 @@ public class AlertAddDialog extends AbstractDialog {
 			btnOk.setText(Constant.messages.getString("alert.add.button.save"));
 			btnOk.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					Alert alert = alertViewPanel.getAlert();
 					try {
@@ -214,6 +217,7 @@ public class AlertAddDialog extends AbstractDialog {
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    extension.hideAlertAddDialog();
 				}

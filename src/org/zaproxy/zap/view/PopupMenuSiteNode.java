@@ -46,6 +46,7 @@ public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
 		return sn;
     }
 
+    @Override
     public boolean isEnabledForHistoryReference (HistoryReference href) {
 		SiteNode sn = this.getSiteNode(href);
 		if (sn != null) {
@@ -62,6 +63,7 @@ public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
     	return true;
     }
     
+    @Override
     public void performAction (HistoryReference href) throws Exception {
 		SiteNode sn = this.getSiteNode(href);
 		if (sn != null) {

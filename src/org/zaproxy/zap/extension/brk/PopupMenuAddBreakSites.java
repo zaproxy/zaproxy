@@ -70,6 +70,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
 
                 if (treeSite != null) {
@@ -89,6 +90,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         treeSite = getTree(invoker);
         if (treeSite != null) {

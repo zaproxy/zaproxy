@@ -52,6 +52,7 @@ public class PortScanParam extends AbstractParam {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
+    @Override
     protected void parse(){
 		try {
 			setThreadPerScan(getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN));

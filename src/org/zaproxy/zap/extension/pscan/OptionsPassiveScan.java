@@ -210,6 +210,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	    	});
 	    	
 			newPScan.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					clearEditForm();
 			        editName.setEditable(true);
@@ -218,6 +219,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 			});
 	    	
 			savePScan.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					saveEditForm();
 				}
@@ -280,6 +282,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
+    @Override
     public void initParam(Object obj) {
 	    getTableModel().setScanDefns(getRegexAutoTags(proxyListenerPassiveScan.list()));
     }
@@ -287,6 +290,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
+    @Override
     public void validateParam(Object obj) throws Exception {
 
     }
@@ -294,6 +298,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
+    @Override
     public void saveParam(Object obj) throws Exception {
     }
 
@@ -328,6 +333,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	        }
 
 	        tableAuth.addMouseListener(new MouseAdapter() {
+	        	@Override
 	        	public void mouseClicked(MouseEvent e){
 	        		if (tableAuth.getSelectedRow() > -1) {
 	        			PassiveScanner defn = proxyListenerPassiveScan.getDefn(

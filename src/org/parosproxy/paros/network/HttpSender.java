@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/09/19 Added debugging
+// ZAP: 2012/04/23 Removed unnecessary cast.
 
 package org.parosproxy.paros.network;
 
@@ -177,7 +178,7 @@ public class HttpSender {
     private void addAuth(HttpClient client) {
         List<HostAuthentication> list = param.getListAuth();
         for (int i=0; i<list.size(); i++) {
-            HostAuthentication auth = (HostAuthentication) list.get(i);
+            HostAuthentication auth = list.get(i);
             AuthScope authScope = null;
             NTCredentials credentials= null;
             try {

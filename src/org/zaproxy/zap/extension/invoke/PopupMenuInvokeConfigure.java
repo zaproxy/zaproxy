@@ -54,6 +54,7 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
     	return INVOKE_MENU_INDEX;
     }
 
+    @Override
     public boolean precedeWithSeparator() {
     	return true;
     }
@@ -68,6 +69,7 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		// Implement
         		Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("invoke.options.title"));

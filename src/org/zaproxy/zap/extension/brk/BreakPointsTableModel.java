@@ -52,10 +52,12 @@ public class BreakPointsTableModel extends AbstractTableModel {
 		return breakPoints;
 	}
 	
+	@Override
 	public int getColumnCount() {
 		return COLUMN_COUNT;
 	}
 
+	@Override
 	public int getRowCount() {
 		return breakPoints.size();
 	}
@@ -65,6 +67,7 @@ public class BreakPointsTableModel extends AbstractTableModel {
 		return columnNames[col];
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		Object obj = null;
 		BreakPoint breakPoint = breakPoints.get(row);

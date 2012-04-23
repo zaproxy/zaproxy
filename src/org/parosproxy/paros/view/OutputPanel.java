@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.view;
 
 
@@ -94,10 +95,12 @@ public class OutputPanel extends AbstractPanel {
 			txtOutput.setName("");
 			txtOutput.addMouseListener(new java.awt.event.MouseAdapter() { 
 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseAction(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseAction(e);
 				}
@@ -125,6 +128,7 @@ public class OutputPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getTxtOutput().append(msg);
 				}

@@ -37,6 +37,7 @@ public class AlertNode extends DefaultMutableTreeNode {
         this.setRisk(risk);
     }
     
+    @Override
     public String toString() {
     	if (this.getChildCount() > 1) {
             return nodeName + " (" + this.getChildCount() + ")";

@@ -77,6 +77,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
         confPopup = new PopupMenuInvokeConfigure();
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	 

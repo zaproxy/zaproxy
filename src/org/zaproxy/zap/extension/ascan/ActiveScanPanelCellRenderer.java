@@ -235,6 +235,7 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
         this.add(txtTag, gridBagConstraints6);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         /*
         HistoryReference ref = (HistoryReference) value;

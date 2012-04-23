@@ -21,8 +21,9 @@
  */
 // ZAP: 2011/10/29 Fixed cookie parsing
 // ZAP: 2012/03/15 Changed to use the classes HttpRequestBody and HttpResponseBody.
-//      Changed to use the byte[] body. Changed to use the class StringBuilder 
-//      instead of StringBuffer. Reworked some methods.
+// Changed to use the byte[] body. Changed to use the class StringBuilder instead
+// of StringBuffer. Reworked some methods.
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.network;
 
@@ -234,6 +235,7 @@ public class HttpMessage {
 	 * @param msg
 	 * @return
 	 */
+	@Override
 	public boolean equals(Object object) {
 
 	    if (!(object instanceof HttpMessage)) {

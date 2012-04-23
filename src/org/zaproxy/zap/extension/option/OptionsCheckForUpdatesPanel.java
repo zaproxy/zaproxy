@@ -89,15 +89,18 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 		return chkCheckOnStart;
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkCheckOnStart().setSelected(options.getCheckForUpdatesParam().getCheckOnStart() > 0);
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getCheckForUpdatesParam().setChckOnStart((getChkCheckOnStart().isSelected()) ? 1 : 0);

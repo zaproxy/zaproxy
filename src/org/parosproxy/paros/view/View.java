@@ -23,7 +23,8 @@
 // ZAP: 2011/05/31 Added option to dynamically change the display
 // ZAP: 2012/02/18 Changed default to be 'bottom full'
 // ZAP: 2012/03/15 Changed to set the configuration key to the HttpPanels, load
-//      the configuration and disable the response panel.
+// the configuration and disable the response panel.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -72,6 +73,7 @@ public class View implements ViewDelegate {
 	/**
 	 * @return Returns the mainFrame.
 	 */
+	@Override
 	public MainFrame getMainFrame() {
 		return mainFrame;
 	}
@@ -127,18 +129,22 @@ public class View implements ViewDelegate {
 	    
 	}
 	
+	@Override
 	public int showConfirmDialog(String msg) {
 		return JOptionPane.showConfirmDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
 	}
 	
+	@Override
 	public int showYesNoCancelDialog(String msg) {
 		return JOptionPane.showConfirmDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
 	}
 	
+	@Override
 	public void showWarningDialog(String msg) {
 		JOptionPane.showMessageDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
 	}
 
+	@Override
 	public void showMessageDialog(String msg) {
 		JOptionPane.showMessageDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -167,14 +173,17 @@ public class View implements ViewDelegate {
     /**
      * @return Returns the siteTreePanel.
      */
+    @Override
     public SiteMapPanel getSiteTreePanel() {
         return siteMapPanel;
     }
     
+    @Override
     public OutputPanel getOutputPanel() {
         return outputPanel;
     }
 
+    @Override
     public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
             requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
@@ -186,6 +195,7 @@ public class View implements ViewDelegate {
         return requestPanel;
     }
     
+    @Override
     public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
             responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
@@ -235,6 +245,7 @@ public class View implements ViewDelegate {
         return mainFrame.getWorkbench();
     }
     
+    @Override
     public void setStatus(String msg) {
         if (msg == null || msg.equals("")) {
             msg = " ";
@@ -242,6 +253,7 @@ public class View implements ViewDelegate {
         mainFrame.setStatus(msg);
     }
     
+    @Override
     public MainPopupMenu getPopupMenu() {
         MainPopupMenu popup = new MainPopupMenu(popupList);
         return popup;
@@ -251,6 +263,7 @@ public class View implements ViewDelegate {
         return popupList;
     }
     
+    @Override
     public WaitMessageDialog getWaitMessageDialog(String s) {
         WaitMessageDialog dialog = new WaitMessageDialog(getMainFrame(), true);
         dialog.setText(s);

@@ -230,6 +230,7 @@ public class AlertViewPanel extends AbstractPanel {
 			descSp.setViewportView(alertDescription);
 			alertDescription.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
+				@Override
 				public void keyPressed(java.awt.event.KeyEvent evt) {
 					if (evt.getKeyCode() == KeyEvent.VK_TAB) {
 						alertDescription.transferFocus();
@@ -242,6 +243,7 @@ public class AlertViewPanel extends AbstractPanel {
 			otherSp.setViewportView(alertOtherInfo);
 			alertOtherInfo.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
+				@Override
 				public void keyPressed(java.awt.event.KeyEvent evt) {
 					if (evt.getKeyCode() == KeyEvent.VK_TAB) {
 						alertOtherInfo.transferFocus();
@@ -254,6 +256,7 @@ public class AlertViewPanel extends AbstractPanel {
 			solutionSp.setViewportView(alertSolution);
 			alertSolution.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
+				@Override
 				public void keyPressed(java.awt.event.KeyEvent evt) {
 					if (evt.getKeyCode() == KeyEvent.VK_TAB) {
 						alertSolution.transferFocus();
@@ -266,6 +269,7 @@ public class AlertViewPanel extends AbstractPanel {
 			referenceSp.setViewportView(alertReference);
 			alertReference.addKeyListener(new KeyAdapter() {
 				// Change tab key to transfer focus to the next element
+				@Override
 				public void keyPressed(java.awt.event.KeyEvent evt) {
 					if (evt.getKeyCode() == KeyEvent.VK_TAB) {
 						alertReference.transferFocus();
@@ -512,6 +516,7 @@ public class AlertViewPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getDefaultOutput().append(msg);
 				}

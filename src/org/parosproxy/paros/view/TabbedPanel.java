@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.view;
 
@@ -56,6 +57,7 @@ public class TabbedPanel extends JTabbedPane {
 		}
 		this.addMouseListener(new java.awt.event.MouseAdapter() { 
 
+			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {    
 
 			    if (e.getClickCount() >= 2) {

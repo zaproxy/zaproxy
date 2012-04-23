@@ -77,6 +77,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
         this.setOrder(42);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
@@ -201,6 +202,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 			helpButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // TODO: doesn't work?
 			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					showHelp();
 				}

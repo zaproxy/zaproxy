@@ -38,10 +38,12 @@ public class HttpPanelResponse extends HttpPanel  {
 		HttpPanelManager.getInstance().addResponsePanel(this);
 	}
 
+	@Override
 	protected void initComponents() {
 		addComponent(new ResponseSplitComponent(), Model.getSingleton().getOptionsParam().getConfig());
 	}
 
+	@Override
 	protected void initSpecial() {
 		
 	}

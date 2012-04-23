@@ -76,6 +76,7 @@ public class SearchMatch {
 		return message;
 	}
 	
+	@Override
 	public String toString() {
 		return "SearchMatch " + location.name() + " " + start + " " + end; 
 	}

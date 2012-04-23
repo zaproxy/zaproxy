@@ -51,10 +51,12 @@ public class HttpPanelRequest extends HttpPanel {
 		HttpPanelManager.getInstance().addRequestPanel(this);
 	}
 
+	@Override
 	protected void initComponents() {
 		addComponent(new RequestSplitComponent(), Model.getSingleton().getOptionsParam().getConfig());
 	}
 
+	@Override
 	protected void initSpecial() {
 		if (isEditable()) {
 			initComboChangeMethod();

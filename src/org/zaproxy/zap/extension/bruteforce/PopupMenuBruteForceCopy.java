@@ -62,6 +62,7 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 
                 Object[] objs = extension.getBruteForcePanel().getBruteForceList().getSelectedValues();
@@ -86,6 +87,7 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
         clipboard.setContents( new StringSelection(str), this );
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
             try {

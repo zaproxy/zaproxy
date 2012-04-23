@@ -74,6 +74,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
 	 */
+	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 	    
 		if (isSkipImage(msg.getRequestHeader())) {
@@ -102,6 +103,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		getBreakPanel().breakPointDisplayed();
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					View.getSingleton().getMainFrame().toFront();
 				}
@@ -114,6 +116,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	private void setHttpDisplay(final BreakPanel breakPanel, final HttpMessage msg, final boolean isRequest) {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					breakPanel.setMessage(msg, isRequest);
 				}
@@ -137,6 +140,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getBreakPanel().getMessage(msg, isRequest);
 				}
@@ -152,6 +156,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	 * 
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(com.proofsecure.paros.network.HttpMessage)
 	 */
+	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		if (isSkipImage(msg.getRequestHeader())|| isSkipImage(msg.getResponseHeader())) {
 			return true;
@@ -235,6 +240,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		} else {
 			try {
 				EventQueue.invokeAndWait(new Runnable() {
+					@Override
 					public void run() {
 						getBreakPanel().clearAndDisableRequest();
 					}
@@ -251,6 +257,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		} else {
 			try {
 				EventQueue.invokeAndWait(new Runnable() {
+					@Override
 					public void run() {
 						getBreakPanel().clearAndDisableResponse();
 					}

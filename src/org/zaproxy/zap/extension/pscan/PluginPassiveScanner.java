@@ -53,6 +53,7 @@ public abstract class PluginPassiveScanner implements PassiveScanner {
 		this.getConfig().setProperty("pscans." + getClass().getCanonicalName() + ".enabled", this.isEnabled());
 	}
 
+	@Override
 	public Level getLevel() {
 		if (Level.DEFAULT.equals(level)) {
 			return defaultLevel;
@@ -64,6 +65,7 @@ public abstract class PluginPassiveScanner implements PassiveScanner {
 		return level;
 	}
 	
+	@Override
 	public void setLevel(Level level) {
 		this.level = level;
 	}

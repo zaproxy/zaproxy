@@ -22,6 +22,7 @@
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/03/15 Changed the method getDisplay to use the class StringBuilder 
 //      instead of StringBuffer.
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.model;
 
@@ -167,6 +168,7 @@ public class HistoryReference {
 		return history.getHttpMessage();
 	}
 	
+	@Override
 	public String toString() {
 
         if (display != null) {

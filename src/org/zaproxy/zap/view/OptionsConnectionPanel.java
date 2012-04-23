@@ -207,6 +207,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    
 	    OptionsParam optionsParam = (OptionsParam) obj;
@@ -226,6 +227,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    }
 	}
 
+	@Override
 	public void saveParam(Object obj) throws Exception {
 		
 	    OptionsParam optionsParam = (OptionsParam) obj;
@@ -258,6 +260,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			txtProxyChainPassword = new JPasswordField();
 			txtProxyChainPassword.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					proxyDialog.saveAndClose();
 				}

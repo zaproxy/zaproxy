@@ -69,6 +69,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
         this.setOrder(18);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    extensionHook.addProxyListener(this);
 	    if (getView() != null) {

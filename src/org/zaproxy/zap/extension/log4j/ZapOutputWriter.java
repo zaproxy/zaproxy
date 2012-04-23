@@ -36,6 +36,7 @@ public class ZapOutputWriter extends WriterAppender {
 		this.scanStatus = scanStatus;
 	}
 
+	@Override
 	public void append(LoggingEvent event) {
 
 		if (event.getLevel().equals(Level.ERROR)) {

@@ -60,6 +60,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         this.setName(NAME);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

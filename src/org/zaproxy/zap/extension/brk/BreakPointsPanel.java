@@ -183,6 +183,7 @@ public class BreakPointsPanel extends AbstractPanel {
 			breakPointTable.setDoubleBuffered(true);
 			breakPointTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			breakPointTable.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 
 					if (SwingUtilities.isRightMouseButton(e)) {
@@ -232,6 +233,7 @@ public class BreakPointsPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					addBreakPointRow(url);
 				}
@@ -248,6 +250,7 @@ public class BreakPointsPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					editBreakPointRow(row, url);
 				}
@@ -264,6 +267,7 @@ public class BreakPointsPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					removeBreakPointRow(row);
 				}

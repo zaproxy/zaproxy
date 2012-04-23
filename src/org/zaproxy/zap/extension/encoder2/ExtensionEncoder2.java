@@ -75,6 +75,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 	}
 	
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
@@ -97,6 +98,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 			toolsMenuEncoder.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
 			toolsMenuEncoder.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
                     showEncodeDecodeDialog(getView().getMainFrame(), null);
 				}
@@ -141,6 +143,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             menuEncode.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
 
             menuEncode.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     showEncodeDecodeDialog(getView().getMainFrame(), null);
                 }
@@ -159,6 +162,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             popupEncodeMenu = new PopupEncoder2Menu();
             popupEncodeMenu.setText(Constant.messages.getString("enc2.popup"));
             popupEncodeMenu.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     showEncodeDecodeDialog(popupEncodeMenu.getParentFrame(), popupEncodeMenu.getLastInvoker());
                     

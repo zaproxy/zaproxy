@@ -28,6 +28,7 @@
 //      the Cache-Control header field when the HTTP version is 1.1 and changed a if condition to 
 //      validate the variable version instead of the variable method.
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some methods.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -103,6 +104,7 @@ public class HttpRequestHeader extends HttpHeader {
         setMessage(data);
     }
 
+    @Override
     public void clear() {
         super.clear();
 
@@ -168,6 +170,7 @@ public class HttpRequestHeader extends HttpHeader {
      * Set this request header with the given message. Whether this is a secure
      * header depends on the URL given.
      */
+    @Override
     public void setMessage(String data) throws HttpMalformedHeaderException {
         this.setMessage(data, false);
     }
@@ -262,6 +265,7 @@ public class HttpRequestHeader extends HttpHeader {
     /**
      * Set the HTTP version of this request header.
      */
+    @Override
     public void setVersion(String version) {
         mVersion = version.toUpperCase();
     }
@@ -270,6 +274,7 @@ public class HttpRequestHeader extends HttpHeader {
      * Get the content length in this request header. If the content length is
      * undetermined, 0 will be returned.
      */
+    @Override
     public int getContentLength() {
         if (mContentLength == -1) {
             return 0;
@@ -388,6 +393,7 @@ public class HttpRequestHeader extends HttpHeader {
      * Return if this request header is a image request basing on the path
      * suffix.
      */
+    @Override
     public boolean isImage() {
         try {
             // ZAP: prevents a NullPointerException when no path exists
@@ -415,6 +421,7 @@ public class HttpRequestHeader extends HttpHeader {
     /**
      * Return the prime header (first line).
      */
+    @Override
     public String getPrimeHeader() {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
     }

@@ -21,6 +21,7 @@
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2011/11/02 Added brute force options
 // ZAP: 2011/11/15 Removed the getConfig method and the config field, now it's used the method of the base class.
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.model;
 
@@ -164,6 +165,7 @@ public class OptionsParam extends AbstractParam {
     /* (non-Javadoc)
      * @see org.parosproxy.paros.common.AbstractParam#parse()
      */
+    @Override
     protected void parse() {
 		getConnectionParam().load(getConfig());
 	    getProxyParam().load(getConfig());

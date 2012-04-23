@@ -67,6 +67,7 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
 			    DefaultMutableTreeNode node = (DefaultMutableTreeNode) extension.getAlertPanel().getTreeAlert().getLastSelectedPathComponent();
@@ -89,6 +90,7 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
             try {

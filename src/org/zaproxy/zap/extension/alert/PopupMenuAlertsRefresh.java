@@ -61,6 +61,7 @@ public class PopupMenuAlertsRefresh extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
 			    ((DefaultTreeModel)extension.getAlertPanel().getTreeAlert().getModel()).reload();
         	}
@@ -68,6 +69,7 @@ public class PopupMenuAlertsRefresh extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
         	return true;

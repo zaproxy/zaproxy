@@ -256,6 +256,7 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
         this.add(txtFuzz, gridBagConstraints7);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         HttpMessage msg = (HttpMessage) value;

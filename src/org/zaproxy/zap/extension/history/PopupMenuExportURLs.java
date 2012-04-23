@@ -78,6 +78,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
         		JTree site = extension.getView().getSiteTreePanel().getTreeSite();
@@ -170,6 +171,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
 	    JFileChooser chooser = new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -185,6 +187,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	               return Constant.messages.getString("file.format.textOrHtml");
 	           }

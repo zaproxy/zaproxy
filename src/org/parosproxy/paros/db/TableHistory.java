@@ -20,6 +20,7 @@
 */
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies instead of String.
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.db;
 
@@ -83,6 +84,7 @@ public class TableHistory extends AbstractTable {
     public TableHistory() {
     }
     
+    @Override
     protected void reconnect(Connection conn) throws SQLException {
         psRead = conn.prepareStatement("SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
         // updatable recordset does not work in hsqldb jdbc impelementation!

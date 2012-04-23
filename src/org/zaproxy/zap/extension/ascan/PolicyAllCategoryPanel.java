@@ -112,6 +112,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
+    @Override
     public void initParam(Object obj) {
         
     }
@@ -119,6 +120,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
+    @Override
     public void validateParam(Object obj) throws Exception {
         
     }
@@ -126,6 +128,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
+    @Override
     public void saveParam(Object obj) throws Exception {
         
     }
@@ -165,6 +168,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 			btnEnableAll.setText(Constant.messages.getString("ascan.policy.button.enableall"));
 			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getAllCategoryTableModel().setAllCategoryEnabled(true);
@@ -186,6 +190,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 			btnDisableAll.setText(Constant.messages.getString("ascan.policy.button.disableall"));
 			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getAllCategoryTableModel().setAllCategoryEnabled(false);

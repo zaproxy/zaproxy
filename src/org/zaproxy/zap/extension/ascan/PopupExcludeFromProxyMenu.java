@@ -59,6 +59,7 @@ public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("sites.exclude.proxy.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    if (invoker.getName().equals("treeSite")) {
                     Session session = Model.getSingleton().getSession();
@@ -85,6 +86,7 @@ public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 	}
 	
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;
@@ -126,7 +128,7 @@ public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
-                HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
+                HistoryReference ref = node.getPastHistoryReference().get(0);
                 ext.getHistoryList().removeElement(ref);
                 node.getPastHistoryReference().remove(0);
             }
@@ -162,7 +164,7 @@ private static void purge(SiteMap map, SiteNode node) {
 
            // delete past reference in node
            while (node.getPastHistoryReference().size() > 0) {
-               HistoryReference ref = (HistoryReference) node.getPastHistoryReference().get(0);
+               HistoryReference ref = node.getPastHistoryReference().get(0);
                ext.getHistoryList().removeElement(ref);
                ref.delete();
                node.getPastHistoryReference().remove(0);

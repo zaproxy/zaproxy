@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/23 Removed unnecessary casts.
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -178,7 +179,7 @@ abstract public class FileXML {
 	    Element element = null;
 		String result = "";
 		try {
-			element = (Element) getElement(base, tag);
+			element = getElement(base, tag);
 			result = getText(element);
 		} catch (Exception e) {
 		}
@@ -192,7 +193,7 @@ abstract public class FileXML {
 	}
 
 	protected List<String> getValues(String tag) {
-		NodeList nodeList = (NodeList) doc.getElementsByTagName(tag);
+		NodeList nodeList = doc.getElementsByTagName(tag);
 		ArrayList<String> resultList = new ArrayList<String>();
 		Element element = null;
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -320,7 +321,7 @@ abstract public class FileXML {
 		Node newNode = null;
 		
 		for (int i=0; i<path.length; i++) {
-			nodeList = (NodeList) doc.getElementsByTagName(path[i]);
+			nodeList = doc.getElementsByTagName(path[i]);
 			if (nodeList.getLength() == 0) {
 				// create element if not found
 				newElement = doc.createElement(path[i]);

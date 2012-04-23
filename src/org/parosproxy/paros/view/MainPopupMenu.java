@@ -24,6 +24,7 @@
 //      changed the method show to use the methods handleMenu and handleMenuItem.
 // ZAP: 2012/02/19 Removed the Delete button
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.view;
 
@@ -85,6 +86,7 @@ public class MainPopupMenu extends JPopupMenu {
         this.add(getPopupPurgeMenu());
 	}
 	
+	@Override
 	public synchronized void show(Component invoker, int x, int y) {
 	    
 	    ExtensionPopupMenuItem menuItem = null;

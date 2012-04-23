@@ -37,10 +37,12 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 
 	private static final char [] QUOTES = {'\'', '"'};
 
+    @Override
     public int getId() {
         return 40010;
     }
 
+    @Override
     public String getName() {
     	return Constant.messages.getString("scanner.plugin.xsstag");
     }
@@ -48,6 +50,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -55,6 +58,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -65,6 +69,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -72,6 +77,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -82,6 +88,7 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();
@@ -99,10 +106,12 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
     	
     	for (int i=0; i < XSS_ATTACKS.length; i++) {

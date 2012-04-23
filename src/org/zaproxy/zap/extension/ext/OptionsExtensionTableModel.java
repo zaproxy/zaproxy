@@ -62,14 +62,17 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 			}});
     }
 
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
+    @Override
     public int getRowCount() {
         return extensions.size();
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         Extension ext = getExtension(row);
         if (ext != null) {
@@ -91,6 +94,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         return null;
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (columnIndex == 0) {
     		// Dont allow enabled core extensions to be edited via the UI (can edit the config file directly;)
@@ -119,6 +123,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     	return null;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
     	if (col == 0) {
     		getExtension(row).setEnabled((Boolean) value);
@@ -140,10 +145,12 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 		}
 	}
 
+	@Override
 	public String getColumnName(int col) {
         return columnNames[col];
     }
     
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class getColumnClass(int c) {
     	if (c == 0) {

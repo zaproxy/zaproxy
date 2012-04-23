@@ -59,10 +59,12 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_33");
     private static Logger log = Logger.getLogger(TestPathTraversal.class);
 
+    @Override
     public int getId() {
         return 6;
     }
 
+    @Override
     public String getName() {
     	if (vuln != null) {
     		return vuln.getAlert();
@@ -73,6 +75,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -80,6 +83,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -90,6 +94,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.SERVER;
     }
@@ -97,6 +102,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -107,6 +113,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();
@@ -124,10 +131,12 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 	
 		try {

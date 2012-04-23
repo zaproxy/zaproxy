@@ -42,6 +42,7 @@ public class ExtensionExtension extends ExtensionAdaptor {
         //this.setOrder(0);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

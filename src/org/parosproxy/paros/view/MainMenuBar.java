@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -146,6 +147,7 @@ public class MainMenuBar extends JMenuBar {
 			menuToolsOptions.setText(Constant.messages.getString("menu.tools.options")); // ZAP: i18n
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getMenuToolsControl().options();
@@ -200,6 +202,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileNewSession.setText(Constant.messages.getString("menu.file.newSession")); // ZAP: i18n
 			menuFileNewSession.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					try {
                         getMenuFileControl().newSession(true);
@@ -233,6 +236,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileOpen.setText(Constant.messages.getString("menu.file.openSession")); // ZAP: i18n
 			menuFileOpen.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					getMenuFileControl().openSession();
 			        getMenuFileSave().setEnabled(true);
@@ -264,6 +268,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileSaveAs.setText(Constant.messages.getString("menu.file.saveAs")); // ZAP: i18n
 			menuFileSaveAs.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    getMenuFileControl().saveAsSession();
 
@@ -290,6 +295,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileExit.setText(Constant.messages.getString("menu.file.exit")); // ZAP: i18n
 			menuFileExit.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					getMenuFileControl().exit();
 				}
@@ -327,6 +333,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    getMenuFileControl().properties();
 				}
@@ -349,6 +356,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileSave.setEnabled(false);
 			menuFileSave.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getMenuFileControl().saveSession();
@@ -394,6 +402,7 @@ public class MainMenuBar extends JMenuBar {
 			menuHelpAbout.setText(Constant.messages.getString("menu.help.about")); // ZAP: i18n
 			menuHelpAbout.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					AboutDialog dialog = new AboutDialog(View.getSingleton().getMainFrame(), true);
@@ -426,6 +435,7 @@ public class MainMenuBar extends JMenuBar {
 			
 			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					DesktopUtils.openUrlInBrowser(Constant.ZAP_HOMEPAGE);
 				}

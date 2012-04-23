@@ -37,10 +37,12 @@ public class TestRedirect extends AbstractAppParamPlugin {
     
     private static Logger log = Logger.getLogger(TestRedirect.class);
 	
+    @Override
     public int getId() {
         return 20010;
     }
 
+    @Override
     public String getName() {
     	if (vuln != null) {
     		return vuln.getAlert();
@@ -51,6 +53,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -58,6 +61,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -68,6 +72,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.MISC;
     }
@@ -75,6 +80,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -85,6 +91,7 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();
@@ -102,12 +109,14 @@ public class TestRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
     
 
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 		try {
 			String redirect = REDIR1;

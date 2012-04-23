@@ -21,6 +21,8 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and
+// removed unnecessary casts.
 
 package org.parosproxy.paros.model;
 
@@ -146,6 +148,7 @@ public class Session extends FileXML {
     
     protected void open(final File file, final SessionListener callback) {
         Thread t = new Thread(new Runnable() {
+            @Override
             public void run() {
                 Exception thrownException = null;
                 try {
@@ -179,7 +182,7 @@ public class Session extends FileXML {
 		HistoryReference historyRef = null;
 		
 		for (int i=0; i<list.size(); i++) {
-			int historyId = ((Integer) list.get(i)).intValue();
+			int historyId = list.get(i).intValue();
 
 			try {
 				historyRef = new HistoryReference(historyId);
@@ -199,7 +202,7 @@ public class Session extends FileXML {
 		list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_SPIDER);
 		
 		for (int i=0; i<list.size(); i++) {
-			int historyId = ((Integer) list.get(i)).intValue();
+			int historyId = list.get(i).intValue();
 
 			try {
 				historyRef = new HistoryReference(historyId);
@@ -244,6 +247,7 @@ public class Session extends FileXML {
 		
 	}
 	
+	@Override
 	protected void parse() throws Exception {
 	    
 	    long tempSessionId = 0;
@@ -271,6 +275,7 @@ public class Session extends FileXML {
 	 */
     protected void save(final String fileName, final SessionListener callback) {
         Thread t = new Thread(new Runnable() {
+            @Override
             public void run() {
                 Exception thrownException = null;
                 try {

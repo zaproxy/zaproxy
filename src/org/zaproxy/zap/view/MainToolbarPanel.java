@@ -132,6 +132,7 @@ public class MainToolbarPanel extends JPanel {
 
 			btnNew.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().newSession(true);
@@ -153,6 +154,7 @@ public class MainToolbarPanel extends JPanel {
 
 			btnOpen.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().openSession();
@@ -174,6 +176,7 @@ public class MainToolbarPanel extends JPanel {
 
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().saveAsSession();
@@ -195,6 +198,7 @@ public class MainToolbarPanel extends JPanel {
 
 			btnSession.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
@@ -231,6 +235,7 @@ public class MainToolbarPanel extends JPanel {
 			
 			btnExpandSites.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != View.DISPLAY_OPTION_LEFT_FULL) {
 						getBtnExpandReports().setSelected(false);
@@ -258,6 +263,7 @@ public class MainToolbarPanel extends JPanel {
 
 			btnExpandReports.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != View.DISPLAY_OPTION_BOTTOM_FULL) {
 						getBtnExpandSites().setSelected(false);

@@ -106,6 +106,7 @@ public class SearchPanel extends AbstractPanel {
 		resultsList.setFixedCellHeight(16);	// Significantly speeds up rendering
 
 		resultsList.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) { 
 					View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -128,6 +129,7 @@ public class SearchPanel extends AbstractPanel {
 		
 		resultsList.setCellRenderer(getSearchPanelCellRenderer());
 		resultsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+			@Override
 			public void valueChanged(javax.swing.event.ListSelectionEvent e) {
 				if (resultsList.getSelectedValue() == null) {
 					return;
@@ -242,6 +244,7 @@ public class SearchPanel extends AbstractPanel {
 
 			btnSearch.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					doSearch();
 				}
@@ -259,6 +262,7 @@ public class SearchPanel extends AbstractPanel {
 
 			btnNext.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					highlightNextResult();
 				}
@@ -276,6 +280,7 @@ public class SearchPanel extends AbstractPanel {
 
 			btnPrev.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					highlightPrevResult();
 				}

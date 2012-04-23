@@ -67,6 +67,7 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
         	    JList listLog = extension.getLogPanel().getListLog();
@@ -90,6 +91,7 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {

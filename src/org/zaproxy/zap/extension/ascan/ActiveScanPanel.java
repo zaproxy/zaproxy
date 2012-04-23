@@ -135,6 +135,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			messageList.setFixedCellHeight(16);	// Significantly speeds up rendering
 			
 			messageList.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {    
 				    if (SwingUtilities.isRightMouseButton(e)) {
 						// Select list item on right click

@@ -62,6 +62,7 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 
                 Object[] objs = extension.getPortScanPanel().getPortList().getSelectedValues();
@@ -92,6 +93,7 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
         clipboard.setContents( new StringSelection(str), this );
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(PortScanPanel.PANEL_NAME)) {
             try {

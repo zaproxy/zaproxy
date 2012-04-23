@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2011/11/20 Handle dialogs with no children
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 
 package org.parosproxy.paros.view;
@@ -196,6 +197,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					try {
@@ -228,6 +230,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				   exitResult = JOptionPane.CANCEL_OPTION;
@@ -315,6 +318,7 @@ public class AbstractParamDialog extends AbstractDialog {
 			treeParam.setRootVisible(true);
 			treeParam.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
+				@Override
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
 					
 			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();

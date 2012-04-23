@@ -98,6 +98,7 @@ public class FuzzerThread implements Runnable {
 		this.urlEncode = urlEncode;
 	}
 
+    @Override
     public void run() {
         log.info("fuzzer started");
         

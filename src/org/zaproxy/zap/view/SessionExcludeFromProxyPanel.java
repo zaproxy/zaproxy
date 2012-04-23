@@ -102,15 +102,18 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 		return panelSession;
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
 	    getModel().setLines(session.getExcludeFromProxyRegexs());
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
 	    session.setExcludeFromProxyRegexs(getModel().getLines());

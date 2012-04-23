@@ -255,6 +255,7 @@ public class ParamsPanel extends AbstractPanel{
 			paramsTable.setDoubleBuffered(true);
 			paramsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 
 					if (SwingUtilities.isRightMouseButton(e)) {
@@ -284,6 +285,7 @@ public class ParamsPanel extends AbstractPanel{
 
 			siteSelect.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    String item = (String) siteSelect.getSelectedItem();

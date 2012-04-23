@@ -21,6 +21,7 @@
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.db;
 
@@ -67,6 +68,7 @@ public class TableAlert extends AbstractTable {
     public TableAlert() {
     }
     
+    @Override
     protected void reconnect(Connection conn) throws SQLException {
         // ZAP: Add the SOURCEHISTORYID column to the db if necessary
         ResultSet rs = conn.getMetaData().getColumns(null, null, "ALERT", SOURCEHISTORYID);

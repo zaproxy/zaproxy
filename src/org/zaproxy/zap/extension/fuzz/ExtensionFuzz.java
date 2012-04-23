@@ -90,6 +90,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
         Collections.sort(fuzzerCategories);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
@@ -187,6 +188,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
             popupFuzzMenu = new PopupFuzzMenu(this);
             popupFuzzMenu.setText(Constant.messages.getString("fuzz.tools.menu.fuzz"));
             popupFuzzMenu.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                 	Object source = e.getSource();
                 	if (source != null && source instanceof PopupFuzzMenu) {

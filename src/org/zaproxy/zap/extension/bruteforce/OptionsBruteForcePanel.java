@@ -224,6 +224,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		return checkBoxRecursive;
 	}
 	 
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    BruteForceParam param = (BruteForceParam) options.getParamSet(BruteForceParam.class);
@@ -237,10 +238,12 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    }
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    BruteForceParam param = (BruteForceParam) options.getParamSet(BruteForceParam.class);
@@ -280,6 +283,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		if (addFileButton == null) {
 	        addFileButton = new JButton(Constant.messages.getString("bruteforce.options.button.addfile")); 
 			addFileButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 			    	JFileChooser fcCommand = new JFileChooser();
 					fcCommand.setFileFilter( new FileFilter() {

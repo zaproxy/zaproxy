@@ -90,11 +90,13 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
     }
 
 
+    @Override
     public void validateParam(Object obj) throws Exception {
 
     }
 
 
+    @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    AntiCsrfParam antiCsrfParam = optionsParam.getAntiCsrfParam();

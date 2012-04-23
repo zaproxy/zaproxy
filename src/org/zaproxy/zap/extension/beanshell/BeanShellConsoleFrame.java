@@ -129,6 +129,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 			btnEvaluate = new JButton();
 			btnEvaluate.setText(Constant.messages.getString("beanshell.button.evaluate"));			
 			btnEvaluate.addActionListener(new ActionListener() { 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					beanShellEval(getBeanShellPanel().getTxtEditor().getText());
 				}
@@ -174,6 +175,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 			btnLoad.setText(Constant.messages.getString("beanshell.button.load"));
 			
 			btnLoad.addActionListener(new ActionListener() { 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (getBeanShellPanel().isSaved() == false) {
 						int confirm = view.showConfirmDialog(Constant.messages.getString("beanshell.dialog.unsaved"));
@@ -207,6 +209,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 			btnSave.setText(Constant.messages.getString("beanshell.button.save"));
 			
 			btnSave.addActionListener(new ActionListener() { 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (currentScriptFile != null) {
 						try {
@@ -244,6 +247,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 			btnSaveAs.setText(Constant.messages.getString("beanshell.button.saveas"));
 			
 			btnSaveAs.addActionListener(new ActionListener() { 
+				@Override
 				public void actionPerformed(ActionEvent e) {					
 					JFileChooser fc = new JFileChooser(scriptsDir);
 					fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -273,6 +277,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
        return extension;
    }
    
+   @Override
    public void setVisible(boolean show) {    
        super.setVisible(show);       
    }

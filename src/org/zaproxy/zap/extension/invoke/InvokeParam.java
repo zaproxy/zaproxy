@@ -40,6 +40,7 @@ public class InvokeParam extends AbstractParam {
 	public InvokeParam() {
 	}
 	
+	@Override
 	protected void parse() {
         listInvoke.clear();
 

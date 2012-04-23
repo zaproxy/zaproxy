@@ -21,6 +21,7 @@
 // ZAP: 2011/05/15 i19n
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -141,6 +142,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 		return txtDescription;
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
 	    getTxtSessionName().setText(session.getSessionName());
@@ -149,10 +151,12 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    getTxtDescription().discardAllEdits();
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
 	    session.setSessionName(getTxtSessionName().getText());

@@ -349,6 +349,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					resultsModel.addElement(msg);
 					getProgressBar().setValue(getProgressBar().getValue() + 1);
@@ -370,6 +371,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			fuzzResultList.setFixedCellHeight(16);	// Significantly speeds up rendering
 
 	        fuzzResultList.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {    
 				    if (SwingUtilities.isRightMouseButton(e)) {
 						// Select list item on right click
@@ -391,6 +393,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
 			fuzzResultList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 
+				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
 				    if (fuzzResultList.getSelectedValue() == null) {
 				        return;

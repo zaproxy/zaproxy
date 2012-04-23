@@ -65,6 +65,7 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("params.anticrsf.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		
         		extension.removeAntiCsrfToken();
@@ -74,10 +75,11 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 			
 	}
 
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
         	
-        	HtmlParameterStats item = (HtmlParameterStats) extension.getParamsPanel().getSelectedParam();
+        	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
         	// Note that only form params are currently supported
         	if (item != null && HtmlParameter.Type.form.equals(item.getType()) && 
         			item.getFlags().contains(HtmlParameter.Flags.anticsrf.name())) {

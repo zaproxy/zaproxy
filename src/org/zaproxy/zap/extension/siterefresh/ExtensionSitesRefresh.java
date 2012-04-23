@@ -57,6 +57,7 @@ public class ExtensionSitesRefresh extends ExtensionAdaptor {
         this.setOrder(1000);	// Want this to be as low as possible :)
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {

@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/03 Cope with unexpected values in config file
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method and removed
+// unnecessary cast.
 
 package org.parosproxy.paros.network;
 
@@ -92,6 +94,7 @@ public class ConnectionParam extends AbstractParam {
 	public ConnectionParam() {
 	}
 	
+	@Override
 	protected void parse() {
 
 		setProxyChainName(getConfig().getString(PROXY_CHAIN_NAME, ""));
@@ -286,7 +289,7 @@ public class ConnectionParam extends AbstractParam {
             getConfig().clearProperty(AUTH + ".A"+i);
         }
         for (int i=0; i<listAuth.size(); i++) {
-            auth = (HostAuthentication) listAuth.get(i);            
+            auth = listAuth.get(i);            
             getConfig().setProperty(getAuth(i, AUTH_HOST_NAME), auth.getHostName());
             getConfig().setProperty(getAuth(i, AUTH_PORT), Integer.toString(auth.getPort()));
             getConfig().setProperty(getAuth(i, AUTH_USER_NAME), auth.getUserName());

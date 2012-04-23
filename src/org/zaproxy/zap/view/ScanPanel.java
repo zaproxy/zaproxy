@@ -250,6 +250,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        	    	setActiveScanLabelsEventHandler();
 	                }
@@ -364,6 +365,7 @@ public abstract class ScanPanel extends AbstractPanel {
 
 			siteSelect.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    String item = (String) siteSelect.getSelectedItem();
@@ -605,6 +607,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	                	scanFinshedEventHandler(host);
 	                }
@@ -645,6 +648,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	                	scanProgressEventHandler(host, progress, maximum);
 	                }

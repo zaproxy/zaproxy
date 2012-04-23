@@ -94,6 +94,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 			portList.setFixedCellHeight(16);	// Significantly speeds up rendering
 			
 			portList.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 					if (SwingUtilities.isRightMouseButton(e)) {
 

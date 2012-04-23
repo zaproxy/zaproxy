@@ -54,11 +54,13 @@ public class ParamsTableModel extends AbstractTableModel {
 		lastEditedRow = -1;
 	}
 
+	@Override
 	public int getColumnCount() {
 		columnNames.add("");
 		return COLUMN_COUNT;
 	}
 
+	@Override
 	public int getRowCount() {
 		return paramStats.size();
 	}

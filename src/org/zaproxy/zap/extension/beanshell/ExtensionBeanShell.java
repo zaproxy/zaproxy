@@ -66,6 +66,7 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
         this.setOrder(38);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -79,6 +80,7 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
 		    menuBeanShell = new JMenuItem();
 		    menuBeanShell.setText(Constant.messages.getString("beanshell.menu.title"));
 		    menuBeanShell.addActionListener(new java.awt.event.ActionListener() { 
+		    	@Override
 		    	public void actionPerformed(java.awt.event.ActionEvent e) {
 		    	    BeanShellConsoleFrame dialog = getBeanShellConsoleDialog();
 		    	    dialog.setVisible(true);

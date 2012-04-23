@@ -21,6 +21,7 @@
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension;
 
@@ -57,6 +58,7 @@ public abstract class ExtensionAdaptor implements Extension {
     /**
      * @return Returns the name.
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -71,6 +73,7 @@ public abstract class ExtensionAdaptor implements Extension {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.plugin.Plugin#initPlugin()
      */
+    @Override
     public void init() {
       
     }
@@ -78,14 +81,17 @@ public abstract class ExtensionAdaptor implements Extension {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.plugin.Plugin#initModel(com.proofsecure.paros.model.Model)
      */
+    @Override
     public void initModel(Model model) {
         this.model = model;
     }
     
+    @Override
     public void initView(ViewDelegate view) {
         this.view = view;
     }
     
+    @Override
     public void initXML(Session session, OptionsParam options) {
     }
 
@@ -103,25 +109,31 @@ public abstract class ExtensionAdaptor implements Extension {
         return null;
     }
     
+    @Override
     public void start() {
         
     }
     
+    @Override
     public void stop() {
         
     }
 
+    @Override
     public void destroy() {
     }
     
+    @Override
     public ViewDelegate getView() {
         return view;
     }
     
+    @Override
     public Model getModel() {
         return model;
     }
 
+    @Override
     public void hook(ExtensionHook extensionHook) {
         this.extensionHook = extensionHook;
     }
@@ -131,18 +143,22 @@ public abstract class ExtensionAdaptor implements Extension {
     	return false;
     }
 
+	@Override
 	public int getOrder() {
 		return order;
 	}
 
+	@Override
 	public void setOrder(int order) {
 		this.order = order;
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -159,6 +175,7 @@ public abstract class ExtensionAdaptor implements Extension {
 		this.description = description;
 	}
 	
+	@Override
 	public List<Class<?>> getDependencies() {
 		return new ArrayList<Class<?>>();
 	}
@@ -168,6 +185,7 @@ public abstract class ExtensionAdaptor implements Extension {
 		return false;
 	}
 	
+	@Override
 	public URL getURL () {
 		return null;
 	}

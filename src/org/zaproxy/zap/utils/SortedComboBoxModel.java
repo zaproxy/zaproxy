@@ -42,6 +42,7 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 		super( items );
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void addElement(Object element) {
 		int index = 0;
@@ -60,6 +61,7 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 		super.insertElementAt(element, index);
 	}
 
+	@Override
 	public void insertElementAt(Object element, int index) {
 		addElement( element );
 	}

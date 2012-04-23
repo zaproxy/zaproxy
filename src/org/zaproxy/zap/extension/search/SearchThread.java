@@ -56,6 +56,7 @@ public class SearchThread extends Thread {
     	this.stopSearch = true;
     }
 
+	@Override
 	public void run() {
 	    Session session = Model.getSingleton().getSession();
         Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);

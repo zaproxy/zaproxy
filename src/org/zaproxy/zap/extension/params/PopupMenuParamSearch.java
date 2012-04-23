@@ -64,6 +64,7 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("params.search.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		extension.searchForSelectedParam();
         	}
@@ -72,6 +73,7 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 			
 	}
 
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
             this.setEnabled(true);

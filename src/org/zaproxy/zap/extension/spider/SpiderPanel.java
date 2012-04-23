@@ -204,14 +204,17 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
 			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {    
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -248,14 +251,17 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);
 			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {   
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -286,6 +292,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getTxtURIFound().append(s);
 				}
@@ -303,6 +310,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getTxtURISkip().append(s);
 				}

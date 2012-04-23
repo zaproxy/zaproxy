@@ -60,6 +60,7 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("fuzz.tools.menu.fuzz"));
 	}
 
+	@Override
 	public boolean isEnableForComponent(Component invoker) {
 		boolean visible = false;
 

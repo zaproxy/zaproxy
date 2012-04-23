@@ -76,6 +76,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
@@ -100,6 +101,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -108,6 +110,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	        
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }
@@ -162,6 +165,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         			java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK, false));
 
         	menuSearch.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     searchPanel.searchFocus();
                 }
@@ -179,6 +183,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         			java.awt.event.KeyEvent.VK_G, java.awt.Event.CTRL_MASK, false));
 
         	menuNext.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     searchPanel.highlightNextResult();
                 }
@@ -193,6 +198,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         	menuPrev.setText(Constant.messages.getString("menu.edit.previous"));
 
         	menuPrev.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     searchPanel.highlightPrevResult();
                 }

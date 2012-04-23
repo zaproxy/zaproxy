@@ -45,6 +45,7 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
         this.setOrder(52);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

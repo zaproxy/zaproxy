@@ -81,6 +81,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 			menuItemCheckUpdate.setText(Constant.messages.getString("cfu.help.menu.check"));
 			menuItemCheckUpdate.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					checkForUpdates(true);
@@ -178,6 +179,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
 	}
 
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {

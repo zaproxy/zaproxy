@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -101,6 +102,7 @@ public class FindDialog extends AbstractDialog {
         //  Handle escape key to close the dialog    
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         AbstractAction escapeAction = new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 FindDialog.this.setVisible(false);
             }
@@ -194,6 +196,7 @@ public class FindDialog extends AbstractDialog {
 			btnFind.setText(Constant.messages.getString("edit.find.button.find"));
 			btnFind.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					find();
@@ -215,6 +218,7 @@ public class FindDialog extends AbstractDialog {
 			btnCancel.setText(Constant.messages.getString("edit.find.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 
 				    FindDialog.this.setVisible(false);

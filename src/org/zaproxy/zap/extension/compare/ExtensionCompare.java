@@ -91,6 +91,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
         this.setOrder(44);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -99,6 +100,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	}
 	
 
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -107,6 +109,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	        
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }
@@ -126,6 +129,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
         	menuCompare.setText(Constant.messages.getString("cmp.file.menu.compare"));
 
         	menuCompare.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                 	
                 	compareSessions();
@@ -176,6 +180,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 		JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
 		File file = null;
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -184,6 +189,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	               return Constant.messages.getString("file.format.zap.session");
 	           }
@@ -315,6 +321,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 
 	    JFileChooser chooser = new JFileChooser(getModel().getOptionsParam().getUserDirectory());
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -327,6 +334,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	               return Constant.messages.getString("file.format.html");
 	           }

@@ -29,6 +29,7 @@ public class SortedListModel extends DefaultListModel {
 		super();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void addElement(Object element) {
 		int index = 0;
@@ -47,6 +48,7 @@ public class SortedListModel extends DefaultListModel {
 		super.insertElementAt(element, index);
 	}
 
+	@Override
 	public void insertElementAt(Object element, int index) {
 		addElement( element );
 	}

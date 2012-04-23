@@ -101,16 +101,19 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	}
 	*/
 
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkEnabled().setSelected(options.getApiParam().isEnabled());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getApiParam().setEnabled(getChkEnabled().isSelected());

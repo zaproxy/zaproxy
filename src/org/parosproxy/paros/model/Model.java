@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
 
 package org.parosproxy.paros.model;
 
@@ -240,6 +241,7 @@ public class Model {
         // delete all untitled session db in "session" directory
         File dir = new File(getSession().getSessionFolder());
         File[] listFile = dir.listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir1, String fileName) {
                 if (fileName.startsWith("untitled")) {
                     return true;

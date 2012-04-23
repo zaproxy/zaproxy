@@ -222,18 +222,22 @@ public class PortScan extends ScanThread implements ScanListenner {
 		}
 	}
 
+	@Override
 	public void stopScan() {
 		stopScan = true;
 	}
 
+	@Override
 	public boolean isStopped() {
 		return stopScan;
 	}
 
+	@Override
 	public String getSite() {
 		return site;
 	}
 	
+	@Override
 	public int getProgress () {
 		return progress;
 	}
@@ -260,18 +264,21 @@ public class PortScan extends ScanThread implements ScanListenner {
 		}
 	}
 
+	@Override
 	public void pauseScan() {
 		this.pauseScan = true;
 		this.unpauseScan = false;
 		this.isPaused = true;
 	}
 
+	@Override
 	public void resumeScan() {
 		this.unpauseScan = true;
 		this.pauseScan = false;
 		this.isPaused = false;
 	}
 	
+	@Override
 	public boolean isPaused() {
 		return this.isPaused;
 	}

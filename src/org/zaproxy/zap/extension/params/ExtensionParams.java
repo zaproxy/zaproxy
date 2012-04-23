@@ -100,6 +100,7 @@ public class ExtensionParams extends ExtensionAdaptor
         API.getInstance().registerApiImplementor(new ParamsAPI(this));
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
@@ -167,6 +168,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		return paramsPanel;
 	}
 	
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -174,6 +176,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }

@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/05/15 Improved error logging
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.control;
  
@@ -74,6 +75,7 @@ public class MenuFileControl implements SessionListener {
 	    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
 
 	    Thread t = new Thread(new Runnable() {
+	        @Override
 	        public void run() {
 	            control.shutdown(false);
 	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
@@ -119,6 +121,7 @@ public class MenuFileControl implements SessionListener {
 		JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
 		File file = null;
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -127,6 +130,7 @@ public class MenuFileControl implements SessionListener {
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	        	   // ZAP: Rebrand
 	               return Constant.messages.getString("file.format.zap.session");
@@ -186,6 +190,7 @@ public class MenuFileControl implements SessionListener {
 	    }
 		chooser.setSelectedFile(fileproposal);
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -194,6 +199,7 @@ public class MenuFileControl implements SessionListener {
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	        	   // ZAP: Rebrand
 	               return Constant.messages.getString("file.format.zap.session");
@@ -249,6 +255,7 @@ public class MenuFileControl implements SessionListener {
     /* (non-Javadoc)
      * @see org.parosproxy.paros.model.SessionListener#sessionOpened(java.lang.Exception)
      */
+    @Override
     public void sessionOpened(File file, Exception e) {
         if (e == null) {
             control.getExtensionLoader().sessionChangedAllPlugin(model.getSession());
@@ -270,6 +277,7 @@ public class MenuFileControl implements SessionListener {
     /* (non-Javadoc)
      * @see org.parosproxy.paros.model.SessionListener#sessionSaved(java.lang.Exception)
      */
+    @Override
     public void sessionSaved(Exception e) {
         if (e == null) {
             view.getMainFrame().getMainMenuBar().getMenuFileSave().setEnabled(true);

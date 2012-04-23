@@ -499,6 +499,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			bruteForceList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 
+				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
 				    if (bruteForceList.getSelectedValue() == null) {
 				        return;
@@ -509,6 +510,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			});
 			
 			bruteForceList.addMouseListener(new java.awt.event.MouseAdapter() { 
+			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 					if (SwingUtilities.isRightMouseButton(e)) {
 
@@ -582,6 +584,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			siteSelect.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    String item = (String) siteSelect.getSelectedItem();

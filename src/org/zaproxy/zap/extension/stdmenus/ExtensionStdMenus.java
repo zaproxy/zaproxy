@@ -51,6 +51,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
         this.setOrder(37);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    if (getView() != null) {
 	    	// Be careful when changing the menu indexes (and order above) - its easy to get unexpected results!

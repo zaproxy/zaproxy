@@ -85,6 +85,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
         this.setOrder(32);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
@@ -131,6 +132,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		this.getBruteForcePanel().bruteForceDirectory(siteNode);
 	}
 	
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -138,6 +140,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }

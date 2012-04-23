@@ -56,6 +56,7 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         		Session session = Model.getSingleton().getSession();
         		SiteMap map = session.getSiteTree();
@@ -65,6 +66,7 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTree) {
             JTree tree = (JTree) invoker;

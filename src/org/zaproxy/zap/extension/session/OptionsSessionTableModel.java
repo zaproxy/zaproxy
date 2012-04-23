@@ -42,22 +42,27 @@ public class OptionsSessionTableModel extends AbstractTableModel {
         super();
     }
 
+    @Override
     public int getColumnCount() {
         return 1;
     }
 
+    @Override
     public int getRowCount() {
         return tokens.size();
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         return tokens.get(row);
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return true;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
     	tokens.set(row, (String)value);
         checkAndAppendNewRow();
@@ -99,6 +104,7 @@ public class OptionsSessionTableModel extends AbstractTableModel {
   	  	fireTableDataChanged();
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
@@ -117,6 +123,7 @@ public class OptionsSessionTableModel extends AbstractTableModel {
         }
     }
     
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class getColumnClass(int c) {
         return String.class;

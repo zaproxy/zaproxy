@@ -53,7 +53,7 @@ public class Vulnerabilities {
 	        					config.getString(name + ".alert"),
 	        					config.getString(name + ".desc"),
 	        					config.getString(name + ".solution"),
-	        					(List<String>)config.getList(name + ".reference"));
+	        					config.getList(name + ".reference"));
 	        		vulns.add(v);
 	        		idToVuln.put(item, v);
 	        	}

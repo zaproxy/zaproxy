@@ -81,6 +81,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 	}
 	
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

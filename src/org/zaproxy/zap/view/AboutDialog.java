@@ -127,6 +127,7 @@ public class AboutDialog extends AbstractDialog {
 			btnOK = new JButton();
 			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					AboutDialog.this.dispose();
 				}

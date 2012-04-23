@@ -31,6 +31,7 @@ public class OptionsParamApi extends AbstractParam {
     public OptionsParamApi() {
     }
 
+    @Override
     protected void parse() {
         
 	    enabled = getConfig().getBoolean(ENABLED, false);

@@ -54,6 +54,7 @@ public class DirBusterManager extends Manager {
 		return finished;
 	}
     
+    @Override
     public int getTotalDone()
     {
     	if (this.areWorkersAlive()) {

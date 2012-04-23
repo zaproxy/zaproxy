@@ -145,6 +145,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
         this.add(stringFound, gridBagConstraints3);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         searchResult = (SearchResult) value;

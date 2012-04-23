@@ -25,7 +25,8 @@
 // ZAP: 2011/11/20 Changed to use ExtensionFactory
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/23 Changed the method shutdown(boolean) to save the configurations
-//      of the main http panels and save the configuration file.
+// of the main http panels and save the configuration file.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.control;
 
@@ -89,6 +90,7 @@ public class Control extends AbstractControl implements SessionListener {
         return proxy;
     }
     
+    @Override
     protected void addExtension() {
     	ExtensionFactory.loadAllExtension(getExtensionLoader(), model.getOptionsParam().getConfig());
     }
@@ -112,6 +114,7 @@ public class Control extends AbstractControl implements SessionListener {
     /**
      * Override inherited shutdown to add stopping proxy servers.
      */
+    @Override
     public void shutdown(boolean compact) {
         // ZAP: Save the configurations of the main panels.
         if (view != null) {

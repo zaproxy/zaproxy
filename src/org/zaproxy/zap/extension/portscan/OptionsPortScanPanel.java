@@ -207,6 +207,7 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 		return panelPortScan;
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    PortScanParam param = (PortScanParam) options.getParamSet(PortScanParam.class);
@@ -223,10 +224,12 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 	    }
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    PortScanParam param = (PortScanParam) options.getParamSet(PortScanParam.class);

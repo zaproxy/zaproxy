@@ -66,6 +66,7 @@ public class ExtensionCopy extends ExtensionAdaptor implements ClipboardOwner {
 	}
 	
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
@@ -86,6 +87,7 @@ public class ExtensionCopy extends ExtensionAdaptor implements ClipboardOwner {
             popupCopyMenu = new PopupCopyMenu();
             popupCopyMenu.setText(Constant.messages.getString("copy.copy.popup"));
             popupCopyMenu.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     setClipboardContents(popupCopyMenu.getLastInvoker().getSelectedText());
                 }

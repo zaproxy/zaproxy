@@ -49,6 +49,7 @@ public class BruteForceParam extends AbstractParam {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
+    @Override
     protected void parse(){
 		try {
 			this.threadPerScan = getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN);

@@ -91,6 +91,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         this.setOrder(27);
     }
 
+    @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
         if (getView() != null) {
@@ -154,6 +155,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 //EventQueue.invokeAndWait(new Runnable() {
                 EventQueue.invokeLater(new Runnable() {
 
+                    @Override
                     public void run() {
                         addAlertToDisplayEventHandler(alert, ref);
                     }
@@ -254,6 +256,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         this.getTreeModel().updatePath(originalAlert, alert);
     }
 
+    @Override
     public void sessionChanged(final Session session) {
         if (EventQueue.isDispatchThread()) {
             sessionChangedEventHandler(session);
@@ -262,6 +265,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             try {
                 EventQueue.invokeAndWait(new Runnable() {
 
+                    @Override
                     public void run() {
                         sessionChangedEventHandler(session);
                     }
@@ -368,6 +372,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             try {
                 EventQueue.invokeAndWait(new Runnable() {
 
+                    @Override
                     public void run() {
                         deleteAlertFromDisplayEventHandler(alert);
                     }
@@ -437,6 +442,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         return allAlerts;
     }
 
+    @Override
     public String getXml(SiteNode site) {
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");

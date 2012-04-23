@@ -125,6 +125,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         AbstractAction escapeAction = new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
                 HistoryFilterPlusDialog.this.dispose();
             }
@@ -214,6 +215,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			btnApply.setText(Constant.messages.getString("history.filter.button.apply"));
 			btnApply.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					filter.setMethods(methodList.getSelectedValues());
 					filter.setCodes(codeList.getSelectedValues());
@@ -241,6 +243,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 
 				    exitResult = JOptionPane.CANCEL_OPTION;
@@ -283,6 +286,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			btnReset.setText(Constant.messages.getString("history.filter.button.clear"));
 			btnReset.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					exitResult = JOptionPane.NO_OPTION;

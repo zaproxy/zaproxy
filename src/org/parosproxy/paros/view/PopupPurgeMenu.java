@@ -21,6 +21,7 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to ExtensionPopupMenuItem
 // ZAP: 2012/02/18 Issue 274 Confirm purge/delete
 // ZAP: 2012/03/15 Changed so no ConcurrentModificationException is thrown.
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.view;
 
@@ -63,6 +64,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("sites.purge.popup"));	// ZAP: i18n
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    if (invoker.getName().equals("treeSite")) {
         	        JTree tree = (JTree) invoker;
@@ -90,6 +92,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 	}
 	
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeSite")) {
             this.invoker = invoker;

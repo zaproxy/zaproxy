@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.network;
 
 import java.io.BufferedOutputStream;
@@ -53,6 +54,7 @@ public class HttpOutputStream extends BufferedOutputStream {
 	}
 
 
+	@Override
 	public void write(byte[] buf) throws IOException {
 		if (buf == null) return;
 		write(buf, 0, buf.length);
@@ -62,6 +64,7 @@ public class HttpOutputStream extends BufferedOutputStream {
 		write(buf, 0, len);
 	}
 		
+	@Override
 	public void write(byte[] buf, int off, int len) throws IOException {
 		if (buf == null) return;
 		//out.write(buf, off, len);
@@ -69,6 +72,7 @@ public class HttpOutputStream extends BufferedOutputStream {
 		flush();
 	}
 
+	@Override
 	public void close() {
 		try {
 //			out.close();
@@ -78,6 +82,7 @@ public class HttpOutputStream extends BufferedOutputStream {
 		}
 	}
 
+	@Override
 	public void flush() throws IOException {
 		super.flush();	//out.flush();
 	}

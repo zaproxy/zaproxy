@@ -82,9 +82,11 @@ public class BreakEditDialog extends AbstractDialog {
         this.setContentPane(getJPanel());
         this.setSize(407, 255);
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
+        	@Override
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 
 
+        	@Override
         	public void windowClosing(java.awt.event.WindowEvent e) {    
         	    btnCancel.doClick();
         	}
@@ -175,6 +177,7 @@ public class BreakEditDialog extends AbstractDialog {
 			btnSave.setMaximumSize(new java.awt.Dimension(100,40));
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.editBreakPointAtRow(currentBreakPointRow, getTxtDisplay().getText());
 				    getTxtDisplay().discardAllEdits();
@@ -200,6 +203,7 @@ public class BreakEditDialog extends AbstractDialog {
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    getTxtDisplay().discardAllEdits();
 				    extension.hideBreakEditDialog();

@@ -61,6 +61,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
         API.getInstance().registerApiImplementor(new CoreAPI());
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
         extensionHook.addSessionListener(this);
@@ -86,6 +87,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 			
 			menuAPI.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (API.getInstance().isEnabled()) {
 						DesktopUtils.openUrlInBrowser(API_URL);

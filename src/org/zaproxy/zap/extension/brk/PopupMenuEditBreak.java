@@ -64,6 +64,7 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("brk.edit.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         		extension.showBreakEditDialog();
         	}
@@ -72,6 +73,7 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 			
 	}
 
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BreakPointsPanel.PANEL_NAME)) {
             if (extension.canEditBreakPoint()) {

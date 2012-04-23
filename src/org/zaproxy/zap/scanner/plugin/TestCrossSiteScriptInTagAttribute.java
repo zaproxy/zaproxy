@@ -58,10 +58,12 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_8");
     private static Logger log = Logger.getLogger(TestCrossSiteScriptInTagAttribute.class);
 
+    @Override
     public int getId() {
         return 40011;
     }
 
+    @Override
     public String getName() {
     	return Constant.messages.getString("scanner.plugin.xssatt");
     }
@@ -69,6 +71,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -76,6 +79,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -86,6 +90,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -93,6 +98,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -103,6 +109,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();
@@ -120,10 +127,12 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 	
 		try {

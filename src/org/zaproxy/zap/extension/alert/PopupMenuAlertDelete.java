@@ -66,6 +66,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
 			    TreePath[] paths = extension.getAlertPanel().getTreeAlert().getSelectionPaths();
 			    if (paths != null) {
@@ -95,6 +96,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
 	    }
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
             try {

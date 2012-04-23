@@ -69,6 +69,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         this.setOrder(50);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

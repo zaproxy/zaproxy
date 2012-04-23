@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -179,6 +180,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	/**
 	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
 	 */
+	@Override
 	public Socket createSocket(String host, int port, InetAddress clientHost,
 			int clientPort) throws IOException, UnknownHostException {
 
@@ -219,6 +221,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 * @throws UnknownHostException
 	 *             if the IP address of the host cannot be determined
 	 */
+	@Override
 	public Socket createSocket(final String host, final int port,
 			final InetAddress localAddress, final int localPort,
 			final HttpConnectionParams params) throws IOException,
@@ -245,6 +248,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	/**
 	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
 	 */
+	@Override
 	public Socket createSocket(String host, int port) throws IOException,
 			UnknownHostException {
 		return clientSSLSockFactory.createSocket(host, port);
@@ -253,6 +257,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	/**
 	 * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
 	 */
+	@Override
 	public Socket createSocket(Socket socket, String host, int port,
 			boolean autoClose) throws IOException, UnknownHostException {
 		return clientSSLSockFactory.createSocket(socket, host, port, autoClose);
@@ -348,14 +353,17 @@ class RelaxedX509TrustManager implements X509TrustManager {
 		return true;
 	}
 
+	@Override
 	public java.security.cert.X509Certificate[] getAcceptedIssuers() {
 		return null;
 	}
 
+	@Override
 	public void checkClientTrusted(java.security.cert.X509Certificate[] chain,
 			String authType) {
 	}
 
+	@Override
 	public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
 			String authType) {
 	}
