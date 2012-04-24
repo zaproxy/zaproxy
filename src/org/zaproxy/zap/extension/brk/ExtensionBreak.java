@@ -313,6 +313,8 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	
 	@Override
 	public void destroy() {
-		breakPanel.savePanels();
+		if (breakPanel != null) {
+			breakPanel.savePanels();
+		}
 	}
 }

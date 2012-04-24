@@ -21,11 +21,12 @@
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/15 Reflected the change in the name of the method optionsChanged of
-//      the class OptionsChangedListener. Changed the method destroyAllExtension() to
-//      save the configurations of the main http panels and save the configuration file.
+// the class OptionsChangedListener. Changed the method destroyAllExtension() to
+// save the configurations of the main http panels and save the configuration file.
 // ZAP: 2012/04/23 Reverted the changes of the method destroyAllExtension(),
-//      now the configurations of the main http panels and the configuration file
-//      are saved in the method Control.shutdown(boolean).
+// now the configurations of the main http panels and the configuration file
+// are saved in the method Control.shutdown(boolean).
+// ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 
 package org.parosproxy.paros.extension;
 
@@ -74,7 +75,12 @@ public class ExtensionLoader {
     
     public void destroyAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).destroy();
+            // ZAP: Added try catch block.
+            try {
+                getExtension(i).destroy();
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
+            }
         }
         
     }
