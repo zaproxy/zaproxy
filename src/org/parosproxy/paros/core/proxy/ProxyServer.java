@@ -23,6 +23,7 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/11/15 Warn the user if the host is unknown
 // ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.core.proxy;
  
@@ -190,6 +191,7 @@ public class ProxyServer implements Runnable {
 		return true;
 	}
 
+	@Override
 	public void run() {
 
 		Socket clientSocket = null;

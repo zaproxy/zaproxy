@@ -20,7 +20,8 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/03/15 Changed the method onHttpResponseReceive to use the class StringBuilder 
-//      instead of StringBuffer.
+// instead of StringBuffer.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -55,6 +56,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 40;
     }
@@ -62,6 +64,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.logreqresp.name") + logFile;
     }
@@ -69,6 +72,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
     }
@@ -76,6 +80,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
 
         if (!httpMessage.getRequestHeader().isText() || httpMessage.getRequestHeader().isImage() || httpMessage.getResponseHeader().isImage()) {
@@ -110,6 +115,7 @@ public class FilterLogRequestResponse extends FilterAdaptor {
         
     }
     
+    @Override
     public synchronized void timer() {
         if (writer != null && System.currentTimeMillis() > lastWriteTime + 5000) {
             // 5s elapse and no more write.  close file.

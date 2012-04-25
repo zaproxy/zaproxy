@@ -20,8 +20,9 @@
  */
 // ZAP: 2011/11/20 Explicitly depreciated
 // ZAP: 2012/03/15 Although it is deprecated, changed the method search to use the 
-//      class StringBuilder instead of StringBuffer.
+// class StringBuilder instead of StringBuffer.
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.patternsearch;
 
@@ -82,6 +83,7 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 			menuItemPatternSearch.setText("Extract Pattern in Session...");
 			menuItemPatternSearch.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getSearchDialog().setVisible(true);
@@ -93,6 +95,7 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 		return menuItemPatternSearch;
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {

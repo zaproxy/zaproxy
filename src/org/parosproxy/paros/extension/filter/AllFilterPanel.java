@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -120,6 +121,7 @@ public class AllFilterPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
+    @Override
     public void initParam(Object obj) {
         
     }
@@ -127,6 +129,7 @@ public class AllFilterPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
+    @Override
     public void validateParam(Object obj) throws Exception {
         
     }
@@ -134,6 +137,7 @@ public class AllFilterPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
+    @Override
     public void saveParam(Object obj) throws Exception {
         
     }
@@ -163,6 +167,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 			btnEnableAll.setEnabled(false);
 			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 
@@ -184,6 +189,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 			btnDisableAll.setEnabled(false);
 			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					

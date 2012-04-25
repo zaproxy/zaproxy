@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Frame;
@@ -94,6 +95,7 @@ public class HistoryFilterDialog extends AbstractDialog {
         //  Handle escape key to close the dialog    
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         AbstractAction escapeAction = new AbstractAction() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 HistoryFilterDialog.this.dispose();
             }
@@ -187,6 +189,7 @@ public class HistoryFilterDialog extends AbstractDialog {
 //			btnApply.setMinimumSize(new java.awt.Dimension(63,30));
 			btnApply.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    try {
@@ -215,6 +218,7 @@ public class HistoryFilterDialog extends AbstractDialog {
 			btnCancel.setText("Cancel");
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 
 				    exitResult = JOptionPane.CANCEL_OPTION;
@@ -279,6 +283,7 @@ public class HistoryFilterDialog extends AbstractDialog {
 			btnReset.setText("Reset filter");
 			btnReset.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					exitResult = JOptionPane.NO_OPTION;

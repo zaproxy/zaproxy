@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.Constant;
@@ -35,6 +36,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 10;
     }
@@ -42,6 +44,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.nocache.name");
         
@@ -50,6 +53,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
         HttpRequestHeader reqHeader = httpMessage.getRequestHeader();
       	if (!reqHeader.isEmpty() && reqHeader.isText()){
@@ -69,6 +73,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
 
     }

@@ -21,6 +21,8 @@
 // ZAP: 2011/04/26 i18n
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and
 // removed unnecessary casts.
+// ZAP: 2012/04/25 Added type argument to generic type and changed to use the
+// method Integer.valueOf.
 
 package org.parosproxy.paros.view;
 
@@ -77,7 +79,8 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
         switch (col) {
         	case 0:	result = auth.getHostName();
         			break;
-        	case 1: result = new Integer(auth.getPort());
+        	case 1: // ZAP: Changed to use the method Integer.valueOf.
+        			result = Integer.valueOf(auth.getPort());
         			break;
         	case 2: result = auth.getUserName();
         			break;
@@ -162,7 +165,8 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     }
     
     @Override
-    public Class getColumnClass(int c) {
+    // ZAP: Added type argument.
+    public Class<?> getColumnClass(int c) {
         if (c == 1) {
             return Integer.class;
         }

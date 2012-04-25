@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/14 Changed to discard all edits in the actions of the buttons 
-//      "OK" and "Cancel".
+// "OK" and "Cancel".
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -209,6 +210,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 			btnOK.setText("OK");
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    Pattern pattern = null;
 				    try {
@@ -239,6 +241,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 			btnCancel.setText("Cancel");
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					getTxtPattern().discardAllEdits();
 					FilterReplaceDialog.this.dispose();

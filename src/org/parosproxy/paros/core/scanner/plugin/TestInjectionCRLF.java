@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.Random;
@@ -52,6 +53,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 40003;
     }
@@ -59,6 +61,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "CRLF injection";
     }
@@ -68,6 +71,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -75,6 +79,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         
         String msg = "Cookie can be set via CRLF injection.  It may also be possible to set arbitrary HTTP response header." + CRLF
@@ -85,6 +90,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -92,6 +98,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "Type check the submitted parameter carefully.  Do not allow CRLF to be injected by filtering CRLF.";
         
@@ -100,6 +107,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "<ul><li>http://www.watchfire.com/resources/HTTPResponseSplitting.pdf</li>"
         + "<li>http://webappfirewall.com/lib/crlf-injection.txtnull</li>" 
@@ -112,10 +120,12 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
  
     }
     
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 
         String bingoQuery = null;   

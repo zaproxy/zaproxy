@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/11/20 Explicitly depreciated
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.encoder;
 
@@ -85,6 +86,7 @@ public class ExtensionEncoder extends ExtensionAdaptor {
 			menuItemEncoder.setText("Encoder/Hash...");
 			menuItemEncoder.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					getEncoderDialog().setVisible(true);
@@ -96,6 +98,7 @@ public class ExtensionEncoder extends ExtensionAdaptor {
 		return menuItemEncoder;
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {

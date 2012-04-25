@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added type argument to generic type and changed to use the
+// method Boolean.valueOf.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -58,8 +60,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+    // ZAP: Added the type argument.
+	public Class<?> getColumnClass(int c) {
         if (c == 1) {
             return Boolean.class;
         }
@@ -113,7 +115,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	result = Category.getName(row);
         			break;
-        	case 1: result = new Boolean(isPluginCategoryEnabled(row));
+        	case 1: // ZAP: Changed to use the method Boolean.valueOf.
+        			result = Boolean.valueOf(isPluginCategoryEnabled(row));
         			break;
         	default: result = "";
         }

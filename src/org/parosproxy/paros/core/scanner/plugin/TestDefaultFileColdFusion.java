@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin;
@@ -40,6 +41,7 @@ public class TestDefaultFileColdFusion extends AbstractDefaultFilePlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
+    @Override
     public int getId() {
         return 20000;
     }
@@ -47,6 +49,7 @@ public class TestDefaultFileColdFusion extends AbstractDefaultFilePlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getName()
      */
+    @Override
     public String getName() {
         
         return "Cold Fusion default file";
@@ -56,27 +59,33 @@ public class TestDefaultFileColdFusion extends AbstractDefaultFilePlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
 
+    @Override
     public String getDescription() {
         return "ColdFusion MX default files are found.";
     }
     
+    @Override
     public int getCategory() {
         return Category.SERVER;
     }
     
+    @Override
     public String getSolution() {
         return "Remove default files.";
     }
 
+    @Override
     public String getReference() {
         return "";
     }
     
     
+    @Override
     public void init() {
         super.init();
         createURI();

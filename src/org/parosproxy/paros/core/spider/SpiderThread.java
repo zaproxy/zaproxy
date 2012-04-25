@@ -21,6 +21,7 @@
 // ZAP: 2012/01/09 Commented the "HttpStatusCode.isSuccess" validations and
 //      added code to handle the redirect responses.
 // ZAP: 2012/03/15 Removed unnecessary casting in the method run.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 
 package org.parosproxy.paros.core.spider;
@@ -82,6 +83,7 @@ public class SpiderThread extends Thread {
         this.stop = stop;
     }
     
+    @Override
     public void run() {
 
         QueueItem item = null;

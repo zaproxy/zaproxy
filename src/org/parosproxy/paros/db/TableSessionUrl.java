@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 package org.parosproxy.paros.db;
 import java.sql.CallableStatement;
 import java.sql.Connection;

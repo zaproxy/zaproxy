@@ -21,6 +21,8 @@
 // ZAP: 2011/11/20 Explicitly depreciated
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added type argument to generic type, removed unnecessary
+// cast and added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.spider;
 
@@ -108,6 +110,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 			menuItemSpider.setText(Constant.messages.getString("menu.analyse.spider"));	// ZAP: i18n
 			menuItemSpider.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    JTree siteTree = getView().getSiteTreePanel().getTreeSite();
 		            SiteNode node = (SiteNode) siteTree.getLastSelectedPathComponent();
@@ -139,6 +142,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 		return menuItemSpider;
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -225,6 +229,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	    }
 	}
 	
+	@Override
 	public void spiderComplete() {
 
         try {
@@ -253,6 +258,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	        }
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	                    dialog.dispose();
 	                }
@@ -264,6 +270,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	    }
 	}
 	
+	@Override
 	public void foundURI(HttpMessage msg, boolean isSkip) {
 	    if (getView() != null) {
 	        if (isSkip) {
@@ -274,6 +281,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
         }
 	}
 	
+	@Override
 	public void readURI(HttpMessage msg) {
 
 	    SiteMap siteTree = getModel().getSession().getSiteTree();
@@ -302,6 +310,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	    return spider;
 	}
 	
+	@Override
 	public void spiderProgress(final URI uri, final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
 	    String uriString= "";
 	    
@@ -322,6 +331,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	        }
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	                    String uriString = "";
 	    	            dialog.getTxtNumCrawled().setText(Integer.toString(numberCrawled));
@@ -402,6 +412,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
      */
+    @Override
     public void sessionChanged(Session session) {
         getSpiderPanel().clear();
         
@@ -434,6 +445,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
      */
+    @Override
     public void execute(CommandLineArgument[] args) {
         String uri = null;
 
@@ -445,9 +457,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
         spider.addSpiderListener(this);
 
         if (arguments[ARG_URL_IDX].isEnabled()) {
-            Vector v = arguments[ARG_URL_IDX].getArguments();
+            // ZAP: Added type argument.
+            Vector<String> v = arguments[ARG_URL_IDX].getArguments();
             for (int i=0; i<v.size(); i++) {
-                uri = (String) v.get(i);
+                // ZAP: Removed unnecessary cast.
+                uri = v.get(i);
                 try {
                     System.out.println("Adding seed " + uri);
                     spider.addSeed(new URI(uri, true));

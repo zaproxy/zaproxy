@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added type argument to generic type and added @Override
+// annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -56,7 +58,8 @@ public class BrowserDialog extends AbstractDialog {
 	private JButton btnStop = null;
 	private JButton btnClose = null;
 	private String title = "";
-	private Vector URLs = new Vector();
+	// ZAP: Added type argument.
+	private Vector<URL> URLs = new Vector<URL>();
     private JPanel jPanel = null;
     // ZAP: Disabled the platform specific browser
     //private EmbeddedBrowser embeddedBrowser = null;
@@ -83,6 +86,7 @@ public class BrowserDialog extends AbstractDialog {
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.setTitle(TITLE);
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
 		    public void windowClosing(WindowEvent winEvt) {
 				  stop();
                   BrowserDialog.this.setVisible(false);
@@ -166,6 +170,7 @@ public class BrowserDialog extends AbstractDialog {
 			btnCapture.setHorizontalTextPosition(javax.swing.SwingConstants.TRAILING);
 //			btnCapture.setPreferredSize(new java.awt.Dimension(73,28));
 			btnCapture.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					capture();
 				}
@@ -182,6 +187,7 @@ public class BrowserDialog extends AbstractDialog {
 			btnStop.setHorizontalTextPosition(javax.swing.SwingConstants.TRAILING);
 //			btnStop.setPreferredSize(new java.awt.Dimension(73,28));
 			btnStop.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					/*
 					int i=0;
@@ -214,10 +220,12 @@ public class BrowserDialog extends AbstractDialog {
 	        
 	        JFileChooser chooser = new JFileChooser();
 	        chooser.addChoosableFileFilter(new FileFilter() {
+	            @Override
 	            public boolean accept(File file) {
 	                String filename = file.getName();
 	                return filename.endsWith(".png");
 	            }
+	            @Override
 	            public String getDescription() {
 	                return "*.png";
 	            }
@@ -247,6 +255,7 @@ public class BrowserDialog extends AbstractDialog {
 			btnClose.setText("Close");
 			btnClose.setVisible(false);
 			btnClose.addActionListener(new ActionListener() {     // Close this window
+				@Override
 				public void actionPerformed(ActionEvent arg0) {					
 				        
                       stop();

@@ -20,7 +20,8 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/15 Changed the method scan to use the class StringBuilder 
-//      instead of String.
+// instead of String.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -70,6 +71,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
 	 * 
 	 * @see com.proofsecure.paros.core.scanner.Plugin#getId()
 	 */
+    @Override
     public int getId() {
         return 00002;
     }
@@ -77,6 +79,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Private IP disclosure";
     }
@@ -85,6 +88,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -92,6 +96,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         return "A private IP such as 10.x.x.x, 172.x.x.x, 192.168.x.x has been found in the HTTP response body.  " +
         		"This information might be helpful for further attacks targeting internal systems.";        
@@ -100,6 +105,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INFO_GATHER;
     }
@@ -107,6 +113,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "Remove the private IP address from the HTTP response body.  For comments, use JSP/ASP comment instead " +
         		"of HTML/JavaScript comment which can be seen by client browsers.";
@@ -116,6 +123,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return null;
     }
@@ -123,6 +131,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
 
     }
@@ -130,6 +139,7 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#scan()
      */
+    @Override
     public void scan() {
         
         HttpMessage msg = getBaseMsg();

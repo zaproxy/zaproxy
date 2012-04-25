@@ -19,9 +19,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/11/20 Set order and name
-// ZAP: 2012/03/15 Added the method getProxyListenerOrder. Set the name of the 
-//      extension filter thread.
+// ZAP: 2012/03/15 Added the method getProxyListenerOrder. Set the name of the
+// extension filter thread.
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added type argument to generic type, removed unnecessary
+// casts and added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -64,11 +66,13 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 
 
     
+    @Override
     public void init() {
         this.setName(NAME);
         filterFactory.loadAllFilter();
         // ZAP: changed to init(Model)
-        Thread t = new Thread(this, "ZAP-ExtensionFilter"); // ZAP: Set the name of the extension filter thread.
+        // ZAP: Set the name of the extension filter thread.
+        Thread t = new Thread(this, "ZAP-ExtensionFilter");
         t.setDaemon(true);
         t.start();
     }
@@ -78,9 +82,11 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     	// ZAP: changed to init(Model)
 		super.initModel(model);
         Filter filter = null;
-        List filters = filterFactory.getAllFilter();
+        // ZAP: Added type argument.
+        List<Filter> filters = filterFactory.getAllFilter();
 		for (int i=0; i<filters.size(); i++) {
-            filter = (Filter) filters.get(i);
+            // ZAP: Removed unnecessary cast.
+            filter = filters.get(i);
             try {
                 filter.init(model);
             } catch (Exception ignore) {
@@ -89,11 +95,13 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
         }
 	}
 
+	@Override
 	public void initView(ViewDelegate view) {
         super.initView(view);
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-            filter = (Filter) filterFactory.getAllFilter().get(i);
+            // ZAP: Removed unnecessary cast.
+            filter = filterFactory.getAllFilter().get(i);
             try {
                 filter.initView(view);
             } catch (Exception ignore) {
@@ -113,6 +121,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 			menuToolsFilter.setText(Constant.messages.getString("menu.tools.filter"));	// ZAP: i18n
 			menuToolsFilter.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					FilterDialog dialog = new FilterDialog(getView().getMainFrame());
@@ -126,6 +135,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	}
 
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    if (getView() != null) {
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuToolsFilter());
@@ -143,10 +153,12 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public boolean onHttpRequestSend(HttpMessage httpMessage) {
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-            filter = (Filter) filterFactory.getAllFilter().get(i);
+            // ZAP: Removed unnecessary cast.
+            filter = filterFactory.getAllFilter().get(i);
             try {
                 if (filter.isEnabled()) {
                     filter.onHttpRequestSend(httpMessage);
@@ -161,10 +173,12 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public boolean onHttpResponseReceive(HttpMessage httpMessage) {
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-            filter = (Filter) filterFactory.getAllFilter().get(i);
+            // ZAP: Removed unnecessary cast.
+            filter = filterFactory.getAllFilter().get(i);
             try {
                 if (filter.isEnabled()) {
 
@@ -178,11 +192,13 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     /**
      * Destroy every filter during extension destroy.
      */
+    @Override
     public void destroy() {
         isStop = true;
         Filter filter = null;
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-            filter = (Filter) filterFactory.getAllFilter().get(i);
+            // ZAP: Removed unnecessary cast.
+            filter = filterFactory.getAllFilter().get(i);
             try {
                 filter.destroy();
             } catch (Exception e) {}
@@ -191,6 +207,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
         
     }
 
+    @Override
     public void run() {
         Filter filter = null;
         
@@ -200,7 +217,8 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
             } catch (InterruptedException e1) {
             }
             for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
-                filter = (Filter) filterFactory.getAllFilter().get(i);
+                // ZAP: Removed unnecessary cast.
+                filter = filterFactory.getAllFilter().get(i);
                 try {
                     if (filter.isEnabled()) {
                         filter.timer();

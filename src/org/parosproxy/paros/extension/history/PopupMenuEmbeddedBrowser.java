@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -80,6 +81,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 HistoryReference ref = null;
                 if (lastInvoker == null) {
@@ -134,6 +136,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
     }
 
     
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         lastInvoker = null;
 

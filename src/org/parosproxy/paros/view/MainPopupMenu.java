@@ -24,7 +24,7 @@
 //      changed the method show to use the methods handleMenu and handleMenuItem.
 // ZAP: 2012/02/19 Removed the Delete button
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.view;
 

@@ -20,11 +20,12 @@
 */
 // ZAP: 2011/12/04 Support deleting alerts
 // ZAP: 2012/01/02 Separate param and attack
-// ZAP: 2012/01/23 Changed the method compareTo to compare the fields correctly 
-//      with each other.
+// ZAP: 2012/01/23 Changed the method compareTo to compare the fields correctly
+// with each other.
 // ZAP: 2012/03/15 Changed the methods toPluginXML and getUrlParamXML to use the class
-//      StringBuilder instead of StringBuffer and replaced some string concatenations with 
-//      calls to the method append of the class StringBuilder.
+// StringBuilder instead of StringBuffer and replaced some string concatenations with
+// calls to the method append of the class StringBuilder.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -185,6 +186,7 @@ public class Alert implements Comparable<Object>  {
 	    }
 	}
 	
+	@Override
 	public int compareTo(Object o2) throws ClassCastException {
 		Alert alert2 = (Alert) o2;
 		
@@ -224,6 +226,7 @@ public class Alert implements Comparable<Object>  {
 	/**
 	Override equals.  Alerts are equal if the alert, uri and param is the same.
 	*/
+	@Override
 	public boolean equals(Object obj) {
 		Alert item = null;
 		if (obj instanceof Alert) {

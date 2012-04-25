@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -41,6 +42,7 @@ public class FilterReplaceResponseBody extends FilterAbstractReplace {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getId()
      */
+    @Override
     public int getId() {
         return 80;
     }
@@ -48,6 +50,7 @@ public class FilterReplaceResponseBody extends FilterAbstractReplace {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.replacerespbody.name");
     }
@@ -55,6 +58,7 @@ public class FilterReplaceResponseBody extends FilterAbstractReplace {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
         
     }
@@ -62,6 +66,7 @@ public class FilterReplaceResponseBody extends FilterAbstractReplace {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage msg) {
         if (getPattern() == null) {
             return;

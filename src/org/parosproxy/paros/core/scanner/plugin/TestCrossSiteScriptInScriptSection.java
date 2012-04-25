@@ -22,6 +22,7 @@
 // ZAP: 2011/08/17 Check with double quotes as well as single 
 // ZAP: 2011/11/30 Depreciated
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -58,10 +59,12 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     	= Pattern.compile("<SCRIPT.*alert\\(\"" + Constant.getEyeCatcher() + "\"\\);.*</SCRIPT>", 
     			Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
 	
+    @Override
     public int getId() {
         return 40001;
     }
 
+    @Override
     public String getName() {
         return "Cross site scripting in SCRIPT section";
     }
@@ -70,6 +73,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -77,6 +81,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "Cross-site scripting or HTML injection is possible within javascript <SCRIPT> and </SCRIPT> section.\r\n"
             + "Malicious javacript can be injected into the browser even if the server filtered certain specail characters such as double quotes and <>.\r\n"
@@ -92,6 +97,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -99,6 +105,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "You should check manually if this is exactly cross-site script in this case."
             + "Do not embed dynamic content within <SCRIPT></SCRIPT> sections.  "
@@ -111,6 +118,7 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
             + "<li>http://www.technicalinfo.net/papers/CSS.html</li>"
@@ -124,12 +132,14 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
     
 
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 		
 		setParameter(msg, param, XSS_SCRIPT_1);

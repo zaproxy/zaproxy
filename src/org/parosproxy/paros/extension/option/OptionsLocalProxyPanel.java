@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -398,6 +399,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ProxyParam proxyParam = optionsParam.getProxyParam();
@@ -419,10 +421,12 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         setReverseProxyEnabled(proxyParam.isUseReverseProxy());
 	}
 	
+	@Override
 	public void validateParam(Object obj) throws Exception {
 	}
 
 	
+	@Override
 	public void saveParam(Object obj) throws Exception  {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ProxyParam proxyParam = optionsParam.getProxyParam();
@@ -448,6 +452,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			chkReverseProxy = new JCheckBox();
 			chkReverseProxy.setText(Constant.messages.getString("options.proxy.local.label.userev"));
 			chkReverseProxy.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {  
 				    setReverseProxyEnabled(getChkReverseProxy().isSelected());
 				}

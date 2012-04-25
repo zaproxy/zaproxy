@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -57,6 +58,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 00001;
     }
@@ -64,6 +66,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Potential File Path Manipulation";
     }
@@ -73,6 +76,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -80,6 +84,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         
         String msg = "Possiblely there is a file path in the parameter.  You should try manual manipulation to check if there can be information exposure such as system files or program source code.  In that case the risk would be high.";
@@ -89,6 +94,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INFO_GATHER;
     }
@@ -96,6 +102,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "Make sure the file path parameter cannot be manipulated to read arbitrary files.  Restrict access to intended files only.";
         
@@ -104,6 +111,7 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return "";
         
@@ -112,10 +120,12 @@ public class TestInfoPotentialPathManipulation extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
  
     }
     
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 
 		

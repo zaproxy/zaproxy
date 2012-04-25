@@ -25,6 +25,7 @@ public class NewSessionTask extends ZapTask {
 	
 	private String name;
 	
+	@Override
 	public void execute() throws BuildException {
 		try {
 			this.getClientApi().newSession(name);

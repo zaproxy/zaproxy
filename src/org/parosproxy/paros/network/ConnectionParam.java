@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/03 Cope with unexpected values in config file
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method and removed
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method and removed
 // unnecessary cast.
 
 package org.parosproxy.paros.network;

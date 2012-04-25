@@ -20,7 +20,8 @@
 */
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies instead of String.
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 
 package org.parosproxy.paros.db;
 
@@ -259,7 +260,8 @@ public class TableHistory extends AbstractTable {
 	    
 		    while (rs.next()) {
 		        int last = rs.getInt(HISTORYID);
-		        v.add(new Integer(last));
+		        // ZAP: Changed to use the method Integer.valueOf.
+		        v.add(Integer.valueOf(last));
 		    }
 		} finally {
 			if (rs != null) {
@@ -285,7 +287,8 @@ public class TableHistory extends AbstractTable {
 		    
 		    while (rs.next()) {
 		        int last = rs.getInt(HISTORYID);
-		        v.add(new Integer(last));
+		        // ZAP: Changed to use the method Integer.valueOf.
+		        v.add(Integer.valueOf(last));
 		    }
 		} finally {
 			if (rs != null) {
@@ -317,23 +320,27 @@ public class TableHistory extends AbstractTable {
 			    if (isRequest) {
 			        matcher = pattern.matcher(rs.getString(REQHEADER));
 			        if (matcher.find()) {
-			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            // ZAP: Changed to use the method Integer.valueOf.
+			            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
 			            continue;
 			        }
 			        matcher = pattern.matcher(rs.getString(REQBODY));
 			        if (matcher.find()) {
-			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            // ZAP: Changed to use the method Integer.valueOf.
+			            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
 			            continue;
 			        }
 			    } else {
 			        matcher = pattern.matcher(rs.getString(RESHEADER));
 			        if (matcher.find()) {
-			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            // ZAP: Changed to use the method Integer.valueOf.
+			            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
 			            continue;
 			        }
 			        matcher = pattern.matcher(rs.getString(RESBODY));
 			        if (matcher.find()) {
-			            v.add(new Integer(rs.getInt(HISTORYID)));
+			            // ZAP: Changed to use the method Integer.valueOf.
+			            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
 			            continue;
 			        }
 			    }

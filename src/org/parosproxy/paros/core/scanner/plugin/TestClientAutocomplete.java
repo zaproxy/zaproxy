@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -63,6 +64,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 10000;
     }
@@ -70,6 +72,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Password Autocomplete in browser";
     }
@@ -77,6 +80,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -84,6 +88,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         return "AUTOCOMPLETE attribute is not disabled in HTML FORM/INPUT element containing password type input.  Passwords may be stored in browsers and retrieved.";
     }
@@ -91,6 +96,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.BROWSER;
     }
@@ -98,6 +104,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Turn off AUTOCOMPLETE attribute in form or individual input elements containing password by using "
             + "AUTOCOMPLETE='OFF'";
@@ -107,6 +114,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return "http://msdn.microsoft.com/library/default.asp?url=/workshop/author/forms/autocomplete_ovr.asp";
         
@@ -115,6 +123,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
 
     }
@@ -122,6 +131,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#scan()
      */
+    @Override
     public void scan() {
 
         HttpMessage msg = getBaseMsg();

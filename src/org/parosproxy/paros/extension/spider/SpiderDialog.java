@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.EventQueue;
@@ -90,11 +91,13 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 	    	this.setSize(407, 255);
 	    }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
+        	@Override
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	    extension.getMenuItemSpider().setEnabled(false);
                 extension.getPopupMenuSpider().setEnabled(false);
         	} 
 
+        	@Override
         	public void windowClosing(java.awt.event.WindowEvent e) {    
 
         	    btnStop.doClick();
@@ -252,6 +255,7 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 			btnStart.setMaximumSize(new java.awt.Dimension(100,40));
 			btnStart.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 	                extension.getView().getSiteTreePanel().getTreeSite().removeTreeSelectionListener(SpiderDialog.this);
 				    btnStart.setEnabled(false);
@@ -280,10 +284,12 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 			btnStop.setEnabled(false);
 			btnStop.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
                     btnStop.setEnabled(false);
 
 				        Thread t = new Thread(new Runnable() {
+				            @Override
 				            public void run() {
                                 if (extension.getSpider() != null) {
 
@@ -291,6 +297,7 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
                                 }
 				    			try {
                                     EventQueue.invokeAndWait(new Runnable() {
+                                    	@Override
                                     	public void run() {
                                             btnStart.setText("Resume");
                                             btnStart.setEnabled(true);
@@ -331,6 +338,7 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
 		return progressBar;
 	}
 	
+	@Override
 	public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 	    JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
 	    SiteNode node = (SiteNode) siteTree.getLastSelectedPathComponent();

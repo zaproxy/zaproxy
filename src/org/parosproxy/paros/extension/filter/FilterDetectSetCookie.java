@@ -20,7 +20,8 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/03/15 Changed to use StringBuilder and replaced some string concatenations 
-//      with calls to the method append of the class StringBuilder. Reworked some code.
+// with calls to the method append of the class StringBuilder. Reworked some code.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -52,6 +53,7 @@ public class FilterDetectSetCookie extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 110;
     }
@@ -59,6 +61,7 @@ public class FilterDetectSetCookie extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.setcookie.name");
         
@@ -71,12 +74,14 @@ public class FilterDetectSetCookie extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage msg) {
        }
 
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage msg) {
         HttpResponseHeader resHeader = msg.getResponseHeader();
         if (resHeader == null || resHeader.isEmpty()) {

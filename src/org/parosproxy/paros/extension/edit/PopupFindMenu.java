@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;
@@ -60,6 +61,7 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
         this.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
             setLastInvoker((JTextComponent) invoker);

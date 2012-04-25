@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.Component;
@@ -70,6 +71,7 @@ public class PopupMenuSpider extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         		if (treeSite != null) {
         		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
@@ -96,6 +98,7 @@ public class PopupMenuSpider extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         treeSite = getTree(invoker);
         if (treeSite != null) {

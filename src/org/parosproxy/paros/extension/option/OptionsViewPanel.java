@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Removed the options to change the display of the ManualRequestEditorDialog,
-//      now they are changed dynamically.
+// now they are changed dynamically.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -353,6 +354,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	}
 	
 	
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
@@ -365,10 +367,12 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);

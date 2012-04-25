@@ -21,7 +21,8 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/01/09 Changed to not follow redirections.
 // ZAP: 2012/03/15 Changed the methods isInVisitedLink and isQueued to use 
-//      getRequestBody().getBytes() instead of getRequestBody().toString().
+// getRequestBody().getBytes() instead of getRequestBody().toString().
+// ZAP: 2012/04/25 Removed unnecessary casts.
 
 
 package org.parosproxy.paros.core.spider;
@@ -164,7 +165,8 @@ public class Spider {
             if (queue.size() > 0) {
                 // add to queue according to depth
                 for (int i=queue.size()-1; i>=0; i--) {    
-                    QueueItem poll = (QueueItem) queue.get(i);
+                    // ZAP: Removed unnecessary cast.
+                    QueueItem poll = queue.get(i);
                     if (item.getDepth() >= poll.getDepth()) {
                         if (i+1 <= queue.size()-1) {
                             queue.add(i+1, item);
@@ -227,7 +229,8 @@ public class Spider {
     private void notifyListenerFoundURI(HttpMessage msg, boolean isSkip) {
         SpiderListener listener = null;
         for (int i=0;i<listenerList.size();i++) {
-            listener = (SpiderListener) listenerList.get(i);
+            // ZAP: Removed unnecessary cast.
+            listener = listenerList.get(i);
             listener.foundURI(msg, isSkip);
         }
 
@@ -240,7 +243,8 @@ public class Spider {
 
         
         for (int i=0;i<listenerList.size();i++) {
-            listener = (SpiderListener) listenerList.get(i);
+            // ZAP: Removed unnecessary cast.
+            listener = listenerList.get(i);
             listener.spiderComplete();          
         }
         log.info("Spider completed");
@@ -254,7 +258,8 @@ public class Spider {
 
         int outstanding= 0;
         for (int i=0;i<queue.size();i++) {
-            QueueItem poll= (QueueItem) queue.get(i);
+            // ZAP: Removed unnecessary cast.
+            QueueItem poll= queue.get(i);
             if (poll != null) {
                 if (poll.getDepth() <= item.getDepth()) {
                     outstanding++;
@@ -277,7 +282,8 @@ public class Spider {
         SpiderListener listener = null;
 
         for (int i=0;i<listenerList.size();i++) {
-            listener = (SpiderListener) listenerList.get(i);
+            // ZAP: Removed unnecessary cast.
+            listener = listenerList.get(i);
             listener.spiderProgress(uri, percentageComplete, visitedPostMethod.size() + visitedGetMethod.size(), queue.size());
         }
     }
@@ -288,7 +294,8 @@ public class Spider {
         log.info("crawled " + msg.getRequestHeader().getURI().toString());
 
         for (int i=0;i<listenerList.size();i++) {
-            listener = (SpiderListener) listenerList.get(i);
+            // ZAP: Removed unnecessary cast.
+            listener = listenerList.get(i);
             listener.readURI(msg);
         }
 
@@ -368,7 +375,8 @@ public class Spider {
                 hostName = hostName + ":" + uri.getPort();
             }
 
-            String[] hostList = (String[]) seedHostNameSet.toArray(new String[0]);
+            // ZAP: Removed unnecessary cast..
+            String[] hostList = seedHostNameSet.toArray(new String[0]);
             for (int i=0; i<hostList.length; i++) {
                 if (hostList[i] == null) continue;
                 if (hostName.endsWith(hostList[i])) {

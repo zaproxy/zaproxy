@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class StreamForwarder extends Thread {
         this.isStop = isStop;
     }
     
+    @Override
     public void run() {
         byte[] buffer = new byte[2048];
         int len = -1;

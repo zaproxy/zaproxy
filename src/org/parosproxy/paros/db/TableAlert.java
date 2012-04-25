@@ -21,7 +21,8 @@
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/01/02 Separate param and attack
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 
 package org.parosproxy.paros.db;
 
@@ -192,7 +193,8 @@ public class TableAlert extends AbstractTable {
 		psReadScan.setInt(1, scanId);
 		ResultSet rs = psReadScan.executeQuery();
 		while (rs.next()) {
-			v.add(new Integer(rs.getInt(ALERTID)));
+			// ZAP: Changed to use the method Integer.valueOf.
+			v.add(Integer.valueOf(rs.getInt(ALERTID)));
 		}
 		rs.close();
 		psReadScan.close();
@@ -208,7 +210,8 @@ public class TableAlert extends AbstractTable {
 		ResultSet rs = psReadSession.executeQuery();
 		while (rs.next()) {
 		    int alertId = rs.getInt(ALERTID);
-			v.add(new Integer(alertId));
+			// ZAP: Changed to use the method Integer.valueOf.
+			v.add(Integer.valueOf(alertId));
 		}
 		rs.close();
 		psReadSession.close();
@@ -223,7 +226,8 @@ public class TableAlert extends AbstractTable {
 		ResultSet rs = psReadSession.executeQuery();
 		while (rs.next()) {
 		    int alertId = rs.getInt(ALERTID);
-			v.add(new Integer(alertId));
+			// ZAP: Changed to use the method Integer.valueOf.
+			v.add(Integer.valueOf(alertId));
 		}
 		rs.close();
 		psReadSession.close();
@@ -287,7 +291,7 @@ public class TableAlert extends AbstractTable {
 	    Vector<Integer> v = new Vector<Integer>();
 		ResultSet rs = psReadScan.executeQuery();
 		while (rs.next()) {
-			v.add(new Integer(rs.getInt(ALERTID)));
+			v.add(Integer.valueOf(rs.getInt(ALERTID)));
 		}
 		rs.close();
 		psReadScan.close();

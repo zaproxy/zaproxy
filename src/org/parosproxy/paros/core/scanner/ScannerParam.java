@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/30 Support for scanner levels
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -49,6 +50,7 @@ public class ScannerParam extends AbstractParam {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
+    @Override
     protected void parse(){
         
 		try {

@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Matcher;
@@ -66,6 +67,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 00003;
     }
@@ -73,6 +75,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Session ID in URL rewrite";
     }
@@ -82,6 +85,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -89,6 +93,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         return "URL rewrite is used to track user session ID.  The session ID may be disclosed in referer header.  Besides, the session ID can be stored in browser history or server logs.";
     }
@@ -96,6 +101,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INFO_GATHER;
     }
@@ -103,6 +109,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "For secure content, put session ID in cookie.  To be even more secure consider to use a combination of cookie and URL rewrite.";
     }
@@ -110,6 +117,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return "http://seclists.org/lists/webappsec/2002/Oct-Dec/0111.html";
     }
@@ -117,6 +125,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
 
     }
@@ -124,6 +133,7 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#scan()
      */
+    @Override
     public void scan() {
         HttpMessage base = getBaseMsg();
         

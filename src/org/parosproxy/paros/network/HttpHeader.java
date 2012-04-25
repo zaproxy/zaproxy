@@ -22,7 +22,7 @@
 // ZAP: 2012/01/12 Changed the method parse to use only CRLF as line separator.
 // ZAP: 2012/03/15 Removed an unnecessary try catch block and unnecessary casting.
 // Reworked the method getCharset.
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;

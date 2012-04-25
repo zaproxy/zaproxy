@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -205,6 +206,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			setActiveButton.setText(Constant.messages.getString("options.cert.button.setactive"));
 			setActiveButton.setEnabled(false);
 			setActiveButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					setActiveButtonActionPerformed(evt);
 				}
@@ -214,6 +216,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			showAliasButton.setEnabled(false);
 			showAliasButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
 			showAliasButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					showAliasButtonActionPerformed(evt);
 				}
@@ -226,6 +229,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			deleteButton.setText(Constant.messages.getString("options.cert.button.delete"));
 			deleteButton.setEnabled(false);
 			deleteButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					deleteButtonActionPerformed(evt);
 				}
@@ -233,6 +237,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			keyStoreList.setModel(keyStoreListModel);
 			keyStoreList.addMouseListener(new java.awt.event.MouseAdapter() {
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent evt) {
 					keyStoreListMouseClicked(evt);
 				}
@@ -276,6 +281,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			browseButton.setText(Constant.messages.getString("options.cert.button.browse"));
 			browseButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					browseButtonActionPerformed(evt);
 				}
@@ -285,6 +291,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			addPkcs12Button.setText(Constant.messages.getString("options.cert.button.keystore"));
 			addPkcs12Button.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					addPkcs12ButtonActionPerformed(evt);
 				}
@@ -341,6 +348,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			driverButton.setText("...");
 			driverButton.setMargin(new java.awt.Insets(2, 5, 2, 5));
 			driverButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					driverButtonActionPerformed(evt);
 				}
@@ -350,6 +358,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 			addPkcs11Button.setText(Constant.messages.getString("options.cert.button.pkcs11"));
 			addPkcs11Button.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					addPkcs11ButtonActionPerformed(evt);
 				}
@@ -359,6 +368,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			usePkcs11ExperimentalSliSupportCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			usePkcs11ExperimentalSliSupportCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 			usePkcs11ExperimentalSliSupportCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(evt);
 				}
@@ -426,6 +436,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			useClientCertificateCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			useClientCertificateCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 			useClientCertificateCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					useClientCertificateCheckBoxActionPerformed(evt);
 				}
@@ -435,6 +446,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			enableUnsafeSSLRenegotiationCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			enableUnsafeSSLRenegotiationCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 			enableUnsafeSSLRenegotiationCheckBox.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					enableUnsafeSSLRenegotiationCheckBoxActionPerformed(evt);
 				}
@@ -451,6 +463,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			showActiveCertificateButton.setEnabled(false);
 			showActiveCertificateButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
 			showActiveCertificateButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					showActiveCertificateButtonActionPerformed(evt);
 				}
@@ -855,6 +868,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		return this;
 	}
 
+	@Override
 	public void initParam(Object obj) {
 		OptionsParam options = (OptionsParam) obj;
 		useClientCertificateCheckBox.setSelected(options.getCertificateParam().isUseClientCert());
@@ -863,10 +877,12 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	}
 
+	@Override
 	public void validateParam(Object obj) {
 		// no validation needed
 	}
 
+	@Override
 	public void saveParam (Object obj) throws Exception {
 		OptionsParam options = (OptionsParam) obj;
 		OptionsParamCertificate certParam = options.getCertificateParam();

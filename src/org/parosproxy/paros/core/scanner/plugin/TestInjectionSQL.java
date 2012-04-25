@@ -20,7 +20,9 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/15 Changed the methods testBlindINSERT and checkANDResult to use 
-//      the class StringBuilder instead of StringBuffer.
+// the class StringBuilder instead of StringBuffer.
+// ZAP: 2012/04/25 Changed to use Boolean.TRUE and added @Override annotation
+// to all appropriate methods.
 
 
 package org.parosproxy.paros.core.scanner.plugin;
@@ -112,6 +114,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
+    @Override
     public int getId() {
         return 40005;
     }
@@ -119,6 +122,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getName()
      */
+    @Override
     public String getName() {
         return "SQL Injection";
     }
@@ -126,6 +130,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         
         return dependency;
@@ -134,6 +139,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "SQL injection is possible.  User parameters submitted will be formulated into a SQL query for database processing.  "
             + "If the query is built by simple 'string concatenation', it is possible to modify the meaning of the query by carefully crafting the parameters.  "
@@ -147,6 +153,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -154,6 +161,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Do not trust client side input even if there is client side validation.  In general, "
             + "<ul>" 
@@ -171,6 +179,7 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
             + "<li>http://www.sqlsecurity.com/DesktopDefault.aspx?tabid=23</li>"
@@ -183,11 +192,13 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
 
     }
 
+    @Override
     public void scan(HttpMessage baseMsg, String param, String value) {
         try {
             scanSQL(baseMsg, param, value);
@@ -257,7 +268,8 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
                     
                     // build a always false AND query.  Result should be different to prove the SQL works.
                     if (resBodyANDErr.compareTo(mResBodyNormal) != 0) {
-                        getKb().add(msg.getRequestHeader().getURI(), "sql/and", new Boolean(true));
+                        // ZAP: Changed to use Boolean.TRUE.
+                        getKb().add(msg.getRequestHeader().getURI(), "sql/and", Boolean.TRUE);
                         bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, param, value + SQL_AND_ERR[i], "", msg);
                         return;
                     } else {
@@ -267,7 +279,8 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
                         resBodyOR = stripOff(msg.getResponseBody().toString(), SQL_OR[i]);
                         
                         if (resBodyOR.compareTo(mResBodyNormal) != 0) {
-                            getKb().add(msg.getRequestHeader().getURI(), "sql/or", new Boolean(true));
+                            // ZAP: Changed to use Boolean.TRUE.
+                            getKb().add(msg.getRequestHeader().getURI(), "sql/or", Boolean.TRUE);
                             bingo(Alert.RISK_HIGH, Alert.WARNING, displayURI, param, value + SQL_OR[i], "", msg);
                             return;    
                         }
@@ -413,7 +426,8 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 			sendAndReceive(msg);
 
 			if (checkTimeResult(msg, param, value + "'" + sbInsertValue.toString() + SQL_BLIND_MS_INSERT, defaultTimeUsed, msg.getTimeElapsedMillis())) {
-			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
+			    // ZAP: Changed to use Boolean.TRUE.
+			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);
 				return;
 			}
 
@@ -427,7 +441,8 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 			sendAndReceive(msg);
 		
 			if (checkTimeResult(msg, param, value + sbInsertValue.toString() + SQL_BLIND_MS_INSERT, defaultTimeUsed, msg.getTimeElapsedMillis())) {
-			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));			    
+			    // ZAP: Changed to use Boolean.TRUE.
+			    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);			    
 				return;
 			}
 			
@@ -446,7 +461,8 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 		StringBuilder sb = new StringBuilder();
 
 		if (matchBodyPattern(msg, patternErrorODBCMSSQL, sb)) {
-		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
+		    // ZAP: Changed to use Boolean.TRUE.
+		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);
 		}
 		
 		if (matchBodyPattern(msg, patternErrorODBC1, sb)

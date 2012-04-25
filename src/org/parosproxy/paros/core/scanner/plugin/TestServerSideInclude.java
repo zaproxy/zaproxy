@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -41,10 +42,12 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
 	private static Pattern patternSSIUnix = Pattern.compile("\\broot\\b.*\\busr\\b", PATTERN_PARAM);
 	private static Pattern patternSSIWin = Pattern.compile("\\bprogram files\\b.*\\b(WINDOWS|WINNT)\\b", PATTERN_PARAM);
 
+    @Override
     public int getId() {
         return 40009;
     }
 
+    @Override
     public String getName() {
         return "Server side include";
     }
@@ -53,6 +56,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -60,6 +64,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "Certain parameters may cause Server Side Include commands to be executed.  This may allow database connection or arbitrary code to be executed.";
         return msg;
@@ -68,6 +73,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -75,6 +81,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Do not trust client side input and enforece tight check in the server side.  Disable server side include." + CRLF
             + ". Refer to manual to disable Sever Side Include." + CRLF
@@ -89,6 +96,7 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "http://www.carleton.ca/~dmcfet/html/ssi.html";
         return msg;
@@ -97,12 +105,14 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
     
 
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
         
 		//String result = null;

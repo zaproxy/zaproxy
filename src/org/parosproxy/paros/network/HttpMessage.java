@@ -23,7 +23,7 @@
 // ZAP: 2012/03/15 Changed to use the classes HttpRequestBody and HttpResponseBody.
 // Changed to use the byte[] body. Changed to use the class StringBuilder instead
 // of StringBuffer. Reworked some methods.
-// ZAP: 2012/04/23 Added @Override annotation to appropriate method.
+// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.network;
 

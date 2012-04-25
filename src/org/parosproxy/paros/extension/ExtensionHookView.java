@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+ // ZAP: 2012/04/25 Changed the type of the parameter "panel" of the method
+ // addSessionPanel.
 package org.parosproxy.paros.extension;
 
 import java.util.List;
@@ -30,7 +32,7 @@ public class ExtensionHookView {
     private Vector<AbstractPanel> workPanelList = new Vector<AbstractPanel>();
     private Vector<AbstractPanel> statusPanelList = new Vector<AbstractPanel>();
     private Vector<AbstractPanel> selectPanelList = new Vector<AbstractPanel>();
-    private Vector<AbstractPanel> sessionPanelList = new Vector<AbstractPanel>();
+    private Vector<AbstractParamPanel> sessionPanelList = new Vector<AbstractParamPanel>();
     private Vector<AbstractParamPanel> optionPanelList = new Vector<AbstractParamPanel>();
     
     public ExtensionHookView() {
@@ -48,7 +50,9 @@ public class ExtensionHookView {
         statusPanelList.add(panel);
     }
     
-    public void addSessionPanel(AbstractPanel panel) {
+    // ZAP: Changed the type of the parameter "panel" from AbstractPanel to
+    // AbstractParamPanel.
+    public void addSessionPanel(AbstractParamPanel panel) {
         sessionPanelList.add(panel);
     }
     
@@ -68,7 +72,7 @@ public class ExtensionHookView {
         return statusPanelList;
     }
 
-    List<AbstractPanel> getSessionPanel() {
+    List<AbstractParamPanel> getSessionPanel() {
         return sessionPanelList;
     }
     

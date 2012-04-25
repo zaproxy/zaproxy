@@ -20,6 +20,8 @@
  */
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
+// removed unnecessary cast.
 
 package org.parosproxy.paros.extension.report;
 
@@ -73,6 +75,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
         this.setName("ExtensionReport");
 			
 	}
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -91,6 +94,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 			menuItemHtmlReport.setText(Constant.messages.getString("menu.report.html.generate"));	// ZAP: i18n
 			menuItemHtmlReport.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    ReportLastScan report = new ReportLastScan();
@@ -109,6 +113,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 			menuItemXmlReport.setText(Constant.messages.getString("menu.report.xml.generate"));
 			menuItemXmlReport.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    ReportLastScan report = new ReportLastScan();
@@ -124,12 +129,14 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
      */
+    @Override
     public void execute(CommandLineArgument[] args) {
 
         if (arguments[ARG_LAST_SCAN_REPORT_IDX].isEnabled()) {
 		    CommandLineArgument arg = arguments[ARG_LAST_SCAN_REPORT_IDX];
             ReportLastScan report = new ReportLastScan();
-            String fileName = (String) arg.getArguments().get(0);
+            // ZAP: Removed unnecessary cast.
+            String fileName = arg.getArguments().get(0);
             try {
                 report.generate(fileName, getModel(), "xml/report.html.xsl");
                 System.out.println("Last Scan Report generated at " + fileName);

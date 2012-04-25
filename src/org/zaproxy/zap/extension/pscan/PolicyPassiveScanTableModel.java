@@ -113,7 +113,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	result = test.getName();
         			break;
-        	case 1: result = new Boolean(test.isEnabled());
+        	case 1: result = Boolean.valueOf(test.isEnabled());
         			break;
         	default: result = "";
         }

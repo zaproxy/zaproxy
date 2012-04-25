@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.zaproxy.zap.extension.httppanelviews.posttable;
 
 import java.io.UnsupportedEncodingException;
@@ -68,6 +69,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount() {
         return 2;
     }
@@ -75,6 +77,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return listPair.size();
     }
@@ -82,11 +85,13 @@ public class RequestPostTableModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
         String[] cell = listPair.get(row);
         return cell[col];
     }
 
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
@@ -165,10 +170,12 @@ public class RequestPostTableModel extends AbstractTableModel {
         return sb.toString();
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return isEditable();
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
     	if (row < listPair.size()-1) {
     		String[] cells = listPair.get(row);

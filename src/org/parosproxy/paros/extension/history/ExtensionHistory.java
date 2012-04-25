@@ -29,8 +29,10 @@
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/03/15 Changed the method getResendDialog to pass the configuration key
-//      to the ManualRequestEditorDialog.
+// to the ManualRequestEditorDialog.
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/24 Added type arguments to generic types, removed unnecessary
+// cast and added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.history;
 
@@ -147,6 +149,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return logPanel;
 	}
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
         extensionHook.addSessionListener(this);
@@ -183,6 +186,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	}
 	
+	@Override
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
@@ -191,6 +195,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
 	                public void run() {
 	        		    sessionChangedEventHandler(session);
 	                }
@@ -214,7 +219,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 
 		try {
-		    List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
+		    // ZAP: Added type argument.
+		    List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
 
 		    buildHistory(getHistoryList(), list);
 		} catch (SQLException e) {
@@ -243,7 +249,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         
 	    synchronized (historyList) {
 	        try {
-	            List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL, filter, isRequest);
+	            // ZAP: Added type argument.
+	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL, filter, isRequest);
 	            
 	            buildHistory(getHistoryList(), list);
 	        } catch (SQLException e) {
@@ -257,7 +264,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         
 	    synchronized (historyList) {
 	        try {
-	            List list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
+	            // ZAP: Added type argument.
+	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
 	            
 	            buildHistory(getHistoryList(), list, historyFilter);
 	        } catch (SQLException e) {
@@ -266,14 +274,16 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    }
 	}
 	
-	private void buildHistory(HistoryList historyList, List dbList) {
+	// ZAP: Added type argument.
+	private void buildHistory(HistoryList historyList, List<Integer> dbList) {
 
 	    HistoryReference historyRef = null;
 	    synchronized (historyList) {
 	        historyList.clear();
 	        
 	        for (int i=0; i<dbList.size(); i++) {
-	            int historyId = ((Integer) dbList.get(i)).intValue();
+	            // ZAP: Removed unnecessary cast.
+	            int historyId = dbList.get(i).intValue();
 
 	            try {
 	            	SiteNode sn = getModel().getSession().getSiteTree().getSiteNode(historyId);

@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added type arguments to generic type, removed unused
+// variable and added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -40,6 +42,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 30;
     }
@@ -47,11 +50,13 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.logposts.name") + getLogFileName();
         
     }
 
+    @Override
     protected String getLogFileName() {
         return "filter/post.xls";
     }
@@ -59,6 +64,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
         HttpRequestHeader reqHeader = httpMessage.getRequestHeader();
@@ -69,7 +75,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
                     
                     URI uri = reqHeader.getURI();
                     
-                    int pos;
+                    // ZAP: Removed unused variable (int pos).
                     
                     String firstline;
                     
@@ -78,7 +84,8 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
                     if (query != null) {
                         newURI.setQuery(null);
                         firstline = newURI.toString();
-                        Hashtable param = parseParameter(query);
+                        // ZAP: Added type arguments.
+                        Hashtable<String, String> param = parseParameter(query);
                         writeLogFile(firstline,param);
                     } else {
                         firstline = uri.toString();

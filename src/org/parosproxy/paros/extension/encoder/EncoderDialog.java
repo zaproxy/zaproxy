@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed to reflect the changes in the Encoder class.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.encoder;
 
@@ -219,14 +220,17 @@ public class EncoderDialog extends AbstractDialog {
 			txtEncode.setLineWrap(true);
 			txtEncode.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 			txtEncode.addMouseListener(new java.awt.event.MouseAdapter() {   
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { 
@@ -263,6 +267,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnMD5Hash.setText("MD5 Hash");
 			btnMD5Hash.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtDecode.setText("");
 				    try {
@@ -289,6 +294,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnURLEncode.setText("URL Encode");
 			btnURLEncode.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    txtDecode.setText("");
@@ -311,6 +317,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnBase64Encode.setText("Base64 Encode");
 			btnBase64Encode.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtDecode.setText("");
                     try {
@@ -336,6 +343,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnSHA1Hash.setText("SHA1 Hash");
 			btnSHA1Hash.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
                     txtDecode.setText("");
 				    try {
@@ -363,6 +371,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnURLDecode.setText("URL Decode");
 			btnURLDecode.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtEncode.setText("");
 				    String result = getEncoder().getURLDecode(txtDecode.getText());
@@ -385,6 +394,7 @@ public class EncoderDialog extends AbstractDialog {
 			btnBase64Decode.setText("Base64 Decode");
 			btnBase64Decode.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 				    txtEncode.setText("");
                     try {

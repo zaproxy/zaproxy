@@ -20,11 +20,9 @@
  */
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.edit;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -72,6 +70,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
 	}
 	
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
@@ -104,6 +103,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
             menuFind.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.Event.CTRL_MASK, false));
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     showFindDialog(getView().getMainFrame(), null);
                 }
@@ -122,6 +122,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
             popupFindMenu = new PopupFindMenu();
             popupFindMenu.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
             popupFindMenu.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     showFindDialog(popupFindMenu.getParentFrame(), popupFindMenu.getLastInvoker());
                     

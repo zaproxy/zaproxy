@@ -20,8 +20,10 @@
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
 // ZAP: 2012/01/02 Separate param and attack
-// ZAP: 2012/03/15 Changed the methods checkResult, checkDBUserName and checkDBTableName
-//      to use the class StringBuilder instead of StringBuffer.
+// ZAP: 2012/03/15 Changed the methods checkResult, checkDBUserName and
+// checkDBTableName to use the class StringBuilder instead of StringBuffer.
+// ZAP: 2012/04/25 Changed to use Boolean.TRUE and added @Override annotation
+// to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -75,6 +77,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
+    @Override
     public int getId() {
         return 40007;
     }
@@ -82,6 +85,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getName()
      */
+    @Override
     public String getName() {
         return "Oracle SQL Injection Enumeration";
     }
@@ -89,6 +93,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         
         return dependency;
@@ -97,6 +102,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "The DB user name can be obtained.";
         return msg;
@@ -105,6 +111,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -112,6 +119,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Refer SQL injection.";
         return msg;
@@ -120,6 +128,7 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "Refer SQL injection.";
         return msg;
@@ -129,11 +138,13 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
 
     }
 
+    @Override
     public void scan(HttpMessage baseMsg, String param, String value) {
 		if (!getKb().getBoolean(baseMsg.getRequestHeader().getURI(), "sql/and")) {
 		    return;
@@ -206,7 +217,8 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 		StringBuilder sb = new StringBuilder();
 		
 		if (matchBodyPattern(msg, patternErrorODBCMSSQL, sb)) {
-		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
+		    // ZAP: Changed to use Boolean.TRUE.
+		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);
 		}
 		
 		if (matchBodyPattern(msg, patternErrorODBC1, sb)

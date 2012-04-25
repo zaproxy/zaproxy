@@ -22,9 +22,10 @@
 // ZAP: 2011/05/09 Support for API
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/03/15 Removed unnecessary castings from methods notifyListenerRequestSend,
-//      notifyListenerResponseReceive and isProcessCache. Set the name of the proxy thread.
-//      Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
-//      call from readBody to readRequestBody of the class HttpInputStream. 
+// notifyListenerResponseReceive and isProcessCache. Set the name of the proxy thread.
+// Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
+// call from readBody to readRequestBody of the class HttpInputStream. 
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -135,6 +136,7 @@ class ProxyThread implements Runnable {
         processHttp(firstHeader, isSecure);
     }
 	
+	@Override
 	public void run() {
         proxyThreadList.add(thread);
 		boolean isSecure = this instanceof ProxyThreadSSL;

@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.patternsearch;
 
 import java.awt.Choice;
@@ -279,14 +280,17 @@ public class SearchDialog extends AbstractDialog {
             txtPattern.setFont(new java.awt.Font("Courier New",
                     java.awt.Font.PLAIN, 12));
             txtPattern.addMouseListener(new java.awt.event.MouseAdapter() {
+            	@Override
             	public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
@@ -322,6 +326,7 @@ public class SearchDialog extends AbstractDialog {
             btnSearch.setActionCommand("Search");
             btnSearch.addActionListener(new java.awt.event.ActionListener() {
 
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
 
                     txtResult.setText("");
@@ -428,6 +433,7 @@ public class SearchDialog extends AbstractDialog {
 			choice.addItem("POST[ ]http.*?[ ]..........get all POST requests from REQUEST");
 
 			choice.addItemListener(new java.awt.event.ItemListener() { 
+				@Override
 				public void itemStateChanged(java.awt.event.ItemEvent e) {
 				    if (getChoice().getSelectedIndex()==0){ // 1st one is blank, i.e. clear pattern
 				        getTxtPattern().setText("");
@@ -462,6 +468,7 @@ public class SearchDialog extends AbstractDialog {
 			jRadioButton.setText("Request");
 			jRadioButton.setSelected(true);
 			jRadioButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					getJRadioButton().setSelected(true);
 					getJRadioButton1().setSelected(false);
@@ -485,6 +492,7 @@ public class SearchDialog extends AbstractDialog {
 			jRadioButton1 = new JRadioButton();
 			jRadioButton1.setText("Response");
 			jRadioButton1.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					getJRadioButton().setSelected(false);
 					getJRadioButton1().setSelected(true);

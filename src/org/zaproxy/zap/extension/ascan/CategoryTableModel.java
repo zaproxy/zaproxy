@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/14 Changed to use the internationalised strings.
+// ZAP: 2012/04/25 Changed to use the method Boolean.valueOf.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -121,7 +122,8 @@ public class CategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	result = test.getName();
         			break;
-        	case 1: result = new Boolean(test.isEnabled());
+        	case 1: // ZAP: Changed to use the method Boolean.valueOf.
+        			result = Boolean.valueOf(test.isEnabled());
         			break;
         	default: result = "";
         }

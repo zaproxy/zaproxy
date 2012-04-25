@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -41,6 +42,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.Filter#getId()
      */
+    @Override
     public int getId() {
         return 90;
     }
@@ -48,6 +50,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.Filter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.malicious.name");        
     }
@@ -55,6 +58,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.Filter#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
     }
@@ -62,6 +66,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.Filter#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage msg) {
 
 	    if (msg.getResponseHeader().isImage()) {

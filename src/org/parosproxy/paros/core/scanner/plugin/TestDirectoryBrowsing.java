@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -55,6 +56,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
+    @Override
     public int getId() {
         return 00000;
     }
@@ -62,6 +64,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getName()
      */
+    @Override
     public String getName() {
         
         return "Directory browsing";
@@ -72,6 +75,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -79,18 +83,22 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSummary()
      */
+    @Override
     public String getDescription() {
         return "It is possible to view the directory listing.  Directory listing may reveal hidden scripts, include files , backup source files etc which be accessed to read sensitive information.";
     }
     
+    @Override
     public int getCategory() {
         return Category.INFO_GATHER;
     }
 
+    @Override
     public String getSolution() {
         return "Disable directory browsing.  If this is required, make sure the listed files does not induce risks.";
     }
     
+    @Override
     public String getReference() {
         String ref = "For IIS, turn off directory browsing.\r\n"
             + "For Apache, use the 'Options -Indexes' directive to disable indexes in directory or via .htaccess:\r\n"
@@ -100,6 +108,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
         return ref;
     }
     
+    @Override
     public void init() {
     }
     
@@ -116,6 +125,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
 	
 	}
 
+	@Override
 	public void scan() {
 	    
 	    boolean result = false;

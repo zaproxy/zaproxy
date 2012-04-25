@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -97,6 +98,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
+    @Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
@@ -106,6 +108,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
+    @Override
     public void validateParam(Object obj) throws Exception {
 
     }
@@ -113,6 +116,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
+    @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();

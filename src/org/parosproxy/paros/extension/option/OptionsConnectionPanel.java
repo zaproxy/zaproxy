@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -82,6 +83,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			chkUseProxyChain.setText(Constant.messages.getString("conn.options.useProxy"));
 			chkUseProxyChain.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					setProxyChainEnabled(chkUseProxyChain.isSelected());
 				}
@@ -403,6 +405,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 	}
 	
+	@Override
 	public void initParam(Object obj) {
 	    
 	    OptionsParam optionsParam = (OptionsParam) obj;
@@ -509,6 +512,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    
 	}
 	
+	@Override
 	public void validateParam(Object obj) throws Exception {
 
         try {
@@ -529,6 +533,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    
 	}
 
+	@Override
 	public void saveParam(Object obj) throws Exception {
 		
 	    OptionsParam optionsParam = (OptionsParam) obj;
@@ -609,6 +614,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			chkProxyChainAuth.setText(Constant.messages.getString("conn.options.proxy.auth.required"));
 			chkProxyChainAuth.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					setProxyChainAuthEnabled(chkProxyChainAuth.isSelected());
@@ -624,6 +630,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			chkProxyChainPrompt.setText(Constant.messages.getString("conn.options.proxy.auth.prompt"));
 			chkProxyChainPrompt.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 					setProxyChainPromptEnabled(chkProxyChainPrompt.isSelected());

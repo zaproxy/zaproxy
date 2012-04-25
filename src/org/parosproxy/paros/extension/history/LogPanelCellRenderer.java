@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed the method getListCellRendererComponent to use the 
-//      class StringBuilder instead of StringBuffer.
+// class StringBuilder instead of StringBuffer.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 
 package org.parosproxy.paros.extension.history;
@@ -245,6 +246,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
         this.add(txtTag, gridBagConstraints6);
     }
 
+    @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
         HistoryReference ref = (HistoryReference) value;

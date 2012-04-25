@@ -19,6 +19,7 @@
  */
 // ZAP: 2012/01/12 Changed the method valueChanged of the ListSelectionListener.
 // ZAP: 2012/03/15 Changed to allow clear the displayQueue. 
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.history;
 
@@ -216,6 +217,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 
 			filterButton.addActionListener(new java.awt.event.ActionListener() { 
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.showFilterPlusDialog();
 				}
@@ -243,14 +245,17 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
 			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
@@ -281,6 +286,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			
 			listLog.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
 
+				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
 					// ZAP: Changed to only display the message when there are no more selection changes.
 					if (!e.getValueIsAdjusting()) {
@@ -407,6 +413,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         HistoryReference ref = null;
         int count = 0;
@@ -426,6 +433,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
                 final HistoryReference finalRef = ref;
                 final HttpMessage msg = ref.getHttpMessage();
                 EventQueue.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         displayMessage(msg);
                         checkAndShowBrowser(finalRef, msg);

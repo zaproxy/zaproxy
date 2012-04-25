@@ -18,6 +18,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
+// unnecessary cast.
 package org.parosproxy.paros.core.spider;
 
 import java.util.Vector;
@@ -50,11 +52,13 @@ public class Hyperlink extends org.parosproxy.paros.core.spider.Tag {
 		}
 
 		Hyperlink[]	result	= new Hyperlink[links.size()];
-		result = (Hyperlink[]) links.toArray(result);
+		// ZAP: Removed unnecessary cast.
+		result = links.toArray(result);
 		return result;
 	}
 
 
+	@Override
 	protected void buildAttrs(String href) {
 
 		this.href	= href;

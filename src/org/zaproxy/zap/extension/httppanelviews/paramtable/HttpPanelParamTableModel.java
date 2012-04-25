@@ -133,6 +133,7 @@ public abstract class HttpPanelParamTableModel extends AbstractTableModel {
 		return hasChanged;
 	}
 	
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return isEditable;
     }
@@ -173,6 +174,7 @@ public abstract class HttpPanelParamTableModel extends AbstractTableModel {
 		saveAllParams();
 	}
 
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }

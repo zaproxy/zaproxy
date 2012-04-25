@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
+// unnecessary casts.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -97,6 +99,7 @@ public class Scanner implements Runnable {
 		listenerList.remove(listener);
 	}
 
+	@Override
 	public void run() {
 	    scan(startNode);
 	    
@@ -162,14 +165,16 @@ public class Scanner implements Runnable {
 	
 	void notifyHostComplete(String hostAndPort) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.hostComplete(hostAndPort);
 	    }
 	}
 	
 	void notifyHostProgress(String hostAndPort, String msg, int percentage) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.hostProgress(hostAndPort, msg, percentage);
 	    }
 	    
@@ -178,18 +183,21 @@ public class Scanner implements Runnable {
 	void notifyScannerComplete() {
 
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.scannerComplete();
 	    }
 	    long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-		String diffTimeString = decimalFormat.format((double) (diffTimeMillis/1000.0)) + "s";
+		// ZAP: Removed unnecessary cast.
+		String diffTimeString = decimalFormat.format(diffTimeMillis/1000.0) + "s";
 	    log.info("scanner completed in " + diffTimeString);
 	    isStop = true;
 	}
 	
 	void notifyAlertFound(Alert alert) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.alertFound(alert);
 	    }
 
@@ -197,7 +205,8 @@ public class Scanner implements Runnable {
 
 	void notifyHostNewScan(String hostAndPort, HostProcess hostThread) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.hostNewScan(hostAndPort, hostThread);
 	    }
 	    
@@ -218,7 +227,8 @@ public class Scanner implements Runnable {
 
 	public void notifyNewMessage(HttpMessage msg) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        ScannerListener listener = (ScannerListener) listenerList.get(i);
+	        // ZAP: Removed unnecessary cast.
+	        ScannerListener listener = listenerList.get(i);
 	        listener.notifyNewMessage(msg);
 	    }
 	}

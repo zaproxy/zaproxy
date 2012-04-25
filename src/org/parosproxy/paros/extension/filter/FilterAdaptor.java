@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
@@ -35,31 +36,38 @@ abstract public class FilterAdaptor implements Filter {
     private boolean enabled = false;
     private ViewDelegate view = null;
     
+    @Override
     public void init(Model model) {
     }
     
+    @Override
     public void initView(ViewDelegate view) {
         this.view = view;
     }
 
+    @Override
     abstract public int getId();
     
+    @Override
     abstract public String getName();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     abstract public void onHttpRequestSend(HttpMessage httpMessage);
 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     abstract public void onHttpResponseReceive(HttpMessage httpMessage);
     
     /**
      * Filter to be destroyed when extension destroy
      *
      */
+    @Override
     public void destroy() {
         
     }
@@ -68,24 +76,29 @@ abstract public class FilterAdaptor implements Filter {
     /**
      * @return Returns the enabled.
      */
+    @Override
     public boolean isEnabled() {
         return enabled;
     }
     /**
      * @param enabled The enabled to set.
      */
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
     
+    @Override
     public void timer() {
         
     }
     
+    @Override
     public boolean isPropertyExists() {
         return false;
     }
     
+    @Override
     public void editProperty() {
     }
     

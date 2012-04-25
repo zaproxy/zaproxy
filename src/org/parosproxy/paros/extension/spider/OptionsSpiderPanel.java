@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/10/15 i18n and removed URLs - these are replaced by the regexs in the session properties
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate method.
 
 
 package org.parosproxy.paros.extension.spider;
@@ -197,6 +198,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		}
 		return panelSpider;
 	}
+	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    
@@ -209,10 +211,12 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         getChkPostForm().setSelected(param.isPostForm());
 	}
 	
+	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
 	}
 	
+	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);

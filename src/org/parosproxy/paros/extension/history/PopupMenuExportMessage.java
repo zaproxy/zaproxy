@@ -19,9 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//      ExtensionPopupMenuItem.
+// ExtensionPopupMenuItem.
 // ZAP: 2012/03/15 Changed the method initialize to check if "fw" is not null before closing.
-//      Made the "log" final.
+// Made the "log" final.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -80,6 +81,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
                 JList listLog = extension.getLogPanel().getListLog();
@@ -132,6 +134,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
@@ -208,6 +211,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
 
 	    JFileChooser chooser = new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
 	    chooser.setFileFilter(new FileFilter() {
+	           @Override
 	           public boolean accept(File file) {
 	                if (file.isDirectory()) {
 	                    return true;
@@ -216,6 +220,7 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
 	                }
 	                return false;
 	            }
+	           @Override
 	           public String getDescription() {
 	               return Constant.messages.getString("file.format.ascii");
 	           }

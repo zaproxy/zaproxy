@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
+// unnecessary cast.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
@@ -44,6 +46,7 @@ public class PolicyParam extends FileXML {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
+    @Override
     protected void parse() throws Exception {
         parseEnabledTest();
     }
@@ -59,7 +62,8 @@ public class PolicyParam extends FileXML {
         Element root = getElement(POLICY);
         removeElement(root, ENABLED);
         for (int i=0; i<listTest.size(); i++) {
-            Plugin test = (Plugin) listTest.get(i);            
+            // ZAP: Removed unnecessary cast.
+            Plugin test = listTest.get(i);            
             if (test.isEnabled()) {
                 addElement(root, ENABLED, Integer.toString(test.getId()));
             }

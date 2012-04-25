@@ -21,6 +21,7 @@
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.state;
 
@@ -71,6 +72,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    ExtensionHookView pv = extensionHook.getHookView();
@@ -95,6 +97,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 
 			menuSessionTrackingEnable.addItemListener(new java.awt.event.ItemListener() { 
 
+				@Override
 				public void itemStateChanged(java.awt.event.ItemEvent e) {    
 
 					getModel().getOptionsParam().getConnectionParam().setHttpStateEnabled(menuSessionTrackingEnable.isEnabled());
@@ -119,6 +122,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 			menuResetSessionState = new JMenuItem();
 			menuResetSessionState.setText(Constant.messages.getString("menu.edit.resetState"));	// ZAP: i18n
 			menuResetSessionState.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    if (getView().showConfirmDialog(Constant.messages.getString("state.reset.warning")) == JOptionPane.OK_OPTION) {
 				        resetSessionState();
@@ -133,6 +137,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
      */
+    @Override
     public void sessionChanged(Session session) {
         getModel().getOptionsParam().getConnectionParam().setHttpState(new HttpState());        
     }

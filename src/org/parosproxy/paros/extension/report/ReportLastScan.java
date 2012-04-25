@@ -21,7 +21,8 @@
 // ZAP: 2011/10/01 Fixed filename problem (issue 161)
 // ZAP: 2012/01/24 Changed outer XML (issue 268) c/o Alla
 // ZAP: 2012/03/15 Changed the methods getAlertXML and generate to use the class 
-//      StringBuilder instead of StringBuffer.
+// StringBuilder instead of StringBuffer.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.report;
 
@@ -194,6 +195,7 @@ public class ReportLastScan {
             JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
             chooser.setFileFilter(new FileFilter() {
 
+                @Override
                 public boolean accept(File file) {
                     if (file.isDirectory()) {
                         return true;
@@ -207,6 +209,7 @@ public class ReportLastScan {
                     return false;
                 }
 
+                @Override
                 public String getDescription() {
                     return Constant.messages.getString("file.format.html");
                 }
@@ -264,6 +267,7 @@ public class ReportLastScan {
             JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
             chooser.setFileFilter(new FileFilter() {
 
+                @Override
                 public boolean accept(File file) {
                     if (file.isDirectory()) {
                         return true;
@@ -274,6 +278,7 @@ public class ReportLastScan {
                     return false;
                 }
 
+                @Override
                 public String getDescription() {
                     return Constant.messages.getString("file.format.xml");
                 }

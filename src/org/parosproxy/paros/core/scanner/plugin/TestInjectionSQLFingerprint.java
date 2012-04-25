@@ -20,7 +20,9 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/15 Changed the methods testMSBlindINSERT and checkResult to use 
-//      the class StringBuilder instead of StringBuffer.
+// the class StringBuilder instead of StringBuffer.
+// ZAP: 2012/04/25 Changed to use Boolean.TRUE and added @Override annotation
+// to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -71,6 +73,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getId()
      */
+    @Override
     public int getId() {
         return 40004;
     }
@@ -78,6 +81,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getName()
      */
+    @Override
     public String getName() {
         return "SQL Injection Fingerprinting";
     }
@@ -86,6 +90,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -93,6 +98,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "SQL injection may be possible.";
         return msg;
@@ -101,6 +107,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -108,6 +115,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Do not trust client side input even if there is client side validation.  In general, "
             + "<ul>" 
@@ -125,6 +133,7 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
             + "<li>http://www.sqlsecurity.com/DesktopDefault.aspx?tabid=23</li>"
@@ -137,11 +146,13 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
 
     }
 
+    @Override
     public void scan(HttpMessage baseMsg, String param, String value) {
         try {
             scanMSSQL(baseMsg, param, value);
@@ -297,7 +308,8 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 		}
 		
 		if (matchBodyPattern(msg, patternErrorODBCMSSQL, sb)) {
-		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
+		    // ZAP: Changed to use Boolean.TRUE.
+		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);
 		    return true;
 		}
 
@@ -310,7 +322,8 @@ public class TestInjectionSQLFingerprint extends AbstractAppParamPlugin {
 
 		if (timeUsed > defaultTimeUsed + TIME_SPREAD - 500) {		
 			// allow 500ms discrepancy
-		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", new Boolean(true));
+		    // ZAP: Changed to use Boolean.TRUE.
+		    getKb().add(msg.getRequestHeader().getURI(), "sql/mssql", Boolean.TRUE);
 		    return true;
 		}			
 		return false;

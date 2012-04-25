@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 package org.parosproxy.paros.core.scanner;
 
 /**
@@ -27,6 +28,7 @@ package org.parosproxy.paros.core.scanner;
  */
 abstract public class AbstractHostPlugin extends AbstractPlugin {
 
+    @Override
     public void notifyPluginCompleted(HostProcess parent) {
         parent.pluginCompleted(this);
     }

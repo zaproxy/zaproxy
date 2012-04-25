@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added type arguments to the generic types, removed an 
+// unnecessary cast and changed to use the method Integer.valueOf.
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Iterator;
@@ -40,27 +42,33 @@ public class FilterFactory {
     private static Logger log = Logger.getLogger(FilterFactory.class);
 
     private DynamicLoader loader = null;
-    private static TreeMap mapAllFilter = new TreeMap();
-    private Vector listAllFilter = new Vector();
+    // ZAP: Added the type arguments.
+    private static TreeMap<Integer, Filter> mapAllFilter = new TreeMap<Integer, Filter>();
+    // ZAP: Added the type arguments.
+    private Vector<Filter> listAllFilter = new Vector<Filter>();
 
     public void loadAllFilter() {
         if (loader == null) {
             loader = new DynamicLoader(Constant.FOLDER_FILTER, "org.parosproxy.paros.extension.filter");
         }
         
-        List listFilter = loader.getFilteredObject(Filter.class);
+        // ZAP: Added the type argument.
+        List<Filter> listFilter = loader.getFilteredObject(Filter.class);
 
         synchronized (mapAllFilter) {
             
             mapAllFilter.clear();
             for (int i=0; i<listFilter.size(); i++) {
-                Filter filter = (Filter) listFilter.get(i);
+            	// ZAP: Removed unnecessary cast.
+                Filter filter = listFilter.get(i);
                 filter.setEnabled(false);
                 log.info("loaded filter " + filter.getName());
-                mapAllFilter.put(new Integer(filter.getId()), filter);
+                // ZAP: Changed to use Integer.valueOf.
+                mapAllFilter.put(Integer.valueOf(filter.getId()), filter);
                
             }
-            Iterator iterator = mapAllFilter.values().iterator();
+            // ZAP: Added the type argument.
+            Iterator<Filter> iterator = mapAllFilter.values().iterator();
             while (iterator.hasNext()) {
                 listAllFilter.add(iterator.next());
             }
@@ -68,7 +76,8 @@ public class FilterFactory {
                 
     }
     
-    public List getAllFilter() {
+    // ZAP: Added the type argument.
+    public List<Filter> getAllFilter() {
         return listAllFilter;
     }
 }

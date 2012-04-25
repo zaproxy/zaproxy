@@ -21,10 +21,11 @@
 
 // ZAP: 2011/08/04 Changed for cleanup
 // ZAP: 2011/11/20 Set order
-// ZAP: 2012/03/15 Changed to reset the message of the ManualRequestEditorDialog  
-//      when a new session is created. Added the key configuration to the 
-//      ManualRequestEditorDialog.
+// ZAP: 2012/03/15 Changed to reset the message of the ManualRequestEditorDialog
+// when a new session is created. Added the key configuration to the 
+// ManualRequestEditorDialog.
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -78,6 +79,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         this.setOrder(36);
 	}
 
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		if (getView() != null) {
@@ -98,6 +100,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 			menuManualRequestEditor = new JMenuItem();
 			menuManualRequestEditor.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
 			menuManualRequestEditor.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
 					if (dialog.getHttpMessage() == null || dialog.getHttpMessage().getRequestHeader().isEmpty()) {

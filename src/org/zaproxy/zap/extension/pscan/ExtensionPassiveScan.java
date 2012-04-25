@@ -147,13 +147,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	protected void add (RegexAutoTagScanner defn) {
         FileConfiguration config = this.getModel().getOptionsParam().getConfig();
     	String pscanName = defn.getName();
 
         // Add to the list
-    	List names = config.getList(PSCAN_NAMES);
+    	@SuppressWarnings("unchecked")
+    	List<String> names = config.getList(PSCAN_NAMES);
     	names.add(pscanName);
 		config.setProperty(PSCAN_NAMES, names);
 

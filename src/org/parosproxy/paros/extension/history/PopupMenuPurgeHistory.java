@@ -19,9 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//      ExtensionPopupMenuItem.
+// ExtensionPopupMenuItem.
 // ZAP: 2012/03/15 Changed the method purgeHistory to clear the displayQueue of
-//      the LogPanel.
+// the LogPanel.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -77,6 +78,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
         	    JList listLog = extension.getLogPanel().getListLog();
         	    Object[] obj = listLog.getSelectedValues();
@@ -99,6 +101,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {

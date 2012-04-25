@@ -21,12 +21,13 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/02/18 Dont log errors for temporary hrefs
-// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
-//      instead of StringBuffer and replaced some string concatenations with calls 
-//      to the method append of the class StringBuilder. Removed unnecessary castings 
-//      in the methods scanSingleNode, notifyHostComplete and pluginCompleted. Changed
-//      the methods processPlugin and pluginCompleted to use Long.valueOf instead of 
-//      creating a new Long.
+// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder
+// instead of StringBuffer and replaced some string concatenations with calls
+// to the method append of the class StringBuilder. Removed unnecessary castings
+// in the methods scanSingleNode, notifyHostComplete and pluginCompleted. Changed
+// the methods processPlugin and pluginCompleted to use Long.valueOf instead of
+// creating a new Long.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -87,6 +88,7 @@ public class HostProcess implements Runnable {
         getAnalyser().stop();
     }
     
+    @Override
     public void run() {
 
         hostProcessStartTime = System.currentTimeMillis();

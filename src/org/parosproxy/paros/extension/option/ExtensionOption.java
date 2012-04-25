@@ -21,6 +21,7 @@
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/03/10 Issue 279: Flag as a core extension 
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.option;
 
@@ -59,6 +60,7 @@ public class ExtensionOption extends ExtensionAdaptor {
         this.setOrder(2);
 	}
 	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
@@ -79,6 +81,7 @@ public class ExtensionOption extends ExtensionAdaptor {
 			menuViewImage = new JCheckBoxMenuItem();
 			menuViewImage.setText(Constant.messages.getString("menu.view.enableImage"));	// ZAP: i18n
 			menuViewImage.addItemListener(new java.awt.event.ItemListener() { 
+				@Override
 				public void itemStateChanged(java.awt.event.ItemEvent e) {    
 					getModel().getOptionsParam().getViewParam().setProcessImages(getMenuViewImage().getState() ? 1 : 0);					
 				}

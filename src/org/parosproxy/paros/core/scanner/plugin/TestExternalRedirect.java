@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/02 No longer switched on -sp flag
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -40,6 +41,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 30000;
     }
@@ -47,6 +49,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "External redirect";
     }
@@ -56,6 +59,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -63,6 +67,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         
         String msg = "Arbitrary external redirection can be.  A phishing email can make use of this to entice readers to click on the link to redirect readers to bogus sites.";
@@ -72,6 +77,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.MISC;
     }
@@ -79,6 +85,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "Only allow redirection within the same web sites; or only allow redirection to designated external URLs.";
         
@@ -87,6 +94,7 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return "";
     }
@@ -94,10 +102,12 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
  
     }
     
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 
 		String locationHeader = null;

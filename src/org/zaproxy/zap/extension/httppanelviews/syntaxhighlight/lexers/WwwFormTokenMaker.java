@@ -259,6 +259,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 		super();
 	}
 
+	@Override
 	public boolean getCompleteCloseTags() {
 		return false;
 	}
@@ -304,6 +305,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 	 * @param startOffset The offset in the document at which this token
 	 *                    occurs.
 	 */
+	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
 		zzStartRead = zzMarkedPos;
@@ -317,6 +319,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 	 * @return Whether tokens of this type should have "mark occurrences"
 	 *         enabled.
 	 */
+	@Override
 	public boolean getMarkOccurrencesOfTokenType(int type) {
 		return false;
 	}
@@ -334,6 +337,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 	 * @return The first <code>Token</code> in a linked list representing
 	 *         the syntax highlighted text.
 	 */
+	@Override
 	public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
 		resetTokenList();
 		this.offsetShift = -text.offset + startOffset;

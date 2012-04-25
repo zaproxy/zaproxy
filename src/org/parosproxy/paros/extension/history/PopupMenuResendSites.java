@@ -18,7 +18,8 @@
  * limitations under the License. 
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -77,6 +78,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
+        	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
 
                 if (treeSite != null) {
@@ -101,6 +103,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 			
 	}
 	
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         treeSite = getTree(invoker);
         if (treeSite != null) {

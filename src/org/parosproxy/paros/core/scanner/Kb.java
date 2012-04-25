@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added type arguments to generic types, removed variables, 
+// added logger and other minor changes.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.TreeMap;
@@ -25,6 +27,7 @@ import java.util.Vector;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -33,20 +36,26 @@ import org.apache.commons.httpclient.URIException;
  * 
  * There are 2 types of Kb:
  * 1. key = name.  result = value.  This represents kb applicable over the entire host.
- * 2. key = name and url (path without query).  result = value.  This represents kb applicable for specific path only.
+ * 2. key = url (path without query) and name.  result = value.  This represents kb applicable for specific path only.
  */
 public class Kb {
 
+    // ZAP: Added logger.
+    private static final Logger logger = Logger.getLogger(Kb.class);
+
     // KB related
-    private TreeMap mapKb = new TreeMap();
-    private TreeMap mapURI = new TreeMap();
+    // ZAP: Added the type arguments.
+    private TreeMap<String, Object> mapKb = new TreeMap<String, Object>();
+    // ZAP: Added the type arguments.
+    private TreeMap<String, TreeMap<String, Object>> mapURI = new TreeMap<String, TreeMap<String, Object>>();
     
 	/**
 	 * Get a list of the values matching the key.
 	 * @param key
 	 * @return null if there is no previous values.
 	 */
-	public synchronized Vector getList(String key) {
+	// ZAP: Added the type argument.
+	public synchronized Vector<Object> getList(String key) {
 	    return getList(mapKb, key);
 	    
 	}
@@ -62,13 +71,14 @@ public class Kb {
 	}
 	
 	public synchronized Object get(String key) {
-	    Vector v = getList(key);
+	    // ZAP: Added the type argument.
+	    Vector<Object> v = getList(key);
 	    if (v == null || v.size() == 0) {
 	        return null;
 	        
-	    } else {
-	        return v.get(0);
 	    }
+	    
+	    return v.get(0);
 	}
     
 
@@ -104,52 +114,56 @@ public class Kb {
 
 	public synchronized void add(URI uri, String key, Object value) {
 	    uri = (URI) uri.clone();
-	    String uriKey = uri.toString();
-	    TreeMap map = null;
+	    // ZAP: Removed variable (TreeMap map).
 	    try {
             uri.setQuery(null);
         } catch (URIException e) {
+            // ZAP: Added logging.
+            logger.error(e.getMessage(), e);
             return;
         }
-	    Object obj = mapURI.get(uriKey);
-	    if (obj == null) {
-	        map = new TreeMap();
+	    // ZAP: Moved to after the try catch block.
+	    String uriKey = uri.toString();
+	    // ZAP: Added the type arguments.
+	    TreeMap<String, Object> map = mapURI.get(uriKey);
+	    if (map == null) {
+	        // ZAP: Added the type argument.
+	        map = new TreeMap<String, Object>();
 	        mapURI.put(uriKey, map);
-	    } else {
-	        map = (TreeMap) obj;
-	    }
+	    } // ZAP: Removed else branch.
 	    
 	    add(map, key, value);
 	}
 	
-	public synchronized Vector getList(URI uri, String key) {
+	public synchronized Vector<Object> getList(URI uri, String key) {
 	    uri = (URI) uri.clone();
-	    String uriKey = uri.toString();
-	    TreeMap map = null;
+	    // ZAP: Removed variable (TreeMap map).
 	    try {
             uri.setQuery(null);
         } catch (URIException e) {
+            // ZAP: Added logging.
+            logger.error(e.getMessage(), e);
             return null;
         }
-
-        Object obj = mapURI.get(uriKey);
-	    if (obj != null && obj instanceof TreeMap) {
-	        map = (TreeMap) obj;
-	    } else {
+        // ZAP: Moved to after the try catch block.
+	    String uriKey = uri.toString();
+	    // ZAP: Added the type argument and removed the instanceof.
+        TreeMap<String, Object> map = mapURI.get(uriKey);
+	    if (map == null) {
 	        return null;
-	    }
+	    } // ZAP: Removed else branch.
+	    
 	    return getList(map, key);
 	}
 	
 	public synchronized Object get(URI uri, String key) {
-	    Vector v = getList(uri, key);
+	    // ZAP: Added the type argument.
+	    Vector<Object> v = getList(uri, key);
 	    if (v == null || v.size() == 0) {
 	        return null;
-	        
-	    } else {
-	        return v.get(0);
 	    }
 	    
+	    return v.get(0);
 	}
 	public String getString(URI uri, String key) {
 	    Object obj = get(uri, key);
@@ -174,10 +188,13 @@ public class Kb {
 	 * @param key
 	 * @param value
 	 */
-	private void add(TreeMap map, String key, Object value) {
-	    Vector v = getList(map, key);
+	// ZAP: Added the type arguments.
+	private void add(TreeMap<String, Object> map, String key, Object value) {
+		// ZAP: Added the type argument.
+	    Vector<Object> v = getList(map, key);
 	    if (v == null) {
-	        v = new Vector();
+	    	// ZAP: Added the type argument.
+	        v = new Vector<Object>();
 	        synchronized (map) {
 	            map.put(key, v);
 	        }
@@ -194,15 +211,17 @@ public class Kb {
 	 * @param key
 	 * @param value
 	 */
-	private Vector getList(TreeMap map, String key) {
-	    Vector result = null;
+	// ZAP: Added the type arguments and @SuppressWarnings annotation.
+	@SuppressWarnings("unchecked")
+	private Vector<Object> getList(TreeMap<String, Object> map, String key) {
 	    Object obj = null;
 	    synchronized (map) {
 	        obj = map.get(key);
 	    }
 	    
 	    if (obj != null && obj instanceof Vector) {
-	        return (Vector) obj;
+	    	// ZAP: Added the type argument.
+	        return (Vector<Object>) obj;
 	    }
 	    return null;
 	    

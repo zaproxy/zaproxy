@@ -19,7 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
-//      instead of StringBuffer.
+// instead of StringBuffer.
+// ZAP: 2012/04/25 Removed unnecessary casts.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -98,7 +99,8 @@ public class Analyser {
 		    return;
 		}
 		
-		HttpMessage baseMsg = (HttpMessage) node.getHistoryReference().getHttpMessage();
+		// ZAP: Removed unnecessary cast.
+		HttpMessage baseMsg = node.getHistoryReference().getHttpMessage();
 		URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
 
 		baseUri.setQuery(null);
@@ -318,13 +320,15 @@ public class Analyser {
         
 		// get sample with same relative path position when possible.
 		// if not exist, use the host only	
-		SampleResponse sample = (SampleResponse) mapVisited.get(sUri);
+		// ZAP: Removed unnecessary cast.
+		SampleResponse sample = mapVisited.get(sUri);
 		if (sample == null) {
 		    try {
                 uri.setPath(null);
             } catch (URIException e2) {}
 		    String sHostOnly = uri.toString();
-			sample = (SampleResponse) mapVisited.get(sHostOnly);
+			// ZAP: Removed unnecessary cast.
+			sample = mapVisited.get(sHostOnly);
 		}
 		
 		// check if any analysed result.

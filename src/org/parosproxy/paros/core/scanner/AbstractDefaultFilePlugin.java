@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
+// removed unnecessary cast.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -105,13 +107,16 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
         return listURI;
     }
 
+    @Override
     public void init() {
         baseURI = getBaseMsg().getRequestHeader().getURI();
 	}
 
+    @Override
     public void scan() {
         for (int i=0; i<getListURI().size() && !isStop(); i++) {
-            URI uri = (URI) getListURI().get(i);
+            // ZAP: Removed unnecessary cast.
+            URI uri = getListURI().get(i);
             HttpMessage msg = getNewMsg();
             try {
                 msg.getRequestHeader().setURI(uri);

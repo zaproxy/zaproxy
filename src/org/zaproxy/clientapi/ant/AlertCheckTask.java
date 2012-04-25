@@ -30,6 +30,7 @@ public class AlertCheckTask extends ZapTask {
 	private List<AlertTask> ignoreAlertTasks = new ArrayList<AlertTask>();
 	private List<AlertTask> requireAlertTasks = new ArrayList<AlertTask>();
 	
+	@Override
 	public void execute() throws BuildException {
 		try {
 			List<Alert> ignoreAlerts = new ArrayList<Alert>();

@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
+// unnecessary casts.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
@@ -32,13 +34,15 @@ abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
     private Variant variant = null;
     private NameValuePair originalPair = null;
     
+    @Override
     public void scan() {
         listVariant.add(new VariantURLQuery());
         listVariant.add(new VariantFormQuery());
         
         for (int i=0; i<listVariant.size() && !isStop(); i++) {
             HttpMessage msg = getNewMsg();
-            variant = (Variant) listVariant.get(i);
+            // ZAP: Removed unnecessary cast.
+            variant = listVariant.get(i);
             variant.setMessage(msg);
             scanVariant();
         }
@@ -47,7 +51,8 @@ abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     private void scanVariant() {
         for (int i=0; i<variant.getParamList().size() && !isStop(); i++) {
-            originalPair = (NameValuePair) variant.getParamList().get(i);
+            // ZAP: Removed unnecessary cast.
+            originalPair = variant.getParamList().get(i);
             HttpMessage msg = getNewMsg();
             scan(msg, originalPair.getName(), originalPair.getValue());
         }

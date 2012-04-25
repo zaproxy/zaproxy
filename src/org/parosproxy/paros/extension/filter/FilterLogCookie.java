@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added type arguments to generic types, removed unused class
+// variable and added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -37,13 +39,15 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  */
 public class FilterLogCookie extends FilterAdaptor {
 
-    private static final String DELIM = "\t";   
-    private static final String CRLF = "\r\n";
-    private Vector cookieList = null;
+    private static final String DELIM = "\t";
+    // ZAP: Removed unused class variable (CRLF).
+    // ZAP: Added type argument.
+    private Vector<String> cookieList = null;
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 100;
     }
@@ -51,19 +55,22 @@ public class FilterLogCookie extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.logcookies.name");
         
     }
 
     public void init() {
-		cookieList = new Vector();
+		// ZAP: Added type argument.
+		cookieList = new Vector<String>();
      	
     }
 
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage msg) {
         HttpRequestHeader header = msg.getRequestHeader();
         
@@ -90,6 +97,7 @@ public class FilterLogCookie extends FilterAdaptor {
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
         
     }

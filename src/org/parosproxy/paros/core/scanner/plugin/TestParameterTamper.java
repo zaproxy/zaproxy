@@ -20,7 +20,8 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/15 Changed the method checkResult to use the class StringBuilder 
-//      instead of StringBuffer.
+// instead of StringBuffer.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -67,6 +68,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 40008;
     }
@@ -74,6 +76,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Parameter tampering";
     }
@@ -83,6 +86,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -90,6 +94,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         
         String msg = "Certain parameter caused error page or Java stacktrace to be displayed.  This indicated lack of exception handling and potential areas for further exploit.";
@@ -99,6 +104,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -106,6 +112,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         return "Identify the cause of the error and fix it.  Do not trust client side input and enforece tight check in the server side.  Besides, catch the exception properly.  Use a generic 500 error page for internal server error.";
         
@@ -114,6 +121,7 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         return "";
         
@@ -122,10 +130,12 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
  
     }
     
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
 
 		String attack = null;

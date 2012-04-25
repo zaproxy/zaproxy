@@ -57,6 +57,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount() {
         return COLUMN_COUNT;
     }
@@ -64,6 +65,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return listRow.size();
     }
@@ -71,6 +73,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
         return listRow.get(row)[col];
     }
@@ -83,6 +86,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     	return col > 17;
     }
 
+    @Override
     public String getColumnName(int col) {
     	if (isHexColumn(col)) {
     		return Integer.toHexString(col-1);
@@ -154,6 +158,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     	return sb.toString().getBytes();
     }
     
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (! isEditable()) {
     		return false;
@@ -179,6 +184,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     	return true;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
     	String val = (String) value;
     	byte byteVal = -1;

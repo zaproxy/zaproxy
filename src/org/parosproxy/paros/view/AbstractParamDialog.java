@@ -21,6 +21,8 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2011/11/20 Handle dialogs with no children
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/04/25 Added @SuppressWarnings annotation in the method
+// getTreeNodeFromPanelName(String).
 
 
 package org.parosproxy.paros.view;
@@ -595,6 +597,8 @@ public class AbstractParamDialog extends AbstractDialog {
 	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
 		DefaultMutableTreeNode node = null;
 		
+		// ZAP: Added @SuppressWarnings annotation.
+		@SuppressWarnings("unchecked")
 		Enumeration<DefaultMutableTreeNode> children = ((DefaultMutableTreeNode) getTreeModel().getRoot()).children();
 		while (children.hasMoreElements()) {
 			DefaultMutableTreeNode child = children.nextElement();

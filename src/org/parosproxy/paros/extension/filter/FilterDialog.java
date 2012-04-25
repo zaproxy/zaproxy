@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added argument type to generic type.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -77,7 +78,8 @@ public class FilterDialog extends AbstractParamDialog {
 		return allFilterPanel;
 	}
 	
-	void setAllFilters(List allFilters) {
+    // ZAP: Added the type argument.
+	void setAllFilters(List<Filter> allFilters) {
 	    getAllFilterPanel().getAllFilterTableModel().setTable(allFilters);
 	}
    }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -23,6 +23,7 @@ import org.apache.tools.ant.BuildException;
 
 public class StopZapTask extends ZapTask {
 	
+	@Override
 	public void execute() throws BuildException {
 		try {
 			this.getClientApi().stopZap();

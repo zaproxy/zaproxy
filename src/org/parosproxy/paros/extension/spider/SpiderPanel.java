@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.CardLayout;
@@ -169,14 +170,17 @@ public class SpiderPanel extends AbstractPanel {
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
 			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {    
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -213,14 +217,17 @@ public class SpiderPanel extends AbstractPanel {
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);
 			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 					
+				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
 				
+				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {    
 					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
 			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -251,6 +258,7 @@ public class SpiderPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getTxtURIFound().append(s);
 				}
@@ -267,6 +275,7 @@ public class SpiderPanel extends AbstractPanel {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					getTxtURISkip().append(s);
 				}

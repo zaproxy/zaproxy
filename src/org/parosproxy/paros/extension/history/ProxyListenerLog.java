@@ -20,14 +20,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed the method addHistory to use the class StringBuilder 
-//      instead of StringBuffer. Added the method getProxyListenerOrder.
-
+// instead of StringBuffer. Added the method getProxyListenerOrder.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.history;
  
-//import org.apache.commons.httpclient.HttpMethod;
-//import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-//import org.apache.commons.httpclient.methods.PostMethod;
-
 import java.awt.EventQueue;
 import java.util.regex.Pattern;
 
@@ -94,6 +90,7 @@ public class ProxyListenerLog implements ProxyListener {
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(org.apache.commons.httpclient.HttpMethod)
 	 */
+	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 //	    if (msg.getRequestHeader().isImage()) {
 //	        return;
@@ -123,6 +120,7 @@ public class ProxyListenerLog implements ProxyListener {
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(org.apache.commons.httpclient.HttpMethod, com.proofsecure.paros.proxy.HttpMessage)
 	 */
+	@Override
 	public boolean onHttpResponseReceive(final HttpMessage msg) {
 
         int type = HistoryReference.TYPE_MANUAL;
@@ -135,6 +133,7 @@ public class ProxyListenerLog implements ProxyListener {
 		}
 		final int finalType = type;
 		Thread t = new Thread(new Runnable() {
+		    @Override
 		    public void run() {
 		        addHistory(msg, finalType);
 		    }
@@ -210,6 +209,7 @@ public class ProxyListenerLog implements ProxyListener {
         } else {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         model.getSession().getSiteTree().addPath(ref, finalMsg);
                         if (isFirstAccess) {
@@ -235,6 +235,7 @@ public class ProxyListenerLog implements ProxyListener {
         } else {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         historyList.addElement(ref);
                     }

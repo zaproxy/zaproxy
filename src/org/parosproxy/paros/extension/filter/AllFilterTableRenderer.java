@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -47,6 +48,7 @@ class AllFilterTableRenderer extends JComponent implements TableCellRenderer {
 
     // This method is called each time a cell in a column
      // using this renderer needs to be rendered.
+     @Override
      public Component getTableCellRendererComponent(JTable table, Object value,
              boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex) {
          // 'value' is value contained in the cell located at
@@ -75,9 +77,13 @@ class AllFilterTableRenderer extends JComponent implements TableCellRenderer {
      }
 
      // The following methods override the defaults for performance reasons
+     @Override
      public void validate() {}
+     @Override
      public void revalidate() {}
+     @Override
      protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+     @Override
      public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
 
 }

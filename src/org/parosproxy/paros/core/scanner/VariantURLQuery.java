@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/02/21 Added logging
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,6 +41,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
         super();
     }
     
+    @Override
     public void setMessage(HttpMessage msg) {
         try {
             parse(msg.getRequestHeader().getURI().getQuery());
@@ -48,6 +50,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
         }
     }
     
+    @Override
     protected void buildMessage(HttpMessage msg, String query, boolean escaped) {
         try {
         	if (escaped) {

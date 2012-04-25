@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -168,6 +169,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 			btnOK.setText(Constant.messages.getString("all.button.ok"));
 			btnOK.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) { 
 				    FilterChangeUserAgentDialog.this.dispose();
 				    exitCode = JOptionPane.OK_OPTION;
@@ -187,6 +189,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 			btnCancel = new JButton();
 			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    FilterChangeUserAgentDialog.this.dispose();
 				    exitCode = JOptionPane.CANCEL_OPTION;

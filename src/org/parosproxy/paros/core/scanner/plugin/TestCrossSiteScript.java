@@ -21,6 +21,7 @@
 // ZAP: 2011/05/27 Added tests prefixed with single and double quotes
 // ZAP: 2011/11/30 Depreciated
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -62,10 +63,12 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     };
 
     
+    @Override
     public int getId() {
         return 40000;
     }
 
+    @Override
     public String getName() {
         return "Cross site scripting";
     }
@@ -74,6 +77,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -81,6 +85,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getDescription()
      */
+    @Override
     public String getDescription() {
         String msg = "Cross-site scripting or HTML injection is possible.  Malicious script may be injected into the browser which appeared to be genuine content from the original site.  "
             + "These scripts can be used to execute arbitrary code or steal customer sensitive information such as user password or cookies.\r\n"
@@ -94,6 +99,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.INJECTION;
     }
@@ -101,6 +107,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "Do not trust client side input even if there is client side validation.  Sanitize potentially danger characters in the server side.  Very often filtering the <, >, \" characters prevented injected script to be executed in most cases.  "
             + "However, sometimes other danger meta-characters such as ' , (, ), /, &, ; etc are also needed.\r\n"
@@ -111,6 +118,7 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Test#getReference()
      */
+    @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
             + "<li>http://www.technicalinfo.net/papers/CSS.html</li>"
@@ -123,12 +131,14 @@ public class TestCrossSiteScript extends AbstractAppParamPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
      */
+    @Override
     public void init() {
 
     }
     
 
 
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
         
 		String result = null;

@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class ProxyServerSSL extends ProxyServer {
 	}
 	
 	
+	@Override
 	protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
 		
 //		ServerSocket socket = ssl.listen(port, 300, InetAddress.getByName(getProxyParam().getProxyIp()));
@@ -53,6 +55,7 @@ public class ProxyServerSSL extends ProxyServer {
 		return socket;
 	}
 	
+	@Override
 	protected ProxyThread createProxyProcess(Socket clientSocket) {
 		ProxyThreadSSL process = new ProxyThreadSSL(this, clientSocket);
 		return process;

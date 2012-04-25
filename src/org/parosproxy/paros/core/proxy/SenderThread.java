@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
+// unnecessary cast.
 package org.parosproxy.paros.core.proxy;
 
 import java.util.Vector;
@@ -42,6 +44,7 @@ public class SenderThread implements Runnable {
         t.setDaemon(true);
     }
     
+    @Override
     public void run() {
         Exception ex = null;
         try {
@@ -55,7 +58,8 @@ public class SenderThread implements Runnable {
 
     private void notifyListener(HttpMessage msg, Exception ex) {
         for (int i=0; i<listenerList.size(); i++) {
-            SenderThreadListener listener = (SenderThreadListener) listenerList.get(i);
+            // ZAP: Removed unnecessary cast.
+            SenderThreadListener listener = listenerList.get(i);
             listener.onMessageReceive(msg, ex);
         }
     }

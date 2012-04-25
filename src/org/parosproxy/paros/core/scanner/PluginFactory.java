@@ -21,6 +21,8 @@
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/04/23 Changed the method loadAllPlugin to reflect the changes made
 // in the method DynamicLoader.getFilteredObject(Class).
+// ZAP: 2012/04/25 Removed unnecessary casts, changed to use the method
+// Integer.valueOf and added logging of exception.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -60,7 +62,8 @@ public class PluginFactory {
             // pass 1 - enable all plugin's dependency
             iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
-                plugin = (Plugin) iterator.next();
+                // ZAP: Removed unnecessary cast.
+                plugin = iterator.next();
                 if (plugin.isEnabled()) {
                     enableDependency(plugin);
                 }
@@ -69,7 +72,8 @@ public class PluginFactory {
             // pass 2 - put enabled dependency in listPending
             iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
-                plugin = (Plugin) iterator.next();
+                // ZAP: Removed unnecessary cast.
+                plugin = iterator.next();
                 if (plugin.isEnabled()) {
                     listPending.add(plugin);
                 }
@@ -92,7 +96,10 @@ public class PluginFactory {
                 p.setEnabled(true);
                 enableDependency(p);
 
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                // ZAP: Added logging.
+                log.error(e.getMessage(), e);
+            }
         } 
         
     }
@@ -124,11 +131,13 @@ public class PluginFactory {
                 	continue;
                 }
                 log.info("loaded plugin " + plugin.getName());
-                if (mapAllPlugin.get(new Integer(plugin.getId())) != null) {
+                // ZAP: Changed to use the method Integer.valueOf.
+                if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
                 	System.out.println("Duplicate id " + plugin.getName() + " " +
-                			mapAllPlugin.get(new Integer(plugin.getId())).getName());
+                			mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
                 }
-                mapAllPlugin.put(new Integer(plugin.getId()), plugin);
+                // ZAP: Changed to use the method Integer.valueOf.
+                mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
                 mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
             }
             Iterator<Plugin> iterator = mapAllPlugin.values().iterator();
@@ -144,13 +153,16 @@ public class PluginFactory {
     }
     
     public static Plugin getPlugin(int id) {
-        Plugin test = (Plugin) mapAllPlugin.get(new Integer(id));
+        // ZAP: Removed unnecessary cast and changed to use the method
+        // Integer.valueOf.
+        Plugin test = mapAllPlugin.get(Integer.valueOf(id));
         return test;
     }
     
     public static void setAllPluginEnabled(boolean enabled) {
         for (int i=0; i<listAllPlugin.size(); i++) {
-            Plugin plugin = (Plugin) listAllPlugin.get(i);
+            // ZAP: Removed unnecessary cast.
+            Plugin plugin = listAllPlugin.get(i);
             plugin.setEnabled(enabled);
         }
     }
@@ -177,7 +189,8 @@ public class PluginFactory {
         Plugin plugin = null;
         int i=0;
         while (plugin == null && i<listPending.size()) {
-            plugin = (Plugin) listPending.get(i);
+            // ZAP: Removed unnecessary cast.
+            plugin = listPending.get(i);
             if (isAllDependencyCompleted(plugin)) {
                 return plugin;
             }
@@ -215,7 +228,8 @@ public class PluginFactory {
             for (int i=0; i<dependency.length; i++) {
                 boolean isFound = false;
                 for (int j=0; j<listCompleted.size() && !isFound; j++) {
-                    Plugin completed = (Plugin) listCompleted.get(j);
+                    // ZAP: Removed unnecessary cast.
+                    Plugin completed = listCompleted.get(j);
                     if (completed.getCodeName().equalsIgnoreCase(dependency[i])) {
                         isFound = true;
                     }

@@ -27,6 +27,7 @@
 // now the configurations of the main http panels and the configuration file
 // are saved in the method Control.shutdown(boolean).
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
+// ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
 
 package org.parosproxy.paros.extension;
 
@@ -245,12 +246,14 @@ public class ExtensionLoader {
         
     }
     
-    private void addParamPanel(List panelList, AbstractParamDialog dialog) {
+    // ZAP: Added the type argument.
+    private void addParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
         AbstractParamPanel panel = null;
         String[] ROOT = {};
         for (int i=0; i<panelList.size(); i++) {
             try {
-                panel = (AbstractParamPanel) panelList.get(i);
+                // ZAP: Removed unnecessary cast.
+                panel = panelList.get(i);
                 dialog.addParamPanel(ROOT, panel, true);
             } catch (Exception e) {
             	// ZAP: Log the exception

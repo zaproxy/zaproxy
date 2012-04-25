@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -54,40 +55,49 @@ public class TestObsoleteFile extends AbstractAppPlugin {
             "~"
     };
     
+    @Override
     public int getId() {
         return 00004;
     }
     
+    @Override
     public String getName() {
         return "Obsolete file";
     }
     
     
+    @Override
     public String[] getDependency() {
         return null;
     }
     
+    @Override
     public String getDescription() {
     	// ZAP: fixed typo
         return "Miscellaneous include files, backup, unused or obsolete files exist as indicated.  If these files contain program source, information such as server logic or ODBC/JDBC user ID and passwords may be revealed since these file extension may not be processed by the web server.";
     }
     
+    @Override
     public String getSolution() {
         return "Remove backup, unused or obsolete files.  For include files, carefully choose the suffix to prevent information disclosure.";
     }
     
+    @Override
     public String getReference() {
         return "";
     }
 
+    @Override
     public int getCategory() {
         return Category.INFO_GATHER;
     }
     
+    @Override
     public void init() {
         
     }
     
+    @Override
     public void scan() {
         for (int i=0; i<staticSuffixList.length; i++) {
             try {

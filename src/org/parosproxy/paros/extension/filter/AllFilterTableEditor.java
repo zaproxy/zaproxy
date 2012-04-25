@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
+// removed unnecessary cast.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -43,15 +45,18 @@ class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor
         button = new JButton();
 		button.addActionListener(new java.awt.event.ActionListener() { 
 
+			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {    
 
-				Filter filter = (Filter) AllFilterTableEditor.this.model.getAllFilters().get(row);
+				// ZAP: Removed unnecessary cast.
+				Filter filter = AllFilterTableEditor.this.model.getAllFilters().get(row);
 				filter.editProperty();
 			}
 		});
     }
     
     // This method is called when a cell value is edited by the user.
+    @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
             boolean isSelected, int rowIndex, int vColIndex) {
         // 'value' is value contained in the cell located at (rowIndex, vColIndex)
@@ -71,6 +76,7 @@ class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor
     
     // This method is called when editing is completed.
     // It must return the new value to be stored in the cell.
+    @Override
     public Object getCellEditorValue() {
         return button.getText();
     }

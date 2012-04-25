@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/25 Added type arguments to generic types, removed unnecessary
+// casts, removed unused variable and added @Override annotation to all
+// appropriate methods.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -55,6 +58,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
+    @Override
     public int getId() {
         return 20;
     }
@@ -62,6 +66,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
      */
+    @Override
     public String getName() {
         return Constant.messages.getString("filter.loggets.name") + getLogFileName();
         
@@ -79,6 +84,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
         HttpRequestHeader reqHeader = httpMessage.getRequestHeader();
@@ -89,7 +95,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
                     
                     URI uri = reqHeader.getURI();
                     
-                    int pos;
+                    // ZAP: Removed unused variable (int pos).
                     
                     String firstline;
                     
@@ -98,7 +104,8 @@ public class FilterLogGetQuery extends FilterAdaptor {
                     if (query != null) {
                         newURI.setQuery(null);
                         firstline = newURI.toString();
-                        Hashtable param = parseParameter(query);
+                        // ZAP: Added type arguments.
+                        Hashtable<String, String> param = parseParameter(query);
                         writeLogFile(firstline,param);
                     } else {
                         firstline = uri.toString();
@@ -119,11 +126,13 @@ public class FilterLogGetQuery extends FilterAdaptor {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
      */
+    @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
         
     }
     
-    protected synchronized void writeLogFile(String line, Hashtable param){
+    // ZAP: Added type arguments.
+    protected synchronized void writeLogFile(String line, Hashtable<String, String> param){
         // write to default file
         try{
             
@@ -133,10 +142,13 @@ public class FilterLogGetQuery extends FilterAdaptor {
             }
             
             if (param!=null){
-                Enumeration v = param.keys();
+                // ZAP: Added type argument.
+                Enumeration<String> v = param.keys();
                 while (v.hasMoreElements()) {
-                    String name = (String)v.nextElement();
-                    String value = (String)param.get(name);
+                    // ZAP: Removed unnecessary cast.
+                    String name = v.nextElement();
+                    // ZAP: Removed unnecessary cast.
+                    String value = param.get(name);
                     getWriter().write(delim + name + delim + value + CRLF);		        		           
                 }    		
             }
@@ -148,8 +160,10 @@ public class FilterLogGetQuery extends FilterAdaptor {
         
     }
     
-    protected Hashtable parseParameter(String param){
-        Hashtable table = new Hashtable();
+    // ZAP: Added type arguments.
+    protected Hashtable<String, String> parseParameter(String param){
+        // ZAP: Added type arguments.
+        Hashtable<String, String> table = new Hashtable<String, String>();
         
         try{	  
             matcher2 = pSeparator.matcher(param);
@@ -166,6 +180,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
         
     }
     
+    @Override
     public synchronized void timer() {
         // 5s elapse and no more write.  close file.
         if (writer != null && System.currentTimeMillis() > lastWriteTime + 5000) {

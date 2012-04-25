@@ -22,7 +22,8 @@
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault)
 // ZAP: 2102/03/15 Changed the type of the parameter "sb" of the method matchBodyPattern to 
-//      StringBuilder.
+// StringBuilder.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,13 +74,16 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     abstract public int getId();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     abstract public String getName();
     
+    @Override
     public String getCodeName() {
         String result = getClass().getName();
         int pos = getClass().getName().lastIndexOf(".");
@@ -92,31 +96,37 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     abstract public String[] getDependency();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     abstract public String getDescription();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     abstract public int getCategory();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     abstract public String getSolution();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     abstract public String getReference();
     
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#init(com.proofsecure.paros.network.HttpMessage, com.proofsecure.paros.core.scanner.HostProcess)
      */
+    @Override
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
         this.parent = parent;
@@ -232,6 +242,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	    }
     }
 
+    @Override
     public void run() {
         try {
             if (!isStop()) {
@@ -246,6 +257,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * The core scan method to be implmented by subclass.
      */
+    @Override
     abstract public void scan();
 
     /**
@@ -312,11 +324,13 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * @return Returns if this test is enabled.
      */
+    @Override
     public boolean isEnabled() {
         return getProperty("enabled").equals("1");            
 
     }
     
+    @Override
     public boolean isVisible() {
         return true;
     }
@@ -324,6 +338,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Enable this test
      */
+    @Override
     public void setEnabled(boolean enabled) {
         if (enabled) {
             setProperty("enabled", "1");
@@ -332,10 +347,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
         }
     }
     
+	@Override
 	public Level getLevel() {
 		return this.getLevel(false);
 	}
 	
+	@Override
 	public Level getLevel(boolean incDefault) {
 		Level level = null;
 		try {
@@ -367,10 +384,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 		return level;
 	}
 	
+	@Override
 	public void setLevel(Level level) {
 		setProperty("level", level.name());
 	}
 
+	@Override
 	public void setDefaultLevel(Level level) {
 		this.defaultLevel = level;
 	}
@@ -378,6 +397,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Compare if 2 plugin is the same.
      */
+    @Override
     public int compareTo(Object obj) {
         
         int result = -1;
@@ -394,6 +414,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
         return result;
     }
     
+    @Override
     public boolean equals(Object obj) {
 
         if (compareTo(obj) == 0) {
@@ -465,6 +486,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#notifyPluginCompleted(com.proofsecure.paros.core.scanner.HostProcess)
      */
+    @Override
     abstract public void notifyPluginCompleted(HostProcess parent);
 
 
@@ -532,10 +554,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	    config.setProperty("plugins." + "p" + getId() + "." + key, value);
 	}
 		
+	@Override
 	public void setConfig(Configuration config) {
 	    this.config = config;
 	}
 	
+	@Override
 	public Configuration getConfig() {
 	    return config;
 	}
@@ -544,6 +568,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	 * Check and create necessary parameter in config file if not already present.
 	 *
 	 */
+	@Override
 	public void createParamIfNotExist() {
         if (getProperty("enabled") == null) {
             setProperty("enabled", "1");        
@@ -556,10 +581,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 		return false;
 	}
 
+	@Override
 	public int getDelayInMs() {
 		return delayInMs;
 	}
 
+	@Override
 	public void setDelayInMs(int delayInMs) {
 		this.delayInMs = delayInMs;
 	}

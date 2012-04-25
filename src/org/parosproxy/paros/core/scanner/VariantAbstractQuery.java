@@ -19,8 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed the methods (the private) setParameter and paramAppend to 
-//      use the class StringBuilder instead of StringBuffer. Removed unnecessary 
-//      castings in the method setParameter. Made a change in the method parse.
+// use the class StringBuilder instead of StringBuffer. Removed unnecessary 
+// castings in the method setParameter. Made a change in the method parse.
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -81,6 +82,7 @@ abstract public class VariantAbstractQuery implements Variant {
 		
     }
     
+    @Override
     public Vector<NameValuePair> getParamList() {
         return listParam;
     }
@@ -88,10 +90,12 @@ abstract public class VariantAbstractQuery implements Variant {
     /**
      * If name and value = null, not to append entire parameter.
      */
+    @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
     	return this.setParameter(msg, originalPair, name, value, false);
     }
     
+    @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
     	return this.setParameter(msg, originalPair, name, value, true);
     }

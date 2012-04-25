@@ -151,6 +151,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner implements Passive
 		}
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -159,6 +160,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner implements Passive
 		this.name = name;
 	}
 
+	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
 		if (! this.isEnabled()) {
 			return;

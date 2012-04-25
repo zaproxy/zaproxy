@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -50,6 +51,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getId()
      */
+    @Override
     public int getId() {
         return 10001;
     }
@@ -57,6 +59,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getName()
      */
+    @Override
     public String getName() {
         return "Secure page browser cache";
     }
@@ -64,6 +67,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
      */
+    @Override
     public String[] getDependency() {
         return null;
     }
@@ -71,6 +75,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
      */
+    @Override
     public String getDescription() {
         return "Secure page can be cached in browser.  Cache control is not set in HTTP header nor HTML header.  Sensitive content can be recovered from browser storage.";
     }
@@ -78,6 +83,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
      */
+    @Override
     public int getCategory() {
         return Category.BROWSER;
     }
@@ -85,6 +91,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
      */
+    @Override
     public String getSolution() {
         String msg = "The best way is to set HTTP header with: 'Pragma: No-cache' and 'Cache-control: No-cache'." + CRLF
             + "Alternatively, this can be set in the HTML header by:" + CRLF
@@ -97,6 +104,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
      */
+    @Override
     public String getReference() {
         String msg = ". How to prevent caching in Internet Explorer - http://support.microsoft.com/default.aspx?kbid=234067" + CRLF
             + ". Pragma: No-cache Tag May Not Prevent Page from Being Cached - http://support.microsoft.com/default.aspx?kbid=222064";
@@ -106,6 +114,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
      */
+    @Override
     public void init() {
 
     }
@@ -113,6 +122,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     /* (non-Javadoc)
      * @see com.proofsecure.paros.core.scanner.Plugin#scan()
      */
+    @Override
     public void scan() {
 
         HttpMessage msg = getBaseMsg();

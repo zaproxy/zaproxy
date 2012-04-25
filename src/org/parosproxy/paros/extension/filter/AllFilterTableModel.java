@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/24 Added type arguments to generic types, removed unnecessary
+// casts, removed unused variable and changed to use the method Boolean.valueOf.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -38,27 +40,33 @@ public class AllFilterTableModel extends DefaultTableModel {
 
     private static final String[] columnNames = {
     	Constant.messages.getString("filter.table.name"), Constant.messages.getString("filter.table.enabled"), ""};
-    private List allFilters = null;
+    // ZAP: Added the type argument.
+    private List<Filter> allFilters = null;
     
     /**
      * @param allPlugins The allPlugins to set.
      */
-    private void setAllFilters(List allFilters) {
+    // ZAP: Added the type argument.
+    private void setAllFilters(List<Filter> allFilters) {
         this.allFilters = allFilters;
     }
     /**
      * 
      */
     public AllFilterTableModel() {
-        allFilters = new Vector();
+        // ZAP: Added the type argument.
+        allFilters = new Vector<Filter>();
     }
     
-    public void setTable(List allFilters) {
+    // ZAP: Added the type argument.
+    public void setTable(List<Filter> allFilters) {
         setAllFilters(allFilters);
         fireTableDataChanged();        
     }
 
-    public Class getColumnClass(int c) {
+    // ZAP: Added the type argument.
+    @Override
+    public Class<?> getColumnClass(int c) {
         if (c == 1) {
             return Boolean.class;
         }
@@ -66,13 +74,16 @@ public class AllFilterTableModel extends DefaultTableModel {
         
     }
     
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
     
+    @Override
     public boolean isCellEditable(int row, int col) {
         boolean result = false;
-        Filter filter = (Filter) getAllFilters().get(row);
+        // ZAP: Removed unnecessary cast.
+        Filter filter = getAllFilters().get(row);
         switch (col) {
         	case 0:	result = false;
         			break;
@@ -87,10 +98,11 @@ public class AllFilterTableModel extends DefaultTableModel {
         return result;
     }
     
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
-        Object result = null;
-        Filter filter = (Filter) allFilters.get(row);
+        // ZAP: Removed unused variable (Object result) and unnecessary cast.
+        Filter filter = allFilters.get(row);
         switch (col) {
         	case 0:	break;
         	case 1: filter.setEnabled(((Boolean) value).booleanValue());
@@ -100,6 +112,7 @@ public class AllFilterTableModel extends DefaultTableModel {
         fireTableCellUpdated(row, col);
     }
     
+    @Override
     public int getColumnCount() {
         return 3;
     }
@@ -107,6 +120,7 @@ public class AllFilterTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
      */
+    @Override
     public int getRowCount() {
         return getAllFilters().size();
     }
@@ -114,13 +128,16 @@ public class AllFilterTableModel extends DefaultTableModel {
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
+    @Override
     public Object getValueAt(int row, int col) {
         Object result = null;
-        Filter filter = (Filter) getAllFilters().get(row);
+        // ZAP: Removed unnecessary cast.
+        Filter filter = getAllFilters().get(row);
         switch (col) {
         	case 0:	result = filter.getName();
         			break;
-        	case 1: result = new Boolean(filter.isEnabled());
+        	case 1: // ZAP: Changed to use the method Boolean.valueOf.
+        			result = Boolean.valueOf(filter.isEnabled());
         			break;
         	case 2: if (filter.isPropertyExists()) {
         	    		result = "...";
@@ -135,7 +152,8 @@ public class AllFilterTableModel extends DefaultTableModel {
     
     void setAllFilterEnabled(boolean enabled) {
         for (int i=0; i<getAllFilters().size(); i++) {
-            Filter filter = (Filter) getAllFilters().get(i);
+            // ZAP: Removed unnecessary cast.
+            Filter filter = getAllFilters().get(i);
             filter.setEnabled(enabled);            
         }
         fireTableDataChanged();        
@@ -145,9 +163,10 @@ public class AllFilterTableModel extends DefaultTableModel {
     /**
      * @return Returns the allFilters.
      */
-    public List getAllFilters() {
+    // ZAP: Added the type arguments.
+    public List<Filter> getAllFilters() {
         if (allFilters == null) {
-            allFilters = new Vector();
+            allFilters = new Vector<Filter>();
         }
         return allFilters;
     }

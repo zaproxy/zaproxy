@@ -34,26 +34,31 @@ public class DefaultHttpPanelViewModel implements HttpPanelViewModel {
 		httpMessage = null;
 	}
 	
+	@Override
 	public void setHttpMessage(HttpMessage httpMessage) {
 		this.httpMessage = httpMessage;
 		
 		fireDataChanged();
 	}
 	
+	@Override
 	public HttpMessage getHttpMessage() {
 		return httpMessage;
 	}
 	
+	@Override
 	public void clear() {
 		httpMessage = null;
 		
 		fireDataChanged();
 	}
 	
+	@Override
 	public void addHttpPanelViewModelListener(HttpPanelViewModelListener l) {
 		listeners.add(l);
 	}
 	
+	@Override
 	public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l) {
 		listeners.remove(l);
 	}
