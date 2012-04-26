@@ -338,7 +338,6 @@ public class ZAP {
 	    final View view = View.getSingleton();
 	    view.postInit();
 	    view.getMainFrame().setVisible(true);
-	    view.setStatus("");
 
 	    control.getMenuFileControl().newSession(false);
 
