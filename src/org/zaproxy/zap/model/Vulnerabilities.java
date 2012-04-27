@@ -21,6 +21,7 @@ package org.zaproxy.zap.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,6 @@ public class Vulnerabilities {
 	private static List<Vulnerability> vulns = null;
 	private static Map<String, Vulnerability> idToVuln = new HashMap<String, Vulnerability>();
 	
-	@SuppressWarnings("unchecked")
 	private static synchronized void init() {
 		if (vulns == null) {
 			// Read them in from the file
@@ -43,17 +43,18 @@ public class Vulnerabilities {
 	        	XMLConfiguration config = new XMLConfiguration();
 	        	config.setDelimiterParsingDisabled(true);
 	        	config.load(f);
-	        	List<String> test = config.getList("vuln_items");
+	        	String[] test = config.getStringArray("vuln_items");
 	        	vulns = new ArrayList<Vulnerability>();
 	        	for (String item : test) {
 	        		String name = "vuln_item_" + item;
+	        		List<String> references = new ArrayList<String>(Arrays.asList(config.getStringArray(name + ".reference")));
 	        		Vulnerability v = 
 	        			new Vulnerability(
 	        					item,
 	        					config.getString(name + ".alert"),
 	        					config.getString(name + ".desc"),
 	        					config.getString(name + ".solution"),
-	        					config.getList(name + ".reference"));
+	        					references);
 	        		vulns.add(v);
 	        		idToVuln.put(item, v);
 	        	}

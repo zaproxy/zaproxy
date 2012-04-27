@@ -20,8 +20,10 @@
 package org.zaproxy.zap.extension.session;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.configuration.ConversionException;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -45,11 +47,10 @@ public class SessionParam extends AbstractParam {
      * @see com.proofsecure.paros.common.FileXML#parse()
      */
     @Override
-    @SuppressWarnings("unchecked")
 	protected void parse(){
     	try {
-    		this.tokens = getConfig().getList(TOKENS);
-    	} catch (Exception e) {
+    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS)));
+    	} catch (ConversionException e) {
     		this.tokens = new ArrayList<String>();
     	}
     	if (this.tokens.size() == 0) {

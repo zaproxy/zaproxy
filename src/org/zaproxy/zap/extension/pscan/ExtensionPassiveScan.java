@@ -85,14 +85,13 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private PassiveScannerList getPassiveScannerList() {
 		if (scannerList == null) {
 			scannerList = new PassiveScannerList();
 	        
             // Read from the configs
             FileConfiguration config = this.getModel().getOptionsParam().getConfig();
-            List<String> pscanList = config.getList(PSCAN_NAMES);
+            String[] pscanList = config.getStringArray(PSCAN_NAMES);
             for (String pscanName : pscanList) {
             	scannerList.add(
                 	new RegexAutoTagScanner(pscanName, 
@@ -153,8 +152,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     	String pscanName = defn.getName();
 
         // Add to the list
-    	@SuppressWarnings("unchecked")
-    	List<String> names = config.getList(PSCAN_NAMES);
+    	List<Object> names = config.getList(PSCAN_NAMES);
     	names.add(pscanName);
 		config.setProperty(PSCAN_NAMES, names);
 
