@@ -239,6 +239,7 @@ public class BreakPointsPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	    
 	}
@@ -256,6 +257,7 @@ public class BreakPointsPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	    
 	}
@@ -273,6 +275,7 @@ public class BreakPointsPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	    
 	}

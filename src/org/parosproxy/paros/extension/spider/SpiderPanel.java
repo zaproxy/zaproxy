@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/04/28 Added logger and log of exceptions.
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.CardLayout;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
@@ -42,6 +44,8 @@ import org.zaproxy.zap.utils.ZapTextArea;
 public class SpiderPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = -4718208429269240605L;
+	// ZAP: Added logger.
+	private static final Logger logger = Logger.getLogger(SpiderPanel.class);
 
 	private JSplitPane splitPane = null;
 	private JPanel leftPanel = null;
@@ -264,6 +268,8 @@ public class SpiderPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			// ZAP: Added logging.
+			logger.error(e.getMessage(), e);
 		}
 	    
 	}
@@ -281,6 +287,8 @@ public class SpiderPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			// ZAP: Added logging.
+			logger.error(e.getMessage(), e);
 		}
 	}
 	    

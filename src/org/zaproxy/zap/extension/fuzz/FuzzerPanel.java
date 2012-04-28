@@ -356,6 +356,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 				}
 			});
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 

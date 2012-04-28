@@ -34,6 +34,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.network.HttpMessage;
@@ -49,6 +50,8 @@ public class SearchPanel extends AbstractPanel {
 
 	public static final String PANEL_NAME = "search";
 
+	private static final Logger logger = Logger.getLogger(SearchPanel.class);
+		
 	private ExtensionSearch extension;
 	
 	private javax.swing.JPanel panelCommand = null;
@@ -342,6 +345,7 @@ public class SearchPanel extends AbstractPanel {
 								}
 							});
 						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
 						}
 					}
 				}

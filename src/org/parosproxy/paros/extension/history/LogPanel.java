@@ -20,6 +20,7 @@
 // ZAP: 2012/01/12 Changed the method valueChanged of the ListSelectionListener.
 // ZAP: 2012/03/15 Changed to allow clear the displayQueue. 
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/04/28 Added logger and log of exception.
 
 package org.parosproxy.paros.extension.history;
 
@@ -34,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -49,6 +51,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
  */
 public class LogPanel extends AbstractPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
+	// ZAP: Added logger.
+	private static final Logger logger = Logger.getLogger(LogPanel.class);
 	private javax.swing.JScrollPane scrollLog = null;
 	private javax.swing.JList listLog = null;
 	// ZAP: Added history (filter) toolbar
@@ -442,8 +446,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
                     }
                 });
                 
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            } catch (Exception e) {
+                // ZAP: Added logging.
+                logger.error(e.getMessage(), e);
             }
             
             // wait some time to allow another selection event to be triggered

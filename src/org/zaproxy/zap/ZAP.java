@@ -22,15 +22,14 @@ package org.zaproxy.zap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -378,7 +377,7 @@ public class ZAP {
 	    return shown;
 	}
 
-	private static final class UncaughtExceptionLogger implements UncaughtExceptionHandler {
+	private static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
 		private static final Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
 
 		private static boolean loggerConfigured = false;

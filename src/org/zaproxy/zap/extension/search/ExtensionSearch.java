@@ -25,6 +25,7 @@ import java.net.URL;
 
 import javax.swing.JMenuItem;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -43,6 +44,8 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	public enum Type {All, URL, Request, Response, Header, Fuzz};
 
+	private static final Logger logger = Logger.getLogger(ExtensionSearch.class);
+	
 	private SearchPanel searchPanel = null;
     private JMenuItem menuSearch = null;
     private JMenuItem menuNext = null;
@@ -116,7 +119,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	                }
 	            });
 	        } catch (Exception e) {
-	            
+	            logger.error(e.getMessage(), e);
 	        }
 	    }
 	}

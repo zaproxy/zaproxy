@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/04/28 Added log of exception.
 package org.parosproxy.paros.extension.spider;
 
 import java.awt.EventQueue;
@@ -304,6 +305,8 @@ public class SpiderDialog extends AbstractDialog implements TreeSelectionListene
                                     	}
                                     });
                                 } catch (Exception e) {
+                                    // ZAP: Added logging.
+                                    logger.error(e.getMessage(), e);
                                 }
 				            }
 				                

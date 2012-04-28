@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -39,6 +40,8 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
  */
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener {
 
+	private static final Logger logger = Logger.getLogger(ExtensionBreak.class);
+	
 	private BreakPanel breakPanel = null;
 	private ProxyListenerBreak proxyListener = null;
 
@@ -297,7 +300,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	                }
 	            });
 	        } catch (Exception e) {
-	            
+	            logger.error(e.getMessage(), e);
 	        }
 	    }
 	}

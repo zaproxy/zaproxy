@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -61,6 +62,8 @@ import org.zaproxy.zap.utils.ZapTextField;
 public class AlertViewPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(AlertViewPanel.class);
+	
 	private JScrollPane defaultPane = null;
 	private JScrollPane alertPane = null;
 	private ZapTextArea defaultOutput = null;
@@ -522,6 +525,7 @@ public class AlertViewPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

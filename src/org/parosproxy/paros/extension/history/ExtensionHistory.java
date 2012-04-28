@@ -33,6 +33,7 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/24 Added type arguments to generic types, removed unnecessary
 // cast and added @Override annotation to all appropriate methods.
+// ZAP: 2012/04/28 Added log of exception.
 
 package org.parosproxy.paros.extension.history;
 
@@ -201,7 +202,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	                }
 	            });
 	        } catch (Exception e) {
-	            
+	            // ZAP: Added logging.
+	            logger.error(e.getMessage(), e);
 	        }
 	    }
 

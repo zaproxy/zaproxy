@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -55,6 +56,8 @@ import org.zaproxy.zap.utils.ZapTextField;
 public class AlertPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(AlertPanel.class);
+	
 	private ViewDelegate view = null;
 	private JTree treeAlert = null;
 	private JTree treeAlert2 = null;
@@ -360,6 +363,7 @@ public class AlertPanel extends AbstractPanel {
 				}
 			});
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 	
