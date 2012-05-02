@@ -38,7 +38,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class FilterReplaceResponseHeader extends FilterAbstractReplace {
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getId()
+     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getId()
      */
     @Override
     public int getId() {
@@ -46,7 +46,7 @@ public class FilterReplaceResponseHeader extends FilterAbstractReplace {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.FilterAdaptor#getName()
+     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getName()
      */
     @Override
     public String getName() {
@@ -54,7 +54,7 @@ public class FilterReplaceResponseHeader extends FilterAbstractReplace {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.FilterAdaptor#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpRequestSend(HttpMessage msg) {
@@ -64,7 +64,7 @@ public class FilterReplaceResponseHeader extends FilterAbstractReplace {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpResponseReceive(HttpMessage msg) {

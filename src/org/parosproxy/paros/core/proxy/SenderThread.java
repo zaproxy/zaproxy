@@ -20,9 +20,12 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary cast.
+// ZAP: 2012/05/02 Changed the "listenerList" to List, changed the
+// initialisation from Vector to ArrayList and set the initial capacity.
 package org.parosproxy.paros.core.proxy;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -31,11 +34,14 @@ public class SenderThread implements Runnable {
     
     private HttpMessage msg = null;
     private HttpSender httpSender = null;
-    private Vector<SenderThreadListener> listenerList = null;
+    // ZAP: Changed to List.
+    private List<SenderThreadListener> listenerList = null;
+    
     public SenderThread(HttpSender httpSender, HttpMessage msg, SenderThreadListener listener) {
         this.httpSender = httpSender;
         this.msg = msg;
-        listenerList = new Vector<SenderThreadListener>(1);
+        // ZAP: Changed to ArrayList and added the initial capacity.
+        listenerList = new ArrayList<SenderThreadListener>(1);
         listenerList.add(listener);
     }   
     

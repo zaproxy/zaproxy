@@ -74,7 +74,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
+		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new BorderLayout());
 
 		breakToolbarFactory = new BreakPanelToolbarFactory(this);

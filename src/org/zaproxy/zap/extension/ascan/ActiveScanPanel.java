@@ -80,7 +80,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon
-        super("ascan", new ImageIcon(extension.getClass().getResource("/resource/icon/16/093.png")), extension, null);
+        super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension, null);
     }
 
 	@Override
@@ -96,7 +96,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
-			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/equalizer.png")));
+			optionsButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png")));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {

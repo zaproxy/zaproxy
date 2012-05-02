@@ -42,7 +42,7 @@ public class ParamsAPI extends ApiImplementor {
 	
 	public ParamsAPI (ExtensionParams extension) {
 		this.extension = extension;
-		List<String> paramViewParams = new ArrayList<String>();
+		List<String> paramViewParams = new ArrayList<String>(1);
 		paramViewParams.add(VIEW_PARAMS_PARAM_SITE);
 		this.addApiView(new ApiView(VIEW_PARAMS, paramViewParams));
 

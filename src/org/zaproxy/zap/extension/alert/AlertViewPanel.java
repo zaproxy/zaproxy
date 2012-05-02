@@ -629,8 +629,8 @@ public class AlertViewPanel extends AbstractPanel {
 	}
 
 	private List<String> getAllVulnerabilityNames() {
-		List <String> names = new ArrayList<String>();
 		List <Vulnerability> vulns = this.getAllVulnerabilities();
+		List <String> names = new ArrayList<String>(vulns.size());
 		for (Vulnerability v : vulns) {
 			names.add(v.getAlert());
 		}

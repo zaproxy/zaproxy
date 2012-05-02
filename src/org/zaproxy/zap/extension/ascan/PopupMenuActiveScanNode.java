@@ -71,7 +71,7 @@ public class PopupMenuActiveScanNode extends ExtensionPopupMenuItem {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("ascan.node.popup"));
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/093.png")));
+        this.setIcon(new ImageIcon(PopupMenuActiveScanNode.class.getResource("/resource/icon/16/093.png")));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

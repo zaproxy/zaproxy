@@ -95,8 +95,15 @@ public class DesktopUtils {
 	private static BrowserLauncher getBrowserLauncher() 
 			throws BrowserLaunchingInitializingException, UnsupportedOperatingSystemException {
 		if (launcher == null) {
-			launcher = new BrowserLauncher();
+			createBrowserLauncher();
 		}
 		return launcher;
+	}
+	
+	private static synchronized void createBrowserLauncher()
+			throws BrowserLaunchingInitializingException, UnsupportedOperatingSystemException {
+		if (launcher == null) {
+			launcher = new BrowserLauncher();
+		}
 	}
 }

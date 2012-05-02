@@ -43,7 +43,7 @@ public class FuzzerParam extends AbstractParam {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.common.FileXML#parse()
+     * @see org.parosproxy.paros.common.FileXML#parse()
      */
     @Override
     protected void parse(){

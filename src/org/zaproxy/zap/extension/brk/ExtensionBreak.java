@@ -89,7 +89,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	/**
 	 * This method initializes logPanel	
 	 * 	
-	 * @return com.proofsecure.paros.extension.history.LogPanel	
+	 * @return org.parosproxy.paros.extension.history.LogPanel	
 	 */    
 	public BreakPanel getBreakPanel() {
 		if (breakPanel == null) {

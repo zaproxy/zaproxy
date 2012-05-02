@@ -43,7 +43,6 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void addElement(Object element) {
 		int index = 0;
 		int size = getSize();
@@ -52,6 +51,7 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 
 		for (index = 0; index < size; index++)
 		{
+			@SuppressWarnings("unchecked")
 			Comparable<Object> c = (Comparable<Object>)getElementAt( index );
 
 			if (c.compareTo(element) > 0)

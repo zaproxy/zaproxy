@@ -82,7 +82,7 @@ public class ParamsPanel extends AbstractPanel{
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("params.panel.title"));
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/179.png")));	// 'form' icon
+		this.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/179.png")));	// 'form' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 	/**
@@ -185,7 +185,7 @@ public class ParamsPanel extends AbstractPanel{
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("params.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));	// 'Gears' icon
+			optionsButton.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/041.png")));	// 'Gears' icon
 			optionsButton.setEnabled(false);
 			optionsButton.addActionListener(new ActionListener () {
 

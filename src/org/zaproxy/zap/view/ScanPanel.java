@@ -294,7 +294,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (startScanButton == null) {
 			startScanButton = new JButton();
 			startScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.start"));
-			startScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
+			startScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/131.png")));
 			startScanButton.setEnabled(false);
 			startScanButton.addActionListener(new ActionListener () {
 
@@ -313,7 +313,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.stop"));
-			stopScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
+			stopScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/142.png")));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -329,7 +329,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (pauseScanButton == null) {
 			pauseScanButton = new JToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
-			pauseScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -345,7 +345,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -511,11 +511,11 @@ public abstract class ScanPanel extends AbstractPanel {
 		return null;
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected SiteNode getSiteNode (String siteName) {
 		SiteMap siteTree = this.getExtension().getModel().getSession().getSiteTree();
 		SiteNode rootNode = (SiteNode) siteTree.getRoot();
 		
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
 			SiteNode sn = en.nextElement();

@@ -15,6 +15,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 
+@Deprecated
 public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
 
 	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
@@ -69,7 +70,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -77,7 +78,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
      */
     @Override
     public String getDescription() {
@@ -88,7 +89,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
      */
     @Override
     public int getCategory() {
@@ -96,7 +97,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
      */
     @Override
     public String getSolution() {
@@ -107,7 +108,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getReference()
+     * @see org.parosproxy.paros.core.scanner.Test#getReference()
      */
     @Override
     public String getReference() {
@@ -125,7 +126,7 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
      */
     @Override
     public void init() {

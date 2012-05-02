@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.pscan;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.FileConfiguration;
@@ -49,6 +50,15 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	private PassiveScanThread pst = null;
 	
 	private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
+	
+	private static final List<Class<?>> DEPENDENCIES;
+	
+	static {
+		List<Class<?>> dep = new ArrayList<Class<?>>();
+		dep.add(ExtensionAlert.class);
+		
+		DEPENDENCIES = Collections.unmodifiableList(dep);
+	}
 	
 	public ExtensionPassiveScan() {
 		super();
@@ -182,10 +192,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	
 	@Override
 	public List<Class<?>> getDependencies() {
-		List<Class<?>> deps = new ArrayList<Class<?>>();
-		deps.add(ExtensionAlert.class);
-		
-		return deps;
+		return DEPENDENCIES;
 	}
 
 	@Override

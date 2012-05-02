@@ -44,12 +44,12 @@ public interface Filter {
     public String getName();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
      */
     public void onHttpRequestSend(HttpMessage httpMessage);
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
     public void onHttpResponseReceive(HttpMessage httpMessage);
     

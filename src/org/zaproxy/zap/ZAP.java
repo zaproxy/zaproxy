@@ -20,7 +20,6 @@
 package org.zaproxy.zap;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -115,7 +114,7 @@ public class ZAP {
 			if (libDir.exists() && libDir.isDirectory()) {
 				final File[] files = libDir.listFiles();
 				for (final File file : files) {
-					if (file.getName().toLowerCase().endsWith("jar")) {
+					if (file.getName().toLowerCase(Locale.ENGLISH).endsWith("jar")) {
 						ClassLoaderUtil.addFile(file);
 					}
 				}
@@ -134,42 +133,44 @@ public class ZAP {
 	        System.exit(1);
 	    }
 
-	    try {
-	    	// Get the systems Look and Feel
-	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-	    	// Set Nimbus LaF if available and system is not OSX
-	    	if (!Constant.isMacOsX()) {
-		        for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-		            if ("Nimbus".equals(info.getName())) {
-		                UIManager.setLookAndFeel(info.getClassName());
-		                break;
-		            }
-		        }
-	    	}
-	    } catch (final UnsupportedLookAndFeelException e) {
-	        // handle exception
-	    } catch (final ClassNotFoundException e) {
-	        // handle exception
-	    } catch (final InstantiationException e) {
-	        // handle exception
-	    } catch (final IllegalAccessException e) {
-	        // handle exception
-	    }
-
 	}
 
 	private void run() throws Exception {
 	    
+		final boolean isGUI = cmdLine.isGUI();
+		
 	    boolean firstTime = false;
-	    if (cmdLine.isGUI()) {
+	    if (isGUI) {
+		    try {
+		    	// Get the systems Look and Feel
+		    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+		    	// Set Nimbus LaF if available and system is not OSX
+		    	if (!Constant.isMacOsX()) {
+			        for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+			            if ("Nimbus".equals(info.getName())) {
+			                UIManager.setLookAndFeel(info.getClassName());
+			                break;
+			            }
+			        }
+		    	}
+		    } catch (final UnsupportedLookAndFeelException e) {
+		        // handle exception
+		    } catch (final ClassNotFoundException e) {
+		        // handle exception
+		    } catch (final InstantiationException e) {
+		        // handle exception
+		    } catch (final IllegalAccessException e) {
+		        // handle exception
+		    }
+		    
 		    firstTime = showLicense();
 	    }
 
 	    try {
 			Model.getSingleton().init();
 	    } catch (final java.io.FileNotFoundException e) {
-	    	if (cmdLine.isGUI()) {
+	    	if (isGUI) {
 	    		JOptionPane.showMessageDialog(null,
 	    				Constant.messages.getString("start.db.error"),
 	    				Constant.messages.getString("start.title.error"),
@@ -180,9 +181,9 @@ public class ZAP {
 
 	    	throw e;
 	    }
-	    Model.getSingleton().getOptionsParam().setGUI(cmdLine.isGUI());
+	    Model.getSingleton().getOptionsParam().setGUI(isGUI);
 
-		if (Model.getSingleton().getOptionsParam().isGUI()) {
+		if (isGUI) {
 
 		    // Prompt for language if not set
 			String locale = Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale();
@@ -354,26 +355,30 @@ public class ZAP {
 
 	private boolean showLicense() {
 		boolean shown = false;
-        if (!(new File(Constant.getInstance().ACCEPTED_LICENSE)).exists()){
-
+		
+		File acceptedLicenseFile = new File(Constant.getInstance().ACCEPTED_LICENSE);
+		
+        if (!acceptedLicenseFile.exists()){
 	        final LicenseFrame license = new LicenseFrame();
 	        license.setVisible(true);
 	        while (!license.isAccepted()) {
 	            try {
 	                Thread.sleep(100);
-	            } catch (final InterruptedException e) {}
+	            } catch (final InterruptedException e) {
+	            	log.error(e.getMessage(), e);
+	            }
 	        }
 	        shown = true;
-	    }
 
-	    try{
-            final FileWriter fo = new FileWriter(Constant.getInstance().ACCEPTED_LICENSE);
-	        fo.close();
-	    }catch (final IOException ie){
-	        JOptionPane.showMessageDialog(new JFrame(), Constant.messages.getString("start.unknown.error"));
-	        log.error(ie.getMessage(), ie);
-	        System.exit(1);
+	        try{
+	            acceptedLicenseFile.createNewFile();
+	        }catch (final IOException ie){
+	            JOptionPane.showMessageDialog(new JFrame(), Constant.messages.getString("start.unknown.error"));
+	            log.error(ie.getMessage(), ie);
+	            System.exit(1);
+	        }
 	    }
+	    
 	    return shown;
 	}
 

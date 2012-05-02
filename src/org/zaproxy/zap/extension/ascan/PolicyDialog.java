@@ -75,7 +75,7 @@ public class PolicyDialog extends AbstractParamDialog {
 	/**
 	 * This method initializes policyAllCategoryPanel	
 	 * 	
-	 * @return com.proofsecure.paros.extension.scanner.PolicyAllCategoryPanel	
+	 * @return org.parosproxy.paros.extension.scanner.PolicyAllCategoryPanel	
 	 */    
 	private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
 		if (policyAllCategoryPanel == null) {

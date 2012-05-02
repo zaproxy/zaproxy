@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Added @Deprecated annotation to the class.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -38,6 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
+@Deprecated
 public class TestClientAutocomplete extends AbstractAppPlugin {
     
 	// ZAP Depreciated by org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner
@@ -62,7 +64,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
 
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getId()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getId()
      */
     @Override
     public int getId() {
@@ -70,7 +72,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getName()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getName()
      */
     @Override
     public String getName() {
@@ -78,7 +80,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -86,7 +88,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDescription()
      */
     @Override
     public String getDescription() {
@@ -94,7 +96,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getCategory()
      */
     @Override
     public int getCategory() {
@@ -102,7 +104,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getSolution()
      */
     @Override
     public String getSolution() {
@@ -112,7 +114,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getReference()
      */
     @Override
     public String getReference() {
@@ -121,7 +123,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractPlugin#init()
      */
     @Override
     public void init() {
@@ -129,7 +131,7 @@ public class TestClientAutocomplete extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#scan()
+     * @see org.parosproxy.paros.core.scanner.Plugin#scan()
      */
     @Override
     public void scan() {

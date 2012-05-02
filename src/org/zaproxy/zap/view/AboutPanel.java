@@ -133,7 +133,7 @@ public class AboutPanel extends JPanel {
 		lblDisclaimer.setBackground(Color.white);
 			
 		lblLogo.setText("");
-		lblLogo.setIcon(new ImageIcon(getClass().getResource("/resource/zap64x64.png")));
+		lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap64x64.png")));
 		lblLogo.setName("lblLogo");
 		
 		lblCopyrightDetail.setText(LICENSE_DETAIL);

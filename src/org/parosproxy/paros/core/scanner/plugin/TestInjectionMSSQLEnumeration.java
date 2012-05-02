@@ -54,7 +54,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
 	private String mResBodyNormal 	= "";		// normal response for comparison
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getId()
+     * @see org.parosproxy.paros.core.scanner.Test#getId()
      */
     @Override
     public int getId() {
@@ -62,7 +62,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getName()
+     * @see org.parosproxy.paros.core.scanner.Test#getName()
      */
     @Override
     public String getName() {
@@ -70,7 +70,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -79,7 +79,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
      */
     @Override
     public String getDescription() {
@@ -88,7 +88,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
      */
     @Override
     public int getCategory() {
@@ -96,7 +96,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
      */
     @Override
     public String getSolution() {
@@ -105,7 +105,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getReference()
+     * @see org.parosproxy.paros.core.scanner.Test#getReference()
      */
     @Override
     public String getReference() {
@@ -115,7 +115,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
      */
     @Override
     public void init() {
@@ -141,7 +141,7 @@ public class TestInjectionMSSQLEnumeration extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractAppParamTest#scan(com.proofsecure.paros.network.HttpMessage, java.lang.String, java.lang.String)
+     * @see org.parosproxy.paros.core.scanner.AbstractAppParamTest#scan(org.parosproxy.paros.network.HttpMessage, java.lang.String, java.lang.String)
      */
     public void scanSQL(HttpMessage baseMsg, String param, String value) throws HttpException, IOException {
 

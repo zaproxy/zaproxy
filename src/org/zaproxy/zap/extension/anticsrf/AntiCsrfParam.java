@@ -33,8 +33,13 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class AntiCsrfParam extends AbstractParam {
 
-	private static final String TOKENS = "anticsrf.tokens";
-		
+	private static final String TOKENS_KEY = "anticsrf.tokens";
+	private static final String[] DEFAULT_TOKENS = {
+		"anticsrf",
+		"CSRFToken",
+		"__RequestVerificationToken"
+	};
+	
 	private List<String> tokens = null;
 	
     /**
@@ -44,21 +49,17 @@ public class AntiCsrfParam extends AbstractParam {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.common.FileXML#parse()
+     * @see org.parosproxy.paros.common.FileXML#parse()
      */
     @Override
 	protected void parse(){
     	try {
-    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS)));
+    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS_KEY)));
     	} catch (ConversionException e) {
-    		this.tokens = new ArrayList<String>();
+    		this.tokens = new ArrayList<String>(DEFAULT_TOKENS.length);
     	}
     	if (this.tokens.size() == 0) {
-    		// These are the default ones
-    		this.tokens.add("");
-    		this.tokens.add("anticsrf");
-    		this.tokens.add("CSRFToken");
-    		this.tokens.add("__RequestVerificationToken");
+    		this.tokens.addAll(Arrays.asList(DEFAULT_TOKENS));
     	}
     }
 
@@ -68,7 +69,7 @@ public class AntiCsrfParam extends AbstractParam {
 
 	public void setTokens(List<String> tokens) {
 		this.tokens = tokens;
-		getConfig().setProperty(TOKENS, tokens);
+		getConfig().setProperty(TOKENS_KEY, tokens);
 	}
 
 	protected void addToken(String param) {

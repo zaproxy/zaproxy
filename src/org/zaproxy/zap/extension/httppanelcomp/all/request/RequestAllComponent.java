@@ -61,7 +61,7 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 	
 	protected void initUi() {
 		// Common
-		buttonShowView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/view_all.png")));
+		buttonShowView = new JToggleButton(new ImageIcon(RequestAllComponent.class.getResource("/resource/icon/view_all.png")));
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 
 		panelOptions = new JPanel();

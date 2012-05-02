@@ -116,7 +116,7 @@ public class View implements ViewDelegate {
 		//getWorkbench().getTabbedStatus().add(logPanel, "URLs");
 		
 		// ZAP: Added 'world' icon
-		Icon icon = new ImageIcon(getClass().getResource("/resource/icon/16/094.png"));
+		Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
 		getWorkbench().getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, siteMapPanel); // ZAP: i18n
 		
 		getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
@@ -189,7 +189,7 @@ public class View implements ViewDelegate {
         if (requestPanel == null) {
             requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'right arrow' icon
-    		requestPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
+    		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
         }
@@ -201,7 +201,7 @@ public class View implements ViewDelegate {
         if (responsePanel == null) {
             responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'left arrow' icon
-            responsePanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
+            responsePanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());

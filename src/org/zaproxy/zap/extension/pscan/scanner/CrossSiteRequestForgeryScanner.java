@@ -31,13 +31,12 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 
 
-public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner implements PassiveScanner {
+public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner {
 
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_9");
 	private PassiveScanThread parent = null;
@@ -139,7 +138,7 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner impleme
 	}
 	
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
      */
     public String getDescription() {
     	if (vuln != null) {
@@ -149,14 +148,14 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner impleme
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
      */
     public int getCategory() {
         return Category.MISC;
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
      */
     public String getSolution() {
     	if (vuln != null) {
@@ -166,7 +165,7 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner impleme
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getReference()
+     * @see org.parosproxy.paros.core.scanner.Test#getReference()
      */
     public String getReference() {
     	if (vuln != null) {

@@ -182,6 +182,7 @@ public class Session extends FileXML {
 		HistoryReference historyRef = null;
 		
 		for (int i=0; i<list.size(); i++) {
+			// ZAP: Removed unnecessary cast.
 			int historyId = list.get(i).intValue();
 
 			try {
@@ -202,6 +203,7 @@ public class Session extends FileXML {
 		list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_SPIDER);
 		
 		for (int i=0; i<list.size(); i++) {
+			// ZAP: Removed unnecessary cast.
 			int historyId = list.get(i).intValue();
 
 			try {
@@ -223,21 +225,21 @@ public class Session extends FileXML {
 
 	    // Load the session urls
 	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);
-	    List<String> urls = new ArrayList<String>();
+	    List<String> urls = new ArrayList<String>(ignoreUrls.size());
 	    for (RecordSessionUrl url : ignoreUrls) {
 	    	urls.add(url.getUrl());
 	    }
 	    this.setExcludeFromProxyRegexs(urls);
 
 	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN);
-	    urls = new ArrayList<String>();
+	    urls = new ArrayList<String>(ignoreUrls.size());
 	    for (RecordSessionUrl url : ignoreUrls) {
 	    	urls.add(url.getUrl());
 	    }
 	    this.setExcludeFromScanRegexs(urls);
 
 	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER);
-	    urls = new ArrayList<String>();
+	    urls = new ArrayList<String>(ignoreUrls.size());
 	    for (RecordSessionUrl url : ignoreUrls) {
 	    	urls.add(url.getUrl());
 	    }

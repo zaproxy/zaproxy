@@ -55,10 +55,10 @@ public class HttpResponseBody extends HttpBody {
 				isChangedCharset = false;
 			} catch (UnsupportedEncodingException e) {
 				log.error(e.getMessage(), e);
-
-				result = createCachedStringWithMetaCharset();
 			}
-		} else {
+		}
+		
+		if (result == null) {
 			result = createCachedStringWithMetaCharset();
 		}
 		

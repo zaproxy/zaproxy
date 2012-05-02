@@ -92,20 +92,24 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	
 	private static HelpBroker getHelpBroker() {
 		if (hb == null) {
+			createHelpBroker();
+		}
+		return hb;
+	}
+	
+	private static synchronized void createHelpBroker() {
+		if (hb == null) {
 			try {
 				ClassLoader cl = HelpBroker.class.getClassLoader();  
-				URL hsUrl = HelpSet.findHelpSet(
-						cl, helpHS);
+				URL hsUrl = HelpSet.findHelpSet( cl, helpHS);
 				if (hsUrl != null) {
 					hs = new HelpSet(cl, hsUrl);
 					hb = hs.createHelpBroker();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
-			
 		}
-		return hb;
 	}
 	
 	public static void enableHelpKey (Component component, String key) {
@@ -168,7 +172,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 				menuHelpZap.addActionListener(
 						new CSH.DisplayHelpFromFocus(hb));
 
-				// Enable the top level F1 help kay
+				// Enable the top level F1 help key
 				hb.enableHelpKey(this.getView().getMainFrame().getRootPane(), 
 						"zap.intro", hs, "javax.help.SecondaryWindow", null);
 
@@ -199,7 +203,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 			helpButton = new JButton();
 			helpButton.setText("Help");
 			helpButton.setToolTipText("Help");
-			helpButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // TODO: doesn't work?
+			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png"))); // TODO: doesn't work?
 			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override

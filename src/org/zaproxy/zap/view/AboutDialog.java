@@ -108,7 +108,7 @@ public class AboutDialog extends AbstractDialog {
 	/**
 	 * This method initializes aboutPanel
 	 * 
-	 * @return com.proofsecure.paros.view.AboutPanel
+	 * @return org.parosproxy.paros.view.AboutPanel
 	 */
 	private AboutPanel getAboutPanel() {
 		if (aboutPanel == null) {

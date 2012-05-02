@@ -56,7 +56,6 @@ public class ParamsTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		columnNames.add("");
 		return COLUMN_COUNT;
 	}
 

@@ -118,7 +118,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
     }
     
     @Override
-	public Class<?> getColumnClass(int c) {
+	public Class<String> getColumnClass(int c) {
         return String.class;
         
     }

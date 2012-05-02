@@ -66,7 +66,7 @@ public class OutputPanel extends AbstractPanel {
 	    	this.setSize(243, 119);
 	    }
         // ZAP: Added Output (doc) icon
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/172.png")));	// 'doc' icon
+		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
 
         this.add(getJScrollPane(), getJScrollPane().getName());
 			

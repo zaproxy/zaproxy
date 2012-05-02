@@ -119,7 +119,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	}
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
     @Override
     public void initParam(Object obj) {
@@ -127,7 +127,7 @@ public class AllFilterPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
     @Override
     public void validateParam(Object obj) throws Exception {
@@ -135,7 +135,7 @@ public class AllFilterPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
     @Override
     public void saveParam(Object obj) throws Exception {
@@ -202,7 +202,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes allFilterTableModel	
 	 * 	
-	 * @return com.proofsecure.paros.extension.filter.AllFilterTableModel	
+	 * @return org.parosproxy.paros.extension.filter.AllFilterTableModel	
 	 */    
 	AllFilterTableModel getAllFilterTableModel() {
 		if (allFilterTableModel == null) {

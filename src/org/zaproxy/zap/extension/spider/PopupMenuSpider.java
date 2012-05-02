@@ -71,7 +71,7 @@ public class PopupMenuSpider extends ExtensionPopupMenuItem {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("spider.site.popup"));
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/spider.png")));
+        this.setIcon(new ImageIcon(PopupMenuSpider.class.getResource("/resource/icon/16/spider.png")));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -106,13 +106,13 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("fuzz.panel.title"));
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/097.png")));
+		this.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/097.png")));
         this.add(getPanelCommand(), getPanelCommand().getName());
         
         // Wont need to do this if/when this class is changed to extend ScanPanel
         scanStatus = new ScanStatus(
         				new ImageIcon(
-        					getClass().getResource("/resource/icon/16/097.png")),
+        					FuzzerPanel.class.getResource("/resource/icon/16/097.png")),
         					Constant.messages.getString("fuzz.panel.title"));
        
         View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
@@ -250,7 +250,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		if (startScanButton == null) {
 			startScanButton = new JButton();
 			startScanButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.start"));
-			startScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
+			startScanButton.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/131.png")));
 			startScanButton.setEnabled(false);
 			startScanButton.addActionListener(new ActionListener () {
 
@@ -269,7 +269,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.stop"));
-			stopScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
+			stopScanButton.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/142.png")));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -285,7 +285,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		if (pauseScanButton == null) {
 			pauseScanButton = new JToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.pause"));
-			pauseScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -301,7 +301,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/041.png")));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -514,7 +514,6 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
     }
 
-	@SuppressWarnings("unchecked")
 	public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
 		List<SearchResult> results = new ArrayList<SearchResult>();
 		
@@ -522,6 +521,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			return results;
 		}
 		
+		@SuppressWarnings("unchecked")
 		Enumeration<HttpMessage> enumeration = (Enumeration<HttpMessage>) resultsModel.elements();
 		Matcher matcher;
 		while (enumeration.hasMoreElements()) {

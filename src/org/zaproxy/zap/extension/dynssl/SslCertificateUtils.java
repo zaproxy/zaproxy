@@ -140,7 +140,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 	 * @throws CertificateException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public final static KeyStore String2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public final static KeyStore string2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		final byte[] bytes = Base64.decodeBase64(str);
 		final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());

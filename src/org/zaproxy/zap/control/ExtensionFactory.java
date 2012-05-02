@@ -127,8 +127,8 @@ public class ExtensionFactory {
         return listAllExtension;
     }
     
-    public static Extension getExtension(int id) {
-        Extension test = mapAllExtension.get(new Integer(id));
+    public static Extension getExtension(String name) {
+        Extension test = mapAllExtension.get(name);
         return test;
     }
     

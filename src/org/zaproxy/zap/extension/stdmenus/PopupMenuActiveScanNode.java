@@ -36,7 +36,7 @@ public class PopupMenuActiveScanNode extends PopupMenuSiteNode {
      */
     public PopupMenuActiveScanNode(String label) {
         super(label);
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/093.png")));
+        this.setIcon(new ImageIcon(PopupMenuActiveScanNode.class.getResource("/resource/icon/16/093.png")));
     }
     
     private ExtensionActiveScan getExtensionActiveScan() {

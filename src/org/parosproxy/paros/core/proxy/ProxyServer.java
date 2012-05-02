@@ -58,7 +58,8 @@ public class ProxyServer implements Runnable {
 	protected ProxyParam proxyParam = new ProxyParam();
 	protected ConnectionParam connectionParam = new ConnectionParam();
 	protected Vector<ProxyListener> listenerList = new Vector<ProxyListener>();
-    private static Comparator<ProxyListener> listenersComparator; // ZAP: Added listenersComparator.
+	// ZAP: Added listenersComparator.
+    private static Comparator<ProxyListener> listenersComparator;
 	protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<CacheProcessingItem>();
@@ -119,7 +120,8 @@ public class ProxyServer implements Runnable {
 	
 		isProxyRunning	= false;
 
-		thread = new Thread(this, "ZAP-ProxyServer"); // ZAP: Set the name of the thread.
+		// ZAP: Set the name of the thread.
+		thread = new Thread(this, "ZAP-ProxyServer");
 		thread.setDaemon(true);   
         // the priority below should be higher than normal to allow fast accept on the server socket
    	    thread.setPriority(Thread.NORM_PRIORITY+1);
@@ -234,7 +236,8 @@ public class ProxyServer implements Runnable {
 	
 	public void addProxyListener(ProxyListener listener) {
 		listenerList.add(listener);
-		Collections.sort(listenerList, getListenersComparator()); // ZAP: Sort the listeners.
+		// ZAP: Added to sort the listeners.
+		Collections.sort(listenerList, getListenersComparator());
 	}
 	
 	public void removeProxyListener(ProxyListener listener) {
@@ -265,7 +268,7 @@ public class ProxyServer implements Runnable {
     }
     
 	public void setExcludeList(List<String> urls) {
-		excludeUrls = new ArrayList<Pattern>();
+		excludeUrls = new ArrayList<Pattern>(urls.size());
 	    for (String url : urls) {
 	    	url = url.replaceAll("\\.", "\\\\.");
 	    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");

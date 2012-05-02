@@ -264,7 +264,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private JToggleButton getButtonFollowRedirect() {
 		if (followRedirect == null) {
-			followRedirect = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/16/118.png"))); // Arrow turn around left
+			followRedirect = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/16/118.png"))); // Arrow turn around left
 			followRedirect.setToolTipText(Constant.messages.getString("manReq.checkBox.followRedirect"));
 			followRedirect.setSelected(true);
 		}
@@ -278,7 +278,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 */
 	private JToggleButton getButtonUseTrackingSessionState() {
 		if (useTrackingSessionState == null) {
-			useTrackingSessionState = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/fugue/cookie.png"))); // Cookie
+			useTrackingSessionState = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/fugue/cookie.png"))); // Cookie
 			useTrackingSessionState.setToolTipText(Constant.messages.getString("manReq.checkBox.useSession"));
 		}
 		return useTrackingSessionState;
@@ -451,7 +451,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			
 			this.currentView = -1;
 			
-			tabsButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_tabbed.png")));
+			tabsButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_tabbed.png")));
 			tabsButtonView.setToolTipText(TABS_VIEW_TOOL_TIP);
 			
 			tabsButtonView.addActionListener(new ActionListener() {
@@ -463,7 +463,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			
 			addToolbarButton(tabsButtonView);
 			
-			aboveButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_vertical_split.png")));
+			aboveButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_vertical_split.png")));
 			aboveButtonView.setToolTipText(ABOVE_VIEW_TOOL_TIP);
 			
 			aboveButtonView.addActionListener(new ActionListener() {
@@ -475,7 +475,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			
 			addToolbarButton(aboveButtonView);
 			
-			sideBySideButtonView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/layout_horizontal_split.png")));
+			sideBySideButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_horizontal_split.png")));
 			sideBySideButtonView.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
 			
 			sideBySideButtonView.addActionListener(new ActionListener() {

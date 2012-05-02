@@ -611,7 +611,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			if (e.getMessage().equals("load failed") && e.getCause().getClass().getName().equals("javax.security.auth.login.FailedLoginException")) {
 				// Exception due to a failed login attempt: BAD PIN or password
 				login_attempts++;
-				String attempts = new String(" ("+login_attempts+"/"+MAX_LOGIN_ATTEMPTS+") ");
+				String attempts = " ("+login_attempts+"/"+MAX_LOGIN_ATTEMPTS+") ";
 				if (login_attempts == (MAX_LOGIN_ATTEMPTS-1)) {
 					// Last attempt before blocking the smartcard
 					JOptionPane.showMessageDialog(null, new String[] {

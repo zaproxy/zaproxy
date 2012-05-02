@@ -52,7 +52,7 @@ public class DynSSLParam extends AbstractParam {
 	 */
 	public void setRootca(String rootca) {
 		try {
-			setRootca(SslCertificateUtils.String2Keystore(rootca));
+			setRootca(SslCertificateUtils.string2Keystore(rootca));
 		} catch (final Exception e) {
 			logger.error("Couldn't save Root CA parameter.", e);
 		}

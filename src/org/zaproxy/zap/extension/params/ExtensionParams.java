@@ -187,7 +187,6 @@ public class ExtensionParams extends ExtensionAdaptor
 	    }
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
 		siteParamsMap = new HashMap <String, SiteParameters>();
@@ -199,6 +198,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		
 		// Repopulate
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
 			String site = en.nextElement().getNodeName();

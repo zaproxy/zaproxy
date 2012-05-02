@@ -20,9 +20,11 @@
 */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/10/29 Support for parameters
-// ZAP: 2012/03/15 Changed the parameter's type of the method removeDatabaseListener to
-//      DatabaseListener instead of SpiderListener. Removed unnecessary castings in the 
-//      methods notifyListenerDatabaseOpen.
+// ZAP: 2012/03/15 Changed the parameter's type of the method 
+// removeDatabaseListener to DatabaseListener instead of SpiderListener.
+// Removed unnecessary castings in the methods notifyListenerDatabaseOpen.
+// ZAP: 2012/05/02 Added the method createSingleton and changed the method
+// getSingleton to use it.
 
 package org.parosproxy.paros.db;
 
@@ -117,10 +119,18 @@ public class Database {
     
     public static Database getSingleton() {
         if (database == null) {
-            database = new Database();
+            // ZAP: Changed to use the method createSingleton().
+            createSingleton();
         }
         
         return database;
+    }
+    
+    // ZAP: Added method.
+    private static synchronized void createSingleton() {
+        if (database == null) {
+            database = new Database();
+        }
     }
     
 	public void addDatabaseListener(DatabaseListener listener) {

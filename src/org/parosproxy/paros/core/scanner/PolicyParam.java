@@ -44,7 +44,7 @@ public class PolicyParam extends FileXML {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.common.FileXML#parse()
+     * @see org.parosproxy.paros.common.FileXML#parse()
      */
     @Override
     protected void parse() throws Exception {

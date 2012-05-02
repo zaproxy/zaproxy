@@ -136,11 +136,10 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 
 	@Override
 	public int compareTo(HtmlParameterStats o) {
-		int result;
 		if (o == null) { 
 			return 1;
 		}
-		result = this.type.ordinal() - o.getType().ordinal();
+		int result = this.type.ordinal() - o.getType().ordinal();
 		if (result == 0) {
 			// Same type
 			result = this.name.compareTo(o.getName());

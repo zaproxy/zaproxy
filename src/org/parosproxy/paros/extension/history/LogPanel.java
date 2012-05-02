@@ -21,6 +21,8 @@
 // ZAP: 2012/03/15 Changed to allow clear the displayQueue. 
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/28 Added logger and log of exception.
+// ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
+// class at runtime, to get the resource.
 
 package org.parosproxy.paros.extension.history;
 
@@ -216,7 +218,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private JButton getFilterButton() {
 		if (filterButton == null) {
 			filterButton = new JButton();
-			filterButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/054.png")));	// 'filter' icon
+			// ZAP: Changed to use the class literal.
+			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
 			filterButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
 
 			filterButton.addActionListener(new java.awt.event.ActionListener() { 

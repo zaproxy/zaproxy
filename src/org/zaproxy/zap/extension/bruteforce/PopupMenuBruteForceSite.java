@@ -41,7 +41,7 @@ public class PopupMenuBruteForceSite extends PopupMenuSiteNode {
      */
     public PopupMenuBruteForceSite(String label) {
         super(label);
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));
+        this.setIcon(new ImageIcon(PopupMenuBruteForceSite.class.getResource("/resource/icon/16/086.png")));
     }
 
     @Override

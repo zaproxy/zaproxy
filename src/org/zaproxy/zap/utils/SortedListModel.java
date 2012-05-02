@@ -30,7 +30,6 @@ public class SortedListModel extends DefaultListModel {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void addElement(Object element) {
 		int index = 0;
 		int size = getSize();
@@ -39,6 +38,7 @@ public class SortedListModel extends DefaultListModel {
 
 		for (index = 0; index < size; index++)
 		{
+			@SuppressWarnings("unchecked")
 			Comparable<Object> c = (Comparable<Object>)getElementAt( index );
 
 			if (c.compareTo(element) > 0)

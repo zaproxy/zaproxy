@@ -186,7 +186,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     /**
      * This method initializes alertPanel
      *
-     * @return com.proofsecure.paros.extension.scanner.AlertPanel
+     * @return org.parosproxy.paros.extension.scanner.AlertPanel
      */
     AlertPanel getAlertPanel() {
         if (alertPanel == null) {

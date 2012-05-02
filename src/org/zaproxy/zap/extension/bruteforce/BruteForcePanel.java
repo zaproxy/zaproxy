@@ -136,13 +136,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("bruteforce.panel.title"));
 		//TODO: Find a hammer icon :)
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/086.png")));	// 'spanner' icon
+		this.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/086.png")));	// 'spanner' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
         
         // Wont need to do this if/when this class is changed to extend ScanPanel
         scanStatus = new ScanStatus(
         				new ImageIcon(
-        					getClass().getResource("/resource/icon/16/086.png")),
+        					BruteForcePanel.class.getResource("/resource/icon/16/086.png")),
         					Constant.messages.getString("bruteforce.panel.title"));
        
         if (View.isInitialised()) {
@@ -349,7 +349,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (startScanButton == null) {
 			startScanButton = new JButton();
 			startScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.start"));
-			startScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
+			startScanButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/131.png")));
 			startScanButton.setEnabled(false);
 			startScanButton.addActionListener(new ActionListener () {
 
@@ -368,7 +368,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.stop"));
-			stopScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
+			stopScanButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/142.png")));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -384,7 +384,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (pauseScanButton == null) {
 			pauseScanButton = new JToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
-			pauseScanButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -400,7 +400,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/041.png")));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -418,7 +418,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (launchButton == null) {
 			launchButton = new JButton();
 			launchButton.setToolTipText("TBI LAUNCH");
-			launchButton.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/142.png")));
+			launchButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/142.png")));
 			launchButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {

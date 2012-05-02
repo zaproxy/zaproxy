@@ -23,6 +23,7 @@ import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -68,6 +69,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
 	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+	
+	private static final List<Class<?>> DEPENDENCIES;
+	
+	static {
+		List<Class<?>> dep = new ArrayList<Class<?>>();
+		dep.add(ExtensionAlert.class);
+		
+		DEPENDENCIES = Collections.unmodifiableList(dep);
+	}
     
 	private JMenuItem menuItemPolicy = null;
 	
@@ -189,19 +199,19 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.ScannerListener#ScannerProgress(java.lang.String, com.proofsecure.paros.network.HttpMessage, int)
+     * @see org.parosproxy.paros.core.scanner.ScannerListener#ScannerProgress(java.lang.String, org.parosproxy.paros.network.HttpMessage, int)
      */
     public void hostProgress(String hostAndPort, String msg, int percentage) {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.ScannerListener#HostComplete(java.lang.String)
+     * @see org.parosproxy.paros.core.scanner.ScannerListener#HostComplete(java.lang.String)
      */
     public void hostComplete(String hostAndPort) {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.ScannerListener#hostNewScan(java.lang.String)
+     * @see org.parosproxy.paros.core.scanner.ScannerListener#hostNewScan(java.lang.String)
      */
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
@@ -359,10 +369,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	@Override
 	public List<Class<?>> getDependencies() {
-		List<Class<?>> deps = new ArrayList<Class<?>>();
-		deps.add(ExtensionAlert.class);
-		
-		return deps;
+		return DEPENDENCIES;
 	}
 
 	@Override

@@ -26,7 +26,7 @@
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.parosproxy.paros.model.Model;
@@ -71,7 +71,7 @@ public abstract class ExtensionAdaptor implements Extension {
     }
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.plugin.Plugin#initPlugin()
+     * @see org.parosproxy.paros.plugin.Plugin#initPlugin()
      */
     @Override
     public void init() {
@@ -79,7 +79,7 @@ public abstract class ExtensionAdaptor implements Extension {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.plugin.Plugin#initModel(com.proofsecure.paros.model.Model)
+     * @see org.parosproxy.paros.plugin.Plugin#initModel(org.parosproxy.paros.model.Model)
      */
     @Override
     public void initModel(Model model) {
@@ -96,14 +96,14 @@ public abstract class ExtensionAdaptor implements Extension {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.plugin.Plugin#getPluginView(com.proofsecure.paros.view.View)
+     * @see org.parosproxy.paros.plugin.Plugin#getPluginView(org.parosproxy.paros.view.View)
      */
     public ExtensionHookView getExtensionView() {
         return null;
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.plugin.Plugin#initMenu()
+     * @see org.parosproxy.paros.plugin.Plugin#initMenu()
      */
     public ExtensionHookMenu getExtensionMenu() {
         return null;
@@ -177,7 +177,7 @@ public abstract class ExtensionAdaptor implements Extension {
 	
 	@Override
 	public List<Class<?>> getDependencies() {
-		return new ArrayList<Class<?>>();
+		return Collections.emptyList();
 	}
 
 	@Override

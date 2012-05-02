@@ -41,7 +41,7 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	/**
 	 * This method initializes filterReplaceDialog	
 	 * 	
-	 * @return com.proofsecure.paros.extension.filter.FilterReplaceDialog	
+	 * @return org.parosproxy.paros.extension.filter.FilterReplaceDialog	
 	 */    
 	private FilterReplaceDialog getFilterReplaceDialog() {
 		if (filterReplaceDialog == null) {

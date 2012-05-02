@@ -33,17 +33,13 @@ public class AlertCheckTask extends ZapTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
-			List<Alert> ignoreAlerts = new ArrayList<Alert>();
-			List<Alert> requireAlerts = new ArrayList<Alert>();
-			if (ignoreAlertTasks != null) {
-				for (AlertTask alert: ignoreAlertTasks) {
-					ignoreAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
-				}
+			List<Alert> ignoreAlerts = new ArrayList<Alert>(ignoreAlertTasks.size());
+			List<Alert> requireAlerts = new ArrayList<Alert>(requireAlertTasks.size());
+			for (AlertTask alert: ignoreAlertTasks) {
+				ignoreAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
 			}
-			if (requireAlertTasks != null) {
-				for (AlertTask alert: requireAlertTasks) {
-					requireAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
-				}
+			for (AlertTask alert: requireAlertTasks) {
+				requireAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
 			}
 			
 			this.getClientApi().checkAlerts(ignoreAlerts, requireAlerts);

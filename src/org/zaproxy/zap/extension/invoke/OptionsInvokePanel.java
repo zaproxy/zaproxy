@@ -487,7 +487,7 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	/**
 	 * This method initializes authModel	
 	 * 	
-	 * @return com.proofsecure.paros.view.OptionsAuthenticationTableModel	
+	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel	
 	 */    
 	private OptionsInvokeTableModel getTableModel() {
 		if (tableModel == null) {

@@ -380,7 +380,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SpiderListener,
 	/**
 	 * This method initializes popupMenuSpider	
 	 * 	
-	 * @return com.proofsecure.paros.plugin.Spider.PopupMenuSpider	
+	 * @return org.parosproxy.paros.plugin.Spider.PopupMenuSpider	
 	 */    
 	PopupMenuSpider getPopupMenuSpider() {
 		if (popupMenuSpider == null) {

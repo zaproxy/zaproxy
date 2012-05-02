@@ -69,7 +69,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         
 	        scanStatus = new ScanStatus(
 					new ImageIcon(
-						getClass().getResource("/resource/icon/fugue/bug.png")),
+							ExtensionLog4j.class.getResource("/resource/icon/fugue/bug.png")),
 						Constant.messages.getString("log4j.icon.title"));
 	
 	        Logger.getRootLogger().addAppender(new ZapOutputWriter(scanStatus));

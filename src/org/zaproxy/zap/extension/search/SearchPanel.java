@@ -99,7 +99,7 @@ public class SearchPanel extends AbstractPanel {
         this.setLayout(new CardLayout());
         //this.setSize(474, 251);
         this.setName(Constant.messages.getString("search.panel.title"));
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
+		this.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
         
 		resultsModel = new DefaultListModel();
@@ -242,7 +242,7 @@ public class SearchPanel extends AbstractPanel {
 		if (btnSearch == null) {
 			btnSearch = new JButton();
 			btnSearch.setText(Constant.messages.getString("search.toolbar.label.search"));
-			btnSearch.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
+			btnSearch.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
 			btnSearch.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.search"));
 
 			btnSearch.addActionListener(new java.awt.event.ActionListener() { 
@@ -260,7 +260,7 @@ public class SearchPanel extends AbstractPanel {
 		if (btnNext == null) {
 			btnNext = new JButton();
 			btnNext.setText(Constant.messages.getString("search.toolbar.label.next"));
-			btnNext.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/107.png")));	// 'arrow down' icon
+			btnNext.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/107.png")));	// 'arrow down' icon
 			btnNext.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.next"));
 
 			btnNext.addActionListener(new java.awt.event.ActionListener() { 
@@ -278,7 +278,7 @@ public class SearchPanel extends AbstractPanel {
 		if (btnPrev == null) {
 			btnPrev = new JButton();
 			btnPrev.setText(Constant.messages.getString("search.toolbar.label.previous"));
-			btnPrev.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/108.png")));	// 'arrow up' icon
+			btnPrev.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/108.png")));	// 'arrow up' icon
 			btnPrev.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.previous"));
 
 			btnPrev.addActionListener(new java.awt.event.ActionListener() { 

@@ -137,14 +137,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	/**
 	 * This method initializes logPanel	
 	 * 	
-	 * @return com.proofsecure.paros.extension.history.LogPanel	
+	 * @return org.parosproxy.paros.extension.history.LogPanel	
 	 */    
 	public LogPanel getLogPanel() {
 		if (logPanel == null) {
 			logPanel = new LogPanel();
 			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
-			logPanel.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/025.png")));	// 'calendar' icon
+			logPanel.setIcon(new ImageIcon(ExtensionHistory.class.getResource("/resource/icon/16/025.png")));	// 'calendar' icon
 
             logPanel.setExtension(this);
 		}
@@ -331,7 +331,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	/**
 	 * This method initializes filterDialog	
 	 * 	
-	 * @return com.proofsecure.paros.extension.history.SearchDialog	
+	 * @return org.parosproxy.paros.extension.history.SearchDialog	
 	 */    
 	private HistoryFilterDialog getFilterDialog() {
 		if (filterDialog == null) {

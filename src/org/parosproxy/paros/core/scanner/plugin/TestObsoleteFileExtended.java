@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Added @Deprecated annotation to the class.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 
-
+@Deprecated
 public class TestObsoleteFileExtended extends AbstractAppPlugin {
 
 	// ZAP Depreciated by Brute Force scanner

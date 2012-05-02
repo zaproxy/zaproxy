@@ -63,7 +63,7 @@ public class ExtensionEncoder extends ExtensionAdaptor {
 	/**
 	 * This method initializes encoderDialog	
 	 * 	
-	 * @return com.proofsecure.paros.extension.encoder.EncoderDialog	
+	 * @return org.parosproxy.paros.extension.encoder.EncoderDialog	
 	 */    
 	private EncoderDialog getEncoderDialog() {
 		if (encoderDialog == null) {

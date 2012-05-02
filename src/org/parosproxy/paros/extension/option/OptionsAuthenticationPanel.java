@@ -96,7 +96,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 			
 	}
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
     @Override
     public void initParam(Object obj) {
@@ -106,7 +106,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
     @Override
     public void validateParam(Object obj) throws Exception {
@@ -114,7 +114,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
     @Override
     public void saveParam(Object obj) throws Exception {
@@ -161,7 +161,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes authModel	
 	 * 	
-	 * @return com.proofsecure.paros.view.OptionsAuthenticationTableModel	
+	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel	
 	 */    
 	private OptionsAuthenticationTableModel getAuthModel() {
 		if (authModel == null) {

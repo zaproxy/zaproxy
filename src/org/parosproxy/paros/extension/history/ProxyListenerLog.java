@@ -88,7 +88,7 @@ public class ProxyListenerLog implements ProxyListener {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(org.apache.commons.httpclient.HttpMethod)
+	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpRequestReceived(org.apache.commons.httpclient.HttpMethod)
 	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
@@ -118,7 +118,7 @@ public class ProxyListenerLog implements ProxyListener {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(org.apache.commons.httpclient.HttpMethod, com.proofsecure.paros.proxy.HttpMessage)
+	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpResponseSend(org.apache.commons.httpclient.HttpMethod, org.parosproxy.paros.proxy.HttpMessage)
 	 */
 	@Override
 	public boolean onHttpResponseReceive(final HttpMessage msg) {

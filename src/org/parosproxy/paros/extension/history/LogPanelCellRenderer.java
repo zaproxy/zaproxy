@@ -21,6 +21,8 @@
 // ZAP: 2012/03/15 Changed the method getListCellRendererComponent to use the 
 // class StringBuilder instead of StringBuffer.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
+// class at runtime, to get the resources.
 
 
 package org.parosproxy.paros.extension.history;
@@ -271,7 +273,8 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
             txtTag.setText(sb.toString());
             
             if (msg.getNote() != null && msg.getNote().length() > 0) {
-            	txtNote.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/022.png")));	// 'Text file' icon
+            	// ZAP: Changed to use the class literal.
+            	txtNote.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
             } else {
             	txtNote.setIcon(null);
             }
@@ -279,16 +282,20 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
             if (ref.getAlerts().size() > 0) {
             	switch (ref.getHighestAlert()) {
             	case Alert.RISK_INFO:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/073.png")));	// 'Blue flag' icon
+                	// ZAP: Changed to use the class literal.
+                	txtFlag.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/073.png")));	// 'Blue flag' icon
             		break;
             	case Alert.RISK_LOW:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/074.png")));	// 'Yellow flag' icon
+                	// ZAP: Changed to use the class literal.
+                	txtFlag.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/074.png")));	// 'Yellow flag' icon
             		break;
             	case Alert.RISK_MEDIUM:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/076.png")));	// 'Orange flag' icon
+                	// ZAP: Changed to use the class literal.
+                	txtFlag.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/076.png")));	// 'Orange flag' icon
             		break;
             	case Alert.RISK_HIGH:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/071.png")));	// 'Red flag' icon
+                	// ZAP: Changed to use the class literal.
+                	txtFlag.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/071.png")));	// 'Red flag' icon
             		break;
             	}
             } else {

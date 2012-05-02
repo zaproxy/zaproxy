@@ -237,8 +237,9 @@ public class ExtensionPortScan extends ExtensionAdaptor
         PortScan scan = (PortScan) getPortScanPanel().getScanThread(siteName);
         if (scan != null) {
             DefaultListModel portListModel = scan.getList();
-            List<Integer> ports = new ArrayList<Integer>();
-            for(int i=0; i<portListModel.getSize(); i++) {
+            int size = portListModel.getSize();
+            List<Integer> ports = new ArrayList<Integer>(size);
+            for(int i=0; i<size; i++) {
                 ports.add((Integer)portListModel.get(i));
             }
             return ports;

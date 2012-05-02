@@ -34,7 +34,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 public class FilterIfModifiedSince extends FilterAdaptor {
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
+     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
      */
     @Override
     public int getId() {
@@ -42,7 +42,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
+     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
      */
     @Override
     public String getName() {
@@ -51,7 +51,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
@@ -71,7 +71,7 @@ public class FilterIfModifiedSince extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {

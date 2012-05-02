@@ -112,7 +112,7 @@ class AlertTreeModel extends DefaultTreeModel {
             if (alert.getMessage() != null && alert.getMessage().getRequestHeader() != null) {
             	method = alert.getMessage().getRequestHeader().getMethod() + ": ";
             }
-            findAndAddLeaf(parent, method + alert.getUri().toString(), alert);
+            findAndAddLeaf(parent, method + alert.getUri(), alert);
             
         } catch (Exception e) {
             e.printStackTrace();

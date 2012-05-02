@@ -87,7 +87,7 @@ public class DynamicSSLWelcomeDialog extends AbstractDialog {
 		final JPanel contentIconPane = new JPanel();
 		contentPanel.add(contentIconPane, BorderLayout.WEST);
 		final JLabel lblCertificateIcon = new JLabel("");
-		lblCertificateIcon.setIcon(new ImageIcon(this.getClass().getResource("/resource/certificate48x54.png")));
+		lblCertificateIcon.setIcon(new ImageIcon(DynamicSSLWelcomeDialog.class.getResource("/resource/certificate48x54.png")));
 		
 		contentIconPane.add(lblCertificateIcon);
 		final JPanel contentTextPane = new JPanel();

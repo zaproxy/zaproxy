@@ -28,10 +28,9 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
-public class RegexAutoTagScanner extends PluginPassiveScanner implements PassiveScanner {
+public class RegexAutoTagScanner extends PluginPassiveScanner {
 
     // protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
     protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE;

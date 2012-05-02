@@ -151,8 +151,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     }
     
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Class getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
     	if (c == 0) {
     		return Boolean.class;
     	}

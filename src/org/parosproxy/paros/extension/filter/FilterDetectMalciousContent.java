@@ -20,6 +20,9 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Removed the method checkAutocomplete(HttpMessage) and a call
+// to it. Now there is a passive scanner that checks for the AUTOCOMPLETE:
+// org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -27,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.plugin.TestClientAutocomplete;
 import org.parosproxy.paros.network.HttpMessage;
 
 
@@ -40,7 +42,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class FilterDetectMalciousContent extends FilterAdaptor {
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.Filter#getId()
+     * @see org.parosproxy.paros.extension.filter.Filter#getId()
      */
     @Override
     public int getId() {
@@ -48,7 +50,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.Filter#getName()
+     * @see org.parosproxy.paros.extension.filter.Filter#getName()
      */
     @Override
     public String getName() {
@@ -56,7 +58,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.Filter#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.extension.filter.Filter#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
@@ -64,7 +66,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.Filter#onHttpResponseReceive(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.extension.filter.Filter#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpResponseReceive(HttpMessage msg) {
@@ -85,10 +87,9 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
     
 	private void checkText(HttpMessage msg) {
 
-	    try {
-			checkAutocomplete(msg);
-		} catch (Exception e) {
-		}
+		// ZAP: Removed the method call checkAutocomplete(HttpMessage).
+		// Now there is a passive scanner that checks for the AUTOCOMPLETE:
+		// org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner.
 
 		try {
 			checkMaliciousCode(msg);
@@ -108,35 +109,9 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
 		
 	}
 	
-	private void checkAutocomplete(HttpMessage msg) {
-	    
-		String txtBody = msg.getResponseBody().toString();
-		String txtForm = null;
-		String txtInput = null;
-		Matcher matcherForm = TestClientAutocomplete.patternForm.matcher(txtBody);
-		Matcher matcherAutocomplete = null;
-			
-		while (matcherForm.find()) {
-			txtForm = matcherForm.group(1);	
-			txtInput = matcherForm.group(2);
-
-			if (txtForm != null && txtInput != null) {
-				matcherAutocomplete = TestClientAutocomplete.patternAutocomplete.matcher(txtForm);
-				if (matcherAutocomplete.find()) {
-					continue;
-				}
-				matcherAutocomplete = TestClientAutocomplete.patternAutocomplete.matcher(txtInput);
-				if (matcherAutocomplete.find()) {
-					continue;
-				}
-				
-				writeOutput(msg.getRequestHeader().getURI().toString(), "Password field without setting autocomplete to off found.", txtInput);
-				
-			}
-			
-		}
-		
-	}
+	// ZAP: Removed the method checkAutocomplete(HttpMessage).
+	// Now there is a passive scanner that checks for the AUTOCOMPLETE:
+	// org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner.
 
 	private static final int DEFAULT = Pattern.MULTILINE | Pattern.CASE_INSENSITIVE;
 

@@ -54,7 +54,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getId()
+     * @see org.parosproxy.paros.core.scanner.Test#getId()
      */
     @Override
     public int getId() {
@@ -62,7 +62,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getName()
+     * @see org.parosproxy.paros.core.scanner.Test#getName()
      */
     @Override
     public String getName() {
@@ -73,7 +73,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -81,7 +81,7 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSummary()
+     * @see org.parosproxy.paros.core.scanner.Test#getSummary()
      */
     @Override
     public String getDescription() {

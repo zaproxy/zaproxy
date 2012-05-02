@@ -308,7 +308,7 @@ public class MainMenuBar extends JMenuBar {
 	/**
 	 * This method initializes menuFileControl	
 	 * 	
-	 * @return com.proofsecure.paros.view.MenuFileControl	
+	 * @return org.parosproxy.paros.view.MenuFileControl	
 	 */    
 	public MenuFileControl getMenuFileControl() {
 		return Control.getSingleton().getMenuFileControl();
@@ -317,7 +317,7 @@ public class MainMenuBar extends JMenuBar {
 	/**
 	 * This method initializes menuToolsControl	
 	 * 	
-	 * @return com.proofsecure.paros.view.MenuToolsControl	
+	 * @return org.parosproxy.paros.view.MenuToolsControl	
 	 */    
 	private MenuToolsControl getMenuToolsControl() {
 		return Control.getSingleton().getMenuToolsControl();

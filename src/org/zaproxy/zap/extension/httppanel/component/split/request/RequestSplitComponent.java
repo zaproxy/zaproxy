@@ -76,7 +76,7 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 	}
 
 	protected void initUi() {
-		buttonShowView = new JToggleButton(new ImageIcon(getClass().getResource("/resource/icon/view_split.png")));
+		buttonShowView = new JToggleButton(new ImageIcon(RequestSplitComponent.class.getResource("/resource/icon/view_split.png")));
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 		
 		panelOptions = new JPanel();

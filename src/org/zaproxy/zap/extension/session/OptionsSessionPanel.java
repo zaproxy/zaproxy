@@ -134,7 +134,7 @@ public class OptionsSessionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes authModel	
 	 * 	
-	 * @return com.proofsecure.paros.view.OptionsAuthenticationTableModel	
+	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel	
 	 */    
 	private OptionsSessionTableModel getSessionModel() {
 		if (sessionModel == null) {

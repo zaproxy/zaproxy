@@ -56,7 +56,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
      */
     public PortScanPanel(ExtensionPortScan extension, PortScanParam portScanParam) {
     	// 'picture list' icon
-        super("ports", new ImageIcon(extension.getClass().getResource("/resource/icon/16/187.png")), extension, portScanParam);
+        super("ports", new ImageIcon(PortScanPanel.class.getResource("/resource/icon/16/187.png")), extension, portScanParam);
         
     }
 

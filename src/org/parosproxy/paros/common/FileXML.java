@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/23 Removed unnecessary casts.
+// ZAP: 2012/05/02 Changed to set the initial capacity of a List.
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -179,6 +180,7 @@ abstract public class FileXML {
 	    Element element = null;
 		String result = "";
 		try {
+			// ZAP: Removed unnecessary cast.
 			element = getElement(base, tag);
 			result = getText(element);
 		} catch (Exception e) {
@@ -193,10 +195,15 @@ abstract public class FileXML {
 	}
 
 	protected List<String> getValues(String tag) {
+		// ZAP: Removed unnecessary cast.
 		NodeList nodeList = doc.getElementsByTagName(tag);
-		ArrayList<String> resultList = new ArrayList<String>();
+		// ZAP: Added variable "length".
+		final int length = nodeList.getLength();
+		// ZAP: Changed to set the initial capacity.
+		ArrayList<String> resultList = new ArrayList<String>(length);
 		Element element = null;
-		for (int i = 0; i < nodeList.getLength(); i++) {
+		// ZAP: Changed to use the variable "length".
+		for (int i = 0; i < length; i++) {
 			element = (Element) nodeList.item(i);
 			resultList.add(getText(element));
 		}
@@ -321,6 +328,7 @@ abstract public class FileXML {
 		Node newNode = null;
 		
 		for (int i=0; i<path.length; i++) {
+			// ZAP: Removed unnecessary cast.
 			nodeList = doc.getElementsByTagName(path[i]);
 			if (nodeList.getLength() == 0) {
 				// create element if not found

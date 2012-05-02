@@ -322,9 +322,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 
 	public List<String> getJBroFuzzCategories() {
-		List <String> categories = new ArrayList<String>();
 		String[] allCats = jbroFuzzDB.getAllCategories();
 		Arrays.sort(allCats);
+		List <String> categories = new ArrayList<String>(allCats.length);
 		for (String category : allCats) {
 			categories.add(JBROFUZZ_CATEGORY_PREFIX + category);
 		}
@@ -332,10 +332,10 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 
 	public List <String> getJBroFuzzFuzzerNames(String category) {
-		List <String> fuzzerNames = new ArrayList<String>();
 		String jbfCategory = category.substring(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX.length());
 		String [] fuzzers = jbroFuzzDB.getPrototypeNamesInCategory(jbfCategory);
 		Arrays.sort(fuzzers);
+		List <String> fuzzerNames = new ArrayList<String>(fuzzers.length);
 		for (String fuzzer : fuzzers) {
 			fuzzerNames.add(fuzzer);
 		}

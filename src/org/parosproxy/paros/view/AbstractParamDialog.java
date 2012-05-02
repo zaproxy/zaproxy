@@ -646,7 +646,7 @@ public class AbstractParamDialog extends AbstractDialog {
 		if (btnHelp == null) {
 			btnHelp = new JButton();
 			btnHelp.setBorder(null);
-			btnHelp.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/201.png"))); // help icon
+			btnHelp.setIcon(new ImageIcon(AbstractParamDialog.class.getResource("/resource/icon/16/201.png"))); // help icon
 			btnHelp.addActionListener(getShowHelpAction());
 			btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
 		}

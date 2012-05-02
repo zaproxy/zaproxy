@@ -36,7 +36,7 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
      */
     public PopupMenuSpiderSite(String label) {
         super(label);
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/spider.png")));
+        this.setIcon(new ImageIcon(PopupMenuSpiderSite.class.getResource("/resource/icon/16/spider.png")));
     }
     
     private ExtensionSpider getExtensionSpider() {

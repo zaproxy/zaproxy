@@ -35,7 +35,7 @@ public class PopupMenuPortScan extends PopupMenuSiteNode {
      */
     public PopupMenuPortScan(String label) {
         super(label);
-        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/187.png")));
+        this.setIcon(new ImageIcon(PopupMenuPortScan.class.getResource("/resource/icon/16/187.png")));
     }
 
     @Override

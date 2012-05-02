@@ -260,7 +260,7 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
             txtTag.setText(sb.toString());
             
             if (msg.getNote() != null && msg.getNote().length() > 0) {
-            	txtNote.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/022.png")));	// 'Text file' icon
+            	txtNote.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
             } else {
             	txtNote.setIcon(null);
             }
@@ -268,16 +268,16 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
             if (hmw.getAlerts().size() > 0) {
             	switch (hmw.getHighestAlert()) {
             	case Alert.RISK_INFO:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/073.png")));	// 'Blue flag' icon
+                	txtFlag.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/073.png")));	// 'Blue flag' icon
             		break;
             	case Alert.RISK_LOW:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/074.png")));	// 'Yellow flag' icon
+                	txtFlag.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/074.png")));	// 'Yellow flag' icon
             		break;
             	case Alert.RISK_MEDIUM:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/076.png")));	// 'Orange flag' icon
+                	txtFlag.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/076.png")));	// 'Orange flag' icon
             		break;
             	case Alert.RISK_HIGH:
-                	txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/071.png")));	// 'Red flag' icon
+                	txtFlag.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/071.png")));	// 'Red flag' icon
             		break;
             	}
             } else {

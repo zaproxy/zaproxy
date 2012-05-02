@@ -51,7 +51,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getId()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getId()
      */
     @Override
     public int getId() {
@@ -59,7 +59,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getName()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getName()
      */
     @Override
     public String getName() {
@@ -69,7 +69,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -77,7 +77,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDescription()
      */
     @Override
     public String getDescription() {
@@ -88,7 +88,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getCategory()
      */
     @Override
     public int getCategory() {
@@ -96,7 +96,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getSolution()
      */
     @Override
     public String getSolution() {
@@ -105,7 +105,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getReference()
      */
     @Override
     public String getReference() {
@@ -118,7 +118,7 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractPlugin#init()
      */
     @Override
     public void init() {

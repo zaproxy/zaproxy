@@ -72,13 +72,13 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getId()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getId()
      */
     @Override
     abstract public int getId();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getName()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getName()
      */
     @Override
     abstract public String getName();
@@ -94,37 +94,37 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDependency()
      */
     @Override
     abstract public String[] getDependency();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDescription()
      */
     @Override
     abstract public String getDescription();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getCategory()
      */
     @Override
     abstract public int getCategory();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getSolution()
      */
     @Override
     abstract public String getSolution();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getReference()
      */
     @Override
     abstract public String getReference();
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#init(com.proofsecure.paros.network.HttpMessage, com.proofsecure.paros.core.scanner.HostProcess)
+     * @see org.parosproxy.paros.core.scanner.Plugin#init(org.parosproxy.paros.network.HttpMessage, org.parosproxy.paros.core.scanner.HostProcess)
      */
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -484,7 +484,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	}
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#notifyPluginCompleted(com.proofsecure.paros.core.scanner.HostProcess)
+     * @see org.parosproxy.paros.core.scanner.Plugin#notifyPluginCompleted(org.parosproxy.paros.core.scanner.HostProcess)
      */
     @Override
     abstract public void notifyPluginCompleted(HostProcess parent);

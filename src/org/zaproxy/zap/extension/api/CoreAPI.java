@@ -72,7 +72,7 @@ public class CoreAPI extends ApiImplementor {
 
 	public CoreAPI() {
 
-		List<String> params = new ArrayList<String>();
+		List<String> params = new ArrayList<String>(1);
 		params.add(ACTION_SESSION_PARAM_NAME);
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
 		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, params));
@@ -232,8 +232,9 @@ public class CoreAPI extends ApiImplementor {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	private void getURLs(SiteNode parent, JSONArray children) {
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = parent.children();
 		while (en.hasMoreElements()) {
 			SiteNode child = en.nextElement();
@@ -273,8 +274,8 @@ public class CoreAPI extends ApiImplementor {
 	 */
 	private JSONObject httpMessageToJSON(HttpMessage hm) {
 		JSONObject ja = new JSONObject();
-		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(hm.getCookieParamsAsString().toString()));
-		ja.put("note", hm.getNote().toString());
+		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(hm.getCookieParamsAsString()));
+		ja.put("note", hm.getNote());
 		ja.put("requestHeader", XMLStringUtil.escapeControlChrs(hm.getRequestHeader().toString()));
 		ja.put("requestBody", XMLStringUtil.escapeControlChrs(hm.getRequestBody().toString()));
 		ja.put("responseHeader", XMLStringUtil.escapeControlChrs(hm.getResponseHeader().toString()));

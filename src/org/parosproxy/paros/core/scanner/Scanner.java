@@ -227,15 +227,14 @@ public class Scanner implements Runnable {
 
 	public void notifyNewMessage(HttpMessage msg) {
 	    for (int i=0; i<listenerList.size(); i++) {
-	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
 	        listener.notifyNewMessage(msg);
 	    }
 	}
 	
 	public void setExcludeList(List<String> urls) {
-		excludeUrls = new ArrayList<Pattern>();
 		if (urls != null) {
+		    excludeUrls = new ArrayList<Pattern>(urls.size());
 		    for (String url : urls) {
 		    	url = url.replaceAll("\\.", "\\\\.");
 		    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
@@ -243,6 +242,8 @@ public class Scanner implements Runnable {
 				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 				excludeUrls.add(p);
 		    }
+		} else {
+			excludeUrls = new ArrayList<Pattern>(0);
 		}
 	}
 	

@@ -267,7 +267,7 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
         if (note != null && note.length() > 0) {
         	if (msg.getResponseBody().toString().indexOf(note) >= 0) {
         		// Found the exact payload - flag it
-        		txtFlag.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/099.png")));	// Yellow fuzzy circle
+        		txtFlag.setIcon(new ImageIcon(FuzzerPanelCellRenderer.class.getResource("/resource/icon/16/099.png")));	// Yellow fuzzy circle
         	}
         }
 

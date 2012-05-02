@@ -111,7 +111,7 @@ public class MainFrame extends AbstractFrame {
 	/**
 	 * This method initializes paneStandard
 	 *
-	 * @return com.proofsecure.paros.view.StandardPanel
+	 * @return org.parosproxy.paros.view.StandardPanel
 	 */
 	org.parosproxy.paros.view.WorkbenchPanel getWorkbench() {
 		if (paneStandard == null) {
@@ -125,7 +125,7 @@ public class MainFrame extends AbstractFrame {
 	/**
 	 * This method initializes mainMenuBar
 	 *
-	 * @return com.proofsecure.paros.view.MenuDisplay
+	 * @return org.parosproxy.paros.view.MenuDisplay
 	 */
 	public org.parosproxy.paros.view.MainMenuBar getMainMenuBar() {
 		if (mainMenuBar == null) {

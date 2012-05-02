@@ -26,6 +26,7 @@
 // StringBuilder instead of StringBuffer and replaced some string concatenations with
 // calls to the method append of the class StringBuilder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Changed to not create a new String in the setters.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -128,7 +129,8 @@ public class Alert implements Comparable<Object>  {
 	
 	public void setAlert(String alert) {
 	    if (alert == null) return;
-	    this.alert = new String(alert);
+	    // ZAP: Changed to not create a new String.
+	    this.alert = alert;
 	}
 	
 	
@@ -148,34 +150,40 @@ public class Alert implements Comparable<Object>  {
 	public void setUri(String uri) {
     	// ZAP: Cope with null
 	    if (uri == null) return;
-		this.uri = new String(uri);
+	    // ZAP: Changed to not create a new String.
+		this.uri = uri;
 	}
 	
 	
 	public void setDescription(String description) {
 	    if (description == null) return;
-		this.description = new String(description);
+	    // ZAP: Changed to not create a new String.
+		this.description = description;
 	}
 	
 	public void setParam(String param) {
 	    if (param == null) return;
-		this.param = new String(param);
+	    // ZAP: Changed to not create a new String.
+		this.param = param;
 	}
 	
 	
 	public void setOtherInfo(String otherInfo) {
 	    if (otherInfo == null) return;
-		this.otherInfo = new String(otherInfo);
+	    // ZAP: Changed to not create a new String.
+		this.otherInfo = otherInfo;
 	}
 
 	public void setSolution(String solution) {
 	    if (solution == null) return;
-		this.solution = new String(solution);
+	    // ZAP: Changed to not create a new String.
+		this.solution = solution;
 	}
 
 	public void setReference(String reference) {
 	    if (reference == null) return;
-		this.reference = new String(reference);
+	    // ZAP: Changed to not create a new String.
+		this.reference = reference;
 	}
 
 	public void setMessage(HttpMessage message) {

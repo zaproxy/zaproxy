@@ -23,7 +23,13 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.InputEvent;
-import javax.swing.*;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
@@ -61,7 +67,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
      * 
      */
     public SpiderPanel(ExtensionSpider extension, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
-        super("spider", new ImageIcon(extension.getClass().getResource("/resource/icon/16/spider.png")), extension, portScanParam);
+        super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension, portScanParam);
     }
 
 	@Override

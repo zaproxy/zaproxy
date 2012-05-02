@@ -76,7 +76,7 @@ public class SpiderPanel extends AbstractPanel {
 	    }
         this.setName(Constant.messages.getString("spider.panel.title"));	// ZAP: i18n
         // ZAP: Added Spider icon
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/spider.png")));	// 'spider' icon
+		this.setIcon(new ImageIcon(SpiderPanel.class.getResource("/resource/icon/spider.png")));	// 'spider' icon
 
         this.add(getSplitPane(), getSplitPane().getName());
 			

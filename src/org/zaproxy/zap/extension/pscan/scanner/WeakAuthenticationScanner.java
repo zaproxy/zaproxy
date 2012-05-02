@@ -24,12 +24,11 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 
-public class WeakAuthenticationScanner extends PluginPassiveScanner implements PassiveScanner {
+public class WeakAuthenticationScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 	//private Logger logger = Logger.getLogger(this.getClass());

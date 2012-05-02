@@ -33,8 +33,21 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class SessionParam extends AbstractParam {
 
-	private static final String TOKENS = "session.tokens";
-		
+	private static final String TOKENS_KEY = "session.tokens";
+	private static final String[] DEFAULT_TOKENS = {
+		"asp.net_sessionid",
+		"aspsessionid",
+		"siteserver",
+		"cfid",
+		"cftoken",
+		"jsessionid",
+		"phpsessid",
+		"sessid",
+		"sid",
+		"viewstate",
+		"zenid"
+	};
+	
 	private List<String> tokens = null;
 	
     /**
@@ -44,28 +57,17 @@ public class SessionParam extends AbstractParam {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.common.FileXML#parse()
+     * @see org.parosproxy.paros.common.FileXML#parse()
      */
     @Override
 	protected void parse(){
     	try {
-    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS)));
+    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS_KEY)));
     	} catch (ConversionException e) {
-    		this.tokens = new ArrayList<String>();
+    		this.tokens = new ArrayList<String>(DEFAULT_TOKENS.length);
     	}
     	if (this.tokens.size() == 0) {
-    		// These are the default ones
-    		this.tokens.add("asp.net_sessionid");
-    		this.tokens.add("aspsessionid");
-    		this.tokens.add("siteserver");
-    		this.tokens.add("cfid");
-    		this.tokens.add("cftoken");
-    		this.tokens.add("jsessionid");
-    		this.tokens.add("phpsessid");
-    		this.tokens.add("sessid");
-    		this.tokens.add("sid");
-    		this.tokens.add("viewstate");
-    		this.tokens.add("zenid");
+    		this.tokens.addAll(Arrays.asList(DEFAULT_TOKENS));
     	}
     }
 
@@ -75,7 +77,7 @@ public class SessionParam extends AbstractParam {
 
 	public void setTokens(List<String> tokens) {
 		this.tokens = tokens;
-		getConfig().setProperty(TOKENS, tokens);
+		getConfig().setProperty(TOKENS_KEY, tokens);
 	}
 
 	public void addToken(String param) {

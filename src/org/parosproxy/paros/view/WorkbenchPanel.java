@@ -230,7 +230,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * This method initializes tabbedStatus
 	 * 
-	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedStatus() {
 		if (tabbedStatus == null) {
@@ -247,7 +247,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * This method initializes tabbedWork
 	 * 
-	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedWork() {
 		if (tabbedWork == null) {
@@ -262,7 +262,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * This method initializes tabbedSelect
 	 * 
-	 * @return com.proofsecure.paros.view.ParosTabbedPane
+	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
 	public org.parosproxy.paros.view.TabbedPanel getTabbedSelect() {
 		if (tabbedSelect == null) {

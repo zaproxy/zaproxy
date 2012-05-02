@@ -22,49 +22,105 @@ package org.zaproxy.zap.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public class Vulnerabilities {
 
+	private static final Logger logger = Logger.getLogger(Vulnerabilities.class);
+	
 	private static List<Vulnerability> vulns = null;
-	private static Map<String, Vulnerability> idToVuln = new HashMap<String, Vulnerability>();
+	private static Map<String, Vulnerability> idToVuln = null;
+	
+	private Vulnerabilities() {
+	}
+
+	private static void initEmpty() {
+    	idToVuln = Collections.emptyMap();
+    	vulns = Collections.unmodifiableList(Collections.<Vulnerability>emptyList());
+	}
 	
 	private static synchronized void init() {
 		if (vulns == null) {
 			// Read them in from the file
+			XMLConfiguration config;
 	        try {
 	        	File f = new File(Constant.getInstance().VULNS_CONFIG);
-	        	XMLConfiguration config = new XMLConfiguration();
+	        	config = new XMLConfiguration();
 	        	config.setDelimiterParsingDisabled(true);
 	        	config.load(f);
-	        	String[] test = config.getStringArray("vuln_items");
-	        	vulns = new ArrayList<Vulnerability>();
-	        	for (String item : test) {
-	        		String name = "vuln_item_" + item;
-	        		List<String> references = new ArrayList<String>(Arrays.asList(config.getStringArray(name + ".reference")));
-	        		Vulnerability v = 
-	        			new Vulnerability(
-	        					item,
-	        					config.getString(name + ".alert"),
-	        					config.getString(name + ".desc"),
-	        					config.getString(name + ".solution"),
-	        					references);
-	        		vulns.add(v);
-	        		idToVuln.put(item, v);
-	        	}
-
-          } catch (ConfigurationException e) {
-              e.printStackTrace();
-          }
+	        } catch (ConfigurationException e) {
+	        	logger.error(e.getMessage(), e);
+	        	initEmpty();
+	        	return ;
+	        }
+	        
+	        String[] test;
+	        try {
+	        	test = config.getStringArray("vuln_items");
+	        } catch (ConversionException e) {
+            	logger.error(e.getMessage(), e);
+            	initEmpty();
+            	return;
+	        }
+        	final int numberOfVulns = test.length;
+        	
+        	List<Vulnerability> tempVulns = new ArrayList<Vulnerability>(numberOfVulns);
+        	idToVuln = new HashMap<String, Vulnerability>(Math.max((int) (numberOfVulns / 0.75) + 1, 16));
+        	
+        	String name;
+        	List<String> references;
+        	
+        	for (String item : test) {
+        		name = "vuln_item_" + item;
+        		try {
+        			references = new ArrayList<String>(Arrays.asList(config.getStringArray(name + ".reference")));
+        		} catch (ConversionException e) {
+        			logger.error(e.getMessage(), e);
+        			references = new ArrayList<String>(0);
+        		}
+        			
+        		Vulnerability v = 
+        			new Vulnerability(
+        					item,
+        					config.getString(name + ".alert"),
+        					config.getString(name + ".desc"),
+        					config.getString(name + ".solution"),
+        					references);
+        		tempVulns.add(v);
+        		idToVuln.put(item, v);
+        	}
+        	
+        	vulns = Collections.unmodifiableList(tempVulns);
 		}
 	}
 	
+	/**
+	 * Gets an unmodifiable {@code List} containing all the
+	 * {@code Vulnerability} loaded from the path {@code Constant.VULNS_CONFIG}.
+	 * <p>
+	 * An empty {@code List} is returned if any error occurred while opening the
+	 * file. The returned {@code List} is guaranteed to be <i>non</i>
+	 * {@code null}.
+	 * </p>
+	 * <p>
+	 * <b>Note:</b> Trying to modify the list will result in an
+	 * {@code UnsupportedOperationException}.
+	 * </p>
+	 * 
+	 * @return An unmodifiable {@code List} containing all the
+	 *         {@code Vulnerability} loaded, never {@code null}.
+	 * 
+	 * @see Constant#VULNS_CONFIG
+	 */
 	public static List<Vulnerability> getAllVulnerabilities() {
 		if (vulns == null) {
 			init();
@@ -72,10 +128,10 @@ public class Vulnerabilities {
 		return vulns;
 	}
 	
-	public static Vulnerability getVulnerability (String id) {
+	public static Vulnerability getVulnerability (String name) {
 		if (vulns == null) {
 			init();
 		}
-		return idToVuln.get(id);
+		return idToVuln.get(name);
 	}
 }

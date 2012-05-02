@@ -280,7 +280,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	}
 	
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
     @Override
     public void initParam(Object obj) {
@@ -288,7 +288,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
     @Override
     public void validateParam(Object obj) throws Exception {
@@ -296,7 +296,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     }
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
     @Override
     public void saveParam(Object obj) throws Exception {
@@ -321,7 +321,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 			// Set up the sortable columns
 			TableRowSorter<TableModel> sorter 
 				= new TableRowSorter<TableModel>(tableAuth.getModel());
-			List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+			List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
 			sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 			sorter.setSortKeys(sortKeys); 
 			sorter.setSortable(1, false);	// enums not handled well
@@ -434,7 +434,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	/**
 	 * This method initializes authModel	
 	 * 	
-	 * @return com.proofsecure.paros.view.OptionsAuthenticationTableModel	
+	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel	
 	 */    
 	private OptionsPassiveScanTableModel getTableModel() {
 		if (tableModel == null) {

@@ -68,7 +68,7 @@ public class FilterDialog extends AbstractParamDialog {
 	/**
 	 * This method initializes allFilterPanel	
 	 * 	
-	 * @return com.proofsecure.paros.extension.filter.AllFilterPanel	
+	 * @return org.parosproxy.paros.extension.filter.AllFilterPanel	
 	 */    
 	private AllFilterPanel getAllFilterPanel() {
 		if (allFilterPanel == null) {

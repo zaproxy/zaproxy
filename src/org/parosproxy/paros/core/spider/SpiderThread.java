@@ -19,9 +19,11 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2012/01/09 Commented the "HttpStatusCode.isSuccess" validations and
-//      added code to handle the redirect responses.
+// added code to handle the redirect responses.
 // ZAP: 2012/03/15 Removed unnecessary casting in the method run.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/05/02 Reflected the name's change of the method
+// Spider.spiderProgress.
 
 
 package org.parosproxy.paros.core.spider;
@@ -123,7 +125,8 @@ public class SpiderThread extends Thread {
                 	pause = false;
                 	resume = false;
                 } else if (item != null) {
-                    parent.SpiderProgress(item);
+                    // ZAP: Reflected the change in the method name.
+                    parent.spiderProgress(item);
                     crawl(item.getMessage(), item.getDepth());
                     item.getHistoryReference().delete();
                     try {

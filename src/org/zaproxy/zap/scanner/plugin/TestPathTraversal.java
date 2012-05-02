@@ -73,7 +73,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -81,7 +81,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
      */
     @Override
     public String getDescription() {
@@ -92,7 +92,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
      */
     @Override
     public int getCategory() {
@@ -100,7 +100,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
      */
     @Override
     public String getSolution() {
@@ -111,7 +111,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getReference()
+     * @see org.parosproxy.paros.core.scanner.Test#getReference()
      */
     @Override
     public String getReference() {
@@ -129,7 +129,7 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
      */
     @Override
     public void init() {

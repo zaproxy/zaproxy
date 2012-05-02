@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Added @Deprecated annotation to the class.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin;
@@ -30,6 +31,7 @@ import org.parosproxy.paros.core.scanner.Category;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
+@Deprecated
 public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
 
 	// ZAP Depreciated by Brute Force scanner
@@ -39,7 +41,7 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
 	}
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getId()
+     * @see org.parosproxy.paros.core.scanner.Test#getId()
      */
     @Override
     public int getId() {
@@ -47,7 +49,7 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getName()
+     * @see org.parosproxy.paros.core.scanner.Test#getName()
      */
     @Override
     public String getName() {
@@ -58,7 +60,7 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -66,7 +68,7 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSummary()
+     * @see org.parosproxy.paros.core.scanner.Test#getSummary()
      */
     @Override
     public String getDescription() {

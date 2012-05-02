@@ -124,8 +124,7 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
     }
     
     @Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Class getColumnClass(int c) {
+	public Class<String> getColumnClass(int c) {
         return String.class;
         
     }

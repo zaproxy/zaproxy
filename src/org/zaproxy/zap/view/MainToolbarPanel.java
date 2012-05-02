@@ -127,7 +127,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnNew() {
 		if (btnNew == null) {
 			btnNew = new JButton();
-			btnNew.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/021.png")));	// 'Blank file' icon
+			btnNew.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/021.png")));	// 'Blank file' icon
 			btnNew.setToolTipText(Constant.messages.getString("menu.file.newSession"));
 
 			btnNew.addActionListener(new java.awt.event.ActionListener() { 
@@ -149,7 +149,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnOpen() {
 		if (btnOpen == null) {
 			btnOpen = new JButton();
-			btnOpen.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/047.png")));	// 'open folder' icon
+			btnOpen.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/047.png")));	// 'open folder' icon
 			btnOpen.setToolTipText(Constant.messages.getString("menu.file.openSession"));
 
 			btnOpen.addActionListener(new java.awt.event.ActionListener() { 
@@ -171,7 +171,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnSave() {
 		if (btnSave == null) {
 			btnSave = new JButton();
-			btnSave.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/096.png")));	// 'diskette' icon
+			btnSave.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/096.png")));	// 'diskette' icon
 			btnSave.setToolTipText(Constant.messages.getString("menu.file.saveSession"));
 
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
@@ -193,7 +193,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnSession() {
 		if (btnSession == null) {
 			btnSession = new JButton();
-			btnSession.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/024.png")));	// 'spreadsheet' icon
+			btnSession.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/024.png")));	// 'spreadsheet' icon
 			btnSession.setToolTipText(Constant.messages.getString("menu.file.sessionProperties"));
 
 			btnSession.addActionListener(new java.awt.event.ActionListener() { 
@@ -216,7 +216,7 @@ public class MainToolbarPanel extends JPanel {
 		if (btnOptions == null) {
 			btnOptions = new JButton();
 			btnOptions.setToolTipText(Constant.messages.getString("menu.tools.options"));
-			btnOptions.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+			btnOptions.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/041.png")));
 			btnOptions.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -230,7 +230,7 @@ public class MainToolbarPanel extends JPanel {
 	private JToggleButton getBtnExpandSites() {
 		if (btnExpandSites == null) {
 			btnExpandSites = new JToggleButton();
-			btnExpandSites.setIcon(new ImageIcon(getClass().getResource("/resource/icon/expand_sites.png")));
+			btnExpandSites.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png")));
 			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
 			
 			btnExpandSites.addActionListener(new java.awt.event.ActionListener() { 
@@ -258,7 +258,7 @@ public class MainToolbarPanel extends JPanel {
 	private JToggleButton getBtnExpandReports() {
 		if (btnExpandReports == null) {
 			btnExpandReports = new JToggleButton();
-			btnExpandReports.setIcon(new ImageIcon(getClass().getResource("/resource/icon/expand_info.png")));
+			btnExpandReports.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/expand_info.png")));
 			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
 
 			btnExpandReports.addActionListener(new java.awt.event.ActionListener() { 

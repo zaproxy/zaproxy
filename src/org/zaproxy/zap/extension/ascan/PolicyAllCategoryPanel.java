@@ -110,7 +110,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	}
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#initParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
     @Override
     public void initParam(Object obj) {
@@ -118,7 +118,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
      */
     @Override
     public void validateParam(Object obj) throws Exception {
@@ -126,7 +126,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
+     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
      */
     @Override
     public void saveParam(Object obj) throws Exception {
@@ -148,7 +148,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes categoryTableModel	
 	 * 	
-	 * @return com.proofsecure.paros.plugin.scanner.CategoryTableModel	
+	 * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel	
 	 */    
 	AllCategoryTableModel getAllCategoryTableModel() {
 		if (allCategoryTableModel == null) {

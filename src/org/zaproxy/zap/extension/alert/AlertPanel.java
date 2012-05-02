@@ -91,7 +91,7 @@ public class AlertPanel extends AbstractPanel {
         this.setLayout(new CardLayout());
         this.setSize(274, 251);
         this.setName(Constant.messages.getString("alerts.panel.title"));
-		this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/071.png")));	// 'flag' icon
+		this.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/071.png")));	// 'flag' icon
 
         //this.add(getSplitPane(), getSplitPane().getName());
         this.add(getPanelCommand(), getPanelCommand().getName());

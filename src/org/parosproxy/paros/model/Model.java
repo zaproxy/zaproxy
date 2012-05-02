@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/05/02 Added the method createSingleton and changed the method
+// getSingleton to use it.
 
 package org.parosproxy.paros.model;
 
@@ -153,10 +155,18 @@ public class Model {
 	
 	public static Model getSingleton() {
 	    if (model == null) {
-	        model = new Model();
+	        // ZAP: Changed to use the method createSingleton().
+	        createSingleton();
 	    }
 	    return model;
 	}
+	
+    // ZAP: Added method.
+    private static synchronized void createSingleton() {
+        if (model == null) {
+            model = new Model();
+        }
+    }
 	
     /**
      * @return Returns the db.

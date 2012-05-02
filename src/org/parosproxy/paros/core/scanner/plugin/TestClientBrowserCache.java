@@ -49,7 +49,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
 	public final static Pattern patternHtmlNoCache = Pattern.compile("<META[^>]+(Pragma|\\QCache-Control\\E)[^>]+(\\QNo-cache\\E|\\QNo-store\\E)[^>]*>", PATTERN_PARAM);
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getId()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getId()
      */
     @Override
     public int getId() {
@@ -57,7 +57,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getName()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getName()
      */
     @Override
     public String getName() {
@@ -65,7 +65,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -73,7 +73,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getDescription()
      */
     @Override
     public String getDescription() {
@@ -81,7 +81,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getCategory()
      */
     @Override
     public int getCategory() {
@@ -89,7 +89,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getSolution()
      */
     @Override
     public String getSolution() {
@@ -102,7 +102,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#getReference()
+     * @see org.parosproxy.paros.core.scanner.Plugin#getReference()
      */
     @Override
     public String getReference() {
@@ -112,7 +112,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractPlugin#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractPlugin#init()
      */
     @Override
     public void init() {
@@ -120,7 +120,7 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Plugin#scan()
+     * @see org.parosproxy.paros.core.scanner.Plugin#scan()
      */
     @Override
     public void scan() {

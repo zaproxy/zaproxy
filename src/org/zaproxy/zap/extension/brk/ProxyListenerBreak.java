@@ -72,7 +72,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
+	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpRequestReceived(org.parosproxy.paros.network.HttpMessage)
 	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
@@ -154,7 +154,7 @@ public class ProxyListenerBreak implements ProxyListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(com.proofsecure.paros.network.HttpMessage)
+	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpResponseSend(org.parosproxy.paros.network.HttpMessage)
 	 */
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {

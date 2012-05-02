@@ -116,7 +116,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				doGenerate();
 			}
 		});
-		bt_generate.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/041.png")));
+		bt_generate.setIcon(new ImageIcon(DynamicSSLPanel.class.getResource("/resource/icon/16/041.png")));
 
 		bt_save = new JButton(Constant.messages.getString("menu.file.save"));
 		checkAndEnableSaveButton();
@@ -126,7 +126,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				doSave();
 			}
 		});
-		bt_save.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/096.png")));
+		bt_save.setIcon(new ImageIcon(DynamicSSLPanel.class.getResource("/resource/icon/16/096.png")));
 
 		bt_view = new JButton(Constant.messages.getString("menu.view"));
 		checkAndEnableViewButton();
@@ -136,7 +136,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				doView();
 			}
 		});
-		bt_view.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/049.png")));
+		bt_view.setIcon(new ImageIcon(DynamicSSLPanel.class.getResource("/resource/icon/16/049.png")));
 
 		final JButton bt_import = new JButton(Constant.messages.getString("dynssl.button.import"));
 		bt_import.addActionListener(new ActionListener() {
@@ -145,7 +145,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				doImport();
 			}
 		});
-		bt_import.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/047.png")));
+		bt_import.setIcon(new ImageIcon(DynamicSSLPanel.class.getResource("/resource/icon/16/047.png")));
 
 		final GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
@@ -290,7 +290,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			try {
 				final XMLConfiguration conf = new XMLConfiguration(f);
 				final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
-				ks = SslCertificateUtils.String2Keystore(rootcastr);
+				ks = SslCertificateUtils.string2Keystore(rootcastr);
 			} catch (final Exception e) {
 				logger.error("Error importing foreign Root CA!", e);
 				// Constant.messages.getString("dynssl.label.rootca")

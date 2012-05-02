@@ -21,13 +21,18 @@
  */
 // ZAP: 2011/08/03 Revamped upgrade for 1.3.2
 // ZAP: 2011/10/05 Write backup file to user dir
-// ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-//      Changed to use the correct file when an error occurs during the load of the configuration file.
-//      Removed the calls XMLConfiguration.load() as they are not needed, the XMLConfiguration constructor used already does that.
+// ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same 
+// character encoding when reading/writing configurations. Changed to use the
+// correct file when an error occurs during the load of the configuration file.
+// Removed the calls XMLConfiguration.load() as they are not needed, the 
+// XMLConfiguration constructor used already does that.
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2012/03/03 Added ZAP homepage
-// ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method copyAllProperties.
+// ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method 
+// copyAllProperties.
 // ZAP: 2012/03/17 Issue 282 ZAP and PAROS team constants
+// ZAP: 2012/05/02 Added method createInstance and changed the method
+// getInstance to use it.
 
 package org.parosproxy.paros;
 
@@ -141,6 +146,9 @@ public final class Constant {
     public static ResourceBundle messages = null;
     public static Locale locale = null;
 
+    /**
+     * Path to the file that contains the vulnerabilities' data.
+     */
     // ZAP: Added vulnerabilities file
     public String VULNS_CONFIG = "xml/vulnerabilities.xml";
     
@@ -151,12 +159,12 @@ public final class Constant {
     public String FUZZER_DIR = "fuzzers";
     public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
 
-	public static URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
-	public static URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
-	public static URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png");		// Yellow
-	public static URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png");		// Orange
-	public static URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png");	// Red
-	public static URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
+	public static final URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
+	public static final URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
+	public static final URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png");		// Yellow
+	public static final URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png");		// Orange
+	public static final URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png");	// Red
+	public static final URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -425,10 +433,17 @@ public final class Constant {
     
     public static Constant getInstance() {
         if (instance==null) {
-            instance=new Constant();
+            // ZAP: Changed to use the method createInstance().
+            createInstance();
         }
         return instance;
-
+    }
+    
+    // ZAP: Added method.
+    private static synchronized void createInstance() {
+        if (instance == null) {
+            instance = new Constant();
+        }
     }
     
     private void setAcceleratorKeys() {

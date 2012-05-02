@@ -40,7 +40,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 public class FilterLogPostQuery extends FilterLogGetQuery {
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
+     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
      */
     @Override
     public int getId() {
@@ -48,7 +48,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.extension.filter.AbstractFilter#getName()
+     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
      */
     @Override
     public String getName() {
@@ -62,7 +62,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     }
     
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.proxy.ProxyListener#onHttpRequestSend(com.proofsecure.paros.network.HttpMessage)
+     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
      */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {

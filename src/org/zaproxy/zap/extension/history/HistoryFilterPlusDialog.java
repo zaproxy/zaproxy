@@ -423,7 +423,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getCodeScroller() {
 		if (codeScroller == null) {
-			Vector <Integer> codeInts = new Vector<Integer>();
+			Vector <Integer> codeInts = new Vector<Integer>(HttpStatusCode.CODES.length);
 			for (int i : HttpStatusCode.CODES) {
 				codeInts.add(i);
 			}

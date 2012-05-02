@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Changed the method scan to use the class StringBuilder 
 // instead of StringBuffer.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/02 Added @Deprecated annotation to the class.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -41,6 +42,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
+@Deprecated
 public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
 
 	// ZAP Depreciated by org.zaproxy.zap.scanner.plugin.TestCrossSiteScriptV2
@@ -72,7 +74,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
 
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDependency()
+     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
      */
     @Override
     public String[] getDependency() {
@@ -80,7 +82,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getDescription()
+     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
      */
     @Override
     public String getDescription() {
@@ -94,7 +96,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getCategory()
+     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
      */
     @Override
     public int getCategory() {
@@ -102,7 +104,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getSolution()
+     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
      */
     @Override
     public String getSolution() {
@@ -113,7 +115,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.Test#getReference()
+     * @see org.parosproxy.paros.core.scanner.Test#getReference()
      */
     @Override
     public String getReference() {
@@ -127,7 +129,7 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
     /* (non-Javadoc)
-     * @see com.proofsecure.paros.core.scanner.AbstractTest#init()
+     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
      */
     @Override
     public void init() {

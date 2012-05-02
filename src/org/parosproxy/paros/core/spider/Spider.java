@@ -23,6 +23,8 @@
 // ZAP: 2012/03/15 Changed the methods isInVisitedLink and isQueued to use 
 // getRequestBody().getBytes() instead of getRequestBody().toString().
 // ZAP: 2012/04/25 Removed unnecessary casts.
+// ZAP: 2012/05/02 Changed the first letter of the method spiderProgress
+// to lower case.
 
 
 package org.parosproxy.paros.core.spider;
@@ -252,7 +254,8 @@ public class Spider {
         isStop = true;
     }
 
-    synchronized void SpiderProgress(QueueItem item) {
+    // ZAP: Changed the first letter to lower case.
+    synchronized void spiderProgress(QueueItem item) {
         int scale = 100/(spiderParam.getMaxDepth()+1);
         int percentage = scale * item.getDepth();
 
@@ -534,8 +537,8 @@ public class Spider {
     }
 
 	public void setExcludeList(List<String> urls) {
-		excludeUrls = new ArrayList<Pattern>();
 		if (urls != null) {
+		    excludeUrls = new ArrayList<Pattern>(urls.size());
 		    for (String url : urls) {
 		    	url = url.replaceAll("\\.", "\\\\.");
 		    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
@@ -543,6 +546,8 @@ public class Spider {
 				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 				excludeUrls.add(p);
 		    }
+		} else {
+			excludeUrls = new ArrayList<Pattern>(0);
 		}
 	}
 	

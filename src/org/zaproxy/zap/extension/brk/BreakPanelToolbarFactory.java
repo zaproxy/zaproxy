@@ -60,11 +60,11 @@ public class BreakPanelToolbarFactory {
 			if (active) {
 				parent.setIconAt(
 						parent.indexOfComponent(breakPanel),
-						new ImageIcon(getClass().getResource("/resource/icon/16/101.png")));	// Red X
+						new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/101.png")));	// Red X
 			} else {
 				parent.setIconAt(
 						parent.indexOfComponent(breakPanel), 
-						new ImageIcon(getClass().getResource("/resource/icon/16/101grey.png")));	// Grey X
+						new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/101grey.png")));	// Grey X
 			}
 		}
 	}
@@ -90,7 +90,7 @@ public class BreakPanelToolbarFactory {
 		JButton btnStep;
 
 		btnStep = new JButton();
-		btnStep.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/143.png")));
+		btnStep.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/143.png")));
 		btnStep.setToolTipText(Constant.messages.getString("brk.toolbar.button.step"));
 		btnStep.addActionListener(new ActionListener() { 
 			@Override
@@ -114,7 +114,7 @@ public class BreakPanelToolbarFactory {
 		JButton btnContinue;
 
 		btnContinue = new JButton();
-		btnContinue.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/131.png")));
+		btnContinue.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/131.png")));
 		btnContinue.setToolTipText(Constant.messages.getString("brk.toolbar.button.cont"));
 		btnContinue.addActionListener(new ActionListener() { 
 			@Override
@@ -138,7 +138,7 @@ public class BreakPanelToolbarFactory {
 		JButton btnDrop;
 
 		btnDrop = new JButton();
-		btnDrop.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/150.png")));
+		btnDrop.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/150.png")));
 		btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
 		btnDrop.addActionListener(new ActionListener() { 
 			@Override
@@ -260,13 +260,13 @@ public class BreakPanelToolbarFactory {
 	private void updateBreakRequestBtn() {
 		if (isBreakRequest()) {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105r.png")));
+				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
 				btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 				btnBreakRequest.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/105.png")));
+				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
 				btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
 				btnBreakRequest.setSelected(false);
 			}
@@ -276,13 +276,13 @@ public class BreakPanelToolbarFactory {
 	private void updateBreakResponseBtn() {
 		if (isBreakResponse()) {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106r.png")));
+				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
 				btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 				btnBreakResponse.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/106.png")));
+				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
 				btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
 				btnBreakResponse.setSelected(false);
 			}
