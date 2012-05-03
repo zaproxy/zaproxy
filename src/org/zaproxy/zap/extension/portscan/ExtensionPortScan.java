@@ -139,7 +139,6 @@ public class ExtensionPortScan extends ExtensionAdaptor
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void sessionChangedEventHandler(Session session) {
         // Clear all scans
         this.getPortScanPanel().reset();
@@ -149,6 +148,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
 		}
         // Add new hosts
         SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+        @SuppressWarnings("unchecked")
         Enumeration<SiteNode> en = root.children();
         while (en.hasMoreElements()) {
             this.getPortScanPanel().addSite(en.nextElement().getNodeName(), false);

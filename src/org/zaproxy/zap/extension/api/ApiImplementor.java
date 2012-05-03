@@ -77,7 +77,7 @@ public abstract class ApiImplementor {
 		return sb.toString();
 		
 	}
-	@SuppressWarnings("unchecked")
+
 	private void jsonToHTML (JSON json, StringBuilder sb) {
 		if (json == null || json.isEmpty()) {
 			return;
@@ -99,6 +99,7 @@ public abstract class ApiImplementor {
 		} else if (json instanceof JSONObject){
 			JSONObject jo = (JSONObject)json;
 			Set<?> set = jo.entrySet();
+			@SuppressWarnings("unchecked")
 			Iterator<Map.Entry<?, ?>> itor = (Iterator<Entry<?, ?>>) set.iterator();
 			sb.append("<table border=\"1\">\n");
 			while (itor.hasNext()) {

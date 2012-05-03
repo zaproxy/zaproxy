@@ -69,7 +69,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 
 	private JPanel jPanel = null;
 	
-	private static Logger log = Logger.getLogger(BeanShellConsoleFrame.class);
+	private static final Logger log = Logger.getLogger(BeanShellConsoleFrame.class);
 	
    /**
     * @throws HeadlessException
@@ -147,25 +147,48 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 	}
 	
 	private String loadScript(File file) throws IOException {
+		StringBuilder temp = new StringBuilder();
 		BufferedReader input = null;
 		
-		input = new BufferedReader( new FileReader(file) );
-		String str;
-		StringBuffer temp = new StringBuffer();
-		while ((str = input.readLine()) != null) {
-			temp.append(str);
-			temp.append(System.getProperty("line.separator"));
-		}							
-		input.close();
+		try {
+			input = new BufferedReader( new FileReader(file) );
+			String str;
+			while ((str = input.readLine()) != null) {
+				temp.append(str);
+				temp.append(System.getProperty("line.separator"));
+			}
+		} finally {
+			try {
+				if (input != null) {
+					input.close();
+				}
+			} catch(IOException e) {
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
+				}
+			}
+		}
+		
 		return (temp.toString());
 	}
 	
 	private void saveScript(String contents, File file) throws IOException {
 		BufferedWriter output = null;
 		
-		output = new BufferedWriter( new FileWriter(file) );
-		output.write( contents );
-		output.close();
+		try {
+			output = new BufferedWriter( new FileWriter(file) );
+			output.write( contents );
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+				}
+			} catch (IOException e) {
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
+				}
+			}
+		}
 	
 	}
 	
@@ -192,8 +215,9 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 							getBeanShellPanel().getTxtEditor().discardAllEdits();
 							getBeanShellPanel().setSaved(true);
 							currentScriptFile = fc.getSelectedFile();
-						} catch (IOException ee) {
-							ee.printStackTrace();
+						} catch (IOException ex) {
+							log.error(ex.getMessage(), ex);
+							// TODO Notify the user that an error occurred.
 						}
 						
 					}
@@ -215,8 +239,9 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 						try {
 							saveScript(getBeanShellPanel().getTxtEditor().getText(), currentScriptFile);
 							getBeanShellPanel().setSaved(true);
-						} catch (IOException ee) {
-							ee.printStackTrace();
+						} catch (IOException ex) {
+							log.error(ex.getMessage(), ex);
+							// TODO Notify the user that an error occurred.
 						}
 						
 					} else {
@@ -230,8 +255,9 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 								saveScript(getBeanShellPanel().getTxtEditor().getText(), fc.getSelectedFile());
 								getBeanShellPanel().setSaved(true);
 								currentScriptFile = fc.getSelectedFile();
-							} catch (IOException ee) {
-								ee.printStackTrace();
+							} catch (IOException ex) {
+								log.error(ex.getMessage(), ex);
+								// TODO Notify the user that an error occurred.
 							}
 						}
 					}
@@ -257,8 +283,9 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 							saveScript(getBeanShellPanel().getTxtEditor().getText(), fc.getSelectedFile());
 							getBeanShellPanel().setSaved(true);
 							currentScriptFile = fc.getSelectedFile();
-						} catch (IOException e1) {
-							log.error(e1.getMessage(), e1);
+						} catch (IOException ex) {
+							log.error(ex.getMessage(), ex);
+							// TODO Notify the user that an error occurred.
 						}
 					}
 					

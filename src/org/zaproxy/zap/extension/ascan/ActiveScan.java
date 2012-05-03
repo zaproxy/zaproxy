@@ -66,7 +66,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		super.pause();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void start() {
 		isAlive = true;
@@ -74,7 +73,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		SiteNode rootNode = (SiteNode) siteTree.getRoot();
 		//SiteNode startNode = null;
 		if (startNode == null) {
-			
+			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = rootNode.children();
 			while (en.hasMoreElements()) {
 				SiteNode sn = en.nextElement();

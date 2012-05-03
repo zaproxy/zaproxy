@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added type argument to generic type and changed to use the
 // method Boolean.valueOf.
+// ZAP: 2012/05/03 Moved a statement in the method setValueAt(Object, int , int).
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -88,9 +89,11 @@ public class AllCategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	break;
         	case 1: setPluginCategoryEnabled(row, ((Boolean) value).booleanValue());
+        			fireTableCellUpdated(row, col);
         			break;
         }
-        fireTableCellUpdated(row, col);
+        // ZAP: Moved the statement "fireTableCellUpdated(row, col);" to the
+        // above switch case 1.
     }
     
     @Override

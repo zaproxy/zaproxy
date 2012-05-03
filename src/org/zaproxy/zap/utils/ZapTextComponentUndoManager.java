@@ -32,33 +32,76 @@ import javax.swing.undo.UndoManager;
 import org.parosproxy.paros.Constant;
 
 /**
- * <code>ZapTextComponentUndoManager</code> manages a list of
- * <code>UndoableEdits</code>, providing a way to undo or redo the appropriate
- * edits with undo and redo actions accessible through <code>KeyStrokes</code>
- * created with <code>Constant.ACCELERATOR_UNDO</code> and
- * <code>Constant.ACCELERATOR_REDO</code>, respectively.
+ * {@code ZapTextComponentUndoManager} manages a list of {@code UndoableEdit}s,
+ * providing a way to undo or redo the appropriate edits with undo and redo
+ * actions accessible through {@code KeyStroke}s created with
+ * {@code Constant.ACCELERATOR_UNDO} and {@code Constant.ACCELERATOR_REDO},
+ * respectively.
+ * <p>
+ * The default is to maintain a window of 100 undoable edits. When the limit is
+ * reached older undoable edits start to be discarded when new ones are saved.
+ * The limit can be changed with the method {@code setLimit(int)}.
+ * </p>
  * <p>
  * There are three policies that affect if, and when, the undoable edits are
  * saved:
  * <ul>
- * <li><code>UndoManagerPolicy.DEFAULT</code></li>
- * <li><code>UndoManagerPolicy.ALWAYS_ENABLED</code></li>
- * <li><code>UndoManagerPolicy.ALWAYS_DISABLED</code></li>
+ * <li>{@code UndoManagerPolicy.DEFAULT}</li>
+ * <li>{@code UndoManagerPolicy.ALWAYS_ENABLED}</li>
+ * <li>{@code UndoManagerPolicy.ALWAYS_DISABLED}</li>
  * </ul>
- * The policy can be changed with the method <code>setUndoManagerPolicy</code>.
+ * The policy can be changed with the method {@code setUndoManagerPolicy}.
  * </p>
  * <p>
- * The <code>ZapTextComponentUndoManager</code> listens to changes to the
- * <code>Document</code> of the <code>JTextComponent</code> used with the
- * <code>ZapTextComponentUndoManager</code>, so there is no need to do anything
- * if the document is changed.
+ * The {@code ZapTextComponentUndoManager} listens to changes to the
+ * {@code Document} of the {@code JTextComponent} used with the
+ * {@code ZapTextComponentUndoManager}, so there is no need to do anything if
+ * the document is changed.
  * </p>
  * 
+ * @see #setLimit(int)
  * @see #setUndoManagerPolicy(UndoManagerPolicy)
  * @see UndoManagerPolicy
  * @see UndoManager
  */
 public class ZapTextComponentUndoManager extends UndoManager implements PropertyChangeListener {
+
+	/**
+	 * There are three policies that affect if, and when, the undoable edits are
+	 * saved:
+	 * <ul>
+	 * <li>{@code UndoManagerPolicy.DEFAULT}</li>
+	 * <li>{@code UndoManagerPolicy.ALWAYS_ENABLED}</li>
+	 * <li>{@code UndoManagerPolicy.ALWAYS_DISABLED}</li>
+	 * </ul>
+	 * 
+	 * @see #DEFAULT
+	 * @see #ALWAYS_ENABLED
+	 * @see #ALWAYS_DISABLED
+	 */
+	public enum UndoManagerPolicy {
+		/**
+		 * The undoable edits are saved exactly when the {@code JTextComponent}
+		 * is enabled and editable.
+		 * <p>
+		 * The {@code ZapTextComponentUndoManager} listens to the changes in the
+		 * properties "enabled" and "editable", so that can change accordingly
+		 * to save or not the undoable edits.
+		 * </p>
+		 */
+		DEFAULT,
+
+		/**
+		 * The undoable edits are always saved, even if the
+		 * {@code JTextComponent} is not editable and/or enabled.
+		 */
+		ALWAYS_ENABLED,
+
+		/**
+		 * The undoable edits are not saved.
+		 */
+		ALWAYS_DISABLED
+	};
 
 	private static final long serialVersionUID = -5728632360771625298L;
 
@@ -69,53 +112,16 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 
 	private boolean enabled;
 
-	/**
-	 * There are three policies that affect if, and when, the undoable edits are
-	 * saved:
-	 * <ul>
-	 * <li><code>UndoManagerPolicy.DEFAULT</code></li>
-	 * <li><code>UndoManagerPolicy.ALWAYS_ENABLED</code></li>
-	 * <li><code>UndoManagerPolicy.ALWAYS_DISABLED</code></li>
-	 * </ul>
-	 * 
-	 * @see #DEFAULT
-	 * @see #ALWAYS_ENABLED
-	 * @see #ALWAYS_DISABLED
-	 */
-	public enum UndoManagerPolicy {
-		/**
-		 * The undoable edits are saved exactly when the
-		 * <code>JTextComponent</code> is enabled and editable.
-		 * <p>
-		 * The <code>ZapTextComponentUndoManager</code> listens to the changes
-		 * in the properties "enabled" and "editable", so that can change
-		 * accordingly to save or not the undoable edits.
-		 * </p>
-		 */
-		DEFAULT,
-
-		/**
-		 * The undoable edits are always saved, even if the
-		 * <code>JTextComponent</code> is not editable and/or enabled.
-		 */
-		ALWAYS_ENABLED,
-
-		/**
-		 * The undoable edits are not saved.
-		 */
-		ALWAYS_DISABLED
-	};
-
 	private UndoManagerPolicy policy;
 
 	/**
-	 * Creates a new <code>ZapTextComponentUndoManager</code> with a
-	 * <code>DEFAULT</code> policy.
+	 * Creates a new {@code ZapTextComponentUndoManager} with a {@code DEFAULT}
+	 * policy.
 	 * 
 	 * @param textComponent
-	 *            the <code>JTextComponent</code> that will have undoable edits.
+	 *            the {@code JTextComponent} that will have undoable edits.
 	 * @throws NullPointerException
-	 *             if textComponent is <code>null</code>.
+	 *             if textComponent is {@code null}.
 	 * @see UndoManagerPolicy#DEFAULT
 	 */
 	public ZapTextComponentUndoManager(JTextComponent textComponent) {
@@ -142,10 +148,17 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 	 * @param policy
 	 *            the new policy
 	 * 
+	 * @throws NullPointerException
+	 *             if policy is {@code null}
+	 * 
 	 * @see UndoManagerPolicy
 	 */
-	public void setUndoManagerPolicy(UndoManagerPolicy policy) {
-		if (policy == null || this.policy == policy) {
+	public final void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
+		if (policy == null) {
+			throw new NullPointerException("The policy must not be null.");
+		}
+		
+		if (this.policy == policy) {
 			return;
 		}
 

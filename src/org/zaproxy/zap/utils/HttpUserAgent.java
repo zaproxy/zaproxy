@@ -17,10 +17,11 @@
  */
 package org.zaproxy.zap.utils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
-//import org.apache.tools.ant.types.resources.Files;
 
 
 public final class HttpUserAgent {

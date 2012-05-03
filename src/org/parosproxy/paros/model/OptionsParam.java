@@ -20,9 +20,11 @@
  */
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2011/11/02 Added brute force options
-// ZAP: 2011/11/15 Removed the getConfig method and the config field, now it's used the method of the base class.
+// ZAP: 2011/11/15 Removed the getConfig method and the config field, now it's
+// used the method of the base class.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Added type argument to generic type.
+// ZAP: 2012/05/03 Changed the type of one variable in the method getParamSet.
 
 package org.parosproxy.paros.model;
 
@@ -150,10 +152,13 @@ public class OptionsParam extends AbstractParam {
        
         AbstractParam result = null;
         for (int i=0; i<paramSetList.size(); i++) {
-            Object obj = paramSetList.get(i);
-            if (obj.getClass().equals(className)) {
+            // ZAP: Changed the type to AbstractParam and renamed to
+            // abstractParam. 
+            AbstractParam abstractParam = paramSetList.get(i);
+            if (abstractParam.getClass().equals(className)) {
                 try {
-                    result = (AbstractParam) obj;
+                    // ZAP: Removed the cast.
+                    result = abstractParam;
                     break;
 
                 } catch (Exception e) {
@@ -163,6 +168,8 @@ public class OptionsParam extends AbstractParam {
         }
         return result;
     }
+    
+    // ZAP: Removed the method getConfig().
 
     /* (non-Javadoc)
      * @see org.parosproxy.paros.common.AbstractParam#parse()

@@ -23,20 +23,23 @@ import javax.swing.text.Document;
 import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
 
 /**
- * <code>ZapTextArea</code> is a <code>JTextArea</code> with
- * <code>UndoableEdits</code>.
- * 
+ * {@code ZapTextArea} is a {@code JTextArea} with {@code UndoableEdit}s.
  * <p>
- * It is responsibility of the owner of the <code>ZapTextArea</code> to discard
- * all undoable edits when they are not needed.
+ * The default is to maintain a window of 100 undoable edits. When the limit is
+ * reached older undoable edits start to be discarded when new ones are saved.
+ * The limit can be changed with the method {@code setEditsLimit(int)}.
+ * </p>
+ * <p>
+ * It is responsibility of the owner of the {@code ZapTextArea} to discard all
+ * undoable edits when they are not needed.
+ * </p>
+ * <p>
+ * If you do not need undoable edits consider using a {@code JTextArea} instead.
  * </p>
  * 
- * <p>
- * If you do not need undoable edits consider using a <code>JTextArea</code>
- * instead.
- * </p>
- * 
- * @see #discardAllEdits
+ * @see #discardAllEdits()
+ * @see #setEditsLimit(int)
+ * @see #setUndoManagerPolicy(UndoManagerPolicy)
  * @see ZapTextComponentUndoManager
  */
 public class ZapTextArea extends JTextArea {
@@ -99,8 +102,8 @@ public class ZapTextArea extends JTextArea {
 	}
 
 	/**
-	 * Sets the maximum number of undoable edits this <code>ZapTextArea</code>
-	 * can hold.
+	 * Sets the maximum number of undoable edits this {@code ZapTextArea} can
+	 * hold.
 	 * 
 	 * @param limit
 	 *            the new limit
@@ -112,14 +115,17 @@ public class ZapTextArea extends JTextArea {
 	}
 
 	/**
-	 * Sets the policy of the undoable edits of this <code>ZapTextArea</code>.
+	 * Sets the policy of the undoable edits of this {@code ZapTextArea}.
 	 * 
 	 * @param policy
 	 *            the new policy
 	 * 
+	 * @throws NullPointerException
+	 *             if policy is {@code null}
+	 * 
 	 * @see ZapTextComponentUndoManager#setUndoManagerPolicy(UndoManagerPolicy)
 	 */
-	public void setUndoManagerPolicy(UndoManagerPolicy policy) {
+	public void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
 		undoManager.setUndoManagerPolicy(policy);
 	}
 

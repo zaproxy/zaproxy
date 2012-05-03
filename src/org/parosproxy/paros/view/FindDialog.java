@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/03 Changed the method find to check if txtComp is null.
 
 package org.parosproxy.paros.view;
 
@@ -121,7 +122,12 @@ public class FindDialog extends AbstractDialog {
 	            txtComp = (JTextComponent) c;
             }
         }
-            
+        
+        // ZAP: Check if a JTextComponent was really found.
+        if (txtComp == null) {
+            return;
+        }
+        
 		try {
 		    String findText = txtFind.getText().toLowerCase();
 		    String txt = txtComp.getText().toLowerCase();

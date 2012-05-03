@@ -147,7 +147,6 @@ public class ExtensionSpider extends ExtensionAdaptor
 	    }
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
 		// clear all scans
 		this.getSpiderPanel().clear();
@@ -158,6 +157,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 		}
 		// Add new hosts
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
 			this.getSpiderPanel().addSite(en.nextElement().getNodeName(), true);

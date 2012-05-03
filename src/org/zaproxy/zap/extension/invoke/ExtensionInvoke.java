@@ -61,20 +61,6 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	private void initialize() {
         this.setName("ExtensionInvoke");
         this.setOrder(46);
-
-        List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvoke();
-        
-        for (InvokableApp app: apps) {
-            PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
-            pmi.setCommand(app.getFullCommand());
-            pmi.setWorkingDir(app.getWorkingDirectory());
-            pmi.setParameters(app.getParameters());
-            pmi.setCaptureOutput(app.isCaptureOutput());
-            pmi.setOutputNote(app.isOutputNote());
-            this.invokeMenus.add(pmi);
-        	
-        }
-        confPopup = new PopupMenuInvokeConfigure();
 	}
 	
 	@Override
@@ -82,6 +68,20 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	    super.hook(extensionHook);
 	 
 	    if (getView() != null) {
+	        List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvoke();
+	        
+	        for (InvokableApp app: apps) {
+	            PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
+	            pmi.setCommand(app.getFullCommand());
+	            pmi.setWorkingDir(app.getWorkingDirectory());
+	            pmi.setParameters(app.getParameters());
+	            pmi.setCaptureOutput(app.isCaptureOutput());
+	            pmi.setOutputNote(app.isOutputNote());
+	            this.invokeMenus.add(pmi);
+	        	
+	        }
+	        confPopup = new PopupMenuInvokeConfigure();
+	        
 	        @SuppressWarnings("unused")
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addOptionPanel(getOptionsInvokePanel());

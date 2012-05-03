@@ -33,6 +33,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.params.ParamScanner;
@@ -77,8 +78,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         extensionHook.addProxyListener(getPassiveScanThread());
         extensionHook.addSessionListener(this);
         //extensionHook.addSessionListener(getPassiveScanThread());
-        extensionHook.getHookView().addOptionPanel(
-        		getOptionsPassiveScan(getPassiveScanThread()));
+        if (getView() != null) {
+            extensionHook.getHookView().addOptionPanel(
+                    getOptionsPassiveScan(getPassiveScanThread()));
+        }
 
 	}
 	
@@ -88,7 +91,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 			scanner.setConfig(config);
 
 			scannerList.add(scanner);
-			getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+
+			// FIXME temporary "hack" to check if ZAP is in GUI mode (see
+			// below).
+			if (View.isInitialised()) {
+				
+				// The method getPolicyPanel() creates view elements
+				// (subsequently initialising the java.awt.Toolkit) that are not
+				// needed when ZAP is running in non GUI mode.
+				getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+			}
 			logger.info("loaded passive scan rule: " + scanner.getName());
 		} catch (Exception e) {
 			logger.error("Failed to load passive scanner " + scanner.getName(), e);

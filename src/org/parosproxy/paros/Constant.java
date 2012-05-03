@@ -33,6 +33,7 @@
 // ZAP: 2012/03/17 Issue 282 ZAP and PAROS team constants
 // ZAP: 2012/05/02 Added method createInstance and changed the method
 // getInstance to use it.
+// ZAP: 2012/05/03 Changed the Patterns used to detect the O.S. to be final.
 
 package org.parosproxy.paros;
 
@@ -144,7 +145,7 @@ public final class Constant {
     
     // ZAP: Added i18n
     public static ResourceBundle messages = null;
-    public static Locale locale = null;
+    private static Locale locale = null;
 
     /**
      * Path to the file that contains the vulnerabilities' data.
@@ -394,9 +395,9 @@ public final class Constant {
     }
     
 	private void copyAllProperties(XMLConfiguration fromConfig, XMLConfiguration toConfig, String prefix) {
-    	Iterator<?> iter = fromConfig.getKeys(prefix);
+    	Iterator<String> iter = fromConfig.getKeys(prefix);
     	while (iter.hasNext()) {
-    		String key = (String)iter.next();
+    		String key = iter.next();
     		copyProperty(fromConfig, toConfig, key);
     	}
     }
@@ -462,7 +463,8 @@ public final class Constant {
     
     
     // Determine Windows Operating System
-    private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
     
     public static boolean isWindows() {
         String os_name = System.getProperty("os.name");
@@ -472,7 +474,8 @@ public final class Constant {
     }
     
     // Determine Linux Operating System
-    private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
     
     public static boolean isLinux() {
         String os_name = System.getProperty("os.name");
@@ -481,7 +484,8 @@ public final class Constant {
     }
     
     // Determine Windows Operating System
-    private static Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
     
     public static boolean isMacOsX() {
         String os_name = System.getProperty("os.name");

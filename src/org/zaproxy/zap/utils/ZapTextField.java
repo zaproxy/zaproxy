@@ -23,21 +23,24 @@ import javax.swing.text.Document;
 import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
 
 /**
- * <code>ZapTextField</code> is a <code>JTextField</code> with
- * <code>UndoableEdits</code>.
- * 
+ * {@code ZapTextField} is a {@code JTextField} with {@code UndoableEdit}s.
  * <p>
- * It is responsibility of the owner of the <code>ZapTextField</code> to discard
- * all undoable edits when they are not needed.
+ * The default is to maintain a window of 100 undoable edits. When the limit is
+ * reached older undoable edits start to be discarded when new ones are saved.
+ * The limit can be changed with the method {@code setEditsLimit(int)}.
  * </p>
- * 
  * <p>
- * If you do not need undoable edits consider using a <code>JTextField</code>
+ * It is responsibility of the owner of the {@code ZapTextField} to discard all
+ * undoable edits when they are not needed.
+ * </p>
+ * <p>
+ * If you do not need undoable edits consider using a {@code JTextField}
  * instead.
  * </p>
  * 
- * @see #discardAllEdits
- * @see #setUndoManagerPolicy
+ * @see #discardAllEdits()
+ * @see #setEditsLimit(int)
+ * @see #setUndoManagerPolicy(UndoManagerPolicy)
  * @see ZapTextComponentUndoManager
  */
 public class ZapTextField extends JTextField {
@@ -93,8 +96,8 @@ public class ZapTextField extends JTextField {
 	}
 
 	/**
-	 * Sets the maximum number of undoable edits this <code>ZapTextField</code>
-	 * can hold.
+	 * Sets the maximum number of undoable edits this {@code ZapTextField} can
+	 * hold.
 	 * 
 	 * @param limit
 	 *            the new limit
@@ -106,14 +109,17 @@ public class ZapTextField extends JTextField {
 	}
 
 	/**
-	 * Sets the policy of the undoable edits of this <code>ZapTextField</code>.
+	 * Sets the policy of the undoable edits of this {@code ZapTextField}.
 	 * 
 	 * @param policy
 	 *            the new policy
 	 * 
+	 * @throws NullPointerException
+	 *             if policy is {@code null}
+	 * 
 	 * @see ZapTextComponentUndoManager#setUndoManagerPolicy(UndoManagerPolicy)
 	 */
-	public void setUndoManagerPolicy(UndoManagerPolicy policy) {
+	public void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
 		undoManager.setUndoManagerPolicy(policy);
 	}
 }

@@ -22,6 +22,8 @@
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/03 Changed the method hook(ExtensionHook) to check if there is
+// a view. 
 
 package org.parosproxy.paros.extension.state;
 
@@ -75,12 +77,14 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
-	    ExtensionHookView pv = extensionHook.getHookView();
-	    extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-	    extensionHook.getHookMenu().addEditMenuItem(getMenuSessionTrackingEnable());
-	    extensionHook.getHookMenu().addEditMenuItem(getMenuResetSessionState());
-        
-        
+	    
+	    // ZAP: Changed to check if there is a view.
+	    if (getView() != null) {
+		    ExtensionHookView pv = extensionHook.getHookView();
+		    extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+		    extensionHook.getHookMenu().addEditMenuItem(getMenuSessionTrackingEnable());
+		    extensionHook.getHookMenu().addEditMenuItem(getMenuResetSessionState());
+	    }
 	}
 
 	

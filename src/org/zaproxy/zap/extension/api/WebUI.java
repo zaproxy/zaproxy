@@ -79,11 +79,11 @@ public class WebUI {
 				
 				sb.append("http://zap/");
 				sb.append(Format.XML.name());
-				sb.append("/");
+				sb.append('/');
 				sb.append(component);
-				sb.append("/");
+				sb.append('/');
 				sb.append(RequestType.action.name());
-				sb.append("/");
+				sb.append('/');
 				sb.append(action.getName());
 				sb.append("/\">\n");
 				sb.append("<table>\n");
@@ -134,11 +134,11 @@ public class WebUI {
 							sb.append("<td>");
 							sb.append("<a href=\"http://zap/");
 							sb.append(Format.JSON.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(component);
-							sb.append("/");
+							sb.append('/');
 							sb.append(RequestType.view.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(view.getName());
 							sb.append("/\">");
 							sb.append(Format.JSON.name());
@@ -147,11 +147,11 @@ public class WebUI {
 							sb.append("<td>");
 							sb.append("<a href=\"http://zap/");
 							sb.append(Format.XML.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(component);
-							sb.append("/");
+							sb.append('/');
 							sb.append(RequestType.view.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(view.getName());
 							sb.append("/\">");
 							sb.append(Format.XML.name());
@@ -160,11 +160,11 @@ public class WebUI {
 							sb.append("<td>");
 							sb.append("<a href=\"http://zap/");
 							sb.append(Format.HTML.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(component);
-							sb.append("/");
+							sb.append('/');
 							sb.append(RequestType.view.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(view.getName());
 							sb.append("/\">");
 							sb.append(Format.HTML.name());
@@ -173,11 +173,11 @@ public class WebUI {
 						} else {
 							sb.append("<a href=\"http://zap/");
 							sb.append(Format.UI.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(component);
-							sb.append("/");
+							sb.append('/');
 							sb.append(RequestType.view.name());
-							sb.append("/");
+							sb.append('/');
 							sb.append(view.getName());
 							sb.append("/\">");
 							sb.append(view.getName());
@@ -202,11 +202,11 @@ public class WebUI {
 					sb.append("<td>");
 					sb.append("<a href=\"http://zap/");
 					sb.append(Format.UI.name());
-					sb.append("/");
+					sb.append('/');
 					sb.append(component);
-					sb.append("/");
+					sb.append('/');
 					sb.append(RequestType.action.name());
-					sb.append("/");
+					sb.append('/');
 					sb.append(action.getName());
 					sb.append("/\">");
 					sb.append(action.getName());
@@ -214,7 +214,7 @@ public class WebUI {
 						sb.append(" (");
 						for (String param : params) {
 							sb.append(param);
-							sb.append(" ");
+							sb.append(' ');
 						}
 						sb.append(") ");
 					}
@@ -236,7 +236,7 @@ public class WebUI {
 				sb.append("<td>");
 				sb.append("<a href=\"http://zap/");
 				sb.append(Format.UI.name());
-				sb.append("/");
+				sb.append('/');
 				sb.append(cmp);
 				sb.append("/\">");
 				sb.append(cmp);

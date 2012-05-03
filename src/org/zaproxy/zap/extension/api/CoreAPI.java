@@ -179,7 +179,6 @@ public class CoreAPI extends ApiImplementor {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public JSON handleApiView(String name, JSONObject params)
 			throws ApiException {
@@ -188,6 +187,7 @@ public class CoreAPI extends ApiImplementor {
 
 		if (VIEW_HOSTS.equals(name)) {
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = root.children();
 			while (en.hasMoreElements()) {
 				String site = en.nextElement().getNodeName();
@@ -201,6 +201,7 @@ public class CoreAPI extends ApiImplementor {
 			}
 		} else if (VIEW_SITES.equals(name)) {
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = root.children();
 			while (en.hasMoreElements()) {
 				result.add(en.nextElement().getNodeName());

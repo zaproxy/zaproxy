@@ -151,7 +151,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    }
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
 		this.getBruteForcePanel().reset();
@@ -161,6 +160,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		}
 		// Add new hosts
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
 			this.getBruteForcePanel().addSite(en.nextElement().getNodeName());
