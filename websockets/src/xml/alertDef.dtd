@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from alertDef.xml by XMLBuddy -->
+<!ELEMENT alertDef 
+	(shortName,name,category,description,recommendation,reference)>
+<!ELEMENT category (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT recommendation (#PCDATA)>
+<!ELEMENT reference (#PCDATA)>
+<!ELEMENT shortName (#PCDATA)>

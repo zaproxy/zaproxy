@@ -1,0 +1,44 @@
+<!-- 
+    Document   : Basic
+    Created on : Jan 18, 2008, 5:44:37 PM
+    Author     : james
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+  </head>
+  <body>
+      <H1>Basic Useage Information</H1>
+      <p>To start DirBuster the following steps need to be undertaken:</p>
+      <p>
+        <ol>
+            <li>Enter the target host as a full URL.  eg http://www.target.com/</li>
+            <li>Select the if you wish to wish DirBuster to use only GET requests, or to auto switch between HEAD/GET<br>
+                <ul>
+                    <li>If the web server does not support head requests, then select GET only</li>
+                    <li>In auto mode DirBuster will attempt to establish if the server supports HEAD requests, only if it does will DirBuster use HEAD requests</li>
+                </ul>
+            </li>
+            <li>Select the number of threads required for testing.  10 threads will normally result in ~300 requests/sec.  However at 200+ threads ~6000 requests/sec can be obtained, use this speed with caution!</li>
+            <li>Select if you wish to use list based file and dir guessing or a pure brute force.<br>
+                <ul>
+                    <li>If list based testing is selected enter list you wish to use via the Browse button</li>
+                    <li>If pure brute force, select the char set you wish to use, and enter both min and max length of the generated string</li>
+                </ul>
+                
+            </li>
+            <li>Select the method of testing Standard or URL Fuzz</li>
+                  <ul>
+                      <li>If standard testing selected, choose if you wish to test for directoies and/or files, the start point, and names of any file extentions you wish to use.</li>
+                      <li>If fuzz based testing is selected, enter the URL, and subsiute the point of fuzz with {fuzz}</li>
+                
+                   </ul>
+            <li>All should be good, so hit the start button</li>            
+        </ol>
+        </p>
+          
+      
+  </body>
+</html>
