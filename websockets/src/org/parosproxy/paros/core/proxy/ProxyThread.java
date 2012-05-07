@@ -307,8 +307,6 @@ class ProxyThread implements Runnable {
 			if (isWebSocketUpgrade(msg)) {
 				keepSocketAfterDisconnect = true;
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
-				ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension("ExtensionWebSocket");
-				extWebSocket.addWebSocketsChannel(inSocket.getChannel());
 				break;
 			}
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
