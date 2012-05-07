@@ -25,6 +25,8 @@
 // ZAP: 2012/04/25 Removed unnecessary casts.
 // ZAP: 2012/05/02 Changed the first letter of the method spiderProgress
 // to lower case.
+// ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
+// 		as introduced with version 3.1 of HttpClient
 
 
 package org.parosproxy.paros.core.spider;
@@ -554,8 +556,14 @@ public class Spider {
 	public boolean excludeUrl(URI uri) {
 		boolean ignore = false;
 		if (excludeUrls != null) {
-			URI uri2 = (URI)uri.clone();
-		    try {
+			URI uri2 = null;
+			try {
+		    	// ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+				try {
+					uri2 = (URI)uri.clone();
+				} catch (CloneNotSupportedException e) {
+					throw new URIException(e.getMessage());
+				}
 				uri2.setQuery(null);
 			} catch (URIException e) {
                 log.error(e.getMessage(), e);

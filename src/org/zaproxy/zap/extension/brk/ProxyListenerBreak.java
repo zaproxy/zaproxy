@@ -209,8 +209,14 @@ public class ProxyListenerBreak implements ProxyListener {
 		    	// No break points
 		    	return false;
 		    }
-		    
-			URI uri = (URI) msg.getRequestHeader().getURI().clone();
+
+	    	// catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+			URI uri;
+			try {
+				uri = (URI) msg.getRequestHeader().getURI().clone();
+			} catch (CloneNotSupportedException e) {
+				throw new URIException(e.getMessage());
+			}
 		    uri.setQuery(null);
 		    String sUri = uri.getURI();
 		    
