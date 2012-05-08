@@ -20,6 +20,9 @@
  */
 // ZAP: 2011/09/19 Added debugging
 // ZAP: 2012/04/23 Removed unnecessary cast.
+// ZAP: 2012/05/08 Use custom socket factory class to take advantage of NIO performance in static initializer.
+//                 Use custom http client on "Connection: Upgrade" in executeMethod().
+//                 Retrieve upgraded channel and save for later use in send().
 
 package org.parosproxy.paros.network;
 
@@ -29,6 +32,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
@@ -41,6 +45,9 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.ZapDefaultProtocolSocketFactory;
+import org.zaproxy.zap.ZapGetMethod;
+import org.zaproxy.zap.ZapHttpConnectionManager;
 
 public class HttpSender {
 
@@ -53,6 +60,15 @@ public class HttpSender {
     private static boolean allowUnsafeSSLRenegotiation = false;
     
     static {
+    	// ZAP: register own socket factory for HTTP. It will allow us to switch to NIO later on.
+    	ProtocolSocketFactory defaultSocketFactory = new ZapDefaultProtocolSocketFactory();
+    	Protocol.registerProtocol("http", 
+    		new Protocol("http", defaultSocketFactory, 80));
+    	
+    	// TODO: use secure protocol socket factory too
+//    	ProtocolSocketFactory secureSocketFactory = new ZapSecureProtocolSocketFactory();
+//    	Protocol.registerProtocol("https", 
+//    		new Protocol("https", secureSocketFactory, 443));
         
 	    try {
 	        protocol = Protocol.getProtocol("https");
@@ -162,7 +178,16 @@ public class HttpSender {
         if (param.isUseProxy(hostName)) {
             return clientViaProxy.executeMethod(method);
         } else {
-            return client.executeMethod(method);
+        	// ZAP: use custom client on upgrade connection
+        	Header connectionHeader = method.getRequestHeader("connection");
+        	if (connectionHeader != null && connectionHeader.getValue().equalsIgnoreCase("upgrade")) {
+        		// use another client that allows us to expose the socket connection.
+        		HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
+        		return upgradeClient.executeMethod(method);
+        	} else {
+        		// ZAP: in this case apply original handling of ParosProxy
+        		return client.executeMethod(method);
+        	}
         }
     }
     
@@ -274,6 +299,12 @@ public class HttpSender {
 	        // process response for each listner
 	        msg.getResponseBody().setLength(0);
             msg.getResponseBody().append(method.getResponseBody());
+            
+            // ZAP: retrieve upgraded channel and save for later use
+            if (method instanceof ZapGetMethod) {
+            	Object a = msg.getUserObject();
+            	msg.setUserObject(((ZapGetMethod) method).getUpgradedChannel());
+            }
         } finally {
 	        if (method != null) {
 	            method.releaseConnection();
