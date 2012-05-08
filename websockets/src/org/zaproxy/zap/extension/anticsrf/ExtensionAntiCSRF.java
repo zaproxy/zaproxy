@@ -226,7 +226,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("webSocketsExt.desc");
+		return Constant.messages.getString("anticsrf.desc");
 	}
 
 	@Override

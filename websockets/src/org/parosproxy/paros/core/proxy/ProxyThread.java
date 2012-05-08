@@ -55,7 +55,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 
