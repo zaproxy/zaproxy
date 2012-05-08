@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -54,7 +55,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
 
@@ -307,6 +307,13 @@ class ProxyThread implements Runnable {
 			if (isWebSocketUpgrade(msg)) {
 				keepSocketAfterDisconnect = true;
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
+				
+				Object outChannel = msg.getUserObject();
+				if (outChannel != null && outChannel instanceof SocketChannel) {
+					// TODO: process connections
+				} else {
+					log.error("Was not able to retrieve upgraded outgoing channel.");
+				}
 				break;
 			}
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
@@ -336,8 +343,12 @@ class ProxyThread implements Runnable {
 		return false;
 	}
 	
-	/*
-	 * ZAP: New method checking for connection upgrade
+	/**
+	 * ZAP: New method checking for connection upgrade.
+	 * 
+	 * @param msg This message will contain the {@link SocketChannel} in {@link HttpMessage#getUserObject()} if it returns true.
+	 * 
+	 * @return True if this connection should be upgraded to WebSockets.
 	 */
 	private boolean isWebSocketUpgrade(HttpMessage msg) {
 		if (msg != null && !msg.getResponseHeader().isEmpty()) {

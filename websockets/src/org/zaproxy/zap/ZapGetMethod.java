@@ -1,21 +1,29 @@
 package org.zaproxy.zap;
 
 import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class ZapGetMethod extends GetMethod implements HttpMethod
 {
-    /** Log object for this class. */
+    /**
+     * Log object for this class.
+     */
     private static final Log LOG = LogFactory.getLog(ZapGetMethod.class);
+    
+    /**
+     * If we have got an <em>Connection: Upgrade</em>,
+     * this will be set to the current connection.
+     */
+	private SocketChannel upgradedChannel;
     
 	/**
      * Reads the response from the given {@link HttpConnection connection}.
@@ -68,8 +76,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 	@Override
     protected void readResponse(HttpState state, HttpConnection conn)
     throws IOException, HttpException {
-        LOG.trace(
-        "enter HttpMethodBase.readResponse(HttpState, HttpConnection)");
+        LOG.trace("enter HttpMethodBase.readResponse(HttpState, HttpConnection)");
         // Status line & line may have already been received
         // if 'expect - continue' handshake has been used
         ;
@@ -83,7 +90,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
             int status = this.statusLine.getStatusCode();
             if (status == 101) {
             	// Switching Protocols
-            	LOG.info("Switch Protocols"); 
+            	LOG.debug("Switch Protocols"); 
             	// This means the requester has asked the server to switch protocols
             	// and the server is acknowledging that it will do so (e.g.: Upgrade: websocket).
             } else if ((status >= 100) && (status < 200)) {
@@ -98,30 +105,44 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
     }
 
     /**
-     * Tests if the connection should be closed after the method has been executed.
-     * The connection will be left open when using HTTP/1.1 or if <tt>Connection: 
-     * keep-alive</tt> header was sent.
+     * Check if this connection should be upgraded.
      * 
      * @param conn the connection in question
      * 
      * @return boolean true if we should close the connection.
      */
     protected boolean shouldCloseConnection(HttpConnection conn) {
+        LOG.trace("enter ZapGetMethod.shouldCloseConnection()");
+        
     	boolean shouldClose = super.shouldCloseConnection(conn);
     	
-    	if (shouldClose) {
-    		// ensure that it does not want to close a "Connection: upgrade"
-    		Header connectionHeader = getResponseHeaderGroup().getFirstHeader("connection");
-    		Header upgradeHeader = getResponseHeaderGroup().getFirstHeader("upgrade");
-    		
-    		if (connectionHeader != null && upgradeHeader != null) {
-                if (connectionHeader.getValue().equalsIgnoreCase("upgrade") && connectionHeader.getValue().equalsIgnoreCase("websocket")) {
-                    LOG.debug("Got an Upgrade-Request to WebSockets. Do not close connection!");
-                	return false;
-                }
-    		}
-    	}
+		// ensure that it does not want to close a "Connection: upgrade"
+		Header connectionHeader = getResponseHeaderGroup().getFirstHeader("connection");
+		
+		if (this.statusLine.getStatusCode() == 101) {
+			// Switching Protocols
+			
+			if (connectionHeader != null && connectionHeader.getValue().equalsIgnoreCase("upgrade")) {
+	            LOG.debug("Got an Upgrade-Request. Retrieve socket channel and do not close connection!");
+	            
+	            if (conn instanceof ZapHttpConnection) {
+	            	upgradedChannel = ((ZapHttpConnection) conn).getSocketChannel();
+	            }
+	            
+	        	return false;
+			}
+		}
     		
     	return shouldClose;
     }
+
+    /**
+     * If this response included the header <em>Connection: Upgrade</em>,
+     * then this method provides the corresponding connection.
+     * 
+     * @return Upgraded {@link SocketChannel} or <code>null</code>
+     */
+	public SocketChannel getUpgradedChannel() {
+		return upgradedChannel;
+	}
 }
