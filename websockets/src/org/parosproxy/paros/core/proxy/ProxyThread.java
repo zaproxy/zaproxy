@@ -55,6 +55,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 
@@ -309,7 +310,8 @@ class ProxyThread implements Runnable {
 				
 				Object outChannel = msg.getUserObject();
 				if (outChannel != null && outChannel instanceof SocketChannel) {
-					// TODO: process connections
+					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
+					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket.getChannel(), (SocketChannel) outChannel);
 				} else {
 					log.error("Was not able to retrieve upgraded outgoing channel.");
 				}
