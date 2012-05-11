@@ -42,8 +42,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 */
 	private Thread thread;
 
-	private WebSocketsThread wsThread;
-
 	/**
 	 * Constructor initializes this class.
 	 */
@@ -111,7 +109,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 			return;
 		}
 		
-		if (thread == null && wsThread == null) {
+		if (thread == null || thread.isAlive() == false) {
 			startCapturing();
 		}
 	}
@@ -215,17 +213,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * there is at least one WebSockets channel.
 	 */
 	public void startCapturing () {
-		wsThread = new WebSocketsThread(selector);
-// TODO: What is going on here - I must have missed something, that this code
-// works for the first WebSockets connection at: http://www.websocket.org/echo.html
-
-// works this way - non threaded!
-		wsThread.run();
-				
-// does not work this way - no WebSocket connection has been established
-//		thread = new Thread(wsThread, "ZAP-WebSockets");
-//		thread.setDaemon(true);
-//		thread.start();
+		log.debug("About to start a new WebSocketsThread instance, that deals with given connections.");
+		thread = new Thread(new WebSocketsThread(selector), "ZAP-WebSockets");
+		thread.setDaemon(true);
+		thread.start();
 	}
 	
 	/**
