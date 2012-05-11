@@ -127,7 +127,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 	            
 	            if (conn instanceof ZapHttpConnection) {
 	            	upgradedChannel = ((ZapHttpConnection) conn).getSocketChannel();
-	            	conn.setHttpConnectionManager(null); // avoid releasing connection
+//	            	conn.setHttpConnectionManager(null); // avoid releasing connection => I think this is not necessary now, because I avoid shutting down the appropriate httpSender
 	            }
 	            
 	        	return false;

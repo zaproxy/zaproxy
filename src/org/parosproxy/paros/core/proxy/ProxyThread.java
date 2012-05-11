@@ -27,7 +27,7 @@
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in processHttp.
-// ZAP: 2012/05/06 Do not close socket connection in method disconnect() when new attribute keepSocketAfterDisconnect is set.
+// ZAP: 2012/05/11 Do not close connections in run() method, if boolean attribute isDisconnect is set to false.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -86,8 +86,8 @@ class ProxyThread implements Runnable {
 //	private boolean disconnect = false;
 	private Object semaphore = this;
 	
-	// ZAP: New attribute to ensure alive socket from browser <-> ZAP
-	private boolean keepSocketAfterDisconnect = false;
+	// ZAP: New attribute to keep connections open
+	private boolean isDisconnect = true;
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
     
@@ -196,7 +196,11 @@ class ProxyThread implements Runnable {
 		    log.debug("IOException: ", e);
 		} finally {
             proxyThreadList.remove(thread);
-			disconnect();
+
+            // ZAP: do only disconnect if flag set
+            if (isDisconnect == true) {
+            	disconnect();
+    		}
 		}
 	}
 	
@@ -308,7 +312,7 @@ class ProxyThread implements Runnable {
 			
 			// ZAP: Add check for connection upgrade and stop if one arrived
 			if (isWebSocketUpgrade(msg)) {
-				keepSocketAfterDisconnect = true;
+				isDisconnect = false;
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
 				
 				Object outChannel = msg.getUserObject();
@@ -387,10 +391,7 @@ class ProxyThread implements Runnable {
 			log.warn(e.getMessage(), e);
         }
 
-    	// ZAP: Keep socket connection from browser <-> ZAP alive if boolean set
-        if (keepSocketAfterDisconnect == false) {
-        	HttpUtil.closeSocket(inSocket);
-		}
+    	HttpUtil.closeSocket(inSocket);
         
 		if (httpSender != null) {
             httpSender.shutdown();
