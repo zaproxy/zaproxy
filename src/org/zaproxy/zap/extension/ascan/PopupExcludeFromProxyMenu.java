@@ -36,6 +36,11 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 
+/**
+ * @deprecated Replaced by
+ *             {@link org.zaproxy.zap.extension.stdmenus.PopupExcludeFromProxyMenu}
+ */
+@Deprecated
 public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 2282358266003940700L;
