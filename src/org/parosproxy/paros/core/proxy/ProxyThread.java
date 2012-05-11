@@ -27,6 +27,7 @@
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in processHttp.
+// ZAP: 2012/05/06 Do not close socket connection in method disconnect() when new attribute keepSocketAfterDisconnect is set.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -84,6 +85,8 @@ class ProxyThread implements Runnable {
 //	private BufferedInputStream forwardIn = null;
 //	private boolean disconnect = false;
 	private Object semaphore = this;
+	
+	// ZAP: New attribute to ensure alive socket from browser <-> ZAP
 	private boolean keepSocketAfterDisconnect = false;
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
@@ -383,7 +386,8 @@ class ProxyThread implements Runnable {
 			// ZAP: Log exceptions
 			log.warn(e.getMessage(), e);
         }
-        
+
+    	// ZAP: Keep socket connection from browser <-> ZAP alive if boolean set
         if (keepSocketAfterDisconnect == false) {
         	HttpUtil.closeSocket(inSocket);
 		}
