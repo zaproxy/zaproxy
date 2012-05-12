@@ -529,9 +529,6 @@ public class Spider {
 		excludeUrls = new ArrayList<Pattern>();
 		if (urls != null) {
 		    for (String url : urls) {
-		    	url = url.replaceAll("\\.", "\\\\.");
-		    	url = url.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
-		    	url = "(" + url.replaceAll(";+", "|") + ")$";
 				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 				excludeUrls.add(p);
 		    }
@@ -541,15 +538,13 @@ public class Spider {
 	public boolean excludeUrl(URI uri) {
 		boolean ignore = false;
 		if (excludeUrls != null) {
-			URI uri2 = (URI)uri.clone();
-		    try {
-				uri2.setQuery(null);
-			} catch (URIException e) {
-                log.error(e.getMessage(), e);
-			}
+			String uriString = uri.toString();
 			for (Pattern p : excludeUrls) {
-				if (p.matcher(uri2.toString()).find()) {
+				if (p.matcher(uriString).matches()) {
 					ignore = true;
+					if (log.isDebugEnabled()) {
+						log.debug("URL excluded: " + uriString + " Regex: " + p.pattern());
+					}
 					break;
 				}
 			}
