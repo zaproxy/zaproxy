@@ -193,6 +193,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		if (isRequest) {
 			requestPanel.saveData();
 			cl.show(panelContent, REQUEST_PANEL);
+			requestPanel.getHttpMessage().getRequestHeader().setContentLength(requestPanel.getHttpMessage().getRequestBody().length());
 			requestPanel.setMessage(msg);
 		} else {
 			responsePanel.saveData();

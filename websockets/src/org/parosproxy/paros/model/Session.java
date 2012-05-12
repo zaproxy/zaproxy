@@ -406,7 +406,7 @@ public class Session extends FileXML {
 	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
 		this.excludeFromScanRegexs = ignoredRegexs;
 		ExtensionActiveScan extAscan = 
-			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension("ExtensionActiveScan");
+			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
 		if (extAscan != null) {
 			extAscan.setExcludeList(ignoredRegexs);
 		}
@@ -420,7 +420,7 @@ public class Session extends FileXML {
 	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
 		this.excludeFromSpiderRegexs = ignoredRegexs;
 		ExtensionSpider extSpider = 
-			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension("ExtensionSpider");
+			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
 		if (extSpider != null) {
 			extSpider.setExcludeList(ignoredRegexs);
 		}
