@@ -20,7 +20,9 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -104,9 +106,11 @@ public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
 	@Override
 	public void performAction(SiteNode sn) throws Exception {
         Session session = Model.getSingleton().getSession();
-        String url = sn.getHierarchicNodeName();
-        if (! sn.isLeaf()) {
-        	url += "/*";
+        String url = new URI(sn.getHierarchicNodeName(), false).toString();
+        if (sn.isLeaf()) {
+            url = Pattern.quote(url);
+        } else {
+        	url = Pattern.quote(url+"/") + ".*";
         }
         session.getExcludeFromProxyRegexs().add(url);
         SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
