@@ -109,7 +109,7 @@ public class PluginFactory {
         	parosLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
         }
         if (zapLoader == null) {
-        	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.scanner.plugin");
+        	zapLoader = new DynamicLoader("", "org.zaproxy.zap.scanner.plugin");
         }
         List<AbstractPlugin> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
         listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
@@ -118,6 +118,7 @@ public class PluginFactory {
             
             mapAllPlugin.clear();
             for (int i=0; i<listTest.size(); i++) {
+                // ZAP: Removed unnecessary cast.
                 Plugin plugin = listTest.get(i);
                 plugin.setConfig(config);
                 plugin.createParamIfNotExist();
@@ -131,9 +132,8 @@ public class PluginFactory {
                 	continue;
                 }
                 log.info("loaded plugin " + plugin.getName());
-                // ZAP: Changed to use the method Integer.valueOf.
                 if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-                	System.out.println("Duplicate id " + plugin.getName() + " " +
+                	log.error("Duplicate id " + plugin.getName() + " " +
                 			mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
                 }
                 // ZAP: Changed to use the method Integer.valueOf.
