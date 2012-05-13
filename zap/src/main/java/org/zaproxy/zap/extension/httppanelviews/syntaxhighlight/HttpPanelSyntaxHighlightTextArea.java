@@ -1,19 +1,19 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.httppanelviews.syntaxhighlight;
 
@@ -22,6 +22,8 @@ import java.awt.Component;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -59,7 +61,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private static final long serialVersionUID = -9082089105656842054L;
 
 	private static Logger log = Logger.getLogger(HttpPanelSyntaxHighlightTextArea.class);
-	
+
 	public static final String PLAIN_SYNTAX_LABEL = Constant.messages.getString("http.panel.view.syntaxtext.syntax.plain");
 
 	private static final String ANTI_ALIASING = "aa";
@@ -73,10 +75,10 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private static final String ROUNDED_SELECTION_EDGES = "roundedselection";
 	private static final String BRACKET_MATCHING = "bracketmatch";
 	private static final String ANIMATED_BRACKET_MATCHING = "animatedbracketmatch";
-	
+
 	private HttpMessage httpMessage;
 	private Vector<SyntaxStyle> syntaxStyles;
-	
+
 	private static SyntaxMenu syntaxMenu = null;
 	private static ViewMenu viewMenu = null;
 	private static TextAreaMenuItem cutAction = null;
@@ -86,88 +88,88 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private static TextAreaMenuItem undoAction = null;
 	private static TextAreaMenuItem redoAction = null;
 	private static TextAreaMenuItem selectAllAction = null;
-	
+
 	static {
-		//Hack to set the language that is used by ZAP.
-		RTextArea.setLocaleI18n(Constant.getLocale());
+        // set the default locale for RTextArea bits
+        Locale.setDefault(Constant.getLocale());
 	}
-	
+
 	public HttpPanelSyntaxHighlightTextArea() {
 		((RSyntaxDocument)getDocument()).setTokenMakerFactory(getTokenMakerFactory());
 		setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
-		
+
 		syntaxStyles = new Vector<SyntaxStyle>();
 		addSyntaxStyle(PLAIN_SYNTAX_LABEL, SyntaxConstants.SYNTAX_STYLE_NONE);
-		
+
 		if (syntaxMenu == null) {
 			initActions();
 		}
-		
+
 		setPopupMenu(null);
-		
+
 		this.httpMessage = null;
-		
+
 		setHyperlinksEnabled(false);
 
 		setAntiAliasingEnabled(true);
 
 		setLineWrap(true);
-		
+
 		setHighlightCurrentLine(false);
 		setFadeCurrentLineHighlight(false);
 
 		setWhitespaceVisible(false);
 		setEOLMarkersVisible(false);
-		
+
 		setMarkOccurrences(false);
 
 		setBracketMatchingEnabled(false);
 		setAnimateBracketMatching(false);
-		
+
 		setAutoIndentEnabled(false);
 		setCloseCurlyBraces(false);
 		setCloseMarkupTags(false);
 		setClearWhitespaceLinesEnabled(false);
-		
+
 		initHighlighter();
 	}
-	
+
 	@Override
 	protected JPopupMenu createPopupMenu() {
 		return null;
 	}
-	
+
 	private void initHighlighter() {
 		HighlighterManager highlighter = HighlighterManager.getInstance();
-		
+
 		highlighter.addObserver(this);
-		
+
 		if (httpMessage != null) {
 			highlightAll();
 		}
 	}
-	
+
 	// Highlight all search strings from HighlightManager
 	private void highlightAll() {
 		HighlighterManager highlighter = HighlighterManager.getInstance();
-		
+
 		LinkedList<HighlightSearchEntry> highlights = highlighter.getHighlights();
 		for (HighlightSearchEntry entry: highlights) {
 			highlightEntryParser(entry);
 		}
 	}
-	
+
 	// Parse the TextArea data and search the HighlightEntry strings
 	// Highlight all found strings
 	private void highlightEntryParser(HighlightSearchEntry entry) {
 		String text;
 		int lastPos = 0;
-		
+
 		text = this.getText();
-		
+
 		Highlighter hilite = this.getHighlighter();
 		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(entry.getColor());
-		
+
 		while ( (lastPos = text.indexOf(entry.getToken(), lastPos)) > -1) {
 			try {
 				hilite.addHighlight(lastPos, lastPos + entry.getToken().length(), painter);
@@ -177,7 +179,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			}
 		}
 	}
-	
+
 	@Override
 	// Apply highlights after a setText()
 	public void setText(String s) {
@@ -186,14 +188,14 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	}
 
 	public abstract void search(Pattern p, List<SearchMatch> matches);
-	
+
 	// highlight a specific SearchMatch in the editor
 	public abstract void highlight(SearchMatch sm);
-	
+
 	protected void highlight(int start, int end) {
 		Highlighter hilite = this.getHighlighter();
 		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
-		
+
 		try {
 			// DOBIN
 			removeAllHighlights();
@@ -203,7 +205,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			log.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void removeAllHighlights() {
 		Highlighter hilite = this.getHighlighter();
 		hilite.removeAllHighlights();
@@ -226,18 +228,18 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		}
 		this.invalidate();
 	}
-	
+
 	public void setHttpMessage(HttpMessage httpMessage) {
 		this.httpMessage = httpMessage;
 	}
-	
+
 	public HttpMessage getHttpMessage() {
 		return httpMessage;
 	}
-	
+
 	public void loadConfiguration(String key, FileConfiguration fileConfiguration) {
 		setAntiAliasingEnabled(fileConfiguration.getBoolean(key + ANTI_ALIASING, this.getAntiAliasingEnabled()));
-		
+
 		Component c = getParent();
 		if (c instanceof JViewport) {
 			c = c.getParent();
@@ -246,26 +248,26 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 				scrollPane.setLineNumbersEnabled(fileConfiguration.getBoolean(key + SHOW_LINE_NUMBERS, scrollPane.getLineNumbersEnabled()));
 			}
 		}
-		
+
 		setLineWrap(fileConfiguration.getBoolean(key + WORD_WRAP, this.getLineWrap()));
-		
+
 		setHighlightCurrentLine(fileConfiguration.getBoolean(key + HIGHLIGHT_CURRENT_LINE, this.getHighlightCurrentLine()));
 		setFadeCurrentLineHighlight(fileConfiguration.getBoolean(key + FADE_CURRENT_HIGHLIGHT_LINE, this.getFadeCurrentLineHighlight()));
-		
+
 		setWhitespaceVisible(fileConfiguration.getBoolean(key + SHOW_WHITESPACE_CHARACTERS, this.isWhitespaceVisible()));
 		setEOLMarkersVisible(fileConfiguration.getBoolean(key + SHOW_NEWLINE_CHARACTERS, this.getEOLMarkersVisible()));
-		
+
 		setMarkOccurrences(fileConfiguration.getBoolean(key + MARK_OCCURRENCES, this.getMarkOccurrences()));
-		
+
 		setRoundedSelectionEdges(fileConfiguration.getBoolean(key + ROUNDED_SELECTION_EDGES, this.getRoundedSelectionEdges()));
-		
+
 		setBracketMatchingEnabled(fileConfiguration.getBoolean(key + BRACKET_MATCHING, this.isBracketMatchingEnabled()));
 		setAnimateBracketMatching(fileConfiguration.getBoolean(key + ANIMATED_BRACKET_MATCHING, this.getAnimateBracketMatching()));
 	}
-	
+
 	public void saveConfiguration(String key, FileConfiguration fileConfiguration) {
 		fileConfiguration.setProperty(key + ANTI_ALIASING, Boolean.valueOf(this.getAntiAliasingEnabled()));
-		
+
 		Component c = getParent();
 		if (c instanceof JViewport) {
 			c = c.getParent();
@@ -274,38 +276,38 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 				fileConfiguration.setProperty(key + SHOW_LINE_NUMBERS, Boolean.valueOf(scrollPane.getLineNumbersEnabled()));
 			}
 		}
-		
+
 		fileConfiguration.setProperty(key + WORD_WRAP, Boolean.valueOf(this.getLineWrap()));
-		
+
 		fileConfiguration.setProperty(key + HIGHLIGHT_CURRENT_LINE, Boolean.valueOf(this.getHighlightCurrentLine()));
 		fileConfiguration.setProperty(key + FADE_CURRENT_HIGHLIGHT_LINE, Boolean.valueOf(this.getFadeCurrentLineHighlight()));
-		
+
 		fileConfiguration.setProperty(key + SHOW_WHITESPACE_CHARACTERS, Boolean.valueOf(this.isWhitespaceVisible()));
 		fileConfiguration.setProperty(key + SHOW_NEWLINE_CHARACTERS, Boolean.valueOf(this.getEOLMarkersVisible()));
-		
+
 		fileConfiguration.setProperty(key + MARK_OCCURRENCES, Boolean.valueOf(this.getMarkOccurrences()));
-		
+
 		fileConfiguration.setProperty(key + ROUNDED_SELECTION_EDGES, Boolean.valueOf(this.getRoundedSelectionEdges()));
-		
+
 		fileConfiguration.setProperty(key + BRACKET_MATCHING, Boolean.valueOf(this.isBracketMatchingEnabled()));
 		fileConfiguration.setProperty(key + ANIMATED_BRACKET_MATCHING, Boolean.valueOf(this.getAnimateBracketMatching()));
 	}
-	
+
 	public Vector<SyntaxStyle> getSyntaxStyles() {
 		return syntaxStyles;
 	}
-	
+
 	protected void addSyntaxStyle(String label, String styleKey) {
 		syntaxStyles.add(new SyntaxStyle(label, styleKey));
 	}
-	
+
 	protected abstract CustomTokenMakerFactory getTokenMakerFactory();
-	
+
 	private static synchronized void initActions() {
 		if (syntaxMenu == null) {
 			syntaxMenu = new SyntaxMenu();
 			viewMenu = new ViewMenu();
-			
+
 			undoAction = new TextAreaMenuItem(RTextArea.UNDO_ACTION, true, false);
 			redoAction = new TextAreaMenuItem(RTextArea.REDO_ACTION, false, true);
 
@@ -313,63 +315,63 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			copyAction = new TextAreaMenuItem(RTextArea.COPY_ACTION, false, false);
 			pasteAction = new TextAreaMenuItem(RTextArea.PASTE_ACTION, false, false);
 			deleteAction = new TextAreaMenuItem(RTextArea.DELETE_ACTION, false, true);
-			
+
 			selectAllAction = new TextAreaMenuItem(RTextArea.SELECT_ALL_ACTION, false, false);
-			
+
 			View.getSingleton().getPopupMenu().addMenu(syntaxMenu);
 			View.getSingleton().getPopupMenu().addMenu(viewMenu);
-			
+
 			View.getSingleton().getPopupMenu().addMenu(undoAction);
 			View.getSingleton().getPopupMenu().addMenu(redoAction);
-			
+
 			View.getSingleton().getPopupMenu().addMenu(cutAction);
 			View.getSingleton().getPopupMenu().addMenu(copyAction);
 			View.getSingleton().getPopupMenu().addMenu(pasteAction);
 			View.getSingleton().getPopupMenu().addMenu(deleteAction);
-			
+
 			View.getSingleton().getPopupMenu().addMenu(selectAllAction);
 		}
 	}
-	
+
 	public static class SyntaxStyle {
 		private String label;
 		private String styleKey;
-		
+
 		public SyntaxStyle(String label, String styleKey) {
 			this.label = label;
 			this.styleKey = styleKey;
 		}
-		
+
 		public String getLabel() {
 			return label;
 		}
-		
+
 		public String getStyleKey() {
 			return styleKey;
 		}
 	}
-	
+
 	protected static class CustomTokenMakerFactory extends AbstractTokenMakerFactory {
-		
+
 		@Override
 		protected Map<String, String> createTokenMakerKeyToClassNameMap() {
 			HashMap<String, String> map = new HashMap<String, String>();
 
 			String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
 			map.put(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");
-			
+
 			return map;
 		}
 	}
-	
+
 	private static class TextAreaMenuItem extends ExtensionPopupMenuItem {
-		
+
 		private static final long serialVersionUID = -8369459846515841057L;
-		
+
 		private int actionId;
 		private boolean precedeWithSeparator;
 		private boolean succeedWithSeparator;
-		
+
 		public TextAreaMenuItem(int actionId, boolean precedeWithSeparator, boolean succeedWithSeparator) throws IllegalArgumentException {
 			this.actionId = actionId;
 			this.precedeWithSeparator = precedeWithSeparator;
@@ -380,12 +382,12 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			}
 			setAction(action);
 		}
-		
+
 		@Override
 		public boolean isEnableForComponent(Component invoker) {
 			if (invoker instanceof HttpPanelSyntaxHighlightTextArea) {
 				HttpPanelSyntaxHighlightTextArea httpPanelTextArea = (HttpPanelSyntaxHighlightTextArea)invoker;
-				
+
 				switch(actionId) {
 					case RTextArea.CUT_ACTION:
 						if (!httpPanelTextArea.isEditable()) {
@@ -400,17 +402,17 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 						this.setEnabled(httpPanelTextArea.getDocument().getLength() != 0);
 						break;
 				}
-				
+
 				return true;
 			}
 			return false;
 		}
-		
+
 		@Override
 		public boolean precedeWithSeparator() {
 			return precedeWithSeparator;
 		}
-		
+
 		@Override
 		public boolean succeedWithSeparator() {
 			return succeedWithSeparator;

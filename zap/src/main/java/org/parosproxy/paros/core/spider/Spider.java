@@ -1,26 +1,26 @@
 /*
 *
 * Paros and its related class files.
-* 
+*
 * Paros is an HTTP/HTTPS proxy for assessing web application security.
 * Copyright (C) 2003-2004 Chinotec Technologies Company
-* 
+*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the Clarified Artistic License
 * as published by the Free Software Foundation.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * Clarified Artistic License for more details.
-* 
+*
 * You should have received a copy of the Clarified Artistic License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/01/09 Changed to not follow redirections.
-// ZAP: 2012/03/15 Changed the methods isInVisitedLink and isQueued to use 
+// ZAP: 2012/03/15 Changed the methods isInVisitedLink and isQueued to use
 //      getRequestBody().getBytes() instead of getRequestBody().toString().
 
 
@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
@@ -55,7 +56,7 @@ import org.parosproxy.paros.network.HttpSender;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class Spider {
-    
+
     private static Logger log = Logger.getLogger(Spider.class);
 
     private HttpSender httpSender = null;
@@ -73,7 +74,7 @@ public class Spider {
     private TreeSet<String> queuedGetMethod = null;
     private Vector<QueueItem> visitedPostMethod = new Vector<QueueItem>();
     private List<Pattern> excludeUrls = null;
-    
+
     public Spider(SpiderParam spiderParam, ConnectionParam param, Model model) {
         this.connectionParam = param;
         this.spiderParam = spiderParam;
@@ -86,11 +87,11 @@ public class Spider {
     }
 
     public void addSpiderListener(SpiderListener listener) {
-        listenerList.add(listener);     
+        listenerList.add(listener);
     }
-    
+
     public void addSeed(URI uri) {
-        
+
         HttpMessage msg;
         try {
             msg = new HttpMessage(uri);
@@ -101,12 +102,12 @@ public class Spider {
         }
 
     }
-    
+
     public synchronized void addSeed(HttpMessage msg) {
         URI uri = msg.getRequestHeader().getURI();
         String hostName = null;
         int port = 80;
-        
+
         try {
             log.info("seeding " + msg.getRequestHeader().getURI().toString());
 
@@ -115,7 +116,7 @@ public class Spider {
             if (port > 0) {
                 hostName = hostName + ":" + Integer.toString(port);
             }
-            
+
             seedHostNameSet.add(hostName);
             addQueue(msg, 0);
 
@@ -123,20 +124,20 @@ public class Spider {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
         }
-        
+
     }
-    
+
     public boolean addQueue(HttpMessage msg, int depth) {
 
         QueueItem item = null;
 
-        
+
         if (depth > spiderParam.getMaxDepth() || isInVisitedLink(msg)) {
             return false;
         }
 
-        synchronized(queue) {        
-            
+        synchronized(queue) {
+
             try {
                 // no need to add if in queue already
 
@@ -158,12 +159,12 @@ public class Spider {
             	log.warn(e.getMessage(), e);
                 return false;
             }
-            
+
             item.setDepth(depth);
-            
+
             if (queue.size() > 0) {
                 // add to queue according to depth
-                for (int i=queue.size()-1; i>=0; i--) {    
+                for (int i=queue.size()-1; i>=0; i--) {
                     QueueItem poll = (QueueItem) queue.get(i);
                     if (item.getDepth() >= poll.getDepth()) {
                         if (i+1 <= queue.size()-1) {
@@ -181,7 +182,7 @@ public class Spider {
             } else {
                 queue.add(item);
             }
-            
+
             if (depth < depthQueueCount.length) {
                 depthQueueCount[depth]++;
             }
@@ -193,7 +194,7 @@ public class Spider {
 
         return true;
     }
-    
+
     void checkIfAllThreadCompleted() {
         for (int i=0; i<spiderThread.length; i++) {
             if (!spiderThread[i].isCompleted()) {
@@ -202,10 +203,10 @@ public class Spider {
                 return;
             }
         }
-        
+
         // all thread finished running
         notifyListenerSpiderComplete();
-        
+
     }
 
 
@@ -223,7 +224,7 @@ public class Spider {
     public Vector<QueueItem> getQueue() {
         return queue;
     }
-    
+
     private void notifyListenerFoundURI(HttpMessage msg, boolean isSkip) {
         SpiderListener listener = null;
         for (int i=0;i<listenerList.size();i++) {
@@ -232,16 +233,16 @@ public class Spider {
         }
 
     }
-    
+
     private void notifyListenerSpiderComplete() {
         SpiderListener listener = null;
-        
+
         notifyListenerSpiderProgress(null, 100);
 
-        
+
         for (int i=0;i<listenerList.size();i++) {
             listener = (SpiderListener) listenerList.get(i);
-            listener.spiderComplete();          
+            listener.spiderComplete();
         }
         log.info("Spider completed");
         getHttpSender().shutdown();
@@ -261,7 +262,7 @@ public class Spider {
                 }
             }
         }
-        
+
         percentage += scale *(depthQueueCount[item.getDepth()]-outstanding)/depthQueueCount[item.getDepth()];
 
         try {
@@ -272,7 +273,7 @@ public class Spider {
         	log.warn(e.getMessage(), e);
         }
     }
-    
+
     private void notifyListenerSpiderProgress(URI uri, int percentageComplete) {
         SpiderListener listener = null;
 
@@ -293,11 +294,11 @@ public class Spider {
         }
 
     }
-    
+
     public void removeSpiderListener(SpiderListener listener) {
         listenerList.remove(listener);
     }
-    
+
     /**
      * @return Returns the spiderParam.
      */
@@ -311,7 +312,7 @@ public class Spider {
         this.spiderParam = spiderParam;
     }
 
-    
+
     public void start() {
         log.info("spider started.");
         isStop = false;
@@ -325,12 +326,12 @@ public class Spider {
                 spiderThread[i].setStop(true);
             }
 
-            spiderThread[i] = new SpiderThread(this);        
+            spiderThread[i] = new SpiderThread(this);
             spiderThread[i].start();
-            
+
         }
     }
-    
+
     public void stop() {
         for (int i=0; i<spiderThread.length; i++) {
             spiderThread[i].setStop(true);
@@ -339,11 +340,11 @@ public class Spider {
             } catch (InterruptedException e) {
             }
         }
-        // ZAP: Shutdown sender after stopping threads - otherwise loads of exceptions 
+        // ZAP: Shutdown sender after stopping threads - otherwise loads of exceptions
         getHttpSender().shutdown();
         log.info("spider stopped.");
         isStop = true;
-                    
+
     }
 
     // ZAP: Support pause and resume
@@ -359,7 +360,7 @@ public class Spider {
             spiderThread[i].setResume(true);
         }
     }
-    
+
     public boolean isSeedScope(URI uri) {
         String hostName = null;
         try {
@@ -402,9 +403,9 @@ public class Spider {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
         }
-            
+
     }
-    
+
     void readURI(HttpMessage msg) {
         notifyListenerReadURI(msg);
     }
@@ -414,7 +415,7 @@ public class Spider {
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.GET)) {
             return isVisitedGetMethod(msg);
         }
-        
+
         try {
             if (model.getDb().getTableHistory().containsURI(session.getSessionId(), HistoryReference.TYPE_SPIDER_VISITED,
                     msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().getBytes())) {
@@ -424,10 +425,10 @@ public class Spider {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
         }
-        
+
         return false;
     }
-    
+
     void addVisitedLink(HttpMessage msg) {
 
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.GET)) {
@@ -450,9 +451,9 @@ public class Spider {
             visitedPostMethod.add(item);
         }
     }
-    
+
     boolean isQueued(HttpMessage msg) {
-        
+
         try {
             return model.getDb().getTableHistory().containsURI(session.getSessionId(), HistoryReference.TYPE_SPIDER_SEED,
                     msg.getRequestHeader().getMethod(), msg.getRequestHeader().getURI().toString(), msg.getRequestBody().getBytes());
@@ -462,7 +463,7 @@ public class Spider {
         }
         return false;
     }
-    
+
     /**
      * Check buffer before searching for visited link from disk.
      * @param msg
@@ -476,21 +477,21 @@ public class Spider {
             if (visitedGetMethod.contains(uri)) {
                 return true;
             }
-            
+
         }
         return false;
     }
-    
+
     /**
      * Check if URL is to be neglected if: - not HTTP protocol - outside
      * host domain - irrelevant file suffix (eg gif, jpg) - visited before
      * URL queried by this method will be marked visited.
      * @throws URIException
-     * 
+     *
      */
     private boolean isNeglectFound(HttpMessage msg) throws URIException {
         URI uri = msg.getRequestHeader().getURI();
-        
+
         // check correct protocol
         if (!uri.getScheme().equalsIgnoreCase("HTTP") && !uri.getScheme().equalsIgnoreCase("HTTPS")) {
             return true;
@@ -507,15 +508,15 @@ public class Spider {
         if (this.excludeUrl(uri)) {
         	return true;
         }
-        
+
         return false;
-        
+
     }
-    
+
     public boolean isStop() {
         return isStop;
     }
-    
+
     boolean isAllThreadEmptyQueue() {
         for (int i=0; i<spiderThread.length; i++) {
             if (!spiderThread[i].isEmptyQueue()) {
@@ -537,11 +538,17 @@ public class Spider {
 		    }
 		}
 	}
-	
+
 	public boolean excludeUrl(URI uri) {
 		boolean ignore = false;
 		if (excludeUrls != null) {
-			URI uri2 = (URI)uri.clone();
+			URI uri2 = null;
+            try {
+                uri2 = (URI)uri.clone();
+            } catch (CloneNotSupportedException ex) {
+                // TODO use ZAP logging
+                java.util.logging.Logger.getLogger(Spider.class.getName()).log(Level.SEVERE, null, ex);
+            }
 		    try {
 				uri2.setQuery(null);
 			} catch (URIException e) {
@@ -553,7 +560,7 @@ public class Spider {
 					break;
 				}
 			}
-		} 
+		}
 
 		return ignore;
 	}

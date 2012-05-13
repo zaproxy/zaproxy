@@ -139,11 +139,11 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
-            <version>1.5.0</version>
-        </dependency>-->
+            <version>2.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>

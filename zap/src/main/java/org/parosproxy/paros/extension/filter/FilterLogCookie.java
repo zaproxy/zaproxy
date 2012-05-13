@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -23,6 +23,8 @@
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -37,10 +39,10 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  */
 public class FilterLogCookie extends FilterAdaptor {
 
-    private static final String DELIM = "\t";   
+    private static final String DELIM = "\t";
     private static final String CRLF = "\r\n";
     private Vector cookieList = null;
-    
+
     /* (non-Javadoc)
      * @see com.proofsecure.paros.extension.filter.AbstractFilter#getId()
      */
@@ -53,12 +55,12 @@ public class FilterLogCookie extends FilterAdaptor {
      */
     public String getName() {
         return Constant.messages.getString("filter.logcookies.name");
-        
+
     }
 
     public void init() {
 		cookieList = new Vector();
-     	
+
     }
 
     /* (non-Javadoc)
@@ -66,12 +68,18 @@ public class FilterLogCookie extends FilterAdaptor {
      */
     public void onHttpRequestSend(HttpMessage msg) {
         HttpRequestHeader header = msg.getRequestHeader();
-        
+
         if (header != null ) {
             String cookie = header.getHeader("Cookie");
             synchronized (cookieList){
-                if (cookie != null && cookieList.indexOf(cookie)==-1){           		
-                    URI uri = (URI) header.getURI().clone();
+                if (cookie != null && cookieList.indexOf(cookie)==-1){
+                    URI uri = null;
+                    try {
+                        uri = (URI) header.getURI().clone();
+                    } catch (CloneNotSupportedException ex) {
+                        // TODO use ZAP logging
+                        Logger.getLogger(FilterLogCookie.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     try {
                         uri.setQuery(null);
                         String sUri = uri.toString();
@@ -91,7 +99,7 @@ public class FilterLogCookie extends FilterAdaptor {
      * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
      */
     public void onHttpResponseReceive(HttpMessage httpMessage) {
-        
+
     }
   }
 

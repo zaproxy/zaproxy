@@ -2,19 +2,19 @@
  * Created on May 25, 2004
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -25,7 +25,7 @@
 // ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
 
 package org.parosproxy.paros.core.proxy;
- 
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
@@ -48,7 +49,7 @@ import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
 
 public class ProxyServer implements Runnable {
-	
+
 	protected Thread	thread = null;
 
 	protected final static int PORT_TIME_OUT = 0;
@@ -80,7 +81,7 @@ public class ProxyServer implements Runnable {
             cacheProcessingList.clear();
         }
     }
-    
+
     /**
      * @return Returns the serialize.
      */
@@ -97,7 +98,7 @@ public class ProxyServer implements Runnable {
 	public ProxyParam getProxyParam() {
 		return proxyParam;
 	}
-	
+
 	public void setConnectionParam(ConnectionParam connection) {
 	    connectionParam = connection;
 	}
@@ -105,9 +106,9 @@ public class ProxyServer implements Runnable {
 	public ConnectionParam getConnectionParam() {
 	    return connectionParam;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return	true = the server is started successfully.
 	 */
 	public synchronized int startServer(String ip, int port, boolean isDynamicPort) {
@@ -115,22 +116,22 @@ public class ProxyServer implements Runnable {
 		if (isProxyRunning) {
 			stopServer();
 		}
-	
+
 		isProxyRunning	= false;
 
 		thread = new Thread(this, "ZAP-ProxyServer"); // ZAP: Set the name of the thread.
-		thread.setDaemon(true);   
+		thread.setDaemon(true);
         // the priority below should be higher than normal to allow fast accept on the server socket
    	    thread.setPriority(Thread.NORM_PRIORITY+1);
 
    	    proxySocket = null;
    	    for (int i=0; i<20 && proxySocket == null; i++) {
    	        try {
-   	            
+
    	            proxySocket = createServerSocket(ip, port);
    	            proxySocket.setSoTimeout(PORT_TIME_OUT);
    	            isProxyRunning = true;
-   	            
+
    	        } catch(UnknownHostException e) {
             	// ZAP: Warn the user if the host is unknown
             	if (View.isInitialised()) {
@@ -154,17 +155,17 @@ public class ProxyServer implements Runnable {
    	                }
    	            }
    	        }
-   	        
+
    	    }
 
    	    if (proxySocket == null) {
    	        return -1;
    	    }
-   	    
+
 		thread.start();
 
 		return proxySocket.getLocalPort();
-		
+
 	}
 
 	/**
@@ -210,7 +211,7 @@ public class ProxyServer implements Runnable {
                 } catch (InterruptedException e1) {
                 }
 			}
-			
+
 		}
 
 	}
@@ -221,24 +222,24 @@ public class ProxyServer implements Runnable {
 
 		return socket;
 	}
-	
+
 	protected ProxyThread createProxyProcess(Socket clientSocket) {
 		ProxyThread process = new ProxyThread(this, clientSocket);
 		return process;
 	}
-	
+
 	protected void writeOutput(String s) {
 	}
-	
+
 	public void addProxyListener(ProxyListener listener) {
 		listenerList.add(listener);
 		Collections.sort(listenerList, getListenersComparator()); // ZAP: Sort the listeners.
 	}
-	
+
 	public void removeProxyListener(ProxyListener listener) {
 		listenerList.remove(listener);
 	}
-	
+
 	synchronized List<ProxyListener> getListenerList() {
 		return listenerList;
 	}
@@ -257,11 +258,11 @@ public class ProxyServer implements Runnable {
     public void addCacheProcessingList(CacheProcessingItem item) {
         cacheProcessingList.add(item);
     }
-    
+
     Vector<CacheProcessingItem> getCacheProcessingList() {
         return cacheProcessingList;
     }
-    
+
 	public void setExcludeList(List<String> urls) {
 		excludeUrls = new ArrayList<Pattern>();
 	    for (String url : urls) {
@@ -272,11 +273,17 @@ public class ProxyServer implements Runnable {
 			excludeUrls.add(p);
 	    }
 	}
-	
+
 	public boolean excludeUrl(URI uri) {
 		boolean ignore = false;
 		if (excludeUrls != null) {
-			URI uri2 = (URI)uri.clone();
+			URI uri2 = null;
+            try {
+                uri2 = (URI)uri.clone();
+            } catch (CloneNotSupportedException ex) {
+                // TODO use ZAP logging
+                java.util.logging.Logger.getLogger(ProxyServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
 		    try {
 				uri2.setQuery(null);
 			} catch (URIException e) {
@@ -291,32 +298,32 @@ public class ProxyServer implements Runnable {
 		}
 		return ignore;
 	}
-    
+
 	// ZAP: Added the method.
 	private Comparator<ProxyListener> getListenersComparator() {
 		if(listenersComparator == null) {
 			createListenersComparator();
 		}
-		
+
 		return listenersComparator;
 	}
-	
+
 	// ZAP: Added the method.
 	synchronized private void createListenersComparator() {
 		if (listenersComparator == null) {
 			listenersComparator = new Comparator<ProxyListener>() {
-				
+
 				@Override
 				public int compare(ProxyListener o1, ProxyListener o2) {
 					int order1 = o1.getProxyListenerOrder();
 					int order2 = o2.getProxyListenerOrder();
-					
+
 					if (order1 < order2) {
 						return -1;
 					} else if (order1 > order2) {
 						return 1;
 					}
-					
+
 					return 0;
 				}
 			};
