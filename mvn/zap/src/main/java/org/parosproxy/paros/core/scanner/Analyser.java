@@ -1,30 +1,32 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
+// ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder
 //      instead of StringBuffer.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +47,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class Analyser {
-	
+
 	/** remove HTML HEAD as this may contain expiry time which dynamic changes */
 	private static final String p_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
 	private static final Pattern patternNotFound = Pattern.compile("(\\bnot\\b(found|exist))|(\\b404\\berror\\b)|(\\berror\\b404\\b)", Pattern.CASE_INSENSITIVE|Pattern.MULTILINE);
@@ -56,38 +58,38 @@ public class Analyser {
 	private HttpSender	httpSender = null;
 	private TreeMap<String, SampleResponse>		mapVisited = new TreeMap<String, SampleResponse>();
 	private boolean		isStop = false;
-	
+
     // ZAP Added delayInMs
     private int delayInMs;
-	
+
 	// ZAP: Added parent
 	HostProcess parent = null;
-	
+
 	public Analyser() {
-        
+
     }
-    
+
     public Analyser(HttpSender httpSender, HostProcess parent) {
         this.httpSender = httpSender;
         this.parent = parent;
     }
-	
+
     public boolean isStop() {
         return isStop;
     }
-    
+
     public void stop() {
         isStop = true;
     }
-    
+
     public void start(SiteNode node) {
         inOrderAnalyse(node);
     }
-    
+
 	private void addAnalysedHost(URI uri, HttpMessage msg, int errorIndicator) {
         mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
 	}
-	
+
 	/**
 	Analyse a single folder entity.  Results are stored into mAnalysedEntityTable.
 	*/
@@ -97,14 +99,14 @@ public class Analyser {
 		if (node.getHistoryReference() == null) {
 		    return;
 		}
-		
+
 		HttpMessage baseMsg = (HttpMessage) node.getHistoryReference().getHttpMessage();
 		URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
 
 		baseUri.setQuery(null);
         //System.out.println("analysing: " + baseUri.toString());
 
-		
+
 		// already exist one.  no need to test
 		if (mapVisited.get(baseUri.toString()) != null) {
 			return;
@@ -112,17 +114,17 @@ public class Analyser {
 
 		String path = getRandomPathSuffix(node, baseUri);
 		HttpMessage msg = baseMsg.cloneRequest();
-		
+
 		URI uri = (URI) baseUri.clone();
 		uri.setPath(path);
 		msg.getRequestHeader().setURI(uri);
         //System.out.println("analysing 2: " + uri);
-        
+
 		sendAndReceive(msg);
 
 		// standard RFC response, no further check is needed
-		
-		
+
+
 		if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND) {
 			addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_RFC);
 			return;
@@ -132,12 +134,12 @@ public class Analyser {
 			addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_REDIRECT);
 			return;
 		}
-		
+
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
 			addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_NON_RFC);
 			return;
 		}
-	
+
 		HttpMessage msg2 = baseMsg.cloneRequest();
 		URI uri2 = msg2.getRequestHeader().getURI();
 		String path2 = getRandomPathSuffix(node, uri2);
@@ -146,7 +148,7 @@ public class Analyser {
 		msg2.getRequestHeader().setURI(uri2);
 		sendAndReceive(msg2);
 
-		// remove HTML HEAD as this may contain expiry time which dynamic changes		
+		// remove HTML HEAD as this may contain expiry time which dynamic changes
 		String resBody1 = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
 		String resBody2 = msg2.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
 
@@ -168,9 +170,9 @@ public class Analyser {
 
 		// else mark app "undeterministic".
 		addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_UNDETERMINISTIC);
-	
+
 	}
-	
+
 	/**
 	Get a suffix from the children which exists in staticSuffixList.
 	An option is provided to check recursively.    Note that the immediate
@@ -202,7 +204,7 @@ public class Analyser {
 					}
 				}
 			}
-			
+
 			if (performRecursiveCheck) {
 				for (int j=0; j<node.getChildCount(); j++) {
 					resultSuffix = getChildSuffix((SiteNode) node.getChildAt(j), performRecursiveCheck);
@@ -211,29 +213,35 @@ public class Analyser {
 					}
 				}
 			}
-														
+
 		} catch (Exception e) {
 		}
-		
+
 		return resultSuffix;
 	}
-	
+
 	private String getPathRegex(URI uri) throws URIException {
-	    URI newUri = (URI) uri.clone();
+	    URI newUri = null;
+        try {
+            newUri = (URI) uri.clone();
+        } catch (CloneNotSupportedException ex) {
+            // TODO use ZAP logging
+            Logger.getLogger(Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        }
 	    String query = newUri.getQuery();
 	    StringBuilder sb = new StringBuilder(100);
-		
+
 		// case should be sensitive
 		//sb.append("(?i)");
 
 	    newUri.setQuery(null);
-	    
+
 		sb.append(newUri.toString().replaceAll("\\.", "\\."));
 		if (query != null) {
 			String queryPattern = "(\\?" + query + ")?";
 			sb.append(queryPattern);
 		}
-		
+
 		return sb.toString();
 	}
 
@@ -244,10 +252,10 @@ public class Analyser {
 	@param	uri		The uri of the current entity.
 	@return	A random path (eg /folder1/folder2/1234567.chm) relative the entity.
 	 * @throws URIException
-	*/	
+	*/
 	private String getRandomPathSuffix(SiteNode node, URI uri) throws URIException {
 		String resultSuffix = getChildSuffix(node, true);
-		
+
 		String path = "";
 		path = (uri.getPath() == null) ? "" : uri.getPath();
 		path = path + (path.endsWith("/") ? "" : "/") + Long.toString(Math.abs(staticRandomGenerator.nextLong()));
@@ -256,18 +264,18 @@ public class Analyser {
 		return path;
 
 	}
-	
+
 	/**
 	Analyse node (should be a folder unless it is host level) in-order.
 	*/
 	private void inOrderAnalyse(SiteNode node) {
-	    
+
 		SiteNode tmp = null;
-		
+
 		if (isStop) {
 		    return;
 		}
-		
+
 		if (node == null) {
 			return;
 		}
@@ -283,7 +291,7 @@ public class Analyser {
 		} catch (Exception e) {
 
 		}
-				
+
 		for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 			try {
 				tmp = (SiteNode) node.getChildAt(i);
@@ -293,19 +301,25 @@ public class Analyser {
 			}
 		}
 	}
-    
+
     public boolean isFileExist(HttpMessage msg) {
-        
+
         if (msg.getResponseHeader().isEmpty()) {
             return false;
         }
-        
+
 		// RFC
         if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND) {
             return false;
         }
 
-        URI uri = (URI) msg.getRequestHeader().getURI().clone();
+        URI uri = null;
+        try {
+            uri = (URI) msg.getRequestHeader().getURI().clone();
+        } catch (CloneNotSupportedException ex) {
+            // TODO use ZAP logging
+            Logger.getLogger(Analyser.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             // strip off last part of path - use folder only
             uri.setQuery(null);
@@ -313,11 +327,11 @@ public class Analyser {
             path = path.replaceAll("/[^/]*$","");
             uri.setPath(path);
         } catch (Exception e1) {}
-    
-        String sUri = uri.toString();        
-        
+
+        String sUri = uri.toString();
+
 		// get sample with same relative path position when possible.
-		// if not exist, use the host only	
+		// if not exist, use the host only
 		SampleResponse sample = (SampleResponse) mapVisited.get(sUri);
 		if (sample == null) {
 		    try {
@@ -326,7 +340,7 @@ public class Analyser {
 		    String sHostOnly = uri.toString();
 			sample = (SampleResponse) mapVisited.get(sHostOnly);
 		}
-		
+
 		// check if any analysed result.
 
 		if (sample == null) {
@@ -337,7 +351,7 @@ public class Analyser {
 				return false;
 			}
 		}
-		
+
 		// check for redirect response.  If redirect to same location, then file does not exist
 		if (HttpStatusCode.isRedirection(msg.getResponseHeader().getStatusCode())) {
 			try {
@@ -352,7 +366,7 @@ public class Analyser {
 			}
 			return true;
 		}
-		
+
 		// Not success code
 		if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
 			return false;
@@ -365,7 +379,7 @@ public class Analyser {
 		if (matcher.find()) {
 			return false;
 		}
-		
+
 		// static response
 		String body = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
 		if (sample.getErrorPageType() == SampleResponse.ERROR_PAGE_STATIC) {
@@ -379,7 +393,7 @@ public class Analyser {
 		try {
 			if (sample.getErrorPageType() == SampleResponse.ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC) {
 				body = msg.getResponseBody().toString().replaceAll(getPathRegex(uri), "").replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s","");
-				// ZAP: FindBugs fix - added call to HttpBody.toString() 
+				// ZAP: FindBugs fix - added call to HttpBody.toString()
 				if (sample.getMessage().getResponseBody().toString().equals(body)) {
 					return false;
 				}
@@ -394,7 +408,7 @@ public class Analyser {
 
         return true;
     }
-	
+
 	private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
 		if (this.getDelayInMs() > 0) {
 			try {
@@ -410,7 +424,7 @@ public class Analyser {
 	    	parent.notifyNewMessage(msg);
 	    }
 	}
-	
+
 	public int getDelayInMs() {
 		return delayInMs;
 	}
@@ -419,6 +433,6 @@ public class Analyser {
 		this.delayInMs = delayInMs;
 	}
 
-	
+
 }
 

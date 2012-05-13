@@ -1,27 +1,28 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.EventQueue;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -36,12 +37,12 @@ import org.parosproxy.paros.view.View;
 public class ProxyListenerBreak implements ProxyListener {
 
     private static final Logger log = Logger.getLogger(ProxyListenerBreak.class);
-    
-    //Should be the last one before the listener that saves the HttpMessage to the DB, this way 
-	//the HttpMessage will be correctly shown to the user (to edit it) because it could have been changed 
+
+    //Should be the last one before the listener that saves the HttpMessage to the DB, this way
+	//the HttpMessage will be correctly shown to the user (to edit it) because it could have been changed
 	//by other ProxyListener.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER -1;
-	
+
 	private static java.lang.Object semaphore = new java.lang.Object();
 	private BreakPanel breakPanel = null;
 	private Model model = null;
@@ -51,31 +52,31 @@ public class ProxyListenerBreak implements ProxyListener {
 	    this.model = model;
 	    this.extension = extension;
 	}
-	
+
 	/**
 	 * @return Returns the breakPanel.
 	 */
 	public BreakPanel getBreakPanel() {
 		return breakPanel;
 	}
-	
+
 	/**
 	 * @param breakPanel The breakPanel to set.
 	 */
 	public void setBreakPanel(BreakPanel breakPanel) {
 		this.breakPanel = breakPanel;
 	}
-	
+
 	@Override
 	public int getProxyListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpRequestReceived(com.proofsecure.paros.network.HttpMessage)
 	 */
 	public boolean onHttpRequestSend(HttpMessage msg) {
-	    
+
 		if (isSkipImage(msg.getRequestHeader())) {
 			return true;
 		}
@@ -110,7 +111,7 @@ public class ProxyListenerBreak implements ProxyListener {
 			log.warn(e.getMessage(), e);
 		}
 	}
-	
+
 	private void setHttpDisplay(final BreakPanel breakPanel, final HttpMessage msg, final boolean isRequest) {
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
@@ -121,9 +122,9 @@ public class ProxyListenerBreak implements ProxyListener {
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}
-		
+
 	}
-	
+
 	private void waitUntilContinue(final HttpMessage msg, final boolean isRequest) {
 		// Note that multiple requests and responses can get built up, so pressing continue only
 		// releases the current break, not all of them.
@@ -144,12 +145,12 @@ public class ProxyListenerBreak implements ProxyListener {
 		} catch (Exception ie) {
 			log.warn(ie.getMessage(), ie);
 		}
-		
+
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.proofsecure.paros.proxy.ProxyHandler#onHttpResponseSend(com.proofsecure.paros.network.HttpMessage)
 	 */
 	public boolean onHttpResponseReceive(HttpMessage msg) {
@@ -160,7 +161,7 @@ public class ProxyListenerBreak implements ProxyListener {
 		if (! isBreakPoint(msg, false)) {
 			return true;
 		}
-        
+
 		// Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
 		// but be reset when the next break point is hit
 		getBreakPanel().breakPointHit();
@@ -176,12 +177,12 @@ public class ProxyListenerBreak implements ProxyListener {
 
 		return ! getBreakPanel().isToBeDropped();
 	}
-	
+
 	public boolean isSkipImage(HttpHeader header) {
 		if (header.isImage() && !model.getOptionsParam().getViewParam().isProcessImages()) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -196,27 +197,33 @@ public class ProxyListenerBreak implements ProxyListener {
 			// Stopping through all requests and responses
 			return true;
 		}
-		
+
 	    try {
 	    	List<BreakPoint> breakPoints = extension.getBreakPointsList();
-		    
+
 	    	if (breakPoints.isEmpty()) {
 		    	// No break points
 		    	return false;
 		    }
-		    
-			URI uri = (URI) msg.getRequestHeader().getURI().clone();
+
+			URI uri = null;
+            try {
+                uri = (URI) msg.getRequestHeader().getURI().clone();
+            } catch (CloneNotSupportedException ex) {
+                // TODO use ZAP logging
+                java.util.logging.Logger.getLogger(ProxyListenerBreak.class.getName()).log(Level.SEVERE, null, ex);
+            }
 		    uri.setQuery(null);
 		    String sUri = uri.getURI();
-		    
+
 		    // match against the break points
-		    
+
 			synchronized (breakPoints) {
 				Iterator<BreakPoint> it = breakPoints.iterator();
-				
+
 				while(it.hasNext()) {
 					BreakPoint breakPoint = it.next();
-					
+
 					if (breakPoint.isEnabled() && breakPoint.match(sUri)) {
 						return true;
 					}
@@ -228,7 +235,7 @@ public class ProxyListenerBreak implements ProxyListener {
 
         return false;
 	}
-	
+
 	private void clearAndDisableRequest() {
 		if (EventQueue.isDispatchThread()) {
 			getBreakPanel().clearAndDisableRequest();
@@ -244,7 +251,7 @@ public class ProxyListenerBreak implements ProxyListener {
 			}
 		}
 	}
-	
+
 	private void clearAndDisableResponse() {
 		if (EventQueue.isDispatchThread()) {
 			getBreakPanel().clearAndDisableResponse();

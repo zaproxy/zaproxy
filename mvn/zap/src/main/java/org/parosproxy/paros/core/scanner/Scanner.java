@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
@@ -62,7 +63,7 @@ public class Scanner implements Runnable {
 	private boolean pause = false;
 
     /**
-     * 
+     *
      */
     public Scanner(ScannerParam scannerParam, ConnectionParam param) {
 	    this.connectionParam = param;
@@ -70,8 +71,8 @@ public class Scanner implements Runnable {
 	    //httpSender = new HttpSender(param);
 	    pool = new ThreadPool(scannerParam.getHostPerScan());
     }
-    
-    
+
+
     public void start(SiteNode startNode) {
         isStop = false;
         log.info("scanner started");
@@ -81,16 +82,16 @@ public class Scanner implements Runnable {
         thread.setPriority(Thread.NORM_PRIORITY-2);
         thread.start();
     }
-    
+
     public void stop() {
         log.info("scanner stopped");
 
         isStop = true;
-        
+
     }
-    
+
 	public void addScannerListener(ScannerListener listener) {
-		listenerList.add(listener);		
+		listenerList.add(listener);
 	}
 
 	public void removeScannerListener(ScannerListener listener) {
@@ -99,26 +100,26 @@ public class Scanner implements Runnable {
 
 	public void run() {
 	    scan(startNode);
-	    
+
 //	    while (pool.isAllThreadComplete()) {
 //	        Util.sleep(4000);
 //	    }
 	    pool.waitAllThreadComplete(0);
 	    notifyScannerComplete();
 	}
-	
+
 	public void scan(SiteNode node) {
 
 	    HostProcess hostProcess = null;
 	    Thread thread = null;
-	    
+
 	    if (node.isRoot()) {
 	        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 	            SiteNode child = (SiteNode) node.getChildAt(i);
 	            String hostAndPort = getHostAndPort(child);
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam);
 	            hostProcess.setStartNode(child);
-	            do { 
+	            do {
 	                thread = pool.getFreeThreadAndRun(hostProcess);
 	                if (thread == null) Util.sleep(500);
 	            } while (thread == null && !isStop());
@@ -133,16 +134,16 @@ public class Scanner implements Runnable {
             hostProcess.setStartNode(node);
             thread = pool.getFreeThreadAndRun(hostProcess);
             notifyHostNewScan(hostAndPort, hostProcess);
-	        
+
 	    }
-	     
+
 	}
-	
+
 	public boolean isStop() {
-	    
+
 	    return isStop;
 	}
-	
+
 	private String getHostAndPort(SiteNode node) {
 	    String result = "";
 	    SiteNode parent = null;
@@ -159,22 +160,22 @@ public class Scanner implements Runnable {
 	    }
 	    return result;
 	}
-	
+
 	void notifyHostComplete(String hostAndPort) {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        ScannerListener listener = (ScannerListener) listenerList.get(i);
 	        listener.hostComplete(hostAndPort);
 	    }
 	}
-	
+
 	void notifyHostProgress(String hostAndPort, String msg, int percentage) {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        ScannerListener listener = (ScannerListener) listenerList.get(i);
 	        listener.hostProgress(hostAndPort, msg, percentage);
 	    }
-	    
+
 	}
-	
+
 	void notifyScannerComplete() {
 
 	    for (int i=0; i<listenerList.size(); i++) {
@@ -186,7 +187,7 @@ public class Scanner implements Runnable {
 	    log.info("scanner completed in " + diffTimeString);
 	    isStop = true;
 	}
-	
+
 	void notifyAlertFound(Alert alert) {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        ScannerListener listener = (ScannerListener) listenerList.get(i);
@@ -200,18 +201,18 @@ public class Scanner implements Runnable {
 	        ScannerListener listener = (ScannerListener) listenerList.get(i);
 	        listener.hostNewScan(hostAndPort, hostThread);
 	    }
-	    
+
 	}
 
 	// ZAP: support pause and notify parent
 	public void pause() {
 		this.pause = true;
 	}
-	
+
 	public void resume () {
 		this.pause = false;
 	}
-	
+
 	public boolean isPaused() {
 		return pause;
 	}
@@ -222,7 +223,7 @@ public class Scanner implements Runnable {
 	        listener.notifyNewMessage(msg);
 	    }
 	}
-	
+
 	public void setExcludeList(List<String> urls) {
 		excludeUrls = new ArrayList<Pattern>();
 		if (urls != null) {
@@ -235,11 +236,17 @@ public class Scanner implements Runnable {
 		    }
 		}
 	}
-	
+
 	public boolean excludeUrl(URI uri) {
 		boolean ignore = false;
 		if (excludeUrls != null) {
-			URI uri2 = (URI)uri.clone();
+			URI uri2 = null;
+            try {
+                uri2 = (URI)uri.clone();
+            } catch (CloneNotSupportedException ex) {
+            // TODO proper logging with ZAP here???
+                java.util.logging.Logger.getLogger(Scanner.class.getName()).log(Level.SEVERE, null, ex);
+            }
 		    try {
 				uri2.setQuery(null);
 			} catch (URIException e) {
