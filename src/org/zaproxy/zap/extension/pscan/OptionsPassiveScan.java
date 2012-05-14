@@ -37,6 +37,8 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -331,38 +333,40 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	            TableColumn column = tableAuth.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
-
-	        tableAuth.addMouseListener(new MouseAdapter() {
-	        	@Override
-	        	public void mouseClicked(MouseEvent e){
-	        		if (tableAuth.getSelectedRow() > -1) {
-	        			PassiveScanner defn = proxyListenerPassiveScan.getDefn(
-	        					tableAuth.convertRowIndexToModel(
-	        							tableAuth.getSelectedRow()));
-	        			if (defn != null && defn instanceof RegexAutoTagScanner) {
-	        				RegexAutoTagScanner rats = (RegexAutoTagScanner) defn;
-	        				editName.setText(rats.getName());
-	        				editName.discardAllEdits();
-	        				editType.setText(rats.getType().name());
-	        				editConfig.setText(rats.getConf());
-	        				editConfig.discardAllEdits();
-	        		    	editRequestUrlRegex.setText(rats.getRequestUrlRegex());
-	        		    	editRequestUrlRegex.discardAllEdits();
-	        		    	editRequestHeaderRegex.setText(rats.getRequestHeaderRegex());
-	        		    	editRequestHeaderRegex.discardAllEdits();
-	        		    	editResponseHeaderRegex.setText(rats.getResponseHeaderRegex());
-	        		    	editResponseHeaderRegex.discardAllEdits();
-	        		    	editResponseBodyRegex.setText(rats.getResponseBodyRegex());
-	        		    	editResponseBodyRegex.discardAllEdits();
-	        		    	editEnabled.setSelected(rats.isEnabled());
-	        		    	// Cant change existing names
-	        		    	editName.setEditable(false);
-	        			}
-	        		}
-	        	}
-	        });
+	        tableAuth.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					if (!e.getValueIsAdjusting()) {
+						int row = tableAuth.getSelectedRow();
+						if (row != -1) {
+							RegexAutoTagScanner rats = getTableModel().getRegexAutoTagScannerAtRow(
+									tableAuth.convertRowIndexToModel(row));
+							updateEditForm(rats);
+						}
+					}
+				}
+			});
 		}
 		return tableAuth;
+	}
+	
+	private void updateEditForm(RegexAutoTagScanner rats) {
+		editName.setText(rats.getName());
+		editName.discardAllEdits();
+		editType.setText(rats.getType().name());
+		editConfig.setText(rats.getConf());
+		editConfig.discardAllEdits();
+    	editRequestUrlRegex.setText(rats.getRequestUrlRegex());
+    	editRequestUrlRegex.discardAllEdits();
+    	editRequestHeaderRegex.setText(rats.getRequestHeaderRegex());
+    	editRequestHeaderRegex.discardAllEdits();
+    	editResponseHeaderRegex.setText(rats.getResponseHeaderRegex());
+    	editResponseHeaderRegex.discardAllEdits();
+    	editResponseBodyRegex.setText(rats.getResponseBodyRegex());
+    	editResponseBodyRegex.discardAllEdits();
+    	editEnabled.setSelected(rats.isEnabled());
+    	// Cant change existing names
+    	editName.setEditable(false);
 	}
 	
 	private void clearEditForm() {

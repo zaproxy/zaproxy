@@ -92,7 +92,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 			scannerList.add(scanner);
 
-			// FIXME temporary "hack" to check if ZAP is in GUI mode (see
+			// XXX temporary "hack" to check if ZAP is in GUI mode (see
 			// below).
 			if (View.isInitialised()) {
 				
@@ -159,7 +159,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     	String pscanName = defn.getName();
 
     	// Note that the name and type cant change on a save
-		config.setProperty("pscans." + pscanName + ".config", defn.getConfig());
+		config.setProperty("pscans." + pscanName + ".config", defn.getConf());
 		config.setProperty("pscans." + pscanName + ".reqUrlRegex", defn.getRequestUrlRegex());
 		config.setProperty("pscans." + pscanName + ".reqHeadRegex", defn.getRequestHeaderRegex());
 		config.setProperty("pscans." + pscanName + ".resHeadRegex", defn.getResponseHeaderRegex());
@@ -180,7 +180,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     	// Add the details
 		config.setProperty("pscans." + pscanName + ".type", defn.getType().toString());
-		config.setProperty("pscans." + pscanName + ".config", defn.getConfig());
+		config.setProperty("pscans." + pscanName + ".config", defn.getConf());
 		config.setProperty("pscans." + pscanName + ".reqUrlRegex", defn.getRequestUrlRegex());
 		config.setProperty("pscans." + pscanName + ".reqHeadRegex", defn.getRequestHeaderRegex());
 		config.setProperty("pscans." + pscanName + ".resHeadRegex", defn.getResponseHeaderRegex());
