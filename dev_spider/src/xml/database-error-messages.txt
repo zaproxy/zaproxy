@@ -1,0 +1,31 @@
+# This file is used by the class InformationDisclosureDatabaseErrors under org.zaproxy.zap.extension.pscan.scanner
+# Strings below are used to search for database information disclosure in HTTP body responses 
+microsoft ole db provider for odbc drivers error
+[ODBC Informix driver][Informix]
+you have an error in your sql syntax; check the manual that corresponds to your mysql server version for the right syntax to use
+[Microsoft][ODBC Microsoft Access 97 Driver]
+[Microsoft][ODBC Driver Manager]
+[Microsoft][ODBC SQL Server Driver]
+Invalid column name
+You have an error in your SQL syntax near
+Unclosed quotation mark before the character string
+[SQL Server Driver][SQL Server]Line 1: Incorrect syntax near
+supplied argument is not a valid MySQL result resource
+Failed query:
+divide by zero
+You have an error in your SQL syntax
+SQL error message
+MySQL error with query
+on MySQL result index
+Bad arguments to join() in
+Bad arguments to implode() in
+mysql_connect():
+Warning: mysql_query()
+ORA-
+unexpected end of SQL command
+SQL command not properly ended
+missing expression
+Warning: pg_connect()
+Supplied argument is not a valid PostgreSQL result
+unexpected token "END-OF-STATEMENT"
+internal error [IBM][CLI Driver][DB2/6000]
