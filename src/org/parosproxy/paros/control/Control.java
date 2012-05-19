@@ -27,7 +27,7 @@
 // ZAP: 2012/04/23 Changed the method shutdown(boolean) to save the configurations
 // of the main http panels and save the configuration file.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
-
+// ZAP: 2012/05/16 Added new initialization method plus ctor for testing purposes.
 package org.parosproxy.paros.control;
 
 import java.io.File;
@@ -63,7 +63,12 @@ public class Control extends AbstractControl implements SessionListener {
         init();
     }
     
-    private void init() {
+    // ZAP: Added constructor that will be used by initSingletonForTesting()
+    private Control() {
+		super(null, null);
+	}
+
+	private void init() {
         
         PluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
         		
@@ -145,6 +150,11 @@ public class Control extends AbstractControl implements SessionListener {
     public static void initSingletonWithoutView() {
         control = new Control(Model.getSingleton(), null);
     }
+
+    // ZAP: Added method to allow for testing
+	public static void initSingletonForTesting() {
+        control = new Control();
+	}
 
     
     public void runCommandLineNewSession(String fileName) throws Exception {

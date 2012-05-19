@@ -26,6 +26,22 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 	private SocketChannel upgradedChannel;
     
 	/**
+	 * Constructor.
+	 */
+	public ZapGetMethod() {
+		super();
+	}
+    
+	/**
+	 * Constructor.
+	 * 
+	 * @param uri
+	 */
+	public ZapGetMethod(String uri) {
+		super(uri);
+	}
+
+	/**
      * Reads the response from the given {@link HttpConnection connection}.
      *
      * <p>
