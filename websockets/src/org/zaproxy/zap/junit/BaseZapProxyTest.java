@@ -64,6 +64,8 @@ public class BaseZapProxyTest {
 	 * Set up logging levels, to ease debugging of tests.
 	 */
 	protected static void initializeLogger() {
+//		systemProperties.setProperty("javax.net.debug", "ssl");
+		
 		Logger rootLogger = Logger.getRootLogger();
 		if (!rootLogger.getAllAppenders().hasMoreElements()) {
 			rootLogger.setLevel(Level.DEBUG);
@@ -85,8 +87,6 @@ public class BaseZapProxyTest {
 		systemProperties.setProperty("http.proxyPort", PROXY_PORT+"");
 		systemProperties.setProperty("https.proxyHost", PROXY_HOST);
 		systemProperties.setProperty("https.proxyPort", PROXY_PORT+"");
-		
-		systemProperties.setProperty("javax.net.debug", "ssl");
 	}
 
 	/**

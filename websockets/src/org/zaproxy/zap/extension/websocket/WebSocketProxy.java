@@ -1,12 +1,11 @@
 package org.zaproxy.zap.extension.websocket;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.SelectionKey;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,30 +32,39 @@ public abstract class WebSocketProxy {
 	/**
 	 * Non-finished messages.
 	 */
-	protected HashMap<SocketChannel, WebSocketMessage> currentMessages = new HashMap<SocketChannel, WebSocketMessage>();
+	protected HashMap<InputStream, WebSocketMessage> currentMessages = new HashMap<InputStream, WebSocketMessage>();
 
-	protected final SocketChannel localChannel;
-	protected final SocketChannel remoteChannel;
+	protected final Socket localSocket;
+	protected final Socket remoteSocket;
+
+	private Thread localListenerThread;
+	private Thread remoteListenerThread;
+
+	/**
+	 * This name is used for debugging messages.
+	 * It helps to distinguish between several WebSocket connections.
+	 */
+	private String name;
 
 	/**
 	 * Factory method to create appropriate version.
 	 * 
 	 * @param version Protocol version. Try 13 if you do not know.
-	 * @param localChannel Channel from browser to ZAP.
-	 * @param remoteChannel Channel from ZAP to Internet.
+	 * @param localSocket Channel from browser to ZAP.
+	 * @param remoteSocket Channel from ZAP to Internet.
 	 * @param subprotocol Provide null if there is no subprotocol specified.
 	 * @param extensions Map of negotiated extensions, null or empty.
 	 * @throws WebSocketException
 	 * @return Version specific proxy object.
 	 */
 	public static WebSocketProxy create(String version,
-			SocketChannel localChannel, SocketChannel remoteChannel,
+			Socket localSocket, Socket remoteSocket,
 			String subprotocol, Map<String, String> extensions) throws WebSocketException {
 		logger.debug("Create WebSockets proxy for version '" + version + "'.");
 		WebSocketProxy wsProxy = null;
 		
 		if (version.equals("13")) {
-			wsProxy = new WebSocketProxyV13(localChannel, remoteChannel);
+			wsProxy = new WebSocketProxyV13(localSocket, remoteSocket);
 			
 			if (subprotocol != null) {
 				// TODO: do something with that subprotocol
@@ -76,13 +84,15 @@ public abstract class WebSocketProxy {
 	 * Create a WebSocket on a channel.
 	 * 
 	 * @param selector This selector is used outside for reading several channels.
-	 * @param localChannel Channel from local machine to ZAP.
-	 * @param remoteChannel Channel from ZAP to remote machine.
+	 * @param localSocket Channel from local machine to ZAP.
+	 * @param remoteSocket Channel from ZAP to remote machine.
 	 * @throws WebSocketException 
 	 */
-	public WebSocketProxy(SocketChannel localChannel, SocketChannel remoteChannel) throws WebSocketException {
-		this.localChannel = localChannel;
-		this.remoteChannel = remoteChannel;
+	public WebSocketProxy(Socket localSocket, Socket remoteSocket) throws WebSocketException {
+		this.localSocket = localSocket;
+		this.remoteSocket = remoteSocket;
+		
+		this.name = remoteSocket.getInetAddress().getHostName() + "/" + remoteSocket.getPort();
 	}
 	
 	/**
@@ -92,10 +102,60 @@ public abstract class WebSocketProxy {
 	 * @param selector
 	 * @throws WebSocketException
 	 */
-	public void register(Selector selector) throws WebSocketException {
-		logger.debug("Register this WebSocket-proxy on given selector.");
-		prepareChannel(selector, localChannel);
-		prepareChannel(selector, remoteChannel);
+	public void startListeners() throws WebSocketException {
+		if (localSocket.isClosed()) {
+			throw new WebSocketException("local socket is closed");
+		}
+		
+		if (remoteSocket.isClosed()) {
+			throw new WebSocketException("remote socket is closed");
+		}
+		
+		try {
+			localSocket.setSoTimeout(0); // infinite timeout
+			localSocket.setTcpNoDelay(true);
+			localSocket.setKeepAlive(true);
+			
+			remoteSocket.setSoTimeout(0);
+			remoteSocket.setTcpNoDelay(true);
+			remoteSocket.setKeepAlive(true);
+		} catch (SocketException e) {
+			throw new WebSocketException(e);
+		}
+		
+		if (localSocket.isClosed() || !localSocket.isConnected()) {
+			logger.debug("closed or not connected");
+		}
+		
+		if (remoteSocket.isClosed() || !remoteSocket.isConnected()) {
+			logger.debug("closed or not connected");
+		}
+		logger.debug("Start listeners for channel '" + name + "'.");
+
+		WebSocketListener remoteListener = createListener(remoteSocket);
+		remoteListenerThread = new Thread(remoteListener, "WebSocket-'" + name + "'-remote");
+		remoteListenerThread.start();
+
+		WebSocketListener localListener = createListener(localSocket);
+		localListenerThread = new Thread(localListener, "WebSocket-'" + name + "'-local");
+		localListenerThread.start();
+	}
+	
+	public void shutdown() {
+		localListenerThread.interrupt();
+		remoteListenerThread.interrupt();
+		
+		try {
+			localSocket.close();
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+		try {
+			remoteSocket.close();
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -106,110 +166,81 @@ public abstract class WebSocketProxy {
 	 * @param channel
 	 * @throws WebSocketException
 	 */
-	private void prepareChannel(Selector selector, SocketChannel channel) throws WebSocketException {
+	private WebSocketListener createListener(Socket readEnd) throws WebSocketException {
 		try {
-			channel.configureBlocking(false);
-			channel.register(selector, SelectionKey.OP_READ, this);
-		} catch (ClosedChannelException e) {
-			throw new WebSocketException("Preparing channel failed due to ClosedChannelException!");
+			Socket writeEnd = getOppositeSocket(readEnd);
+			
+			BufferedInputStream reader = new BufferedInputStream(readEnd.getInputStream());
+			
+			return new WebSocketListener(this, reader, writeEnd.getOutputStream());
 		} catch (IOException e) {
-			throw new WebSocketException("Preparing channel failed due to IOException!");
+			throw new WebSocketException("Failed to start listener due to: " + e.getMessage());
 		}
 	}
 
 	/**
 	 * Read one or more frames from given channel.
 	 * 
-	 * @param key This key contains the channel top be read.
+	 * @param in Here comes the frame.
+	 * @param out There should it be forwarded.
+	 * @param flagsByte The first byte of the frame, that was already read.
 	 * @throws IOException
 	 */
-	public void processRead(SelectionKey key) throws IOException {
-		SocketChannel channel = getChannelFromKey(key);
-		if (channel == null) {
-			return;
-		}
-		
-		ByteBuffer firstFrameByte = ByteBuffer.allocate(1);
+	public void processRead(InputStream in, OutputStream out, byte flagsByte) throws IOException {
 		WebSocketMessage message = null;
-		
-		while (0 < channel.read(firstFrameByte)) {
-			firstFrameByte.flip(); // make buffer readable
 	
-			byte flagsByte = firstFrameByte.get();
-			int opcode = (flagsByte & 0x0F); // last 4 bits is OpCode
-			
-			logger.debug("Got WebSockets-frame: " + opcode);
-			
-			if (WebSocketMessage.isControl(opcode)) {
-				/*
-				 * control messages may interrupt a control message
-				 * control message are always just one frame long
-				 */
-				message = createWebSocketMessage(flagsByte, channel);
-				message.forward(getOppositeChannel(channel));
+		int opcode = (flagsByte & 0x0F); // last 4 bits represent opcode
+		
+		logger.debug("Got WebSockets-frame: " + opcode + " from connection '" + name + "'");
+		
+		if (WebSocketMessage.isControl(opcode)) {
+			/*
+			 * control messages may interrupt a control message
+			 * control message are always just one frame long
+			 */
+			message = createWebSocketMessage(in, flagsByte);
+			message.forward(out);
+		} else {
+			/*
+			 * non-control messages may be split across several frames
+			 * temporarily buffer non-finished messages
+			 */
+			if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
+				message = currentMessages.remove(in);
+				message.readContinuation(in, flagsByte);
 			} else {
-				/*
-				 * non-control messages may be split across several frames
-				 * temporarily buffer non-finished messages
-				 */
-				if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
-					message = currentMessages.remove(channel);
-					message.readContinuation(flagsByte, channel);
-				} else {
-					message = createWebSocketMessage(flagsByte, channel);
-				}
-				
-				if (message.isFinished()) {
-					message.forward(getOppositeChannel(channel));
-				} else {
-					currentMessages.put(channel, message);
-				}
+				message = createWebSocketMessage(in, flagsByte);
 			}
 			
-			firstFrameByte.clear();
+			if (message.isFinished()) {
+				message.forward(out);
+			} else {
+				currentMessages.put(in, message);
+			}
 		}
 	}
 
 	/**
 	 * Returns a version specific WebSockets message.
 	 * 
-	 * @param flagsByte First byte of frame, containing FIN flag and opcode.
-	 * @param channel
+	 * @param in First byte of frame, containing FIN flag and opcode.
+	 * @param flagsByte
 	 * @return
 	 * @throws IOException 
 	 */
-	protected abstract WebSocketMessage createWebSocketMessage(byte flagsByte, SocketChannel channel) throws IOException;
+	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte flagsByte) throws IOException;
 
 	/**
 	 * Returns the opposed channel.
 	 * 
-	 * @param channel
+	 * @param socket
 	 * @return
 	 */
-	protected SocketChannel getOppositeChannel(SocketChannel channel) {
-		if (channel.equals(localChannel)) {
-			return remoteChannel;
+	protected Socket getOppositeSocket(Socket socket) {
+		if (socket.equals(localSocket)) {
+			return remoteSocket;
 		} else {
-			return localChannel;
-		}
-	}
-
-	/**
-	 * Retrieves the {@link SocketChannel} from the {@link SelectionKey}.
-	 * 
-	 * @param key
-	 * @return
-	 */
-	protected SocketChannel getChannelFromKey(SelectionKey key) {
-		SelectableChannel channel = key.channel();
-		
-		if (channel.equals(localChannel)) {
-			return localChannel;
-		} else if (channel.equals(remoteChannel)) {
-			return remoteChannel;
-		} else {
-			logger.error("SelectableChannel is not contained in this WebSocketsProxy instance.");
-			return null;
+			return localSocket;
 		}
 	}
 }

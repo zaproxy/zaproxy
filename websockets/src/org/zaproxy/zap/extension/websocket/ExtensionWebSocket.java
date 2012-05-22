@@ -1,19 +1,14 @@
 package org.zaproxy.zap.extension.websocket;
 
-import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketException;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.network.HttpResponseHeader;
-
 
 /**
  * This extension adapter takes over after finishing
@@ -27,43 +22,17 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	    
 	private static Logger log = Logger.getLogger(ExtensionWebSocket.class);
 	
-	/**
-	 * This list contains all established WebSocket channels.
-	 */
-	private static CopyOnWriteArrayList<WebSocketProxy> wsProxies = new CopyOnWriteArrayList<WebSocketProxy>();
-
-	/**
-	 * Used for reading from WebSockets channels.
-	 */
-	private Selector selector;
-
-	/**
-	 * One thread listens to all WebSockets connections by using Java's NIO features.
-	 */
-	private Thread thread;
+//	/**
+//	 * This list contains all established WebSocket channels.
+//	 */
+//	private static CopyOnWriteArrayList<WebSocketProxy> wsProxies = new CopyOnWriteArrayList<WebSocketProxy>();
 
 	/**
 	 * Constructor initializes this class.
 	 */
 	public ExtensionWebSocket() {
 		super();
-		initialize();
-	}
-	
-	/**
-	 * Set name of extension
-	 * and open a NIO Selector.
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
-        setName(NAME);
-        
-        try {
-			selector = Selector.open();
-		} catch (IOException e) {
-			log.error("Was not able to open Selector for reading from WebSockets.");
-		}
+		setName(NAME);
 	}
 	
 	@Override
@@ -79,18 +48,18 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	/**
 	 * Add open channel to this extension after handshake has been completed.
 	 * 
-	 * @param httpResponseHeader Response header of HTTP-based handshake.
-	 * @param inChannel Current connection channel from the browser to ZAP.
-	 * @param outChannel Current connection channel from ZAP to the server.
+	 * @param handShakeResponse Response header of HTTP-based handshake.
+	 * @param localSocket Current connection channel from the browser to ZAP.
+	 * @param remoteSocket Current connection channel from ZAP to the server.
 	 */
-	public void addWebSocketsChannel(HttpResponseHeader handShakeResponse, SocketChannel inChannel, SocketChannel outChannel) {
-		log.debug("Got WebSockets channel from " + inChannel.socket().getInetAddress() + 
-				" port " + inChannel.socket().getPort() +
-				" to " + outChannel.socket().getInetAddress() + 
-				" port " + outChannel.socket().getPort());
+	public void addWebSocketsChannel(HttpResponseHeader handShakeResponse, Socket localSocket, Socket remoteSocket) {
+		log.debug("Got WebSockets channel from " + localSocket.getInetAddress() + 
+				" port " + localSocket.getPort() +
+				" to " + remoteSocket.getInetAddress() + 
+				" port " + remoteSocket.getPort());
 		try {
-			inChannel.socket().setSoTimeout(0);
-			outChannel.socket().setSoTimeout(0);
+			localSocket.setSoTimeout(0);
+			remoteSocket.setSoTimeout(0);
 		} catch (SocketException e) {
 			log.error("failed to set timeout to infinity for WebSocket-sockets");
 		}
@@ -99,18 +68,15 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		Map<String, String> wsExtensions = parseWebSocketExtensions(handShakeResponse);
 		String wsProtocol = parseWebSocketSubProtocol(handShakeResponse);
 		String wsVersion = parseWebSocketVersion(handShakeResponse);
-		
+
+		WebSocketProxy ws = null;
 		try {
-			WebSocketProxy ws = WebSocketProxy.create(wsVersion, inChannel, outChannel, wsProtocol, wsExtensions);
-			ws.register(selector);
-			//wsProxies.add(ws);
+			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
+			ws.startListeners();
+//			wsProxies.add(ws);
 		} catch (WebSocketException e) {
 			log.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
-		}
-		
-		if (thread == null || thread.isAlive() == false) {
-			startCapturing();
 		}
 	}
 
@@ -205,31 +171,5 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		}
 		
 		return version;
-	}
-
-	/**
-	 * Start capturing WebSockets traffic.
-	 * Normally you will start capturing when
-	 * there is at least one WebSockets channel.
-	 */
-	public void startCapturing () {
-		log.debug("About to start a new WebSocketsThread instance, that deals with given connections.");
-		thread = new Thread(new WebSocketsThread(selector), "ZAP-WebSockets");
-		thread.setDaemon(true);
-		thread.start();
-	}
-	
-	/**
-	 * Stop capturing WebSockets traffic.
-	 * Call it when you don't want to process WebSockets messages.
-	 * This means that no WebSocket traffic is forwarded.
-	 */
-	public void stopCapturing() {
-		//TODO: stop thread when determined which method to use
-//		thread.interrupt();
-	}
-	
-	public Iterator<WebSocketProxy> getWebSocketsIterator() {
-		return wsProxies.iterator();
 	}
 }

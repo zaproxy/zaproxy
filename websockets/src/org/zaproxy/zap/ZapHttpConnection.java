@@ -1,10 +1,9 @@
 package org.zaproxy.zap;
 
-import java.nio.channels.SocketChannel;
+import java.net.Socket;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpConnection;
-import org.parosproxy.paros.network.HttpSender;
 
 public class ZapHttpConnection extends HttpConnection {
 
@@ -18,17 +17,21 @@ public class ZapHttpConnection extends HttpConnection {
 	}
 	
 	/**
-	 * Returns the channel of this connection's socket.
-	 * Requires a custom ProtocolSocketFactory that creates
-	 * the socket via <code>SocketChannel.open()</code>.
-	 * <p>
-	 * You can use either {@link ZapDefaultProtocolSocketFactory} or
-	 * {@link ZapSecureProtocolSocketFactory}. You can set them in the
-	 * static initializer of the {@link HttpSender} class.
+	 * Returns the socket of this connection object.
+	 * Make socket available, as parent getSocket() is protected.
 	 * 
-	 * @return Outgoing blocking channel.
+	 * @return Outgoing (remote) socket connection.
 	 */
-	public SocketChannel getSocketChannel() {
-		return getSocket().getChannel();
+	public Socket getSocket() {
+		return super.getSocket();
 	}
+	
+	/**
+     * Avoid closing in- & output stream as that would close the 
+     * underlying socket also. But we have to keep it for our
+     * WebSocket connection.
+     */
+    protected void closeSocketAndStreams() {
+    	// do not close anything
+    }
 }

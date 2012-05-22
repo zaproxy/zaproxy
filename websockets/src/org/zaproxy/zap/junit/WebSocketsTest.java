@@ -4,16 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.net.Socket;
+import java.util.Arrays;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.parosproxy.paros.control.Control;
-import org.zaproxy.zap.ZapDefaultProtocolSocketFactory;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
@@ -35,13 +32,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 	}
 
 	@Test
-	public void doWebSocketsHandshakeViaClient() throws Exception {
-		// set up custom socket factory that creates sockets
-		// via SocketChannel.open().socket()
-		// allows to retrieve channel later
-		ProtocolSocketFactory defaultSocketFactory = new ZapDefaultProtocolSocketFactory();
-    	Protocol.registerProtocol("http", new Protocol("http", defaultSocketFactory, 80));
-    	
+	public void doWebSocketsHandshakeViaClient() throws Exception {    	
 		// use HTTP-client with custom connection manager
 		// that allows us to expose the SocketChannel
 		HttpClient client = new HttpClient(new ZapHttpConnectionManager());
@@ -57,8 +48,39 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		
 		int status = method.getStatusCode();
 		assertEquals("HTTP status code of WebSockets-handshake response should be 101.", 101, status);
+
+		Socket socket = method.getUpgradedConnection();
+
+		assertWorkingWebSocket(socket);
 		
-		assertWorkingWebSocket(method);
+		// send hello message a second time to ensure that socket is not closed after first time
+		assertWorkingWebSocket(socket);
+		
+		properlyCloseWebSocket(socket);
+	}
+
+	@Test
+	public void doSecureWebSocketsHandshake() throws Exception {
+		// use HTTP-client with custom connection manager
+		// that allows us to expose the SocketChannel
+		HttpClient client = new HttpClient(new ZapHttpConnectionManager());
+	    client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
+	    
+	    // create minimal HTTP handshake request
+	    ZapGetMethod method = new ZapGetMethod("https://echo.websocket.org/?encoding=text");
+		method.addRequestHeader("Connection", "upgrade");
+		method.addRequestHeader("Upgrade", "websocket");
+		method.addRequestHeader("Sec-WebSocket-Version", "13");
+		method.addRequestHeader("Sec-WebSocket-Key", "5d5NazNjJ5hafSgFYJ7SOw==");
+		client.executeMethod(method);
+		
+		assertEquals("HTTP status code of WebSockets-handshake response should be 101.", 101, method.getStatusCode());
+		
+		Socket socket = method.getUpgradedConnection();
+		
+		assertWorkingWebSocket(socket);
+		
+		properlyCloseWebSocket(socket);
 	}
 	
 //	/**
@@ -96,54 +118,39 @@ public class WebSocketsTest extends BaseZapProxyTest {
 //	    writer.close();	
 //	}
 	
+	private void properlyCloseWebSocket(Socket socket) throws IOException {
+		socket.setTcpNoDelay(true);
+		assertTrue("Retrieved SocketChannel should not be null.", socket != null);
+		
+		byte[] maskedClose = {(byte) 0x88, (byte) 0x82, 0x46, 0x59, (byte) 0xdc, 0x4a, 0x45, (byte) 0xb1};
+		
+		socket.getOutputStream().write(maskedClose);
+		socket.close();
+	}
+
 	/**
 	 * Sends a Hello message into the channel and asserts that
 	 * the same message is returned by the Echo-Server.
 	 * The outgoing message is masked, while the incoming
 	 * contains the message in cleartext.
 	 * 
-	 * @param method
+	 * @param socket
 	 * @throws IOException
 	 */
-	private void assertWorkingWebSocket(ZapGetMethod method) throws IOException {
-		SocketChannel channel = method.getUpgradedChannel();
-		assertTrue("Retrieved SocketChannel should not be null.", channel != null);
+	private void assertWorkingWebSocket(Socket socket) throws IOException {
+		socket.setTcpNoDelay(true);
+		assertTrue("Retrieved SocketChannel should not be null.", socket != null);
 		
 		byte[] maskedHelloMessage = {(byte) 0x81, (byte) 0x85, 0x37, (byte) 0xfa, 0x21, 0x3d, 0x7f, (byte) 0x9f, 0x4d, 0x51, 0x58};
 		byte[] unmaskedHelloMessage = {(byte) 0x81, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 		
-		channel.write(ByteBuffer.wrap(maskedHelloMessage));
+		socket.getOutputStream().write(maskedHelloMessage);
 		
-		ByteBuffer dst = ByteBuffer.allocate(10);
-		channel.read(dst);
-		dst.flip();
+		byte[] dst = new byte[7];
+		socket.getInputStream().read(dst);
 		
-		assertEquals("Awaited unmasked hello message from echo server.", ByteBuffer.wrap(unmaskedHelloMessage), dst);
-	}
-
-	@Test
-	public void doSecureWebSocketsHandshake() throws Exception {
-		// set up custom socket factory that creates sockets
-		// via SocketChannel.open().socket()
-		// allows to retrieve channel later
-		ProtocolSocketFactory defaultSocketFactory = new ZapDefaultProtocolSocketFactory();
-    	Protocol.registerProtocol("http", new Protocol("http", defaultSocketFactory, 80));
-		// use HTTP-client with custom connection manager
-		// that allows us to expose the SocketChannel
-		HttpClient client = new HttpClient(new ZapHttpConnectionManager());
-	    client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
-	    
-	    // create minimal HTTP handshake request
-	    ZapGetMethod method = new ZapGetMethod("https://echo.websocket.org/?encoding=text");
-		method.addRequestHeader("Connection", "upgrade");
-		method.addRequestHeader("Upgrade", "websocket");
-		method.addRequestHeader("Sec-WebSocket-Version", "13");
-		method.addRequestHeader("Sec-WebSocket-Key", "5d5NazNjJ5hafSgFYJ7SOw==");
-		client.executeMethod(method);
-		
-		assertEquals("HTTP status code of WebSockets-handshake response should be 101.", 101, method.getStatusCode());
-		assertTrue("SocketChannel must not be null", method.getUpgradedChannel() != null);
-		
-		assertWorkingWebSocket(method);
+		// use Arrays class to compare two byte arrays
+		// returns true if it contains the same elements in same order
+		assertTrue("Awaited unmasked hello message from echo server.", Arrays.equals(unmaskedHelloMessage, dst));
 	}
 }

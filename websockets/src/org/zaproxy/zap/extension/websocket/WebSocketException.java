@@ -8,10 +8,14 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class WebSocketException extends IOException {
 
-  public WebSocketException() {
-  }
+	public WebSocketException() {
+	}
 
-  public WebSocketException(String msg) {
-    super(msg);
-  }
+	public WebSocketException(String msg) {
+		super(msg);
+	}
+
+	public WebSocketException(Exception e) {
+		super(e);
+	}
 }

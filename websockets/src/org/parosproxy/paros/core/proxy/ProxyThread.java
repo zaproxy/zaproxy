@@ -26,8 +26,8 @@
 // Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
-// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in processHttp.
-// ZAP: 2012/05/11 Do not close connections in run() method, if boolean attribute isDisconnect is set to false.
+// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in method processHttp().
+// ZAP: 2012/05/11 Do not close connections in run() method, if boolean attribute keepSocketOpen is set to true.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -86,8 +86,9 @@ class ProxyThread implements Runnable {
 //	private boolean disconnect = false;
 	private Object semaphore = this;
 	
-	// ZAP: New attribute to keep connections open
-	private boolean isDisconnect = true;
+	// ZAP: New attribute to allow for skipping disconnect
+	private boolean keepSocketOpen = false;
+	
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
     
@@ -197,8 +198,8 @@ class ProxyThread implements Runnable {
 		} finally {
             proxyThreadList.remove(thread);
 
-            // ZAP: do only disconnect if flag set
-            if (isDisconnect == true) {
+            // ZAP: do only close if flag is false
+            if (!keepSocketOpen) {
             	disconnect();
     		}
 		}
@@ -312,13 +313,13 @@ class ProxyThread implements Runnable {
 			
 			// ZAP: Add check for connection upgrade and stop if one arrived
 			if (isWebSocketUpgrade(msg)) {
-				isDisconnect = false;
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
 				
-				Object outChannel = msg.getUserObject();
-				if (outChannel != null && outChannel instanceof SocketChannel) {
+				Object outSocket = msg.getUserObject();
+				if (outSocket != null && outSocket instanceof Socket) {
+					keepSocketOpen = true;
 					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
-					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket.getChannel(), (SocketChannel) outChannel);
+					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket, (Socket) outSocket);
 				} else {
 					log.error("Was not able to retrieve upgraded outgoing channel.");
 				}

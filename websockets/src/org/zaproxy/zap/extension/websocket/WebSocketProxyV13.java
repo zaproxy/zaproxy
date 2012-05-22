@@ -1,9 +1,10 @@
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
@@ -18,9 +19,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	/**
 	 * @see WebSocketProxy
 	 */
-	public WebSocketProxyV13(SocketChannel localChannel,
-			SocketChannel remoteChannel) throws WebSocketException {
-		super(localChannel, remoteChannel);
+	public WebSocketProxyV13(Socket localSocket,
+			Socket remoteSocket) throws WebSocketException {
+		super(localSocket, remoteSocket);
 	}
 
 	/**
@@ -58,34 +59,35 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param flagsByte
 		 * @throws IOException 
 		 */
-		public WebSocketMessageV13(byte flagsByte, SocketChannel channel) throws IOException {			
-			// 4 least significant bits are OpCode
+		public WebSocketMessageV13(InputStream in, byte flagsByte) throws IOException {			
+			// 4 least significant bits are opcode
 			opcode = (flagsByte & 0x0F);
 			
-			readFrame(flagsByte, channel);
+			readFrame(in, flagsByte);
 		}
 
 		/**
 		 * Add next frame to this message. First byte already
 		 * given by parameter <em>flagsByte</em>.
 		 * 
+		 * @param in
 		 * @param flagsByte
-		 * @param channel
 		 * @throws IOException
 		 */
-		public void readContinuation(byte flagsByte, SocketChannel channel) throws IOException {			
-			readFrame(flagsByte, channel);
+		@Override
+		public void readContinuation(InputStream in, byte flagsByte) throws IOException {			
+			readFrame(in, flagsByte);
 		}
 
 		/**
 		 * Given the first byte of a frame and a channel,
 		 * this method reads from the second byte until the end of the frame.
 		 * 
+		 * @param in
 		 * @param flagsByte
-		 * @param channel
 		 * @throws IOException
 		 */
-		public void readFrame(byte flagsByte, SocketChannel channel) throws IOException {
+		public void readFrame(InputStream in, byte flagsByte) throws IOException {
 			// most significant bit is FIN flag & 0x1
 			isFinished = (flagsByte >> 7 & 0x1) == 1;
 			
@@ -95,14 +97,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			// TODO: what if less at the end? free
 			currentFrame.put(flagsByte);
 			frames.add(currentFrame);
-			
-			ByteBuffer baseFrameHeader = read(channel, 1);
 
-			byte payloadByte = baseFrameHeader.get();
+			byte payloadByte = read(in);
 			isMasked = (payloadByte >> 7 & 0x1) == 1; // most significant bit is MASK flag
 			payloadLength = (payloadByte & 0x7F);
-			
-			baseFrameHeader.clear();
 
 			/*
 			 * Multiple bytes for payload length are submitted in network byte
@@ -123,16 +121,15 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					bytesToRetrieve = 8;
 				}
 
-				ByteBuffer extendedPayloadLength = read(channel, bytesToRetrieve);
+				byte[] extendedPayloadLength = read(in, bytesToRetrieve);
 
 				payloadLength = 0;
 				for (int i = 0; i < bytesToRetrieve; i++) {
-					byte extendedPayload = extendedPayloadLength.get();
+					byte extendedPayload = extendedPayloadLength[i];
 					
 					// shift previous bits left and add next byte
 					payloadLength = (payloadLength << 8) | (extendedPayload & 0xFF);
 				}
-				extendedPayloadLength.clear();
 			}
 
 			// now we know the payload length
@@ -140,27 +137,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			logger.debug("Length of current frame payload is: " + payloadLength);
 
 			int remainingBytes = payloadLength;
-			if (isMasked) {
-				remainingBytes += 4;
-			}
 
-			ByteBuffer remainingByteBuffer = read(channel, remainingBytes);
-
-			byte[] payload = new byte[payloadLength];
 			if (isMasked) {
 				// read 4 bytes mask
-				remainingByteBuffer.get(mask);
+				mask = read(in, 4);
 			}
 
-			// the rest goes into payload
-			try {
-				remainingByteBuffer.get(payload);
-			} catch (BufferUnderflowException e) {
-				logger.error("remainingByteBuffer has got size of "
-						+ remainingByteBuffer.capacity() + " with limit of "
-						+ remainingByteBuffer.limit());
-				// TODO: read byte by byte??
-			}
+			byte[] payload = read(in, remainingBytes);
 
 			if (isMasked) {
 				for (int i = 0; i < payload.length; i++) {
@@ -184,23 +167,32 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		}
 
 		/**
-		 * Reads given length from the channel. For long messages it performs
-		 * several iterations and ensures, that everything is present.
+		 * Read only one byte from input stream.
 		 * 
-		 * @param channel
+		 * @param in
+		 * @return
+		 * @throws IOException
+		 */
+		private byte read(InputStream in) throws IOException {
+			byte[] buffer = read(in, 1);
+			return buffer[0];
+		}
+
+		/**
+		 * Reads given length from the given stream.
+		 * 
+		 * @param in
 		 * @param length Determines how much bytes should be read from the given channel.
 		 * @return ByteBuffer read for reading (i.e.: already flipped).
 		 * @throws IOException
 		 */
-		private ByteBuffer read(SocketChannel channel, int length) throws IOException {
-			ByteBuffer buffer = ByteBuffer.allocate(length);
+		private byte[] read(InputStream in, int length) throws IOException {
+			byte[] buffer = new byte[length];
 			
 			int bytesRead = 0;
 			do {
-				bytesRead += channel.read(buffer);
+				bytesRead += in.read(buffer);
 			} while (length != bytesRead);
-			
-			buffer.flip();
 			
 			int freeSpace = currentFrame.capacity() - currentFrame.position();
 			if (freeSpace < bytesRead) {
@@ -209,7 +201,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 			// add bytes to current frame and reset to be able to read again
 			currentFrame.put(buffer);
-			buffer.rewind();
 			
 			return buffer;
 		}
@@ -234,9 +225,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	    }
 
 		@Override
-		public void forward(SocketChannel channel) throws IOException {
+		public void forward(OutputStream out) throws IOException {
 			for (ByteBuffer frame : frames) {
-				channel.write(frame);
+				byte[] buffer = new byte[frame.limit()];
+				frame.get(buffer);
+				logger.debug("forward message");
+				out.write(buffer);
+				out.flush();
 			}
 		}
 
@@ -297,8 +292,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	}
 
 	@Override
-	protected WebSocketMessage createWebSocketMessage(byte flagsByte,
-			SocketChannel channel) throws IOException {
-		return new WebSocketMessageV13(flagsByte, channel);
+	protected WebSocketMessage createWebSocketMessage(InputStream in, byte flagsByte) throws IOException {
+		return new WebSocketMessageV13(in, flagsByte);
 	}
 }
