@@ -23,6 +23,7 @@
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and
 // removed unnecessary casts.
+// ZAP: 2012/05/15 Changed the method parse() to get the session description.
 
 package org.parosproxy.paros.model;
 
@@ -259,7 +260,9 @@ public class Session extends FileXML {
 	    // use temp variable to check.  Exception will be flagged if any error.
 		tempSessionId = Long.parseLong(getValue(SESSION_ID));
 		tempSessionName = getValue(SESSION_NAME);
-		tempSessionName = getValue(SESSION_NAME);
+		// ZAP: Changed to get the session description and use the variable
+		// tempSessionDesc.
+		tempSessionDesc = getValue(SESSION_DESC);
 
 		// set member variable after here
 		sessionId = tempSessionId;
