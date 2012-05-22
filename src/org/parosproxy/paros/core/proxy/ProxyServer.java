@@ -24,18 +24,15 @@
 // ZAP: 2011/11/15 Warn the user if the host is unknown
 // ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
-// ZAP: 2012/05/04 Catch CloneNotSupportedException in excludeUrl() method, as it was introduced in HTTPClient 3.1
-// ZAP: 2012/05/06 Use Java-NIO features to create sockets in createServerSocket() method
 
 package org.parosproxy.paros.core.proxy;
  
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,7 +41,6 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -224,13 +220,9 @@ public class ProxyServer implements Runnable {
 
 	protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
 //		ServerSocket socket = new ServerSocket(port, 300, InetAddress.getByName(ip)getProxyParam().getProxyIp()));
-		
-		// ZAP: use Java-NIO features to create sockets: would allow for more performance with WebSockets
-		// ZAP: leaves blocking mode on per default
-		ServerSocketChannel ssc = ServerSocketChannel.open();
-		ssc.socket().bind(new InetSocketAddress(ip, port), 400);
+		ServerSocket socket = new ServerSocket(port, 400, InetAddress.getByName(ip));
 
-		return ssc.socket();
+		return socket;
 	}
 	
 	protected ProxyThread createProxyProcess(Socket clientSocket) {

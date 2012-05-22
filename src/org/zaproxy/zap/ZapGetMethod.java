@@ -1,7 +1,7 @@
 package org.zaproxy.zap;
 
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
+import java.net.Socket;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
@@ -23,7 +23,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
      * If we have got an <em>Connection: Upgrade</em>,
      * this will be set to the current connection.
      */
-	private SocketChannel upgradedChannel;
+	private Socket upgradedSocket;
     
 	/**
 	 * Constructor.
@@ -35,7 +35,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 	/**
 	 * Constructor.
 	 * 
-	 * @param uri
+	 * @param uriSocketChannel
 	 */
 	public ZapGetMethod(String uri) {
 		super(uri);
@@ -142,8 +142,9 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 	            LOG.debug("Got an Upgrade-Request. Retrieve socket channel and do not close connection!");
 	            
 	            if (conn instanceof ZapHttpConnection) {
-	            	upgradedChannel = ((ZapHttpConnection) conn).getSocketChannel();
-//	            	conn.setHttpConnectionManager(null); // avoid releasing connection => I think this is not necessary now, because I avoid shutting down the appropriate httpSender
+	            	upgradedSocket = ((ZapHttpConnection) conn).getSocket();
+	            	// avoid releasing connection => I think this is not necessary now, because I avoid shutting down the appropriate httpSender
+	            	conn.setHttpConnectionManager(null);
 	            }
 	            
 	        	return false;
@@ -157,9 +158,9 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
      * If this response included the header <em>Connection: Upgrade</em>,
      * then this method provides the corresponding connection.
      * 
-     * @return Upgraded {@link SocketChannel} or <code>null</code>
+     * @return Upgraded Socket/SocketChannel or null
      */
-	public SocketChannel getUpgradedChannel() {
-		return upgradedChannel;
+	public Socket getUpgradedConnection() {
+		return upgradedSocket;
 	}
 }

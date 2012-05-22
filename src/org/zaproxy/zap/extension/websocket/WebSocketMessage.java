@@ -1,8 +1,9 @@
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -124,6 +125,13 @@ public abstract class WebSocketMessage {
 	public final int getOpcode() {
 		return opcode;
 	}
+	
+	/**
+	 * @see WebSocketMessage#isBinary(int)
+	 */
+	public final boolean isBinary() {
+		return isBinary(opcode);
+	}
 
 	/**
 	 * @param opcode
@@ -132,6 +140,13 @@ public abstract class WebSocketMessage {
 	public static final boolean isBinary(int opcode) {
 		return opcode == OPCODE_BINARY;
 	}
+	
+	/**
+	 * @see WebSocketMessage#isText(int)
+	 */
+	public final boolean isText() {
+		return isText(opcode);
+	}
 
 	/**
 	 * @param opcode
@@ -139,6 +154,13 @@ public abstract class WebSocketMessage {
 	 */
 	public static final boolean isText(int opcode) {
 		return opcode == OPCODE_TEXT;
+	}
+	
+	/**
+	 * @see WebSocketMessage#isControl(int)
+	 */
+	public final boolean isControl() {
+		return isControl(opcode);
 	}
 
 	/**
@@ -156,10 +178,10 @@ public abstract class WebSocketMessage {
 	/**
 	 * Write all frames of current message to given channel.
 	 * 
-	 * @param channel
+	 * @param out
 	 * @throws IOException
 	 */
-	public abstract void forward(SocketChannel channel) throws IOException;
+	public abstract void forward(OutputStream out) throws IOException;
 
 	/**
 	 * Returns true if all frames for this message
@@ -171,5 +193,12 @@ public abstract class WebSocketMessage {
 		return isFinished;
 	}
 
-	public abstract void readContinuation(byte flagsByte, SocketChannel channel) throws IOException;
+	/**
+	 * Read further frame for non-control message.
+	 * 
+	 * @param in
+	 * @param flagsByte
+	 * @throws IOException
+	 */
+	public abstract void readContinuation(InputStream in, byte flagsByte) throws IOException;
 }
