@@ -87,6 +87,10 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
         return result;
     }
     
+    public RegexAutoTagScanner getRegexAutoTagScannerAtRow(int row) {
+        return defns.get(row);
+    }
+    
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;

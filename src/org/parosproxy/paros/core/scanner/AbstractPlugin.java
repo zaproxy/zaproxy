@@ -167,7 +167,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
     
     protected void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
-        sendAndReceive(msg, true, true);
+        sendAndReceive(msg, isFollowRedirect, true);
     }
     
     /**

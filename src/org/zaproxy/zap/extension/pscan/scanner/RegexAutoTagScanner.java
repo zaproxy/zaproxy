@@ -103,6 +103,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 		this.setResponseBodyRegex(responseBodyRegex);
 		this.type = type;
 		this.config = config;
+		setEnabled(enabled);
 	}
 
 	public String getRequestUrlRegex() {
