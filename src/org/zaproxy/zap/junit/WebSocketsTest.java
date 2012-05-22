@@ -80,6 +80,9 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		
 		assertWorkingWebSocket(socket);
 		
+		// send hello message a second time to ensure that socket is not closed after first time
+		assertWorkingWebSocket(socket);
+		
 		properlyCloseWebSocket(socket);
 	}
 	

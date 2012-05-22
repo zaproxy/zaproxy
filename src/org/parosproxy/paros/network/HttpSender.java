@@ -168,7 +168,7 @@ public class HttpSender {
         } else {
         	// ZAP: use custom client on upgrade connection
         	Header connectionHeader = method.getRequestHeader("connection");
-        	if (connectionHeader != null && connectionHeader.getValue().equalsIgnoreCase("upgrade")) {
+        	if (connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade")) {
         		// use another client that allows us to expose the socket connection.
         		HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
         		return upgradeClient.executeMethod(method);
