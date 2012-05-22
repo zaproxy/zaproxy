@@ -138,7 +138,7 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 		if (this.statusLine.getStatusCode() == 101) {
 			// Switching Protocols
 			
-			if (connectionHeader != null && connectionHeader.getValue().equalsIgnoreCase("upgrade")) {
+			if (connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade")) {
 	            LOG.debug("Got an Upgrade-Request. Retrieve socket channel and do not close connection!");
 	            
 	            if (conn instanceof ZapHttpConnection) {
