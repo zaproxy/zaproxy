@@ -45,8 +45,9 @@
 		<thread>2</thread>
 		<maxDepth>5</maxDepth>
 		<scope></scope>
-		<postform>1</postform>
+		<postform>true</postform>
 		<skipurl></skipurl>
+		<requestwait>200</requestwait>
 	</spider>
 
 	<trap>

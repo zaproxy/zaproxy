@@ -37,6 +37,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -66,14 +67,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
      * @param portScanParam 
      * 
      */
-    public SpiderPanel(ExtensionSpider extension, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
+    public SpiderPanel(ExtensionSpider extension, SpiderParam portScanParam) {
         super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension, portScanParam);
     }
 
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider)this.getExtension(), site, this, 
-				(org.parosproxy.paros.core.spider.SpiderParam) params);
+				(SpiderParam) params);
 		
     		st.setStartNode(this.getSiteNode(site));
 		return st;
