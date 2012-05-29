@@ -25,6 +25,7 @@
 // ZAP: 2012/04/25 Removed unnecessary casts.
 // ZAP: 2012/05/02 Changed the first letter of the method spiderProgress
 // to lower case.
+// ZAP: 2012/05/29 Changed to use the new SpiderParam
 
 
 package org.parosproxy.paros.core.spider;
@@ -48,6 +49,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.spider.SpiderParam;
 
 
 

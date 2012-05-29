@@ -20,7 +20,9 @@ package org.zaproxy.zap.extension.spider;
 
 import java.sql.SQLException;
 import java.util.Date;
+
 import javax.swing.DefaultListModel;
+
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.spider.Spider;
@@ -31,6 +33,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.SortedListModel;
 
 public class SpiderThread extends ScanThread implements ScanListenner, SpiderListener {
@@ -51,7 +54,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
     private static Logger log = Logger.getLogger(SpiderThread.class);
 
-	public SpiderThread (ExtensionSpider extension, String site, ScanListenner listenner, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
+	public SpiderThread (ExtensionSpider extension, String site, ScanListenner listenner, SpiderParam portScanParam) {
 		super(site, listenner);
 		this.extension = extension;
 		this.site = site;
