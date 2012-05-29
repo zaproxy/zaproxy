@@ -25,14 +25,14 @@ import javax.swing.DefaultListModel;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.core.spider.Spider;
-import org.parosproxy.paros.core.spider.SpiderListener;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.spider.Spider;
+import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.SortedListModel;
 
@@ -257,7 +257,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	}
 	
 	@Override
-	public void spiderProgress(final URI uri, final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
+	public void spiderProgress(final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
 	    this.spiderDone = numberCrawled;
 	    this.spiderTodo = numberToCrawl;
 	    this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);

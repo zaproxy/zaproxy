@@ -70,38 +70,38 @@ public class SpiderParam extends AbstractParam {
 		try {
 			this.threadCount = getConfig().getInt(SPIDER_THREAD, 2);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 
 		try {
 			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 
 		try {
 			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 
 		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
 
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage());
+			log.error("Error while parsing config file: " + e.getMessage(),e);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class SpiderParam extends AbstractParam {
 	 * 
 	 * @return Returns the thread count
 	 */
-	public int getThread() {
+	public int getThreadCount() {
 		return threadCount;
 	}
 
@@ -191,7 +191,7 @@ public class SpiderParam extends AbstractParam {
 	 * 
 	 * @param thread The thread count to set.
 	 */
-	public void setThread(int thread) {
+	public void setThreadCount(int thread) {
 		this.threadCount = thread;
 		getConfig().setProperty(SPIDER_THREAD, Integer.toString(this.threadCount));
 	}

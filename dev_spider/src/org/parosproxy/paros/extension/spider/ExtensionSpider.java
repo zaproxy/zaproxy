@@ -23,7 +23,6 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added type argument to generic type, removed unnecessary
 // cast and added @Override annotation to all appropriate methods.
-// ZAP: 2012/05/29 Changed to use the new SpiderParam
 
 package org.parosproxy.paros.extension.spider;
 
@@ -40,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.spider.Spider;
 import org.parosproxy.paros.core.spider.SpiderListener;
+import org.parosproxy.paros.core.spider.SpiderParam;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -50,7 +50,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 /**
  *
  * To change the template for this generated type comment go to

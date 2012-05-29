@@ -21,8 +21,9 @@
 // ZAP: 2011/10/15 i18n and removed URLs - these are replaced by the regexs in the session properties
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate method.
+// ZAP: 2012/05/29 Changed to the new SpiderParam
 
-package org.parosproxy.paros.extension.spider;
+package org.zaproxy.zap.extension.spider;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
@@ -35,10 +36,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.spider.SpiderParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 public class OptionsSpiderPanel extends AbstractParamPanel {
@@ -203,9 +204,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 	    getSliderMaxDepth().setValue(param.getMaxDepth());
-	    getSliderThreads().setValue(param.getThread());
+	    getSliderThreads().setValue(param.getThreadCount());
         //getTxtSkipURL().setText(param.getSkipURL());
-	    getTxtScope().setText(param.getScope());
+	    getTxtScope().setText(param.getScopeString());
 	    getTxtScope().discardAllEdits();
         getChkPostForm().setSelected(param.isPostForm());
 	}
@@ -220,9 +221,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    OptionsParam options = (OptionsParam) obj;
 	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 	    param.setMaxDepth(getSliderMaxDepth().getValue());
-	    param.setThread(getSliderThreads().getValue());
+	    param.setThreadCount(getSliderThreads().getValue());
         //param.setSkipURL(getTxtSkipURL().getText());
-        param.setScope(getTxtScope().getText());
+        param.setScopeString(getTxtScope().getText());
         param.setPostForm(getChkPostForm().isSelected());
 	}
 	
