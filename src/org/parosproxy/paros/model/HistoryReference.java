@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Changed the method getDisplay to use the class StringBuilder 
 //      instead of StringBuffer.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/05/28 Added some JavaDoc
 
 package org.parosproxy.paros.model;
 
@@ -44,7 +45,7 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
 * 
 * This class abstracts a reference to a http message stored in database.
-* It read the whole http message from database when getHttpMessage() is called.
+* It reads the whole http message from database when getHttpMessage() is called.
 */
 public class HistoryReference {
 
@@ -150,6 +151,13 @@ public class HistoryReference {
 		return historyId;
 	}
 
+	/**
+	 * Gets the corresponding http message from the database.
+	 * 
+	 * @return the http message
+	 * @throws HttpMalformedHeaderException the http malformed header exception
+	 * @throws SQLException the sQL exception
+	 */
 	public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, SQLException {
 		// fetch complete message
 		RecordHistory history = staticTableHistory.read(historyId);
