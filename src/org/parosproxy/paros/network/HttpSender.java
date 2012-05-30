@@ -288,9 +288,9 @@ public class HttpSender {
 	        msg.getResponseBody().setLength(0);
             msg.getResponseBody().append(method.getResponseBody());
             
-            // ZAP: retrieve upgraded channel and save for later use
+            // ZAP: set method to retrieve upgraded channel later
             if (method instanceof ZapGetMethod) {
-            	msg.setUserObject(((ZapGetMethod) method).getUpgradedConnection());
+            	msg.setUserObject(method);
             }
         } finally {
 	        if (method != null) {

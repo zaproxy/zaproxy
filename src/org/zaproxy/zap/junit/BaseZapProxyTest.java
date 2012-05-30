@@ -23,6 +23,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -62,8 +63,9 @@ public class BaseZapProxyTest {
 	
 	/**
 	 * Set up logging levels, to ease debugging of tests.
+	 * @throws IOException 
 	 */
-	protected static void initializeLogger() {
+	protected static void initializeLogger() throws IOException {
 //		systemProperties.setProperty("javax.net.debug", "ssl");
 		
 		Logger rootLogger = Logger.getRootLogger();
@@ -71,9 +73,12 @@ public class BaseZapProxyTest {
 			rootLogger.setLevel(Level.DEBUG);
 			rootLogger.addAppender(new ConsoleAppender(new PatternLayout("%-5p [%t]: %m%n")));
 
-			Logger httpClientLogger = rootLogger.getLoggerRepository().getLogger(
-					"org.apache.commons.httpclient");
-			httpClientLogger.setLevel(Level.INFO);
+			Logger httpClientLogger = rootLogger.getLoggerRepository().getLogger("org.apache.commons.httpclient");
+			httpClientLogger.setLevel(Level.DEBUG);
+
+			Logger httpWireLogger = rootLogger.getLoggerRepository().getLogger("org.apache.commons.wire");
+//			httpWireLogger.addAppender(new FileAppender(new PatternLayout("%5p [%c] %m%n"), "wire.log"));
+			httpWireLogger.setLevel(Level.DEBUG);
 		}
 	}
 

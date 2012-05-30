@@ -11,6 +11,11 @@ public class WebSocketListener implements Runnable {
 
 	private static Logger logger = Logger.getLogger(WebSocketListener.class);
 
+	/**
+	 * Listener operates either on
+	 *  - incoming channel: server -> ZAP -> browser
+	 *  - outgoing channel: browser -> ZAP -> server
+	 */
 	public enum Direction {
 		INCOMING, OUTGOING
 	};
@@ -37,20 +42,32 @@ public class WebSocketListener implements Runnable {
 	private WebSocketProxy wsProxy;
 
 	/**
+	 * Name of this thread (in-, or outgoing)
+	 */
+	private String name;
+
+	private boolean isFinished;
+
+	/**
 	 * Create listener, that calls the WebSocketsProxy instance to process read
 	 * data. It contains also the other end's writer to forward frames.
 	 * 
+	 * @param wsProxy Calls this proxy object when a read has to be processed.
 	 * @param in Read from one side.
 	 * @param out Write to the other side.
+	 * @param name Name of this thread, used for logging also.
 	 */
-	public WebSocketListener(WebSocketProxy wsProxy, InputStream in, OutputStream out) {
+	public WebSocketListener(WebSocketProxy wsProxy, InputStream in, OutputStream out, String name) {
 		this.wsProxy = wsProxy;
 		this.in = in;
 		this.out = out;
+		this.name = name;
 	}
 
 	@Override
 	public void run() {
+		Thread.currentThread().setName(name);
+		
 		try {
 			byte[] buffer = new byte[1];
 			while (in.read(buffer) != -1) {
@@ -60,16 +77,15 @@ public class WebSocketListener implements Runnable {
 		} catch (InterruptedIOException e) {
 			// ignore this interruption, as it indicates a valid shutdown
 		} catch (Exception e) {
-			// if this thread has been interrupted, it was an intentional
-			// shutdown -> otherwise report error
-			
-			if (!Thread.currentThread().isInterrupted()) {
-				// shutdown was not intended from outside
-				// occurred error has to be taken seriously
-				logger.error("WebSocketListener quit reading due to: " + e.getMessage());
+			if (Thread.currentThread().isInterrupted()) {
+				// this thread has been interrupted -> it was an intentional shutdown
+			} else {
+				// shutdown was not intended
+				// error has to be taken seriously
+				logger.error("WebSocketListener quit reading due to: " + e.getClass() + ": " + e.getMessage());
 			}
 		} finally {
-			logger.error("shutdown listener");
+			isFinished = true;
 			wsProxy.shutdown();
 		}
 	}
@@ -94,5 +110,22 @@ public class WebSocketListener implements Runnable {
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Interrupts current thread,
+	 * stopping its execution.
+	 */
+	public void stop() {
+		Thread.currentThread().interrupt();
+	}
+
+	/**
+	 * Returns true if this listener stopped listening.
+	 * 
+	 * @return
+	 */
+	public boolean isFinished() {
+		return isFinished;
 	}
 }

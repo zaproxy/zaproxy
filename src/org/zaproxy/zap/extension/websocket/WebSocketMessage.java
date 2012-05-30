@@ -197,8 +197,39 @@ public abstract class WebSocketMessage {
 	 * Read further frame for non-control message.
 	 * 
 	 * @param in
-	 * @param flagsByte
+	 * @param frameHeader
 	 * @throws IOException
 	 */
-	public abstract void readContinuation(InputStream in, byte flagsByte) throws IOException;
+	public abstract void readContinuation(InputStream in, byte frameHeader) throws IOException;
+
+	/**
+	 * Returns a readable representation of the numeric opcode.
+	 * 
+	 * @param opcode
+	 * @return
+	 */
+	protected static String opcode2string(int opcode) {
+		switch (opcode) {
+		case OPCODE_BINARY:
+			return "BINARY";
+			
+		case OPCODE_CLOSE:
+			return "CLOSE";
+			
+		case OPCODE_CONTINUATION:
+			return "CONTINUATION";
+			
+		case OPCODE_PING:
+			return "PING";
+			
+		case OPCODE_PONG:
+			return "PONG";
+			
+		case OPCODE_TEXT:
+			return "TEXT";
+			
+		default:
+			return "UNKNOWN";
+		}
+	}
 }

@@ -4,10 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.parosproxy.paros.control.Control;
@@ -20,6 +23,8 @@ import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
  * for testing a valid WebSockets connection.
  */
 public class WebSocketsTest extends BaseZapProxyTest {
+
+	private static String ECHO_SERVER = "http://echo.websocket.org/?encoding=text";
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -39,7 +44,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 	    client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
 	    
 	    // create minimal HTTP request
-	    ZapGetMethod method = new ZapGetMethod("http://echo.websocket.org/?encoding=text");  
+	    ZapGetMethod method = new ZapGetMethod(ECHO_SERVER);  
 		method.addRequestHeader("Connection", "upgrade");
 		method.addRequestHeader("Upgrade", "websocket");
 		method.addRequestHeader("Sec-WebSocket-Version", "13");
@@ -85,7 +90,103 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		
 		properlyCloseWebSocket(socket);
 	}
-	
+
+	@Test
+	public void getAutobahnCaseCount() throws HttpException {
+		// use HTTP-client with custom connection manager
+		// that allows us to expose the SocketChannel
+		
+		HttpConnectionManagerParams connectionParams = new HttpConnectionManagerParams();
+		connectionParams.setTcpNoDelay(true);
+		connectionParams.setStaleCheckingEnabled(false);
+		connectionParams.setSoTimeout(0);
+		
+		ZapHttpConnectionManager connectionManager = new ZapHttpConnectionManager();
+		connectionManager.setParams(connectionParams);
+		
+		HttpClient client = new HttpClient(connectionManager);
+		client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
+
+		// create minimal HTTP handshake request
+		ZapGetMethod method = new ZapGetMethod("http://localhost:9000/getCaseCount");
+		method.addRequestHeader("Connection", "upgrade");
+		method.addRequestHeader("Upgrade", "websocket");
+		method.addRequestHeader("Sec-WebSocket-Version", "13");
+		method.addRequestHeader("Sec-WebSocket-Key", "5d5NazNjJ5hafSgFYJ7SOw==");
+		try {
+			client.executeMethod(method);
+		} catch (IOException e) {
+			assertTrue("executing HTTP method failed", false);
+		}
+
+		assertEquals(
+				"HTTP status code of WebSockets-handshake response should be 101.",
+				101, method.getStatusCode());
+
+		InputStream remoteInput = method.getUpgradedInputStream();
+
+		byte[] caseCountFrame = new byte[3];
+		int readBytes = 0;
+		
+		try {
+			readBytes = remoteInput.read(caseCountFrame);
+		} catch (IOException e) {
+			assertTrue("reading websocket frame failed", false);
+		}
+		
+		assertEquals("Expected some bytes in the first frame.", 3, readBytes);
+		assertEquals("First WebSocket frame is text message with the case count.", 0x1, caseCountFrame[0] & 0x0f);
+		
+		byte[] closeFrame = new byte[2];
+		readBytes = 0;
+		try {
+			readBytes = remoteInput.read(closeFrame);
+		} catch (IOException e) {
+			assertTrue("reading websocket frame failed", false);
+		}
+		
+		assertEquals("Expected some bytes in the second frame.", 2, readBytes);
+		
+		assertEquals("Second WebSocket frame is a close message.", 0x8, closeFrame[0] & 0x0f);
+		
+		// now I would send back a close frame and close the physical socket connection
+	}
+
+	@Test
+	public void doAutobahnTest() throws HttpException {
+		// use HTTP-client with custom connection manager
+		// that allows us to expose the SocketChannel
+		HttpClient client = new HttpClient(new ZapHttpConnectionManager());
+		client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
+
+		// create minimal HTTP handshake request
+		ZapGetMethod method = new ZapGetMethod(
+				"http://localhost:9000/runCase?case=1&agent=Proxy");
+		method.addRequestHeader("Connection", "upgrade");
+		method.addRequestHeader("Upgrade", "websocket");
+		method.addRequestHeader("Sec-WebSocket-Version", "13");
+		method.addRequestHeader("Sec-WebSocket-Key", "5d5NazNjJ5hafSgFYJ7SOw==");
+		try {
+			client.executeMethod(method);
+		} catch (IOException e) {
+			assertTrue("executing HTTP method failed", false);
+		}
+
+		assertEquals(
+				"HTTP status code of WebSockets-handshake response should be 101.",
+				101, method.getStatusCode());
+
+		Socket socket = method.getUpgradedConnection();
+
+		byte[] dst = new byte[20];
+		try {
+			socket.getInputStream().read(dst);
+		} catch (IOException e) {
+			assertTrue("reading websocket frame failed", false);
+		}
+		System.err.println(dst);
+	}
+
 //	/**
 //	 * Cannot use this SOCKS approach, as ZAP does not support SOCKS.
 //	 * So I had to use the HttpClient for that purpose. Another try

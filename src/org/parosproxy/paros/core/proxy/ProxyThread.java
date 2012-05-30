@@ -26,11 +26,14 @@
 // Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
-// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in method processHttp().
-// ZAP: 2012/05/11 Do not close connections in run() method, if boolean attribute keepSocketOpen is set to true.
+// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in
+// method processHttp().
+// ZAP: 2012/05/11 Do not close connections in final clause of run() method,
+// if boolean attribute keepSocketOpen is set to true.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -55,6 +58,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
+import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
@@ -315,11 +319,14 @@ class ProxyThread implements Runnable {
 			if (isWebSocketUpgrade(msg)) {
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
 				
-				Object outSocket = msg.getUserObject();
-				if (outSocket != null && outSocket instanceof Socket) {
+				ZapGetMethod handshakeMethod = (ZapGetMethod) msg.getUserObject();
+				if (handshakeMethod != null) {
+					Socket outSocket = handshakeMethod.getUpgradedConnection();
+					InputStream outReader = handshakeMethod.getUpgradedInputStream();
+					
 					keepSocketOpen = true;
 					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
-					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket, (Socket) outSocket);
+					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket, outSocket, outReader);
 				} else {
 					log.error("Was not able to retrieve upgraded outgoing channel.");
 				}
