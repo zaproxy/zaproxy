@@ -7,12 +7,17 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.common.DynamicLoader;
+
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
  * This class was created with sight on the WebSocketMessage class of the
  * Monsoon project.
  */
 public abstract class WebSocketMessage {
+	
+	private static final Logger logger = Logger.getLogger(WebSocketMessage.class);
 
 	/**
 	 * This list will contain all the original bytes for each frame.
@@ -176,12 +181,21 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Write all frames of current message to given channel.
+	 * Write all frames of this message to given channel
+	 * if and only if message is finished.
 	 * 
 	 * @param out
 	 * @throws IOException
 	 */
 	public abstract void forward(OutputStream out) throws IOException;
+
+	/**
+	 * Write current frame of this message to given channel.
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	public abstract void forwardCurrentFrame(OutputStream out) throws IOException;
 
 	/**
 	 * Returns true if all frames for this message
@@ -231,5 +245,51 @@ public abstract class WebSocketMessage {
 		default:
 			return "UNKNOWN";
 		}
+	}
+
+	/**
+	 * Helper method to decode payload into UTF-8 string.
+	 * 
+	 * @param payload
+	 * @return
+	 */
+	protected String decodePayload(byte[] payload) {
+		return decodePayload(payload, 0);
+	}
+
+	/**
+	 * Helper method to decode payload into UTF-8 string.
+	 * 
+	 * @param payload
+	 * @param offset
+	 * @return
+	 */
+	protected String decodePayload(byte[] payload, int offset) {
+		try {
+			int length = payload.length - offset;
+			
+			Utf8StringBuilder builder = new Utf8StringBuilder(length);
+			builder.append(payload, offset, length);
+			return builder.toString();
+			
+			// could also use CharsetDecoder
+//			Charset charset = Charset.forName("UTF-8");
+//			CharsetDecoder decoder = charset.newDecoder();
+//			decoder.decode();
+		} catch (IllegalArgumentException e) {
+			if (e.getMessage().equals("!utf8")) {
+				logger.error("payload is not UTF-8");
+			} else {
+				throw e;
+			}
+		} catch (IllegalStateException e) {
+			if (e.getMessage().equals("!utf8")) {
+				logger.error("payload is not UTF-8");
+			} else {
+				throw e;
+			}
+		}
+		
+		return "<invalid UTF-8>";
 	}
 }
