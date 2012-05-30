@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +27,7 @@ public abstract class WebSocketProxy {
 	}
 	
 	/**
-	 * Start in CONNECTING state and evolve over time.
+	 * State of this channel, start in CONNECTING state and evolve over time.
 	 */
 	protected State state = State.CONNECTING;
 
@@ -34,17 +36,32 @@ public abstract class WebSocketProxy {
 	 */
 	protected HashMap<InputStream, WebSocketMessage> currentMessages = new HashMap<InputStream, WebSocketMessage>();
 
+	/**
+	 * Socket for connection: Browser <-> ZAP
+	 */
 	protected final Socket localSocket;
+	
+	/**
+	 * Socket for connection: ZAP <-> Server
+	 */
 	protected final Socket remoteSocket;
-
-	private Thread localListenerThread;
-	private Thread remoteListenerThread;
 
 	/**
 	 * This name is used for debugging messages.
 	 * It helps to distinguish between several WebSocket connections.
 	 */
 	private String name;
+
+	private WebSocketListener remoteListener;
+	private WebSocketListener localListener;
+
+	/**
+	 * To ease identification of different WebSocket connections.
+	 */
+	private static AtomicInteger channelCounter = new AtomicInteger(0);
+
+	// TODO: remove it, just used to make sure that all sockets are closed correctly.
+	public static AtomicInteger listenerCount = new AtomicInteger(0);
 
 	/**
 	 * Factory method to create appropriate version.
@@ -91,18 +108,21 @@ public abstract class WebSocketProxy {
 	public WebSocketProxy(Socket localSocket, Socket remoteSocket) throws WebSocketException {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
-		
-		this.name = remoteSocket.getInetAddress().getHostName() + "/" + remoteSocket.getPort();
+
+		int channelCount = channelCounter.incrementAndGet();
+		this.name = remoteSocket.getInetAddress().getHostName() + "/" + remoteSocket.getPort() + " (channel#" + channelCount + ")";
 	}
 	
 	/**
 	 * Registers both channels (local & remote) with the given selector,
 	 * that fires on read.
+	 * @param listenerThreadPool 
+	 * @param remoteReader 
 	 * 
 	 * @param selector
 	 * @throws WebSocketException
 	 */
-	public void startListeners() throws WebSocketException {
+	public void startListeners(ExecutorService listenerThreadPool, InputStream remoteReader) throws WebSocketException {
 		if (localSocket.isClosed()) {
 			throw new WebSocketException("local socket is closed");
 		}
@@ -130,51 +150,86 @@ public abstract class WebSocketProxy {
 		if (remoteSocket.isClosed() || !remoteSocket.isConnected()) {
 			logger.debug("closed or not connected");
 		}
+		
 		logger.debug("Start listeners for channel '" + name + "'.");
-
-		WebSocketListener remoteListener = createListener(remoteSocket);
-		remoteListenerThread = new Thread(remoteListener, "WebSocket-'" + name + "'-remote");
-		remoteListenerThread.start();
-
-		WebSocketListener localListener = createListener(localSocket);
-		localListenerThread = new Thread(localListener, "WebSocket-'" + name + "'-local");
-		localListenerThread.start();
+		
+		remoteListener = createListener(remoteSocket, remoteReader, "remote-listener '" + name + "'");
+		listenerThreadPool.execute(remoteListener);
+		
+		localListener = createListener(localSocket, "local-listener '" + name + "'");
+		listenerThreadPool.execute(localListener);
+		listenerCount.incrementAndGet();
 	}
 	
-	public void shutdown() {
-		localListenerThread.interrupt();
-		remoteListenerThread.interrupt();
-		
+	/**
+	 * Create a listener object that encapsulates the input stream
+	 * from the given {@link Socket} and the output stream of the
+	 * opposite socket connection.
+	 * 
+	 * @param readEnd {@link Socket} from which is read.
+	 * @param reader InputStream from given {@link Socket}.
+	 * @param name Name of the listener, used for debugging messages.
+	 * @return
+	 * @throws WebSocketException
+	 */
+	private WebSocketListener createListener(Socket readEnd, InputStream reader, String name) throws WebSocketException {
 		try {
-			localSocket.close();
+			Socket writeEnd = getOppositeSocket(readEnd);
+			
+			return new WebSocketListener(this, reader, writeEnd.getOutputStream(), name);
 		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		
-		try {
-			remoteSocket.close();
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
+			throw new WebSocketException("Failed to start listener due to: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Configure the given channel to be non-blocking and
-	 * register for read events.
+	 * Create a listener object that encapsulates the input stream
+	 * from the given {@link Socket} and the output stream of the
+	 * opposite socket connection.
 	 * 
-	 * @param selector
-	 * @param channel
+	 * @param readEnd {@link Socket} from which is read.
+	 * @param name Name of the listener, used for debugging messages.
+	 * @return
 	 * @throws WebSocketException
 	 */
-	private WebSocketListener createListener(Socket readEnd) throws WebSocketException {
+	private WebSocketListener createListener(Socket readEnd, String name) throws WebSocketException {
 		try {
-			Socket writeEnd = getOppositeSocket(readEnd);
+			InputStream reader = new BufferedInputStream(readEnd.getInputStream());
 			
-			BufferedInputStream reader = new BufferedInputStream(readEnd.getInputStream());
-			
-			return new WebSocketListener(this, reader, writeEnd.getOutputStream());
+			return createListener(readEnd, reader, name);
 		} catch (IOException e) {
 			throw new WebSocketException("Failed to start listener due to: " + e.getMessage());
+		}
+	}
+
+	public void shutdown() {
+		if (localListener.isFinished() && remoteListener.isFinished()) {
+			logger.debug("Listener count is still: " + listenerCount.decrementAndGet());
+//			if (localListener != null) {
+//				localListener.stop();
+//			}
+//			
+//			if (remoteListener != null) {
+//				remoteListener.stop();
+//			}
+			
+			localListener.closeWriterStream();
+			localListener.closeReaderStream();
+
+			remoteListener.closeReaderStream();
+			remoteListener.closeWriterStream();
+				
+			try {
+				localSocket.close();
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			
+			try {
+				remoteSocket.close();
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -183,22 +238,22 @@ public abstract class WebSocketProxy {
 	 * 
 	 * @param in Here comes the frame.
 	 * @param out There should it be forwarded.
-	 * @param flagsByte The first byte of the frame, that was already read.
+	 * @param frameHeader The first byte of the frame, that was already read.
 	 * @throws IOException
 	 */
-	public void processRead(InputStream in, OutputStream out, byte flagsByte) throws IOException {
+	public void processRead(InputStream in, OutputStream out, byte frameHeader) throws IOException {
 		WebSocketMessage message = null;
 	
-		int opcode = (flagsByte & 0x0F); // last 4 bits represent opcode
+		int opcode = (frameHeader & 0x0F); // last 4 bits represent opcode
 		
-		logger.debug("Got WebSockets-frame: " + opcode + " from connection '" + name + "'");
+		logger.debug("Got WebSocket frame: " + opcode + " (" + WebSocketMessage.opcode2string(opcode) + ")");
 		
 		if (WebSocketMessage.isControl(opcode)) {
 			/*
 			 * control messages may interrupt a control message
 			 * control message are always just one frame long
 			 */
-			message = createWebSocketMessage(in, flagsByte);
+			message = createWebSocketMessage(in, frameHeader);
 			message.forward(out);
 		} else {
 			/*
@@ -207,9 +262,9 @@ public abstract class WebSocketProxy {
 			 */
 			if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
 				message = currentMessages.remove(in);
-				message.readContinuation(in, flagsByte);
+				message.readContinuation(in, frameHeader);
 			} else {
-				message = createWebSocketMessage(in, flagsByte);
+				message = createWebSocketMessage(in, frameHeader);
 			}
 			
 			if (message.isFinished()) {
@@ -224,11 +279,11 @@ public abstract class WebSocketProxy {
 	 * Returns a version specific WebSockets message.
 	 * 
 	 * @param in First byte of frame, containing FIN flag and opcode.
-	 * @param flagsByte
+	 * @param frameHeader
 	 * @return
 	 * @throws IOException 
 	 */
-	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte flagsByte) throws IOException;
+	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
 	 * Returns the opposed channel.

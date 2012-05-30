@@ -56,27 +56,27 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		/**
 		 * Creates a message with the first byte already read.
 		 * 
-		 * @param flagsByte
+		 * @param frameHeader
 		 * @throws IOException 
 		 */
-		public WebSocketMessageV13(InputStream in, byte flagsByte) throws IOException {			
+		public WebSocketMessageV13(InputStream in, byte frameHeader) throws IOException {			
 			// 4 least significant bits are opcode
-			opcode = (flagsByte & 0x0F);
+			opcode = (frameHeader & 0x0F);
 			
-			readFrame(in, flagsByte);
+			readFrame(in, frameHeader);
 		}
 
 		/**
 		 * Add next frame to this message. First byte already
-		 * given by parameter <em>flagsByte</em>.
+		 * given by parameter <em>frameHeader</em>.
 		 * 
 		 * @param in
-		 * @param flagsByte
+		 * @param frameHeader
 		 * @throws IOException
 		 */
 		@Override
-		public void readContinuation(InputStream in, byte flagsByte) throws IOException {			
-			readFrame(in, flagsByte);
+		public void readContinuation(InputStream in, byte frameHeader) throws IOException {			
+			readFrame(in, frameHeader);
 		}
 
 		/**
@@ -84,19 +84,16 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * this method reads from the second byte until the end of the frame.
 		 * 
 		 * @param in
-		 * @param flagsByte
+		 * @param frameHeader
 		 * @throws IOException
 		 */
-		public void readFrame(InputStream in, byte flagsByte) throws IOException {
+		public void readFrame(InputStream in, byte frameHeader) throws IOException {
 			// most significant bit is FIN flag & 0x1
-			isFinished = (flagsByte >> 7 & 0x1) == 1;
+			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
 			// currentFrame buffer is filled by read()
 			currentFrame = ByteBuffer.allocate(4096);
-			// TODO: what if bigger, reallocate
-			// TODO: what if less at the end? free
-			currentFrame.put(flagsByte);
-			frames.add(currentFrame);
+			currentFrame.put(frameHeader);
 
 			byte payloadByte = read(in);
 			isMasked = (payloadByte >> 7 & 0x1) == 1; // most significant bit is MASK flag
@@ -161,9 +158,22 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				logger.info("got binary payload");				
 			} else {
 				// ignore control messages
+				if (payload.length > 2) {
+					// process close message
+					Utf8StringBuilder utf8 = new Utf8StringBuilder();
+					utf8.append(payload, 2, payload.length - 2);
+					logger.info("got control payload: " + utf8.toString());
+				}
+				
+				if (payload.length > 0) {
+					// shift previous bits left and add next byte
+					int closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
+					logger.info("close code is: " + closeCode);
+				}
 			}
 			
 			currentFrame.flip();
+			frames.add(currentFrame);
 		}
 
 		/**
@@ -226,6 +236,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		@Override
 		public void forward(OutputStream out) throws IOException {
+			if (frames.size() > 1) {
+				System.out.println("");
+			}
 			for (ByteBuffer frame : frames) {
 				byte[] buffer = new byte[frame.limit()];
 				frame.get(buffer);
@@ -292,7 +305,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	}
 
 	@Override
-	protected WebSocketMessage createWebSocketMessage(InputStream in, byte flagsByte) throws IOException {
-		return new WebSocketMessageV13(in, flagsByte);
+	protected WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException {
+		return new WebSocketMessageV13(in, frameHeader);
 	}
 }

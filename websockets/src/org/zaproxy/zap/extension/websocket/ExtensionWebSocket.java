@@ -1,9 +1,12 @@
 package org.zaproxy.zap.extension.websocket;
 
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -21,6 +24,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	public static final String NAME = "ExtensionWebSocket";
 	    
 	private static Logger log = Logger.getLogger(ExtensionWebSocket.class);
+
+	/**
+	 * Used to shorten the time, a listener is started on a WebSocket channel.
+	 */
+	private ExecutorService listenerThreadPool;
 	
 //	/**
 //	 * This list contains all established WebSocket channels.
@@ -33,6 +41,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	public ExtensionWebSocket() {
 		super();
 		setName(NAME);
+		listenerThreadPool = Executors.newCachedThreadPool();
 	}
 	
 	@Override
@@ -51,8 +60,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * @param handShakeResponse Response header of HTTP-based handshake.
 	 * @param localSocket Current connection channel from the browser to ZAP.
 	 * @param remoteSocket Current connection channel from ZAP to the server.
+	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
-	public void addWebSocketsChannel(HttpResponseHeader handShakeResponse, Socket localSocket, Socket remoteSocket) {
+	public void addWebSocketsChannel(HttpResponseHeader handShakeResponse, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
 		log.debug("Got WebSockets channel from " + localSocket.getInetAddress() + 
 				" port " + localSocket.getPort() +
 				" to " + remoteSocket.getInetAddress() + 
@@ -72,7 +82,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		WebSocketProxy ws = null;
 		try {
 			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
-			ws.startListeners();
+			ws.startListeners(listenerThreadPool, remoteReader);
 //			wsProxies.add(ws);
 		} catch (WebSocketException e) {
 			log.error("Adding WebSockets channel failed due to: " + e.getMessage());
