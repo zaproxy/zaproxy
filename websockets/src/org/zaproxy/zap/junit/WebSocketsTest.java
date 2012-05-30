@@ -91,7 +91,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		properlyCloseWebSocket(socket);
 	}
 
-	@Test
+//	@Test
 	public void getAutobahnCaseCount() throws HttpException {
 		// use HTTP-client with custom connection manager
 		// that allows us to expose the SocketChannel
@@ -108,7 +108,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		client.getHostConfiguration().setProxy(PROXY_HOST, PROXY_PORT);
 
 		// create minimal HTTP handshake request
-		ZapGetMethod method = new ZapGetMethod("http://localhost:9000/getCaseCount");
+		ZapGetMethod method = new ZapGetMethod("http://localhost:9001/getCaseCount");
 		method.addRequestHeader("Connection", "upgrade");
 		method.addRequestHeader("Upgrade", "websocket");
 		method.addRequestHeader("Sec-WebSocket-Version", "13");
@@ -152,7 +152,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		// now I would send back a close frame and close the physical socket connection
 	}
 
-	@Test
+//	@Test
 	public void doAutobahnTest() throws HttpException {
 		// use HTTP-client with custom connection manager
 		// that allows us to expose the SocketChannel
@@ -161,7 +161,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 
 		// create minimal HTTP handshake request
 		ZapGetMethod method = new ZapGetMethod(
-				"http://localhost:9000/runCase?case=1&agent=Proxy");
+				"http://localhost:9001/runCase?case=1&agent=Proxy");
 		method.addRequestHeader("Connection", "upgrade");
 		method.addRequestHeader("Upgrade", "websocket");
 		method.addRequestHeader("Sec-WebSocket-Version", "13");
