@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 
@@ -76,16 +77,29 @@ public class WebSocketListener implements Runnable {
 			}
 		} catch (InterruptedIOException e) {
 			// ignore this interruption, as it indicates a valid shutdown
-		} catch (Exception e) {
-			if (Thread.currentThread().isInterrupted()) {
-				// this thread has been interrupted -> it was an intentional shutdown
-			} else {
-				// shutdown was not intended
-				// error has to be taken seriously
-				logger.error("WebSocketListener quit reading due to: " + e.getClass() + ": " + e.getMessage());
-			}
+//		} catch (Exception e) {
+//			if (Thread.currentThread().isInterrupted()) {
+//				// this thread has been interrupted -> it was an intentional shutdown
+//				// does not work as intended
+//			} else {
+//				// shutdown was not intended
+//				// error has to be taken seriously
+//			}
+		} catch (SocketException e) {
+			// no more reading possible
+		} catch (IOException e) {
+			// no more reading possible
 		} finally {
+			// mark as finished
 			isFinished = true;
+			
+			// close input stream, as no more bytes can be read
+			closeReaderStream();
+			
+			// no more output can be written
+			closeWriterStream();
+			
+			// close the other side too
 			wsProxy.shutdown();
 		}
 	}
@@ -93,7 +107,7 @@ public class WebSocketListener implements Runnable {
 	/**
 	 * Properly close incoming stream.
 	 */
-	public void closeReaderStream() {
+	private void closeReaderStream() {
 		try {
 			in.close();
 		} catch (IOException e) {
@@ -104,7 +118,7 @@ public class WebSocketListener implements Runnable {
 	/**
 	 * Properly close outgoing stream.
 	 */
-	public void closeWriterStream() {
+	private void closeWriterStream() {
 		try {
 			out.close();
 		} catch (IOException e) {

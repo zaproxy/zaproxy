@@ -60,9 +60,6 @@ public abstract class WebSocketProxy {
 	 */
 	private static AtomicInteger channelCounter = new AtomicInteger(0);
 
-	// TODO: remove it, just used to make sure that all sockets are closed correctly.
-	public static AtomicInteger listenerCount = new AtomicInteger(0);
-
 	/**
 	 * Factory method to create appropriate version.
 	 * 
@@ -153,12 +150,11 @@ public abstract class WebSocketProxy {
 		
 		logger.debug("Start listeners for channel '" + name + "'.");
 		
-		remoteListener = createListener(remoteSocket, remoteReader, "remote-listener '" + name + "'");
+		remoteListener = createListener(remoteSocket, remoteReader, "ZAP-WS-Listener (remote) '" + name + "'");
 		listenerThreadPool.execute(remoteListener);
 		
-		localListener = createListener(localSocket, "local-listener '" + name + "'");
+		localListener = createListener(localSocket, "ZAP-WS-Listener (local) '" + name + "'");
 		listenerThreadPool.execute(localListener);
-		listenerCount.incrementAndGet();
 	}
 	
 	/**
@@ -202,23 +198,24 @@ public abstract class WebSocketProxy {
 		}
 	}
 
-	public void shutdown() {
-		if (localListener.isFinished() && remoteListener.isFinished()) {
-			logger.debug("Listener count is still: " + listenerCount.decrementAndGet());
-//			if (localListener != null) {
-//				localListener.stop();
-//			}
-//			
-//			if (remoteListener != null) {
-//				remoteListener.stop();
-//			}
+	public void shutdown() {		
+		int closedCount = 0;
+		
+		if (localListener != null && !localListener.isFinished()) {
+			localListener.stop();
+		} else {
+			closedCount++;
+		}
+		
+		if (remoteListener != null && !remoteListener.isFinished()) {
+			remoteListener.stop();
+		} else {
+			closedCount++;
+		}
+		
+		if (closedCount == 2) {
+			logger.debug("close sockets");
 			
-			localListener.closeWriterStream();
-			localListener.closeReaderStream();
-
-			remoteListener.closeReaderStream();
-			remoteListener.closeWriterStream();
-				
 			try {
 				localSocket.close();
 			} catch (IOException e) {
@@ -234,7 +231,7 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Read one or more frames from given channel.
+	 * Reads one frame from given input stream and forwards it.
 	 * 
 	 * @param in Here comes the frame.
 	 * @param out There should it be forwarded.
@@ -246,7 +243,7 @@ public abstract class WebSocketProxy {
 	
 		int opcode = (frameHeader & 0x0F); // last 4 bits represent opcode
 		
-		logger.debug("Got WebSocket frame: " + opcode + " (" + WebSocketMessage.opcode2string(opcode) + ")");
+		logger.debug("Process WebSocket frame: " + opcode + " (" + WebSocketMessage.opcode2string(opcode) + ")");
 		
 		if (WebSocketMessage.isControl(opcode)) {
 			/*
@@ -254,24 +251,30 @@ public abstract class WebSocketProxy {
 			 * control message are always just one frame long
 			 */
 			message = createWebSocketMessage(in, frameHeader);
-			message.forward(out);
+			message.forwardCurrentFrame(out);
 		} else {
 			/*
-			 * non-control messages may be split across several frames
-			 * temporarily buffer non-finished messages
+			 * Non-control messages may be split across several frames.
+			 * 
+			 * It may happen, that a continuation frame is coming along,
+			 * without a previous frame to continue.
 			 */
-			if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
+			if (opcode == WebSocketMessage.OPCODE_CONTINUATION && currentMessages.containsKey(in)) {
+				// continue buffered message
 				message = currentMessages.remove(in);
 				message.readContinuation(in, frameHeader);
 			} else {
 				message = createWebSocketMessage(in, frameHeader);
 			}
 			
-			if (message.isFinished()) {
-				message.forward(out);
-			} else {
+			if (!message.isFinished()) {
+				// temporarily buffer non-finished messages
 				currentMessages.put(in, message);
 			}
+			
+			// do not buffer frames until message is finished,
+			// as messages might have several MegaBytes!
+			message.forwardCurrentFrame(out);
 		}
 	}
 

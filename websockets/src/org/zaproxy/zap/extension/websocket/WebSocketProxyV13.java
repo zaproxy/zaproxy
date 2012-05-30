@@ -14,10 +14,10 @@ import org.apache.log4j.Logger;
  */
 public class WebSocketProxyV13 extends WebSocketProxy {
 
-	private static Logger logger = Logger.getLogger(WebSocketProxyV13.class);
+	private static final Logger logger = Logger.getLogger(WebSocketProxyV13.class);
 
 	/**
-	 * @see WebSocketProxy
+	 * @see WebSocketProxy#WebSocketProxy(Socket, Socket)
 	 */
 	public WebSocketProxyV13(Socket localSocket,
 			Socket remoteSocket) throws WebSocketException {
@@ -28,6 +28,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	 * Version 13 specific WebSockets message.
 	 */
 	protected class WebSocketMessageV13 extends WebSocketMessage {
+		
 		private ByteBuffer currentFrame;
 
 		private boolean isMasked;
@@ -36,7 +37,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private int currentMaskByteIndex = 0;
 
 		private int payloadLength;
-
 
 		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
@@ -151,31 +151,39 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			if (isText(opcode)) {
-				Utf8StringBuilder utf8 = new Utf8StringBuilder();
-				utf8.append(payload, 0, payload.length);
-				logger.info("got payload: " + utf8.toString());
+//				Charset charset = Charset.forName("UTF-8");
+//				CharsetDecoder decoder = charset.newDecoder();
+//				CharBuffer readablePayload = CharBuffer.allocate(payload.length);
+//				CoderResult result = decoder.decode(ByteBuffer.wrap(payload, 0, payload.length), readablePayload, true);
+				
+				if (0 == payload.length) {
+					logger.debug("got empty payload");
+				} else if (payload.length < 10000) {
+					logger.debug("got payload: '" + decodePayload(payload) + "'");
+				} else {
+					logger.debug("got huge payload, do not print it"); // + decodePayload(payload, 0, 100) may result in non-finished string
+				}
 			} else if (isBinary(opcode)) {
 				logger.info("got binary payload");				
 			} else {
 				// ignore control messages
-				if (payload.length > 2) {
-					// process close message
-					Utf8StringBuilder utf8 = new Utf8StringBuilder();
-					utf8.append(payload, 2, payload.length - 2);
-					logger.info("got control payload: " + utf8.toString());
-				}
 				
-				if (payload.length > 0) {
+				if (payload.length > 1) {
 					// shift previous bits left and add next byte
 					int closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
-					logger.info("close code is: " + closeCode);
+					logger.debug("close code is: " + closeCode);
+				}
+				
+				if (payload.length > 2) {
+					// process close message
+					logger.debug("got control-payload: " + decodePayload(payload, 2));
 				}
 			}
 			
 			currentFrame.flip();
 			frames.add(currentFrame);
 		}
-
+		
 		/**
 		 * Read only one byte from input stream.
 		 * 
@@ -201,7 +209,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			
 			int bytesRead = 0;
 			do {
-				bytesRead += in.read(buffer);
+				bytesRead += in.read(buffer, bytesRead, length - bytesRead);
 			} while (length != bytesRead);
 			
 			int freeSpace = currentFrame.capacity() - currentFrame.position();
@@ -236,16 +244,32 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		@Override
 		public void forward(OutputStream out) throws IOException {
-			if (frames.size() > 1) {
-				System.out.println("");
+			// does only forward finished messages
+			if (!isFinished) {
+				return;
 			}
+			
 			for (ByteBuffer frame : frames) {
-				byte[] buffer = new byte[frame.limit()];
-				frame.get(buffer);
-				logger.debug("forward message");
-				out.write(buffer);
-				out.flush();
+				forwardFrame(frame, out);
 			}
+		}
+
+		@Override
+		public void forwardCurrentFrame(OutputStream out) throws IOException {
+			logger.debug("forward current frame");
+			forwardFrame(currentFrame, out);
+		}
+		
+		/**
+		 * Helper method to forward frames.
+		 * @param frame
+		 * @param out
+		 */
+		private void forwardFrame(ByteBuffer frame, OutputStream out) throws IOException {
+			byte[] buffer = new byte[frame.limit()];
+			frame.get(buffer);
+			out.write(buffer);
+			out.flush();
 		}
 
 //		protected int writeFrame(int opcode, ByteBuffer buf, boolean blocking, boolean fin) throws IOException {
