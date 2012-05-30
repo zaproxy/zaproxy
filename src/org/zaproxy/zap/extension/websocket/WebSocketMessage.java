@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.common.DynamicLoader;
 
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
