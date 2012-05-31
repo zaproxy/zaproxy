@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2010 psiinon@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.BufferedInputStream;
@@ -6,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -14,13 +34,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 /**
- * This class represents two WebSocket channels.
- * A lot of code is reused from the Monsoon project at http://code.google.com/p/monsoon/.
- * It is built around Java's NIO features, which takes advantage of non-blocking I/O facilities.
+ * This class represents two WebSocket channels. Code is inspired by the Monsoon
+ * project (http://code.google.com/p/monsoon/).
+ * 
+ * It is not based on Java's NIO features as with Monsoon, as the underlying
+ * Paros Proxy is based on Sockets and I got huge problems when adding SSL
+ * support when switching from {@link Socket} to {@link SocketChannel} in this
+ * class.
+ * 
+ * Therefore each instance has got two threads that listen on each side for new
+ * messages (blocking reads).
  */
 public abstract class WebSocketProxy {
 	
-	private static Logger logger = Logger.getLogger(WebSocketProxy.class);
+	private static final Logger logger = Logger.getLogger(WebSocketProxy.class);
 
 	public enum State { // ready state
 		CONNECTING, OPEN, CLOSING, CLOSED;
@@ -47,36 +74,42 @@ public abstract class WebSocketProxy {
 	protected final Socket remoteSocket;
 
 	/**
-	 * This name is used for debugging messages.
-	 * It helps to distinguish between several WebSocket connections.
-	 */
-	private String name;
-
-	private WebSocketListener remoteListener;
-	private WebSocketListener localListener;
-
-	/**
 	 * To ease identification of different WebSocket connections.
 	 */
 	private static AtomicInteger channelCounter = new AtomicInteger(0);
 
 	/**
+	 * This name is used for debugging messages.
+	 * It helps to distinguish between several WebSocket connections.
+	 */
+	private final String name;
+
+	/**
+	 * Listens for messages from the server.
+	 */
+	private WebSocketListener remoteListener;
+	
+	/**
+	 * Listens for messages from the browser.
+	 */
+	private WebSocketListener localListener;
+
+	/**
 	 * Factory method to create appropriate version.
 	 * 
-	 * @param version Protocol version. Try 13 if you do not know.
+	 * @param version Protocol version.
 	 * @param localSocket Channel from browser to ZAP.
-	 * @param remoteSocket Channel from ZAP to Internet.
+	 * @param remoteSocket Channel from ZAP to server.
 	 * @param subprotocol Provide null if there is no subprotocol specified.
-	 * @param extensions Map of negotiated extensions, null or empty.
+	 * @param extensions Map of negotiated extensions, null or empty list.
 	 * @throws WebSocketException
 	 * @return Version specific proxy object.
 	 */
-	public static WebSocketProxy create(String version,
-			Socket localSocket, Socket remoteSocket,
-			String subprotocol, Map<String, String> extensions) throws WebSocketException {
+	public static WebSocketProxy create(String version, Socket localSocket, Socket remoteSocket, String subprotocol, Map<String, String> extensions) throws WebSocketException {
 		logger.debug("Create WebSockets proxy for version '" + version + "'.");
 		WebSocketProxy wsProxy = null;
 		
+		// TODO: provide a registry for WebSocketProxy versions
 		if (version.equals("13")) {
 			wsProxy = new WebSocketProxyV13(localSocket, remoteSocket);
 			
@@ -88,7 +121,8 @@ public abstract class WebSocketProxy {
 				// TODO: do something with that extensions
 			}
 		} else {
-			throw new WebSocketException("Invalid version '" + version + "' provided in factory method!");
+			throw new WebSocketException("Unsupported Sec-WebSocket-Version '"
+					+ version + "' provided in factory method!");
 		}
 		
 		return wsProxy;
@@ -106,28 +140,31 @@ public abstract class WebSocketProxy {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
 
+		// create unique identifier for this WebSocket connection
 		int channelCount = channelCounter.incrementAndGet();
-		this.name = remoteSocket.getInetAddress().getHostName() + "/" + remoteSocket.getPort() + " (channel#" + channelCount + ")";
+		this.name = remoteSocket.getInetAddress().getHostName() + "/"
+				+ remoteSocket.getPort() + " (channel#" + channelCount + ")";
 	}
 	
 	/**
 	 * Registers both channels (local & remote) with the given selector,
 	 * that fires on read.
-	 * @param listenerThreadPool 
-	 * @param remoteReader 
 	 * 
-	 * @param selector
+	 * @param listenerThreadPool Thread pool is provided by {@link ExtensionWebSocket}.
+	 * @param remoteReader This {@link InputStream} that contained the handshake response.
 	 * @throws WebSocketException
 	 */
 	public void startListeners(ExecutorService listenerThreadPool, InputStream remoteReader) throws WebSocketException {
-		if (localSocket.isClosed()) {
-			throw new WebSocketException("local socket is closed");
+		// check if both sockets are open, otherwise no need for listening
+		if (localSocket.isClosed() || !localSocket.isConnected()) {
+			throw new WebSocketException("local socket is closed or not connected");
 		}
 		
-		if (remoteSocket.isClosed()) {
-			throw new WebSocketException("remote socket is closed");
+		if (remoteSocket.isClosed() || !remoteSocket.isConnected()) {
+			throw new WebSocketException("remote socket is closed or not connected");
 		}
 		
+		// ensure right settings are used for our sockets
 		try {
 			localSocket.setSoTimeout(0); // infinite timeout
 			localSocket.setTcpNoDelay(true);
@@ -140,21 +177,22 @@ public abstract class WebSocketProxy {
 			throw new WebSocketException(e);
 		}
 		
-		if (localSocket.isClosed() || !localSocket.isConnected()) {
-			logger.debug("closed or not connected");
-		}
-		
-		if (remoteSocket.isClosed() || !remoteSocket.isConnected()) {
-			logger.debug("closed or not connected");
-		}
-		
 		logger.debug("Start listeners for channel '" + name + "'.");
 		
-		remoteListener = createListener(remoteSocket, remoteReader, "ZAP-WS-Listener (remote) '" + name + "'");
-		listenerThreadPool.execute(remoteListener);
+		try {
+			// use existing InputStream for remote socket,
+			// as it may already contain first WebSocket-frames
+			remoteListener = createListener(remoteSocket, remoteReader, "remote");
+			localListener = createListener(localSocket, "local");
+		} catch (WebSocketException e) {
+			shutdown();
+			throw e;
+		}
 		
-		localListener = createListener(localSocket, "ZAP-WS-Listener (local) '" + name + "'");
+		listenerThreadPool.execute(remoteListener);
 		listenerThreadPool.execute(localListener);
+		
+		state = State.OPEN;
 	}
 	
 	/**
@@ -164,15 +202,16 @@ public abstract class WebSocketProxy {
 	 * 
 	 * @param readEnd {@link Socket} from which is read.
 	 * @param reader InputStream from given {@link Socket}.
-	 * @param name Name of the listener, used for debugging messages.
+	 * @param side Used to identify if local or remote.
 	 * @return
 	 * @throws WebSocketException
 	 */
-	private WebSocketListener createListener(Socket readEnd, InputStream reader, String name) throws WebSocketException {
+	private WebSocketListener createListener(Socket readEnd, InputStream reader, String side) throws WebSocketException {
 		try {
-			Socket writeEnd = getOppositeSocket(readEnd);
+			OutputStream writer = getOppositeSocket(readEnd).getOutputStream();
+			String name = "ZAP-WS-Listener (" + side + ") '" + this.name + "'";
 			
-			return new WebSocketListener(this, reader, writeEnd.getOutputStream(), name);
+			return new WebSocketListener(this, reader, writer, name);
 		} catch (IOException e) {
 			throw new WebSocketException("Failed to start listener due to: " + e.getMessage());
 		}
@@ -184,21 +223,26 @@ public abstract class WebSocketProxy {
 	 * opposite socket connection.
 	 * 
 	 * @param readEnd {@link Socket} from which is read.
-	 * @param name Name of the listener, used for debugging messages.
+	 * @param side Used to identify if local or remote.
 	 * @return
 	 * @throws WebSocketException
 	 */
-	private WebSocketListener createListener(Socket readEnd, String name) throws WebSocketException {
+	private WebSocketListener createListener(Socket readEnd, String side) throws WebSocketException {
 		try {
 			InputStream reader = new BufferedInputStream(readEnd.getInputStream());
 			
-			return createListener(readEnd, reader, name);
+			return createListener(readEnd, reader, side);
 		} catch (IOException e) {
 			throw new WebSocketException("Failed to start listener due to: " + e.getMessage());
 		}
 	}
 
-	public void shutdown() {		
+	/**
+	 * Stop & close all resources, i.e.: threads, streams & sockets
+	 */
+	public void shutdown() {
+		state = State.CLOSING;
+		
 		int closedCount = 0;
 		
 		if (localListener != null && !localListener.isFinished()) {
@@ -212,9 +256,12 @@ public abstract class WebSocketProxy {
 		} else {
 			closedCount++;
 		}
-		
+
+		// after stopping any listener, that was still running this method
+		// will be called again by him, which ensures a closedCount of 2
+		// and subsequent closing sockets
 		if (closedCount == 2) {
-			logger.debug("close sockets");
+			logger.debug("close WebSockets");
 			
 			try {
 				localSocket.close();
@@ -227,11 +274,14 @@ public abstract class WebSocketProxy {
 			} catch (IOException e) {
 				logger.warn(e.getMessage(), e);
 			}
+			
+			state = State.CLOSED;
 		}
 	}
 
 	/**
-	 * Reads one frame from given input stream and forwards it.
+	 * Read one frame from given input stream
+	 * and forward it to given output stream.
 	 * 
 	 * @param in Here comes the frame.
 	 * @param out There should it be forwarded.
@@ -242,60 +292,61 @@ public abstract class WebSocketProxy {
 		WebSocketMessage message = null;
 	
 		int opcode = (frameHeader & 0x0F); // last 4 bits represent opcode
+		String readableOpcode = WebSocketMessage.opcode2string(opcode);
 		
-		logger.debug("Process WebSocket frame: " + opcode + " (" + WebSocketMessage.opcode2string(opcode) + ")");
+		logger.debug("Process WebSocket frame: " + opcode + " (" + readableOpcode + ")");
 		
 		if (WebSocketMessage.isControl(opcode)) {
-			/*
-			 * control messages may interrupt a control message
-			 * control message are always just one frame long
-			 */
+			// control messages may interrupt non-control messages
+			// control messages are ALWAYS just one frame long
 			message = createWebSocketMessage(in, frameHeader);
-			message.forwardCurrentFrame(out);
 		} else {
-			/*
-			 * Non-control messages may be split across several frames.
-			 * 
-			 * It may happen, that a continuation frame is coming along,
-			 * without a previous frame to continue.
-			 */
-			if (opcode == WebSocketMessage.OPCODE_CONTINUATION && currentMessages.containsKey(in)) {
-				// continue buffered message
+			// non-control messages may be split across several frames
+			
+			// it may happen, that a continuation frame is coming along,
+			// without a previous frame to continue.
+
+			// assume that there is only one message to be continued
+			
+			boolean shouldContinueMessage = currentMessages.containsKey(in);
+			if (opcode == WebSocketMessage.OPCODE_CONTINUATION && shouldContinueMessage) {
+				// continue temporarily buffered message
 				message = currentMessages.remove(in);
 				message.readContinuation(in, frameHeader);
 			} else {
+				// another non-control frame
 				message = createWebSocketMessage(in, frameHeader);
 			}
 			
 			if (!message.isFinished()) {
-				// temporarily buffer non-finished messages
+				// temporarily buffer unfinished message
 				currentMessages.put(in, message);
 			}
-			
-			// do not buffer frames until message is finished,
-			// as messages might have several MegaBytes!
-			message.forwardCurrentFrame(out);
 		}
+		
+		// do not buffer frames until message is finished,
+		// as messages might have several MegaBytes!
+		message.forwardCurrentFrame(out);
 	}
 
 	/**
 	 * Returns a version specific WebSockets message.
 	 * 
-	 * @param in First byte of frame, containing FIN flag and opcode.
-	 * @param frameHeader
+	 * @param in {@link InputStream} to read bytes from.
+	 * @param frameHeader First byte of frame, containing FIN flag and opcode.
 	 * @return
 	 * @throws IOException 
 	 */
 	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
-	 * Returns the opposed channel.
+	 * Returns the opposed socket.
 	 * 
 	 * @param socket
 	 * @return
 	 */
 	protected Socket getOppositeSocket(Socket socket) {
-		if (socket.equals(localSocket)) {
+		if (socket == localSocket) {
 			return remoteSocket;
 		} else {
 			return localSocket;

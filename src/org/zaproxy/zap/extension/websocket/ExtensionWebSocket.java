@@ -1,8 +1,26 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Copyright 2010 psiinon@gmail.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.InputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -11,7 +29,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
-import org.parosproxy.paros.network.HttpResponseHeader;
+import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * This extension adapter takes over after finishing
@@ -23,18 +41,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	
 	public static final String NAME = "ExtensionWebSocket";
 	    
-	private static Logger log = Logger.getLogger(ExtensionWebSocket.class);
+	private static final Logger log = Logger.getLogger(ExtensionWebSocket.class);
 
 	/**
 	 * Used to shorten the time, a listener is started on a WebSocket channel.
 	 */
-	private ExecutorService listenerThreadPool;
+	private final ExecutorService listenerThreadPool;
 	
-//	/**
-//	 * This list contains all established WebSocket channels.
-//	 */
-//	private static CopyOnWriteArrayList<WebSocketProxy> wsProxies = new CopyOnWriteArrayList<WebSocketProxy>();
-
 	/**
 	 * Constructor initializes this class.
 	 */
@@ -55,35 +68,29 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	}
 
 	/**
-	 * Add open channel to this extension after handshake has been completed.
+	 * Add an open channel to this extension after
+	 * HTTP handshake has been completed.
 	 * 
 	 * @param handShakeResponse Response header of HTTP-based handshake.
 	 * @param localSocket Current connection channel from the browser to ZAP.
 	 * @param remoteSocket Current connection channel from ZAP to the server.
 	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
-	public void addWebSocketsChannel(HttpResponseHeader handShakeResponse, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
-		log.debug("Got WebSockets channel from " + localSocket.getInetAddress() + 
-				" port " + localSocket.getPort() +
-				" to " + remoteSocket.getInetAddress() + 
-				" port " + remoteSocket.getPort());
-		try {
-			localSocket.setSoTimeout(0);
-			remoteSocket.setSoTimeout(0);
-		} catch (SocketException e) {
-			log.error("failed to set timeout to infinity for WebSocket-sockets");
-		}
+	public void addWebSocketsChannel(HttpMessage msg, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
+		log.debug("Got WebSockets channel from " + localSocket.getInetAddress()
+				+ " port " + localSocket.getPort() + " to "
+				+ remoteSocket.getInetAddress() + " port "
+				+ remoteSocket.getPort());
 		
-		// parse HTTP handshake response
-		Map<String, String> wsExtensions = parseWebSocketExtensions(handShakeResponse);
-		String wsProtocol = parseWebSocketSubProtocol(handShakeResponse);
-		String wsVersion = parseWebSocketVersion(handShakeResponse);
+		// parse HTTP handshake
+		Map<String, String> wsExtensions = parseWebSocketExtensions(msg);
+		String wsProtocol = parseWebSocketSubProtocol(msg);
+		String wsVersion = parseWebSocketVersion(msg);
 
 		WebSocketProxy ws = null;
 		try {
 			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
 			ws.startListeners(listenerThreadPool, remoteReader);
-//			wsProxies.add(ws);
 		} catch (WebSocketException e) {
 			log.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
@@ -99,11 +106,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * The <em>Sec-WebSocket-Extensions</em> header is only allowed to appear
 	 * once in the HTTP response (but several times in the HTTP request).
 	 * 
-	 * @param handShakeResponse
+	 * @param msg
 	 * @return Map with extension name and parameter string.
 	 */
-	private Map<String, String> parseWebSocketExtensions(HttpResponseHeader handShakeResponse) {
-		String extensionHeader = handShakeResponse.getHeader("sec-websocket-extensions");
+	private Map<String, String> parseWebSocketExtensions(HttpMessage msg) {
+		String extensionHeader = msg.getResponseHeader().getHeader("sec-websocket-extensions");
 
 		if (extensionHeader == null) {
 			return null;
@@ -155,11 +162,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * A server that speaks multiple sub-protocols has to make sure it selects
 	 * one based on the client's handshake and specifies it in its handshake.
 	 * 
-	 * @param handShakeResponse
+	 * @param msg
 	 * @return Name of negotiated sub-protocol or null.
 	 */
-	private String parseWebSocketSubProtocol(HttpResponseHeader handShakeResponse) {
-		String subProtocol = handShakeResponse.getHeader("sec-websocket-protocol");
+	private String parseWebSocketSubProtocol(HttpMessage msg) {
+		String subProtocol = msg.getResponseHeader().getHeader("sec-websocket-protocol");
 		return subProtocol;
 	}
 
@@ -168,16 +175,21 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * a number. Therefore I return a string. Use the version to choose
 	 * the appropriate processing class.
 	 * 
-	 * @param handShakeResponse
+	 * @param msg
 	 * @return Version of the WebSockets channel, defining the protocol.
 	 */
-	private String parseWebSocketVersion(HttpResponseHeader handShakeResponse) {
-		String version = handShakeResponse.getHeader("sec-websocket-version");
+	private String parseWebSocketVersion(HttpMessage msg) {
+		String version = msg.getResponseHeader().getHeader("sec-websocket-version");
 		
 		if (version == null) {
-			// default to version 13 if non is given, for whatever reason
-			log.debug("No Sec-Websocket-Version header was provided - try version 13");
-			version = "13";
+			// check for requested WebSockets version
+			version = msg.getRequestHeader().getHeader("sec-websocket-version");
+			
+			if (version == null) {
+				// default to version 13 if non is given, for whatever reason
+				log.debug("No Sec-Websocket-Version header was provided - try version 13");
+				version = "13";
+			}
 		}
 		
 		return version;

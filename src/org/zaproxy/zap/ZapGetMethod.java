@@ -1,6 +1,24 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2010 psiinon@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -13,11 +31,14 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Do not ignore HTTP status code of 101 and keep {@link Socket} &
+ * {@link InputStream} open, as 101 states a protocol switch.
+ * 
+ * Is essential for the WebSockets extension.
+ */
 public class ZapGetMethod extends GetMethod implements HttpMethod
 {
-    /**
-     * Log object for this class.
-     */
     private static final Log LOG = LogFactory.getLog(ZapGetMethod.class);
     
     /**
@@ -26,6 +47,10 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
      */
 	private Socket upgradedSocket;
 
+	/**
+	 * If we have got an <em>Connection: Upgrade</em>,
+     * this will be set to the input stream of the upgraded socket.
+	 */
 	private InputStream inputStream;
     
 	/**
@@ -73,11 +98,12 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
 				if (conn instanceof ZapHttpConnection) {
 	            	isUpgrade = true;
 	            	
+	            	// get socket and input stream out of HttpClient
 					ZapHttpConnection zapConn = (ZapHttpConnection) conn;
 	            	upgradedSocket = zapConn.getSocket();
 					inputStream = zapConn.getResponseInputStream();
 					
-	            	// avoid releasing connection
+	            	// avoid releasing connection by HttpClient
 	            	conn.setHttpConnectionManager(null);
 	            }
             } else if ((status >= 100) && (status < 200)) {
@@ -97,25 +123,25 @@ public class ZapGetMethod extends GetMethod implements HttpMethod
     }
 
     /**
-     * If this response included the header <em>Connection: Upgrade</em>,
-     * then this method provides the corresponding connection.
-     * 
-     * @return Upgraded Socket/SocketChannel or null
-     */
+	 * If this response included the header <em>Connection: Upgrade</em>, then
+	 * this method provides the corresponding connection.
+	 * 
+	 * @return Upgraded Socket or null
+	 */
 	public Socket getUpgradedConnection() {
 		return upgradedSocket;
 	}
 
     /**
-     * If this response included the header <em>Connection: Upgrade</em>,
-     * then this method provides the corresponding input stream.
-     * 
-     * It might happen, that first WebSocket frames are sent directly after
-     * the WebSocket handshake response. In this case the frames are buffered
-     * in that stream.
-     * 
-     * @return {@link BufferedInputStream} from response or null
-     */
+	 * If this response included the header <em>Connection: Upgrade</em>, then
+	 * this method provides the corresponding input stream.
+	 * 
+	 * It might happen, that WebSocket frames are sent directly after the
+	 * WebSocket handshake response. In this case the frames are buffered in
+	 * that stream.
+	 * 
+	 * @return Input stream from response or null
+	 */
 	public InputStream getUpgradedInputStream() {
 		return inputStream;
 	}
