@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2010 psiinon@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.IOException;
@@ -9,8 +28,9 @@ import java.nio.ByteBuffer;
 import org.apache.log4j.Logger;
 
 /**
- * This proxy implements the WebSocket protocol version 13 as specified in RFC6455.
- * A lot of code is reused from the Monsoon project at http://code.google.com/p/monsoon/.
+ * This proxy implements the WebSocket protocol version 13 as specified in
+ * RFC6455. Code was inspired by the Monsoon project
+ * (http://code.google.com/p/monsoon/).
  */
 public class WebSocketProxyV13 extends WebSocketProxy {
 
@@ -19,9 +39,16 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	/**
 	 * @see WebSocketProxy#WebSocketProxy(Socket, Socket)
 	 */
-	public WebSocketProxyV13(Socket localSocket,
-			Socket remoteSocket) throws WebSocketException {
+	public WebSocketProxyV13(Socket localSocket, Socket remoteSocket) throws WebSocketException {
 		super(localSocket, remoteSocket);
+	}
+
+	/**
+	 * @see WebSocketProxy#createWebSocketMessage(InputStream, byte)
+	 */
+	@Override
+	protected WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException {
+		return new WebSocketMessageV13(in, frameHeader);
 	}
 
 	/**
@@ -29,13 +56,25 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	 */
 	protected class WebSocketMessageV13 extends WebSocketMessage {
 		
+		/**
+		 * Temporary buffer that will be added to
+		 * {@link WebSocketMessage#frames} as soon as whole frame is read.
+		 */
 		private ByteBuffer currentFrame;
 
+		/**
+		 * Determines if last frame was masked.
+		 */
 		private boolean isMasked;
 
+		/**
+		 * Contains the mask from the last frame.
+		 */
 		private byte[] mask = new byte[4];
-		private int currentMaskByteIndex = 0;
 
+		/**
+		 * Contains the number of bytes representing the payload.
+		 */
 		private int payloadLength;
 
 		/**
@@ -48,14 +87,15 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		/**
 		 * If the 7 bits represent the value 127, then the next 64 bits
-		 * interpreted as an unsigned integer is the payload length. (the most
-		 * significant bit MUST be 0)
+		 * interpreted as an unsigned integer is the payload length (the most
+		 * significant bit MUST be 0).
 		 */
 		private static final int PAYLOAD_LENGTH_63 = 127;
 
 		/**
 		 * Creates a message with the first byte already read.
 		 * 
+		 * @param in
 		 * @param frameHeader
 		 * @throws IOException 
 		 */
@@ -80,31 +120,30 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		}
 
 		/**
-		 * Given the first byte of a frame and a channel,
-		 * this method reads from the second byte until the end of the frame.
+		 * Given an {@link InputStream} and the first byte of a frame,
+		 * this method reads the second byte until the end of the frame.
 		 * 
 		 * @param in
 		 * @param frameHeader
 		 * @throws IOException
 		 */
 		public void readFrame(InputStream in, byte frameHeader) throws IOException {
-			// most significant bit is FIN flag & 0x1
+			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
-			// currentFrame buffer is filled by read()
+			// currentFrame buffer is filled by read() method directly
 			currentFrame = ByteBuffer.allocate(4096);
 			currentFrame.put(frameHeader);
 
 			byte payloadByte = read(in);
-			isMasked = (payloadByte >> 7 & 0x1) == 1; // most significant bit is MASK flag
+			
+			// most significant bit of second byte is MASK flag
+			isMasked = (payloadByte >> 7 & 0x1) == 1;
 			payloadLength = (payloadByte & 0x7F);
 
-			/*
-			 * Multiple bytes for payload length are submitted in network byte
-			 * order: most significant byte first
-			 */
+			// multiple bytes for payload length are submitted in network byte order (MSB first)
 			if (payloadLength < PAYLOAD_LENGTH_16) {
-				// payload length is between 0-125 bytes
+				// payload length is between 0-125 bytes and contained in payloadByte
 			} else {
 				int bytesToRetrieve = 0;
 
@@ -128,21 +167,18 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					payloadLength = (payloadLength << 8) | (extendedPayload & 0xFF);
 				}
 			}
-
-			// now we know the payload length
-			// we are able to determine frame length
-			logger.debug("Length of current frame payload is: " + payloadLength);
-
-			int remainingBytes = payloadLength;
+			
+			logger.debug("length of current frame payload is: " + payloadLength);
 
 			if (isMasked) {
 				// read 4 bytes mask
 				mask = read(in, 4);
 			}
 
-			byte[] payload = read(in, remainingBytes);
+			byte[] payload = read(in, payloadLength);
 
 			if (isMasked) {
+				int currentMaskByteIndex = 0;
 				for (int i = 0; i < payload.length; i++) {
 					// unmask payload by XOR it continuously with frame mask
 					payload[i] = (byte) (payload[i] ^ mask[currentMaskByteIndex]);
@@ -151,35 +187,31 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			if (isText(opcode)) {
-//				Charset charset = Charset.forName("UTF-8");
-//				CharsetDecoder decoder = charset.newDecoder();
-//				CharBuffer readablePayload = CharBuffer.allocate(payload.length);
-//				CoderResult result = decoder.decode(ByteBuffer.wrap(payload, 0, payload.length), readablePayload, true);
-				
 				if (0 == payload.length) {
 					logger.debug("got empty payload");
 				} else if (payload.length < 10000) {
 					logger.debug("got payload: '" + decodePayload(payload) + "'");
 				} else {
-					logger.debug("got huge payload, do not print it"); // + decodePayload(payload, 0, 100) may result in non-finished string
+					logger.debug("got huge payload, do not print it");
+					// + decodePayload(payload, 0, 100) may result in non-finished string
 				}
 			} else if (isBinary(opcode)) {
 				logger.info("got binary payload");				
 			} else {
-				// ignore control messages
-				
-				if (payload.length > 1) {
-					// shift previous bits left and add next byte
-					int closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
-					logger.debug("close code is: " + closeCode);
-				}
-				
-				if (payload.length > 2) {
-					// process close message
-					logger.debug("got control-payload: " + decodePayload(payload, 2));
+				if (opcode == OPCODE_CLOSE) {
+					if (payload.length > 1) {
+						int closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
+						logger.debug("close code is: " + closeCode);
+					}
+					
+					if (payload.length > 2) {
+						// process close message
+						logger.debug("got control-payload: " + decodePayload(payload, 2));
+					}
 				}
 			}
 			
+			// add currentFrame to frames list
 			currentFrame.flip();
 			frames.add(currentFrame);
 		}
@@ -199,25 +231,27 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		/**
 		 * Reads given length from the given stream.
 		 * 
-		 * @param in
-		 * @param length Determines how much bytes should be read from the given channel.
-		 * @return ByteBuffer read for reading (i.e.: already flipped).
+		 * @param in {@link InputStream} to read from.
+		 * @param length Determines how much bytes should be read from the given stream.
+		 * @return Bytes read from stream - blocks until given length is read!
 		 * @throws IOException
 		 */
 		private byte[] read(InputStream in, int length) throws IOException {
 			byte[] buffer = new byte[length];
 			
+			// read until buffer is full 
 			int bytesRead = 0;
 			do {
 				bytesRead += in.read(buffer, bytesRead, length - bytesRead);
 			} while (length != bytesRead);
 			
+			// maybe we have to increase the size of the current frame buffer
 			int freeSpace = currentFrame.capacity() - currentFrame.position();
 			if (freeSpace < bytesRead) {
 				currentFrame = reallocate(currentFrame, currentFrame.position() + bytesRead);
 			}
 
-			// add bytes to current frame and reset to be able to read again
+			// add bytes to current frame
 			currentFrame.put(buffer);
 			
 			return buffer;
@@ -242,26 +276,35 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	        return dest;
 	    }
 
+	    /**
+	     * @see WebSocketMessage#forward(OutputStream)
+	     */
 		@Override
 		public void forward(OutputStream out) throws IOException {
-			// does only forward finished messages
 			if (!isFinished) {
+				// do not forward unfinished messages
 				return;
 			}
 			
 			for (ByteBuffer frame : frames) {
+				// forward frame by frame
 				forwardFrame(frame, out);
 			}
 		}
 
+		/**
+		 * @see WebSocketMessage#forwardCurrentFrame(OutputStream)
+		 */
 		@Override
 		public void forwardCurrentFrame(OutputStream out) throws IOException {
 			logger.debug("forward current frame");
+			
 			forwardFrame(currentFrame, out);
 		}
 		
 		/**
 		 * Helper method to forward frames.
+		 * 
 		 * @param frame
 		 * @param out
 		 */
@@ -326,10 +369,5 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 //			}
 //			headerBuf.flip();
 //		}
-	}
-
-	@Override
-	protected WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException {
-		return new WebSocketMessageV13(in, frameHeader);
 	}
 }

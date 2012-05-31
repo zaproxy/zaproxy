@@ -326,7 +326,7 @@ class ProxyThread implements Runnable {
 					
 					keepSocketOpen = true;
 					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
-					extWebSocket.addWebSocketsChannel(msg.getResponseHeader(), inSocket, outSocket, outReader);
+					extWebSocket.addWebSocketsChannel(msg, inSocket, outSocket, outReader);
 				} else {
 					log.error("Was not able to retrieve upgraded outgoing channel.");
 				}

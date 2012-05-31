@@ -1,10 +1,28 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2010 psiinon@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
@@ -12,7 +30,7 @@ import org.apache.log4j.Logger;
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
  * This class was created with sight on the WebSocketMessage class of the
- * Monsoon project.
+ * Monsoon project (http://code.google.com/p/monsoon/).
  */
 public abstract class WebSocketMessage {
 	
@@ -111,17 +129,38 @@ public abstract class WebSocketMessage {
 	public static final int STATUS_CODE_SERVER_ERROR = 1011;
 
 	// 1015 is another reserved status code
-	
-	/**
-	 * The byte stream of WebSocket frames must be valid UTF-8. 
-	 */
-	protected static final Charset UTF8 = Charset.forName("UTF-8");
 
 	/**
 	 * Indicates the opcode of this message.
 	 * Initially it is set to -1, meaning that its type is unknown.
 	 */
 	protected int opcode = -1;
+
+	/**
+	 * Write all frames of this message to given channel if and only if message
+	 * is finished.
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	public abstract void forward(OutputStream out) throws IOException;
+
+	/**
+	 * Write current frame of this message to given channel.
+	 * 
+	 * @param out
+	 * @throws IOException
+	 */
+	public abstract void forwardCurrentFrame(OutputStream out) throws IOException;
+
+	/**
+	 * Read further frame for non-control message.
+	 * 
+	 * @param in
+	 * @param frameHeader
+	 * @throws IOException
+	 */
+	public abstract void readContinuation(InputStream in, byte frameHeader) throws IOException;
 
 	/**
 	 * @return the opcode for this message.
@@ -180,40 +219,14 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Write all frames of this message to given channel
-	 * if and only if message is finished.
-	 * 
-	 * @param out
-	 * @throws IOException
-	 */
-	public abstract void forward(OutputStream out) throws IOException;
-
-	/**
-	 * Write current frame of this message to given channel.
-	 * 
-	 * @param out
-	 * @throws IOException
-	 */
-	public abstract void forwardCurrentFrame(OutputStream out) throws IOException;
-
-	/**
-	 * Returns true if all frames for this message
-	 * were already read.
+	 * Returns true if all frames for this message were already
+	 * read (i.e.: if the frame with the FIN flag was read).
 	 * 
 	 * @return
 	 */
 	public boolean isFinished() {
 		return isFinished;
 	}
-
-	/**
-	 * Read further frame for non-control message.
-	 * 
-	 * @param in
-	 * @param frameHeader
-	 * @throws IOException
-	 */
-	public abstract void readContinuation(InputStream in, byte frameHeader) throws IOException;
 
 	/**
 	 * Returns a readable representation of the numeric opcode.
@@ -269,12 +282,8 @@ public abstract class WebSocketMessage {
 			
 			Utf8StringBuilder builder = new Utf8StringBuilder(length);
 			builder.append(payload, offset, length);
-			return builder.toString();
 			
-			// could also use CharsetDecoder
-//			Charset charset = Charset.forName("UTF-8");
-//			CharsetDecoder decoder = charset.newDecoder();
-//			decoder.decode();
+			return builder.toString();
 		} catch (IllegalArgumentException e) {
 			if (e.getMessage().equals("!utf8")) {
 				logger.error("payload is not UTF-8");
