@@ -21,6 +21,7 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to ExtensionPopupMenuItem
 // ZAP: 2012/02/18 Issue 274 Confirm purge/delete
 // ZAP: 2012/03/15 Changed so no ConcurrentModificationException is thrown.
+// ZAP: 2012/06/01 Issue 310 prevent infinite loop when deleting nodes
 
 package org.parosproxy.paros.view;
 
@@ -135,6 +136,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
         			//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
         			while (!node.getHistoryReference().getAlerts().isEmpty()) {
         				extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
+        				node.getHistoryReference().getAlerts().remove(0);
         			}
         		}
                 node.getHistoryReference().delete();
@@ -147,6 +149,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 	        		//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
         			while (!ref.getAlerts().isEmpty()) {
         				extAlert.deleteAlert(ref.getAlerts().get(0));
+        				ref.getAlerts().remove(0);
         			}
 	            }
                 ext.getHistoryList().removeElement(ref);
