@@ -221,8 +221,15 @@ public class Session extends FileXML {
 			
 		}
 		
-		// ZAP: expand root
-	    View.getSingleton().getSiteTreePanel().expandRoot();
+        // XXX Temporary "hack" to check if ZAP is in GUI mode. Calling
+        // View.getSingleton() creates the View, if a View exists and the API
+        // was not enabled (through configuration) the API becomes disabled
+        // everywhere (including demon mode).
+        // Note: the API needs to be enabled all the time in daemon mode.
+		if (View.isInitialised()) {
+		    // ZAP: expand root
+		    View.getSingleton().getSiteTreePanel().expandRoot();
+		}
 
 	    // Load the session urls
 	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);

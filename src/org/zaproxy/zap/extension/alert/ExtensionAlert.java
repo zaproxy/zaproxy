@@ -47,6 +47,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 /**
@@ -284,8 +285,18 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         while (root.getChildCount() > 0) {
             tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
-        // ZAP: Reset the alert counts
-        tree.recalcAlertCounts();
+        
+        // XXX Temporary "hack" to check if ZAP is in GUI mode.
+        // tree.recalcAlertCounts() calls View.getSingleton() that creates the
+        // View, if a View exists and the API was not enabled (through
+        // configuration) the API becomes disabled everywhere (including demon
+        // mode).
+        // Note: the API needs to be enabled all the time in daemon mode.
+        if (View.isInitialised()) {
+            // ZAP: Reset the alert counts
+            tree.recalcAlertCounts();
+        }
+        
         hrefs = new ArrayList<HistoryReference>();
 
     	if (session == null) {
