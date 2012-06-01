@@ -1,18 +1,22 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ * 
+ * ZAP: Based on work by Yasser Ganjisaffar <lastname at gmail dot com> 
+ * from project http://code.google.com/p/crawler4j/
  */
 
 package org.zaproxy.zap.spider;
@@ -28,54 +32,75 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 /**
- * See http://en.wikipedia.org/wiki/URL_normalization for a reference Note: some
- * parts of the code are adapted from: http://stackoverflow.com/a/4057470/405418
+ * The URLCanonicalizer is used for the process of converting an URL into a canonical (normalized)
+ * form. See {@link http://en.wikipedia.org/wiki/URL_normalization} for a reference. <br/>
+ * <br/>
  * 
- * @author Yasser Ganjisaffar <lastname at gmail dot com>
+ * Note: some parts of the code are adapted from: http://stackoverflow.com/a/4057470/405418
+ * 
+ * 
  */
 public class URLCanonicalizer {
 
+	/** The Constant log. */
+	private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
+
+	/**
+	 * Gets the canonical url.
+	 * 
+	 * @param url the url
+	 * @return the canonical url
+	 */
 	public static String getCanonicalURL(String url) {
 		return getCanonicalURL(url, null);
 	}
 
-	public static String getCanonicalURL(String href, String context) {
+	/**
+	 * Gets the canonical url, starting from a relative or absolute url found in a given context
+	 * (baseURL).
+	 * 
+	 * @param url the url string defining the reference
+	 * @param baseURL the context in which this url was found
+	 * @return the canonical url
+	 */
+	public static String getCanonicalURL(String url, String baseURL) {
 
 		try {
-			URL canonicalURL = new URL(UrlResolver.resolveUrl(context == null ? "" : context, href));
+			/* Build the absolute URL, from the url and the baseURL */
+			URI canonicalURI = new URI(URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url));
 
-			String path = canonicalURL.getPath();
+			/* Some checking. */
+			if (canonicalURI.getScheme() == null)
+				throw new MalformedURLException("Protocol could not be reliably evaluated from uri: " + canonicalURI
+						+ " and base url: " + baseURL);
+			if (canonicalURI.getHost() == null)
+				throw new MalformedURLException("Host could not be reliably evaluated from: " + canonicalURI);
 
-			/*
-			 * Normalize: no empty segments (i.e., "//"), no segments equal to
-			 * ".", and no segments equal to ".." that are preceded by a segment
-			 * not equal to "..".
-			 */
-			path = new URI(path).normalize().toString();
+			/* Normalize: no empty segments (i.e., "//"), no segments equal to ".", and no segments
+			 * equal to ".." that are preceded by a segment not equal to "..". */
+			String path = canonicalURI.normalize().getPath();
 
-			/*
-			 * Convert '//' -> '/'
-			 */
+			/* Convert '//' -> '/' */
 			int idx = path.indexOf("//");
 			while (idx >= 0) {
 				path = path.replace("//", "/");
 				idx = path.indexOf("//");
 			}
 
-			/*
-			 * Drop starting '/../'
-			 */
+			/* Drop starting '/../' */
 			while (path.startsWith("/../")) {
 				path = path.substring(3);
 			}
 
-			/*
-			 * Trim
-			 */
+			/* Trim */
 			path = path.trim();
 
-			final SortedMap<String, String> params = createParameterMap(canonicalURL.getQuery());
+			/* Process parameters and sort them. */
+			final SortedMap<String, String> params = createParameterMap(canonicalURI.getQuery());
 			final String queryString;
 
 			if (params != null && params.size() > 0) {
@@ -85,42 +110,39 @@ public class URLCanonicalizer {
 				queryString = "";
 			}
 
-			/*
-			 * Add starting slash if needed
-			 */
+			/* Add starting slash if needed */
 			if (path.length() == 0) {
 				path = "/" + path;
 			}
 
-			/*
-			 * Drop default port: example.com:80 -> example.com
-			 */
-			int port = canonicalURL.getPort();
-			if (port == canonicalURL.getDefaultPort()) {
+			/* Drop default port: example.com:80 -> example.com */
+			int port = canonicalURI.getPort();
+			if (port == 80) {
 				port = -1;
 			}
 
-			/*
-			 * Lowercasing protocol and host
-			 */
-			String protocol = canonicalURL.getProtocol().toLowerCase();
-			String host = canonicalURL.getHost().toLowerCase();
+			/* Lowercasing protocol and host */
+			String protocol = canonicalURI.getScheme().toLowerCase();
+			String host = canonicalURI.getHost().toLowerCase();
 			String pathAndQueryString = normalizePath(path) + queryString;
 
 			URL result = new URL(protocol, host, port, pathAndQueryString);
 			return result.toExternalForm();
-			
+
 		} catch (MalformedURLException ex) {
+			log.warn("Error while Processing URL: " + url, ex);
 			return null;
 		} catch (URISyntaxException ex) {
+			log.warn("Error while Processing URI: " + url, ex);
 			return null;
 		}
 	}
 
 	/**
-	 * Takes a query string, separates the constituent name-value pairs, and
-	 * stores them in a SortedMap ordered by lexicographical order.
+	 * Takes a query string, separates the constituent name-value pairs, and stores them in a
+	 * SortedMap ordered by lexicographical order.
 	 * 
+	 * @param queryString the query string
 	 * @return Null if there is no query string.
 	 */
 	private static SortedMap<String, String> createParameterMap(final String queryString) {
@@ -145,7 +167,7 @@ public class URLCanonicalizer {
 					params.put(tokens[0], "");
 				}
 				break;
-			case 2: 
+			case 2:
 				params.put(tokens[0], tokens[1]);
 				break;
 			}
@@ -156,8 +178,7 @@ public class URLCanonicalizer {
 	/**
 	 * Canonicalize the query string.
 	 * 
-	 * @param sortedParamMap
-	 *            Parameter name-value pairs in lexicographical order.
+	 * @param sortedParamMap Parameter name-value pairs in lexicographical order.
 	 * @return Canonical form of query string.
 	 */
 	private static String canonicalize(final SortedMap<String, String> sortedParamMap) {
@@ -168,7 +189,9 @@ public class URLCanonicalizer {
 		final StringBuffer sb = new StringBuffer(100);
 		for (Map.Entry<String, String> pair : sortedParamMap.entrySet()) {
 			final String key = pair.getKey().toLowerCase();
-			if (key.equals("jsessionid") || key.equals("phpsessid") || key.equals("aspsessionid")) {
+			// Ignore irrelevant parameters
+			if (key.equals("jsessionid") || key.equals("phpsessid") || key.equals("aspsessionid")
+					|| key.startsWith("utm_")) {
 				continue;
 			}
 			if (sb.length() > 0) {
@@ -184,12 +207,10 @@ public class URLCanonicalizer {
 	}
 
 	/**
-	 * Percent-encode values according the RFC 3986. The built-in Java
-	 * URLEncoder does not encode according to the RFC, so we make the extra
-	 * replacements.
+	 * Percent-encode values according the RFC 3986. The built-in Java URLEncoder does not encode
+	 * according to the RFC, so we make the extra replacements.
 	 * 
-	 * @param string
-	 *            Decoded string.
+	 * @param string Decoded string.
 	 * @return Encoded string per RFC 3986.
 	 */
 	private static String percentEncodeRfc3986(String string) {
@@ -203,7 +224,29 @@ public class URLCanonicalizer {
 		}
 	}
 
+	/**
+	 * Normalize path.
+	 * 
+	 * @param path the path
+	 * @return the string
+	 */
 	private static String normalizePath(final String path) {
 		return path.replace("%7E", "~").replace(" ", "%20");
+	}
+
+	/**
+	 * The main method. NOTE: TEST Code...
+	 * 
+	 * @param args the arguments
+	 * @throws URISyntaxException the uRI syntax exception
+	 */
+	public static void main(String args[]) throws URISyntaxException {
+		//TODO: Test code - to delete
+		BasicConfigurator.configure();
+		String url = "java.sun.com/a/b/../j2se/1.3/./docs/guide/index.html";
+		URI uri = new URI(url);
+		System.out.println("URI: " + uri.normalize().toString());
+		System.out.println("URL Resolver: " + URLResolver.resolveUrl("", url));
+		System.out.println("URL Canonicalizer: " + URLCanonicalizer.getCanonicalURL(url));
 	}
 }
