@@ -18,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/14 Changed to discard all edits in the actions of the buttons 
+//      "OK" and "Cancel".
+
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;
@@ -163,7 +166,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtPattern	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	public ZapTextField getTxtPattern() {
 		if (txtPattern == null) {
@@ -174,7 +177,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtReplaceWith	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	public ZapTextField getTxtReplaceWith() {
 		if (txtReplaceWith == null) {
@@ -215,7 +218,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 				        getTxtPattern().grabFocus();
 				        return;
 				    }
-				    
+				    getTxtPattern().discardAllEdits();
 				    FilterReplaceDialog.this.dispose();
 				    exitCode = JOptionPane.OK_OPTION;
 
@@ -236,8 +239,9 @@ public class FilterReplaceDialog extends AbstractDialog {
 			btnCancel.setText("Cancel");
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-				    FilterReplaceDialog.this.dispose();
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					getTxtPattern().discardAllEdits();
+					FilterReplaceDialog.this.dispose();
 				    exitCode = JOptionPane.CANCEL_OPTION;
 
 				}

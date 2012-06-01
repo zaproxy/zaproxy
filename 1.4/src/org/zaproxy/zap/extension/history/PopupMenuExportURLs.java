@@ -123,7 +123,6 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         this.extension = extension;
     }
     	
-	@SuppressWarnings("unchecked")
 	private void exportURLs(SiteNode node, BufferedWriter writer, boolean html) {
 		
         if (node == null) {
@@ -160,6 +159,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         	log.warn(e.getStackTrace(), e);
 		}
 
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = node.children();
 		while (en.hasMoreElements()) {
 			exportURLs(en.nextElement(), writer, html);

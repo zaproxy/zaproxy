@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Added the @Override annotation to the appropriate methods.
-//      Moved to his class the method getCookieParams().
+// Moved to this class the method getCookieParams().
 package org.parosproxy.paros.network;
 
 import java.util.Iterator;
@@ -200,6 +200,7 @@ public class HttpResponseHeader extends HttpHeader {
 		return prime;
 	}
 	
+	// ZAP: Added method.
 	public TreeSet<HtmlParameter> getCookieParams() {
 		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
 		

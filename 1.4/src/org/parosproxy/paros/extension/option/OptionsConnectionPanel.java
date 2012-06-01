@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/04/14 Changed the method initParam to discard all edits.
+
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
@@ -354,7 +356,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainName	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtProxyChainName() {
 		if (txtProxyChainName == null) {
@@ -377,7 +379,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainSkipName	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	private ZapTextArea getTxtProxyChainSkipName() {
 		if (txtProxyChainSkipName == null) {
@@ -407,6 +409,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    
 	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
+	    txtTimeoutInSecs.discardAllEdits();
 	    
 	    // set Proxy Chain parameters
 	    if (connectionParam.getProxyChainName().equals("")) {
@@ -416,9 +419,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	        chkUseProxyChain.setSelected(true);
 	        setProxyChainEnabled(true);
 		    txtProxyChainName.setText(connectionParam.getProxyChainName());
+		    txtProxyChainName.discardAllEdits();
 			// ZAP: Do not allow invalid port numbers
 		    spinnerProxyChainPort.setValue(connectionParam.getProxyChainPort());
 		    txtProxyChainSkipName.setText(connectionParam.getProxyChainSkipName());
+		    txtProxyChainSkipName.discardAllEdits();
 		    
 		    if (connectionParam.getProxyChainUserName().equals("")) {
 		        chkProxyChainAuth.setSelected(false);
@@ -427,7 +432,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		        chkProxyChainAuth.setSelected(true);
 		        setProxyChainAuthEnabled(true);
 		        txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
+		        txtProxyChainRealm.discardAllEdits();
 		        txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
+		        txtProxyChainUserName.discardAllEdits();
 		        
 		    	// ZAP: Added prompt option
 		        if (connectionParam.isProxyChainPrompt()) {
@@ -438,6 +445,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			        chkProxyChainPrompt.setSelected(false);
 			        setProxyChainPromptEnabled(false);
 			        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
+			        txtProxyChainPassword.discardAllEdits();
 		        }
 		    }
 		    
@@ -560,7 +568,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainRealm	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtProxyChainRealm() {
 		if (txtProxyChainRealm == null) {
@@ -571,7 +579,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainUserName	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtProxyChainUserName() {
 		if (txtProxyChainUserName == null) {
@@ -582,7 +590,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyChainPassword	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtProxyChainPassword() {
 		if (txtProxyChainPassword == null) {

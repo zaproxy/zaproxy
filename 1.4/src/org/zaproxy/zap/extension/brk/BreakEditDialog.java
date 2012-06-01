@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.TreeSelectionListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -38,7 +37,7 @@ import org.zaproxy.zap.utils.ZapTextField;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class BreakEditDialog extends AbstractDialog implements TreeSelectionListener {
+public class BreakEditDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
@@ -149,9 +148,9 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 	/**
 	 * This method initializes txtDisplay	
 	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextField	
-	 */    
-	ZapTextField getTxtDisplay() {
+	 * @return org.zaproxy.zap.utils.ZapTextField
+	 */
+	private ZapTextField getTxtDisplay() {
 		if (txtDisplay == null) {
 			txtDisplay = new ZapTextField();
 			txtDisplay.setHorizontalAlignment(ZapTextField.LEFT);
@@ -178,6 +177,7 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.editBreakPointAtRow(currentBreakPointRow, getTxtDisplay().getText());
+				    getTxtDisplay().discardAllEdits();
 				    extension.hideBreakEditDialog();
 				}
 			});
@@ -200,7 +200,8 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+				    getTxtDisplay().discardAllEdits();
 				    extension.hideBreakEditDialog();
 				}
 			});
@@ -209,13 +210,13 @@ public class BreakEditDialog extends AbstractDialog implements TreeSelectionList
 		return btnCancel;
 	}
 	
-	void setPlugin(ExtensionBreak plugin) {
-	    this.extension = plugin;
-        plugin.getView().getSiteTreePanel().getTreeSite().addTreeSelectionListener(this);
-
+	public void setPlugin(ExtensionBreak plugin) {
+		this.extension = plugin;
 	}
 	
-	public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
+	public void setBreakPoint(String breakPoint) {
+		getTxtDisplay().setText(breakPoint);
+	    getTxtDisplay().discardAllEdits();
 	}
 	
 	

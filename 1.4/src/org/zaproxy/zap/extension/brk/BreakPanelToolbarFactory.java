@@ -364,6 +364,15 @@ public class BreakPanelToolbarFactory {
 		return drop;
 	}
 
+	public void init() {
+		cont = false;
+		step = false;
+		stepping = false;
+		toBeDropped = false;
+		isBreakRequest = false;
+		isBreakResponse = false;
+	}
+
 	public void reset() {
 		if (isBreakRequest()) {
 			toggleBreakRequest();

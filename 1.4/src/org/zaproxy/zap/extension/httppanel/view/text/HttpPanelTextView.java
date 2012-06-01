@@ -132,6 +132,9 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	@Override
 	public void setEditable(boolean editable) {
 		httpPanelTextArea.setEditable(editable);
+		if (!editable) {
+			httpPanelTextArea.discardAllEdits();
+		}
 	}
 	
 	@Override

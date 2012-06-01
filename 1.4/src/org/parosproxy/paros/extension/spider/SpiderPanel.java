@@ -160,7 +160,7 @@ public class SpiderPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	ZapTextArea getTxtURIFound() {
 		if (txtURIFound == null) {
@@ -204,7 +204,7 @@ public class SpiderPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtURISkip	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	ZapTextArea getTxtURISkip() {
 		if (txtURISkip == null) {

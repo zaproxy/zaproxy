@@ -21,16 +21,16 @@
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
 // ZAP: 2012/03/15 Changed so the change display option stays visually selected.
+// ZAP: 2012/04/26 Removed the method setStatus(String) and instance variable
+// "txtStatus".
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -42,7 +42,8 @@ public class MainFrame extends AbstractFrame {
 	private static final long serialVersionUID = -1430550461546083192L;
 
 	private JPanel paneContent = null;
-	private JLabel txtStatus = null;
+	// ZAP: Removed instance variable (JLabel txtStatus). The status label that
+	// was in the footer panel is no longer used.
 	private org.parosproxy.paros.view.WorkbenchPanel paneStandard = null;
 	private org.parosproxy.paros.view.MainMenuBar mainMenuBar = null;
 	private JPanel paneDisplay = null;
@@ -133,22 +134,11 @@ public class MainFrame extends AbstractFrame {
 		return mainMenuBar;
 	}
 
-	public void setStatus(final String msg) {
-		if (EventQueue.isDispatchThread()) {
-			txtStatus.setText(msg);
-			return;
-		}
-		try {
-			EventQueue.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					txtStatus.setText(msg);
-				}
-			});
-		} catch (final Exception e) {
-		}
-	}
-
+	// ZAP: Removed the method getTxtStatus()
+	
+	// ZAP: Removed the method setStatus(String). The status label
+	// ("txtStatus") that was in the footer panel is no longer used.
+	
 	/**
 	 * This method initializes paneDisplay
 	 *

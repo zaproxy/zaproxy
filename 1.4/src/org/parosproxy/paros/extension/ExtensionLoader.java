@@ -21,8 +21,12 @@
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/03/15 Reflected the change in the name of the method optionsChanged of
-//      the class OptionsChangedListener. Changed the method destroyAllExtension() to 
-//      save the configurations of the main http panels and save the configuration file.
+// the class OptionsChangedListener. Changed the method destroyAllExtension() to
+// save the configurations of the main http panels and save the configuration file.
+// ZAP: 2012/04/23 Reverted the changes of the method destroyAllExtension(),
+// now the configurations of the main http panels and the configuration file
+// are saved in the method Control.shutdown(boolean).
+// ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 
 package org.parosproxy.paros.extension;
 
@@ -34,7 +38,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
@@ -72,19 +75,14 @@ public class ExtensionLoader {
     
     public void destroyAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).destroy();
+            // ZAP: Added try catch block.
+            try {
+                getExtension(i).destroy();
+            } catch (Exception e) {
+               logger.error(e.getMessage(), e);
+            }
         }
-
-        // ZAP: Save the configurations of the main panels.
-        view.getRequestPanel().saveConfig(model.getOptionsParam().getConfig());
-        view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
         
-	    // ZAP: Save the configuration file.
-		try {
-			model.getOptionsParam().getConfig().save();
-		} catch (ConfigurationException e) {
-			logger.error("Error saving config", e);
-		}
     }
     
     public Extension getExtension(int i) {
@@ -157,7 +155,7 @@ public class ExtensionLoader {
                 try {
                     OptionsChangedListener listener = listenerList.get(j);
                     if (listener != null) {
-                    	// ZAP: reflected the change in name of the method optionsChanged.
+                    	// ZAP: reflected the change in the name of the method optionsChanged.
                         listener.optionsChanged(options);
                     }
                 } catch (Exception e) {

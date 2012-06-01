@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/05/03 Changed the method isCellEditable(int, int) to use directly
+// the returning value of Filter.isPropertyExists(). Moved a statement in the
+// method setValueAt(Object, int , int).
 
 package org.parosproxy.paros.extension.filter;
 
@@ -78,11 +81,8 @@ public class AllFilterTableModel extends DefaultTableModel {
         			break;
         	case 1: result = true;
         			break;
-        	case 2: if (filter.isPropertyExists()) {
-        	    		result = true;
-        			}	 else {
-        			    result = false;
-        			}
+        	case 2: // ZAP: Changed to use the returned value.
+        			result = filter.isPropertyExists();
         }
         return result;
     }
@@ -94,10 +94,12 @@ public class AllFilterTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	break;
         	case 1: filter.setEnabled(((Boolean) value).booleanValue());
+        			fireTableCellUpdated(row, col);
         			break;
         	case 2: break;
         }
-        fireTableCellUpdated(row, col);
+        // ZAP: Moved the statement "fireTableCellUpdated(row, col);" to the
+        // above switch case 1.
     }
     
     public int getColumnCount() {

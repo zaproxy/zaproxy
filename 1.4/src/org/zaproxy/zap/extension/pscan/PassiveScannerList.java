@@ -28,10 +28,6 @@ public class PassiveScannerList {
 		return this.passiveScanners;
 	}
 	
-	protected PassiveScanner getDefn(int index) {
-		return this.passiveScanners.get(index);
-	}
-	
 	protected PassiveScanner getDefn(String name) {
 		for (PassiveScanner scanner : passiveScanners) {
 			if (scanner.getName().equals(name)) {

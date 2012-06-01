@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/08/04 Changed to support new HttpPanel interface
+// ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 
 package org.parosproxy.paros.extension;
 
@@ -50,7 +51,7 @@ public interface ViewDelegate {
     
     public MainPopupMenu getPopupMenu();
     
-    public void setStatus(String msg);
+    // ZAP: Removed the method setStatus(String), no longer used.
     
     public HttpPanelRequest getRequestPanel();
     

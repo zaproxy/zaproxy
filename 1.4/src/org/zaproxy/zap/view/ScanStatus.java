@@ -56,15 +56,15 @@ public class ScanStatus {
 	}
 	public void setScanCount(int scanCount) {
 		this.scanCount = scanCount;
-		this.countLabel.setText(String.valueOf(scanCount));
+		this.countLabel.setText(Integer.toString(scanCount));
 	}
 	public void incScanCount() {
 		this.scanCount++;
-		this.countLabel.setText(String.valueOf(scanCount));
+		this.countLabel.setText(Integer.toString(scanCount));
 	}
 	public void decScanCount() {
 		this.scanCount--;
-		this.countLabel.setText(String.valueOf(scanCount));
+		this.countLabel.setText(Integer.toString(scanCount));
 	}
 	public JLabel getCountLabel() {
 		return this.countLabel;
