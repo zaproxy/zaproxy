@@ -45,7 +45,7 @@ public class SpiderHtmlParser extends SpiderParser {
 			log.warn("Found A element: "+el.getAttributeValue("href"));
 			log.warn("Complete URL: "+URLCanonicalizer.getCanonicalURL(el.getAttributeValue("href"), "http://www.prosc.ro"));
 			//TODO: work work work
-			this.notifyListenersResourceFound(null, URLCanonicalizer.getCanonicalURL(el.getAttributeValue("href"), "http://www.prosc.ro"));
+			//this.notifyListenersResourceFound(null, URLCanonicalizer.getCanonicalURL(el.getAttributeValue("href"), "http://www.prosc.ro"));
 		}
 	}
 
