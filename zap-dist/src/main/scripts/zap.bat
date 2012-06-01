@@ -1,1 +1,1 @@
-java -jar zap.jar org.zaproxy.zap.ZAP %*
+java -jar zap-${project.version}.jar org.zaproxy.zap.ZAP %*
