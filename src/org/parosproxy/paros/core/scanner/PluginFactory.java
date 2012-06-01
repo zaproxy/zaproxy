@@ -100,7 +100,7 @@ public class PluginFactory {
         	parosLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
         }
         if (zapLoader == null) {
-        	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.scanner.plugin");
+        	zapLoader = new DynamicLoader("", "org.zaproxy.zap.scanner.plugin");
         }
         List<Object> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
         listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
@@ -123,7 +123,7 @@ public class PluginFactory {
                 }
                 log.info("loaded plugin " + plugin.getName());
                 if (mapAllPlugin.get(new Integer(plugin.getId())) != null) {
-                	System.out.println("Duplicate id " + plugin.getName() + " " +
+                	log.error("Duplicate id " + plugin.getName() + " " +
                 			mapAllPlugin.get(new Integer(plugin.getId())).getName());
                 }
                 mapAllPlugin.put(new Integer(plugin.getId()), plugin);

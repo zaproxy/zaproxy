@@ -392,11 +392,13 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	        					tableAuth.getSelectedRow());
 	        			if (app != null) {
 	        				editDisplayName.setText(app.getDisplayName());
+	        				editDisplayName.discardAllEdits();
 	        				editFullCommand.setText(app.getFullCommand());
 	        				if (app.getWorkingDirectory() != null) {
 	        					editWorkingDir.setText(app.getWorkingDirectory().getAbsolutePath());
 	        				}
 	        				editParameters.setText(app.getParameters());
+	        				editParameters.discardAllEdits();
 	        				editOutput.setSelected(app.isCaptureOutput());
 	        				if (app.isCaptureOutput()) {
 	        					editNote.setEnabled(true);
@@ -417,9 +419,11 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 	
 	private void clearEditForm() {
 		editDisplayName.setText("");
+		editDisplayName.discardAllEdits();
 		editFullCommand.setText("");
 		editWorkingDir.setText("");
 		editParameters.setText("");
+		editParameters.discardAllEdits();
 		editOutput.setSelected(false);
 		editNote.setSelected(false);
 		tableAuth.clearSelection();

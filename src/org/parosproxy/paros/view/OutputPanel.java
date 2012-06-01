@@ -83,7 +83,7 @@ public class OutputPanel extends AbstractPanel {
 	/**
 	 * This method initializes txtOutput	
 	 * 	
-	 * @return javax.swing.ZapTextArea	
+	 * @return org.zaproxy.zap.utils.ZapTextArea	
 	 */    
 	private ZapTextArea getTxtOutput() {
 		if (txtOutput == null) {

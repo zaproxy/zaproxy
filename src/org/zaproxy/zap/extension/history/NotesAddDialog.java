@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.TreeSelectionListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -37,7 +36,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
 
-public class NotesAddDialog extends AbstractDialog implements TreeSelectionListener {
+public class NotesAddDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
@@ -144,13 +143,13 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 		return jPanel;
 	}
 
-	public ZapTextArea getTxtDisplay() {
+	private ZapTextArea getTxtDisplay() {
 		if (txtDisplay == null) {
-			txtDisplay = new ZapTextArea();
-			txtDisplay.setText("");
+			txtDisplay = new ZapTextArea("");
 		}
 		return txtDisplay;
 	}
+	
 	/**
 	 * This method initializes btnStart	
 	 * 	
@@ -167,6 +166,7 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
                     historyRef.setNote(getTxtDisplay().getText());
+                    getTxtDisplay().discardAllEdits();
                     extension.getHistoryList().notifyItemChanged(historyRef);
 				    extension.hideNotesAddDialog();
 				}
@@ -190,7 +190,8 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 			btnCancel.setEnabled(true);
 			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+				    getTxtDisplay().discardAllEdits();
 				    extension.hideNotesAddDialog();
 				}
 			});
@@ -201,11 +202,6 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 	
 	public void setPlugin(ExtensionHistory plugin) {
 	    this.extension = plugin;
-        plugin.getView().getSiteTreePanel().getTreeSite().addTreeSelectionListener(this);
-
-	}
-	
-	public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 	}
 	
 	/**
@@ -229,6 +225,11 @@ public class NotesAddDialog extends AbstractDialog implements TreeSelectionListe
 
 	public void setHistoryRef(HistoryReference historyRef) {
 		this.historyRef = historyRef;
+	}
+	
+	public void setNote(String note) {
+		getTxtDisplay().setText(note);
+		getTxtDisplay().discardAllEdits();
 	}
 
 }

@@ -183,9 +183,11 @@ public class AlertViewPanel extends AbstractPanel {
 							if (v != null) {
 								if (v.getDescription() != null && v.getDescription().length() > 0) {
 									alertDescription.setText(v.getDescription());
+									alertDescription.discardAllEdits();
 								}
 								if (v.getSolution() != null && v.getSolution().length() > 0) {
 									alertSolution.setText(v.getSolution());
+									alertSolution.discardAllEdits();
 								}
 								if (v.getReferences() != null) {
 									StringBuilder sb = new StringBuilder();
@@ -194,6 +196,7 @@ public class AlertViewPanel extends AbstractPanel {
 										sb.append('\n');
 									}
 									alertReference.setText(sb.toString());
+									alertReference.discardAllEdits();
 								}
 							}
 						}
@@ -421,10 +424,15 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[alert.getReliability()]);
 			alertEditParam.setSelectedItem(alert.getParam());
 			alertEditAttack.setText(alert.getAttack());
+			alertEditAttack.discardAllEdits();
 			alertDescription.setText(alert.getDescription());
+			alertDescription.discardAllEdits();
 			alertOtherInfo.setText(alert.getOtherInfo());
+			alertOtherInfo.discardAllEdits();
 			alertSolution.setText(alert.getSolution());
+			alertSolution.discardAllEdits();
 			alertReference.setText(alert.getReference());
+			alertReference.discardAllEdits();
 			
 		} else {
 			alertName.setText(alert.getAlert());
@@ -453,9 +461,13 @@ public class AlertViewPanel extends AbstractPanel {
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
 			alertDescription.setText(alert.getDescription());
+			alertDescription.discardAllEdits();
 			alertOtherInfo.setText(alert.getOtherInfo());
+			alertOtherInfo.discardAllEdits();
 			alertSolution.setText(alert.getSolution());
+			alertSolution.discardAllEdits();
 			alertReference.setText(alert.getReference());
+			alertReference.discardAllEdits();
 		}
 
 		cardLayout.show(this, getAlertPane().getName());

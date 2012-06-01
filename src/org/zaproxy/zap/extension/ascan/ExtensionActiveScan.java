@@ -227,7 +227,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    }
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
 		this.getActiveScanPanel().reset();
@@ -237,6 +236,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 		// Add new hosts
 		SiteNode snroot = (SiteNode)session.getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = snroot.children();
 		while (en.hasMoreElements()) {
 			this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);

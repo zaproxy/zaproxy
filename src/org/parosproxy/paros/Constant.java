@@ -28,6 +28,7 @@
 // ZAP: 2012/03/03 Added ZAP homepage
 // ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method copyAllProperties.
 // ZAP: 2012/03/17 Issue 282 ZAP and PAROS team constants
+// ZAP: 2012/05/03 Changed the Patterns used to detect the O.S. to be final.
 
 package org.parosproxy.paros;
 
@@ -139,7 +140,7 @@ public final class Constant {
     
     // ZAP: Added i18n
     public static ResourceBundle messages = null;
-    public static Locale locale = null;
+    private static Locale locale = null;
 
     // ZAP: Added vulnerabilities file
     public String VULNS_CONFIG = "xml/vulnerabilities.xml";
@@ -447,7 +448,8 @@ public final class Constant {
     
     
     // Determine Windows Operating System
-    private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
     
     public static boolean isWindows() {
         String os_name = System.getProperty("os.name");
@@ -457,7 +459,8 @@ public final class Constant {
     }
     
     // Determine Linux Operating System
-    private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);
     
     public static boolean isLinux() {
         String os_name = System.getProperty("os.name");
@@ -466,7 +469,8 @@ public final class Constant {
     }
     
     // Determine Windows Operating System
-    private static Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
+    // ZAP: Changed to final.
+    private static final Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
     
     public static boolean isMacOsX() {
         String os_name = System.getProperty("os.name");

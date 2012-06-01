@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.TreeSelectionListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -44,7 +43,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class AlertAddDialog extends AbstractDialog implements TreeSelectionListener {
+public class AlertAddDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
@@ -226,11 +225,6 @@ public class AlertAddDialog extends AbstractDialog implements TreeSelectionListe
 	
 	public void setPlugin(ExtensionHistory plugin) {
 	    this.extension = plugin;
-        plugin.getView().getSiteTreePanel().getTreeSite().addTreeSelectionListener(this);
-
-	}
-	
-	public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 	}
 	
 	private AlertViewPanel getAlertViewPanel () {

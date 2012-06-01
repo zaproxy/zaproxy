@@ -211,7 +211,7 @@ public class EncoderDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtEncode	
 	 * 	
-	 * @return javax.swing.ZapTextArea
+	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */    
 	private ZapTextArea getTxtEncode() {
 		if (txtEncode == null) {
@@ -242,7 +242,7 @@ public class EncoderDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtDecode	
 	 * 	
-	 * @return javax.swing.ZapTextArea
+	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */    
 	private ZapTextArea getTxtDecode() {
 		if (txtDecode == null) {

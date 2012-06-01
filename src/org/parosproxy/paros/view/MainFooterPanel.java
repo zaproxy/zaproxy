@@ -16,7 +16,6 @@
  * along with this program; if not, see http://www.gnu.org/copyleft/
  * 
  */
-// ZAP: 2012/03/15 Changed to use only one label for each alert.
 
 package org.parosproxy.paros.view;
 
@@ -97,13 +96,13 @@ public class MainFooterPanel extends JPanel {
 		// Common alerts (Left)
 		footerToolbarLeft.add(new JLabel(Constant.messages.getString("footer.alerts.label")));
 		
-		footerToolbarLeft.add(getAlertHigh(0));
+		footerToolbarLeft.add(getAlertHigh());
 		
-		footerToolbarLeft.add(getAlertMedium(0));
+		footerToolbarLeft.add(getAlertMedium());
 		
-		footerToolbarLeft.add(getAlertLow(0));
+		footerToolbarLeft.add(getAlertLow());
 		
-		footerToolbarLeft.add(getAlertInfo(0));
+		footerToolbarLeft.add(getAlertInfo());
 		
 		// Current Scans (Right)
 		footerToolbarRight.add(new JLabel(Constant.messages.getString("footer.scans.label")));
@@ -147,63 +146,75 @@ public class MainFooterPanel extends JPanel {
 		getToolbarLeft().addSeparator();
 	}
 	
-	private JLabel getAlertHigh(int alert) {
+	private JLabel getAlertHigh() {
 		if (alertHigh == null) {
 			alertHigh = createAlertLabel(Constant.messages.getString("footer.alerts.high.tooltip"), Constant.HIGH_FLAG_IMAGE_URL); // Red flag
 		}
-		alertHigh.setText(String.valueOf(alert));
 		return alertHigh;
 	}
 	
 	public void setAlertHigh (int alert) {
-		getAlertHigh(alert);
+		getAlertHigh().setText(Integer.toString(alert));
 	}
 
-	private JLabel getAlertMedium(int alert) {
+	private JLabel getAlertMedium() {
 		if (alertMedium == null) {
 			alertMedium = createAlertLabel(Constant.messages.getString("footer.alerts.medium.tooltip"), Constant.MED_FLAG_IMAGE_URL); // Orange flag
 		}
-		alertMedium.setText(String.valueOf(alert));
 		return alertMedium;
 	}
 	
 	public void setAlertMedium (int alert) {
-		getAlertMedium(alert);
+		getAlertMedium().setText(Integer.toString(alert));
 	}
 
-	private JLabel getAlertLow(int alert) {
+	private JLabel getAlertLow() {
 		if (alertLow == null) {
 			alertLow = createAlertLabel(Constant.messages.getString("footer.alerts.low.tooltip"), Constant.LOW_FLAG_IMAGE_URL); // Yellow flag
 		}
-		alertLow.setText(String.valueOf(alert));
 		return alertLow;
 	}
 	
 	public void setAlertLow (int alert) {
-		getAlertLow(alert);
+		getAlertLow().setText(Integer.toString(alert));
 	}
 
-	private JLabel getAlertInfo(int alert) {
+	private JLabel getAlertInfo() {
 		if (alertInfo == null) {
 			alertInfo = createAlertLabel(Constant.messages.getString("footer.alerts.info.tooltip"), Constant.INFO_FLAG_IMAGE_URL); // Blue flag
 		}
-		alertInfo.setText(String.valueOf(alert));
 		return alertInfo;
 	}
 	
-	private JLabel createAlertLabel(String toolTip, URL icon) {
-		JLabel label = new JLabel();
-		label.setToolTipText(toolTip);
-		label.setIcon(new ImageIcon(icon));
+	public void setAlertInfo (int alert) {
+		getAlertInfo().setText(Integer.toString(alert));
+	}
+	
+	/**
+	 * Creates a {@code JLabel} with text "0", an {@code ImageIcon} created from
+	 * the specified URL, the specified tool tip text and an empty border that
+	 * takes up 5 pixels to the right and left of the {@code JLabel}.
+	 * 
+	 * @param toolTipText
+	 *            the tool tip text, if toolTipText is {@code null} no tool tip
+	 *            is displayed
+	 * @param imageUrl
+	 *            the URL to the image
+	 * 
+	 * @throws NullPointerException
+	 *             if imageUrl is {@code null}.
+	 * 
+	 * @return the {@code JLabel} object
+	 * 
+	 * @see JLabel#setToolTipText(String)
+	 */
+	private JLabel createAlertLabel(String toolTipText, URL imageUrl) throws NullPointerException {
+		JLabel label = new JLabel("0", new ImageIcon(imageUrl), JLabel.LEADING);
+		label.setToolTipText(toolTipText);
 		label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		
 		return label;
 	}
-	
-	public void setAlertInfo (int alert) {
-		getAlertInfo(alert);
-	}
-	
 	
 	// Support for dynamic scanning results in the footer
     public void addFooterToolbarRightLabel (JLabel label) {

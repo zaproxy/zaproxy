@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/05/03 Moved a statement in the method setValueAt(Object, int , int).
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -82,9 +83,11 @@ public class AllCategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	break;
         	case 1: setPluginCategoryEnabled(row, ((Boolean) value).booleanValue());
+        			fireTableCellUpdated(row, col);
         			break;
         }
-        fireTableCellUpdated(row, col);
+        // ZAP: Moved the statement "fireTableCellUpdated(row, col);" to the
+        // above switch case 1.
     }
     
     public int getColumnCount() {

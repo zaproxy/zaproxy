@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/05/03 Changed the method find to check if txtComp is null.
 
 package org.parosproxy.paros.view;
 
@@ -119,7 +120,12 @@ public class FindDialog extends AbstractDialog {
 	            txtComp = (JTextComponent) c;
             }
         }
-            
+        
+        // ZAP: Check if a JTextComponent was really found.
+        if (txtComp == null) {
+            return;
+        }
+        
 		try {
 		    String findText = txtFind.getText().toLowerCase();
 		    String txt = txtComp.getText().toLowerCase();
@@ -227,7 +233,7 @@ public class FindDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtFind	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtFind() {
 		if (txtFind == null) {

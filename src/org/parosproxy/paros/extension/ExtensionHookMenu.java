@@ -19,8 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-//                 ExtensionPopupMenuItem
+// ExtensionPopupMenuItem.
 // ZAP: 2012/03/15 Added the method addPopupMenuItem(ExtensionPopupMenu menu).
+// ZAP: 2012/05/03 Changed to only initialise the class variables MENU_SEPARATOR
+// and POPUP_MENU_SEPARATOR if there is a view.
 
 package org.parosproxy.paros.extension;
 
@@ -31,12 +33,13 @@ import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 
 public class ExtensionHookMenu {
     
-    public static final JMenuItem MENU_SEPARATOR = new JMenuItem();
-    public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR = new ExtensionPopupMenuItem();
+    public static final JMenuItem MENU_SEPARATOR;
+    public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR;
     
     private Vector<JMenuItem> newMenuList = new Vector<JMenuItem>();
     private Vector<JMenuItem> fileMenuItemList = new Vector<JMenuItem>();
@@ -48,6 +51,20 @@ public class ExtensionHookMenu {
     // ZAP: Added help and reports menu extension hook
     private Vector<JMenuItem> helpMenuList = new Vector<JMenuItem>();
     private Vector<JMenuItem> reportMenuList = new Vector<JMenuItem>();
+    
+    // ZAP: Added static block.
+    static {
+        // XXX temporary "hack" to check if ZAP is in GUI mode.
+        // There is no need to create view elements (subsequently initialising
+        // the java.awt.Toolkit) when ZAP is running in non GUI mode.
+        if (View.isInitialised()) {
+            MENU_SEPARATOR = new JMenuItem();
+            POPUP_MENU_SEPARATOR = new ExtensionPopupMenuItem();
+        } else {
+            MENU_SEPARATOR = null;
+            POPUP_MENU_SEPARATOR = null;
+        }
+    }
     
     List<JMenuItem> getNewMenus() {
         return newMenuList;

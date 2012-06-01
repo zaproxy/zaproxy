@@ -24,6 +24,7 @@
 // ZAP: 2012/02/18 Changed default to be 'bottom full'
 // ZAP: 2012/03/15 Changed to set the configuration key to the HttpPanels, load
 //      the configuration and disable the response panel.
+// ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 
 package org.parosproxy.paros.view;
 
@@ -235,12 +236,7 @@ public class View implements ViewDelegate {
         return mainFrame.getWorkbench();
     }
     
-    public void setStatus(String msg) {
-        if (msg == null || msg.equals("")) {
-            msg = " ";
-        }
-        mainFrame.setStatus(msg);
-    }
+    // ZAP: Removed the method setStatus(String), no longer used.
     
     public MainPopupMenu getPopupMenu() {
         MainPopupMenu popup = new MainPopupMenu(popupList);

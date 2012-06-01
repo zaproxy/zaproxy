@@ -181,6 +181,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 					if (!fileTextField.getText().equals("")) {
 						LangImporter.importLanguagePack(fileTextField.getText());
 						fileTextField.setText("");
+						fileTextField.discardAllEdits();
 						loadLocales();
 					}
 				}
@@ -214,6 +215,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 
 		if (state == JFileChooser.APPROVE_OPTION) {
 			fileTextField.setText(fc.getSelectedFile().toString());
+			fileTextField.discardAllEdits();
 		}
 	}
 	

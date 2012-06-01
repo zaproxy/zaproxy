@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 i18n
+// ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 
 package org.parosproxy.paros.extension.option;
 
@@ -333,19 +334,18 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes txtProxyIp	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtProxyIp() {
 		if (txtProxyIp == null) {
-			txtProxyIp = new ZapTextField();
-			txtProxyIp.setText("");
+			txtProxyIp = new ZapTextField("");
 		}
 		return txtProxyIp;
 	}
 	/**
 	 * This method initializes txtProxyIpSSL	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtReverseProxyIp() {
 		if (txtReverseProxyIp == null) {
@@ -404,11 +404,13 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	    
 	    // set Local Proxy parameters
 	    txtProxyIp.setText(proxyParam.getProxyIp());
+	    txtProxyIp.discardAllEdits();
 		// ZAP: Do not allow invalid port numbers
 	    spinnerProxyPort.setValue(proxyParam.getProxyPort());
 	    
 	    // set reverse proxy param
         txtReverseProxyIp.setText(proxyParam.getReverseProxyIp());
+        txtReverseProxyIp.discardAllEdits();
     	// ZAP: Do not allow invalid port numbers
         spinnerReverseProxyHttpPort.setValue(proxyParam.getReverseProxyHttpPort());
         spinnerReverseProxyHttpsPort.setValue(proxyParam.getReverseProxyHttpsPort());

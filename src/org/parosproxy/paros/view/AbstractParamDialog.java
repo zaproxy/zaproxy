@@ -381,7 +381,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	/**
 	 * This method initializes txtHeadline	
 	 * 	
-	 * @return javax.swing.ZapTextField	
+	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
 	private ZapTextField getTxtHeadline() {
 		if (txtHeadline == null) {

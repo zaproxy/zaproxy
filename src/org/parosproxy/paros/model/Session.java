@@ -21,6 +21,7 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/05/15 Changed the method parse() to get the session description.
 
 package org.parosproxy.paros.model;
 
@@ -215,8 +216,15 @@ public class Session extends FileXML {
 			
 		}
 		
-		// ZAP: expand root
-	    View.getSingleton().getSiteTreePanel().expandRoot();
+        // XXX Temporary "hack" to check if ZAP is in GUI mode. Calling
+        // View.getSingleton() creates the View, if a View exists and the API
+        // was not enabled (through configuration) the API becomes disabled
+        // everywhere (including demon mode).
+        // Note: the API needs to be enabled all the time in daemon mode.
+		if (View.isInitialised()) {
+		    // ZAP: expand root
+		    View.getSingleton().getSiteTreePanel().expandRoot();
+		}
 
 	    // Load the session urls
 	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);
@@ -253,7 +261,9 @@ public class Session extends FileXML {
 	    // use temp variable to check.  Exception will be flagged if any error.
 		tempSessionId = Long.parseLong(getValue(SESSION_ID));
 		tempSessionName = getValue(SESSION_NAME);
-		tempSessionName = getValue(SESSION_NAME);
+		// ZAP: Changed to get the session description and use the variable
+		// tempSessionDesc.
+		tempSessionDesc = getValue(SESSION_DESC);
 
 		// set member variable after here
 		sessionId = tempSessionId;
