@@ -28,10 +28,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.apache.tools.ant.taskdefs.Sleep;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
+import org.zaproxy.zap.spider.filters.FetchFilter;
 
 /**
  * The Class Spider.
@@ -106,6 +109,9 @@ public class Spider {
 	private void init() {
 		this.paused = false;
 		this.stopped = true;
+
+		// Add a default fetch filter
+		this.addFetchFilter(new DefaultFetchFilter());
 	}
 
 	/* SPIDER Related */
@@ -187,7 +193,7 @@ public class Spider {
 		httpSender.setFollowRedirect(false);
 
 		// Feed the seed to the thread pool
-		controller.resourceFound(null, "http://www.prosc.ro");
+		controller.resourceFound(null, "http://www.feedrz.com:80/contact.jsp");
 	}
 
 	/**
