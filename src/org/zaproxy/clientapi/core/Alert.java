@@ -23,7 +23,7 @@ import net.sf.json.JSONObject;
 
 public class Alert {
 	
-	public enum Risk {Low, Medium, High};
+	public enum Risk {Informational, Low, Medium, High};
 	public enum Reliability {Suspicious, Warning};
 	
 	private String alert;
