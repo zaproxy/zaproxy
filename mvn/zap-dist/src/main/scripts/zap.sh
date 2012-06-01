@@ -45,5 +45,5 @@ then
 fi
 
 #Start ZAP
-java ${JMEM} -jar ${BASEDIR}/zap.jar org.zaproxy.zap.ZAP $*
+java ${JMEM} -jar ${BASEDIR}/zap-${project.version}.jar org.zaproxy.zap.ZAP $*
 
