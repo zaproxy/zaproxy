@@ -25,9 +25,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 
 /**
  * The Class Spider.
@@ -55,6 +59,12 @@ public class Spider {
 	/** The pause lock, used for locking access to the "paused" vairable */
 	private ReentrantLock pauseLock = new ReentrantLock();
 
+	/** The seed values. */
+	private LinkedList<String> seeds;
+
+	/** The controller that manages the spidering process. */
+	private SpiderController controller;
+
 	/**
 	 * The condition that is used for the threads in the pool to wait on, when the Spider crawling
 	 * is paused. When the Spider is resumed, all the waiting threads are awakened.
@@ -63,6 +73,12 @@ public class Spider {
 
 	/** The thread pool for spider workers. */
 	ExecutorService threadPool;
+
+	/** The Constant log. */
+	private static final Logger log = Logger.getLogger(Spider.class);
+
+	/** The http sender. */
+	private HttpSender httpSender;
 
 	/**
 	 * Instantiates a new spider.
@@ -73,12 +89,23 @@ public class Spider {
 	 */
 	public Spider(SpiderParam spiderParam, ConnectionParam connectionParam, Model model) {
 		super();
+		log.info("Spider initializing...");
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
+		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
+		this.controller = new SpiderController(this, connectionParam);
+		this.listeners = new LinkedList<SpiderListener>();
+
+		init();
+	}
+
+	/**
+	 * Initialize the spider.
+	 */
+	private void init() {
 		this.paused = false;
 		this.stopped = true;
-		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
 	}
 
 	/* SPIDER Related */
@@ -89,7 +116,6 @@ public class Spider {
 	 */
 	public void addSeed(HttpMessage msg) {
 		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -103,6 +129,46 @@ public class Spider {
 
 	}
 
+	/**
+	 * Adds a new fetch filter to the spider.
+	 * 
+	 * @param filter the filter
+	 */
+	public void addFetchFilter(FetchFilter filter) {
+		controller.addFetchFilter(filter);
+	}
+
+	/**
+	 * Gets the http sender. Can be called from the SpiderTask.
+	 * 
+	 * @return the http sender
+	 */
+	protected HttpSender getHttpSender() {
+		return httpSender;
+	}
+
+	/**
+	 * Gets the spider parameters. Can be called from the SpiderTask.
+	 * 
+	 * @return the spider parameters
+	 */
+	protected SpiderParam getSpiderParam() {
+		return spiderParam;
+	}
+
+	/**
+	 * Submit a new task to the spidering task pool.
+	 * 
+	 * @param task the task
+	 */
+	protected synchronized void submitTask(SpiderTask task) {
+		if (isStopped() || isTerminated()) {
+			log.debug("Submit task skipped (" + task + ") as the Spider process is stopped.");
+			return;
+		}
+		this.threadPool.execute(task);
+	}
+
 	/* SPIDER PROCESS maintenance - pause, resume, shutdown, etc. */
 
 	/**
@@ -110,6 +176,18 @@ public class Spider {
 	 */
 	public void start() {
 
+		log.info("Spider started.");
+		this.stopped = false;
+		this.paused = false;
+
+		// Initialize the HTTP sender
+		httpSender = new HttpSender(connectionParam, true);
+		// Do not follow redirections because the request is not updated, the redirections will be
+		// handled manually.
+		httpSender.setFollowRedirect(false);
+
+		// Feed the seed to the thread pool
+		controller.resourceFound(null, "http://www.prosc.ro");
 	}
 
 	/**
@@ -148,7 +226,7 @@ public class Spider {
 	/**
 	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
 	 * it checks if the Spidering process is paused and, if it is, it waits on the corresponding
-	 * condition for the process to be resumed.
+	 * condition for the process to be resumed. Called from the SpiderTask.
 	 */
 	protected void beforeTaskExecution() {
 		pauseLock.lock();
@@ -236,7 +314,7 @@ public class Spider {
 	 * @param numberCrawled the number of pages crawled
 	 * @param numberToCrawl the number of pages left to crawl
 	 */
-	private void notifyListenersSpiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl) {
+	protected void notifyListenersSpiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl) {
 		for (SpiderListener l : listeners)
 			l.spiderProgress(percentageComplete, numberCrawled, numberToCrawl);
 	}
@@ -247,7 +325,7 @@ public class Spider {
 	 * @param msg the message
 	 * @param isSkipped the is skipped
 	 */
-	private void notifyListenersFoundURI(HttpMessage msg, boolean isSkipped) {
+	protected void notifyListenersFoundURI(HttpMessage msg, boolean isSkipped) {
 		for (SpiderListener l : listeners)
 			l.foundURI(msg, isSkipped);
 	}
@@ -257,7 +335,7 @@ public class Spider {
 	 * 
 	 * @param msg the msg
 	 */
-	private void notifyListenersReadURI(HttpMessage msg) {
+	protected void notifyListenersReadURI(HttpMessage msg) {
 		for (SpiderListener l : listeners)
 			l.readURI(msg);
 	}
