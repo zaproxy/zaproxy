@@ -50,7 +50,10 @@ public class SpiderParam extends AbstractParam {
 	private Pattern patternSkipURL = null;
 	/** The pattern for scope. */
 	private Pattern patternScope = null;
+	/** The user agent string, if diferent than the default one. */
+	private String userAgent = null;
 
+	/** The log. */
 	Logger log = Logger.getLogger(SpiderParam.class);
 
 	/**
@@ -70,38 +73,38 @@ public class SpiderParam extends AbstractParam {
 		try {
 			this.threadCount = getConfig().getInt(SPIDER_THREAD, 2);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
 
 		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(),e);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 	}
 
@@ -285,6 +288,24 @@ public class SpiderParam extends AbstractParam {
 	public void setRequestWaitTime(int requestWait) {
 		this.requestWait = requestWait;
 		this.getConfig().setProperty(SPIDER_REQUEST_WAIT, Integer.toString(requestWait));
+	}
+
+	/**
+	 * Gets the user agent.
+	 * 
+	 * @return the user agent
+	 */
+	public String getUserAgent() {
+		return userAgent;
+	}
+
+	/**
+	 * Sets the user agent, if diferent from the default one.
+	 * 
+	 * @param userAgent the new user agent
+	 */
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
 	}
 
 }
