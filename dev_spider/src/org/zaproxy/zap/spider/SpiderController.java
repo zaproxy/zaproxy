@@ -21,10 +21,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.FetchFilter.FetchStatus;
+import org.zaproxy.zap.spider.filters.FetchFilter;
+import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
@@ -98,9 +100,17 @@ public class SpiderController implements SpiderParserListener {
 	 * .HttpMessage, java.lang.String) */
 	@Override
 	public void resourceFound(HttpMessage responseMessage, String uri) {
-		log.warn("New resource found: " + uri);
+		log.info("New resource found: " + uri);
 
-		// Build the uri
+		// Check if the uri was processed already
+		// TODO: Differentiate by protocol
+		if (visitedGet.contains(uri)) {
+			log.debug("URI already visited: " + uri);
+			return;
+		} else
+			visitedGet.add(uri);
+
+		// Create the uriV
 		URI uriV = null;
 		try {
 			uriV = new URI(uri, true);
@@ -112,7 +122,7 @@ public class SpiderController implements SpiderParserListener {
 		for (FetchFilter f : fetchFilters) {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
-				log.warn("URI: " + uriV + " was filtered by a filter with status: " + s);
+				log.warn("URI: " + uriV + " was filtered by a filter with reason: " + s);
 				return;
 			}
 		}

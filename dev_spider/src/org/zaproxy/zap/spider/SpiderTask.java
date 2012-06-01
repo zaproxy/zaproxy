@@ -102,7 +102,7 @@ public class SpiderTask implements Runnable {
 	 * @param msg the HTTP Message
 	 */
 	private void processResource(HttpMessage msg) {
-		log.debug("Processing message with content: " + msg.getResponseBody().toString());
+		//log.debug("Processing message with content: " + msg.getResponseBody().toString());
 		SpiderParser parser = controller.getParser();
 		Source source = new Source(msg.getResponseBody().toString());
 		parser.parseResource(msg, source);
@@ -126,9 +126,9 @@ public class SpiderTask implements Runnable {
 			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
 
 		// Fetch the page
-		log.debug("Fetching resource: " + uri + " using HttpMessage: " + msg.getRequestHeader().toString());
+		//log.debug("Fetching resource: " + uri + " using HttpMessage: " + msg.getRequestHeader().toString());
 		parent.getHttpSender().sendAndReceive(msg);
-		log.debug("Resource received from server - response header: " + msg.getResponseHeader().toString());
+		//log.debug("Resource received from server - response header: " + msg.getResponseHeader().toString());
 
 		return msg;
 

@@ -39,14 +39,43 @@ public class SpiderHtmlParser extends SpiderParser {
 	@Override
 	public void parseResource(HttpMessage message, Source source) {
 
-		List<Element> elements=source.getAllElements(HTMLElementName.A);
-		for(Element el:elements)
-		{
-			log.warn("Found A element: "+el.getAttributeValue("href"));
-			log.warn("Complete URL: "+URLCanonicalizer.getCanonicalURL(el.getAttributeValue("href"), "http://www.prosc.ro"));
-			//TODO: work work work
-			//this.notifyListenersResourceFound(null, URLCanonicalizer.getCanonicalURL(el.getAttributeValue("href"), "http://www.prosc.ro"));
+		// Get the context (base url)
+		String baseURL;
+		if (message == null)
+			baseURL = "";
+		else
+			baseURL = message.getRequestHeader().getURI().toString();
+		log.info("Base URL: " + baseURL);
+
+		// Process A elements
+		List<Element> elements = source.getAllElements(HTMLElementName.A);
+		for (Element el : elements) {
+			processAttributeElement(message, baseURL, el, "href");
 		}
+	}
+
+	/**
+	 * Processes the attribute with the given name of a Jericho element, for an URL. If an URL is
+	 * found, notifies the listeners.
+	 * 
+	 * @param message the message
+	 * @param baseURL the base url
+	 * @param element the element
+	 * @param attributeName the attribute name
+	 */
+	private void processAttributeElement(HttpMessage message, String baseURL, Element element, String attributeName) {
+		// The URL as written in the attribute (can be relative or absolute)
+		String localURL = element.getAttributeValue("href");
+		if (localURL == null)
+			return;
+
+		// Build the absolute canonical URL
+		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+		if (fullURL == null)
+			return;
+
+		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
+		notifyListenersResourceFound(message, fullURL);
 	}
 
 }

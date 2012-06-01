@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.spider;
+package org.zaproxy.zap.spider.filters;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.log4j.Logger;
 
 /**
  * A FetchFilter is used to filter which resources should be fetched and processed by the Spider and
@@ -39,6 +40,9 @@ public abstract class FetchFilter {
 		/** The The uri is skipped because of user rules. */
 		USER_RULES
 	};
+
+	/** The Constant log. */
+	protected static final Logger log = Logger.getLogger(FetchFilter.class);
 
 	/**
 	 * Checks if the uri must be ignored and not processed and return the filter status.
