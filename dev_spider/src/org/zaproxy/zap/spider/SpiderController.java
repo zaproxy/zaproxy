@@ -76,7 +76,21 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	/**
-	 * Gets the fetch filters used by the spider.
+	 * Adds a new seed.
+	 * 
+	 * @param uri the uri
+	 */
+	protected void addSeed(URI uri) {
+		// Create and submit the new task
+		SpiderTask task = new SpiderTask(spider, this, uri);
+		spider.submitTask(task);
+		// Add the uri to the found list
+		visitedGet.add(uri.toString());
+		spider.notifyListenersFoundURI(uri.toString(), FetchStatus.VALID);
+	}
+
+	/**
+	 * Gets the fetch filters used by the spider during the spidering process.
 	 * 
 	 * @return the fetch filters
 	 */
@@ -99,7 +113,7 @@ public class SpiderController implements SpiderParserListener {
 	 * org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
 	 * .HttpMessage, java.lang.String) */
 	@Override
-	public void resourceFound(HttpMessage responseMessage, String uri) {
+	public void resourceURIFound(HttpMessage responseMessage, String uri) {
 		log.info("New resource found: " + uri);
 
 		// Check if the uri was processed already
@@ -107,8 +121,11 @@ public class SpiderController implements SpiderParserListener {
 		if (visitedGet.contains(uri)) {
 			log.debug("URI already visited: " + uri);
 			return;
-		} else
-			visitedGet.add(uri);
+		} else {
+			synchronized (visitedGet) {
+				visitedGet.add(uri);
+			}
+		}
 
 		// Create the uriV
 		URI uriV = null;
@@ -123,15 +140,23 @@ public class SpiderController implements SpiderParserListener {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
 				log.warn("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				spider.notifyListenersFoundURI(uri, s);
 				return;
 			}
 		}
+
+		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
 		SpiderTask task = new SpiderTask(spider, this, uriV);
 		spider.submitTask(task);
 	}
 
+	/**
+	 * Gets the parser instance.
+	 * 
+	 * @return the parser
+	 */
 	public SpiderParser getParser() {
 		return parser;
 	}

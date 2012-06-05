@@ -36,5 +36,5 @@ public interface SpiderParserListener {
 	 * @param responseMessage the response message
 	 * @param uri the universal resource locator
 	 */
-	public void resourceFound(HttpMessage responseMessage, String uri);
+	public void resourceURIFound(HttpMessage responseMessage, String uri);
 }

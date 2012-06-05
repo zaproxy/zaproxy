@@ -30,6 +30,8 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Appender;
@@ -40,12 +42,18 @@ import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.dynssl.DynSSLParam;
 import org.zaproxy.zap.extension.dynssl.DynamicSSLWelcomeDialog;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.spider.Spider;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
@@ -238,6 +246,25 @@ public class ZAP {
 		    }
 	    } else if (cmdLine.isDaemon()) {
 	    	runDaemon();
+	    	Thread.sleep(1000);
+	        //TODO: Debugging purpose
+			HttpMessage msg=null;
+			try {
+				msg = new HttpMessage(new HttpRequestHeader(HttpRequestHeader.GET, new URI("http://www.prosc.ro",
+						true), HttpHeader.HTTP11));
+			} catch (URIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (HttpMalformedHeaderException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Spider spider=new Spider(new SpiderParam(),Model.getSingleton().getOptionsParam().getConnectionParam(), Model.getSingleton());
+			spider.addSeed(msg);
+			spider.start();
 	    } else {
 	        runCommandLine();
 	    }
