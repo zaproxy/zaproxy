@@ -17,24 +17,26 @@
  */
 package org.zaproxy.zap.spider;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
-import org.apache.tools.ant.taskdefs.Sleep;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
+import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /**
  * The Class Spider.
@@ -59,11 +61,8 @@ public class Spider {
 	/** The the spider is currently stopped. */
 	private boolean stopped;
 
-	/** The pause lock, used for locking access to the "paused" vairable */
+	/** The pause lock, used for locking access to the "paused" vairable. */
 	private ReentrantLock pauseLock = new ReentrantLock();
-
-	/** The seed values. */
-	private LinkedList<String> seeds;
 
 	/** The controller that manages the spidering process. */
 	private SpiderController controller;
@@ -77,11 +76,23 @@ public class Spider {
 	/** The thread pool for spider workers. */
 	ExecutorService threadPool;
 
+	/** The default fetch filter. */
+	DefaultFetchFilter defaultFetchFilter;
+
+	/** The seed list. */
+	ArrayList<URI> seedList;
+
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(Spider.class);
 
 	/** The http sender. */
 	private HttpSender httpSender;
+
+	/** The count of the tasks finished. */
+	private AtomicInteger tasksDoneCount;
+
+	/** The total count of all the submitted tasks. */
+	private AtomicInteger tasksTotalCount;
 
 	/**
 	 * Instantiates a new spider.
@@ -99,6 +110,7 @@ public class Spider {
 		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
 		this.controller = new SpiderController(this, connectionParam);
 		this.listeners = new LinkedList<SpiderListener>();
+		this.seedList = new ArrayList<URI>();
 
 		init();
 	}
@@ -109,19 +121,50 @@ public class Spider {
 	private void init() {
 		this.paused = false;
 		this.stopped = true;
+		this.tasksDoneCount = new AtomicInteger(0);
+		this.tasksTotalCount = new AtomicInteger(0);
 
 		// Add a default fetch filter
-		this.addFetchFilter(new DefaultFetchFilter());
+		defaultFetchFilter = new DefaultFetchFilter();
+		this.addFetchFilter(defaultFetchFilter);
 	}
 
 	/* SPIDER Related */
 	/**
 	 * Adds a new seed for the Spider.
 	 * 
-	 * @param msg the message used for seed.
+	 * @param msg the message used for seed. The request URI is used from the Request Header
 	 */
 	public void addSeed(HttpMessage msg) {
-		// TODO Auto-generated method stub
+		URI uri = msg.getRequestHeader().getURI();
+		// Update the scope of the spidering process
+		try {
+			defaultFetchFilter.addScopeDomain(uri.getHost());
+		} catch (URIException e) {
+			log.error("There was an error while adding seed value: " + uri, e);
+			return;
+		}
+		// Add the seed to the list -- it will be added to the task list only when the spider is
+		// started
+		this.seedList.add(uri);
+	}
+
+	/**
+	 * Adds a new seed for the Spider.
+	 * 
+	 * @param uri the uri
+	 */
+	public void addSeed(URI uri) {
+		// Update the scope of the spidering process
+		try {
+			defaultFetchFilter.addScopeDomain(uri.getHost());
+		} catch (URIException e) {
+			log.error("There was an error while adding seed value: " + uri, e);
+			return;
+		}
+		// Add the seed to the list -- it will be added to the task list only when the spider is
+		// started
+		this.seedList.add(uri);
 	}
 
 	/**
@@ -132,7 +175,6 @@ public class Spider {
 	 */
 	public void setExcludeList(List<String> excludeList) {
 		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -168,10 +210,15 @@ public class Spider {
 	 * @param task the task
 	 */
 	protected synchronized void submitTask(SpiderTask task) {
-		if (isStopped() || isTerminated()) {
+		if (isStopped()) {
 			log.debug("Submit task skipped (" + task + ") as the Spider process is stopped.");
 			return;
 		}
+		if (isTerminated()) {
+			log.debug("Submit task skipped (" + task + ") as the Spider process is terminated.");
+			return;
+		}
+		this.tasksTotalCount.incrementAndGet();
 		this.threadPool.execute(task);
 	}
 
@@ -182,7 +229,7 @@ public class Spider {
 	 */
 	public void start() {
 
-		log.info("Spider started.");
+		log.info("Starting spider...");
 		this.stopped = false;
 		this.paused = false;
 
@@ -192,15 +239,50 @@ public class Spider {
 		// handled manually.
 		httpSender.setFollowRedirect(false);
 
-		// Feed the seed to the thread pool
-		controller.resourceFound(null, "http://www.feedrz.com:80/contact.jsp");
+		// Add the seeds
+		for (URI uri : seedList)
+			controller.addSeed(uri);
 	}
 
 	/**
 	 * Stops the Spider crawling.
 	 */
 	public void stop() {
+		log.info("Stopping spidering process by request.");
+		// Issue the shutdown command
+		if (this.stopped == false)
+			this.threadPool.shutdown();
+		this.stopped = true;
 
+		// Notify the listeners -- in the meanwhile
+		notifyListenersSpiderComplete(false);
+
+		// Wait for finishing
+		try {
+			threadPool.awaitTermination(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * The Spidering process is complete.
+	 */
+	private void complete() {
+		log.info("Spidering process is complete.");
+		// Issue the shutdown command
+		this.stopped = true;
+		threadPool.shutdown();
+
+		// Notify the listeners -- in the meanwhile
+		notifyListenersSpiderComplete(true);
+
+		// Wait for finishing
+		try {
+			threadPool.awaitTermination(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -234,7 +316,7 @@ public class Spider {
 	 * it checks if the Spidering process is paused and, if it is, it waits on the corresponding
 	 * condition for the process to be resumed. Called from the SpiderTask.
 	 */
-	protected void beforeTaskExecution() {
+	protected void preTaskExecution() {
 		pauseLock.lock();
 		try {
 			while (paused)
@@ -243,6 +325,23 @@ public class Spider {
 		} finally {
 			pauseLock.unlock();
 		}
+	}
+
+	/**
+	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
+	 * it notifies the listeners of the progress and checks if the scan is complete. Called from the
+	 * SpiderTask.
+	 */
+	protected void postTaskExecution() {
+		int done = this.tasksDoneCount.incrementAndGet();
+		int total = this.tasksTotalCount.get();
+
+		// Compute the progress and notify the listeners
+		this.notifyListenersSpiderProgress(done / total, done, total - done);
+
+		// Check for ending conditions
+		if (done == total)
+			this.complete();
 	}
 
 	/**
@@ -272,27 +371,6 @@ public class Spider {
 		return threadPool.isTerminated();
 	}
 
-	/**
-	 * Shutdown the Spider process.
-	 */
-	public void shutdown() {
-		this.stopped = true;
-		threadPool.shutdown();
-	}
-
-	/**
-	 * Issues a shutdown of the Spider process and waits for all the current tasks to finish.
-	 */
-	public void shutdownAndWait() {
-		this.stopped = true;
-		threadPool.shutdown();
-		try {
-			threadPool.awaitTermination(10, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	/* LISTENERS SECTION */
 
 	/**
@@ -320,7 +398,8 @@ public class Spider {
 	 * @param numberCrawled the number of pages crawled
 	 * @param numberToCrawl the number of pages left to crawl
 	 */
-	protected void notifyListenersSpiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl) {
+	protected synchronized void notifyListenersSpiderProgress(int percentageComplete, int numberCrawled,
+			int numberToCrawl) {
 		for (SpiderListener l : listeners)
 			l.spiderProgress(percentageComplete, numberCrawled, numberToCrawl);
 	}
@@ -328,12 +407,13 @@ public class Spider {
 	/**
 	 * Notifies the listeners regarding a found uri.
 	 * 
-	 * @param msg the message
-	 * @param isSkipped the is skipped
+	 * @param uri the uri
+	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+	 *            stating the reason of the filtering
 	 */
-	protected void notifyListenersFoundURI(HttpMessage msg, boolean isSkipped) {
+	protected synchronized void notifyListenersFoundURI(String uri, FetchStatus status) {
 		for (SpiderListener l : listeners)
-			l.foundURI(msg, isSkipped);
+			l.foundURI(uri, status);
 	}
 
 	/**
@@ -341,7 +421,7 @@ public class Spider {
 	 * 
 	 * @param msg the msg
 	 */
-	protected void notifyListenersReadURI(HttpMessage msg) {
+	protected synchronized void notifyListenersReadURI(HttpMessage msg) {
 		for (SpiderListener l : listeners)
 			l.readURI(msg);
 	}
@@ -349,9 +429,9 @@ public class Spider {
 	/**
 	 * Notifies the listeners that the spider is complete.
 	 */
-	private void notifyListenersSpiderComplete() {
+	protected synchronized void notifyListenersSpiderComplete(boolean successful) {
 		for (SpiderListener l : listeners)
-			l.spiderComplete();
+			l.spiderComplete(successful);
 	}
 
 }

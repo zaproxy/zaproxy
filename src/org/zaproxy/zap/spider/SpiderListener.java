@@ -19,6 +19,7 @@
 package org.zaproxy.zap.spider;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /**
  * The listener interface for receiving spider related events. The class that is interested in
@@ -44,10 +45,11 @@ public interface SpiderListener {
 	 * Event triggered when a new uri was found. The <code>isSkipped</code> parameter says if the
 	 * URI was skipped according to any skip rule or it was processed.
 	 * 
-	 * @param msg the message
-	 * @param isSkipped if the uri was skipped
+	 * @param uri the uri
+	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+	 *            stating the reason of the filtering
 	 */
-	public void foundURI(HttpMessage msg, boolean isSkipped);
+	public void foundURI(String uri, FetchStatus status);
 
 	/**
 	 * Event triggered when a new uri was read.
@@ -57,8 +59,17 @@ public interface SpiderListener {
 	public void readURI(HttpMessage msg);
 
 	/**
-	 * Event triggered when the spider is complete.
+	 * Event triggered when the spider is finished. This event is triggered either when the spider
+	 * has completed scanning a website, in which case the parameter <code>successful</code> is
+	 * <code>true</code> , either when it was stopped by an user in which case the
+	 * <code>successful</code> parameter is false.
+	 * 
+	 * @param successful <ul>
+	 *            <li>true - when the spider has scanned a website completely and finished by its
+	 *            own</li>
+	 *            <li>false - when the spider was stopped by the user</li>
+	 *            </ul>
 	 */
-	public void spiderComplete();
+	public void spiderComplete(boolean successful);
 
 }

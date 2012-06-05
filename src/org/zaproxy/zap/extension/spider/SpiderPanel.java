@@ -69,6 +69,9 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
      */
     public SpiderPanel(ExtensionSpider extension, SpiderParam portScanParam) {
         super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension, portScanParam);
+        //TODO: DEBUGGING PURPOSE
+        this.siteSelected("http://www.feedrz.com");
+        this.startScan();
     }
 
 	@Override

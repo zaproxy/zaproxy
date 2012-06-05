@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import java.util.LinkedList;
+
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 
@@ -32,7 +34,7 @@ import org.apache.commons.httpclient.URIException;
 public class DefaultFetchFilter extends FetchFilter {
 
 	/** The scope. */
-	private String scope = "feedrz.com";
+	private LinkedList<String> scopes = new LinkedList<String>();
 
 	/* (non-Javadoc)
 	 * 
@@ -47,14 +49,24 @@ public class DefaultFetchFilter extends FetchFilter {
 
 		// Scope check
 		try {
-			if (!uri.getHost().endsWith(scope))
-				return FetchStatus.OUT_OF_SCOPE;
+			for (String scope : scopes)
+				if (!uri.getHost().endsWith(scope))
+					return FetchStatus.OUT_OF_SCOPE;
 		} catch (URIException e) {
 			log.warn("Error while fetching host for uri: " + uri, e);
 			return FetchStatus.OUT_OF_SCOPE;
 		}
 
 		return FetchStatus.VALID;
+	}
+
+	/**
+	 * Adds a new domain to the scope list of the spider process.
+	 * 
+	 * @param scope the scope
+	 */
+	public void addScopeDomain(String scope) {
+		this.scopes.add(scope);
 	}
 
 }

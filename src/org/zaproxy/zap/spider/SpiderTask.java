@@ -70,16 +70,16 @@ public class SpiderTask implements Runnable {
 
 		// Check if the should stop
 		if (parent.isStopped()) {
-			log.debug("Spider process is stopped. Skipping task...");
+			log.debug("Spider process is stopped. Skipping crawling task...");
 			return;
 		}
 		if (uri == null) {
-			log.warn("Null URI. Skipping crawling...");
+			log.warn("Null URI. Skipping crawling task...");
 			return;
 		}
 
 		// Check if the crawling process is paused and do any "before execution" processing
-		parent.beforeTaskExecution();
+		parent.preTaskExecution();
 
 		// Fetch the resource
 		HttpMessage msg = null;
@@ -90,9 +90,14 @@ public class SpiderTask implements Runnable {
 			return;
 		}
 
+		// Notify the SpiderListeners that a resource was read
+		parent.notifyListenersReadURI(msg);
+
 		// Process resource
 		processResource(msg);
 
+		// Update the progress and check if the spidering process should stop
+		parent.postTaskExecution();
 		log.info("Spider Task finished.");
 	}
 
@@ -102,7 +107,6 @@ public class SpiderTask implements Runnable {
 	 * @param msg the HTTP Message
 	 */
 	private void processResource(HttpMessage msg) {
-		//log.debug("Processing message with content: " + msg.getResponseBody().toString());
 		SpiderParser parser = controller.getParser();
 		Source source = new Source(msg.getResponseBody().toString());
 		parser.parseResource(msg, source);
@@ -126,9 +130,7 @@ public class SpiderTask implements Runnable {
 			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
 
 		// Fetch the page
-		//log.debug("Fetching resource: " + uri + " using HttpMessage: " + msg.getRequestHeader().toString());
 		parent.getHttpSender().sendAndReceive(msg);
-		//log.debug("Resource received from server - response header: " + msg.getResponseHeader().toString());
 
 		return msg;
 

@@ -63,7 +63,7 @@ public abstract class SpiderParser {
 	 */
 	protected void notifyListenersResourceFound(HttpMessage message, String uri) {
 		for (SpiderParserListener l : listeners)
-			l.resourceFound(message, uri);
+			l.resourceURIFound(message, uri);
 	}
 
 	/**
