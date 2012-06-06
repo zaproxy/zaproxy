@@ -37,7 +37,7 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
 	 * , net.htmlparser.jericho.Source) */
 	@Override
-	public void parseResource(HttpMessage message, Source source) {
+	public void parseResource(HttpMessage message, Source source, int depth) {
 
 		// Get the context (base url)
 		String baseURL;
@@ -50,7 +50,7 @@ public class SpiderHtmlParser extends SpiderParser {
 		// Process A elements
 		List<Element> elements = source.getAllElements(HTMLElementName.A);
 		for (Element el : elements) {
-			processAttributeElement(message, baseURL, el, "href");
+			processAttributeElement(message, depth, baseURL, el, "href");
 		}
 	}
 
@@ -59,11 +59,13 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * found, notifies the listeners.
 	 * 
 	 * @param message the message
+	 * @param depth the depth
 	 * @param baseURL the base url
 	 * @param element the element
 	 * @param attributeName the attribute name
 	 */
-	private void processAttributeElement(HttpMessage message, String baseURL, Element element, String attributeName) {
+	private void processAttributeElement(HttpMessage message, int depth, String baseURL, Element element,
+			String attributeName) {
 		// The URL as written in the attribute (can be relative or absolute)
 		String localURL = element.getAttributeValue("href");
 		if (localURL == null)
@@ -75,7 +77,7 @@ public class SpiderHtmlParser extends SpiderParser {
 			return;
 
 		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
-		notifyListenersResourceFound(message, fullURL);
+		notifyListenersResourceFound(message, depth + 1, fullURL);
 	}
 
 }

@@ -107,7 +107,6 @@ public class Spider {
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
-		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
 		this.controller = new SpiderController(this, connectionParam);
 		this.listeners = new LinkedList<SpiderListener>();
 		this.seedList = new ArrayList<URI>();
@@ -233,6 +232,9 @@ public class Spider {
 		this.stopped = false;
 		this.paused = false;
 
+		// Initialize the thread pool
+		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
+
 		// Initialize the HTTP sender
 		httpSender = new HttpSender(connectionParam, true);
 		// Do not follow redirections because the request is not updated, the redirections will be
@@ -250,9 +252,14 @@ public class Spider {
 	public void stop() {
 		log.info("Stopping spidering process by request.");
 		// Issue the shutdown command
-		if (this.stopped == false)
+		if (this.stopped == false) {
 			this.threadPool.shutdownNow();
+		}
 		this.stopped = true;
+		if (httpSender != null) {
+			this.getHttpSender().shutdown();
+			httpSender = null;
+		}
 
 		// Notify the listeners -- in the meanwhile
 		notifyListenersSpiderComplete(false);
@@ -264,6 +271,10 @@ public class Spider {
 	private void complete() {
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
+		if (httpSender != null) {
+			this.getHttpSender().shutdown();
+			httpSender = null;
+		}
 
 		// Issue the shutdown command on a separate thread, as the current thread is most likely one
 		// from the pool

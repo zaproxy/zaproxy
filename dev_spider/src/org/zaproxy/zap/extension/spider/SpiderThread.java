@@ -259,7 +259,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		} catch (SQLException e) {
 			log.warn(e.getMessage(), e);
 		}
-		log.warn("Spider scanning complete.");
+		log.warn("Spider scanning complete: " + successful);
 		stopScan = true;
 
 	}

@@ -34,7 +34,8 @@ public interface SpiderParserListener {
 	 * required information regarding the page which contains the URI.
 	 * 
 	 * @param responseMessage the response message
+	 * @param depth the depth of this resource in the crawling process
 	 * @param uri the universal resource locator
 	 */
-	public void resourceURIFound(HttpMessage responseMessage, String uri);
+	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri);
 }
