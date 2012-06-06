@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 
 /**
@@ -97,8 +98,17 @@ public class SpiderTask implements Runnable {
 		// Notify the SpiderListeners that a resource was read
 		parent.notifyListenersReadURI(msg);
 
+		// Check the parse filters to see if the resource should be skipped from parsing
+		boolean isFiltered = false;
+		for (ParseFilter filter : controller.getParseFilters())
+			if (filter.isFiltered(msg)) {
+				log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: " + uri);
+				isFiltered = true;
+				break;
+			}
+
 		// Process resource, if this is not the maximum depth
-		if (depth < parent.getSpiderParam().getMaxDepth())
+		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth())
 			processResource(msg);
 
 		// Update the progress and check if the spidering process should stop

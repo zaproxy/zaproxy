@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -35,8 +34,10 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
+import org.zaproxy.zap.spider.filters.DefaultParseFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.spider.filters.ParseFilter;
 
 /**
  * The Class Spider.
@@ -126,6 +127,9 @@ public class Spider {
 		// Add a default fetch filter
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
+
+		// Add a default parse filter
+		this.addParseFilter(new DefaultParseFilter());
 	}
 
 	/* SPIDER Related */
@@ -183,6 +187,15 @@ public class Spider {
 	 */
 	public void addFetchFilter(FetchFilter filter) {
 		controller.addFetchFilter(filter);
+	}
+
+	/**
+	 * Adds a new parse filter to the spider.
+	 * 
+	 * @param filter the filter
+	 */
+	public void addParseFilter(ParseFilter filter) {
+		controller.addParseFilter(filter);
 	}
 
 	/**
