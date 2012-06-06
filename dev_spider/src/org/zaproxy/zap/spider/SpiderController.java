@@ -21,12 +21,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
@@ -39,6 +39,12 @@ public class SpiderController implements SpiderParserListener {
 
 	/** The fetch filters used by the spider to filter the resources which are fetched. */
 	private LinkedList<FetchFilter> fetchFilters;
+
+	/**
+	 * The parse filters used by the spider to filter the resources which were fetched, but should
+	 * not be parsed.
+	 */
+	private LinkedList<ParseFilter> parseFilters;
 
 	/** The parser. */
 	private SpiderParser parser;
@@ -69,6 +75,7 @@ public class SpiderController implements SpiderParserListener {
 		this.spider = spider;
 		this.connectionParam = connectionParam;
 		this.fetchFilters = new LinkedList<FetchFilter>();
+		this.parseFilters = new LinkedList<ParseFilter>();
 		this.visitedGet = new HashSet<String>();
 		this.visitedPost = new HashSet<String>();
 		this.parser = new SpiderHtmlParser();
@@ -105,6 +112,24 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	public void addFetchFilter(FetchFilter filter) {
 		fetchFilters.add(filter);
+	}
+
+	/**
+	 * Gets the parses the filters.
+	 * 
+	 * @return the parses the filters
+	 */
+	protected LinkedList<ParseFilter> getParseFilters() {
+		return parseFilters;
+	}
+
+	/**
+	 * Adds the parse filter to the spider controller.
+	 * 
+	 * @param filter the filter
+	 */
+	public void addParseFilter(ParseFilter filter) {
+		parseFilters.add(filter);
 	}
 
 	/* (non-Javadoc)
