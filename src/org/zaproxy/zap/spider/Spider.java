@@ -251,38 +251,30 @@ public class Spider {
 		log.info("Stopping spidering process by request.");
 		// Issue the shutdown command
 		if (this.stopped == false)
-			this.threadPool.shutdown();
+			this.threadPool.shutdownNow();
 		this.stopped = true;
 
 		// Notify the listeners -- in the meanwhile
 		notifyListenersSpiderComplete(false);
-
-		// Wait for finishing
-		try {
-			threadPool.awaitTermination(10, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
 	 * The Spidering process is complete.
 	 */
 	private void complete() {
-		log.info("Spidering process is complete.");
-		// Issue the shutdown command
+		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
-		threadPool.shutdown();
 
-		// Notify the listeners -- in the meanwhile
-		notifyListenersSpiderComplete(true);
-
-		// Wait for finishing
-		try {
-			threadPool.awaitTermination(10, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		// Issue the shutdown command on a separate thread, as the current thread is most likely one
+		// from the pool
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				threadPool.shutdownNow();
+				// Notify the listeners -- in the meanwhile
+				notifyListenersSpiderComplete(true);
+			}
+		}).start();
 	}
 
 	/**
