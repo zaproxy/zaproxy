@@ -43,6 +43,9 @@ public class SpiderTask implements Runnable {
 	/** The uri that this task processes. */
 	private URI uri;
 
+	/** The depth of crawling where the uri was found. */
+	private int depth;
+
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderTask.class);
 
@@ -53,11 +56,12 @@ public class SpiderTask implements Runnable {
 	 * @param controller the controller
 	 * @param uri the uri
 	 */
-	public SpiderTask(Spider parent, SpiderController controller, URI uri) {
+	public SpiderTask(Spider parent, SpiderController controller, URI uri, int depth) {
 		super();
 		this.parent = parent;
 		this.controller = controller;
 		this.uri = uri;
+		this.depth = depth;
 	}
 
 	/* (non-Javadoc)
@@ -66,7 +70,7 @@ public class SpiderTask implements Runnable {
 	@Override
 	public void run() {
 
-		log.info("Spider Task Started. Processing uri: " + uri);
+		log.info("Spider Task Started. Processing uri (depth " + depth + "): " + uri);
 
 		// Check if the should stop
 		if (parent.isStopped()) {
@@ -93,8 +97,9 @@ public class SpiderTask implements Runnable {
 		// Notify the SpiderListeners that a resource was read
 		parent.notifyListenersReadURI(msg);
 
-		// Process resource
-		processResource(msg);
+		// Process resource, if this is not the maximum depth
+		if (depth < parent.getSpiderParam().getMaxDepth())
+			processResource(msg);
 
 		// Update the progress and check if the spidering process should stop
 		parent.postTaskExecution();
@@ -109,7 +114,7 @@ public class SpiderTask implements Runnable {
 	private void processResource(HttpMessage msg) {
 		SpiderParser parser = controller.getParser();
 		Source source = new Source(msg.getResponseBody().toString());
-		parser.parseResource(msg, source);
+		parser.parseResource(msg, source, depth);
 	}
 
 	/**

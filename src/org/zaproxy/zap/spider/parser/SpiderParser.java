@@ -59,11 +59,12 @@ public abstract class SpiderParser {
 	 * Notify the listeners that a resource was found.
 	 * 
 	 * @param message the http message containing the response.
+	 * @param depth the depth of this resource in the crawling tree
 	 * @param uri the uri
 	 */
-	protected void notifyListenersResourceFound(HttpMessage message, String uri) {
+	protected void notifyListenersResourceFound(HttpMessage message, int depth, String uri) {
 		for (SpiderParserListener l : listeners)
-			l.resourceURIFound(message, uri);
+			l.resourceURIFound(message, depth, uri);
 	}
 
 	/**
@@ -72,6 +73,7 @@ public abstract class SpiderParser {
 	 * 
 	 * @param message the full http message containing the request and the response
 	 * @param source a Jericho source with the Response Body from the HTTP message
+	 * @param depth the depth of this resource
 	 */
-	public abstract void parseResource(final HttpMessage message, Source source);
+	public abstract void parseResource(final HttpMessage message, Source source, int depth);
 }

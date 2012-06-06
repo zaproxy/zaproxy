@@ -82,7 +82,7 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	protected void addSeed(URI uri) {
 		// Create and submit the new task
-		SpiderTask task = new SpiderTask(spider, this, uri);
+		SpiderTask task = new SpiderTask(spider, this, uri, 0);
 		spider.submitTask(task);
 		// Add the uri to the found list
 		visitedGet.add(uri.toString());
@@ -113,7 +113,7 @@ public class SpiderController implements SpiderParserListener {
 	 * org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
 	 * .HttpMessage, java.lang.String) */
 	@Override
-	public void resourceURIFound(HttpMessage responseMessage, String uri) {
+	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
 		log.info("New resource found: " + uri);
 
 		// Check if the uri was processed already
@@ -148,7 +148,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, this, uriV);
+		SpiderTask task = new SpiderTask(spider, this, uriV, depth);
 		spider.submitTask(task);
 	}
 
