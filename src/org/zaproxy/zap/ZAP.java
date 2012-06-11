@@ -323,7 +323,7 @@ public class ZAP {
 	        System.out.println(e.getMessage());
 	        rc = 1;
 	    } finally {
-            control.shutdown(false);
+            control.shutdown(true);
     	    log.info(Constant.PROGRAM_TITLE + " terminated.");
 	    }
 	    System.exit(rc);

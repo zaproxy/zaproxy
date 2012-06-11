@@ -21,6 +21,8 @@
 // ZAP: 2011/05/15 Improved error logging
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/06/11 Changed to call the method Control.shutdown(boolean) with the
+// parameter set as true.
 
 package org.parosproxy.paros.control;
  
@@ -77,7 +79,8 @@ public class MenuFileControl implements SessionListener {
 	    Thread t = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
-	            control.shutdown(false);
+	            // ZAP: Changed to true.
+	            control.shutdown(true);
 	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
 	    		System.exit(0);   
 	        }

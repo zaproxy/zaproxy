@@ -289,7 +289,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         // XXX Temporary "hack" to check if ZAP is in GUI mode.
         // tree.recalcAlertCounts() calls View.getSingleton() that creates the
         // View, if a View exists and the API was not enabled (through
-        // configuration) the API becomes disabled everywhere (including demon
+        // configuration) the API becomes disabled everywhere (including daemon
         // mode).
         // Note: the API needs to be enabled all the time in daemon mode.
         if (View.isInitialised()) {

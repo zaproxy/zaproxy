@@ -23,19 +23,24 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.sql.SQLException;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Logger logger = Logger.getLogger(ActiveScanPanelCellRenderer.class);
+	
     private JLabel txtId = null;
     private JLabel txtMethod = null;
     private JLabel txtURI = null;
@@ -241,29 +246,23 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
         HistoryReference ref = (HistoryReference) value;
         txtId.setText(Integer.toString(ref.getHistoryId()));
         */
-    		HttpMessage msg = (HttpMessage) value;
-
-            //msg = ref.getHttpMessage();
+        HistoryReference ref = (HistoryReference) value;
+        try {
+            HttpMessage msg = ref.getHttpMessage();
+            
             txtMethod.setText(msg.getRequestHeader().getMethod());
             txtURI.setText(msg.getRequestHeader().getURI().toString());
             txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
             txtReason.setText(msg.getResponseHeader().getReasonPhrase());
             txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
-            // ZAP: Support for multiple tags
-            StringBuilder sb = new StringBuilder();
-            for (String tag : msg.getTags()) {
-            	if (sb.length() > 0) {
-                	sb.append(", ");
-            	}
-            	sb.append(tag);
-            }
-            txtTag.setText(sb.toString());
+            txtTag.setText("");
+            txtNote.setIcon(null);
             
-            if (msg.getNote() != null && msg.getNote().length() > 0) {
-            	txtNote.setIcon(new ImageIcon(ActiveScanPanelCellRenderer.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
-            } else {
-            	txtNote.setIcon(null);
-            }
+        } catch (HttpMalformedHeaderException e) {
+            logger.error(e.getMessage(), e);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
 /*
             if (hmw.getAlerts().size() > 0) {
             	switch (hmw.getHighestAlert()) {
