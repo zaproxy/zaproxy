@@ -39,6 +39,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.view.SiteMapListener;
 
 /**
@@ -58,12 +59,14 @@ public class WebSocketUiPanel extends AbstractPanel implements Tab, SiteMapListe
 	private JTabbedPane tabbedPanel;
     
 	/**
+	 * Contains the UI representation of each {@link WebSocketProxy}.
 	 */
 	private Map<String, WebSocketUiChannel> channels;
 	
+	/**
+	 * Contains hash of currently selected HTTP message node.
+	 */
 	private String selectedChannelHash;
-	
-	public WebSocketViewModel webSocketModel;
 
 	public WebSocketUiPanel() {
 		initializePanel();
@@ -93,7 +96,7 @@ public class WebSocketUiPanel extends AbstractPanel implements Tab, SiteMapListe
 	 * @return
 	 */
 	public WebSocketObserver createNewUiChannel(String handshakeHash) {
-		WebSocketUiChannel channel = new WebSocketUiChannel(new WebSocketViewModel());
+		WebSocketUiChannel channel = new WebSocketUiChannel(new WebSocketUiModel());
 		
 		channels.put(handshakeHash, channel);
 		
