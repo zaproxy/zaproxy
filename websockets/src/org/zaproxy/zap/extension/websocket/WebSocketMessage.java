@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
@@ -33,18 +34,32 @@ import org.apache.log4j.Logger;
  * Monsoon project (http://code.google.com/p/monsoon/).
  */
 public abstract class WebSocketMessage {
-	
+
 	private static final Logger logger = Logger.getLogger(WebSocketMessage.class);
 
+	public enum Direction {
+		INCOMING, OUTGOING
+	}
+	
 	/**
 	 * This list will contain all the original bytes for each frame.
 	 */
 	protected ArrayList<ByteBuffer> frames = new ArrayList<ByteBuffer>();
 	
 	/**
+	 * This buffer will contain the whole payload, unmasked
+	 */
+	protected ByteBuffer payload;
+	
+	/**
 	 * Indicates if this message already contains all of its frames.
 	 */
 	protected boolean isFinished;
+
+	/**
+	 * Indicating when this message (or current frame) was received.
+	 */
+	protected Timestamp timestamp;
 	
 	// WebSocket OpCodes - int's are used instead of an enum for extensibility.
 
@@ -300,4 +315,50 @@ public abstract class WebSocketMessage {
 		
 		return "<invalid UTF-8>";
 	}
+	
+	protected void addPayload(byte[] bytes) {
+		if (payload == null) {
+			// initialize first
+			payload = ByteBuffer.wrap(bytes);
+		} else {
+			// increase buffer
+			payload = reallocate(payload, payload.capacity() + bytes.length);
+			payload.put(bytes);
+		}
+	}
+	
+	/**
+     * Resizes a given ByteBuffer to a new size.
+     * 
+     * @param src ByteBuffer to get resized
+     * @param newSize size in bytes for the resized buffer
+     */
+    protected ByteBuffer reallocate(ByteBuffer src, int newSize) {
+        int srcPos = src.position();
+        if (srcPos > 0) {
+            src.flip();
+        }
+        
+        ByteBuffer dest = ByteBuffer.allocate(newSize);
+        dest.put(src);
+        dest.position(srcPos);
+        
+        return dest;
+    }
+
+	/**
+	 * Returns date of receiving this message. Might also indicate the timestamp
+	 * of the last frame received.
+	 * 
+	 * @return
+	 */
+	public Timestamp getTimestamp() {
+		return timestamp;
+	}
+
+	public abstract byte[] getHeader();
+	
+	public abstract byte[] getPayload();
+	
+	public abstract Direction getDirection();
 }

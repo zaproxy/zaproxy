@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -316,7 +315,7 @@ class ProxyThread implements Runnable {
 			}	// release semaphore
 			
 			// ZAP: Add check for connection upgrade and stop if one arrived
-			if (isWebSocketUpgrade(msg)) {
+			if (msg.isWebSocketUpgrade()) {
 				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
 				
 				ZapGetMethod handshakeMethod = (ZapGetMethod) msg.getUserObject();
@@ -356,27 +355,6 @@ class ProxyThread implements Runnable {
             return true;
         }
 		
-		return false;
-	}
-	
-	/**
-	 * ZAP: New method checking for connection upgrade.
-	 * 
-	 * @param msg This message will contain the {@link SocketChannel} in {@link HttpMessage#getUserObject()} if it returns true.
-	 * 
-	 * @return True if this connection should be upgraded to WebSockets.
-	 */
-	private boolean isWebSocketUpgrade(HttpMessage msg) {
-		if (msg != null && !msg.getResponseHeader().isEmpty()) {
-			String connectionHeader = msg.getResponseHeader().getHeader("connection");
-			String upgradeHeader = msg.getResponseHeader().getHeader("upgrade");
-			
-			if (connectionHeader != null && connectionHeader.equalsIgnoreCase("upgrade")) {
-				if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
-					return true;
-				}
-			}
-		}
 		return false;
 	}
 	

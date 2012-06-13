@@ -30,7 +30,8 @@ import org.apache.log4j.Logger;
 /**
  * Wrap it in a thread to listen for one end of a WebSockets connection. It does
  * so by using blocking reads and passes read bytes to WebSocketsProxy for
- * processing.
+ * processing. If you want to listen (a.k.a. observe) for WebSocket messages, see
+ * the {@link WebSocketObserver} class.
  */
 public class WebSocketListener implements Runnable {
 
