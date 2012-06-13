@@ -24,6 +24,7 @@
 //      instead of StringBuffer.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/28 Added some JavaDoc
+// ZAP: 2012/06/13 Optimized alerts related code
 
 package org.parosproxy.paros.model;
 
@@ -80,7 +81,7 @@ public class HistoryReference {
     private long sessionId = 0;
 	
 	// ZAP: Support for linking Alerts to Hrefs
-	private List<Alert> alerts = new ArrayList<Alert>();
+	private List<Alert> alerts;
 
 	/**
      * @return Returns the sessionId.
@@ -300,8 +301,13 @@ public class HistoryReference {
    }
    
    public synchronized boolean addAlert(Alert alert) {
+	   
+	   //If this is the first alert
+	   if(alerts==null)
+		   alerts=new ArrayList<Alert>();
+	   
 	   for (Alert a : alerts) {
-		   if (a.equals(alert)) {
+		   if (a.getAlertId()==alert.getAlertId()) {
 			   // We've already recorded it
 			   return false;
 		   }
@@ -315,6 +321,10 @@ public class HistoryReference {
    }
    
    public synchronized void updateAlert(Alert alert) {
+	   //If there are no alerts yet
+	   if(alerts==null)
+		   return;
+	   
 	   for (Alert a : alerts) {
 		   if (a.getAlertId() == alert.getAlertId()) {
 			   // Have to use the alertId instead of 'equals' as any of the
@@ -330,11 +340,15 @@ public class HistoryReference {
    }
    
    public synchronized void deleteAlert(Alert alert) {
-	   alerts.remove(alert);
+	   if(alerts!=null)
+		   alerts.remove(alert);
    }
    
    public int getHighestAlert() {
 	   int i = -1;
+	   //If there are no alerts
+	   if(alerts==null)
+		   return i;
 	   for (Alert a : alerts) {
 		   if (a.getReliability() != Alert.FALSE_POSITIVE && a.getRisk() > i) {
 			   i = a.getRisk();
@@ -344,7 +358,17 @@ public class HistoryReference {
 	   return i;
    }
    
+   	/**
+	 * Gets the alerts. If alerts where never added, an empty list will be returned. This list
+	 * should be used as "read-only", not modifying content in the {@link HistoryReference} through
+	 * it.
+	 * 
+	 * @return the alerts
+	 */
    public List<Alert> getAlerts() {
-	   return this.alerts;
+	   if(alerts!=null)
+		   return this.alerts;
+	   else
+		   return new ArrayList<Alert>();
    }
 }
