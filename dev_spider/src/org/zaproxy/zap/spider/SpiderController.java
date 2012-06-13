@@ -89,7 +89,7 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	protected void addSeed(URI uri) {
 		// Create and submit the new task
-		SpiderTask task = new SpiderTask(spider, this, uri, 0);
+		SpiderTask task = new SpiderTask(spider, uri, 0);
 		spider.submitTask(task);
 		// Add the uri to the found list
 		visitedGet.add(uri.toString());
@@ -173,7 +173,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, this, uriV, depth);
+		SpiderTask task = new SpiderTask(spider, uriV, depth);
 		spider.submitTask(task);
 	}
 

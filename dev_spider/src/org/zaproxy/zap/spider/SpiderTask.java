@@ -24,6 +24,7 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -38,9 +39,6 @@ public class SpiderTask implements Runnable {
 	/** The parent spider. */
 	private Spider parent;
 
-	/** The controller. */
-	private SpiderController controller;
-
 	/** The uri that this task processes. */
 	private URI uri;
 
@@ -54,13 +52,12 @@ public class SpiderTask implements Runnable {
 	 * Instantiates a new spider task.
 	 * 
 	 * @param parent the parent
-	 * @param controller the controller
-	 * @param uri the uri
+	 * @param uri the uri this SpiderTask should process
+	 * @param depth the depth where this uri is at in the Spidering Process
 	 */
-	public SpiderTask(Spider parent, SpiderController controller, URI uri, int depth) {
+	public SpiderTask(Spider parent, URI uri, int depth) {
 		super();
 		this.parent = parent;
-		this.controller = controller;
 		this.uri = uri;
 		this.depth = depth;
 	}
@@ -100,7 +97,7 @@ public class SpiderTask implements Runnable {
 
 		// Check the parse filters to see if the resource should be skipped from parsing
 		boolean isFiltered = false;
-		for (ParseFilter filter : controller.getParseFilters())
+		for (ParseFilter filter : parent.getController().getParseFilters())
 			if (filter.isFiltered(msg)) {
 				log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: " + uri);
 				isFiltered = true;
@@ -122,8 +119,10 @@ public class SpiderTask implements Runnable {
 	 * @param msg the HTTP Message
 	 */
 	private void processResource(HttpMessage msg) {
-		SpiderParser parser = controller.getParser();
+		SpiderParser parser = parent.getController().getParser();
 		Source source = new Source(msg.getResponseBody().toString());
+
+
 		parser.parseResource(msg, source, depth);
 	}
 

@@ -217,6 +217,15 @@ public class Spider {
 	}
 
 	/**
+	 * Gets the controller.
+	 * 
+	 * @return the controller
+	 */
+	protected SpiderController getController() {
+		return controller;
+	}
+
+	/**
 	 * Submit a new task to the spidering task pool.
 	 * 
 	 * @param task the task
