@@ -56,6 +56,19 @@ public class SpiderHtmlParser extends SpiderParser {
 		for (Element el : elements) {
 			processAttributeElement(message, depth, baseURL, el, "href");
 		}
+
+		// Process Frame Elements
+		elements = source.getAllElements(HTMLElementName.FRAME);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "src");
+		}
+
+		// Process IFrame Elements
+		elements = source.getAllElements(HTMLElementName.IFRAME);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "src");
+		}
+
 	}
 
 	/**
@@ -71,7 +84,7 @@ public class SpiderHtmlParser extends SpiderParser {
 	private void processAttributeElement(HttpMessage message, int depth, String baseURL, Element element,
 			String attributeName) {
 		// The URL as written in the attribute (can be relative or absolute)
-		String localURL = element.getAttributeValue("href");
+		String localURL = element.getAttributeValue(attributeName);
 		if (localURL == null)
 			return;
 
