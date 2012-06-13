@@ -79,12 +79,16 @@ public class WebSocketUiPanel extends AbstractPanel implements Tab, SiteMapListe
 	 */
 	private void initializePanel() {
 		View view = View.getSingleton();
-        view.getSiteTreePanel().addSiteMapListenner(this);
+		
+		// react on node selection of site tree panel (on the left)
+		view.getSiteTreePanel().addSiteMapListenner(this);
+        
+		// listen also to changes in the tabs panel in the main window area
 		tabbedPanel = view.getWorkbench().getTabbedWork();
 		tabbedPanel.addChangeListener(this);
 		
 		setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/029.png")));
-    	setName(Constant.messages.getString("http.panel.websocket.title"));
+		setName(Constant.messages.getString("http.panel.websocket.title"));
     	
 		revalidate();
 	}
