@@ -30,6 +30,7 @@ package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.parosproxy.paros.core.scanner.Alert;
@@ -295,7 +296,6 @@ public class HistoryReference {
 				this.addAlert(new Alert(alert, this));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
    }
@@ -369,6 +369,6 @@ public class HistoryReference {
 	   if(alerts!=null)
 		   return this.alerts;
 	   else
-		   return new ArrayList<Alert>();
+		   return Collections.emptyList();
    }
 }
