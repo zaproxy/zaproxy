@@ -152,6 +152,12 @@ public abstract class WebSocketMessage {
 	protected int opcode = -1;
 
 	/**
+	 * Indicates the status code of this message if it is a close message.
+	 * Initially it is set to -1, meaning that its close code is unknown.
+	 */
+	protected int closeCode = -1;
+
+	/**
 	 * Write all frames of this message to given channel if and only if message
 	 * is finished.
 	 * 
@@ -177,6 +183,18 @@ public abstract class WebSocketMessage {
 	 */
 	public abstract void readContinuation(InputStream in, byte frameHeader) throws IOException;
 
+	/**
+	 * Returns the status code if the message's opcode is a
+	 * {@link WebSocketMessage#OPCODE_CLOSE}.
+	 * One of the possible close codes is
+	 * {@link WebSocketMessage#STATUS_CODE_OK}.
+	 * 
+	 * @return
+	 */
+	public int getCloseCode() {
+		return closeCode;
+	}
+	
 	/**
 	 * @return the opcode for this message.
 	 */
@@ -244,12 +262,20 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
+	 * Returns the readable representation of this messages opcode.
+	 * @return
+	 */
+	public String getOpcodeString() {
+		return opcode2string(opcode);
+	}
+
+	/**
 	 * Returns a readable representation of the numeric opcode.
 	 * 
 	 * @param opcode
 	 * @return
 	 */
-	protected static String opcode2string(int opcode) {
+	public static String opcode2string(int opcode) {
 		switch (opcode) {
 		case OPCODE_BINARY:
 			return "BINARY";
@@ -355,10 +381,12 @@ public abstract class WebSocketMessage {
 	public Timestamp getTimestamp() {
 		return timestamp;
 	}
-
-	public abstract byte[] getHeader();
+	
+	public abstract Integer getPayloadLength();
 	
 	public abstract byte[] getPayload();
+
+	public abstract String getReadablePayload();
 	
 	public abstract Direction getDirection();
 }

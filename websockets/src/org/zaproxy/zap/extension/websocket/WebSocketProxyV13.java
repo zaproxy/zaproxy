@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -133,7 +134,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param frameHeader
 		 * @throws IOException
 		 */
-		public void readFrame(InputStream in, byte frameHeader) throws IOException {
+		private void readFrame(InputStream in, byte frameHeader) throws IOException {
 			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
@@ -206,13 +207,16 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			} else {
 				if (opcode == OPCODE_CLOSE) {
 					if (payload.length > 1) {
-						int closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
+						closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
 						logger.debug("close code is: " + closeCode);
+						
+						// remove close code from payload
+						ArrayUtils.subarray(payload, 2, payload.length);
 					}
 					
-					if (payload.length > 2) {
+					if (payload.length > 0) {
 						// process close message
-						logger.debug("got control-payload: " + decodePayload(payload, 2));
+						logger.debug("got control-payload: " + decodePayload(payload));
 					}
 				}
 			}
@@ -306,19 +310,26 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			out.flush();
 		}
 		
+		@Override
 		public byte[] getPayload() {
 			byte[] bytes = new byte[payload.limit()];
 			payload.get(bytes);
 			return bytes;
 		}
-		
-		public Direction getDirection() {
-			return isMasked ? Direction.OUTGOING : Direction.INCOMING;
+
+		@Override
+		public Integer getPayloadLength() {
+			return payload.limit();
 		}
 
 		@Override
-		public byte[] getHeader() {
-			return new byte[0];
+		public String getReadablePayload() {
+			return decodePayload(payload.array());
+		}
+		
+		@Override
+		public Direction getDirection() {
+			return isMasked ? Direction.OUTGOING : Direction.INCOMING;
 		}
 
 //		protected int writeFrame(int opcode, ByteBuffer buf, boolean blocking, boolean fin) throws IOException {

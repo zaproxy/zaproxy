@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.websocket.ui;
 
 import java.awt.Adjustable;
 import java.awt.EventQueue;
-import java.text.SimpleDateFormat;
+import java.awt.LayoutManager2;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -33,18 +33,16 @@ import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.border.EtchedBorder;
 
-import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.Utf8StringBuilder;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketViewModel.WebSocketViewMessage;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketUiModel.WebSocketMessageDAO;
 
 /**
  * Manages the user interface for one {@link WebSocketProxy}. It listens to the
- * channel and prepares them via its given {@link WebSocketViewModel} for
+ * channel and prepares them via its given {@link WebSocketUiModel} for
  * display in the UI.
  */
 public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver {
@@ -56,11 +54,11 @@ public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver
 	 * Just observe it somewhere and let others catch them too.
 	 */
     public static final int WEBSOCKET_OBSERVING_ORDER = 100;
-	
-	/**
-	 * Used to display {@link WebSocketViewMessage#timestamp} in user's locale.
-	 */
-	private static FastDateFormat dateFormatter;
+
+    /**
+     * The width of the messages.
+     */
+	int width = 300;
 	
 	/**
 	 * Counts the number of messages that are currently displayed.
@@ -73,33 +71,25 @@ public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver
 	private JComponent lastAddedMessageComponent;
 	
 	/**
-	 * Used to retrieve {@link WebSocketViewMessage} for display.
+	 * Used to retrieve {@link WebSocketMessageDAO} for display.
 	 */
-	private WebSocketViewModel model;
+	private WebSocketUiModel model;
 	
 	/**
 	 * This pane is added to this scrollable container and used as parent for
 	 * all displayed WebSocket messages.
 	 */
 	final private JPanel messagesContainer;
-	
-	/**
-	 * Use the static initializer for setting up one date formatter for all
-	 * instances.
-	 */
-	static {
-		// milliseconds are added later (via usage java.sql.Timestamp.getNanos())
-		dateFormatter = FastDateFormat.getDateTimeInstance(
-				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
-				Constant.getLocale());
-	}
 
-	public WebSocketUiChannel(WebSocketViewModel viewModel) {
+	private SpringLayout layout;
+
+	public WebSocketUiChannel(WebSocketUiModel viewModel) {
 		super();
 
 		model = viewModel;
 		messagesInContainer = 0;
-		messagesContainer = createMessagesContainer();
+		layout = new SpringLayout();
+		messagesContainer = createMessagesContainer(layout);
 		
 		// the first point of reference is the messagesContainer itself
 		lastAddedMessageComponent = messagesContainer;
@@ -167,65 +157,29 @@ public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver
 	
 	/**
 	 * Returns a {@link JPanel} that is used to position all WebSocket messages.
+	 * 
 	 * @return
 	 */
-	public JPanel createMessagesContainer() {
+	public JPanel createMessagesContainer(LayoutManager2 layout) {
 		JPanel messagesPane = new JPanel();
-		messagesPane.setLayout(new SpringLayout());
-
-//			JPanel outgoingPanel = new JPanel();
-//			outgoingPanel.setLayout(new BoxLayout(outgoingPanel, BoxLayout.Y_AXIS));
-//			outgoingPanel.setBackground(Color.black);
-//			messagesPane.add(outgoingPanel, BorderLayout.LINE_START);
-//			
-//			messagesPane.add(Box.createVerticalGlue(), BorderLayout.CENTER);
-//			
-//			JPanel incomingPanel = new JPanel();
-//			incomingPanel.setLayout(new BoxLayout(incomingPanel, BoxLayout.Y_AXIS));
-//			incomingPanel.setBackground(Color.gray);
-//			messagesPane.add(incomingPanel, BorderLayout.LINE_END);
-//
-//			channelPanes.put(0, outgoingPanel);
-//			channelPaneHeight.put(0, 0);
-//			
-//			channelPanes.put(1, incomingPanel);
-//			channelPaneHeight.put(1, 0);
-//		}
-		
+		messagesPane.setLayout(layout);
 		return messagesPane;
-	}
-
-	//TODO: do not use decode here - use official one
-	private String decodePayload(byte[] payload) {
-		try {
-			int offset = 0;
-			int length = payload.length - offset;
-			
-			Utf8StringBuilder builder = new Utf8StringBuilder(length);
-			builder.append(payload, offset, length);
-			
-			return builder.toString();
-		} catch (Exception e) {
-		}
-		
-		return "<invalid_utf8_string>";
 	}
 	
 	/**
 	 * First, removes all messages. Then it adds them again.
 	 */
 	public void updateView() {
-		List<WebSocketViewMessage> messages = model.getMessages().subList(messagesInContainer, model.getMessages().size());
+		List<WebSocketMessageDAO> messages = model.getMessages().subList(messagesInContainer, model.getMessages().size());
 		SpringLayout springLayout = (SpringLayout) messagesContainer.getLayout();
 
 		int left = 10;
 //		int middle = 10;
 		int right = 10;
-		int top = 30;
-		int width = 300;
+		int top = 40;
 		
-		for (WebSocketViewMessage message : messages) {
-			JComponent messagePane = createMessagePane(decodePayload(message.payload));
+		for (WebSocketMessageDAO message : messages) {
+			JComponent messagePane = createMessagePane(message.payload);
 			
 			switch (message.direction) {
 			case OUTGOING:
@@ -249,7 +203,7 @@ public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver
 				break;
 				
 			default:
-//				TODO: logger.error("direction does not exist");
+				logger.error("Given direction does not exist ('" + message.direction + "'!");
 				break;
 			}
 			
@@ -261,23 +215,91 @@ public class WebSocketUiChannel extends JScrollPane implements WebSocketObserver
 			messagesInContainer++;
 			lastAddedMessageComponent = messagePane;
 
-			// add label, showing the message's time
-			String dateTime = dateFormatter.format(message.timestamp);
-			String nanos = message.timestamp.getNanos() + "";
-			
-			JLabel label = new JLabel(dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos.replaceAll("0+$", "")));
-			springLayout.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, lastAddedMessageComponent);
-			springLayout.putConstraint(SpringLayout.SOUTH, label, 0, SpringLayout.NORTH, lastAddedMessageComponent);
-			messagesContainer.add(label);
+			// add further elements
+			addTimestamp(message.timestamp);
+			addConsecutiveNumber(message.id);
+			addOpcode(message.opcode);
+			addLength(message.payloadLength);
 			
 			// TODO: without this constraint, scrolling is not possible, BUT
 			// the first editorPanes are displayed with full height :-(
 			springLayout.putConstraint(SpringLayout.SOUTH, messagesContainer, 0, SpringLayout.SOUTH, lastAddedMessageComponent);
-
 		}
 
 		// after that call, view is updated
 		messagesContainer.revalidate();
+	}
+
+	/**
+	 * Adds & positions the given timestamp.
+	 * 
+	 * @param timestamp
+	 */
+	private void addTimestamp(String timestamp) {
+		JLabel label = new JLabel(timestamp);
+		label.setToolTipText(Constant.messages.getString("http.panel.websocket.timestamp.help"));
+		
+		// align with the left side of the message
+		layout.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, lastAddedMessageComponent);
+		
+		// align above the label, leaving some space for other elements
+		layout.putConstraint(SpringLayout.SOUTH, label, -15, SpringLayout.NORTH, lastAddedMessageComponent);
+		
+		messagesContainer.add(label);
+	}
+
+	/**
+	 * Indicates the number of messages.
+	 * 
+	 * @param id
+	 */
+	private void addConsecutiveNumber(String id) {
+		JLabel label = new JLabel(id);
+		label.setToolTipText(Constant.messages.getString("http.panel.websocket.id.help"));
+		
+		// align with the left side of the message
+		layout.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, lastAddedMessageComponent);
+		
+		// align above the label
+		layout.putConstraint(SpringLayout.SOUTH, label, 0, SpringLayout.NORTH, lastAddedMessageComponent);
+		
+		messagesContainer.add(label);
+	}
+
+	/**
+	 * Indicates the number of messages.
+	 * 
+	 * @param id
+	 */
+	private void addOpcode(String opcode) {
+		JLabel label = new JLabel(opcode);
+		label.setToolTipText(Constant.messages.getString("http.panel.websocket.opcode.help"));
+		
+		// move to the middle of the text message
+		layout.putConstraint(SpringLayout.WEST, label, width/2 - 25, SpringLayout.WEST, lastAddedMessageComponent);
+		
+		// align above the label
+		layout.putConstraint(SpringLayout.SOUTH, label, 0, SpringLayout.NORTH, lastAddedMessageComponent);
+		
+		messagesContainer.add(label);
+	}
+
+	/**
+	 * Indicates the number of payload bytes.
+	 * 
+	 * @param payloadLength
+	 */
+	private void addLength(String payloadLength) {
+		JLabel label = new JLabel(payloadLength);
+		label.setToolTipText(Constant.messages.getString("http.panel.websocket.payload_length.help"));
+		
+		// align with the right side of the message
+		layout.putConstraint(SpringLayout.EAST, label, 0, SpringLayout.EAST, lastAddedMessageComponent);
+		
+		// align above the label
+		layout.putConstraint(SpringLayout.SOUTH, label, 0, SpringLayout.NORTH, lastAddedMessageComponent);
+		
+		messagesContainer.add(label);
 	}
 
 	/**
