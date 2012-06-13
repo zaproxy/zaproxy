@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.HashMap;
@@ -78,6 +79,10 @@ public class WebSocketUiPanel extends AbstractPanel implements Tab, SiteMapListe
 	 * Sets up this tab and installs a change listener.
 	 */
 	private void initializePanel() {
+		// use BorderLayout and add the component
+		// to the CENTER in order to use full space
+		setLayout(new BorderLayout());
+		
 		View view = View.getSingleton();
 		
 		// react on node selection of site tree panel (on the left)
@@ -154,9 +159,9 @@ public class WebSocketUiPanel extends AbstractPanel implements Tab, SiteMapListe
      */
     private void attachCommuncation(WebSocketUiChannel channel) {
     	detachCommunication();
-		Dimension targetSize = tabbedPanel.getSize();
-		channel.setPreferredSize(new Dimension(targetSize.width - 50, targetSize.height - 50));
-		add(channel);
+//		Dimension targetSize = tabbedPanel.getSize();
+//		channel.setPreferredSize(new Dimension(targetSize.width - 50, targetSize.height - 50));
+		add(channel, BorderLayout.CENTER);
 		revalidate();
     }
     
