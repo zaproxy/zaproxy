@@ -17,6 +17,10 @@
 		<li><a href="SpiderBasicTest3LinkChain/">Basic Test 3 - A link chain of size 5</a></li>
 		<li><a href="SpiderBasicTest4MultiFolder/">Basic Test 4 - Multi-folder links</a></li>
 		<li><a href="SpiderBasicTest5Parameters/">Basic Test 5 - Link with parameters</a></li>
+		<br/>
+		<li><a href="SpiderMediumTest1Frames/">Medium Test 1 - Page with simple frame</a></li>
+		<li><a href="SpiderMediumTest2MultipleFrames/">Medium Test 2 - Page with multiple framesets</a></li>
+		<li><a href="SpiderMediumTest3IFrames/">Medium Test 2 - Page with simple iframe</a></li>
 	</ul>
 
 </body>

@@ -194,7 +194,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			// TODO: Debugging purpose
 			// inOrderSeed(spider, startNode);
 			try {
-				spider.addSeed(new URI("http://www.feedrz.com", true));
+				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/index-start.jsp", true));
 			} catch (URIException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -268,6 +268,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 		log.warn("Spider scanning complete: " + successful);
 		stopScan = true;
+		this.listenner.scanFinshed(site);
 
 	}
 

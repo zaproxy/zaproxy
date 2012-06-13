@@ -35,14 +35,14 @@ public class SpiderStatistics {
 		test = new SpiderTestCase("Basic Test 1 - Simple Absolute Link");
 		test.putRequirement("/spider/SpiderBasicTest1SimpleAbsoluteLink/a.jsp");
 		test.putRequirement("/spider/SpiderBasicTest1SimpleAbsoluteLink/index.jsp");
-		tests.add(test); 
-		
+		tests.add(test);
+
 		test = new SpiderTestCase("Basic Test 2 - Simple Relative Links");
 		test.putRequirement("/spider/SpiderBasicTest2SimpleRelativeLinks/index.jsp");
 		test.putRequirement("/spider/SpiderBasicTest2SimpleRelativeLinks/a.jsp");
 		test.putRequirement("/spider/SpiderBasicTest2SimpleRelativeLinks/b.jsp");
 		test.putRequirement("/spider/SpiderBasicTest2SimpleRelativeLinks/c.jsp");
-		tests.add(test);		
+		tests.add(test);
 
 		test = new SpiderTestCase("Basic Test 3 - Link chain of size 5");
 		test.putRequirement("/spider/SpiderBasicTest3LinkChain/index.jsp");
@@ -52,16 +52,38 @@ public class SpiderStatistics {
 		test.putRequirement("/spider/SpiderBasicTest3LinkChain/d.jsp");
 		test.putRequirement("/spider/SpiderBasicTest3LinkChain/e.jsp");
 		tests.add(test);
-		
+
 		test = new SpiderTestCase("Basic Test 4 - Multi Folder Link");
 		test.putRequirement("/spider/SpiderBasicTest4MultiFolder/1/a.jsp");
 		test.putRequirement("/spider/SpiderBasicTest4MultiFolder/index.jsp");
-		tests.add(test); 
-		
+		tests.add(test);
+
 		test = new SpiderTestCase("Basic Test 5 - Link with parameters");
 		test.putRequirement("/spider/SpiderBasicTest5Parameters/a.jsp");
 		test.putRequirement("/spider/SpiderBasicTest5Parameters/index.jsp");
-		tests.add(test); 
+		tests.add(test);
+
+		test = new SpiderTestCase("Medium Test 1 - Page with simple frames");
+		test.putRequirement("/spider/SpiderMediumTest1Frames/index.jsp");
+		test.putRequirement("/spider/SpiderMediumTest1Frames/a.jsp");
+		test.putRequirement("/spider/SpiderMediumTest1Frames/b.jsp");
+		test.putRequirement("/spider/SpiderMediumTest1Frames/c.jsp");
+		tests.add(test);
+
+		test = new SpiderTestCase("Medium Test 2 - Page with multiple frames");
+		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/index.jsp");
+		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/a.jsp");
+		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/b.jsp");
+		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/c.jsp");
+		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/d.jsp");
+		tests.add(test);
+		
+		test = new SpiderTestCase("Medium Test 3 - Page with simple iframe");
+		test.putRequirement("/spider/SpiderMediumTest3IFrames/index.jsp");
+		test.putRequirement("/spider/SpiderMediumTest3IFrames/b.jsp");
+		test.putRequirement("/spider/SpiderMediumTest3IFrames/c.jsp");
+		test.putRequirement("/spider/SpiderMediumTest3IFrames/a.jsp");
+		tests.add(test);
 
 	}
 
