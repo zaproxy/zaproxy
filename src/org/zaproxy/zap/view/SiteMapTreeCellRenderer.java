@@ -80,17 +80,17 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
-		}
 
-		if (node.getHistoryReference() != null) {
-			try {
-				msg = node.getHistoryReference().getHttpMessage();
-
-				if (msg != null && msg.isWebSocketUpgrade()) {
-					return true;
+			if (node.getHistoryReference() != null) {
+				try {
+					msg = node.getHistoryReference().getHttpMessage();
+	
+					if (msg != null && msg.isWebSocketUpgrade()) {
+						return true;
+					}
+				} catch (Exception e) {
+					log.warn(e.getMessage(), e);
 				}
-			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
 			}
 		}
 
