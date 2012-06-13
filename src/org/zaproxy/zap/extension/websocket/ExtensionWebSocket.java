@@ -20,7 +20,11 @@
 package org.zaproxy.zap.extension.websocket;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketUiPanel;
 
 /**
  * This extension adapter takes over after finishing
@@ -38,15 +43,24 @@ import org.parosproxy.paros.network.HttpMessage;
  * @author Robert Koch
  */
 public class ExtensionWebSocket extends ExtensionAdaptor {
-	
-	public static final String NAME = "ExtensionWebSocket";
-	    
+    
 	private static final Logger log = Logger.getLogger(ExtensionWebSocket.class);
+	
+	/**
+	 * Name of this extension.
+	 */
+	public static final String NAME = "ExtensionWebSocket";
 
 	/**
 	 * Used to shorten the time, a listener is started on a WebSocket channel.
 	 */
-	private final ExecutorService listenerThreadPool;
+	private ExecutorService listenerThreadPool;
+
+	/**
+	 * Is added to all WebSocket channels as observer in order to collect frames
+	 * for user interface.
+	 */
+	private WebSocketUiPanel wsPanel;
 	
 	/**
 	 * Constructor initializes this class.
@@ -54,7 +68,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	public ExtensionWebSocket() {
 		super();
 		setName(NAME);
-		listenerThreadPool = Executors.newCachedThreadPool();
 	}
 	
 	@Override
@@ -90,11 +103,40 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		WebSocketProxy ws = null;
 		try {
 			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
-			ws.startListeners(listenerThreadPool, remoteReader);
+			ws.startListeners(getListenerThreadPool(), remoteReader);
+			
+			// this is needed to identify this channel later upon only the http message
+			String handshakeHash = createHandshakeHash(msg);
+			ws.setHandshakeHash(handshakeHash);
+			ws.addObserver(getUiPanel().createNewUiChannel(handshakeHash));
 		} catch (WebSocketException e) {
 			log.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
 		}
+	}
+
+	/**
+	 * Small helper to create a hash from an HTTP messages request and response
+	 * header.
+	 * 
+	 * @param msg
+	 * @return
+	 */
+	public static String createHandshakeHash(HttpMessage msg)  {
+		try {
+			String base = msg.getRequestHeader().toString() + msg.getResponseHeader().toString();
+			
+			MessageDigest m = MessageDigest.getInstance("MD5");
+	        m.update(base.getBytes("UTF-8"), 0, base.length());
+
+	        return new BigInteger(1, m.digest()).toString(16);
+		} catch (NoSuchAlgorithmException e) {
+			log.warn(e);
+		} catch (UnsupportedEncodingException e) {
+			log.warn(e);
+		}
+		
+		return null;
 	}
 
 	/**
@@ -193,5 +235,31 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		}
 		
 		return version;
+	}
+
+	/**
+	 * Creates and returns a cached thread pool that should speed up
+	 * {@link WebSocketListener}.
+	 * 
+	 * @return
+	 */
+	private ExecutorService getListenerThreadPool() {
+		if (listenerThreadPool == null) {
+			listenerThreadPool = Executors.newCachedThreadPool();
+		}
+		
+		return listenerThreadPool;
+	}
+	
+	/**
+	 * Create panel for user interface - does also act as observer.
+	 * 
+	 * @return
+	 */
+	private WebSocketUiPanel getUiPanel() {
+        if (wsPanel == null) {
+            wsPanel = new WebSocketUiPanel();
+        }
+        return wsPanel;
 	}
 }

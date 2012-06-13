@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
+import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
@@ -104,6 +106,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			opcode = (frameHeader & 0x0F);
 			
 			readFrame(in, frameHeader);
+		}
+
+		public WebSocketMessageV13(byte[] payload) {
+			// TODO: alternative constructor for DB
 		}
 
 		/**
@@ -211,11 +217,15 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				}
 			}
 			
+			addPayload(payload);
+			Calendar calendar = Calendar.getInstance();
+			timestamp = new Timestamp(calendar.getTimeInMillis());
+			
 			// add currentFrame to frames list
 			currentFrame.flip();
 			frames.add(currentFrame);
 		}
-		
+
 		/**
 		 * Read only one byte from input stream.
 		 * 
@@ -256,25 +266,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			
 			return buffer;
 		}
-		
-		/**
-	     * Resizes a given ByteBuffer to a new size.
-	     * 
-	     * @param src ByteBuffer to get resized
-	     * @param newSize size in bytes for the resized buffer
-	     */
-	    public ByteBuffer reallocate(ByteBuffer src, int newSize) {
-	        int srcPos = src.position();
-	        if (srcPos > 0) {
-	            src.flip();
-	        }
-	        
-	        ByteBuffer dest = ByteBuffer.allocate(newSize);
-	        dest.put(src);
-	        dest.position(srcPos);
-	        
-	        return dest;
-	    }
 
 	    /**
 	     * @see WebSocketMessage#forward(OutputStream)
@@ -313,6 +304,21 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			frame.get(buffer);
 			out.write(buffer);
 			out.flush();
+		}
+		
+		public byte[] getPayload() {
+			byte[] bytes = new byte[payload.limit()];
+			payload.get(bytes);
+			return bytes;
+		}
+		
+		public Direction getDirection() {
+			return isMasked ? Direction.OUTGOING : Direction.INCOMING;
+		}
+
+		@Override
+		public byte[] getHeader() {
+			return new byte[0];
 		}
 
 //		protected int writeFrame(int opcode, ByteBuffer buf, boolean blocking, boolean fin) throws IOException {

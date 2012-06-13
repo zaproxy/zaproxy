@@ -24,7 +24,7 @@
 // Changed to use the byte[] body. Changed to use the class StringBuilder instead
 // of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-
+// ZAP: 2012/06/11 Added method boolean isWebSocketUpgrade()
 package org.parosproxy.paros.network;
 
 import java.util.Iterator;
@@ -795,5 +795,27 @@ public class HttpMessage {
 	// based on values in cookieParams
 	public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
 		mReqHeader.setCookieParams(cookieParams);
+	}
+
+	/**
+	 * ZAP: New method checking for connection upgrade.
+	 * 
+	 * @param msg This message will contain the {@link SocketChannel} in {@link HttpMessage#getUserObject()} if it returns true.
+	 * 
+	 * @return True if this connection should be upgraded to WebSockets.
+	 */
+	public boolean isWebSocketUpgrade() {
+		if (!getResponseHeader().isEmpty()) {
+			String connectionHeader = getResponseHeader().getHeader("connection");
+			String upgradeHeader = getResponseHeader().getHeader("upgrade");
+			
+			if (connectionHeader != null && connectionHeader.equalsIgnoreCase("upgrade")) {
+				if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 }

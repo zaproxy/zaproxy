@@ -26,8 +26,11 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -95,6 +98,25 @@ public abstract class WebSocketProxy {
 	private WebSocketListener localListener;
 
 	/**
+	 * List of observers, that are informed of in- or outgoing messages.
+	 */
+	private Vector<WebSocketObserver> observerList = new Vector<WebSocketObserver>();
+
+	/**
+	 * Used to find this channel later from UI. As I did not know how to find
+	 * the appropriate channel to some HTTP message, I create a hash from the
+	 * HTTP message request & response headers (it is cloned for the UI) and add
+	 * it also to the UI Channel panel. Later I'm able to find the right
+	 * {@link WebSocketProxy} instance from the HttpMessage selected in the UI.
+	 */
+	private String handshakeHash;
+
+	/**
+	 * Used to determine how to call WebSocketListener.
+	 */
+	public static Comparator<WebSocketObserver> observersComparator;
+
+	/**
 	 * Factory method to create appropriate version.
 	 * 
 	 * @param version Protocol version.
@@ -114,11 +136,11 @@ public abstract class WebSocketProxy {
 			wsProxy = new WebSocketProxyV13(localSocket, remoteSocket);
 			
 			if (subprotocol != null) {
-				// TODO: do something with that subprotocol
+				// TODO: do something with this subprotocol
 			}
 			
 			if (extensions != null && extensions.size() > 0) {
-				// TODO: do something with that extensions
+				// TODO: do something with these extensions
 			}
 		} else {
 			throw new WebSocketException("Unsupported Sec-WebSocket-Version '"
@@ -141,9 +163,11 @@ public abstract class WebSocketProxy {
 		this.remoteSocket = remoteSocket;
 
 		// create unique identifier for this WebSocket connection
-		int channelCount = channelCounter.incrementAndGet();
+		// for use in logging - for UI I have to come back to another trick
+		// see handshakeHash for more information
+		int channelId = channelCounter.incrementAndGet();
 		this.name = remoteSocket.getInetAddress().getHostName() + "/"
-				+ remoteSocket.getPort() + " (channel#" + channelCount + ")";
+				+ remoteSocket.getPort() + " (channel#" + channelId + ")";
 	}
 	
 	/**
@@ -326,7 +350,10 @@ public abstract class WebSocketProxy {
 		
 		// do not buffer frames until message is finished,
 		// as messages might have several MegaBytes!
-		message.forwardCurrentFrame(out);
+		if (notifyObservers(message)) {
+			// skip forwarding only if observer blocks or told us to skip this message
+			message.forwardCurrentFrame(out);
+		}		
 	}
 
 	/**
@@ -351,5 +378,101 @@ public abstract class WebSocketProxy {
 		} else {
 			return localSocket;
 		}
+	}
+	
+	/**
+	 * Call each observer. If one observer has told us to drop the message, then
+	 * they skip further notifications and return false.
+	 * 
+	 * @param message
+	 * @return
+	 */
+	protected boolean notifyObservers(WebSocketMessage message) {
+		for (WebSocketObserver observer : observerList) {
+			try {
+			    if (!observer.onMessageFrame(message)) {
+			    	return false;
+			    }
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Add observer that gets informed about in- & outgoing messages.
+	 * 
+	 * @param observer
+	 */
+	public void addObserver(WebSocketObserver observer) {
+		observerList.add(observer);
+		Collections.sort(observerList, getObserversComparator());
+	}
+	
+	/**
+	 * Stop getting informed about in- & outgoing messages.
+	 * 
+	 * @param observer
+	 */
+	public void removeObserver(WebSocketObserver observer) {
+		observerList.remove(observer);
+	}
+	
+	/**
+	 * Returns a list of all observers, that get informed about
+	 * in- & outgoing messages.
+	 * 
+	 * @return
+	 */
+	public Vector<WebSocketObserver> getObserversList() {
+		return observerList;
+	}
+    
+	/**
+	 * Returns the comparator used for determining order of notification.
+	 * 
+	 * @return
+	 */
+	private synchronized Comparator<WebSocketObserver> getObserversComparator() {
+		if(observersComparator == null) {
+			observersComparator = new Comparator<WebSocketObserver>() {
+				
+				@Override
+				public int compare(WebSocketObserver o1, WebSocketObserver o2) {
+					int order1 = o1.getObservingOrder();
+					int order2 = o2.getObservingOrder();
+					
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					}
+					
+					return 0;
+				}
+			};
+		}
+		
+		return observersComparator;
+	}
+
+	/**
+	 * Returns a hash from the HTTP handshake. Used to find this channel again.
+	 * 
+	 * @return
+	 */
+	public String getHandshakeHash() {
+		return handshakeHash;
+	}
+
+	/**
+	 * Set the hash from the HTTP handshake.
+	 * 
+	 * @param hash
+	 */
+	public void setHandshakeHash(String hash) {
+		handshakeHash = hash;
 	}
 }
