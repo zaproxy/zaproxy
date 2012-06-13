@@ -177,7 +177,8 @@ public class Spider {
 	 * @param excludeList the new exclude list
 	 */
 	public void setExcludeList(List<String> excludeList) {
-		// TODO Auto-generated method stub
+		log.debug("New Exclude list: " + excludeList);
+		defaultFetchFilter.setExcludeRegexes(excludeList);
 	}
 
 	/**

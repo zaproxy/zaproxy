@@ -18,6 +18,7 @@
 package org.zaproxy.zap.spider.filters;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -28,6 +29,7 @@ import org.apache.commons.httpclient.URIException;
  * <ul>
  * <li>the resource protocol/scheme must be 'http' or 'https'.</li>
  * <li>the resource must be found in the scope (domain) of the spidering process.</li>
+ * <li>the resource must be not be excluded by user request - exclude list.</li>
  * </ul>
  * 
  */
@@ -35,6 +37,9 @@ public class DefaultFetchFilter extends FetchFilter {
 
 	/** The scope. */
 	private LinkedList<String> scopes = new LinkedList<String>();
+
+	/** The exclude list. */
+	private List<String> excludeList = null;
 
 	/* (non-Javadoc)
 	 * 
@@ -47,11 +52,26 @@ public class DefaultFetchFilter extends FetchFilter {
 		if (!uri.getScheme().equalsIgnoreCase("http") && !uri.getScheme().equalsIgnoreCase("https"))
 			return FetchStatus.ILLEGAL_PROTOCOL;
 
-		// Scope check
 		try {
+
+			// Scope check
+			boolean ok = false;
 			for (String scope : scopes)
-				if (!uri.getHost().endsWith(scope))
-					return FetchStatus.OUT_OF_SCOPE;
+				if (uri.getHost().endsWith(scope)) {
+					ok = true;
+					break;
+				}
+			if (!ok)
+				return FetchStatus.OUT_OF_SCOPE;
+
+			// Check if any of the exclusion regexes match.
+			if (excludeList != null) {
+				String uriS = uri.toString();
+				for (String ex : excludeList)
+					if (uriS.matches(ex))
+						return FetchStatus.USER_RULES;
+			}
+
 		} catch (URIException e) {
 			log.warn("Error while fetching host for uri: " + uri, e);
 			return FetchStatus.OUT_OF_SCOPE;
@@ -67,6 +87,15 @@ public class DefaultFetchFilter extends FetchFilter {
 	 */
 	public void addScopeDomain(String scope) {
 		this.scopes.add(scope);
+	}
+
+	/**
+	 * Sets the regexes which are used for checking if an uri should be skipped.
+	 * 
+	 * @param excl the new exclude regexes
+	 */
+	public void setExcludeRegexes(List<String> excl) {
+		excludeList = excl;
 	}
 
 }
