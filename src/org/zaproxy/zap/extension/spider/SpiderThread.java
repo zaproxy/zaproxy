@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.spider;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.LinkedList;
 
 import javax.swing.DefaultListModel;
 
@@ -58,6 +59,8 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private Spider spider = null;
 	private SiteNode startNode = null;
 
+	LinkedList<SpiderListener> pendingSpiderListeners;
+
 	private int spiderDone = 0;
 	private int spiderTodo = 100; // Will get updated ;)
 
@@ -68,6 +71,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.extension = extension;
 		this.site = site;
 		this.listenner = listenner;
+		this.pendingSpiderListeners = new LinkedList<SpiderListener>();
 
 		this.list = new SortedListModel();
 		log.debug("Spider : " + site);
@@ -183,11 +187,14 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			spider = new Spider(extension.getSpiderParam(),
 					extension.getModel().getOptionsParam().getConnectionParam(), extension.getModel());
 			spider.addSpiderListener(this);
+			// Add the pending listeners
+			for (SpiderListener l : pendingSpiderListeners)
+				spider.addSpiderListener(l);
 
 			// TODO: Debugging purpose
 			// inOrderSeed(spider, startNode);
 			try {
-				spider.addSeed(new URI("http://www.prosc.ro", true));
+				spider.addSeed(new URI("http://www.feedrz.com", true));
 			} catch (URIException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -316,9 +323,19 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.startNode = startNode;
 	}
 
-	@Override
 	public void reset() {
 		this.list = new SortedListModel();
+	}
+
+	/**
+	 * Adds a new spider listener.
+	 * 
+	 * @param listener the listener
+	 */
+	public void addSpiderListener(SpiderListener listener) {
+		this.pendingSpiderListeners.add(listener);
+		if (spider != null)
+			this.spider.addSpiderListener(listener);
 	}
 
 }

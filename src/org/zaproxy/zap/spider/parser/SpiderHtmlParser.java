@@ -39,6 +39,10 @@ public class SpiderHtmlParser extends SpiderParser {
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
 
+		// Prepare the source, if not provided
+		if (source == null)
+			source = new Source(message.getResponseBody().toString());
+
 		// Get the context (base url)
 		String baseURL;
 		if (message == null)
