@@ -33,6 +33,7 @@ public class SpiderParam extends AbstractParam {
 	private static final String SPIDER_POST_FORM = "spider.postform";
 	private static final String SPIDER_SKIP_URL = "spider.skipurl";
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
+	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
 
 	/** The max depth of the crawling. */
 	private int maxDepth = 5;
@@ -52,6 +53,8 @@ public class SpiderParam extends AbstractParam {
 	private Pattern patternScope = null;
 	/** The user agent string, if diferent than the default one. */
 	private String userAgent = null;
+	/** Whether the spider sends back the cookies received from the server. */
+	private boolean sendCookies = true;
 
 	/** The log. */
 	Logger log = Logger.getLogger(SpiderParam.class);
@@ -95,6 +98,12 @@ public class SpiderParam extends AbstractParam {
 		}
 
 		try {
+			this.sendCookies = getConfig().getBoolean(SPIDER_SEND_COOKIES, true);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
@@ -102,7 +111,6 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
-
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -306,6 +314,25 @@ public class SpiderParam extends AbstractParam {
 	 */
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
+	}
+
+	/**
+	 * Checks if the spider should send cookies.
+	 * 
+	 * @return true, if is send cookies
+	 */
+	public boolean isSendCookies() {
+		return sendCookies;
+	}
+
+	/**
+	 * Sets whether to send cookies with the requests or not.
+	 * 
+	 * @param sendCookies the new send cookies value
+	 */
+	public void setSendCookies(boolean sendCookies) {
+		this.sendCookies = sendCookies;
+		getConfig().setProperty(SPIDER_SEND_COOKIES, Boolean.toString(sendCookies));
 	}
 
 }

@@ -227,6 +227,15 @@ public class Spider {
 	}
 
 	/**
+	 * Gets the model.
+	 * 
+	 * @return the model
+	 */
+	protected Model getModel() {
+		return this.model;
+	}
+
+	/**
 	 * Submit a new task to the spidering task pool.
 	 * 
 	 * @param task the task
