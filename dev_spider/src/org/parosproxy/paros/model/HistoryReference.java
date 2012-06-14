@@ -64,6 +64,8 @@ public class HistoryReference {
    // ZAP: Added TYPE_BRUTE_FORCE
    public static final int TYPE_BRUTE_FORCE = 7;
    public static final int TYPE_FUZZER = 8;
+   // ZAP: Added TYPE_SPIDER_TASK for use in spider tasks
+   public static final int TYPE_SPIDER_TASK = 9;
    
    // -ve means unsaved message;
    public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;

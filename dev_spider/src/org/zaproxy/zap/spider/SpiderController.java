@@ -173,7 +173,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, uriV, depth);
+		SpiderTask task = new SpiderTask(spider, responseMessage, uriV, depth);
 		spider.submitTask(task);
 	}
 
