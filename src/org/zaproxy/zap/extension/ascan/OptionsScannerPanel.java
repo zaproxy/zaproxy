@@ -57,7 +57,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JLabel labelThreadsPerHostValue = null;
 	private JLabel labelDelayInMsValue = null;
 	private JCheckBox chkHandleAntiCrsfTokens = null;
-	private JComboBox<String> comboLevel = null;
+	private JComboBox comboLevel = null;
 	private JLabel labelLevelNotes = null;
 	// Not enabled yet - not sure how helpful they are, and can yet shoe that the cookie scanning finds any issues!
 	//private JCheckBox chkTargetParamsUrl = null;
@@ -138,9 +138,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	}
 
 
-	private JComboBox<String> getComboLevel() {
+	private JComboBox getComboLevel() {
 		if (comboLevel == null) {
-			comboLevel = new JComboBox<String>();
+			comboLevel = new JComboBox();
 			comboLevel.addItem(Constant.messages.getString("ascan.options.level.low"));
 			comboLevel.addItem(Constant.messages.getString("ascan.options.level.medium"));
 			comboLevel.addItem(Constant.messages.getString("ascan.options.level.high"));
