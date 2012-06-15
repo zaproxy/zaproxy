@@ -29,6 +29,7 @@
 // ZAP: 2012/03/15 Removed a @SuppressWarnings annotation from the method copyAllProperties.
 // ZAP: 2012/03/17 Issue 282 ZAP and PAROS team constants
 // ZAP: 2012/05/03 Changed the Patterns used to detect the O.S. to be final.
+// ZAP: 2012/06/15 Issue 312 Increase the maximum number of scanning threads allowed
 
 package org.parosproxy.paros;
 
@@ -127,7 +128,7 @@ public final class Constant {
     
     private static Constant instance = null;
     
-    public static final int MAX_HOST_CONNECTION = 10;
+    public static final int MAX_HOST_CONNECTION = 50;
     // ZAP: Dont announce ourselves
     //public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
     public static final String USER_AGENT = "";
