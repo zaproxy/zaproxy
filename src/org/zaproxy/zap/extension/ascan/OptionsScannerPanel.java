@@ -91,22 +91,30 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.numHosts.label")), 
 					LayoutHelper.getGBC(0, 0, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL));
-			panelScanner.add(getSliderHostPerScan(), LayoutHelper.getGBC(0, 1, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getSliderHostPerScan(), 
+					LayoutHelper.getGBC(0, 1, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.numThreads.label")), 
 					LayoutHelper.getGBC(0, 2, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getLabelThreadsPerHostValue(), LayoutHelper.getGBC(2, 2, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getSliderThreadsPerHost(), LayoutHelper.getGBC(0, 3, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getLabelThreadsPerHostValue(), 
+					LayoutHelper.getGBC(2, 2, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getSliderThreadsPerHost(), 
+					LayoutHelper.getGBC(0, 3, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.delayInMs.label")), 
 					LayoutHelper.getGBC(0, 4, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getLabelDelayInMsValue(), LayoutHelper.getGBC(2, 4, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getSliderDelayInMs(), LayoutHelper.getGBC(0, 5, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkHandleAntiCSRFTokens(), LayoutHelper.getGBC(0, 6, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getLabelDelayInMsValue(), 
+					LayoutHelper.getGBC(2, 4, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getSliderDelayInMs(), 
+					LayoutHelper.getGBC(0, 5, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getChkHandleAntiCSRFTokens(), 
+					LayoutHelper.getGBC(0, 6, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.level.label")), 
-					LayoutHelper.getGBC(0, 7, 0,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getComboLevel(), LayoutHelper.getGBC(1, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getLabelLevelNotes(), LayoutHelper.getGBC(2, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getComboLevel(), 
+					LayoutHelper.getGBC(1, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getLabelLevelNotes(), 
+					LayoutHelper.getGBC(2, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.params.label")), 
 					LayoutHelper.getGBC(0, 9, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
