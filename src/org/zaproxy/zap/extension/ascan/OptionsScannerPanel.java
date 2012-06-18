@@ -116,9 +116,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			panelScanner.add(getLabelLevelNotes(), 
 					LayoutHelper.getGBC(2, 7, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
+			/*
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.params.label")), 
 					LayoutHelper.getGBC(0, 9, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			/*
 			panelScanner.add(getChkTargetParamsUrl(), LayoutHelper.getGBC(1, 8, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(getChkTargetParamsForm(), LayoutHelper.getGBC(1, 9, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(getChkTargetParamsCookie(), LayoutHelper.getGBC(1, 10, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
