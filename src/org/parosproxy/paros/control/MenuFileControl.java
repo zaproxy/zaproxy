@@ -23,6 +23,9 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/11 Changed to call the method Control.shutdown(boolean) with the
 // parameter set as true.
+// ZAP: 2012/06/19 Changed the method sessionOpened(File,Exception) to not call
+// the method ExtensionLoader.sessionChangedAllPlugin, now it's done in the
+// class Control.
 
 package org.parosproxy.paros.control;
  
@@ -261,7 +264,10 @@ public class MenuFileControl implements SessionListener {
     @Override
     public void sessionOpened(File file, Exception e) {
         if (e == null) {
-            control.getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+            // ZAP: Removed the statement that called the method
+            // ExtensionLoader.sessionChangedAllPlugin, now it's done in the
+            // class Control.
+
             // ZAP: Set the title consistently
             setTitle();
             //view.getMainFrame().setTitle(file.getName().replaceAll(".session\\z","") + " - " + Constant.PROGRAM_NAME);
