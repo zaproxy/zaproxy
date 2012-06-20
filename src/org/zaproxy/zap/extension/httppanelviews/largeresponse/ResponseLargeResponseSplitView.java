@@ -31,22 +31,18 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 
-public class ResponseLargeResponseView implements HttpPanelView, HttpPanelViewModelListener {
+public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String CONFIG_NAME = "image";
+	public static final String CONFIG_NAME = "largeResponseSplit";
 	
 	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
 	
 	private JPanel mainPanel;
-	private JLabel imageLabel;
 	
 	private HttpPanelViewModel model;
 	
-	public ResponseLargeResponseView(HttpPanelViewModel model) {
+	public ResponseLargeResponseSplitView(HttpPanelViewModel model) {
 		this.model = model;
-		
-		imageLabel = new JLabel();
-		imageLabel.setVerticalAlignment(JLabel.TOP);
 		
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.add(new JLabel(Constant.messages.getString("http.panel.view.largeresponse.warning")));
@@ -61,7 +57,7 @@ public class ResponseLargeResponseView implements HttpPanelView, HttpPanelViewMo
 	@Override
 	public void setSelected(boolean selected) {
 		if (selected) {
-			imageLabel.requestFocusInWindow();
+			mainPanel.requestFocusInWindow();
 		}
 	}
 

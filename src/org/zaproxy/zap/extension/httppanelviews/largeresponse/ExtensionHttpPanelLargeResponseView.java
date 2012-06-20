@@ -41,14 +41,20 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultViewSelectorFactory());
+		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
+		
+		// TODO Get the largeresponse view working for the combined (all) screen as well, currently it doesnt :(
+		
+		//HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+		//HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
+
 	}
 	
 	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
 		
 		@Override
 		public HttpPanelView getNewView() {
-			return new ResponseLargeResponseView(new DefaultHttpPanelViewModel());
+			return new ResponseLargeResponseSplitView(new DefaultHttpPanelViewModel());
 		}
 
 		@Override
@@ -57,11 +63,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class LargeResponseDefaultViewSelector implements HttpPanelDefaultViewSelector {
+	private static final class LargeResponseDefaultSplitViewSelector implements HttpPanelDefaultViewSelector {
 
 		@Override
 		public String getName() {
-			return "LargeResponseDefaultViewSelector";
+			return "LargeResponseDefaultSplitViewSelector";
 		}
 		
 		@Override
@@ -75,11 +81,46 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 		@Override
 		public String getViewName() {
-			return ResponseLargeResponseView.CONFIG_NAME;
+			return ResponseLargeResponseSplitView.CONFIG_NAME;
 		}
 	}
 
-	private static final class LargeResponseDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
+		
+		@Override
+		public HttpPanelView getNewView() {
+			return new ResponseLargeResponseAllView(new LargeResponseStringHttpPanelViewModel());
+		}
+
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+	}
+
+	private static final class LargeResponseDefaultAllViewSelector implements HttpPanelDefaultViewSelector {
+
+		@Override
+		public String getName() {
+			return "LargeResponseDefaultAllViewSelector";
+		}
+		
+		@Override
+		public boolean matchToDefaultView(HttpMessage httpMessage) {
+			if (httpMessage == null || httpMessage.getResponseBody() == null) {
+				return false;
+			}
+			
+			return httpMessage.getResponseHeader().getContentLength() > MIN_CONTENT_LENGTH;
+		}
+
+		@Override
+		public String getViewName() {
+			return ResponseLargeResponseAllView.CONFIG_NAME;
+		}
+	}
+
+	private static final class LargeResponseDefaultSplitViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
 		
 		private static HttpPanelDefaultViewSelector defaultViewSelector = null;
 		
@@ -92,7 +133,7 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		
 		private synchronized void createViewSelector() {
 			if (defaultViewSelector == null) {
-				defaultViewSelector = new LargeResponseDefaultViewSelector();
+				defaultViewSelector = new LargeResponseDefaultSplitViewSelector();
 			}
 		}
 		
@@ -105,6 +146,35 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		public Object getOptions() {
 			return ResponseSplitComponent.ViewComponent.BODY;
 		}
+	}
+	
+	private static final class LargeResponseDefaultAllViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+		
+		private static HttpPanelDefaultViewSelector defaultViewSelector = null;
+		
+		private HttpPanelDefaultViewSelector getDefaultViewSelector() {
+			if (defaultViewSelector == null) {
+				createViewSelector();
+			}
+			return defaultViewSelector;
+		}
+		
+		private synchronized void createViewSelector() {
+			if (defaultViewSelector == null) {
+				defaultViewSelector = new LargeResponseDefaultAllViewSelector();
+			}
+		}
+		
+		@Override
+		public HttpPanelDefaultViewSelector getNewDefaultViewSelector() {
+			return getDefaultViewSelector();
+		}
+		
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+		
 	}
 	
 	@Override
