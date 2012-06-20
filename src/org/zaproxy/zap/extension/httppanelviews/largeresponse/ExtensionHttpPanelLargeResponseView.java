@@ -25,6 +25,7 @@ import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSpli
 import org.zaproxy.zap.extension.httppanel.view.DefaultHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
+import org.zaproxy.zap.extension.httppanelcomp.all.response.ResponseAllComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
@@ -43,11 +44,8 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
 		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
 		
-		// TODO Get the largeresponse view working for the combined (all) screen as well, currently it doesnt :(
-		
-		//HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
-		//HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
-
+		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+		HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
 	}
 	
 	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
@@ -83,6 +81,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		public String getViewName() {
 			return ResponseLargeResponseSplitView.CONFIG_NAME;
 		}
+		
+		@Override
+		public int getOrder() {
+			return 50;
+		}
 	}
 
 	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
@@ -117,6 +120,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		@Override
 		public String getViewName() {
 			return ResponseLargeResponseAllView.CONFIG_NAME;
+		}
+		
+		@Override
+		public int getOrder() {
+			return 50;
 		}
 	}
 

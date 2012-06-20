@@ -428,10 +428,6 @@ abstract public class HttpPanel extends AbstractPanel implements Tab, ActionList
 				it.next().loadConfig(fileConfiguration);
 			}
 		}
-		
-		if (savedSelectedComponentName != null) {
-			switchComponent(savedSelectedComponentName);
-		}
 	}
 	
 	public void saveConfig(FileConfiguration fileConfiguration) {

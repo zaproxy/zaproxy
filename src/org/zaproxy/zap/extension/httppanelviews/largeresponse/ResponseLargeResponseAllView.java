@@ -17,24 +17,18 @@
  */
 package org.zaproxy.zap.extension.httppanelviews.largeresponse;
 
-import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanelcomp.all.response.HttpResponseAllPanelTextView;
 
 public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 
 	public static final String CONFIG_NAME = "largeResponseAll";
 	
-	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name") + "XX";
+	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
 	
 	public ResponseLargeResponseAllView(LargeResponseStringHttpPanelViewModel model) {
 		super (model);
-
-		// HACKING...
-		model.addHttpPanelViewModelListener(this);
-
 	}
 	
 	@Override
@@ -45,6 +39,11 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 	@Override
 	public String getConfigName() {
 		return CONFIG_NAME;
+	}
+
+	@Override
+	public int getPosition() {
+		return 1;
 	}
 
 	@Override
@@ -73,20 +72,5 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 		
 		return httpMessage.getResponseHeader().getContentLength() > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
 	}
-	
-	@Override
-	public void setParentConfigurationKey(String configurationKey) {
-	}
-	
-	@Override
-	public void loadConfiguration(FileConfiguration fileConfiguration) {
-	}
-	
-	@Override
-	public void saveConfiguration(FileConfiguration fileConfiguration) {
-	}
 
-	@Override
-	public void dataChanged(HttpPanelViewModelEvent e) {
-	}
 }

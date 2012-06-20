@@ -26,5 +26,7 @@ public interface HttpPanelDefaultViewSelector {
 	public boolean matchToDefaultView(HttpMessage httpMessage);
 	
 	public String getViewName();
+	
+	public int getOrder();
 
 }
