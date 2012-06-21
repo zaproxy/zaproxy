@@ -69,8 +69,12 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 		if (httpMessage == null || httpMessage.getResponseBody() == null) {
 			return false;
 		}
+		int contentLength = httpMessage.getResponseHeader().getContentLength();
+		if (contentLength < 0) {
+			contentLength = httpMessage.getResponseBody().length();
+		}
 		
-		return httpMessage.getResponseHeader().getContentLength() > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
+		return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
 	}
 
 }
