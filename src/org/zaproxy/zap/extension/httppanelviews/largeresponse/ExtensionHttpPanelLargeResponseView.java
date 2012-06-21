@@ -74,7 +74,12 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 				return false;
 			}
 			
-			return httpMessage.getResponseHeader().getContentLength() > MIN_CONTENT_LENGTH;
+			int contentLength = httpMessage.getResponseHeader().getContentLength();
+			if (contentLength < 0) {
+				contentLength = httpMessage.getResponseBody().length();
+			}
+			
+			return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
 		}
 
 		@Override
@@ -114,7 +119,12 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 				return false;
 			}
 			
-			return httpMessage.getResponseHeader().getContentLength() > MIN_CONTENT_LENGTH;
+			int contentLength = httpMessage.getResponseHeader().getContentLength();
+			if (contentLength < 0) {
+				contentLength = httpMessage.getResponseBody().length();
+			}
+			
+			return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
 		}
 
 		@Override
