@@ -13,8 +13,7 @@ public class LargeResponseStringHttpPanelViewModel extends ResponseStringHttpPan
 		}
 		
 		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) +
-				// The HTML might cause a problem...
-				Constant.messages.getString("http.panel.view.largeresponse.warning");
+				Constant.messages.getString("http.panel.view.largeresponse.all.warning");
 	}
 
 	@Override

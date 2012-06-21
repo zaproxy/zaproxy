@@ -45,7 +45,7 @@ public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelV
 		this.model = model;
 		
 		mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(new JLabel(Constant.messages.getString("http.panel.view.largeresponse.warning")));
+		mainPanel.add(new JLabel(Constant.messages.getString("http.panel.view.largeresponse.split.warning")));
 		
 		this.model.addHttpPanelViewModelListener(this);
 	}
