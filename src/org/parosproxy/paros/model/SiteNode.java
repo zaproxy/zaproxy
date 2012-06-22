@@ -53,16 +53,21 @@ public class SiteNode extends DefaultMutableTreeNode {
     private SiteMap siteMap = null;
 	private ArrayList<Alert> alerts = new ArrayList<Alert>();
 	private boolean justSpidered = false;
+	private boolean justAJAXSpidered = false;
+
     private static Logger log = Logger.getLogger(SiteNode.class);
 	
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
-        this.nodeName = nodeName;
-        if (type == HistoryReference.TYPE_SPIDER) {
-        	this.justSpidered = true;
-        }
-    }
+		this.nodeName = nodeName;
+		if (type == HistoryReference.TYPE_SPIDER) {
+			this.justSpidered = true;
+		}
+		if (type == HistoryReference.TYPE_SPIDERAJAX) {
+			this.justAJAXSpidered = true;
+		}
+	}
     
     private void appendIcons(StringBuilder sb) {
     	int highest = -1;
@@ -70,7 +75,14 @@ public class SiteNode extends DefaultMutableTreeNode {
     		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
     			highest = alert.getRisk();
     		}
-    	}
+			if (alert
+					.getMessage()
+					.getRequestHeader()
+					.getHeader("User-Agent")
+					.equals("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rs:1.8.8.4) Gecko/21234325 Firefox/2.0.0.6")) {
+				this.justAJAXSpidered = true;
+			}
+		}
     	switch (highest) {
     	case Alert.RISK_INFO:
     		sb.append("&nbsp;<img src=\"");
@@ -98,13 +110,28 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
+    	if (justAJAXSpidered){
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.class.getResource("/resource/icon/10/spiderAjax.png"));
+    		sb.append("\">&nbsp;");
+    	}
     }
     
     @Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
-    	
     	sb.append("<html><body>");
+
+    	for (Alert alert : this.getAlerts()) {
+
+			if (alert
+					.getMessage()
+					.getRequestHeader()
+					.getHeader("User-Agent")
+					.equals("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rs:1.8.8.4) Gecko/21234325 Firefox/2.0.0.6")) {
+				this.justAJAXSpidered = true;
+			}
+		}  		
     	appendIcons(sb);
     	sb.append(StringEscapeUtils.escapeHtml(nodeName));
     	sb.append("</body></html>");
@@ -169,6 +196,10 @@ public class SiteNode extends DefaultMutableTreeNode {
             
         	if (this.justSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
         		this.justSpidered = false;
+        		this.nodeChanged();
+        	}
+        	if (this.justAJAXSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        		this.justAJAXSpidered = false;
         		this.nodeChanged();
         	}
             // above code commented as to always add all into past reference.  For use in scanner
