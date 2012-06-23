@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.websocket;
 
+import java.awt.EventQueue;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -33,8 +34,11 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
+import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketUiPanel;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
  * This extension adapter takes over after finishing
@@ -42,9 +46,9 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketUiPanel;
  * 
  * @author Robert Koch
  */
-public class ExtensionWebSocket extends ExtensionAdaptor {
+public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChangedListener {
     
-	private static final Logger log = Logger.getLogger(ExtensionWebSocket.class);
+	private static final Logger logger = Logger.getLogger(ExtensionWebSocket.class);
 	
 	/**
 	 * Name of this extension.
@@ -57,10 +61,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	private ExecutorService listenerThreadPool;
 
 	/**
-	 * Is added to all WebSocket channels as observer in order to collect frames
-	 * for user interface.
+	 * Displayed in the bottom area beside the History, Spider, etc. tabs.
 	 */
-	private WebSocketUiPanel wsPanel;
+	private WebSocketPanel panel;
 	
 	/**
 	 * Constructor initializes this class.
@@ -90,7 +93,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
 	public void addWebSocketsChannel(HttpMessage msg, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
-		log.debug("Got WebSockets channel from " + localSocket.getInetAddress()
+		logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
 				+ " port " + localSocket.getPort() + " to "
 				+ remoteSocket.getInetAddress() + " port "
 				+ remoteSocket.getPort());
@@ -105,12 +108,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
 			ws.startListeners(getListenerThreadPool(), remoteReader);
 			
-			// this is needed to identify this channel later upon only the http message
-			String handshakeHash = createHandshakeHash(msg);
-			ws.setHandshakeHash(handshakeHash);
-			ws.addObserver(getUiPanel().createNewUiChannel(handshakeHash));
+			String name = remoteSocket.getInetAddress().getHostName() + ":" + remoteSocket.getPort();
+			getWebSocketPanel().addProxy(ws, name);
 		} catch (WebSocketException e) {
-			log.error("Adding WebSockets channel failed due to: " + e.getMessage());
+			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
 		}
 	}
@@ -131,9 +132,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 
 	        return new BigInteger(1, m.digest()).toString(16);
 		} catch (NoSuchAlgorithmException e) {
-			log.warn(e);
+			logger.warn(e);
 		} catch (UnsupportedEncodingException e) {
-			log.warn(e);
+			logger.warn(e);
 		}
 		
 		return null;
@@ -229,7 +230,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 			
 			if (version == null) {
 				// default to version 13 if non is given, for whatever reason
-				log.debug("No Sec-Websocket-Version header was provided - try version 13");
+				logger.debug("No Sec-Websocket-Version header was provided - try version 13");
 				version = "13";
 			}
 		}
@@ -251,15 +252,70 @@ public class ExtensionWebSocket extends ExtensionAdaptor {
 		return listenerThreadPool;
 	}
 	
-	/**
-	 * Create panel for user interface - does also act as observer.
-	 * 
-	 * @return
-	 */
-	private WebSocketUiPanel getUiPanel() {
-        if (wsPanel == null) {
-            wsPanel = new WebSocketUiPanel();
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
+        extensionHook.addSessionListener(this);
+        if (getView() != null) {
+        	WebSocketPanel panel = getWebSocketPanel();
+        	panel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+	        
+        	extensionHook.getHookView().addStatusPanel(panel);	
+	        //TODO: Help
+//	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
         }
-        return wsPanel;
+    }
+
+	private WebSocketPanel getWebSocketPanel() {
+		if (panel == null) {
+			panel = new WebSocketPanel(getView().getMainFrame());
+		}
+		
+		return panel;
+	}
+
+	// TODO: find out what to do in this case
+	@Override
+	public void sessionChanged(final Session session) {
+		if (EventQueue.isDispatchThread()) {
+		    sessionChangedEventHandler(session);
+
+	    } else {
+	        try {
+	            EventQueue.invokeAndWait(new Runnable() {
+	                @Override
+	                public void run() {
+	        		    sessionChangedEventHandler(session);
+	                }
+	            });
+	        } catch (Exception e) {
+	            logger.error(e.getMessage(), e);
+	        }
+	    }
+	}
+	
+	// TODO: find out what to do in this case
+	private void sessionChangedEventHandler(Session session) {
+		// do something here
+//		throw new RuntimeException("sessionChangedEventHandler called");
+		// clear all scans
+//		this.getWebSocketPanel().clear();
+//		this.getWebSocketPanel().reset();
+//		if (session == null) {
+//			// Closedown
+//			return;
+//		}
+//		// Add new hosts
+//		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
+//		@SuppressWarnings("unchecked")
+//		Enumeration<SiteNode> en = root.children();
+//		while (en.hasMoreElements()) {
+//			this.getWebSocketPanel().addSite(en.nextElement().getNodeName(), true);
+//		}
+	}
+
+	// TODO: find out what to do in this case
+	@Override
+	public void sessionAboutToChange(Session session) {
 	}
 }

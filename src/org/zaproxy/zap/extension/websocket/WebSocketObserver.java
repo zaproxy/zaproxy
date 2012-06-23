@@ -37,8 +37,9 @@ public interface WebSocketObserver {
 	 * ). If it returns false, the given message will not be further processed
 	 * (i.e. forwarded).
 	 * 
+	 * @param channelId The identifier of the {@link WebSocketProxy} instance.
 	 * @param message The given message might not be finished so far.
 	 * @return False if it shouldn't be passed to further observers, nor forwarded.
 	 */
-	public boolean onMessageFrame(WebSocketMessage message);
+	public boolean onMessageFrame(int channelId, WebSocketMessage message);
 }

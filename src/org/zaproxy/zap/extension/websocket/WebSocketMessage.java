@@ -143,6 +143,8 @@ public abstract class WebSocketMessage {
 	 */
 	public static final int STATUS_CODE_SERVER_ERROR = 1011;
 
+	public final static int[] OPCODES = {OPCODE_TEXT, OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG };
+
 	// 1015 is another reserved status code
 
 	/**

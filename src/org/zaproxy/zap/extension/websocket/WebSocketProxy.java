@@ -111,6 +111,8 @@ public abstract class WebSocketProxy {
 	 */
 	private String handshakeHash;
 
+	private int channelId;
+
 	/**
 	 * Used to determine how to call WebSocketListener.
 	 */
@@ -165,7 +167,7 @@ public abstract class WebSocketProxy {
 		// create unique identifier for this WebSocket connection
 		// for use in logging - for UI I have to come back to another trick
 		// see handshakeHash for more information
-		int channelId = channelCounter.incrementAndGet();
+		channelId = channelCounter.incrementAndGet();
 		this.name = remoteSocket.getInetAddress().getHostName() + "/"
 				+ remoteSocket.getPort() + " (channel#" + channelId + ")";
 	}
@@ -390,7 +392,7 @@ public abstract class WebSocketProxy {
 	protected boolean notifyObservers(WebSocketMessage message) {
 		for (WebSocketObserver observer : observerList) {
 			try {
-			    if (!observer.onMessageFrame(message)) {
+			    if (!observer.onMessageFrame(channelId, message)) {
 			    	return false;
 			    }
 			} catch (Exception e) {
@@ -458,6 +460,10 @@ public abstract class WebSocketProxy {
 		return observersComparator;
 	}
 
+	public int getChannelId() {
+		return channelId;
+	}
+	
 	/**
 	 * Returns a hash from the HTTP handshake. Used to find this channel again.
 	 * 
