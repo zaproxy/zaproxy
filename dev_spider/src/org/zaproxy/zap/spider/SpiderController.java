@@ -132,13 +132,8 @@ public class SpiderController implements SpiderParserListener {
 		parseFilters.add(filter);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
-	 * .HttpMessage, java.lang.String) */
 	@Override
-	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
+	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.info("New resource found: " + uri);
 
 		// Check if the uri was processed already
@@ -170,11 +165,28 @@ public class SpiderController implements SpiderParserListener {
 			}
 		}
 
+		// Check if should be ignored and not fetched
+		if (shouldIgnore) {
+			log.warn("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
+			spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
+			return;
+		}
+
 		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
 		SpiderTask task = new SpiderTask(spider, responseMessage, uriV, depth);
 		spider.submitTask(task);
+	}
+
+	/* (non-Javadoc)
+	 * 
+	 * @see
+	 * org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
+	 * .HttpMessage, java.lang.String) */
+	@Override
+	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
+		resourceURIFound(responseMessage, depth, uri, false);
 	}
 
 	/**

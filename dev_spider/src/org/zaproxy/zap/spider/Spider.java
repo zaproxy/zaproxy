@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.spider;
 
+import java.net.CookieManager;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,6 +96,9 @@ public class Spider {
 	/** The total count of all the submitted tasks. */
 	private AtomicInteger tasksTotalCount;
 
+	/** The cookie manager. */
+	private CookieManager cookieManager;
+
 	/**
 	 * Instantiates a new spider.
 	 * 
@@ -111,6 +115,7 @@ public class Spider {
 		this.controller = new SpiderController(this, connectionParam);
 		this.listeners = new LinkedList<SpiderListener>();
 		this.seedList = new ArrayList<URI>();
+		this.cookieManager = new CookieManager();
 
 		init();
 	}
@@ -224,6 +229,15 @@ public class Spider {
 	 */
 	protected SpiderController getController() {
 		return controller;
+	}
+
+	/**
+	 * Gets the cookie manager.
+	 * 
+	 * @return the cookie manager
+	 */
+	protected CookieManager getCookieManager() {
+		return cookieManager;
 	}
 
 	/**

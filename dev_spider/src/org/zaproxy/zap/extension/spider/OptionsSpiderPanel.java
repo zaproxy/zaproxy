@@ -56,6 +56,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private ZapTextArea txtScope = null;
 	private JScrollPane jScrollPane = null;
     private JCheckBox chkPostForm = null;
+	private JCheckBox useCookies = null;
     //private JLabel jLabel5 = null;
     //private JScrollPane jScrollPane1 = null;
     //private ZapTextArea txtSkipURL = null;
@@ -118,6 +119,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 
 			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
 			panelSpider = new JPanel();
 			javax.swing.JLabel jLabel1 = new JLabel();
@@ -185,6 +187,14 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			gridBagConstraints10.gridx = 0;
 			gridBagConstraints10.gridy = 8;
 			gridBagConstraints10.insets = new java.awt.Insets(2,2,2,2);
+			
+			gridBagConstraints11.weightx = 1.0;
+			gridBagConstraints11.weighty = 0;
+			gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
+			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gridBagConstraints11.gridx = 0;
+			gridBagConstraints11.gridy = 11;
+			gridBagConstraints11.insets = new java.awt.Insets(2,2,2,2);
 			panelSpider.add(jLabel, gridBagConstraints1);
 			panelSpider.add(getSliderMaxDepth(), gridBagConstraints2);
 			panelSpider.add(jLabel1, gridBagConstraints3);
@@ -194,6 +204,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(jLabel3, gridBagConstraints8);
 			panelSpider.add(getJScrollPane(), gridBagConstraints10);
 			panelSpider.add(getChkPostForm(), gridBagConstraints);
+			panelSpider.add(getUseCookies(), gridBagConstraints11);
 			panelSpider.add(jLabel2, gridBagConstraints6);
 		}
 		return panelSpider;
@@ -209,6 +220,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	    getTxtScope().setText(param.getScopeString());
 	    getTxtScope().discardAllEdits();
         getChkPostForm().setSelected(param.isPostForm());
+        getUseCookies().setSelected(param.isSendCookies());
 	}
 	
 	@Override
@@ -225,6 +237,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         //param.setSkipURL(getTxtSkipURL().getText());
         param.setScopeString(getTxtScope().getText());
         param.setPostForm(getChkPostForm().isSelected());
+        param.setSendCookies(getUseCookies().isSelected());
 	}
 	
 	/**
@@ -310,6 +323,19 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
             chkPostForm.setText(Constant.messages.getString("spider.options.label.post"));
         }
         return chkPostForm;
+    }
+    
+    /**
+     * This method initializes the Use Cookies checkbox.	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */
+    private JCheckBox getUseCookies() {
+        if (useCookies == null) {
+            useCookies = new JCheckBox();
+            useCookies.setText(Constant.messages.getString("spider.options.label.cookies"));
+        }
+        return useCookies;
     }
     /**
      * This method initializes jScrollPane1	
