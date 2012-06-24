@@ -63,6 +63,12 @@ public class SpiderStatistics {
 		test.putRequirement("/spider/SpiderBasicTest5Parameters/index.jsp");
 		tests.add(test);
 
+		test = new SpiderTestCase("Basic Test 6 - Img Elements");
+		test.putRequirement("/spider/SpiderBasicTest6Img/index.jsp");
+		test.putRequirement("/spider/SpiderBasicTest6Img/a.jsp");
+		test.putRequirement("/spider/SpiderBasicTest6Img/image.jsp");
+		tests.add(test);
+
 		test = new SpiderTestCase("Medium Test 1 - Page with simple frames");
 		test.putRequirement("/spider/SpiderMediumTest1Frames/index.jsp");
 		test.putRequirement("/spider/SpiderMediumTest1Frames/a.jsp");
@@ -77,7 +83,7 @@ public class SpiderStatistics {
 		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/c.jsp");
 		test.putRequirement("/spider/SpiderMediumTest2MultipleFrames/d.jsp");
 		tests.add(test);
-		
+
 		test = new SpiderTestCase("Medium Test 3 - Page with simple iframe");
 		test.putRequirement("/spider/SpiderMediumTest3IFrames/index.jsp");
 		test.putRequirement("/spider/SpiderMediumTest3IFrames/b.jsp");
@@ -85,6 +91,20 @@ public class SpiderStatistics {
 		test.putRequirement("/spider/SpiderMediumTest3IFrames/a.jsp");
 		tests.add(test);
 
+		test = new SpiderTestCase(
+				"Medium Test 4 - Page which sets simple cookies");
+		test.putRequirement("/spider/SpiderMediumTest4BasicCookies/index.jsp");
+		test.putRequirement("/spider/SpiderMediumTest4BasicCookies/a.jsp");
+		test.putRequirement("/spider/SpiderMediumTest4BasicCookies/b.jsp");
+		tests.add(test);
+
+		test = new SpiderTestCase(
+				"Advanced Test 1 - Page which sets cookies with Path attribute");
+		test.putRequirement("/spider/SpiderAdvancedTest1CookieAttributes/index.jsp");
+		test.putRequirement("/spider/SpiderAdvancedTest1CookieAttributes/b.jsp");
+		test.putRequirement("/spider/SpiderAdvancedTest1CookieAttributes/a.jsp");
+		test.putRequirement("/spider/SpiderAdvancedTest1CookieAttributes/c.jsp");
+		tests.add(test);
 	}
 
 	public static void addVisited(String url) {
