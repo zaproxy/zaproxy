@@ -21,9 +21,13 @@
  */
 // ZAP: 2012/03/15 Added the @Override annotation to the appropriate methods.
 // Moved to this class the method getCookieParams().
+// ZAP: 2012/06/20 Added new method of setting cookies in the response header.
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -199,6 +203,25 @@ public class HttpResponseHeader extends HttpHeader {
 		}
 		return prime;
 	}
+	
+	// ZAP: Added method for working directly with HTTPCookie
+	public List<HttpCookie> getHttpCookies() {
+		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+
+		Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
+		if (cookiesS != null)
+			for (String c : cookiesS)
+				cookies.addAll(HttpCookie.parse(c));
+
+		cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
+		if (cookiesS != null)
+			for (String c : cookiesS)
+				cookies.addAll(HttpCookie.parse(c));
+
+		return cookies;
+
+	}
+
 	
 	// ZAP: Added method.
 	public TreeSet<HtmlParameter> getCookieParams() {

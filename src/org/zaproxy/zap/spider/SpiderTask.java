@@ -18,7 +18,11 @@
 package org.zaproxy.zap.spider;
 
 import java.io.IOException;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.TreeSet;
 
 import net.htmlparser.jericho.Source;
@@ -99,14 +103,14 @@ public class SpiderTask implements Runnable {
 		this.depth = depth;
 
 		// Check if cookies should be added
-		TreeSet<HtmlParameter> cookies = buildCookiesList(message);
-		if (cookies != null) {
+		List<HttpCookie> cookies = prepareCookies(message);
+		if (cookies != null && cookies.size() > 0) {
 			log.info("New task submitted for uri: " + uri + " with cookies: " + cookies);
 			// Create a new HttpMessage that will be used for the request, add the cookies and
-			// persist it in the databse using HistoryReference
+			// persist it in the database using HistoryReference
 			try {
 				HttpMessage msg = new HttpMessage(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
-				msg.setCookieParams(cookies);
+				msg.setCookies(cookies);
 				this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
 				return;
 			} catch (HttpMalformedHeaderException e) {
@@ -122,19 +126,21 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
-	 * Builds the list of the cookies that should be sent in the request message for the processed.
+	 * Prepare the list of the cookies that should be sent in the request message for the processed.
 	 * 
 	 * @param msg the response message where the uri was found
 	 * @return the list of cookies to send with the request, or null if no cookies should be sent
 	 *         {@code URI}.
 	 */
-	private TreeSet<HtmlParameter> buildCookiesList(HttpMessage msg) {
-
+	private List<HttpCookie> prepareCookies(HttpMessage msg) {
 		if (parent.getSpiderParam().isSendCookies()) {
-			TreeSet<HtmlParameter> cookies = msg.getResponseHeader().getCookieParams();
-
-			if (!cookies.isEmpty())
-				return cookies;
+			java.net.URI uri = null;
+			try {
+				uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
+			} catch (URISyntaxException e) {
+				log.error("Error while preparing cookies. ", e);
+			}
+			return parent.getCookieManager().getCookieStore().get(uri);
 		}
 		return null;
 	}
@@ -205,14 +211,28 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
-	 * Process a resource, searching for links (uris) to other resources.
+	 * Process a resource, adding the cookies & searching for links (uris) to other resources.
 	 * 
 	 * @param msg the HTTP Message
 	 */
 	private void processResource(HttpMessage msg) {
+		// Add the cookies
+		if (parent.getSpiderParam().isSendCookies()) {
+			List<HttpCookie> cookies = msg.getResponseHeader().getHttpCookies();
+			CookieStore store = parent.getCookieManager().getCookieStore();
+			java.net.URI uri = null;
+			try {
+				uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
+			} catch (URISyntaxException e1) {
+				log.error("Error while building URI for cookie adding", e1);
+			}
+			for (HttpCookie c : cookies)
+				store.add(uri, c);
+		}
+
+		// Parse the resource
 		SpiderParser parser = parent.getController().getParser();
 		Source source = new Source(msg.getResponseBody().toString());
-
 		parser.parseResource(msg, source, depth);
 	}
 

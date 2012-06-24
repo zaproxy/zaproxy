@@ -18,6 +18,8 @@
 package org.zaproxy.zap.spider.parser;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
@@ -30,6 +32,9 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
  * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
  */
 public class SpiderHtmlParser extends SpiderParser {
+
+	/** The Constant urlPattern defining the pattern for a meta url. */
+	private static final Pattern urlPattern = Pattern.compile("url\\s*=\\s*([^;]+)", Pattern.CASE_INSENSITIVE);
 
 	/* (non-Javadoc)
 	 * 
@@ -57,6 +62,12 @@ public class SpiderHtmlParser extends SpiderParser {
 			processAttributeElement(message, depth, baseURL, el, "href");
 		}
 
+		// Process AREA elements
+		elements = source.getAllElements(HTMLElementName.AREA);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "href");
+		}
+
 		// Process Frame Elements
 		elements = source.getAllElements(HTMLElementName.FRAME);
 		for (Element el : elements) {
@@ -67,6 +78,45 @@ public class SpiderHtmlParser extends SpiderParser {
 		elements = source.getAllElements(HTMLElementName.IFRAME);
 		for (Element el : elements) {
 			processAttributeElement(message, depth, baseURL, el, "src");
+		}
+
+		// Process Link elements
+		elements = source.getAllElements(HTMLElementName.LINK);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "href");
+		}
+
+		// Process Script elements with src
+		elements = source.getAllElements(HTMLElementName.SCRIPT);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "src");
+		}
+
+		// Process Img elements
+		elements = source.getAllElements(HTMLElementName.IMG);
+		for (Element el : elements) {
+			processAttributeElement(message, depth, baseURL, el, "src");
+		}
+
+		// Process META elements
+		elements = source.getAllElements(HTMLElementName.META);
+		for (Element el : elements) {
+			// If we have http-equiv attribute, then urls can be found.
+			String equiv = el.getAttributeValue("http-equiv");
+			String content = el.getAttributeValue("content");
+			if (equiv != null && content != null) {
+
+				// For the following cases:
+				// http-equiv="refresh" content="0;URL=http://foo.bar/..."
+				// http-equiv="location" content="url=http://foo.bar/..."
+				if (equiv.equalsIgnoreCase("refresh") || equiv.equalsIgnoreCase("location")) {
+					Matcher matcher = urlPattern.matcher(content);
+					if (matcher.find()) {
+						String url = matcher.group(1);
+						processURL(message, depth, baseURL, url);
+					}
+				}
+			}
 		}
 
 	}
@@ -97,4 +147,21 @@ public class SpiderHtmlParser extends SpiderParser {
 		notifyListenersResourceFound(message, depth + 1, fullURL);
 	}
 
+	/**
+	 * Builds an url and notifies the listeners.
+	 * 
+	 * @param message the message
+	 * @param depth the depth
+	 * @param localURL the local url
+	 * @param baseURL the base url
+	 */
+	private void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
+		// Build the absolute canonical URL
+		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+		if (fullURL == null)
+			return;
+
+		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
+		notifyListenersResourceFound(message, depth + 1, fullURL);
+	}
 }

@@ -72,7 +72,8 @@ public abstract class SpiderParser {
 	 * if possible, a Jericho source with the Response Body is provided.
 	 * 
 	 * @param message the full http message containing the request and the response
-	 * @param source a Jericho source with the Response Body from the HTTP message
+	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter
+	 *            can be {@code null}, in which case the parser implementation should ignore it.
 	 * @param depth the depth of this resource
 	 */
 	public abstract void parseResource(final HttpMessage message, Source source, int depth);

@@ -38,4 +38,18 @@ public interface SpiderParserListener {
 	 * @param uri the universal resource locator
 	 */
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri);
+
+	/**
+	 * Event triggered when a new resource URI is found. The responseMessage contains all the
+	 * required information regarding the page which contains the URI.<br/>
+	 * <br/>
+	 * Also provides a {@code shouldIgnore} boolean that states that this resourceURI should be
+	 * ignored in the fetching process, as it's probably a dead end (e.g. binary data, image, etc).
+	 * 
+	 * @param responseMessage the response message
+	 * @param depth the depth of this resource in the crawling process
+	 * @param uri the universal resource locator
+	 * @param shouldIgnore whether this resource has a high chance of being not useful if fetched
+	 */
+	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore);
 }
