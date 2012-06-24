@@ -27,7 +27,7 @@ import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.zaproxy.zap.extension.httppanelviews.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
+import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 
 public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 1L;
