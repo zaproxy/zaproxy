@@ -5,6 +5,7 @@
 	<property name="build" location="build" />
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
+	<property name="javadocs.dir" location="../javadocs" />
 
 	<!-- make the version accessible globally -->
 	<loadfile property="version" srcfile="version.txt">
@@ -152,7 +153,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 			</manifest>
 		</jar>
-		<jar jarfile="${dist}/zap-api.jar" update="true" compress="false">
+		<jar jarfile="${dist}/zap-1.4-api-X.jar" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
 				<include name="org/zaproxy/clientapi/**"/>
 			</zipfileset>
@@ -183,6 +184,14 @@
 		<!-- Copy new one to the lib dirctory -->
 		<copy file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
 		
+	</target>
+
+	<target name="generate-javadocs" description="generates the javadocs">
+		<javadoc packagenames="org.*"
+			sourcepath="${src}"
+			destdir="${javadocs.dir}"
+			windowTitle="OWASP Zed Attack Proxy">
+		</javadoc>
 	</target>
 
 	<target name="package-linux" description="package the Linux build">
