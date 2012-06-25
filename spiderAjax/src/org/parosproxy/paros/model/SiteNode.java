@@ -122,16 +122,6 @@ public class SiteNode extends DefaultMutableTreeNode {
     	StringBuilder sb = new StringBuilder();
     	sb.append("<html><body>");
 
-    	for (Alert alert : this.getAlerts()) {
-
-			if (alert
-					.getMessage()
-					.getRequestHeader()
-					.getHeader("User-Agent")
-					.equals("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rs:1.8.8.4) Gecko/21234325 Firefox/2.0.0.6")) {
-				this.justAJAXSpidered = true;
-			}
-		}  		
     	appendIcons(sb);
     	sb.append(StringEscapeUtils.escapeHtml(nodeName));
     	sb.append("</body></html>");
