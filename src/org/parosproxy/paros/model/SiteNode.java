@@ -32,6 +32,7 @@ package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -51,8 +52,8 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector<HistoryReference> pastHistoryList = new Vector<HistoryReference>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-	private ArrayList<Alert> alerts = new ArrayList<Alert>();
-	private boolean justSpidered = false;
+    private List<Alert> alerts = new ArrayList<Alert>();
+    private boolean justSpidered = false;
 	private boolean justAJAXSpidered = false;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
@@ -272,11 +273,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 		}
     }
     
-    @SuppressWarnings("unchecked")
+
 	public List<Alert> getAlerts() {
-    	// This is a shallow copy, but prevents a ConcurrentModificationException
- 	   return (List<Alert>) this.alerts.clone();
-    }
+		return Collections.synchronizedList(this.alerts);
+	}
     
     private void clearChildAlert (Alert alert, SiteNode child) {
     	// Alerts are propagated up, which means when one is deleted we need to work out if it still
