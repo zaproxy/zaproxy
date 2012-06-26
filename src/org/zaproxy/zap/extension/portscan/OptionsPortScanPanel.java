@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2010 The ZAP development team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -34,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsPortScanPanel extends AbstractParamPanel {
 
@@ -43,6 +44,7 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 	private JSlider sliderThreadsPerScan = null;
 	private JSlider sliderTimeoutInMs = null;
 	private JLabel labelMaxPortValue = null;
+	private JLabel labelThreadsPerScanValue = null;
 	private JCheckBox checkUseProxy = null;
 	
     public OptionsPortScanPanel() {
@@ -68,141 +70,36 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelPortScan() {
 		if (panelPortScan == null) {
-			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints7b = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints1b = new GridBagConstraints();
-
 			panelPortScan = new JPanel();
-
-			JLabel jLabel = new JLabel();
-			JLabel jLabel1 = new JLabel();
-			JLabel jLabel2 = new JLabel();
-			JLabel jLabel3 = new JLabel();
-			JLabel jLabelx = new JLabel();
-			
-			labelMaxPortValue = new JLabel();
-			labelMaxPortValue.setText(""+getSliderMaxPort().getValue());
-
 			panelPortScan.setLayout(new GridBagLayout());
 			panelPortScan.setSize(114, 132);
 			panelPortScan.setName("");
-			jLabel.setText(Constant.messages.getString("ports.options.label.maxPort"));
-			jLabel1.setText(Constant.messages.getString("ports.options.label.threads"));
-			jLabel2.setText(Constant.messages.getString("ports.options.label.timeoutInMs"));
-			jLabel3.setText(Constant.messages.getString("ports.options.label.useProxy"));
-			jLabelx.setText("");
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.ipadx = 0;
-			gridBagConstraints1.ipady = 0;
-			gridBagConstraints1.insets = new Insets(2,2,2,2);
-			gridBagConstraints1.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 1.0D;
-			
-			gridBagConstraints1b.gridx = 1;
-			gridBagConstraints1b.gridy = 0;
-			gridBagConstraints1b.ipadx = 0;
-			gridBagConstraints1b.ipady = 0;
-			gridBagConstraints1b.insets = new Insets(2,2,2,2);
-			gridBagConstraints1b.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints1b.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1b.weightx = 1.0D;
-			
-			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints2.ipadx = 0;
-			gridBagConstraints2.ipady = 0;
-			gridBagConstraints2.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints2.insets = new Insets(2,2,2,2);
-			gridBagConstraints2.gridwidth = 2;
-			
-			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.gridy = 2;
-			gridBagConstraints3.ipadx = 0;
-			gridBagConstraints3.ipady = 0;
-			gridBagConstraints3.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints3.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints3.insets = new Insets(2,2,2,2);
-			gridBagConstraints3.weightx = 1.0D;
-			gridBagConstraints3.gridwidth = 2;
-			
-			gridBagConstraints4.gridx = 0;
-			gridBagConstraints4.gridy = 3;
-			gridBagConstraints4.weightx = 1.0;
-			gridBagConstraints4.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints4.ipadx = 0;
-			gridBagConstraints4.ipady = 0;
-			gridBagConstraints4.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints4.insets = new Insets(2,2,2,2);
-			gridBagConstraints4.gridwidth = 2;
-			
-			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 4;
-			gridBagConstraints5.weightx = 1.0;
-			gridBagConstraints5.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints5.ipadx = 0;
-			gridBagConstraints5.ipady = 0;
-			gridBagConstraints5.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints5.insets = new Insets(2,2,2,2);
-			gridBagConstraints5.gridwidth = 2;
-			
-			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 5;
-			gridBagConstraints6.weightx = 1.0;
-			gridBagConstraints6.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints6.ipadx = 0;
-			gridBagConstraints6.ipady = 0;
-			gridBagConstraints6.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints6.insets = new Insets(2,2,2,2);
-			gridBagConstraints6.gridwidth = 2;
-			
-			gridBagConstraints7.gridx = 0;
-			gridBagConstraints7.gridy = 6;
-			gridBagConstraints7.ipadx = 0;
-			gridBagConstraints7.ipady = 0;
-			gridBagConstraints7.insets = new Insets(2,2,2,2);
-			gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints7.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints7.weightx = 1.0D;
-			
-			gridBagConstraints7b.gridx = 1;
-			gridBagConstraints7b.gridy = 6;
-			gridBagConstraints7b.ipadx = 0;
-			gridBagConstraints7b.ipady = 0;
-			gridBagConstraints7b.insets = new Insets(2,2,2,2);
-			gridBagConstraints7b.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints7b.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints7b.weightx = 1.0D;
-			
-			gridBagConstraints8.gridx = 0;
-			gridBagConstraints8.gridy = 10;
-			gridBagConstraints8.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints8.fill = GridBagConstraints.BOTH;
-			gridBagConstraints8.insets = new Insets(2,2,2,2);
-			gridBagConstraints8.weightx = 1.0D;
-			gridBagConstraints8.weighty = 1.0D;
-			gridBagConstraints8.gridwidth = 2;
-			
-			panelPortScan.add(jLabel, gridBagConstraints1);
-			panelPortScan.add(labelMaxPortValue, gridBagConstraints1b);
-			panelPortScan.add(getSliderMaxPort(), gridBagConstraints2);
-			panelPortScan.add(jLabel1, gridBagConstraints3);
-			panelPortScan.add(getSliderThreadsPerScan(), gridBagConstraints4);
-			panelPortScan.add(jLabel2, gridBagConstraints5);
-			panelPortScan.add(getSliderTimeoutInMs(), gridBagConstraints6);
-			panelPortScan.add(jLabel3, gridBagConstraints7);
-			panelPortScan.add(getCheckUseProxy(), gridBagConstraints7b);
-			panelPortScan.add(jLabelx, gridBagConstraints8);
+
+			labelMaxPortValue = new JLabel();
+			labelMaxPortValue.setText(""+getSliderMaxPort().getValue());
+
+			panelPortScan.add(new JLabel(Constant.messages.getString("ports.options.label.maxPort")), 
+					LayoutHelper.getGBC(0, 0, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(labelMaxPortValue, 
+					LayoutHelper.getGBC(1, 0, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(getSliderMaxPort(), 
+					LayoutHelper.getGBC(0, 1, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(new JLabel(Constant.messages.getString("ports.options.label.threads")), 
+					LayoutHelper.getGBC(0, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(getLabelThreadsPerScanValue(), 
+					LayoutHelper.getGBC(1, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(getSliderThreadsPerScan(), 
+					LayoutHelper.getGBC(0, 3, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(new JLabel(Constant.messages.getString("ports.options.label.timeoutInMs")), 
+					LayoutHelper.getGBC(0, 4, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(getSliderTimeoutInMs(), 
+					LayoutHelper.getGBC(0, 5, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(new JLabel(Constant.messages.getString("ports.options.label.useProxy")), 
+					LayoutHelper.getGBC(0, 6, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(getCheckUseProxy(), 
+					LayoutHelper.getGBC(1, 6, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelPortScan.add(new JLabel(""), 
+					LayoutHelper.getGBC(0, 10, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
 		}
 		return panelPortScan;
 	}
@@ -260,9 +157,7 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 			sliderMaxPort.setMajorTickSpacing(8192);
 			sliderMaxPort.setSnapToTicks(true);
 			sliderMaxPort.setPaintTrack(true);
-			
 			sliderMaxPort.addChangeListener(new ChangeListener () {
-
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					labelMaxPortValue.setText("" + sliderMaxPort.getValue());
@@ -280,17 +175,42 @@ public class OptionsPortScanPanel extends AbstractParamPanel {
 		if (sliderThreadsPerScan == null) {
 			sliderThreadsPerScan = new JSlider();
 			sliderThreadsPerScan.setMaximum(Constant.MAX_HOST_CONNECTION);
-			sliderThreadsPerScan.setMinimum(1);
+			sliderThreadsPerScan.setMinimum(0);
 			sliderThreadsPerScan.setValue(1);
 			sliderThreadsPerScan.setPaintTicks(true);
 			sliderThreadsPerScan.setPaintLabels(true);
 			sliderThreadsPerScan.setMinorTickSpacing(1);
-			sliderThreadsPerScan.setMajorTickSpacing(1);
+			sliderThreadsPerScan.setMajorTickSpacing(5);
 			sliderThreadsPerScan.setSnapToTicks(true);
 			sliderThreadsPerScan.setPaintTrack(true);
+			sliderThreadsPerScan.addChangeListener(new ChangeListener () {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					// If the minimum is set to 1 then the ticks are at 6, 11 etc
+					// But we dont want to support 0 threads, hence this hack
+					if (getSliderThreadsPerScan().getValue() == 0) {
+						getSliderThreadsPerScan().setValue(1);
+					}
+					setLabelThreadsPerScanValue(getSliderThreadsPerScan().getValue());
+				}});
 		}
 		return sliderThreadsPerScan;
 	}
+
+	private void setLabelThreadsPerScanValue(int value) {
+		if (labelThreadsPerScanValue == null) {
+			labelThreadsPerScanValue = new JLabel();
+		}
+		labelThreadsPerScanValue.setText(""+value);
+	}
+
+	private JLabel getLabelThreadsPerScanValue() {
+		if (labelThreadsPerScanValue == null) {
+			setLabelThreadsPerScanValue(getSliderThreadsPerScan().getValue());
+		}
+		return labelThreadsPerScanValue;
+	}
+
 
 	private JSlider getSliderTimeoutInMs() {
 		if (sliderTimeoutInMs == null) {
