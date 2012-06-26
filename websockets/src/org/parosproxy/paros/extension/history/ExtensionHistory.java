@@ -34,6 +34,7 @@
 // ZAP: 2012/04/24 Added type arguments to generic types, removed unnecessary
 // cast and added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/28 Added log of exception.
+// ZAP: 2012/05/31 Issue 308 NPE in sessionChangedEventHandler in daemon mode
 
 package org.parosproxy.paros.extension.history;
 
@@ -213,8 +214,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 	    getHistoryList().clear();
 	    getLogPanel().getListLog().setModel(getHistoryList());
-		getView().getRequestPanel().clearView(true);
-		getView().getResponsePanel().clearView(false);
+	    if (getView() != null) { 
+	    	getView().getRequestPanel().clearView(true);
+	    	getView().getResponsePanel().clearView(false);
+	    }
 		if (session == null) {
 			// Closedown
 			return;

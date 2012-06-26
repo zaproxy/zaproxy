@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and
 // removed unnecessary casts.
 // ZAP: 2012/05/15 Changed the method parse() to get the session description.
+// ZAP: 2012/06/11 Changed the JavaDoc of the method isNewState().
 
 package org.parosproxy.paros.model;
 
@@ -140,8 +141,14 @@ public class Session extends FileXML {
 	
 
     /**
-     * @return Returns the newState.
+     * Tells whether this session is in a new state or not. A session is in a
+     * new state if it was never saved or it was not loaded from an existing
+     * session.
+     * 
+     * @return {@code true} if this session is in a new state, {@code false}
+     *         otherwise.
      */
+    // ZAP: Changed the JavaDoc.
     public boolean isNewState() {
         return fileName.equals("");
     }
@@ -221,8 +228,15 @@ public class Session extends FileXML {
 			
 		}
 		
-		// ZAP: expand root
-	    View.getSingleton().getSiteTreePanel().expandRoot();
+        // XXX Temporary "hack" to check if ZAP is in GUI mode. Calling
+        // View.getSingleton() creates the View, if a View exists and the API
+        // was not enabled (through configuration) the API becomes disabled
+        // everywhere (including daemon mode).
+        // Note: the API needs to be enabled all the time in daemon mode.
+		if (View.isInitialised()) {
+		    // ZAP: expand root
+		    View.getSingleton().getSiteTreePanel().expandRoot();
+		}
 
 	    // Load the session urls
 	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);

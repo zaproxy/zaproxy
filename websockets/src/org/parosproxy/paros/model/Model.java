@@ -22,6 +22,8 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/02 Added the method createSingleton and changed the method
 // getSingleton to use it.
+// ZAP: 2012/06/11 Changed the method copySessionDb to call the method
+// Database.close(boolean, boolean).
 
 package org.parosproxy.paros.model;
 
@@ -214,7 +216,8 @@ public class Model {
     
     protected void copySessionDb(String currentFile, String destFile) throws Exception {
         
-        getDb().close(false);
+        // ZAP: Changed to call the method close(boolean, boolean).
+        getDb().close(false, false);
         
         // copy session related files to the path specified
         FileCopier copier = new FileCopier();        

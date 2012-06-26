@@ -150,6 +150,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	@Override
 	public void hostComplete(String hostAndPort) {
+        activeScan.reset();
 	}
 
 	@Override

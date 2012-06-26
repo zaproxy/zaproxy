@@ -44,6 +44,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 	public PassiveScanThread (PassiveScannerList passiveScannerList) {
 		super("ZAP-PassiveScanner");
+		this.setDaemon(true);
 		
 		this.scannerList = passiveScannerList;
 		
