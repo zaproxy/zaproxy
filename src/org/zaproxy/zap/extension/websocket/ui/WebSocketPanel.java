@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.websocket.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -34,6 +35,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
@@ -55,11 +57,13 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketUiModel.WebSocketMessageDAO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -67,7 +71,7 @@ import org.zaproxy.zap.view.ScanPanel;
  * Represents the WebSockets tab. It listens to all WebSocket channels and
  * displays messages accordingly.
  */
-public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
+public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, Runnable {
 
 	private static final long serialVersionUID = -2853099315338427006L;
 
@@ -243,10 +247,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 					    if (messagesLog.getSelectedValue() == null) {
 					        return;
 					    }
-	                    
+					    
 					    // TODO: display payload in detail
-//						final WebSocketMessage message = (WebSocketMessage) messagesLog.getSelectedValue();
-//	
+//						final WebSocketMessageDAO message = (WebSocketMessageDAO) messagesLog.getSelectedValue();
 //	                    readAndDisplay(message);
 					}
 				}
@@ -282,81 +285,90 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 			channelSelectModel.addElement(item.getAsPassive());
 		}
 	}
-    
-//    private void readAndDisplay(final HistoryReference historyRef) {
 
-//        synchronized(displayQueue) {
-//        	/*
-//        	// ZAP: Disabled the platform specific browser
-//            if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
-//                // truncate queue if browser dialog is displayed to have better response
-//                if (displayQueue.size()>0) {
-//                    // replace all display queue because the newest display overrides all previous one
-//                    // pending to be rendered.
-//                    displayQueue.clear();
-//                }
-//            }
-//            */
-//            if (displayQueue.size() > 0) {
-//                displayQueue.clear();
-//            }
-//            
-//            displayQueue.add(historyRef);
-//
-//        }
-//        
-//        if (thread != null && thread.isAlive()) {
-//            return;
-//        }
-//        
-//        thread = new Thread(this);
-//
-//        thread.setPriority(Thread.NORM_PRIORITY);
-//        thread.start();
-//    }
+    private Vector<WebSocketMessageDAO> displayQueue = new Vector<WebSocketMessageDAO>();
+    private Thread thread = null;
     
-//    @Override
-//    public void run() {
-//        HistoryReference ref = null;
-//        int count = 0;
-//        
-//        do {
-//            synchronized(displayQueue) {
-//                count = displayQueue.size();
-//                if (count == 0) {
-//                    break;
-//                }
-//                
-//                ref = displayQueue.get(0);
-//                displayQueue.remove(0);
-//            }
-//            
-//            try {
-//                final HistoryReference finalRef = ref;
-//                final HttpMessage msg = ref.getHttpMessage();
-//                EventQueue.invokeAndWait(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        displayMessage(msg);
-//                        checkAndShowBrowser(finalRef, msg);
-//                        listLog.requestFocus();
-//
-//                    }
-//                });
-//                
-//            } catch (Exception e) {
-//                // ZAP: Added logging.
-//                logger.error(e.getMessage(), e);
-//            }
-//            
-//            // wait some time to allow another selection event to be triggered
-//            try {
-//                Thread.sleep(200);
-//            } catch (Exception e) {}
-//        } while (true);
-//        
-//        
-//    }
+    private void readAndDisplay(final WebSocketMessageDAO message) {
+        synchronized(displayQueue) {
+        	/*
+        	// ZAP: Disabled the platform specific browser
+            if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
+                // truncate queue if browser dialog is displayed to have better response
+                if (displayQueue.size()>0) {
+                    // replace all display queue because the newest display overrides all previous one
+                    // pending to be rendered.
+                    displayQueue.clear();
+                }
+            }
+            */
+            if (displayQueue.size() > 0) {
+                displayQueue.clear();
+            }
+            
+            displayQueue.add(message);
+
+        }
+        
+        if (thread != null && thread.isAlive()) {
+            return;
+        }
+        
+        thread = new Thread(this);
+
+        thread.setPriority(Thread.NORM_PRIORITY);
+        thread.start();
+    }
+    
+    @Override
+    public void run() {
+        WebSocketMessageDAO message = null;
+        int count = 0;
+        
+        do {
+            synchronized(displayQueue) {
+                count = displayQueue.size();
+                if (count == 0) {
+                    break;
+                }
+                
+                message = displayQueue.get(0);
+                displayQueue.remove(0);
+            }
+            
+            try {
+                final HttpMessage msg = new HttpMessage("", message.payload.getBytes(), "", new byte[0]);
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                            
+                        if (msg.getRequestHeader().isEmpty()) {
+                            requestPanel.clearView(true);
+                        } else {
+                            requestPanel.setMessage(msg);
+                        }
+                        
+                        if (msg.getResponseHeader().isEmpty()) {
+                            responsePanel.clearView(false);
+                        } else {
+                            responsePanel.setMessage(msg, true);
+                        }
+                        
+                        messagesLog.requestFocus();
+                    }
+                });
+                
+            } catch (Exception e) {
+                // ZAP: Added logging.
+                logger.error(e.getMessage(), e);
+            }
+            
+            // wait some time to allow another selection event to be triggered
+            try {
+                Thread.sleep(200);
+            } catch (Exception e) {}
+        } while (true);
+    }
     
     
     public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {

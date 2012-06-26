@@ -197,7 +197,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				if (0 == payload.length) {
 					logger.debug("got empty payload");
 				} else if (payload.length < 10000) {
-					logger.debug("got payload: '" + decodePayload(payload) + "'");
+					logger.debug("got payload: '" + encodePayloadToUtf8(payload) + "'");
 				} else {
 					logger.debug("got huge payload, do not print it");
 					// + decodePayload(payload, 0, 100) may result in non-finished string
@@ -216,7 +216,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					
 					if (payload.length > 0) {
 						// process close message
-						logger.debug("got control-payload: " + decodePayload(payload));
+						logger.debug("got control-payload: " + encodePayloadToUtf8(payload));
 					}
 				}
 			}
@@ -278,6 +278,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		public void forward(OutputStream out) throws IOException {
 			if (!isFinished) {
 				// do not forward unfinished messages
+				// TODO: could add option to forward each frame on its own.
 				return;
 			}
 			
@@ -324,9 +325,15 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		@Override
 		public String getReadablePayload() {
-			return decodePayload(payload.array());
+			return encodePayloadToUtf8(payload.array());
 		}
-		
+
+		@Override
+		public void setReadablePayload(String newReadablePayload) {
+			// TODO: propagate changed payload into frames or build up one big frame
+			payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
+		}
+
 		@Override
 		public Direction getDirection() {
 			return isMasked ? Direction.OUTGOING : Direction.INCOMING;

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -158,6 +159,11 @@ public abstract class WebSocketMessage {
 	 * Initially it is set to -1, meaning that its close code is unknown.
 	 */
 	protected int closeCode = -1;
+	
+	/**
+	 * Used for en- & decoding from bytes to String and vice versa.
+	 */
+	protected final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
 	/**
 	 * Write all frames of this message to given channel if and only if message
@@ -308,8 +314,8 @@ public abstract class WebSocketMessage {
 	 * @param payload
 	 * @return
 	 */
-	protected String decodePayload(byte[] payload) {
-		return decodePayload(payload, 0);
+	protected String encodePayloadToUtf8(byte[] payload) {
+		return encodePayloadToUtf8(payload, 0);
 	}
 
 	/**
@@ -319,7 +325,7 @@ public abstract class WebSocketMessage {
 	 * @param offset
 	 * @return
 	 */
-	protected String decodePayload(byte[] payload, int offset) {
+	protected String encodePayloadToUtf8(byte[] payload, int offset) {
 		try {
 			int length = payload.length - offset;
 			
@@ -342,6 +348,17 @@ public abstract class WebSocketMessage {
 		}
 		
 		return "<invalid UTF-8>";
+	}
+	
+	/**
+	 * Helper method that takes an UTF-8 string and returns its byte
+	 * representation.
+	 * 
+	 * @param newReadablePayload
+	 * @return
+	 */
+	protected byte[] decodePayloadFromUtf8(String newReadablePayload) {
+		return newReadablePayload.getBytes(UTF8_CHARSET);
 	}
 	
 	protected void addPayload(byte[] bytes) {
@@ -384,11 +401,40 @@ public abstract class WebSocketMessage {
 		return timestamp;
 	}
 	
+	/**
+	 * Returns the number of bytes used in the payload.
+	 * 
+	 * @return
+	 */
 	public abstract Integer getPayloadLength();
 	
+	/**
+	 * Returns the 'original' payload as found in the WebSocket frame.
+	 * 
+	 * @return
+	 */
 	public abstract byte[] getPayload();
 
+	/**
+	 * Returns the payload from {@link WebSocketMessage#getPayload()} as
+	 * readable string (i.e.: converted to UTF-8).
+	 * 
+	 * @return
+	 */
 	public abstract String getReadablePayload();
+
+	/**
+	 * Modifies the payload to given UTF-8 string. Converts that into bytes. 
+	 * 
+	 * @param newReadablePayload
+	 */
+	public abstract void setReadablePayload(String newReadablePayload);
 	
+	/**
+	 * Returns either {@link Direction#INCOMING} if this message originated from
+	 * the browser, or {@link Direction#OUTGOING} if it came from server side.
+	 * 
+	 * @return
+	 */
 	public abstract Direction getDirection();
 }

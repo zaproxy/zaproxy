@@ -21,6 +21,8 @@
 // ZAP: 2012/04/14 Changed to discard all edits in the actions of the buttons 
 // "OK" and "Cancel".
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/06/25 Changed visibility of getJPanel() and initialize() from
+// private to protected. Use i18n strings for labels and warnings.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -36,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
@@ -85,7 +88,8 @@ public class FilterReplaceDialog extends AbstractDialog {
 	 * 
 	 * @return void
 	 */
-	private void initialize() {
+	protected void initialize() {
+		// ZAP: Changed visibility from private to protected.
         this.setContentPane(getJPanel());
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(346, 156);
@@ -93,12 +97,13 @@ public class FilterReplaceDialog extends AbstractDialog {
 	    this.setPreferredSize(new Dimension(346, 156));
 		this.pack();
 	}
+	
 	/**
 	 * This method initializes jPanel	
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getJPanel() {
+	protected JPanel getJPanel() {
 		if (jPanel == null) {
 			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 
@@ -120,9 +125,10 @@ public class FilterReplaceDialog extends AbstractDialog {
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jLabel.setText("Pattern:");
-			jLabel1.setText("Replace with:");
-			jLabel2.setText("Enter a regular expression as the pattern.");
+			// ZAP: i18n
+			jLabel.setText(Constant.messages.getString("filter.replacedialog.pattern") + ":");
+			jLabel1.setText(Constant.messages.getString("filter.replacedialog.replace") + ":");
+			jLabel2.setText(Constant.messages.getString("filter.replacedialog.title"));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.insets = new java.awt.Insets(5,5,5,5);
@@ -164,6 +170,7 @@ public class FilterReplaceDialog extends AbstractDialog {
 		}
 		return jPanel;
 	}
+	
 	/**
 	 * This method initializes txtPattern	
 	 * 	
@@ -211,12 +218,12 @@ public class FilterReplaceDialog extends AbstractDialog {
 			btnOK.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-				    Pattern pattern = null;
+				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    try {
-				        pattern = Pattern.compile(getTxtPattern().getText());
+				    	Pattern.compile(getTxtPattern().getText());
 				    } catch (Exception e1) {
-				        view.showWarningDialog("Invalid pattern.  Please correct");
+				        // ZAP: i18n
+				        view.showWarningDialog(Constant.messages.getString("filter.replacedialog.invalidpattern"));
 				        getTxtPattern().grabFocus();
 				        return;
 				    }
