@@ -18,11 +18,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/06/25 Added onWebSocketPayload() method for enabling filtering
+// WebSocket communication.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 
 /**
@@ -75,5 +78,11 @@ public interface Filter {
     public boolean isPropertyExists();
     
     public void editProperty();
-    
+
+    /**
+     * ZAP: Added method to be able to filter WebSocket communication.
+     * 
+     * @param message
+     */
+    public void onWebSocketPayload(WebSocketMessage message);
 }

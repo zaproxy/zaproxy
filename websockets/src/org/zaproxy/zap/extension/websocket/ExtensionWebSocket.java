@@ -28,16 +28,20 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
@@ -64,6 +68,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Displayed in the bottom area beside the History, Spider, etc. tabs.
 	 */
 	private WebSocketPanel panel;
+
+	/**
+	 * List of observers where each element is informed on all channel's
+	 * messages.
+	 */
+	private Vector<WebSocketObserver> allChannelObservers;
 	
 	/**
 	 * Constructor initializes this class.
@@ -82,6 +92,33 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public String getDescription() {
 		return Constant.messages.getString("websockets.desc");
 	}
+	
+	@Override
+	public void init() {
+		super.init();
+
+    	ExtensionFilter extFilter = (ExtensionFilter) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFilter.NAME);
+    	if (extFilter != null) {
+    		// filter is not disabled, otherwise ignore it
+    		extFilter.addFilter(new FilterWebSocketPayload());
+    	}
+	}
+	
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
+        extensionHook.addSessionListener(this);
+        if (getView() != null) {
+        	WebSocketPanel panel = getWebSocketPanel();
+        	panel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+	        
+        	extensionHook.getHookView().addStatusPanel(panel);	
+	        //TODO: Help
+//	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
+        	
+        	allChannelObservers = extensionHook.getWebSocketObserverList();
+        }
+    }
 
 	/**
 	 * Add an open channel to this extension after
@@ -109,7 +146,14 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			ws.startListeners(getListenerThreadPool(), remoteReader);
 			
 			String name = remoteSocket.getInetAddress().getHostName() + ":" + remoteSocket.getPort();
+			
+			// install GUI listener
 			getWebSocketPanel().addProxy(ws, name);
+			
+			// add other observers
+			for (WebSocketObserver observer : allChannelObservers) {
+				ws.addObserver(observer);
+			}
 		} catch (WebSocketException e) {
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
@@ -251,20 +295,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		
 		return listenerThreadPool;
 	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-        extensionHook.addSessionListener(this);
-        if (getView() != null) {
-        	WebSocketPanel panel = getWebSocketPanel();
-        	panel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-	        
-        	extensionHook.getHookView().addStatusPanel(panel);	
-	        //TODO: Help
-//	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
-        }
-    }
 
 	private WebSocketPanel getWebSocketPanel() {
 		if (panel == null) {

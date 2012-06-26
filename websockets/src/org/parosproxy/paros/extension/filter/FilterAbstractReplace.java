@@ -19,6 +19,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/06/25 Changed visibility of getFilterReplaceDialog() from private
+// to protected to ease inheritance. Created processFilterReplaceDialog() method
+// to ease extensibility and moved code from getFilterReplaceDialog() there.
 package org.parosproxy.paros.extension.filter;
 
 import java.util.regex.Pattern;
@@ -43,7 +46,7 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	 * 	
 	 * @return org.parosproxy.paros.extension.filter.FilterReplaceDialog	
 	 */    
-	private FilterReplaceDialog getFilterReplaceDialog() {
+	protected FilterReplaceDialog getFilterReplaceDialog() {
 		if (filterReplaceDialog == null) {
 			filterReplaceDialog = new FilterReplaceDialog(getView().getMainFrame(), true);
 		}
@@ -64,6 +67,17 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	        return;
 	    }
 	    
+	    processFilterReplaceDialog(dialog);
+	}
+	
+	/**
+	 * ZAP: Created new method for inheritance reasons to allow for better
+	 * re-usability and extensibility. Is called when the dialog is closed
+	 * (except its exit code is {@link JOptionPane#CANCEL_OPTION}).
+	 * 
+	 * @param dialog
+	 */
+	protected void processFilterReplaceDialog(FilterReplaceDialog dialog) {
 	    if (dialog.getTxtPattern().getText().equals("")) {
 	        pattern = null;
 	    } else {
@@ -71,9 +85,8 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	    }
 	    
 	    txtReplace = dialog.getTxtReplaceWith().getText();
-	    
 	}
-	
+
 	protected Pattern getPattern() {
 	    return pattern;
 	}
@@ -81,6 +94,4 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	protected String getReplaceText() {
 	    return txtReplace;
 	}
-	
-	
 }

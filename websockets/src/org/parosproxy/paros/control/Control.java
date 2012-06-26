@@ -28,6 +28,10 @@
 // of the main http panels and save the configuration file.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/16 Added new initialization method plus ctor for testing purposes.
+// ZAP: 2012/06/25 Moved call of init() from ctor to singleton methods to
+// initialize singleton variable first. Allows to retrieve the singleton while
+// not fully initialized (e.g.: to get another extension in the hook() method of
+// and extension).
 package org.parosproxy.paros.control;
 
 import java.io.File;
@@ -60,7 +64,7 @@ public class Control extends AbstractControl implements SessionListener {
     
     private Control(Model model, View view) {
         super(model, view);
-        init();
+        // ZAP: moved call of init() to singleton methods
     }
     
     // ZAP: Added constructor that will be used by initSingletonForTesting()
@@ -145,10 +149,12 @@ public class Control extends AbstractControl implements SessionListener {
 
     public static void initSingletonWithView() {
         control = new Control(Model.getSingleton(), View.getSingleton());
+        control.init();
     }
     
     public static void initSingletonWithoutView() {
         control = new Control(Model.getSingleton(), null);
+        control.init();
     }
 
     // ZAP: Added method to allow for testing
