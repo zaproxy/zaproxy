@@ -30,12 +30,15 @@ import javax.swing.DefaultListModel;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 
 /**
  * This model takes an arbitrary number of {@link WebSocketMessage} instances,
  * extracts necessary information for the user interface out of it and stores
- * them in a {@link List}. TODO: Use {@link WebSocketTable}.
+ * them in a {@link List}.
+ * <p>
+ * It manages two lists internally, one that contains all messages and another
+ * one, that contains just those messages not blacklisted by the given
+ * {@link WebSocketFilter}. TODO: Use {@link WebSocketTable}.
  */
 public class WebSocketUiModel extends DefaultListModel {
 	
@@ -58,15 +61,18 @@ public class WebSocketUiModel extends DefaultListModel {
 	private WebSocketFilter filter;
 	
 	/**
-	 * Identifier from {@link WebSocketProxy#getChannelId()}.
-	 */
-	private int channelId;
-	
-	/**
 	 * Add a unique id to each message of one view model.
 	 */
 	private AtomicInteger messageCounter;
 
+	/**
+	 * WebSocket channel id.
+	 */
+	private int channelId;
+
+	/**
+	 * Used for sorting messages (e.g.: when several lists are joined together)
+	 */
 	private static final Comparator<WebSocketMessageDAO> webSocketComparator;
 	
 	/**
@@ -92,6 +98,13 @@ public class WebSocketUiModel extends DefaultListModel {
 					return 1;
 				} else if (a.timestamp < b.timestamp) {
 					return -1;
+				} else {
+					// timestamps are equal - use consecutive ids for sorting					
+					if (a.id > b.id) {
+						return 1;
+					} else if (a.id < b.id) {
+						return -1;
+					}
 				}
 				
 				return 0;
@@ -100,13 +113,34 @@ public class WebSocketUiModel extends DefaultListModel {
 	}
 	
 	/**
+	 * Ctor.
+	 * 
+	 * @param webSocketFilter
+	 */
+	public WebSocketUiModel(WebSocketFilter webSocketFilter, int channelId) {
+		messages = new ArrayList<WebSocketMessageDAO>();
+		messageCounter = new AtomicInteger(0);
+		
+		filter = webSocketFilter;
+		filteredMessages = new ArrayList<WebSocketUiModel.WebSocketMessageDAO>();
+		
+		this.channelId = channelId;
+	}
+	
+	/**
 	 * Data Access Object used for displaying WebSockets communication.
 	 */
 	public class WebSocketMessageDAO {
+
+		/**
+		 * WebSocket channel id
+		 */
+		public int channelId;
+		
 		/**
 		 * consecutive number
 		 */
-		public String id;
+		public int id;
 		
 		/**
 		 * Used for sorting, containing time in milliseconds.
@@ -153,22 +187,20 @@ public class WebSocketUiModel extends DefaultListModel {
 		 * Sets the consecutive number.
 		 */
 		public WebSocketMessageDAO() {
-			id = "#" + messageCounter.incrementAndGet();
+			id = messageCounter.incrementAndGet();
 		}
 		
+		/**
+		 * Useful representation for debugging purposes.
+		 */
 		public String toString() {
 			return "Id=" + id + ";Opcode=" + readableOpcode + ";Bytes=" + payloadLength;
 		}
 	}
-	
-	public WebSocketUiModel(WebSocketFilter webSocketFilter) {
-		messages = new ArrayList<WebSocketMessageDAO>();
-		messageCounter = new AtomicInteger(0);
-		
-		filter = webSocketFilter;
-		filteredMessages = new ArrayList<WebSocketUiModel.WebSocketMessageDAO>();
-	}
 
+	/**
+	 * Returns the size of currently visible messages.
+	 */
 	@Override
 	public int getSize() {
 		return getMessages().size();
@@ -200,9 +232,12 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * @param channelId 
 	 * 
 	 * @param message
+	 * @return 
 	 */
-	public void addWebSocketMessage(WebSocketMessage message) {
+	public WebSocketMessageDAO addWebSocketMessage(WebSocketMessage message) {
 		WebSocketMessageDAO dao = new WebSocketMessageDAO();
+		
+		dao.channelId = channelId;
 		
 		Timestamp ts = message.getTimestamp();
 		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
@@ -226,10 +261,20 @@ public class WebSocketUiModel extends DefaultListModel {
 		
 		dao.payloadLength = message.getPayloadLength() + "";
 		
+		addWebSocketMessage(dao);
+		
+		return dao;
+	}
+
+	public void addWebSocketMessage(WebSocketMessageDAO dao) {
 		messages.add(dao);
 		reFilter();
 	}
 
+	/**
+	 * Fills the list of messages that will be displayed (i.e. that are not
+	 * blacklisted by the {@link WebSocketFilter}.
+	 */
 	public void reFilter() {
 		int formerSize = getSize();
 		synchronized (filteredMessages) {
@@ -274,7 +319,6 @@ public class WebSocketUiModel extends DefaultListModel {
 		
 		return hexString.toString();
 	}
-
 
 	/**
 	 * Resets the messages list.
