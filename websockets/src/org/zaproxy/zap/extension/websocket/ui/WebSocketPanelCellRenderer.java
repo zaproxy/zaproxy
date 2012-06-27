@@ -90,7 +90,7 @@ public class WebSocketPanelCellRenderer extends JPanel implements ListCellRender
 
 		GridBagConstraints constraint = getDefaultConstraint(0, 0);
 		txtId = getDefaultLabel(40);
-		txtId.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtId.setHorizontalAlignment(SwingConstants.LEFT);
 		txtId.setToolTipText(Constant.messages.getString("websocket.panel.id.help"));
 		add(txtId, constraint);
 
@@ -175,7 +175,7 @@ public class WebSocketPanelCellRenderer extends JPanel implements ListCellRender
 
 		WebSocketMessageDAO message = (WebSocketMessageDAO) value;
 		
-		txtId.setText(message.id);
+		txtId.setText("#" + message.channelId + "." + message.id);
 		
 		if (message.direction.equals(Direction.OUTGOING)) {
 			txtDirection.setText("→");

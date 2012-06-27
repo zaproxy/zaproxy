@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
+import java.awt.Adjustable;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -30,6 +31,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -123,11 +126,11 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		channelSelectModel = new SortedComboBoxModel();
 		
 		models = new HashMap<Integer, WebSocketUiModel>();
-		
-		// at the beginning all channels are shown, indicated by -1
-		currentChannelId = -1;
 
 		initializePanel();
+		
+		// at the beginning all channels are shown
+		useJoinedModel();
 	}
 	
 	/**
@@ -172,7 +175,25 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			scrollPanel.setPreferredSize(new Dimension(800,200));
 			scrollPanel.setName("WebSocketPanelActions");
-			scrollPanel.setVerticalScrollBar(new JAutoScrollBar());
+			
+			scrollPanel.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+				private int previousMaximum;
+
+				public void adjustmentValueChanged(AdjustmentEvent e) {
+					Adjustable source = (Adjustable) e.getSource();
+					
+					if (source.getValue() + source.getVisibleAmount() == previousMaximum
+							&& source.getMaximum() > previousMaximum) {
+						// scrollbar is at previous position,
+						// that was also the former maximum value
+						
+						// now content was added => scroll down
+						source.setValue(source.getMaximum());
+					}
+					
+					previousMaximum = source.getMaximum();
+				}
+			});
 		}
 		return scrollPanel;
 	}
@@ -187,7 +208,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	public JComponent getMessagesLog() {
 		if (messagesLog == null) {
-			messagesLog = new JList(getJoinedMessagesModel());
+			messagesLog = new JList();
 			messagesLog.setDoubleBuffered(true);
             messagesLog.setCellRenderer(getCustomCellRenderer());
 			messagesLog.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -581,7 +602,11 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	@Override
 	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
 		if (message.isFinished()) {
-			getMessagesModel(channelId).addWebSocketMessage(message);
+			WebSocketMessageDAO dao = getMessagesModel(channelId).addWebSocketMessage(message);
+			if (currentChannelId == -1) {
+				// joined model is used -> add message also there
+				((WebSocketUiModel) messagesLog.getModel()).addWebSocketMessage(dao);
+			}
 		}
 		
 		return true;
@@ -605,10 +630,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private WebSocketUiModel getMessagesModel(int channelId) {
 		if (!models.containsKey(channelId)) {
-			models.put(channelId, new WebSocketUiModel(getFilterDialog().getFilter()));
+			models.put(channelId, new WebSocketUiModel(getFilterDialog().getFilter(), channelId));
 		}
-		
-		currentChannelId = channelId;
+
 		return models.get(channelId);
 	}
 	
@@ -626,7 +650,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @return
 	 */
 	private WebSocketUiModel getJoinedMessagesModel() {
-		WebSocketUiModel joinedModel = new WebSocketUiModel(getFilterDialog().getFilter());
+		WebSocketUiModel joinedModel = new WebSocketUiModel(getFilterDialog().getFilter(), -1);
 		
 		for (Entry<Integer, WebSocketUiModel> model  : models.entrySet()) {
 			joinedModel.addMessages(model.getValue().getMessages());
