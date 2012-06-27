@@ -172,6 +172,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			scrollPanel.setPreferredSize(new Dimension(800,200));
 			scrollPanel.setName("WebSocketPanelActions");
+			scrollPanel.setVerticalScrollBar(new JAutoScrollBar());
 		}
 		return scrollPanel;
 	}
@@ -451,7 +452,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			channelSelect = new JComboBox(channelSelectModel);
 			channelSelect.addItem(new ComboBoxChannelItem(Constant.messages.getString("websocket.toolbar.channel.select"), -1));
 			channelSelect.setSelectedIndex(0);
-			channelSelect.setPreferredSize(new Dimension(250, 25));
+			channelSelect.setPreferredSize(new Dimension(350, 25));
 
 			channelSelect.addActionListener(new ActionListener() { 
 
