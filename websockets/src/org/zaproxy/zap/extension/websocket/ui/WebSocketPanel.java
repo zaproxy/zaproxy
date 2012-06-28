@@ -28,12 +28,10 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
@@ -49,24 +47,26 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketUiModel.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel.WebSocketMessageDAO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -99,15 +99,13 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private JScrollPane scrollPanel;
 
-	private JList messagesLog;
-
-	private WebSocketPanelCellRenderer cellRenderer;
+	private JTable messagesLog;
 
 	private HttpPanel requestPanel;
 
 	private HttpPanel responsePanel;
 	
-	private Map<Integer, WebSocketUiModel> models;
+	private Map<Integer, WebSocketTableModel> models;
 	
 	private int currentChannelId;
 
@@ -125,16 +123,14 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		
 		channelSelectModel = new SortedComboBoxModel();
 		
-		models = new HashMap<Integer, WebSocketUiModel>();
+		models = new HashMap<Integer, WebSocketTableModel>();
 
-		initializePanel();
-		
 		// at the beginning all channels are shown
-		useJoinedModel();
+		initializePanel();
 	}
 	
 	/**
-	 * Sets up this tab and installs a change listener.
+	 * Sets up the graphical representation of this tab.
 	 */
 	private void initializePanel() {
 		setName("websocket.panel");
@@ -206,67 +202,70 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * 
 	 * @return
 	 */
-	public JComponent getMessagesLog() {
+	protected JTable getMessagesLog() {
 		if (messagesLog == null) {
-			messagesLog = new JList();
+			messagesLog = new JTable();
+			
+			// set JTable's model - start with all channels
+			useJoinedModel();
+			
+			messagesLog.setColumnSelectionAllowed(false);
+			messagesLog.setCellSelectionEnabled(false);
+			messagesLog.setRowSelectionAllowed(true);
+			messagesLog.setAutoCreateRowSorter(true);
+			
+			// prevents columns to loose their width when switching models
+			messagesLog.setAutoCreateColumnsFromModel(false);
+
+			// channel + consecutive number
+			setColumnWidth(0, 50, 100, 70);
+			
+			// direction
+			setColumnWidth(1, 25, 100, 25);
+			
+			// timestamp
+			setColumnWidth(2, 160, 200, 160);
+			
+			// opcode
+			setColumnWidth(3, 70, 120, 70);
+
+			// payload length
+			setColumnWidth(4, 45, 100, 45);
+			
+			// payload (do not set max & preferred size => stretches to maximum)
+			setColumnWidth(5, 100, -1, -1);
+
+			messagesLog.setFont(new Font("Dialog", Font.PLAIN, 12));
 			messagesLog.setDoubleBuffered(true);
-            messagesLog.setCellRenderer(getCustomCellRenderer());
-			messagesLog.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			messagesLog.setName("WebSocketMessagesLog");
-			messagesLog.setFont(new Font("Default", Font.PLAIN, 12));
-			
-			// significantly speeds up rendering
-			messagesLog.setFixedCellHeight(16);
-			
+			messagesLog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			messagesLog.addMouseListener(new MouseAdapter() { 
-				@Override
-				public void mousePressed(MouseEvent e) {
-					mouseClicked(e);
-				}
-					
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					mouseClicked(e);
-				}
-				
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					// right mouse button action
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
-				    	
-						// Select message list item on right click
-					    int Idx = messagesLog.locationToIndex( e.getPoint() );
-					    
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = messagesLog.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    
-					    if ( Idx < 0 || !messagesLog.getSelectionModel().isSelectedIndex( Idx ) ) {
+			    @Override
+			    public void mousePressed(MouseEvent e) {
+
+					if (SwingUtilities.isRightMouseButton(e)) {
+
+						// Select table item
+					    int row = messagesLog.rowAtPoint( e.getPoint() );
+					    if ( row < 0 || !messagesLog.getSelectionModel().isSelectedIndex( row ) ) {
 					    	messagesLog.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		messagesLog.getSelectionModel().setSelectionInterval( Idx, Idx );
+					    	if ( row >= 0 ) {
+					    		messagesLog.getSelectionModel().setSelectionInterval( row, row );
 					    	}
 					    }
-
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				        return;
-				    }	
-				    
-				    if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0 && e.getClickCount() > 1) {  // double click
-						requestPanel.setTabFocus();
-						return;
-				    }
-				}
+						
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+			        }
+			    }
 			});
 			
-			messagesLog.addListSelectionListener(new ListSelectionListener() {
+			messagesLog.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					// Only display messages when there are no more selection changes.
+					// only display messages when there are no more selection changes.
 					if (!e.getValueIsAdjusting()) {
-					    if (messagesLog.getSelectedValue() == null) {
+					    if (messagesLog.getSelectedRow() < 0) {
+					    	// selection got filtered away
 					        return;
 					    }
 					    
@@ -276,12 +275,40 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 					}
 				}
 			});
+			
+			messagesLog.revalidate();
 		}
 		return messagesLog;
 	}
+	
+	/**
+	 * Helper method for setting the column widths of the
+	 * {@link WebSocketPanel#messagesLog}.
+	 * 
+	 * @param index
+	 * @param min
+	 * @param max
+	 * @param preferred
+	 */
+	private void setColumnWidth(int index, int min, int max, int preferred) {
+		TableColumn column = messagesLog.getColumnModel().getColumn(index);
+		
+		if (min != -1) {
+			column.setMinWidth(min);
+		}
+		
+		if (max != -1) {
+			column.setMaxWidth(max);
+		}
+		
+		if (preferred != -1) {
+			column.setPreferredWidth(preferred);
+		}
+	}
 
 	/**
-	 * Set this panel up as {@link WebSocketObserver}.
+	 * Sets this panel up as {@link WebSocketObserver} for the given
+	 * {@link WebSocketProxy}.
 	 * 
 	 * @param ws
 	 * @param hostName
@@ -302,9 +329,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private void addChannelToComboBox(String channelName, int channelId) {
 		ComboBoxChannelItem item = new ComboBoxChannelItem(channelName, channelId);
-		if (channelSelectModel.getIndexOf(item.getAsActive()) < 0 && channelSelectModel.getIndexOf(item.getAsActive()) < 0) {
-	 		logger.debug("add channel to panel (" + channelName + ")");
-			channelSelectModel.addElement(item.getAsPassive());
+		if (channelSelectModel.getIndexOf(item) < 0) {
+			// element is new
+	 		logger.debug("add channel to websocket panel (" + channelName + ")");
+			channelSelectModel.addElement(item);
 		}
 	}
 
@@ -397,26 +425,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
     }
-	
-    /**
-     * This method initializes logPanelCellRenderer	
-     * 	
-     * @return org.parosproxy.paros.extension.history.LogPanelCellRenderer	
-     */
-    private WebSocketPanelCellRenderer getCustomCellRenderer() {
-        if (cellRenderer == null) {
-            cellRenderer = new WebSocketPanelCellRenderer();
-            
-    	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-    	    	cellRenderer.setSize(new java.awt.Dimension(328,21));
-    	    }
-    	    
-            cellRenderer.setBackground(java.awt.Color.white);
-            cellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        
-        return cellRenderer;
-    }
 
     /**
 	 * Lazy initializes header of this WebSocket tab with a select box and a
@@ -436,33 +444,33 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			panelToolbar.setName("websocket.toolbar");
 
 			int x = 0;
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(new JLabel(Constant.messages.getString("websocket.toolbar.channel.label")), constraints);
 			
-			String base = Constant.messages.getString("websocket.filter.label.filter");
-			String status = Constant.messages.getString("websocket.filter.label.off");
-			filterStatus = new JLabel(base + status);
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getChannelSelect(), constraints);
 
-			GridBagConstraints constraint = new GridBagConstraints();
-			constraint.gridx = x++;
-			panelToolbar.add(getChannelSelect(), constraint);
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getFilterButton(), constraints);
 
-			constraint = new GridBagConstraints();
-			constraint.gridx = x++;
-			panelToolbar.add(getFilterButton(), constraint);
-
-			constraint = new GridBagConstraints();
-			constraint.gridx = x++;
-			panelToolbar.add(filterStatus, constraint);
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getFilterStatus(), constraints);
 
 			// stretch pseudo-component to let options button appear on the right
-			constraint = new GridBagConstraints();
-			constraint.gridx = x++;
-			constraint.weightx = 1;
-			constraint.fill = GridBagConstraints.HORIZONTAL;
-			panelToolbar.add(new JLabel(), constraint);
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			constraints.weightx = 1;
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			panelToolbar.add(new JLabel(), constraints);
 
-			constraint = new GridBagConstraints();
-			constraint.gridx = x++;
-			panelToolbar.add(getOptionsButton(), constraint);
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getOptionsButton(), constraints);
 		}
 
 		return panelToolbar;
@@ -473,9 +481,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			channelSelect = new JComboBox(channelSelectModel);
 			channelSelect.addItem(new ComboBoxChannelItem(Constant.messages.getString("websocket.toolbar.channel.select"), -1));
 			channelSelect.setSelectedIndex(0);
-			channelSelect.setPreferredSize(new Dimension(350, 25));
-
-			channelSelect.addActionListener(new ActionListener() { 
+			channelSelect.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {    
@@ -483,7 +489,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 				    ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
 				    int index = channelSelect.getSelectedIndex();
 				    if (item != null && index > 0) {
-				        channelSelected(item);
 				        useModel(item.getChannelId());
 				    } else if (index == 0) {
 				        useJoinedModel();
@@ -494,14 +499,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			});
 		}
 		return channelSelect;
-	}
-
-	private void channelSelected(ComboBoxChannelItem item) {
-		if (channelSelectModel.getIndexOf(item.getAsPassive()) < 0) {
-			channelSelectModel.setSelectedItem(item.getAsActive());
-		} else {
-			channelSelectModel.setSelectedItem(item.getAsPassive());
-		}
 	}
 
 	private JButton getOptionsButton() {
@@ -536,36 +533,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		public String toString() {
 			return label;
 		}
-		
-		/**
-		 * Show active site labels in bold font.
-		 * 
-		 * @param label
-		 * @return
-		 */
-		public ComboBoxChannelItem getAsActive() {
-			return new ComboBoxChannelItem("<html><b>" + getNakedLabel() + "</b></html>", channelId);
-		}
-
-		/**
-		 * Show inactive site labels in normal font.
-		 * 
-		 * @param label
-		 * @param channelId
-		 * @return
-		 */
-		public ComboBoxChannelItem getAsPassive() {
-			return new ComboBoxChannelItem("<html>" + getNakedLabel() + "</html>", channelId);
-		}
-		
-		/**
-		 * Strips out HTML from label string.
-		 * 
-		 * @return
-		 */
-		private String getNakedLabel() {
-			return label.replaceAll("</?html>", "").replaceAll("</?b>", "");
-		}
 
 		@Override
 		public int compareTo(Object o) {
@@ -590,6 +557,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		}
 		return filterButton;
 	}
+	
+	private JLabel getFilterStatus() {
+		if (filterStatus == null) {
+			String base = Constant.messages.getString("websocket.filter.label.filter");
+			String status = Constant.messages.getString("websocket.filter.label.off");
+			filterStatus = new JLabel(base + status);
+		}
+		return filterStatus;
+	}
 
 	@Override
 	public int getObservingOrder() {
@@ -601,14 +577,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	@Override
 	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-		if (message.isFinished()) {
-			WebSocketMessageDAO dao = getMessagesModel(channelId).addWebSocketMessage(message);
-			if (currentChannelId == -1) {
-				// joined model is used -> add message also there
-				((WebSocketUiModel) messagesLog.getModel()).addWebSocketMessage(dao);
+		synchronized (models) {
+			if (message.isFinished()) {
+				WebSocketMessageDAO dao = getMessagesModel(channelId).addWebSocketMessage(message);
+				if (currentChannelId == -1) {
+					// joined model is used -> add message also there
+					((WebSocketTableModel) messagesLog.getModel()).addWebSocketMessage(dao);
+				}
 			}
 		}
-		
 		return true;
 	}
 	
@@ -619,7 +596,11 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private void useModel(int channelId) {
 		currentChannelId = channelId;
-		messagesLog.setModel(getMessagesModel(channelId));
+		
+		WebSocketTableModel model = getMessagesModel(channelId);
+		model.reFilter();
+		
+		messagesLog.setModel(model);
 	}
 
 	/**
@@ -628,9 +609,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @param channelId
 	 * @return
 	 */
-	private WebSocketUiModel getMessagesModel(int channelId) {
+	private WebSocketTableModel getMessagesModel(int channelId) {
 		if (!models.containsKey(channelId)) {
-			models.put(channelId, new WebSocketUiModel(getFilterDialog().getFilter(), channelId));
+			models.put(channelId, new WebSocketTableModel(getFilterDialog().getFilter(), channelId));
 		}
 
 		return models.get(channelId);
@@ -641,6 +622,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private void useJoinedModel() {
 		currentChannelId = -1;
+		reFilterJoinedModel();
 		messagesLog.setModel(getJoinedMessagesModel());
 	}
 	
@@ -649,14 +631,23 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * 
 	 * @return
 	 */
-	private WebSocketUiModel getJoinedMessagesModel() {
-		WebSocketUiModel joinedModel = new WebSocketUiModel(getFilterDialog().getFilter(), -1);
+	private WebSocketTableModel getJoinedMessagesModel() {
+		WebSocketTableModel joinedModel = new WebSocketTableModel(getFilterDialog().getFilter(), -1);
 		
-		for (Entry<Integer, WebSocketUiModel> model  : models.entrySet()) {
+		for (Entry<Integer, WebSocketTableModel> model  : models.entrySet()) {
 			joinedModel.addMessages(model.getValue().getMessages());
 		}
 		
 		return joinedModel;
+	}
+
+	/**
+	 * Filter all models according to selected filter.
+	 */
+	private void reFilterJoinedModel() {
+		for (Entry<Integer, WebSocketTableModel> model : models.entrySet()) {
+			model.getValue().reFilter();
+		}
 	}
 	
 	/**
@@ -711,26 +702,25 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private void applyFilter() {
 		if (currentChannelId == -1) {
-			// no specific channel is currently selected - filter all models
-			for (Entry<Integer, WebSocketUiModel> model : models.entrySet()) {
-				model.getValue().reFilter();
-			}
+			// as no specific model is chosen, I've to refilter all models
+			useJoinedModel();
 		} else {
-			// filter only model that is currently shown
+			// filtering the model that is currently shown suffices
 			models.get(currentChannelId).reFilter();
 		}
 	}
-
+	
 	/**
 	 * Show textual hint for filter status.
 	 * 
 	 * @param filter
 	 */
     private void setFilterStatus() {
-    	WebSocketFilter filter = filterDialog.getFilter();
+    	WebSocketFilter filter = getFilterDialog().getFilter();
+    	JLabel status = getFilterStatus();
     	
-    	filterStatus.setText(filter.toShortString());
-    	filterStatus.setToolTipText(filter.toLongString());
+    	status.setText(filter.toShortString());
+    	status.setToolTipText(filter.toLongString());
     }
 }
 

@@ -20,16 +20,17 @@ package org.zaproxy.zap.extension.websocket.ui;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.DefaultListModel;
+import javax.swing.table.DefaultTableModel;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
  * This model takes an arbitrary number of {@link WebSocketMessage} instances,
@@ -40,20 +41,30 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessage;
  * one, that contains just those messages not blacklisted by the given
  * {@link WebSocketFilter}. TODO: Use {@link WebSocketTable}.
  */
-public class WebSocketUiModel extends DefaultListModel {
+public class WebSocketTableModel extends DefaultTableModel {
 	
 	private static final long serialVersionUID = -5047686640383236512L;
+	
+	/**
+	 * Number of columns in this table model
+	 */
+	private static final int COLUMN_COUNT = 6;
+	
+	/**
+	 * Names of all columns.
+	 */
+	private final Vector<String> columnNames;
 
 	/**
 	 * This list holds all WebSocket messages for this view model.
 	 */
-	private List<WebSocketMessageDAO> messages;
+	private List<WebSocketMessageDAO> allMessages = new ArrayList<WebSocketMessageDAO>();
 
 	/**
 	 * This list holds all WebSocket messages that are not blacklisted by
-	 * {@link WebSocketUiModel#filter}.
+	 * {@link WebSocketTableModel#filter}.
 	 */
-	private ArrayList<WebSocketMessageDAO> filteredMessages;
+	private List<WebSocketMessageDAO> filteredMessages = new ArrayList<WebSocketMessageDAO>();
 
 	/**
 	 * Used to show only specific messages.
@@ -69,11 +80,6 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * WebSocket channel id.
 	 */
 	private int channelId;
-
-	/**
-	 * Used for sorting messages (e.g.: when several lists are joined together)
-	 */
-	private static final Comparator<WebSocketMessageDAO> webSocketComparator;
 	
 	/**
 	 * Used to display {@link WebSocketMessageDAO#dateTime} in user's locale.
@@ -89,27 +95,6 @@ public class WebSocketUiModel extends DefaultListModel {
 		dateFormatter = FastDateFormat.getDateTimeInstance(
 				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
 				Constant.getLocale());
-		
-		// comparator used if multiple models are merged together for combined view
-		webSocketComparator = new Comparator<WebSocketMessageDAO>() {
-			@Override
-			public int compare(WebSocketMessageDAO a, WebSocketMessageDAO b) {
-				if (a.timestamp > b.timestamp) {
-					return 1;
-				} else if (a.timestamp < b.timestamp) {
-					return -1;
-				} else {
-					// timestamps are equal - use consecutive ids for sorting					
-					if (a.id > b.id) {
-						return 1;
-					} else if (a.id < b.id) {
-						return -1;
-					}
-				}
-				
-				return 0;
-			}
-		};
 	}
 	
 	/**
@@ -117,14 +102,22 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * 
 	 * @param webSocketFilter
 	 */
-	public WebSocketUiModel(WebSocketFilter webSocketFilter, int channelId) {
-		messages = new ArrayList<WebSocketMessageDAO>();
-		messageCounter = new AtomicInteger(0);
+	public WebSocketTableModel(WebSocketFilter webSocketFilter, int channelId) {
+		super();
 		
 		filter = webSocketFilter;
-		filteredMessages = new ArrayList<WebSocketUiModel.WebSocketMessageDAO>();
-		
 		this.channelId = channelId;
+		
+		messageCounter = new AtomicInteger(0);
+
+		ResourceBundle msgs = Constant.messages;
+		columnNames = new Vector<String>(COLUMN_COUNT);
+		columnNames.add(msgs.getString("websocket.table.header.id"));
+		columnNames.add(msgs.getString("websocket.table.header.direction"));
+		columnNames.add(msgs.getString("websocket.table.header.timestamp"));
+		columnNames.add(msgs.getString("websocket.table.header.opcode"));
+		columnNames.add(msgs.getString("websocket.table.header.payload_length"));
+		columnNames.add(msgs.getString("websocket.table.header.payload"));
 	}
 	
 	/**
@@ -181,7 +174,7 @@ public class WebSocketUiModel extends DefaultListModel {
 		/**
 		 * Number of the payload bytes.
 		 */
-		public String payloadLength;
+		public int payloadLength;
 		
 		/**
 		 * Sets the consecutive number.
@@ -197,14 +190,6 @@ public class WebSocketUiModel extends DefaultListModel {
 			return "Id=" + id + ";Opcode=" + readableOpcode + ";Bytes=" + payloadLength;
 		}
 	}
-
-	/**
-	 * Returns the size of currently visible messages.
-	 */
-	@Override
-	public int getSize() {
-		return getMessages().size();
-	}
 	
 	/**
 	 * Returns all whitelisted messages for this model, each with a unique id.
@@ -213,17 +198,116 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * @return
 	 */
 	public List<WebSocketMessageDAO> getMessages() {
-		synchronized (filteredMessages) {
-			return filteredMessages;
-		}
+		return filteredMessages;
 	}
 
 	/**
-	 * Return from the {@link WebSocketUiModel#filteredMessages} list.
+	 * Returns the size of currently visible messages.
+	 * 
+	 * @return
 	 */
 	@Override
-	public Object getElementAt(int index) {
-		return filteredMessages.get(index);
+	public int getRowCount() {
+		// this method is called by the parent constructor,
+		// when filteredMessages is not initialized
+		if (filteredMessages == null) {
+			return 0;
+		}
+		
+		return filteredMessages.size();
+	}
+
+	/**
+	 * Returns the number of columns.
+	 * 
+	 * @return
+	 */
+	@Override
+	public int getColumnCount() {
+		return COLUMN_COUNT;
+	}
+
+	/**
+	 * Returns the name of the given column index.
+	 * 
+	 * @return
+	 */
+	@Override
+	public String getColumnName(int columnIndex) {
+		return columnNames.get(columnIndex);
+	}
+	
+	/**
+	 * Cells are not editable.
+	 * 
+	 * @return
+	 */
+	@Override
+	public boolean isCellEditable(int row, int col) {
+		return false;
+	}
+
+	/**
+	 * Returns the type of column for given column index.
+	 * 
+	 * @return
+	 */
+	@Override
+	public Class<? extends Object> getColumnClass(int columnIndex) {
+		switch (columnIndex) {
+		case 0:
+			return String.class;
+		case 1:
+			return String.class;
+		case 2:
+			return String.class;
+		case 3:
+			return String.class;
+		case 4:
+			return Integer.class;
+		case 5:
+			return String.class;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the object for given field indexes.
+	 * 
+	 * @return
+	 */
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		if (filteredMessages.size() > rowIndex) {
+			WebSocketMessageDAO message = filteredMessages.get(rowIndex);
+			
+			switch (columnIndex) {
+			case 0:
+				return "#" + message.channelId + "." + message.id;
+
+			case 1:
+				if (message.direction.equals(Direction.OUTGOING)) {
+					return "→";
+				} else if (message.direction.equals(Direction.INCOMING)) {
+					return "←";
+				}
+				break;
+
+			case 2:
+				return message.dateTime;
+
+			case 3:
+				return message.opcode + "=" + message.readableOpcode;
+
+			case 4:
+				return message.payloadLength;
+
+			case 5:
+				return message.payload;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -259,16 +343,22 @@ public class WebSocketUiModel extends DefaultListModel {
 		
 		dao.direction = message.getDirection();
 		
-		dao.payloadLength = message.getPayloadLength() + "";
+		dao.payloadLength = message.getPayloadLength();
 		
 		addWebSocketMessage(dao);
 		
 		return dao;
 	}
 
-	public void addWebSocketMessage(WebSocketMessageDAO dao) {
-		messages.add(dao);
-		reFilter();
+	public void addWebSocketMessage(WebSocketMessageDAO message) {
+		allMessages.add(message);
+		if (filter.isBlacklisted(message)) {
+			// no need for adding the message to the filteredMessages list
+		} else {
+			int rows = filteredMessages.size();
+			filteredMessages.add(message);
+			fireTableRowsInserted(rows - 1, rows);
+		}
 	}
 
 	/**
@@ -276,28 +366,27 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * blacklisted by the {@link WebSocketFilter}.
 	 */
 	public void reFilter() {
-		int formerSize = getSize();
 		synchronized (filteredMessages) {
 			filteredMessages.clear();
-			for (WebSocketMessageDAO message : messages) {
+			for (WebSocketMessageDAO message : allMessages) {
 				if (!filter.isBlacklisted(message)) {
 					filteredMessages.add(message);
 				}
 			}
 		}
 		
-		fireContentsChanged(this, 0, Math.max(formerSize, getSize()));
+		fireTableDataChanged();
 	}
 
-	private byte[] hexStringToByteArray(String hexStr) {
-		int len = hexStr.length() - 1;
-		byte[] data = new byte[(len / 2) + 1];
-		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ((Character.digit(hexStr.charAt(i), 16) << 4) + Character
-					.digit(hexStr.charAt(i + 1), 16));
-		}
-		return data;
-	}
+//	private byte[] hexStringToByteArray(String hexStr) {
+//		int len = hexStr.length() - 1;
+//		byte[] data = new byte[(len / 2) + 1];
+//		for (int i = 0; i < len; i += 2) {
+//			data[i / 2] = (byte) ((Character.digit(hexStr.charAt(i), 16) << 4) + Character
+//					.digit(hexStr.charAt(i + 1), 16));
+//		}
+//		return data;
+//	}
 	
 	private String byteArrayToHexString(byte[] byteArray) {
 		StringBuffer hexString = new StringBuffer("");
@@ -324,7 +413,7 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * Resets the messages list.
 	 */
 	public void clear() {
-		messages.clear();
+		allMessages.clear();
 		reFilter();
 	}
 
@@ -334,12 +423,11 @@ public class WebSocketUiModel extends DefaultListModel {
 	 * @param messages
 	 */
 	public void addMessages(List<WebSocketMessageDAO> messages) {
-		this.messages.addAll(messages);
-		Collections.sort(this.messages, webSocketComparator);
+		allMessages.addAll(messages);
 		reFilter();
 	}
 	
 	public String toString() {
-		return "Model listing " + getSize() + " of " + messages.size() + " possible messages!";
+		return "Model listing " + getRowCount() + " of " + allMessages.size() + " possible messages!";
 	}
 }
