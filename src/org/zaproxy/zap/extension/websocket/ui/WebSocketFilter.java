@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketUiModel.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel.WebSocketMessageDAO;
 
 /**
  * Used as filter for the {@link WebSocketPanel}, which is applied in the
