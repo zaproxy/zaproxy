@@ -75,13 +75,13 @@ public class SiteNode extends DefaultMutableTreeNode {
     		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
     			highest = alert.getRisk();
     		}
-			if (alert
+			/*if (alert
 					.getMessage()
 					.getRequestHeader()
 					.getHeader("User-Agent")
 					.equals("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rs:1.8.8.4) Gecko/21234325 Firefox/2.0.0.6")) {
 				this.justAJAXSpidered = true;
-			}
+			}*/
 		}
     	switch (highest) {
     	case Alert.RISK_INFO:
