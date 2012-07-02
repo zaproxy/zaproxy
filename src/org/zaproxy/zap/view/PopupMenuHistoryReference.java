@@ -71,6 +71,15 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         this.initialize();
     }
 
+    /**
+     * Returns the last invoker.
+     *
+     * @return the last invoker.
+     */
+    protected Invoker getLastInvoker() {
+        return lastInvoker;
+    }
+
 	/**
 	 * This method initializes this
 	 * 
@@ -117,6 +126,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    ref = sNode.getHistoryReference();
                 break;
 
+    		case ascan:
+            case fuzz:
     		case history:
         	    ref = (HistoryReference) listInvoker.getSelectedValue();
 				break;
@@ -130,10 +141,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	        }
         	    }
 				break;
-    		case ascan:
-        	    msg = (HttpMessage) listInvoker.getSelectedValue();
-                ref = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_SCANNER, msg);
-				break;
     		case search:
         	    SearchResult sr = (SearchResult) listInvoker.getSelectedValue();
         	    if (sr != null) {
@@ -142,10 +149,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             	    	ref = msg.getHistoryRef();
             	    }
         	    }
-				break;
-    		case fuzz:
-        	    msg = (HttpMessage) listInvoker.getSelectedValue();
-                ref = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_FUZZER, msg);
 				break;
     		case bruteforce:
     	    	BruteForceItem bfi = (BruteForceItem) listInvoker.getSelectedValue();
@@ -176,6 +179,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		    }
                 break;
 
+    		case ascan:
+            case fuzz:
     		case history:
         	    objArray = listInvoker.getSelectedValues();
         	    if (objArray != null) {
@@ -195,15 +200,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	        }
         	    }
 				break;
-    		case ascan:
-        	    objArray = listInvoker.getSelectedValues();
-        	    if (objArray != null) {
-        	    	for (Object obj : objArray) {
-                	    msg = (HttpMessage) obj;
-                        refs.add(new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_SCANNER, msg));
-        	    	}
-        	    }
-				break;
     		case search:
         	    objArray = listInvoker.getSelectedValues();
         	    if (objArray != null) {
@@ -215,15 +211,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
                     	    	refs.add(msg.getHistoryRef());
                     	    }
                 	    }
-        	    	}
-        	    }
-				break;
-    		case fuzz:
-        	    objArray = listInvoker.getSelectedValues();
-        	    if (objArray != null) {
-        	    	for (Object obj : objArray) {
-                	    msg = (HttpMessage) obj;
-                        refs.add(new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_FUZZER, msg));
         	    	}
         	    }
 				break;

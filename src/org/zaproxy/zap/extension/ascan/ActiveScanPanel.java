@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -159,9 +162,18 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-
-					HttpMessage msg = (HttpMessage) messageList.getSelectedValue();
-					displayMessage(msg);
+	                HistoryReference hRef = (HistoryReference) messageList.getSelectedValue();
+			        if (hRef == null) {
+                        return;
+                    }
+			        
+				    try {
+				        displayMessage(hRef.getHttpMessage());
+				    } catch (HttpMalformedHeaderException ex) {
+				        logger.error(ex.getMessage(), ex);
+                    } catch (SQLException ex) {
+                        logger.error(ex.getMessage(), ex);
+                    }
 				}});
 			
 			resetMessageList();

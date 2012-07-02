@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -49,6 +50,9 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -66,6 +70,8 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	private static final long serialVersionUID = 1L;
 
 	public static final String PANEL_NAME = "fuzzpanel";
+	
+    private static Logger logger = Logger.getLogger(FuzzerPanel.class);
 	
 	private ExtensionFuzz extension = null;
 	private JPanel panelCommand = null;
@@ -88,8 +94,6 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	private HttpPanel responsePanel = null;
 
 	private ScanStatus scanStatus = null;
-
-    private static Logger log = Logger.getLogger(FuzzerPanel.class);
     
     public FuzzerPanel(ExtensionFuzz extension, FuzzerParam fuzzerParam) {
         super();
@@ -343,21 +347,30 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	protected void addFuzzResult(final HttpMessage msg) {
 		
 		if (EventQueue.isDispatchThread()) {
-			resultsModel.addElement(msg);
-			getProgressBar().setValue(getProgressBar().getValue() + 1);
+		    addFuzzResultToView(msg);
 		    return;
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					resultsModel.addElement(msg);
-					getProgressBar().setValue(getProgressBar().getValue() + 1);
+				    addFuzzResultToView(msg);
 				}
 			});
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 		}
+	}
+
+	private void addFuzzResultToView(final HttpMessage msg) {
+	    try {
+            resultsModel.addElement(new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg));
+        } catch (HttpMalformedHeaderException e) {
+            logger.error(e.getMessage(), e);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        getProgressBar().setValue(getProgressBar().getValue() + 1);
 	}
 
 	private JList getFuzzResultList() {
@@ -396,11 +409,18 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
 				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				    if (fuzzResultList.getSelectedValue() == null) {
-				        return;
-				    }
+                    HistoryReference hRef = (HistoryReference) fuzzResultList.getSelectedValue();
+                    if (hRef == null) {
+                        return;
+                    }
                     
-				    displayMessage((HttpMessage) fuzzResultList.getSelectedValue());
+                    try {
+                        displayMessage(hRef.getHttpMessage());
+                    } catch (HttpMalformedHeaderException ex) {
+                        logger.error(ex.getMessage(), ex);
+                    } catch (SQLException ex) {
+                        logger.error(ex.getMessage(), ex);
+                    }
 				}
 			});
 			
@@ -439,7 +459,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
 			
 		} catch (Exception e) {
-			log.error("Failed to access message ", e);
+			logger.error("Failed to access message ", e);
 		}
     }
 
@@ -454,17 +474,17 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	}
 
 	private void stopScan() {
-		log.debug("Stopping fuzzing");
+		logger.debug("Stopping fuzzing");
 		extension.stopFuzzers ();
 	}
 
 	private void pauseScan() {
 		if (getPauseScanButton().getModel().isSelected()) {
-			log.debug("Pausing fuzzing");
+			logger.debug("Pausing fuzzing");
 			extension.pauseFuzzers();
 			getPauseScanButton().setToolTipText(Constant.messages.getString("fuzz.toolbar.button.unpause"));
 		} else {
-			log.debug("Resuming fuzzing");
+			logger.debug("Resuming fuzzing");
 			extension.resumeFuzzers();
 			getPauseScanButton().setToolTipText(Constant.messages.getString("fuzz.toolbar.button.pause"));
 
@@ -522,24 +542,31 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		}
 		
 		@SuppressWarnings("unchecked")
-		Enumeration<HttpMessage> enumeration = (Enumeration<HttpMessage>) resultsModel.elements();
+		Enumeration<HistoryReference> enumeration = (Enumeration<HistoryReference>) resultsModel.elements();
 		Matcher matcher;
 		while (enumeration.hasMoreElements()) {
-			HttpMessage msg = enumeration.nextElement();
-			if (msg != null && msg.getRequestBody() != null) {
-				matcher = pattern.matcher(msg.getResponseBody().toString());
-				if (inverse) {
-					if (! matcher.find()) {
-						results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
-					}
-				} else {
-					while (matcher.find()) {
-						results.add(
-								new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(), 
-										new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
-					}
-				}
-			}
+		    HistoryReference historyReference = enumeration.nextElement();
+            try {
+                HttpMessage msg = historyReference.getHttpMessage();
+                if (msg != null && msg.getRequestBody() != null) {
+                    matcher = pattern.matcher(msg.getResponseBody().toString());
+                    if (inverse) {
+                        if (! matcher.find()) {
+                            results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
+                        }
+                    } else {
+                        while (matcher.find()) {
+                            results.add(
+                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(), 
+                                            new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
+                        }
+                    }
+                }
+            } catch (HttpMalformedHeaderException e) {
+                logger.error(e.getMessage(), e);
+            } catch (SQLException e) {
+                logger.error(e.getMessage(), e);
+            }
 		}
 		return results;
 	}
