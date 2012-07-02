@@ -20,12 +20,11 @@ package org.zaproxy.zap.extension.httppanel.view.largeresponse;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.component.all.response.ResponseAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
-import org.zaproxy.zap.extension.httppanel.view.DefaultHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.component.all.response.ResponseAllComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
@@ -33,7 +32,6 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 	
 	public static final String NAME = "ExtensionHttpPanelLargeResponseView";
-	public static final int MIN_CONTENT_LENGTH = 10000;
 	
 	public ExtensionHttpPanelLargeResponseView() {
 		super(NAME);
@@ -41,18 +39,20 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
-		
-		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
-		HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
+	    if (getView() != null) {
+    		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
+    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
+    		
+    		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
+	    }
 	}
 	
 	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
 		
 		@Override
 		public HttpPanelView getNewView() {
-			return new ResponseLargeResponseSplitView(new DefaultHttpPanelViewModel());
+			return new ResponseLargeResponseSplitView();
 		}
 
 		@Override
@@ -69,17 +69,8 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		}
 		
 		@Override
-		public boolean matchToDefaultView(HttpMessage httpMessage) {
-			if (httpMessage == null || httpMessage.getResponseBody() == null) {
-				return false;
-			}
-			
-			int contentLength = httpMessage.getResponseHeader().getContentLength();
-			if (contentLength < 0) {
-				contentLength = httpMessage.getResponseBody().length();
-			}
-			
-			return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
+		public boolean matchToDefaultView(Message aMessage) {
+		    return LargeResponseUtil.isLargeResponse(aMessage);
 		}
 
 		@Override
@@ -114,17 +105,8 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		}
 		
 		@Override
-		public boolean matchToDefaultView(HttpMessage httpMessage) {
-			if (httpMessage == null || httpMessage.getResponseBody() == null) {
-				return false;
-			}
-			
-			int contentLength = httpMessage.getResponseHeader().getContentLength();
-			if (contentLength < 0) {
-				contentLength = httpMessage.getResponseBody().length();
-			}
-			
-			return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
+		public boolean matchToDefaultView(Message aMessage) {
+		    return LargeResponseUtil.isLargeResponse(aMessage);
 		}
 
 		@Override

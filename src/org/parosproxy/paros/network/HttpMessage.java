@@ -25,6 +25,7 @@
 // of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/06/11 Added method boolean isWebSocketUpgrade()
+// ZAP: 2012/07/02 Implement Message interface for more flexibility.
 package org.parosproxy.paros.network;
 
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
@@ -47,7 +49,7 @@ import org.zaproxy.zap.network.HttpResponseBody;
  * Representation of a HTTP message request (header and body) and response (header and body) pair.
  * 
  */
-public class HttpMessage {
+public class HttpMessage implements Message {
 
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	// Not yet supported
@@ -67,7 +69,7 @@ public class HttpMessage {
     private Vector<String> tags = new Vector<String>();
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
-    // ZAP: Added log
+    // ZAP: Added logger
     private static Logger log = Logger.getLogger(HttpMessage.class);
 
 

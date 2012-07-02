@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -60,13 +58,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel.WebSocketMessageDAO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -205,6 +201,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	protected JTable getMessagesLog() {
 		if (messagesLog == null) {
 			messagesLog = new JTable();
+			messagesLog.setName("websocket.table");
 			
 			// set JTable's model - start with all channels
 			useJoinedModel();
@@ -268,10 +265,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 					    	// selection got filtered away
 					        return;
 					    }
+					    WebSocketTableModel model;
+					    if (currentChannelId == -1) {
+					        model = getJoinedMessagesModel();
+				        } else {
+				            model =  models.get(Integer.valueOf(currentChannelId));
+				        }
 					    
-					    // TODO: display payload in detail
-//						final WebSocketMessageDAO message = (WebSocketMessageDAO) messagesLog.getSelectedValue();
-//	                    readAndDisplay(message);
+						final WebSocketMessageDAO message = model.getMessages().get(messagesLog.getSelectedRow());
+	                    readAndDisplay(message);
 					}
 				}
 			});
@@ -387,24 +389,22 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
             }
             
             try {
-                final HttpMessage msg = new HttpMessage("", message.payload.getBytes(), "", new byte[0]);
+                final WebSocketMessageDAO msg = message;
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                            
-                        if (msg.getRequestHeader().isEmpty()) {
-                            requestPanel.clearView(true);
-                        } else {
+                        
+                        if (msg.direction == WebSocketMessage.Direction.OUTGOING) {
                             requestPanel.setMessage(msg);
-                        }
-                        
-                        if (msg.getResponseHeader().isEmpty()) {
                             responsePanel.clearView(false);
+                            requestPanel.setTabFocus();
                         } else {
+                            requestPanel.clearView(true);
                             responsePanel.setMessage(msg, true);
+                            responsePanel.setTabFocus();
                         }
                         
-                        messagesLog.requestFocus();
+                        //messagesLog.requestFocus();
                     }
                 });
                 

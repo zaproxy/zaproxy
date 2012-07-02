@@ -17,17 +17,29 @@
  */
 package org.zaproxy.zap.extension.httppanel.view;
 
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+
+
 
 public interface HttpPanelViewModel {
-	
-	public void setHttpMessage(HttpMessage httpMessage);
-	
-	public HttpMessage getHttpMessage();
-	
-	public void clear();
-	
-	public void addHttpPanelViewModelListener(HttpPanelViewModelListener l);
-	
-	public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l);
+    
+    // Add to setMessage and clear something like this:
+    //   The implementation of this  method should notify
+    //   all registered <code>ListDataListener</code>s that the contents
+    //   have changed.
+    
+    
+    public void setMessage(Message aMessage);
+    
+    
+    public Message getMessage();
+    
+    
+    public void clear();
+    
+    
+    public void addHttpPanelViewModelListener(HttpPanelViewModelListener l);
+    
+    
+    public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l);
 }

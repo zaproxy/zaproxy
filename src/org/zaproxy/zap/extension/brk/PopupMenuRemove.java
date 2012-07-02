@@ -25,36 +25,24 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class PopupMenuRemove extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionBreak extension = null;
     
-    /**
-     * 
-     */
+    
     public PopupMenuRemove() {
         super();
  		initialize();
     }
 
-    /**
-     * @param label
-     */
+    
     public PopupMenuRemove(String label) {
         super(label);
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
+	
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.remove.popup"));
 
@@ -62,7 +50,7 @@ public class PopupMenuRemove extends ExtensionPopupMenuItem {
 
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
-			    extension.removeSelectedBreakPoint();
+        	    extension.removeUiSelectedBreakpoint();
         	}
         });
 
@@ -71,8 +59,8 @@ public class PopupMenuRemove extends ExtensionPopupMenuItem {
 	
     @Override
     public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals(BreakPointsPanel.PANEL_NAME)) {
-            if (extension.canRemoveBreakPoint()) {
+        if (invoker.getName() != null && invoker.getName().equals(BreakpointsPanel.PANEL_NAME)) {
+            if (extension.canRemoveBreakpoint()) {
                 this.setEnabled(true);
             } else {
                 this.setEnabled(false);

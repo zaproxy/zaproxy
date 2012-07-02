@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -22,7 +20,6 @@ package org.zaproxy.zap.extension.websocket.filter;
 import java.util.regex.Matcher;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.extension.filter.FilterAbstractReplace;
 import org.parosproxy.paros.extension.filter.FilterReplaceDialog;
 import org.parosproxy.paros.network.HttpMessage;

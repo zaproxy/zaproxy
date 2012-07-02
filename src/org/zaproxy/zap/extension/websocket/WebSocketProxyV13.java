@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -29,6 +27,7 @@ import java.util.Calendar;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 /**
  * This proxy implements the WebSocket protocol version 13 as specified in
@@ -337,6 +336,16 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		@Override
 		public Direction getDirection() {
 			return isMasked ? Direction.OUTGOING : Direction.INCOMING;
+		}
+		
+		@Override
+		public WebSocketMessageDAO getDAO() {
+			WebSocketMessageDAO dao = super.getDAO();
+			
+			dao.channelId = getChannelId();
+			dao.id = getIncrementedMessageCount();
+			
+			return dao;
 		}
 
 //		protected int writeFrame(int opcode, ByteBuffer buf, boolean blocking, boolean fin) throws IOException {

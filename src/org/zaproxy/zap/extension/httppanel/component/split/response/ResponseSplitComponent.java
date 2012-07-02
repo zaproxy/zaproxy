@@ -18,8 +18,8 @@
 package org.zaproxy.zap.extension.httppanel.component.split.response;
 
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseBodyStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseHeaderStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 
 /*
