@@ -47,21 +47,15 @@ public class RequestPostTableModel extends AbstractTableModel {
     // ZAP: Added logger
     private static final Logger logger = Logger.getLogger(RequestPostTableModel.class);
     
-    /**
-     * @return Returns the editable.
-     */
+    
     public boolean isEditable() {
         return editable;
     }
-    /**
-     * @param editable The editable to set.
-     */
+    
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
-    /**
-     * 
-     */
+    
     public RequestPostTableModel() {
         super();
     }

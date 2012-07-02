@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -31,66 +33,56 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface;
+import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener {
 
+    public enum DialogType {NONE, ADD, EDIT, REMOVE};
+    
+    public static final String NAME = "ExtensionBreak";
+    
 	private static final Logger logger = Logger.getLogger(ExtensionBreak.class);
 	
 	private BreakPanel breakPanel = null;
 	private ProxyListenerBreak proxyListener = null;
 
-	private BreakPointsPanel breakPointsPanel = null;
+	private BreakpointsPanel breakpointsPanel = null;
 
 	private PopupMenuAddBreakSites popupMenuAddBreakSites = null;
     private PopupMenuAddBreakHistory popupMenuAddBreakHistory = null;
 
     private PopupMenuEditBreak popupMenuEditBreak = null;
 	private PopupMenuRemove popupMenuRemove = null;
-
-	private BreakAddDialog addDialog = null;
-	private BreakEditDialog editDialog = null;
 	
-	private boolean canShowDialog = true;
-	private Object canShowDialogLock = new Object();
-	private enum Dialogs {NONE, ADD_DIALOG, EDIT_DIALOG};
-	private Dialogs currentDialog = Dialogs.NONE;
-
-	/**
-     * 
-     */
+	private BreakpointMessageHandler breakpointMessageHandler;
+	
+    private DialogType currentDialogType = DialogType.NONE;
+	
+    private Map<Class<? extends BreakpointMessageInterface>, BreakpointsUiManagerInterface> mapBreakpointUiManager;
+    
+    private Map<Class<? extends Message>, BreakpointsUiManagerInterface> mapMessageUiManager;
+    
+	
     public ExtensionBreak() {
         super();
  		initialize();
     }
 
-    /**
-     * @param name
-     */
+    
     public ExtensionBreak(String name) {
         super(name);
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
+	
 	private void initialize() {
-        this.setName("ExtensionBreak");
+        this.setName(NAME);
         this.setOrder(24);
 	}
 	
-	/**
-	 * This method initializes logPanel	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.LogPanel	
-	 */    
+	    
 	public BreakPanel getBreakPanel() {
 		if (breakPanel == null) {
 		    breakPanel = new BreakPanel();
@@ -103,65 +95,102 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
+	        breakpointMessageHandler = new BreakpointMessageHandler(getBreakPanel());
+	        breakpointMessageHandler.setEnabledBreakpoints(getBreakpointsModel().getBreakpointsEnabledList());
+	        
 	        ExtensionHookView pv = extensionHook.getHookView();
 	        pv.addWorkPanel(getBreakPanel());
 	        
             extensionHook.getHookMenu().addAnalyseMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 
-	        extensionHook.getHookView().addStatusPanel(getBreakPointsPanel());
+	        extensionHook.getHookView().addStatusPanel(getBreakpointsPanel());
 
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakSites());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEdit());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakHistory());
-
+            
+            mapBreakpointUiManager = new HashMap<Class<? extends BreakpointMessageInterface>, BreakpointsUiManagerInterface>();
+            mapMessageUiManager = new HashMap<Class<? extends Message>, BreakpointsUiManagerInterface>();
+            
+            addBreakpointsUiManager(new HttpBreakpointsUiManagerInterface(this));
+            
             extensionHook.addProxyListener(getProxyListenerBreak());
+            
+            
             extensionHook.addSessionListener(this);
 
 	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
-	    	ExtensionHelp.enableHelpKey(getBreakPointsPanel(), "ui.tabs.breakpoints");
+	    	ExtensionHelp.enableHelpKey(getBreakpointsPanel(), "ui.tabs.breakpoints");
 	    }
 	}
 	
-	private BreakPointsPanel getBreakPointsPanel() {
-		if (breakPointsPanel == null) {
-			breakPointsPanel = new BreakPointsPanel();
+	private BreakpointsPanel getBreakpointsPanel() {
+		if (breakpointsPanel == null) {
+			breakpointsPanel = new BreakpointsPanel();
 		}
-		return breakPointsPanel;
+		return breakpointsPanel;
 	}
 	
-	public void addBreakPoint (String url) {
-		this.getBreakPointsPanel().addBreakPoint(url);
+	public void addBreakpoint(BreakpointMessageInterface breakpoint) {
+		this.getBreakpointsPanel().addBreakpoint(breakpoint);
 	}
 
-	public void editBreakPointAtRow (int row, String url) {
-		this.getBreakPointsPanel().editBreakPoint(row, url);
+	public void editBreakpoint(BreakpointMessageInterface oldBreakpoint, BreakpointMessageInterface newBreakpoint) {
+		this.getBreakpointsPanel().editBreakpoint(oldBreakpoint, newBreakpoint);
 	}
 	
-	public void removeBreakPointAtRow (int row) {
-		this.getBreakPointsPanel().removeBreakPoint(row);
+	public void removeBreakpoint(BreakpointMessageInterface breakpoint) {
+		this.getBreakpointsPanel().removeBreakpoint(breakpoint);
+	}
+    
+    public List<BreakpointMessageInterface> getBreakpointsList() {
+        return getBreakpointsModel().getBreakpointsList();
+    }
+    
+    public BreakpointMessageInterface getUiSelectedBreakpoint() {
+        return getBreakpointsPanel().getSelectedBreakpoint();
+    }
+    
+    public void addBreakpointsUiManager(BreakpointsUiManagerInterface uiManager) {
+        mapBreakpointUiManager.put(uiManager.getBreakpointClass(), uiManager);
+        mapMessageUiManager.put(uiManager.getMessageClass(), uiManager);
+    }
+    
+    public void addUiBreakpoint(Message aMessage) {
+       BreakpointsUiManagerInterface uiManager = mapMessageUiManager.get(aMessage.getClass());
+       if (uiManager != null) {
+           uiManager.handleAddBreakpoint(aMessage);
+       }
+    }
+    
+    public void editUiSelectedBreakpoint() {
+        BreakpointMessageInterface breakpoint = getBreakpointsPanel().getSelectedBreakpoint();
+        if (breakpoint != null) {
+            BreakpointsUiManagerInterface uiManager = mapBreakpointUiManager.get(breakpoint.getClass());
+            if (uiManager != null) {
+                uiManager.handleEditBreakpoint(breakpoint);
+            }
+        }
+    }
+	
+	public void removeUiSelectedBreakpoint() {
+	    BreakpointMessageInterface breakpoint = getBreakpointsPanel().getSelectedBreakpoint();
+        if (breakpoint != null) {
+            BreakpointsUiManagerInterface uiManager = mapBreakpointUiManager.get(breakpoint.getClass());
+            if (uiManager != null) {
+                uiManager.handleRemoveBreakpoint(breakpoint);
+            }
+        }
 	}
 	
-	public List<BreakPoint> getBreakPointsList() {
-		return getBreakPointsModel().getBreakPointsList();
-	}
-	
-	private int getSelectedBreakPointRow() {
-		return this.getBreakPointsPanel().getBreakPoints().getSelectedRow();
-	}
-	
-	private BreakPoint getSelectedBreakPoint() {
-		return getBreakPointsModel().getBreakPointAtRow(getSelectedBreakPointRow());
-	}
-	
-	private BreakPointsTableModel getBreakPointsModel() {
-		return (BreakPointsTableModel)this.getBreakPointsPanel().getBreakPoints().getModel();
+	private BreakpointsTableModel getBreakpointsModel() {
+		return (BreakpointsTableModel)this.getBreakpointsPanel().getBreakpoints().getModel();
 	}
 	
 	private ProxyListenerBreak getProxyListenerBreak() {
         if (proxyListener == null) {
             proxyListener = new ProxyListenerBreak(getModel(), this);
-            proxyListener.setBreakPanel(getBreakPanel());
         }
         return proxyListener;
 	}
@@ -198,74 +227,24 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return popupMenuRemove;
 	}
 
-	public boolean canAddBreakPoint() {
-		return (currentDialog == Dialogs.NONE || currentDialog == Dialogs.ADD_DIALOG);
+	public boolean canAddBreakpoint() {
+		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.ADD);
 	}
     
-    public void showBreakAddDialog(String msg) {
-		synchronized (canShowDialogLock) {
-			if(canShowDialog) {
-	    		addDialog = new BreakAddDialog(getView().getMainFrame(), false);
-	    		addDialog.setPlugin(this);
-	    		addDialog.setVisible(true);
-	    		addDialog.setBreakPoint(msg);
-	    		
-				canShowDialog = false;
-				currentDialog = Dialogs.ADD_DIALOG;
-	    	} else if (currentDialog == Dialogs.ADD_DIALOG) {
-	    		addDialog.setBreakPoint(msg);
-	    	}
-		}
-    }
-
-	public void hideBreakAddDialog() {
-		synchronized (canShowDialogLock) {
-			addDialog.dispose();
-			addDialog = null;
-		
-			canShowDialog = true;
-			currentDialog = Dialogs.NONE;
-		}
+	public boolean canEditBreakpoint() {
+		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.EDIT);
 	}
 	
-	public boolean canEditBreakPoint() {
-		return (currentDialog == Dialogs.EDIT_DIALOG || currentDialog == Dialogs.NONE);
+	public boolean canRemoveBreakpoint() {
+		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.REMOVE);
 	}
 	
-    public void showBreakEditDialog() {
-    	synchronized (canShowDialogLock) {
-	    	if(canShowDialog) {
-	    		editDialog = new BreakEditDialog(getView().getMainFrame(), false);
-	    		editDialog.setPlugin(this);
-	    		editDialog.setVisible(true);
-	    		editDialog.setBreakPoint(getSelectedBreakPoint().getUrl());
-	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
-	    		
-				canShowDialog = false;
-				currentDialog = Dialogs.EDIT_DIALOG;
-	    	} else if (currentDialog == Dialogs.EDIT_DIALOG) {
-	    		editDialog.setBreakPoint(getSelectedBreakPoint().getUrl());
-	    		editDialog.setCurrentBreakPointRow(getSelectedBreakPointRow());
-	    	}
-    	}
-    }
-
-	public void hideBreakEditDialog() {
-		synchronized (canShowDialogLock) {
-			editDialog.dispose();
-			editDialog = null;
-		
-			canShowDialog = true;
-			currentDialog = Dialogs.NONE;
-		}
+	public void dialogShown(DialogType type) {
+	    currentDialogType = type;
 	}
 	
-	public boolean canRemoveBreakPoint() {
-		return (currentDialog == Dialogs.NONE);
-	}
-	
-	public void removeSelectedBreakPoint() {
-		removeBreakPointAtRow(getSelectedBreakPointRow());
+	public void dialogClosed() {
+	    currentDialogType = DialogType.NONE;
 	}
 	
 	@Override
@@ -320,4 +299,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 			breakPanel.savePanels();
 		}
 	}
+	
+	public boolean messageReceivedFromClient(Message aMessage) {
+	    return breakpointMessageHandler.handleMessageReceivedFromClient(aMessage);
+	}
+	
+	public boolean messageReceivedFromServer(Message aMessage) {
+	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage);
+	}
+	
 }

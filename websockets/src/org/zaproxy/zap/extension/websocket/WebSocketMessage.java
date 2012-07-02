@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -25,9 +23,13 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
@@ -164,6 +166,22 @@ public abstract class WebSocketMessage {
 	 * Used for en- & decoding from bytes to String and vice versa.
 	 */
 	protected final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+	
+	/**
+	 * Used to format {@link WebSocketMessage#timestamp} in user's locale.
+	 */
+	private static FastDateFormat dateFormatter;
+	
+	/**
+	 * Use the static initializer for setting up one date formatter for all
+	 * instances.
+	 */
+	static {
+		// milliseconds are added later (via usage java.sql.Timestamp.getNanos())
+		dateFormatter = FastDateFormat.getDateTimeInstance(
+				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
+				Constant.getLocale());
+	}
 
 	/**
 	 * Write all frames of this message to given channel if and only if message
@@ -437,4 +455,39 @@ public abstract class WebSocketMessage {
 	 * @return
 	 */
 	public abstract Direction getDirection();
+
+	/**
+	 * Returns another presentation on this message object, used to decouple the
+	 * user interface from this version specific implementation.
+	 * 
+	 * @return
+	 */
+	public WebSocketMessageDAO getDAO() {
+		WebSocketMessageDAO dao = new WebSocketMessageDAO();
+		
+		Timestamp ts = getTimestamp();
+		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
+		
+		String dateTime = dateFormatter.format(ts);
+		String nanos = ts.getNanos() + "";
+		dao.dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos.replaceAll("0+$", ""));
+		
+		dao.opcode = getOpcode();
+		dao.readableOpcode = getOpcodeString();
+		
+		if (isText()) {
+			dao.payload = getReadablePayload();
+		} else if (isBinary()) {
+			// TODO: find binary websocket demo and set appropriate representation
+//			dao.payload = byteArrayToHexString(getPayload());
+		} else if (getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
+			dao.closeCode = getCloseCode();
+		}
+		
+		dao.direction = getDirection();
+		
+		dao.payloadLength = getPayloadLength();
+		
+		return dao;
+	}
 }

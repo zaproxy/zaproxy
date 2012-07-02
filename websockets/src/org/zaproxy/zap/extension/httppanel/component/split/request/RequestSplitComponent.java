@@ -30,12 +30,13 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentViewsManager;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestBodyStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestHeaderStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
@@ -81,8 +82,8 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 		
 		panelOptions = new JPanel();
 		
-		panelOptions.add(headerViews.getComboBox());
-		panelOptions.add(bodyViews.getComboBox());
+		panelOptions.add(headerViews.getSelectableViewsComponent());
+		panelOptions.add(bodyViews.getSelectableViewsComponent());
 		
 		headerViews.addView(createHttpPanelHeaderTextView());
 		
@@ -137,13 +138,27 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 	public String getName() {
 		return NAME;
 	}
+	
+	@Override
+	public int getPosition() {
+	    return 1;
+	}
 
 	@Override
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
+	public boolean isEnabled(Message aMessage) {
+	    if (aMessage == null) {
+	        return true;
+	    }
+	    
+	    return (aMessage instanceof HttpMessage);
+	}
+	
+	@Override
+	public void setMessage(Message aMessage) {
+		this.httpMessage = (HttpMessage) aMessage;
 		
-		headerViews.setHttpMessage(httpMessage);
-		bodyViews.setHttpMessage(httpMessage);
+		headerViews.setMessage(httpMessage);
+		bodyViews.setMessage(httpMessage);
 	}
 	
     @Override

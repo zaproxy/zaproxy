@@ -26,12 +26,12 @@ import javax.swing.JTable;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.AbstractStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
-import org.zaproxy.zap.extension.httppanel.view.models.AbstractStringHttpPanelViewModel;
 
 public class RequestPostTableView implements HttpPanelView, HttpPanelViewModelListener {
 
@@ -105,7 +105,7 @@ public class RequestPostTableView implements HttpPanelView, HttpPanelViewModelLi
 	}
 	
 	@Override
-	public boolean isEnabled(HttpMessage msg) {
+	public boolean isEnabled(Message msg) {
 		return true;
 	}
 

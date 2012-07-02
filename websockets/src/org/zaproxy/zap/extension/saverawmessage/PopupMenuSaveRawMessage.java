@@ -252,7 +252,10 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
 				break;
 				
     		case httppanel:
-    			httpMessage = httpPanelInvoker.getHttpMessage();
+    		    org.zaproxy.zap.extension.httppanel.Message message = httpPanelInvoker.getMessage();
+    		    if (message instanceof HttpMessage) {
+    		        httpMessage = (HttpMessage) message;
+    		    }
     			break;
     			
     		}

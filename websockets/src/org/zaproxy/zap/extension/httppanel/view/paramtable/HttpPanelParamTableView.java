@@ -36,6 +36,7 @@ import javax.swing.table.TableColumn;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
@@ -125,7 +126,8 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
-		httpPanelTabularModel.setHttpMessage(model.getHttpMessage());
+	    // FIXME(This view should ask for a specific model based on HttpMessage)
+		httpPanelTabularModel.setHttpMessage((HttpMessage)model.getMessage());
 	}
 	
 	@Override
@@ -156,7 +158,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage msg) {
+	public boolean isEnabled(Message msg) {
 		return true;
 	}
 

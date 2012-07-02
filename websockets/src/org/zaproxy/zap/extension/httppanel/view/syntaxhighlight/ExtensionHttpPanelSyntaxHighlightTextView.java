@@ -23,12 +23,12 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestBodyStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestHeaderStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseBodyStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseHeaderStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.all.response.ResponseAllComponent;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.all.request.HttpRequestAllPanelSyntaxHighlightTextView;
@@ -42,7 +42,7 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 
 public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor {
 
-	private static final String NAME = "ExtensionHttpPanelSyntaxHighlightTextView";
+	public static final String NAME = "ExtensionHttpPanelSyntaxHighlightTextView";
 	
 	public ExtensionHttpPanelSyntaxHighlightTextView() {
 		super(NAME);

@@ -23,12 +23,12 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestBodyByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestHeaderByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseBodyByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseHeaderByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderByteHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 import org.zaproxy.zap.extension.httppanel.component.all.response.ResponseAllComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
@@ -49,7 +49,7 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
 		
 		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResopnseSplitBodyViewFactory());
+		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
 		
 		
 		HttpPanelManager.getInstance().addRequestView(RequestAllComponent.NAME, new RequestAllViewFactory());
@@ -96,7 +96,7 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ResopnseSplitBodyViewFactory implements HttpPanelViewFactory {
+	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
 		
 		@Override
 		public HttpPanelView getNewView() {

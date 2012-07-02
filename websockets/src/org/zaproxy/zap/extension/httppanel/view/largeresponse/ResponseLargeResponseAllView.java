@@ -18,7 +18,7 @@
 package org.zaproxy.zap.extension.httppanel.view.largeresponse;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.all.response.HttpResponseAllPanelTextView;
 
 public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
@@ -47,8 +47,8 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage httpMessage) {
-		return isLargeResponse(httpMessage);
+	public boolean isEnabled(Message message) {
+		return LargeResponseUtil.isLargeResponse(message);
 	}
 
 	@Override
@@ -63,19 +63,6 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 
 	@Override
 	public void setEditable(boolean editable) {
-	}
-
-	private boolean isLargeResponse(final HttpMessage httpMessage) {
-		if (httpMessage == null || httpMessage.getResponseBody() == null) {
-			return false;
-		}
-		
-		int contentLength = httpMessage.getResponseHeader().getContentLength();
-		if (contentLength < 0) {
-			contentLength = httpMessage.getResponseBody().length();
-		}
-		
-		return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
 	}
 
 }

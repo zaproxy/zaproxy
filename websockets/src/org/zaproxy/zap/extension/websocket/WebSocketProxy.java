@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -25,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -111,7 +108,15 @@ public abstract class WebSocketProxy {
 	 */
 	private String handshakeHash;
 
+	/**
+	 * Just a consecutive number, identifying one channel within a session.
+	 */
 	private int channelId;
+	
+	/**
+	 * Add a unique id to each message of one view model.
+	 */
+	private AtomicInteger messageCounter;
 
 	/**
 	 * Used to determine how to call WebSocketListener.
@@ -167,7 +172,8 @@ public abstract class WebSocketProxy {
 		// create unique identifier for this WebSocket connection
 		// for use in logging - for UI I have to come back to another trick
 		// see handshakeHash for more information
-		channelId = channelCounter.incrementAndGet();
+		this.channelId = channelCounter.incrementAndGet();
+		this.messageCounter = new AtomicInteger(0);
 		this.name = remoteSocket.getInetAddress().getHostName() + "/"
 				+ remoteSocket.getPort() + " (channel#" + channelId + ")";
 	}
@@ -462,6 +468,10 @@ public abstract class WebSocketProxy {
 
 	public int getChannelId() {
 		return channelId;
+	}
+	
+	public int getIncrementedMessageCount() {
+		return messageCounter.incrementAndGet();
 	}
 	
 	/**

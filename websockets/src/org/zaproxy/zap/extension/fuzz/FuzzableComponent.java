@@ -19,23 +19,10 @@ package org.zaproxy.zap.extension.fuzz;
 
 public interface FuzzableComponent {
 
-	/**
-	 * 
-	 * @return a FuzzableHttpMessage.
-	 */
 	public FuzzableHttpMessage getFuzzableHttpMessage();
 	
-	/**
-	 * 
-	 * @return true if the component can be "fuzzed"; false otherwise.
-	 */
 	public boolean canFuzz();
 
-	/**
-	 * 
-	 * @return a string representing what will be "fuzzed" or null if
-	 * canFuzz returns false.
-	 */
 	public String getFuzzTarget();
 	
 }

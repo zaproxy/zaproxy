@@ -1,21 +1,19 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- *
+ * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- *
- * Copyright 2010 psiinon@gmail.com
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
  */
 package org.zaproxy.zap.extension.websocket;
 
@@ -44,8 +42,27 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
-
+import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
+import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
+import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
+import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
+import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
+import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
+import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.component.incoming.WebSocketIncomingComponent;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing.WebSocketOutgoingComponent;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketSyntaxHighlightTextView;
+import org.zaproxy.zap.view.HttpPanelManager;
+import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
+import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
+import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
+ 
 /**
  * This extension adapter takes over after finishing
  * the HTTP based WebSockets handshake.
@@ -85,6 +102,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public ExtensionWebSocket() {
 		super();
 		setName(NAME);
+		setOrder(150);
 	}
 	
 	@Override
@@ -123,6 +141,45 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         	allChannelObservers = extensionHook.getWebSocketObserverList();
         	
         	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
+
+			// Add "HttpPanel" components and views.
+			HttpPanelManager manager = HttpPanelManager.getInstance();
+
+			// Component for outgoing and incoming messages (the component
+			// contains the normal text view (without syntax highlight))
+			// Probably is needed only one component, it depends if all the
+			// views are equal to both the outgoing and incoming messages.
+			manager.addRequestComponent(new WebSocketOutgoingComponentFactory());
+			manager.addResponseComponent(new WebSocketIncomingComponentFactory());
+
+			// Hex views to outgoing and incoming messages.
+			// Can use the same view factory as the view use the same model
+			// because the payload is accessed the same way.
+			HttpPanelViewFactory viewFactory = new WebSocketHexViewFactory();
+			manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
+			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
+			
+			// Add the default Hex view for binary-opcode messages.
+			// Can use the same default view selector.
+			HttpPanelDefaultViewSelectorFactory viewSelectorFactory = new HexDefaultViewSelectorFactory();
+			manager.addResponseDefaultView(WebSocketOutgoingComponent.NAME, viewSelectorFactory);
+			manager.addResponseDefaultView(WebSocketIncomingComponent.NAME, viewSelectorFactory);
+
+			// Replace the normal text views with the ones that use syntax
+			// highlight (use the same type of view).
+			viewFactory = new SyntaxHighlightTextViewFactory();
+			manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
+			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
+
+			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
+			if (extBreak != null) {
+				// Listen on the new messages so the breakpoints can apply.
+				allChannelObservers.add(new WebSocketProxyListenerBreak(extBreak));
+
+				// Pop up to add the breakpoint
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
+				extBreak.addBreakpointsUiManager(new WebSocketBreakpointsUiManagerInterface(extBreak));
+			}
         }
     }
 
@@ -367,4 +424,122 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
+	private PopupMenuAddBreakWebSocket popupMenuAddBreakWebSocket;
+	
+    private PopupMenuAddBreakWebSocket getPopupMenuAddBreakWebSocket(ExtensionBreak extensionBreak) {
+        if (popupMenuAddBreakWebSocket == null) {
+            popupMenuAddBreakWebSocket = new PopupMenuAddBreakWebSocket();
+            popupMenuAddBreakWebSocket.setExtension(extensionBreak);
+        }
+        return popupMenuAddBreakWebSocket;
+    }
+
+    private static final class WebSocketOutgoingComponentFactory implements HttpPanelComponentFactory {
+        
+        @Override
+        public HttpPanelComponentInterface getNewComponent() {
+            return new WebSocketOutgoingComponent();
+        }
+
+        @Override
+        public String getComponentName() {
+            return WebSocketOutgoingComponent.NAME;
+        }
+    }
+	
+    private static final class WebSocketIncomingComponentFactory implements HttpPanelComponentFactory {
+        
+        @Override
+        public HttpPanelComponentInterface getNewComponent() {
+            return new WebSocketIncomingComponent();
+        }
+
+        @Override
+        public String getComponentName() {
+            return WebSocketIncomingComponent.NAME;
+        }
+    }
+	
+	private static final class WebSocketHexViewFactory implements HttpPanelViewFactory {
+        
+        @Override
+        public HttpPanelView getNewView() {
+            return new HttpPanelHexView(new ByteWebSocketPanelViewModel(), false);
+        }
+
+        @Override
+        public Object getOptions() {
+            return null;
+        }
+    }
+	
+	private static final class HexDefaultViewSelector implements HttpPanelDefaultViewSelector {
+
+        @Override
+        public String getName() {
+            return "HexDefaultViewSelector";
+        }
+        
+        @Override
+        public boolean matchToDefaultView(Message aMessage) {
+            if (aMessage instanceof WebSocketMessageDAO) {
+                WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
+                
+                return (msg.opcode == WebSocketMessage.OPCODE_BINARY);
+            }
+            return false;
+        }
+
+        @Override
+        public String getViewName() {
+            return HttpPanelHexView.CONFIG_NAME;
+        }
+        
+        @Override
+        public int getOrder() {
+            return 20;
+        }
+    }
+
+    private static final class HexDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+        
+        private static HttpPanelDefaultViewSelector defaultViewSelector = null;
+        
+        private HttpPanelDefaultViewSelector getDefaultViewSelector() {
+            if (defaultViewSelector == null) {
+                createViewSelector();
+            }
+            return defaultViewSelector;
+        }
+        
+        private synchronized void createViewSelector() {
+            if (defaultViewSelector == null) {
+                defaultViewSelector = new HexDefaultViewSelector();
+            }
+        }
+        
+        @Override
+        public HttpPanelDefaultViewSelector getNewDefaultViewSelector() {
+            return getDefaultViewSelector();
+        }
+        
+        @Override
+        public Object getOptions() {
+            return null;
+        }
+    }
+	
+    private static final class SyntaxHighlightTextViewFactory implements HttpPanelViewFactory {
+        
+        @Override
+        public HttpPanelView getNewView() {
+            return new WebSocketSyntaxHighlightTextView(new StringWebSocketPanelViewModel());
+        }
+        
+        @Override
+        public Object getOptions() {
+            return null;
+        }
+    }
 }

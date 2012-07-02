@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -41,14 +40,10 @@ public class HttpPanelRequest extends HttpPanel {
 	
 	private static final String REQUEST_KEY = "request.";
 	
-	public HttpPanelRequest(boolean isEditable, HttpMessage httpMessage, String configurationKey) {
-		this(isEditable, null, httpMessage, configurationKey);
-	}
+	public HttpPanelRequest(boolean isEditable, String configurationKey) {
+        super(isEditable, configurationKey + REQUEST_KEY);
 
-	public HttpPanelRequest(boolean isEditable, Extension extension, HttpMessage httpMessage, String configurationKey) {
-		super(isEditable, extension, httpMessage, configurationKey + REQUEST_KEY);
-
-		HttpPanelManager.getInstance().addRequestPanel(this);
+        HttpPanelManager.getInstance().addRequestPanel(this);
 	}
 
 	@Override
@@ -90,15 +85,18 @@ public class HttpPanelRequest extends HttpPanel {
 			comboChangeMethod.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (httpMessage == null) {
+					if (message == null) {
 						comboChangeMethod.setSelectedIndex(0);
 						return;
 					}
 					if (comboChangeMethod.getSelectedIndex() > 0) {
-						saveData();
-						httpMessage.mutateHttpMethod((String) comboChangeMethod.getSelectedItem());
-						comboChangeMethod.setSelectedIndex(0);
-						updateContent();
+
+                        if (message instanceof HttpMessage) {
+    						saveData();
+    						((HttpMessage)message).mutateHttpMethod((String) comboChangeMethod.getSelectedItem());
+    						comboChangeMethod.setSelectedIndex(0);
+    						updateContent();
+						}
 					}
 				}});
 	

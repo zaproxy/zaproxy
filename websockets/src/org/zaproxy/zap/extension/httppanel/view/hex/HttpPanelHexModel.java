@@ -35,21 +35,15 @@ public class HttpPanelHexModel extends AbstractTableModel {
     private boolean editable = false;
     private boolean changed = false;
     
-    /**
-     * @return Returns the editable.
-     */
+    
     public boolean isEditable() {
         return editable;
     }
-    /**
-     * @param editable The editable to set.
-     */
+    
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
-    /**
-     * 
-     */
+    
     public HttpPanelHexModel() {
         super();
     }

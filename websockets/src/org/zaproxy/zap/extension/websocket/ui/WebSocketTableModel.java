@@ -17,17 +17,13 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
@@ -70,32 +66,11 @@ public class WebSocketTableModel extends DefaultTableModel {
 	 * Used to show only specific messages.
 	 */
 	private WebSocketModelFilter filter;
-	
-	/**
-	 * Add a unique id to each message of one view model.
-	 */
-	private AtomicInteger messageCounter;
 
-	/**
-	 * WebSocket channel id.
-	 */
-	private int channelId;
-	
-	/**
-	 * Used to display {@link WebSocketMessageDAO#dateTime} in user's locale.
-	 */
-	private static FastDateFormat dateFormatter;
-	
-	/**
-	 * Use the static initializer for setting up one date formatter for all
-	 * instances.
-	 */
-	static {
-		// milliseconds are added later (via usage java.sql.Timestamp.getNanos())
-		dateFormatter = FastDateFormat.getDateTimeInstance(
-				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
-				Constant.getLocale());
-	}
+//	/**
+//	 * WebSocket channel id.
+//	 */
+//	private int channelId;
 	
 	/**
 	 * Ctor.
@@ -106,9 +81,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 		super();
 		
 		filter = webSocketFilter;
-		this.channelId = channelId;
-		
-		messageCounter = new AtomicInteger(0);
+//		this.channelId = channelId;
 
 		ResourceBundle msgs = Constant.messages;
 		columnNames = new Vector<String>(COLUMN_COUNT);
@@ -118,77 +91,6 @@ public class WebSocketTableModel extends DefaultTableModel {
 		columnNames.add(msgs.getString("websocket.table.header.opcode"));
 		columnNames.add(msgs.getString("websocket.table.header.payload_length"));
 		columnNames.add(msgs.getString("websocket.table.header.payload"));
-	}
-	
-	/**
-	 * Data Access Object used for displaying WebSockets communication.
-	 */
-	public class WebSocketMessageDAO {
-
-		/**
-		 * WebSocket channel id
-		 */
-		public int channelId;
-		
-		/**
-		 * consecutive number
-		 */
-		public int id;
-		
-		/**
-		 * Used for sorting, containing time in milliseconds.
-		 */
-		protected long timestamp;
-		
-		/**
-		 * When the message was finished (it might contain of several frames).
-		 */
-		public String dateTime;
-		
-		/**
-		 * You can retrieve a textual version of this opcode via:
-		 * {@link WebSocketMessage#opcode2string(int)}.
-		 */
-		public int opcode;
-		
-		/**
-		 * Textual representation of {@link WebSocketMessageDAO#opcode}.
-		 */
-		public String readableOpcode;
-		
-		/**
-		 * Might be either a string (readable representation for TEXT frames) OR byte[].
-		 */
-		public String payload;
-		
-		/**
-		 * For close messages, there is always a reason.
-		 */
-		public int closeCode;
-		
-		/**
-		 * Outgoing or incoming message.
-		 */
-		public WebSocketMessage.Direction direction;
-
-		/**
-		 * Number of the payload bytes.
-		 */
-		public int payloadLength;
-		
-		/**
-		 * Sets the consecutive number.
-		 */
-		public WebSocketMessageDAO() {
-			id = messageCounter.incrementAndGet();
-		}
-		
-		/**
-		 * Useful representation for debugging purposes.
-		 */
-		public String toString() {
-			return "Id=" + id + ";Opcode=" + readableOpcode + ";Bytes=" + payloadLength;
-		}
 	}
 	
 	/**
@@ -319,31 +221,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	 * @return 
 	 */
 	public WebSocketMessageDAO addWebSocketMessage(WebSocketMessage message) {
-		WebSocketMessageDAO dao = new WebSocketMessageDAO();
-		
-		dao.channelId = channelId;
-		
-		Timestamp ts = message.getTimestamp();
-		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
-		
-		String dateTime = dateFormatter.format(ts);
-		String nanos = message.getTimestamp().getNanos() + "";
-		dao.dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos.replaceAll("0+$", ""));
-		
-		dao.opcode = message.getOpcode();
-		dao.readableOpcode = message.getOpcodeString();
-		
-		if (message.isText()) {
-			dao.payload = message.getReadablePayload();
-		} else if (message.isBinary()) {
-			dao.payload = byteArrayToHexString(message.getPayload());
-		} else if (message.getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
-			dao.closeCode = message.getCloseCode();
-		}
-		
-		dao.direction = message.getDirection();
-		
-		dao.payloadLength = message.getPayloadLength();
+		WebSocketMessageDAO dao = message.getDAO();
 		
 		addWebSocketMessage(dao);
 		
@@ -387,27 +265,27 @@ public class WebSocketTableModel extends DefaultTableModel {
 //		}
 //		return data;
 //	}
-	
-	private String byteArrayToHexString(byte[] byteArray) {
-		StringBuffer hexString = new StringBuffer("");
-
-		for (int i = 0; i < byteArray.length; i++) {
-			String hexCharacter = Integer.toHexString(byteArray[i]);
-
-			if (hexCharacter.length() < 2) {
-				hexCharacter = "0" + Integer.toHexString(byteArray[i]);
-			}
-			
-			if (i < 10) {
-				hexString.append(" " + hexCharacter.toUpperCase());
-			} else {
-				hexString.append(" " + hexCharacter.toUpperCase() + "\n");
-				i = 0;
-			}
-		}
-		
-		return hexString.toString();
-	}
+//	
+//	private String byteArrayToHexString(byte[] byteArray) {
+//		StringBuffer hexString = new StringBuffer("");
+//
+//		for (int i = 0; i < byteArray.length; i++) {
+//			String hexCharacter = Integer.toHexString(byteArray[i]);
+//
+//			if (hexCharacter.length() < 2) {
+//				hexCharacter = "0" + Integer.toHexString(byteArray[i]);
+//			}
+//			
+//			if (i < 10) {
+//				hexString.append(" " + hexCharacter.toUpperCase());
+//			} else {
+//				hexString.append(" " + hexCharacter.toUpperCase() + "\n");
+//				i = 0;
+//			}
+//		}
+//		
+//		return hexString.toString();
+//	}
 
 	/**
 	 * Resets the messages list.
