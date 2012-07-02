@@ -91,7 +91,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private JLabel filterStatus;
 
-	private WebSocketFilterDialog filterDialog;
+	private WebSocketModelFilterDialog filterDialog;
 
 	private JComboBox channelSelect;
 
@@ -655,9 +655,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * 
 	 * @return
 	 */
-	public WebSocketFilterDialog getFilterDialog() {
+	public WebSocketModelFilterDialog getFilterDialog() {
 		if (filterDialog == null) {
-			filterDialog = new WebSocketFilterDialog(mainframe, true);
+			filterDialog = new WebSocketModelFilterDialog(mainframe, true);
 			
 		}
 		return filterDialog;
@@ -669,7 +669,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @return 1 is returned if applied, -1 when dialog was reseted.
 	 */
 	protected int showFilterDialog() {
-		WebSocketFilterDialog dialog = getFilterDialog();
+		WebSocketModelFilterDialog dialog = getFilterDialog();
 		dialog.setModal(true);
 		
 		int exit = dialog.showDialog();
@@ -716,7 +716,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @param filter
 	 */
     private void setFilterStatus() {
-    	WebSocketFilter filter = getFilterDialog().getFilter();
+    	WebSocketModelFilter filter = getFilterDialog().getFilter();
     	JLabel status = getFilterStatus();
     	
     	status.setText(filter.toShortString());

@@ -39,7 +39,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
  * <p>
  * It manages two lists internally, one that contains all messages and another
  * one, that contains just those messages not blacklisted by the given
- * {@link WebSocketFilter}. TODO: Use {@link WebSocketTable}.
+ * {@link WebSocketModelFilter}. TODO: Use {@link WebSocketTable}.
  */
 public class WebSocketTableModel extends DefaultTableModel {
 	
@@ -69,7 +69,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	/**
 	 * Used to show only specific messages.
 	 */
-	private WebSocketFilter filter;
+	private WebSocketModelFilter filter;
 	
 	/**
 	 * Add a unique id to each message of one view model.
@@ -102,7 +102,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	 * 
 	 * @param webSocketFilter
 	 */
-	public WebSocketTableModel(WebSocketFilter webSocketFilter, int channelId) {
+	public WebSocketTableModel(WebSocketModelFilter webSocketFilter, int channelId) {
 		super();
 		
 		filter = webSocketFilter;
@@ -193,7 +193,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	
 	/**
 	 * Returns all whitelisted messages for this model, each with a unique id.
-	 * Those blacklisted by the {@link WebSocketFilter} are excluded.
+	 * Those blacklisted by the {@link WebSocketModelFilter} are excluded.
 	 * 
 	 * @return
 	 */
@@ -363,7 +363,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 
 	/**
 	 * Fills the list of messages that will be displayed (i.e. that are not
-	 * blacklisted by the {@link WebSocketFilter}.
+	 * blacklisted by the {@link WebSocketModelFilter}.
 	 */
 	public void reFilter() {
 		synchronized (filteredMessages) {

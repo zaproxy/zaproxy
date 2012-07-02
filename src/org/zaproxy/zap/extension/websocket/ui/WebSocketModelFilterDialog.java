@@ -48,7 +48,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 /**
  * Filter WebSocket messages in {@link WebSocketPanel}. Show only specific ones.
  */
-public class WebSocketFilterDialog extends AbstractDialog {
+public class WebSocketModelFilterDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -82,12 +82,12 @@ public class WebSocketFilterDialog extends AbstractDialog {
 	/**
 	 * The model holding the values set by this filter dialog.
 	 */
-	private WebSocketFilter filter = new WebSocketFilter();
+	private WebSocketModelFilter filter = new WebSocketModelFilter();
 	
     /**
      * @throws HeadlessException
      */
-    public WebSocketFilterDialog() throws HeadlessException {
+    public WebSocketModelFilterDialog() throws HeadlessException {
         super();
  		initialize();
     }
@@ -97,7 +97,7 @@ public class WebSocketFilterDialog extends AbstractDialog {
      * @param isModal
      * @throws HeadlessException
      */
-    public WebSocketFilterDialog(Frame owner, boolean isModal) throws HeadlessException {
+    public WebSocketModelFilterDialog(Frame owner, boolean isModal) throws HeadlessException {
         super(owner, isModal);
         initialize();
     }
@@ -128,7 +128,7 @@ public class WebSocketFilterDialog extends AbstractDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WebSocketFilterDialog.this.dispose();
+				WebSocketModelFilterDialog.this.dispose();
             }
         };
         
@@ -243,7 +243,7 @@ public class WebSocketFilterDialog extends AbstractDialog {
 				public void actionPerformed(ActionEvent e) {    
 					filter.setOpcodes(opcodeList.getSelectedValues());
 				    exitResult = JOptionPane.OK_OPTION;
-				    WebSocketFilterDialog.this.dispose();
+				    WebSocketModelFilterDialog.this.dispose();
 				}
 			});
 
@@ -264,7 +264,7 @@ public class WebSocketFilterDialog extends AbstractDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 				    exitResult = JOptionPane.CANCEL_OPTION;
-				    WebSocketFilterDialog.this.dispose();
+				    WebSocketModelFilterDialog.this.dispose();
 				}
 			});
 		}
@@ -331,7 +331,7 @@ public class WebSocketFilterDialog extends AbstractDialog {
 	 * 
 	 * @return
 	 */
-	public WebSocketFilter getFilter() {
+	public WebSocketModelFilter getFilter() {
 		return filter;
 	}
 }

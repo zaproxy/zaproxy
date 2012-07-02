@@ -41,7 +41,9 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
+import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
@@ -74,6 +76,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * messages.
 	 */
 	private Vector<WebSocketObserver> allChannelObservers;
+
+	private OptionsWebSocketPanel optionsPanel;
 	
 	/**
 	 * Constructor initializes this class.
@@ -117,8 +121,23 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 //	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
         	
         	allChannelObservers = extensionHook.getWebSocketObserverList();
+        	
+        	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
         }
     }
+
+	/**
+	 * Lazy initialize options panel.
+	 * 
+	 * @return
+	 */
+	private AbstractParamPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new OptionsWebSocketPanel(this);
+		}
+		
+		return optionsPanel;
+	}
 
 	/**
 	 * Add an open channel to this extension after
