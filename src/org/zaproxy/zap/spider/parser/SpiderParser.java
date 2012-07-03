@@ -23,6 +23,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of
@@ -65,6 +66,24 @@ public abstract class SpiderParser {
 	protected void notifyListenersResourceFound(HttpMessage message, int depth, String uri) {
 		for (SpiderParserListener l : listeners)
 			l.resourceURIFound(message, depth, uri);
+	}
+
+	/**
+	 * Builds an url and notifies the listeners.
+	 * 
+	 * @param message the message
+	 * @param depth the depth
+	 * @param localURL the local url
+	 * @param baseURL the base url
+	 */
+	protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
+		// Build the absolute canonical URL
+		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+		if (fullURL == null)
+			return;
+
+		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
+		notifyListenersResourceFound(message, depth + 1, fullURL);
 	}
 
 	/**
