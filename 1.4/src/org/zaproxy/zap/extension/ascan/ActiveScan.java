@@ -7,6 +7,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -69,10 +70,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void start() {
 		isAlive = true;
-		SiteMap siteTree = this.activeScanPanel.getExtension().getModel().getSession().getSiteTree();
-		SiteNode rootNode = (SiteNode) siteTree.getRoot();
-		//SiteNode startNode = null;
 		if (startNode == null) {
+			SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
+			SiteNode rootNode = (SiteNode) siteTree.getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = rootNode.children();
 			while (en.hasMoreElements()) {
@@ -153,6 +153,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
+		super.setStartNode(startNode);
 	}
 
 	@Override
