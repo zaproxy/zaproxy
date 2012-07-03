@@ -84,10 +84,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void start() {
 		isAlive = true;
-		SiteMap siteTree = this.activeScanPanel.getExtension().getModel().getSession().getSiteTree();
-		SiteNode rootNode = (SiteNode) siteTree.getRoot();
-		//SiteNode startNode = null;
 		if (startNode == null) {
+			SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
+			SiteNode rootNode = (SiteNode) siteTree.getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = rootNode.children();
 			while (en.hasMoreElements()) {
@@ -160,7 +159,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
             try {
                 hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
                 this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
-                
                 this.list.addElement(hRef);
             } catch (HttpMalformedHeaderException e) {
                 log.error(e.getMessage(), e);
@@ -178,6 +176,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
+		super.setStartNode(startNode);
 	}
 
 	@Override
