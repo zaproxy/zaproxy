@@ -359,8 +359,8 @@ public abstract class WebSocketProxy {
 		// do not buffer frames until message is finished,
 		// as messages might have several MegaBytes!
 		if (notifyObservers(message)) {
-			// skip forwarding only if observer blocks or told us to skip this message
-			message.forwardCurrentFrame(out);
+			// skip forwarding only if observer told us to skip this message (frame)
+			message.forward(out);
 		}		
 	}
 

@@ -23,6 +23,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.filter.FilterAbstractReplace;
 import org.parosproxy.paros.extension.filter.FilterReplaceDialog;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
@@ -60,9 +61,10 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	 * Change message payload if pattern applies. Ignore binary messages so far
 	 * and apply only to other opcodes. Called by
 	 * {@link ExtensionFilter#onMessageFrame(int, WebSocketMessage)}.
+	 * @throws WebSocketException 
 	 */
 	@Override
-	public void onWebSocketPayload(WebSocketMessage message) {
+	public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
 		Direction direction = message.getDirection();
 
 		boolean isApplicable = (!message.isFinished() || message.getPayloadLength() == 0 || message.isBinary());

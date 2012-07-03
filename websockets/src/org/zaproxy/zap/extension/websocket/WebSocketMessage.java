@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
@@ -43,11 +42,6 @@ public abstract class WebSocketMessage {
 	public enum Direction {
 		INCOMING, OUTGOING
 	}
-	
-	/**
-	 * This list will contain all the original bytes for each frame.
-	 */
-	protected ArrayList<ByteBuffer> frames = new ArrayList<ByteBuffer>();
 	
 	/**
 	 * This buffer will contain the whole payload, unmasked
@@ -191,14 +185,6 @@ public abstract class WebSocketMessage {
 	 * @throws IOException
 	 */
 	public abstract void forward(OutputStream out) throws IOException;
-
-	/**
-	 * Write current frame of this message to given channel.
-	 * 
-	 * @param out
-	 * @throws IOException
-	 */
-	public abstract void forwardCurrentFrame(OutputStream out) throws IOException;
 
 	/**
 	 * Read further frame for non-control message.
@@ -445,8 +431,9 @@ public abstract class WebSocketMessage {
 	 * Modifies the payload to given UTF-8 string. Converts that into bytes. 
 	 * 
 	 * @param newReadablePayload
+	 * @throws WebSocketException 
 	 */
-	public abstract void setReadablePayload(String newReadablePayload);
+	public abstract void setReadablePayload(String newReadablePayload) throws WebSocketException;
 	
 	/**
 	 * Returns either {@link Direction#INCOMING} if this message originated from
@@ -469,8 +456,11 @@ public abstract class WebSocketMessage {
 		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
 		
 		String dateTime = dateFormatter.format(ts);
-		String nanos = ts.getNanos() + "";
-		dao.dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos.replaceAll("0+$", ""));
+		String nanos = (ts.getNanos() + "").replaceAll("0+$", "");
+		if (nanos.length() == 0) {
+			nanos = "0";
+		}
+		dao.dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 		
 		dao.opcode = getOpcode();
 		dao.readableOpcode = getOpcodeString();
