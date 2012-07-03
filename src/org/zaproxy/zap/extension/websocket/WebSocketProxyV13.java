@@ -23,7 +23,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
@@ -59,25 +61,182 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	protected class WebSocketMessageV13 extends WebSocketMessage {
 		
 		/**
+		 * One message can consist of several frames.
+		 */
+		private class WebSocketFrameV13 {
+		    private final Random randomizer = new Random();
+			private ByteBuffer buffer;
+			private boolean isMasked;
+			private byte[] mask;
+			
+			/**
+			 * Prevent sending this frame several times.
+			 */
+			private boolean isForwarded;
+
+			/**
+			 * After a frame is sealed, it cannot be changed
+			 * and data can be read by {@link WebSocketFrameV13#getBuffer()}.
+			 */
+			private boolean isSealed = false;
+
+			public WebSocketFrameV13() {
+				buffer = ByteBuffer.allocate(4096);
+				isMasked = false;
+				mask = new byte[4];
+				isForwarded = false;
+			}
+
+			/**
+			 * Builds up a frame according to given payload. Sets header and
+			 * metadata (opcode, payload length, mask).
+			 * 
+			 * @param payload
+			 */
+			public WebSocketFrameV13(ByteBuffer payload, Direction direction) {
+				// at maximum 16 bytes are added as header data
+				buffer = ByteBuffer.allocate(payload.limit() + 16);
+				isFinished = true;
+
+				int payloadLength = payload.limit();
+				if (direction.equals(Direction.OUTGOING)) {
+					isMasked = true;
+
+					mask = new byte[4];
+					randomizer.nextBytes(mask);
+					
+					// mask payload, by applying mask to each byte
+					int maskPosition = 0;
+					for (int i = 0; i < payloadLength; i++) {
+						payload.put(i, (byte) (payload.get(i) ^ mask[maskPosition]));
+						maskPosition = (maskPosition + 1) % 4;
+					}
+				} else {
+					isMasked = false;
+				}
+				
+				isForwarded = false;
+				
+				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | (opcode & 0x0F));
+				buffer.put(frameHeader);
+
+				if (payloadLength < PAYLOAD_LENGTH_16) {
+					buffer.put((byte) ((isMasked ? 0x80 : 0x00) | (payloadLength & 0xDF)));
+				} else if (payloadLength < 65536) {
+					buffer.put((byte) ((isMasked ? 0x80 : 0x00) | PAYLOAD_LENGTH_16));
+					buffer.putShort((short) payloadLength);
+				} else {
+					buffer.put((byte) ((isMasked ? 0x80 : 0x00) | PAYLOAD_LENGTH_63));
+					buffer.putLong(payloadLength);
+				}
+				
+				if (isMasked) {
+					buffer.put(mask);
+				}
+				
+				buffer.put(payload.array());
+				
+				seal();
+			}
+
+			public void put(byte b) throws WebSocketException {
+				if (isSealed) {
+					throw new WebSocketException("You cannot change a 'sealed' frame.");
+				}
+				buffer.put(b);
+			}
+
+			public void put(byte[] b) throws WebSocketException {
+				if (isSealed) {
+					throw new WebSocketException("You cannot change a 'sealed' frame.");
+				}
+				buffer.put(b);
+			}
+
+			public void setMasked(boolean isMasked) {
+				this.isMasked = isMasked;
+			}
+			
+			public boolean isMasked() {
+				return isMasked;
+			}
+
+			public void setMask(byte[] read) {
+				mask = read;
+			}
+
+			public byte getMaskAt(int index) {
+				return mask[index];
+			}
+
+			public int getFreeSpace() {
+				if (isSealed) {
+					return 0;
+				}
+				return buffer.capacity() - buffer.position();
+			}
+
+			public void reallocateFor(int bytesRead) throws WebSocketException {
+				if (isSealed) {
+					throw new WebSocketException("You cannot change size of 'sealed' frame's buffer.");
+				}
+				buffer = reallocate(buffer, buffer.position() + bytesRead);
+			}
+			
+			public boolean isForwarded() {
+				return isForwarded;
+			}
+
+			public void seal() {
+				if (!isSealed) {
+					buffer.flip();
+					isSealed  = true;
+				}
+			}
+
+			public byte[] getBuffer() throws WebSocketException {
+				if (!isSealed) {
+					throw new WebSocketException("You should call seal() on WebSocketFrame first, before getBuffer().");
+				}
+				byte[] result = new byte[buffer.limit()];
+				buffer.get(result);
+				return result;
+			}
+
+			public void setForwarded(boolean isForwarded) {
+				this.isForwarded = isForwarded;
+			}
+		}
+		
+		/**
+		 * Consecutive number identifying a {@link WebSocketMessage} for one
+		 * {@link WebSocketProxy}.
+		 */
+		private int messageId;
+		
+		/**
+		 * This list will contain all the original bytes for each frame.
+		 */
+		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
+
+		private ArrayList<WebSocketFrameV13> modifiedFrames = new ArrayList<WebSocketFrameV13>();
+		
+		/**
 		 * Temporary buffer that will be added to
-		 * {@link WebSocketMessage#frames} as soon as whole frame is read.
+		 * {@link WebSocketMessage#receivedFrames} as soon as whole frame is read.
 		 */
-		private ByteBuffer currentFrame;
-
-		/**
-		 * Determines if last frame was masked.
-		 */
-		private boolean isMasked;
-
-		/**
-		 * Contains the mask from the last frame.
-		 */
-		private byte[] mask = new byte[4];
+		private WebSocketFrameV13 currentFrame;
 
 		/**
 		 * Contains the number of bytes representing the payload.
 		 */
 		private int payloadLength;
+
+		/**
+		 * Marks this object as changed, indicating that frame headers have to
+		 * be built manually on forwarding.
+		 */
+		private boolean hasChanged;
 
 		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
@@ -106,10 +265,12 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			opcode = (frameHeader & 0x0F);
 			
 			readFrame(in, frameHeader);
+			
+			messageId = getIncrementedMessageCount();
 		}
 
-		public WebSocketMessageV13(byte[] payload) {
-			// TODO: alternative constructor for DB
+		public int getMessageId() {
+			return messageId;
 		}
 
 		/**
@@ -138,13 +299,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
 			// currentFrame buffer is filled by read() method directly
-			currentFrame = ByteBuffer.allocate(4096);
+			currentFrame = new WebSocketFrameV13();
 			currentFrame.put(frameHeader);
 
 			byte payloadByte = read(in);
 			
 			// most significant bit of second byte is MASK flag
-			isMasked = (payloadByte >> 7 & 0x1) == 1;
+			currentFrame.setMasked((payloadByte >> 7 & 0x1) == 1);
 			payloadLength = (payloadByte & 0x7F);
 
 			// multiple bytes for payload length are submitted in network byte order (MSB first)
@@ -176,18 +337,18 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			
 			logger.debug("length of current frame payload is: " + payloadLength);
 
-			if (isMasked) {
+			if (currentFrame.isMasked()) {
 				// read 4 bytes mask
-				mask = read(in, 4);
+				currentFrame.setMask(read(in, 4));
 			}
 
 			byte[] payload = read(in, payloadLength);
 
-			if (isMasked) {
+			if (currentFrame.isMasked()) {
 				int currentMaskByteIndex = 0;
 				for (int i = 0; i < payload.length; i++) {
 					// unmask payload by XOR it continuously with frame mask
-					payload[i] = (byte) (payload[i] ^ mask[currentMaskByteIndex]);
+					payload[i] = (byte) (payload[i] ^ currentFrame.getMaskAt(currentMaskByteIndex));
 					currentMaskByteIndex = (currentMaskByteIndex + 1) % 4;
 				}
 			}
@@ -211,6 +372,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 						
 						// remove close code from payload
 						ArrayUtils.subarray(payload, 2, payload.length);
+						
+						// TODO: Close code handling. Users might want to change it
+						// in break panel (also: show in WebSocketPanel, but where?)
 					}
 					
 					if (payload.length > 0) {
@@ -225,8 +389,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			timestamp = new Timestamp(calendar.getTimeInMillis());
 			
 			// add currentFrame to frames list
-			currentFrame.flip();
-			frames.add(currentFrame);
+			currentFrame.seal();
+			receivedFrames.add(currentFrame);
 		}
 
 		/**
@@ -259,9 +423,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			} while (length != bytesRead);
 			
 			// maybe we have to increase the size of the current frame buffer
-			int freeSpace = currentFrame.capacity() - currentFrame.position();
-			if (freeSpace < bytesRead) {
-				currentFrame = reallocate(currentFrame, currentFrame.position() + bytesRead);
+			if (currentFrame.getFreeSpace() < bytesRead) {
+				currentFrame.reallocateFor(bytesRead);
 			}
 
 			// add bytes to current frame
@@ -275,26 +438,19 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	     */
 		@Override
 		public void forward(OutputStream out) throws IOException {
-			if (!isFinished) {
-				// do not forward unfinished messages
-				// TODO: could add option to forward each frame on its own.
-				return;
-			}
-			
-			for (ByteBuffer frame : frames) {
-				// forward frame by frame
+			if (hasChanged) {
+				// TODO: split into chunks according to PAYLOAD_LENGTH_63
+				WebSocketFrameV13 frame = new WebSocketFrameV13(payload, getDirection());
+				modifiedFrames.add(frame);
 				forwardFrame(frame, out);
+			} else {
+				for (WebSocketFrameV13 frame : receivedFrames) {
+					// forward frame by frame
+					if (!frame.isForwarded()) {
+						forwardFrame(frame, out);
+					}
+				}
 			}
-		}
-
-		/**
-		 * @see WebSocketMessage#forwardCurrentFrame(OutputStream)
-		 */
-		@Override
-		public void forwardCurrentFrame(OutputStream out) throws IOException {
-			logger.debug("forward current frame");
-			
-			forwardFrame(currentFrame, out);
 		}
 		
 		/**
@@ -303,11 +459,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param frame
 		 * @param out
 		 */
-		private void forwardFrame(ByteBuffer frame, OutputStream out) throws IOException {
-			byte[] buffer = new byte[frame.limit()];
-			frame.get(buffer);
-			out.write(buffer);
+		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {
+			out.write(frame.getBuffer());
 			out.flush();
+			
+			frame.setForwarded(true);
 		}
 		
 		@Override
@@ -328,14 +484,23 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		}
 
 		@Override
-		public void setReadablePayload(String newReadablePayload) {
-			// TODO: propagate changed payload into frames or build up one big frame
-			payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
+		public void setReadablePayload(String newReadablePayload) throws WebSocketException {
+			if (!isFinished()) {
+				throw new WebSocketException("Only allowed to set payload of finished message");
+			}
+			
+			ByteBuffer newPayload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
+			if (!payload.equals(newPayload)) {
+				// mark this messages as changed in order to propagate changed
+				// payload into frames or build up a big frame (see forward())
+				hasChanged = true;
+				payload = newPayload;
+			}
 		}
 
 		@Override
 		public Direction getDirection() {
-			return isMasked ? Direction.OUTGOING : Direction.INCOMING;
+			return receivedFrames.get(0).isMasked() ? Direction.OUTGOING : Direction.INCOMING;
 		}
 		
 		@Override
@@ -343,64 +508,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			WebSocketMessageDAO dao = super.getDAO();
 			
 			dao.channelId = getChannelId();
-			dao.id = getIncrementedMessageCount();
+			dao.id = getMessageId();
 			
 			return dao;
 		}
-
-//		protected int writeFrame(int opcode, ByteBuffer buf, boolean blocking, boolean fin) throws IOException {
-//			// TODO: handle the non-blocking case
-//			// TODO: position buf past MAX_HEADER_SIZE and build the header
-//			// before
-//			// the payload to avoid gathering writes to the channel.
-//			int n = buf.remaining();
-//			buildHeader(opcode, n, fin);
-//			if (isClient) {
-//				byte[] mask = generateMask();
-//				int maskPosition = 0;
-//				// copy to avoid trashing the caller's buffer
-//				ByteBuffer copy = ByteBuffer.allocate(buf.remaining());
-//				copy.put(buf);
-//				copy.flip();
-//				buffers[1] = copy;
-//				for (int k = 0; k < 2; k++) {
-//					for (int i = buffers[k].position(); i < buffers[k].limit(); i++) {
-//						buffers[k]
-//								.put(i,
-//										(byte) (buffers[k].get(i) ^ mask[maskPosition]));
-//						maskPosition = (maskPosition + 1) % 4;
-//					}
-//				}
-//				localChannel.write(ByteBuffer.wrap(mask));
-//			} else {
-//				buffers[1] = buf;
-//			}
-//			int totbytes = -buffers[0].remaining(); // subtract header length
-//			totbytes += localChannel.write(buffers);
-//			return totbytes;
-//		}
-
-//		/**
-//		 * TODO: document me
-//		 * 
-//		 * @param opcode
-//		 * @param length
-//		 * @param fin
-//		 */
-//		private void buildHeader(int opcode, long length, boolean fin) {
-//			headerBuf.clear();
-//			byte firstByte = (byte) ((fin ? 0x80 : 0x00) | (opcode & 15));
-//			headerBuf.put(firstByte);
-//			if (length < 126) {
-//				headerBuf.put((byte) (length & 127));
-//			} else if (length < 65536) {
-//				headerBuf.put((byte) 126);
-//				headerBuf.putShort((short) length);
-//			} else {
-//				headerBuf.put((byte) 127);
-//				headerBuf.putLong(length);
-//			}
-//			headerBuf.flip();
-//		}
 	}
 }

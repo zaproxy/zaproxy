@@ -17,15 +17,21 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
+	private static final Logger logger = Logger.getLogger(WebSocketProxyListenerBreak.class);
+
 	private ExtensionBreak extension = null;
+	
+	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketPanel.WEBSOCKET_OBSERVING_ORDER - 5;
 
 	public WebSocketProxyListenerBreak(ExtensionBreak extension) {
 	    this.extension = extension;
@@ -33,54 +39,50 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 	
     @Override
     public int getObservingOrder() {
-        // Should be the last one to be notified before saving/sending the message.
-        return 150;
+		// should be the last one to be notified before saving/showing the
+		// message
+        return WEBSOCKET_OBSERVING_ORDER;
     }
 
 
     @Override
     public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-        WebSocketMessage.Direction direction = message.getDirection();
+        if (!message.isFinished()) {
+        	// prevent forwarding unfinished message when there is a breakpoint
+        	// wait until all frames are received, before processing
+        	// (showing/saving/etc.)
+        	return false;
+        	
+        	// TODO:
+        	// could gain performance, if false is only returned in case there
+        	// is a breakpoint set - otherwise could send each frame on its own
+        	// How can I find out if one is set as in BreakpointMessageHandler#isBreakpoint()?
+        }
         
-        // Hack to create a WebSocketMessageDAO as is the "Message" that the Request/Response panel component for the WebSocket use.
         WebSocketMessageDAO dao = message.getDAO();
-        
-        if (direction == WebSocketMessage.Direction.OUTGOING) {
+        if (dao.direction == WebSocketMessage.Direction.OUTGOING) {
             if (extension.messageReceivedFromClient(dao)) {
-                // As is the DAO that is shown and modified in the
+                // As the DAO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
-                message.setReadablePayload(dao.payload);
+                try {
+					message.setReadablePayload(dao.payload);
+				} catch (WebSocketException e) {
+					logger.error(e);
+				}
                 return true;
             }
-        } else if (direction == WebSocketMessage.Direction.INCOMING) {
+        } else if (dao.direction == WebSocketMessage.Direction.INCOMING) {
             if (extension.messageReceivedFromServer(dao)) {
-                message.setReadablePayload(dao.payload);
+            	try {
+	                message.setReadablePayload(dao.payload);
+				} catch (WebSocketException e) {
+					logger.error(e);
+				}
                 return true;
             }
         }
 
         return false;
-    }
-    
-    private String byteArrayToHexString(byte[] byteArray) {
-        StringBuffer hexString = new StringBuffer("");
-
-        for (int i = 0; i < byteArray.length; i++) {
-            String hexCharacter = Integer.toHexString(byteArray[i]);
-
-            if (hexCharacter.length() < 2) {
-                hexCharacter = "0" + Integer.toHexString(byteArray[i]);
-            }
-            
-            if (i < 10) {
-                hexString.append(" " + hexCharacter.toUpperCase());
-            } else {
-                hexString.append(" " + hexCharacter.toUpperCase() + "\n");
-                i = 0;
-            }
-        }
-        
-        return hexString.toString();
     }
 }

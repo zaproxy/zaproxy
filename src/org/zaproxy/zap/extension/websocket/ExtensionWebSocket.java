@@ -94,6 +94,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 */
 	private Vector<WebSocketObserver> allChannelObservers;
 
+	/**
+	 * Will be added to the hook view. 
+	 */
 	private OptionsWebSocketPanel optionsPanel;
 	
 	/**

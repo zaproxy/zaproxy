@@ -68,7 +68,8 @@ import org.zaproxy.zap.view.ScanPanel;
 
 /**
  * Represents the WebSockets tab. It listens to all WebSocket channels and
- * displays messages accordingly.
+ * displays messages accordingly. For now it uses a {@link JTable} for this
+ * task.
  */
 public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, Runnable {
 

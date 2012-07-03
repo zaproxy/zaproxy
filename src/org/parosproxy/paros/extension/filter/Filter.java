@@ -25,6 +25,7 @@ package org.parosproxy.paros.extension.filter;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 
@@ -83,6 +84,7 @@ public interface Filter {
      * ZAP: Added method to be able to filter WebSocket communication.
      * 
      * @param message
+     * @throws WebSocketException 
      */
-    public void onWebSocketPayload(WebSocketMessage message);
+    public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException;
 }
