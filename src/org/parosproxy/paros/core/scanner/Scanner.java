@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/07/03 Issue 320: AScan can miss subtrees if invoked via the API
 
 package org.parosproxy.paros.core.scanner;
 
@@ -247,6 +248,10 @@ public class Scanner implements Runnable {
 			}
 		}
 		return ignore;
+	}
+
+	public void setStartNode(SiteNode startNode) {
+		this.startNode = startNode;
 	}
 
 }
