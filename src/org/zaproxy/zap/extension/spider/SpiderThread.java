@@ -68,6 +68,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	
 	private void runScan() {
 		// Do the scan
+		spiderDone = 0;
 		Date start = new Date();
 		log.debug("Starting scan on " + site + " at " + start);
 		list.clear();
