@@ -19,6 +19,7 @@ package org.zaproxy.zap.spider;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -27,6 +28,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
@@ -46,8 +48,8 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	private LinkedList<ParseFilter> parseFilters;
 
-	/** The parser. */
-	private SpiderParser parser;
+	/** The parsers for HTML files. */
+	private List<SpiderParser> htmlParsers;
 
 	/** The spider. */
 	private Spider spider;
@@ -78,8 +80,19 @@ public class SpiderController implements SpiderParserListener {
 		this.parseFilters = new LinkedList<ParseFilter>();
 		this.visitedGet = new HashSet<String>();
 		this.visitedPost = new HashSet<String>();
-		this.parser = new SpiderHtmlParser();
-		this.parser.addSpiderParserListener(this);
+
+		// Prepare the parsers for HTML
+		this.htmlParsers = new LinkedList<SpiderParser>();
+		// Simple HTML parser
+		SpiderParser parser = new SpiderHtmlParser();
+		parser.addSpiderParserListener(this);
+		this.htmlParsers.add(parser);
+
+		// HTML Form parser
+		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
+		parser.addSpiderParserListener(this);
+		this.htmlParsers.add(parser);
+
 	}
 
 	/**
@@ -190,11 +203,11 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	/**
-	 * Gets the parser instance.
+	 * Gets the instances for the parsers.
 	 * 
 	 * @return the parser
 	 */
-	public SpiderParser getParser() {
-		return parser;
+	public List<SpiderParser> getParsers() {
+		return htmlParsers;
 	}
 }

@@ -26,10 +26,12 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
- * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
+ * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.<br/>
+ * <br/>
+ * NOTE: Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}
+ * .
  */
 public class SpiderHtmlParser extends SpiderParser {
 
@@ -138,30 +140,7 @@ public class SpiderHtmlParser extends SpiderParser {
 		if (localURL == null)
 			return;
 
-		// Build the absolute canonical URL
-		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
-		if (fullURL == null)
-			return;
-
-		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
-		notifyListenersResourceFound(message, depth + 1, fullURL);
+		processURL(message, depth, localURL, baseURL);
 	}
 
-	/**
-	 * Builds an url and notifies the listeners.
-	 * 
-	 * @param message the message
-	 * @param depth the depth
-	 * @param localURL the local url
-	 * @param baseURL the base url
-	 */
-	private void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
-		// Build the absolute canonical URL
-		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
-		if (fullURL == null)
-			return;
-
-		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
-		notifyListenersResourceFound(message, depth + 1, fullURL);
-	}
 }

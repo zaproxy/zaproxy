@@ -196,7 +196,7 @@ public class SpiderTask implements Runnable {
 		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters())
 			if (filter.isFiltered(msg)) {
-				log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: " + uri);
+				log.info("Resource fetched, but will not be parsed due to a ParseFilter rule.");
 				isFiltered = true;
 				break;
 			}
@@ -231,9 +231,10 @@ public class SpiderTask implements Runnable {
 		}
 
 		// Parse the resource
-		SpiderParser parser = parent.getController().getParser();
+		List<SpiderParser> parsers = parent.getController().getParsers();
 		Source source = new Source(msg.getResponseBody().toString());
-		parser.parseResource(msg, source, depth);
+		for(SpiderParser parser:parsers)
+			parser.parseResource(msg, source, depth);
 	}
 
 	/**
