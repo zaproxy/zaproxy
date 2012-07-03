@@ -33,7 +33,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private SiteNode startNode = null;
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
-     * the {@code DefaultListModel list}. Used to delete the
+     * the instance variable {@code list}. Used to delete the
      * {@code HistoryReference}s from the database when no longer needed.
      */
     private List<Integer> historyReferencesToDelete = new ArrayList<Integer>();
