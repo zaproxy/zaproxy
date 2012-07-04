@@ -127,6 +127,13 @@ public class SpiderStatistics {
 		test.putRequirement(test.getUrl() + "a.jsp");
 		test.putRequirement(test.getUrl() + "c.jsp");
 		tests.add(test);
+
+		test = new SpiderTestCase(
+				"Advanced Test 2 - Form with all available HTML5 input types",
+				"/spider/SpiderAdvancedTest2FormControls/");
+		test.putRequirement(test.getUrl() + "index.jsp");
+		test.putRequirement(test.getUrl() + "a.jsp");
+		tests.add(test);
 	}
 
 	/**
