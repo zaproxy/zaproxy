@@ -17,20 +17,20 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.FormField;
+import net.htmlparser.jericho.FormFields;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
-import org.w3c.dom.html.HTMLElement;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /**
@@ -100,7 +100,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			}
 
 			// Prepare data set
-			List<HtmlParameter> formDataSet = buildFormDataSet(form);
+			List<HtmlParameter> formDataSet = prepareFormDataSet(form.getFormFields());
 
 			// Process the case of a GET method
 			if (method == null || method.trim().equalsIgnoreCase(METHOD_GET)) {
@@ -121,7 +121,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	}
 
 	/**
-	 * Builds the form data set. A form data set is a sequence of control-name/current-value pairs
+	 * Prepares the form data set. A form data set is a sequence of control-name/current-value pairs
 	 * constructed from successful controls, which will be sent with a GET/POST request for a form.
 	 * 
 	 * <br/>
@@ -133,88 +133,186 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * @param form the form
 	 * @return the list
 	 */
-	private List<HtmlParameter> buildFormDataSet(Element form) {
+	private List<HtmlParameter> prepareFormDataSet(FormFields form) {
 		List<HtmlParameter> formDataSet = new LinkedList<HtmlParameter>();
-		List<Element> elements;
 
-		// Process INPUT elements
-		elements = form.getAllElements(HTMLElementName.INPUT);
-		for (Element e : elements) {
+		// Process each form field
+		Iterator<FormField> it = form.iterator();
+		while (it.hasNext()) {
+			FormField field = it.next();
+			if (log.isDebugEnabled())
+				log.debug("New form field: " + field.getDebugInfo());
 
-			// Check if disabled
-			String disabled = e.getAttributeValue(ATTR_DISABLED);
-			if (disabled != null && !disabled.equalsIgnoreCase("false"))
-				continue;
+			// Get its value(s)
+			List<String> values = field.getValues();
+			if (log.isDebugEnabled())
+				log.debug("Existing values: " + values);
 
-			// Get required attributes
-			String type = e.getAttributeValue(ATTR_TYPE);
-			String value = e.getAttributeValue(ATTR_VALUE);
-			String name = e.getAttributeValue(ATTR_NAME);
-			log.debug("New form INPUT element: " + type + "/" + name + "=" + value);
+			// If there are no values at all or only an empty value
+			if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
+				String finalValue = "";
 
-			// Check for name
-			if (name == null || name.trim().isEmpty())
-				continue;
+				// Check if we can use predefined values
+				Collection<String> predefValues = field.getPredefinedValues();
+				if (!predefValues.isEmpty()) {
+					// Try first elements
+					Iterator<String> iterator = predefValues.iterator();
+					finalValue = iterator.next();
 
-			// Text input
-			if (type.equalsIgnoreCase(TYPE_TEXT)) {
-				// If no default value, use a default one
-				if (value == null)
-					value = DEFAULT_TEXT_VALUE;
+					// If there are more values, don't use the first, as it usually is a "No select"
+					// item
+					if (iterator.hasNext())
+						finalValue = iterator.next();
+				} else {
+					/* In all cases, according to Jericho documentation, the only left option is for
+					 * it to be a TEXT field, without any predefined value. We check if it has only
+					 * one userValueCount, and, if so, fill it with a default value. */
+					if (field.getUserValueCount() > 0)
+						finalValue = getDefaultTextValue(field);
+				}
 
-				HtmlParameter p = new HtmlParameter(Type.form, name, value);
+				// Save the finalValue in the FormDataSet
+				log.info("No existing value for field " + field.getName() + ". Generated: " + finalValue);
+				HtmlParameter p = new HtmlParameter(Type.form, field.getName(), finalValue);
 				formDataSet.add(p);
-				continue;
-			}
+			} else
+				for (String v : values) {
+					// Save the finalValue in the FormDataSet
+					HtmlParameter p = new HtmlParameter(Type.form, field.getName(), v);
+					formDataSet.add(p);
+				}
 
-			if (type.equalsIgnoreCase(TYPE_CHECKBOX) || type.equalsIgnoreCase(TYPE_RADIO)) {
-				// Only add the checked fields
-				String checked = e.getAttributeValue(ATTR_CHECKED);
-				if (checked == null || !checked.equalsIgnoreCase("false"))
-					continue;
-
-				// If not default value, use a default one
-				if (value == null)
-					value = DEFAULT_ON;
-
-				HtmlParameter p = new HtmlParameter(Type.form, name, value);
-				formDataSet.add(p);
-				continue;
-			}
 		}
-
-		// Process SELECT elements
-		elements = form.getAllElements(HTMLElementName.SELECT);
-		for (Element e : elements) {
-
-			// Check if disabled
-			String disabled = e.getAttributeValue(ATTR_DISABLED);
-			if (disabled != null && !disabled.equalsIgnoreCase("false"))
-				continue;
-
-			// Get required attributes
-			String name = e.getAttributeValue(ATTR_NAME);
-			log.debug("New form SELECT element: " + name);
-
-			// Check for name
-			if (name == null || name.trim().isEmpty())
-				continue;
-
-			// Process OPTION elements and add selected ones
-			List<Element> options = e.getAllElements(HTMLElementName.OPTION);
-			for (Element o : options) {
-				String selected = o.getAttributeValue(ATTR_SELECTED);
-				String value = o.getAttributeValue(ATTR_VALUE);
-
-				if (selected != null && !selected.equalsIgnoreCase("false"))
-					if (value != null) {
-						HtmlParameter p = new HtmlParameter(Type.form, name, value);
-						formDataSet.add(p);
-					}
-			}
-		}
-
+		//
+		//
+		//
+		// FormField checkbox=fs.get("type-checkbox");
+		// checkbox.setValue("Value2");
+		// log.info("vals:" +checkbox.getValues()+"/"+checkbox.getUserValueCount());
+		// Map<String, String[]> dataSet=fs.getDataSet();
+		// for(String k:dataSet.keySet())
+		// {
+		// log.warn("Data set entry "+k+": "+Arrays.toString(dataSet.get(k)));
+		// }
+		// //log.info("Processing new form: "+form.getFormFields().getDataSet());
+		// for(FormControl c:form.getFormControls())
+		// log.info(c.getFormControlType()+"/"+c.getValues()+"/"+c.getPredefinedValue());
+		//
+		// // Process INPUT elements
+		// elements = form.getAllElements(HTMLElementName.INPUT);
+		// for (Element e : elements) {
+		//
+		// // Check if disabled
+		// String disabled = e.getAttributeValue(ATTR_DISABLED);
+		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
+		// continue;
+		//
+		// // Get required attributes
+		// String type = e.getAttributeValue(ATTR_TYPE);
+		// String value = e.getAttributeValue(ATTR_VALUE);
+		// String name = e.getAttributeValue(ATTR_NAME);
+		// log.debug("New form INPUT element: " + type + "/" + name + "=" + value);
+		//
+		// // Check for name
+		// if (name == null || name.trim().isEmpty())
+		// continue;
+		//
+		// // Text input
+		// if (type.equalsIgnoreCase(TYPE_TEXT)) {
+		// // If no default value, use a default one
+		// if (value == null)
+		// value = DEFAULT_TEXT_VALUE;
+		//
+		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
+		// formDataSet.add(p);
+		// continue;
+		// }
+		//
+		// if (type.equalsIgnoreCase(TYPE_CHECKBOX) || type.equalsIgnoreCase(TYPE_RADIO)) {
+		// // Only add the checked fields
+		// String checked = e.getAttributeValue(ATTR_CHECKED);
+		// if (checked == null || !checked.equalsIgnoreCase("false"))
+		// continue;
+		//
+		// // If not default value, use a default one
+		// if (value == null)
+		// value = DEFAULT_ON;
+		//
+		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
+		// formDataSet.add(p);
+		// continue;
+		// }
+		// }
+		//
+		// // Process SELECT elements
+		// elements = form.getAllElements(HTMLElementName.SELECT);
+		// for (Element e : elements) {
+		//
+		// // Check if disabled
+		// String disabled = e.getAttributeValue(ATTR_DISABLED);
+		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
+		// continue;
+		//
+		// // Get required attributes
+		// String name = e.getAttributeValue(ATTR_NAME);
+		// log.debug("New form SELECT element: " + name);
+		//
+		// // Check for name
+		// if (name == null || name.trim().isEmpty())
+		// continue;
+		//
+		// // Process OPTION elements and add selected ones
+		// List<Element> options = e.getAllElements(HTMLElementName.OPTION);
+		// for (Element o : options) {
+		// String selected = o.getAttributeValue(ATTR_SELECTED);
+		// String value = o.getAttributeValue(ATTR_VALUE);
+		//
+		// if (selected != null && !selected.equalsIgnoreCase("false"))
+		// if (value != null) {
+		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
+		// formDataSet.add(p);
+		// }
+		// }
+		// }
+		//
+		// // Process TEXTAREA elements
+		// elements = form.getAllElements(HTMLElementName.TEXTAREA);
+		// for (Element e : elements) {
+		//
+		// // Check if disabled
+		// String disabled = e.getAttributeValue(ATTR_DISABLED);
+		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
+		// continue;
+		//
+		// // Get required attributes
+		// String name = e.getAttributeValue(ATTR_NAME);
+		// log.debug("New form TEXTAREA element: " + name);
+		//
+		// // Check for name
+		// if (name == null || name.trim().isEmpty())
+		// continue;
+		//
+		// // Process OPTION elements and add selected ones
+		// String value = e.getContent().toString();
+		// if (value.isEmpty())
+		// value = DEFAULT_TEXT_VALUE;
+		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
+		// formDataSet.add(p);
+		//
+		// }
+		//
 		return formDataSet;
+	}
+
+	/**
+	 * Gets the default value that a field of type TEXT (including its HTML5 child variants), should
+	 * have.
+	 * 
+	 * @param field the field
+	 * @return the default text value
+	 */
+	private String getDefaultTextValue(FormField field) {
+		return DEFAULT_TEXT_VALUE;
 	}
 
 	/**
