@@ -3,5 +3,8 @@
 	pageEncoding="UTF-8"%>
 <%
 	SpiderStatistics.addVisited(request.getServletPath());
+	if (request.getQueryString() != null)
+		System.out.println("\tQuery String: " + "?"
+				+ request.getQueryString());
 %>
 <!-- This Page must be visited -->
