@@ -97,7 +97,14 @@ public class SpiderStatistics {
 		test.putRequirement("/spider/SpiderMediumTest4BasicCookies/a.jsp");
 		test.putRequirement("/spider/SpiderMediumTest4BasicCookies/b.jsp");
 		tests.add(test);
-
+		
+		test = new SpiderTestCase(
+				"Medium Test 5 - Page containing simple HTML form with GET method.");
+		test.putRequirement("/spider/SpiderMediumTest5FormGet/index.jsp");
+		test.putRequirement("/spider/SpiderMediumTest5FormGet/a.jsp");
+		test.putRequirement("/spider/SpiderMediumTest5FormGet/b.jsp");
+		tests.add(test);
+		
 		test = new SpiderTestCase(
 				"Advanced Test 1 - Page which sets cookies with Path attribute");
 		test.putRequirement("/spider/SpiderAdvancedTest1CookieAttributes/index.jsp");

@@ -23,6 +23,7 @@
 		<li><a href="SpiderMediumTest2MultipleFrames/">Medium Test 2 - Page with multiple framesets</a></li>
 		<li><a href="SpiderMediumTest3IFrames/">Medium Test 3 - Page with simple iframe</a></li>
 		<li><a href="SpiderMediumTest4BasicCookies/">Medium Test 4 - Page which sets simple cookies</a></li>
+		<li><a href="SpiderMediumTest5FormGet/">Medium Test 5 - Page containing simple HTML form with GET method.</a></li>
 		<br/>
 		<li><a href="SpiderAdvancedTest1CookieAttributes/">Advanced Test 1 - Page which sets cookies with Path attribute</a></li>
 	</ul>
