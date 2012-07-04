@@ -17,19 +17,29 @@ public class SpiderTestCase {
 	private String name;
 
 	/**
+	 * The url where this test can be found.
+	 */
+	private String url;
+
+	/**
 	 * This List is used to store the links that have to be visited by the test
 	 * so that it can be considered passed.
 	 */
 	private LinkedList<String> requirements;
 
-	public SpiderTestCase(String name) {
+	public SpiderTestCase(String name, String baseUrl) {
 		super();
 		this.name = name;
+		this.url = baseUrl;
 		this.requirements = new LinkedList<String>();
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public String getUrl() {
+		return url;
 	}
 
 	public void putRequirement(String url) {
