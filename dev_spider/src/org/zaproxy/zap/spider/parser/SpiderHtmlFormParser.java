@@ -38,8 +38,19 @@ import org.zaproxy.zap.spider.SpiderParam;
  */
 public class SpiderHtmlFormParser extends SpiderParser {
 
+	private static final String ATTR_CHECKED = "checked";
+	private static final String ATTR_DISABLED = "disabled";
+	private static final String ATTR_SELECTED = "selected";
+	private static final String TYPE_TEXT = "text";
+	private static final String TYPE_RADIO = "radio";
+	private static final String TYPE_CHECKBOX = "checkbox";
+	private static final String DEFAULT_ON = "on";
+	private static final String ATTR_VALUE = "value";
+	private static final String DEFAULT_TEXT_VALUE = "1";
 	private static final String METHOD_GET = "GET";
 	private static final String METHOD_POST = "POST";
+	private static final String ATTR_NAME = "name";
+	private static final String ATTR_TYPE = "type";
 
 	/** The spider parameters. */
 	SpiderParam param;
@@ -78,18 +89,31 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 		for (Element form : forms) {
 			// Get method and action
-			String method = form.getAttributeValue("method").trim();
-			String action = form.getAttributeValue("action").trim();
+			String method = form.getAttributeValue("method");
+			String action = form.getAttributeValue("action");
 			log.info("Found new form with method: '" + method + "' and action: " + action);
+
+			// If no action, skip the form
+			if (action == null) {
+				log.warn("Skipping form with no 'action' defined at: " + form.getDebugInfo());
+				continue;
+			}
 
 			// Prepare data set
 			List<HtmlParameter> formDataSet = buildFormDataSet(form);
 
 			// Process the case of a GET method
-			if (method.equalsIgnoreCase(METHOD_GET)) {
+			if (method == null || method.trim().equalsIgnoreCase(METHOD_GET)) {
 				String query = buildGetQuery(formDataSet);
-				log.info("Query with form parameters: " + query);
-				processURL(message, depth, action + "?" + query, baseURL);
+				log.info("Submiting form with GET method and query with form parameters: " + query);
+
+				if (action.contains("?"))
+					if (action.endsWith("?"))
+						processURL(message, depth, action + query, baseURL);
+					else
+						processURL(message, depth, action + "&" + query, baseURL);
+				else
+					processURL(message, depth, action + "?" + query, baseURL);
 			}
 
 		}
@@ -117,26 +141,77 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		elements = form.getAllElements(HTMLElementName.INPUT);
 		for (Element e : elements) {
 
+			// Check if disabled
+			String disabled = e.getAttributeValue(ATTR_DISABLED);
+			if (disabled != null && !disabled.equalsIgnoreCase("false"))
+				continue;
+
 			// Get required attributes
-			String type = e.getAttributeValue("type");
-			String name = e.getAttributeValue("name");
-			String value = e.getAttributeValue("value");
-			log.debug("New element: " + type + "/" + name + "=" + value);
+			String type = e.getAttributeValue(ATTR_TYPE);
+			String value = e.getAttributeValue(ATTR_VALUE);
+			String name = e.getAttributeValue(ATTR_NAME);
+			log.debug("New form INPUT element: " + type + "/" + name + "=" + value);
 
 			// Check for name
-			if (name == null)
+			if (name == null || name.trim().isEmpty())
 				continue;
 
 			// Text input
-			if (type.equalsIgnoreCase("text")) {
+			if (type.equalsIgnoreCase(TYPE_TEXT)) {
+				// If no default value, use a default one
 				if (value == null)
-					continue;
+					value = DEFAULT_TEXT_VALUE;
 
 				HtmlParameter p = new HtmlParameter(Type.form, name, value);
 				formDataSet.add(p);
 				continue;
 			}
 
+			if (type.equalsIgnoreCase(TYPE_CHECKBOX) || type.equalsIgnoreCase(TYPE_RADIO)) {
+				// Only add the checked fields
+				String checked = e.getAttributeValue(ATTR_CHECKED);
+				if (checked == null || !checked.equalsIgnoreCase("false"))
+					continue;
+
+				// If not default value, use a default one
+				if (value == null)
+					value = DEFAULT_ON;
+
+				HtmlParameter p = new HtmlParameter(Type.form, name, value);
+				formDataSet.add(p);
+				continue;
+			}
+		}
+
+		// Process SELECT elements
+		elements = form.getAllElements(HTMLElementName.SELECT);
+		for (Element e : elements) {
+
+			// Check if disabled
+			String disabled = e.getAttributeValue(ATTR_DISABLED);
+			if (disabled != null && !disabled.equalsIgnoreCase("false"))
+				continue;
+
+			// Get required attributes
+			String name = e.getAttributeValue(ATTR_NAME);
+			log.debug("New form SELECT element: " + name);
+
+			// Check for name
+			if (name == null || name.trim().isEmpty())
+				continue;
+
+			// Process OPTION elements and add selected ones
+			List<Element> options = e.getAllElements(HTMLElementName.OPTION);
+			for (Element o : options) {
+				String selected = o.getAttributeValue(ATTR_SELECTED);
+				String value = o.getAttributeValue(ATTR_VALUE);
+
+				if (selected != null && !selected.equalsIgnoreCase("false"))
+					if (value != null) {
+						HtmlParameter p = new HtmlParameter(Type.form, name, value);
+						formDataSet.add(p);
+					}
+			}
 		}
 
 		return formDataSet;
