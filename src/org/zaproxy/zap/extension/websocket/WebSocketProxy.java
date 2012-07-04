@@ -341,10 +341,25 @@ public abstract class WebSocketProxy {
 			// assume that there is only one message to be continued
 			
 			boolean shouldContinueMessage = currentMessages.containsKey(in);
-			if (opcode == WebSocketMessage.OPCODE_CONTINUATION && shouldContinueMessage) {
-				// continue temporarily buffered message
-				message = currentMessages.remove(in);
-				message.readContinuation(in, frameHeader);
+			if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
+				if (shouldContinueMessage) {
+					// continue temporarily buffered message
+					message = currentMessages.remove(in);
+					message.readContinuation(in, frameHeader);
+				} else {
+					// no message here that can be continued
+					// => forward in any case, as the endpoint has to close
+					// the connection immediately
+					logger.debug("Got continuation frame, but there is no message to continue - forward frame in any case!");
+					
+					message = createWebSocketMessage(in, frameHeader);
+					if (!notifyObservers(message)) {
+						logger.debug("Ignore observer's wish to skip forwarding as we have received an invalid frame!");
+					}
+					message.forward(out);
+					
+					return;
+				}
 			} else {
 				// another non-control frame
 				message = createWebSocketMessage(in, frameHeader);
@@ -361,7 +376,7 @@ public abstract class WebSocketProxy {
 		if (notifyObservers(message)) {
 			// skip forwarding only if observer told us to skip this message (frame)
 			message.forward(out);
-		}		
+		}	
 	}
 
 	/**
@@ -396,16 +411,17 @@ public abstract class WebSocketProxy {
 	 * @return
 	 */
 	protected boolean notifyObservers(WebSocketMessage message) {
-		for (WebSocketObserver observer : observerList) {
-			try {
-			    if (!observer.onMessageFrame(channelId, message)) {
-			    	return false;
-			    }
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
+		synchronized (observerList) {
+			for (WebSocketObserver observer : observerList) {
+				try {
+				    if (!observer.onMessageFrame(channelId, message)) {
+				    	return false;
+				    }
+				} catch (Exception e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 		}
-		
 		return true;
 	}
 	
@@ -415,8 +431,10 @@ public abstract class WebSocketProxy {
 	 * @param observer
 	 */
 	public void addObserver(WebSocketObserver observer) {
-		observerList.add(observer);
-		Collections.sort(observerList, getObserversComparator());
+		synchronized (observerList) {
+			observerList.add(observer);
+			Collections.sort(observerList, getObserversComparator());
+		}
 	}
 	
 	/**
@@ -425,17 +443,9 @@ public abstract class WebSocketProxy {
 	 * @param observer
 	 */
 	public void removeObserver(WebSocketObserver observer) {
-		observerList.remove(observer);
-	}
-	
-	/**
-	 * Returns a list of all observers, that get informed about
-	 * in- & outgoing messages.
-	 * 
-	 * @return
-	 */
-	public Vector<WebSocketObserver> getObserversList() {
-		return observerList;
+		synchronized (observerList) {
+			observerList.remove(observer);
+		}
 	}
     
 	/**

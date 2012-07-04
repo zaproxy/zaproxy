@@ -24,6 +24,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
 
@@ -39,6 +40,14 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 public class WebSocketProxyV13 extends WebSocketProxy {
 
 	private static final Logger logger = Logger.getLogger(WebSocketProxyV13.class);
+	
+	/**
+	 * The payload length is determined by 63 bits -> at maximum (2^63 - 1),
+	 * which can be represented in Java by
+	 * <code>new BigInteger("9223372036854775806")</code>. But for this
+	 * implementation I choose a smaller maximum frame length.
+	 */
+	private static final int PAYLOAD_MAX_FRAME_LENGTH = Integer.MAX_VALUE;
 
 	/**
 	 * @see WebSocketProxy#WebSocketProxy(Socket, Socket)
@@ -66,8 +75,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private class WebSocketFrameV13 {
 		    private final Random randomizer = new Random();
 			private ByteBuffer buffer;
-			private boolean isMasked;
 			private byte[] mask;
+			private boolean isMasked;
 			
 			/**
 			 * Prevent sending this frame several times.
@@ -79,7 +88,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			 * and data can be read by {@link WebSocketFrameV13#getBuffer()}.
 			 */
 			private boolean isSealed = false;
-
+			
 			public WebSocketFrameV13() {
 				buffer = ByteBuffer.allocate(4096);
 				isMasked = false;
@@ -93,10 +102,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			 * 
 			 * @param payload
 			 */
-			public WebSocketFrameV13(ByteBuffer payload, Direction direction) {
+			public WebSocketFrameV13(ByteBuffer payload, Direction direction, boolean isFinished, int frameOpcode) {
 				// at maximum 16 bytes are added as header data
 				buffer = ByteBuffer.allocate(payload.limit() + 16);
-				isFinished = true;
 
 				int payloadLength = payload.limit();
 				if (direction.equals(Direction.OUTGOING)) {
@@ -117,8 +125,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				
 				isForwarded = false;
 				
-				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | (opcode & 0x0F));
+				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | (frameOpcode & 0x0F));
 				buffer.put(frameHeader);
+				logger.debug("Frame header of newly created WebSocketFrame: " + getByteAsBitString(frameHeader));
 
 				if (payloadLength < PAYLOAD_LENGTH_16) {
 					buffer.put((byte) ((isMasked ? 0x80 : 0x00) | (payloadLength & 0xDF)));
@@ -208,18 +217,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 		}
 		
-		/**
-		 * Consecutive number identifying a {@link WebSocketMessage} for one
-		 * {@link WebSocketProxy}.
-		 */
-		private int messageId;
-		
-		/**
-		 * This list will contain all the original bytes for each frame.
-		 */
 		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
-
-		private ArrayList<WebSocketFrameV13> modifiedFrames = new ArrayList<WebSocketFrameV13>();
 		
 		/**
 		 * Temporary buffer that will be added to
@@ -237,6 +235,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * be built manually on forwarding.
 		 */
 		private boolean hasChanged;
+
+		/**
+		 * Is set by {@link WebSocketMessageV13#getReadablePayload()}.
+		 */
+		private boolean isValidUtf8Payload;
 
 		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
@@ -260,17 +263,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param frameHeader
 		 * @throws IOException 
 		 */
-		public WebSocketMessageV13(InputStream in, byte frameHeader) throws IOException {			
+		public WebSocketMessageV13(InputStream in, byte frameHeader) throws IOException {
+			super(getIncrementedMessageCount());
+			
 			// 4 least significant bits are opcode
 			opcode = (frameHeader & 0x0F);
 			
 			readFrame(in, frameHeader);
-			
-			messageId = getIncrementedMessageCount();
-		}
-
-		public int getMessageId() {
-			return messageId;
 		}
 
 		/**
@@ -285,6 +284,20 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		public void readContinuation(InputStream in, byte frameHeader) throws IOException {			
 			readFrame(in, frameHeader);
 		}
+		
+		/**
+		 * Can be used to print or log bytes.
+		 * 
+		 * @param word
+		 * @return
+		 */
+		private String getByteAsBitString(byte word) {
+	      StringBuffer buf = new StringBuffer();
+	      for (int i = 0; i < 8; i++) {
+	         buf.append((int)(word >> (8 - (i+1)) & 0x0001));
+	      }
+	      return buf.toString();
+	   }
 
 		/**
 		 * Given an {@link InputStream} and the first byte of a frame,
@@ -335,7 +348,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				}
 			}
 			
-			logger.debug("length of current frame payload is: " + payloadLength);
+			logger.debug("length of current frame payload is: " + payloadLength + "; first two bytes: " + getByteAsBitString(frameHeader) + " " + getByteAsBitString(payloadByte));
 
 			if (currentFrame.isMasked()) {
 				// read 4 bytes mask
@@ -354,43 +367,93 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			if (isText(opcode)) {
-				if (0 == payload.length) {
-					logger.debug("got empty payload");
-				} else if (payload.length < 10000) {
-					logger.debug("got payload: '" + encodePayloadToUtf8(payload) + "'");
-				} else {
-					logger.debug("got huge payload, do not print it");
-					// + decodePayload(payload, 0, 100) may result in non-finished string
-				}
+				logger.info("got text frame payload");
 			} else if (isBinary(opcode)) {
-				logger.info("got binary payload");				
+				logger.info("got binary frame payload");				
 			} else {
 				if (opcode == OPCODE_CLOSE) {
 					if (payload.length > 1) {
+						// if there is a body, the first two bytes are a
+						// 2-byte unsigned integer (in network byte order)
 						closeCode = ((payload[0] & 0xFF) << 8) | (payload[1] & 0xFF);
 						logger.debug("close code is: " + closeCode);
 						
-						// remove close code from payload
-						ArrayUtils.subarray(payload, 2, payload.length);
-						
-						// TODO: Close code handling. Users might want to change it
-						// in break panel (also: show in WebSocketPanel, but where?)
+						payload = getReadableCloseFramePayload(payload, closeCode);
 					}
 					
 					if (payload.length > 0) {
 						// process close message
-						logger.debug("got control-payload: " + encodePayloadToUtf8(payload));
+						try {
+							logger.debug("got control-payload: " + encodePayloadToUtf8(payload));
+						} catch (WebSocketException e) {
+							// safely ignore utf8 error here
+						}
 					}
 				}
 			}
 			
-			addPayload(payload);
+			appendPayload(payload);
 			Calendar calendar = Calendar.getInstance();
 			timestamp = new Timestamp(calendar.getTimeInMillis());
 			
 			// add currentFrame to frames list
 			currentFrame.seal();
 			receivedFrames.add(currentFrame);
+		}
+
+		/**
+		 * Takes the payload of a close frame and transforms the 2 bytes
+		 * representation of the status code to a 4 digit string representation
+		 * readable by humans.
+		 * 
+		 * @param payload
+		 * @param statusCode
+		 * @return
+		 */
+		private byte[] getReadableCloseFramePayload(byte[] payload, int statusCode) {
+			byte[] closeCode = (statusCode+"").getBytes();
+			
+			// close code might consist of illegal 5 digits (as one of the Autobahn tests)
+			byte[] newPayload = new byte[payload.length + (closeCode.length - 2)];
+			
+			try {
+				System.arraycopy(closeCode, 0, newPayload, 0, closeCode.length);
+			} catch (IndexOutOfBoundsException e) {
+				logger.error(e);
+			}
+			
+			try {
+				System.arraycopy(payload, 2, newPayload, closeCode.length, payload.length - 2);
+			} catch (IndexOutOfBoundsException e) {
+				logger.error(e);
+			}
+			
+			return newPayload;
+		}
+
+		/**
+		 * Takes the modified payload of a close frame and transforms the
+		 * readable status code (4 digit string) back to 2 byte representation.
+		 * 
+		 * @param payload
+		 * @return
+		 * @throws WebSocketException
+		 * @throws NumberFormatException
+		 */
+		private ByteBuffer getTransmittableCloseFramePayload(ByteBuffer payload) throws NumberFormatException, WebSocketException {
+			int newCloseCode = Integer.parseInt(encodePayloadToUtf8(payload.array(), 0, 4));
+			
+			byte[] newCloseCodeByte = new byte[2];
+			newCloseCodeByte[0] = (byte) ((newCloseCode >> 8) & 0xFF);
+			newCloseCodeByte[1] = (byte) ((newCloseCode) & 0xFF);
+			
+			ByteBuffer newPayload = ByteBuffer.allocate(payload.limit() - 2);
+			if (payload.limit() > 4) {
+				newPayload.put(ArrayUtils.subarray(payload.array(), 4, payload.limit()), 2, payload.limit() - 4);
+			}
+			newPayload.put(newCloseCodeByte, 0, 2);
+			
+			return newPayload;
 		}
 
 		/**
@@ -438,28 +501,58 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	     */
 		@Override
 		public void forward(OutputStream out) throws IOException {
+			logger.debug("forward message#" + getMessageId());
+			
 			if (hasChanged) {
-				// TODO: split into chunks according to PAYLOAD_LENGTH_63
-				WebSocketFrameV13 frame = new WebSocketFrameV13(payload, getDirection());
-				modifiedFrames.add(frame);
-				forwardFrame(frame, out);
+				if (opcode == OPCODE_CLOSE) {
+					payload = getTransmittableCloseFramePayload(payload);
+				}
+				
+				// split into chunks according to maximum frame length
+				int writtenBytes = 0;
+				int frameLength = Math.min(PAYLOAD_MAX_FRAME_LENGTH, payload.limit());
+				int frameOpcode = opcode;
+				boolean isLastFrame;
+				
+				do {
+					ByteBuffer tempBuffer = ByteBuffer.allocate(frameLength);
+					tempBuffer.hasArray();
+					payload.get(tempBuffer.array(), 0, frameLength);
+					
+					writtenBytes = frameLength + writtenBytes;
+					frameLength = Math.min(PAYLOAD_MAX_FRAME_LENGTH, payload.limit() - writtenBytes);
+					
+					isLastFrame = (frameLength <= 0); 
+				
+					WebSocketFrameV13 frame = new WebSocketFrameV13(tempBuffer, getDirection(), isLastFrame, frameOpcode);
+					logger.debug("forward modified frame");
+					forwardFrame(frame, out);
+					// next frame is a continuation of the current one
+					frameOpcode = OPCODE_CONTINUATION;
+					
+					// TODO: What if e.g.: a close frame has got a huge payload
+					// that exceeds INTEGER.MAX_VALUE, then I send a OPCODE_CLOSE
+					// followed by another OPCODE_CONTINUATION, but that is not
+					// possible!
+				} while (!isLastFrame);
 			} else {
 				for (WebSocketFrameV13 frame : receivedFrames) {
 					// forward frame by frame
 					if (!frame.isForwarded()) {
+						logger.debug("forward frame");
 						forwardFrame(frame, out);
 					}
 				}
 			}
 		}
-		
+
 		/**
 		 * Helper method to forward frames.
 		 * 
 		 * @param frame
 		 * @param out
 		 */
-		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {
+		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {			
 			out.write(frame.getBuffer());
 			out.flush();
 			
@@ -475,26 +568,41 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		@Override
 		public Integer getPayloadLength() {
-			return payload.limit();
+			int length = payload.limit();
+			
+			if (opcode == OPCODE_CLOSE) {
+				// if there is a body, the first two bytes are a
+				// 2-byte unsigned integer (in network byte order)
+				length = Math.max(0, length - 2);
+			}
+			
+			return length;
 		}
 
 		@Override
 		public String getReadablePayload() {
-			return encodePayloadToUtf8(payload.array());
+			try {
+				isValidUtf8Payload = true;
+				return encodePayloadToUtf8(payload.array(), 0, payload.limit());
+			} catch (WebSocketException e) {
+				isValidUtf8Payload  = false;
+				return "<invalid UTF-8>";
+			}
 		}
 
 		@Override
 		public void setReadablePayload(String newReadablePayload) throws WebSocketException {
 			if (!isFinished()) {
-				throw new WebSocketException("Only allowed to set payload of finished message");
+				throw new WebSocketException("Only allowed to set payload of finished message!");
 			}
 			
-			ByteBuffer newPayload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
-			if (!payload.equals(newPayload)) {
+			String readablePayload = getReadablePayload();
+			// compare readable strings (working on byte arrays did not work)
+			if (isValidUtf8Payload && !Arrays.equals(decodePayloadFromUtf8(newReadablePayload), decodePayloadFromUtf8(readablePayload))) {
 				// mark this messages as changed in order to propagate changed
 				// payload into frames or build up a big frame (see forward())
 				hasChanged = true;
-				payload = newPayload;
+				payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
 			}
 		}
 
