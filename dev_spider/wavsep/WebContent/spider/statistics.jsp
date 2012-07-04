@@ -14,7 +14,7 @@
 		following table:</p>
 
 	<br />
-	<%=SpiderStatistics.getStatistics()%>
+	<%=SpiderStatistics.buildStatisticsTable()%>
 
 
 </body>
