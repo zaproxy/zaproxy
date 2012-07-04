@@ -44,6 +44,12 @@ public abstract class WebSocketMessage {
 	}
 	
 	/**
+	 * Consecutive number identifying a {@link WebSocketMessage}. Unique within
+	 * a {@link WebSocketProxy}.
+	 */
+	private int messageId;
+	
+	/**
 	 * This buffer will contain the whole payload, unmasked
 	 */
 	protected ByteBuffer payload;
@@ -58,17 +64,17 @@ public abstract class WebSocketMessage {
 	 */
 	protected Timestamp timestamp;
 	
-	// WebSocket OpCodes - int's are used instead of an enum for extensibility.
+	// WebSocket OpCodes - int's are used instead of a enum's for extensibility.
 
-	// non-control frames (0x3 - 0x7 are reserved for further non-control frames)
 	public static final int OPCODE_CONTINUATION = 0x0;
 	public static final int OPCODE_TEXT = 0x1;
 	public static final int OPCODE_BINARY = 0x2;
+	// non-control frames (0x3 - 0x7 are reserved for further non-control frames)
 
-	// control frames (0xB - 0xF are reserved for further control frames)
 	public static final int OPCODE_CLOSE = 0x8;
 	public static final int OPCODE_PING = 0x9;
 	public static final int OPCODE_PONG = 0xA;
+	// control frames (0xB - 0xF are reserved for further control frames)
 	
 	/**
 	 * Indicates a normal closure, meaning that the purpose for
@@ -140,9 +146,9 @@ public abstract class WebSocketMessage {
 	 */
 	public static final int STATUS_CODE_SERVER_ERROR = 1011;
 
-	public final static int[] OPCODES = {OPCODE_TEXT, OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG };
-
 	// 1015 is another reserved status code
+	
+	public final static int[] OPCODES = {OPCODE_TEXT, OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG };
 
 	/**
 	 * Indicates the opcode of this message.
@@ -159,12 +165,12 @@ public abstract class WebSocketMessage {
 	/**
 	 * Used for en- & decoding from bytes to String and vice versa.
 	 */
-	protected final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+	protected static final Charset UTF8_CHARSET;
 	
 	/**
 	 * Used to format {@link WebSocketMessage#timestamp} in user's locale.
 	 */
-	private static FastDateFormat dateFormatter;
+	protected static final FastDateFormat dateFormatter;
 	
 	/**
 	 * Use the static initializer for setting up one date formatter for all
@@ -175,6 +181,21 @@ public abstract class WebSocketMessage {
 		dateFormatter = FastDateFormat.getDateTimeInstance(
 				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
 				Constant.getLocale());
+		
+		UTF8_CHARSET = Charset.forName("UTF-8");
+	}
+	
+	public WebSocketMessage(int messageId) {
+		this.messageId = messageId;
+	}
+
+	/**
+	 * Returns a consecutive number unique within one WebSocket channel.
+	 * 
+	 * @return
+	 */
+	public int getMessageId() {
+		return messageId;
 	}
 
 	/**
@@ -313,59 +334,65 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Helper method to decode payload into UTF-8 string.
+	 * Helper method to encode payload into UTF-8 string.
 	 * 
-	 * @param payload
+	 * @param utf8bytes 
 	 * @return
+	 * @throws WebSocketException 
 	 */
-	protected String encodePayloadToUtf8(byte[] payload) {
-		return encodePayloadToUtf8(payload, 0);
+	protected String encodePayloadToUtf8(byte[] utf8bytes) throws WebSocketException {
+		return encodePayloadToUtf8(utf8bytes, 0, utf8bytes.length);
 	}
-
+	
 	/**
-	 * Helper method to decode payload into UTF-8 string.
+	 * Helper method to encode payload into UTF-8 string.
 	 * 
-	 * @param payload
+	 * @param utf8bytes
 	 * @param offset
+	 * @param length
 	 * @return
+	 * @throws WebSocketException 
 	 */
-	protected String encodePayloadToUtf8(byte[] payload, int offset) {
+	protected String encodePayloadToUtf8(byte[] utf8bytes, int offset, int length) throws WebSocketException {
 		try {
-			int length = payload.length - offset;
-			
 			Utf8StringBuilder builder = new Utf8StringBuilder(length);
-			builder.append(payload, offset, length);
-			
+			builder.append(utf8bytes, offset, length);
+
 			return builder.toString();
 		} catch (IllegalArgumentException e) {
 			if (e.getMessage().equals("!utf8")) {
-				logger.error("payload is not UTF-8");
+				throw new WebSocketException("Given bytes are no valid UTF-8!");
 			} else {
 				throw e;
 			}
 		} catch (IllegalStateException e) {
 			if (e.getMessage().equals("!utf8")) {
-				logger.error("payload is not UTF-8");
+				throw new WebSocketException("Given bytes are no valid UTF-8!");
 			} else {
 				throw e;
 			}
 		}
-		
-		return "<invalid UTF-8>";
 	}
 	
 	/**
 	 * Helper method that takes an UTF-8 string and returns its byte
 	 * representation.
 	 * 
-	 * @param newReadablePayload
+	 * @param utf8string
 	 * @return
 	 */
-	protected byte[] decodePayloadFromUtf8(String newReadablePayload) {
-		return newReadablePayload.getBytes(UTF8_CHARSET);
+	protected byte[] decodePayloadFromUtf8(String utf8string) {
+		synchronized (UTF8_CHARSET) {
+			return utf8string.getBytes(UTF8_CHARSET);
+		}
 	}
 	
-	protected void addPayload(byte[] bytes) {
+	/**
+	 * Use this helper for concatenating payloads of different WebSocket frames.
+	 * 
+	 * @param bytes
+	 */
+	protected void appendPayload(byte[] bytes) {
 		if (payload == null) {
 			// initialize first
 			payload = ByteBuffer.wrap(bytes);
@@ -455,7 +482,10 @@ public abstract class WebSocketMessage {
 		Timestamp ts = getTimestamp();
 		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
 		
-		String dateTime = dateFormatter.format(ts);
+		String dateTime = "";
+		synchronized (dateFormatter) {
+			dateTime = dateFormatter.format(ts);
+		}
 		String nanos = (ts.getNanos() + "").replaceAll("0+$", "");
 		if (nanos.length() == 0) {
 			nanos = "0";
@@ -464,14 +494,19 @@ public abstract class WebSocketMessage {
 		
 		dao.opcode = getOpcode();
 		dao.readableOpcode = getOpcodeString();
-		
+
 		if (isText()) {
 			dao.payload = getReadablePayload();
 		} else if (isBinary()) {
 			// TODO: find binary websocket demo and set appropriate representation
 //			dao.payload = byteArrayToHexString(getPayload());
-		} else if (getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
-			dao.closeCode = getCloseCode();
+		} else {
+			dao.payload = getReadablePayload();
+		}
+		
+		if (dao.payload == null) {
+			// prevents NullPointerException
+			dao.payload = "";
 		}
 		
 		dao.direction = getDirection();
@@ -479,5 +514,9 @@ public abstract class WebSocketMessage {
 		dao.payloadLength = getPayloadLength();
 		
 		return dao;
+	}
+	
+	public String toString() {
+		return "WebSocketMessage#" + getMessageId();
 	}
 }
