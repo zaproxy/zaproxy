@@ -519,7 +519,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	}
 	
 	protected class ComboBoxChannelItem implements Comparable<Object> {
-		private final int channelId;
+		private final Integer channelId;
 		private final String label;
 		
 		public ComboBoxChannelItem(String name, int channelId) {
@@ -527,7 +527,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			this.channelId = channelId;
 		}
 		
-		public int getChannelId() {
+		public Integer getChannelId() {
 			return channelId;
 		}
 
@@ -537,7 +537,16 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 		@Override
 		public int compareTo(Object o) {
-			return toString().compareTo(o.toString());
+			String otherString = o.toString().replaceAll("#[0-9]+", "");
+			String thisString = toString().replaceAll("#[0-9]+", "");
+			int result = thisString.compareTo(otherString);
+			
+			if (result == 0) {
+				ComboBoxChannelItem otherItem = (ComboBoxChannelItem) o;
+				return getChannelId().compareTo(otherItem.getChannelId());
+			}
+			
+			return result;
 		}
 	}
 
