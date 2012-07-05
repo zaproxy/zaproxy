@@ -161,8 +161,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	public void startSpider() {
 		if (startNode == null) {
 			log.error("Spider: No start node set for site " + site);
-			// TODO: Debugging purpose
-			// return;
+			return;
 		}
 
 		if (spider == null) {
@@ -191,27 +190,22 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			for (SpiderListener l : pendingSpiderListeners)
 				spider.addSpiderListener(l);
 
+
+			inOrderSeed(spider, startNode);
 			// TODO: Debugging purpose
-			// inOrderSeed(spider, startNode);
-			try {
-				spider.addSeed(new URI("http://www.feedrz.com/login.jsp", true));
-			} catch (URIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				spider.addSeed(new URI("http://www.feedrz.com/login.jsp", true));
+//			} catch (URIException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (NullPointerException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 		extension.getSpiderPanel().setTabFocus();
 		spider.setExcludeList(extension.getExcludeList());
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		try {
 			spider.start();
