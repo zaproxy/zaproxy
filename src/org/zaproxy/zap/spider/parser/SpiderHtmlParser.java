@@ -29,8 +29,10 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.<br/>
- * <br/>
+ * 
+ * <p>
  * NOTE: Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}
+ * </p>
  * .
  */
 public class SpiderHtmlParser extends SpiderParser {
