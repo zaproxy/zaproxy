@@ -46,7 +46,7 @@
 		<maxDepth>5</maxDepth>
 		<scope></scope>
 		<postform>true</postform>
-		<postform>true</postform>
+		<processform>true</processform>
 		<sendCookies>true</sendCookies>
 		<skipurl></skipurl>
 		<requestwait>200</requestwait>

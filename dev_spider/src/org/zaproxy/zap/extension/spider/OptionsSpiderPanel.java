@@ -1,39 +1,40 @@
 /*
- *
- * Paros and its related class files.
+ * Zed Attack Proxy (ZAP) and its related class files.
  * 
- * Paros is an HTTP/HTTPS proxy for assessing web application security.
- * Copyright (C) 2003-2004 Chinotec Technologies Company
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Clarified Artistic License
- * as published by the Free Software Foundation.
+ * Copyright 2012 cosminstefanxp [at] gmail [.] com
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * Clarified Artistic License for more details.
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
  * 
- * You should have received a copy of the Clarified Artistic License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ * 
+ * Note that this extension and the other classes in this package are heavily 
+ * based on the original Paros OptionsSpiderPanel! 
  */
-// ZAP: 2011/10/15 i18n and removed URLs - these are replaced by the regexs in the session properties
-// ZAP: 2012/04/14 Changed the method initParam to discard all edits.
-// ZAP: 2012/04/25 Added @Override annotation to all appropriate method.
-// ZAP: 2012/05/29 Changed to the new SpiderParam
 
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -42,209 +43,198 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+/**
+ * The Class OptionsSpiderPanel defines the Options Panel showed when configuring settings related
+ * to the spider.
+ */
 public class OptionsSpiderPanel extends AbstractParamPanel {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -5623691753271231473L;
-	private JPanel panelSpider = null;  //  @jve:decl-index=0:visual-constraint="520,10"
-    public OptionsSpiderPanel() {
-        super();
- 		initialize();
-   }
-    
+
+	/** The full panel for the spideroptions. */
+	private JPanel panelSpider = null;
+
+	// The controls for the options:
 	private JSlider sliderMaxDepth = null;
 	private JSlider sliderThreads = null;
-	private ZapTextArea txtScope = null;
-	private JScrollPane jScrollPane = null;
-    private JCheckBox chkPostForm = null;
+	private ZapTextArea txtDomainScope = null;
+	private JScrollPane scrollPaneDomainScope = null;
+	private JCheckBox chkPostForm = null;
+	private JCheckBox chkProcessForm = null;
 	private JCheckBox useCookies = null;
-    //private JLabel jLabel5 = null;
-    //private JScrollPane jScrollPane1 = null;
-    //private ZapTextArea txtSkipURL = null;
+
 	/**
-	 * This method initializes this
-	 * 
-	 * @return void
+	 * Instantiates a new options spider panel.
+	 */
+	public OptionsSpiderPanel() {
+		super();
+		initialize();
+	}
+
+	/**
+	 * This method initializes this options Panel.
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(Constant.messages.getString("spider.options.title"));
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(314, 245);
-	    }
-        this.add(getPanelSpider(), getPanelSpider().getName());
+		this.setLayout(new CardLayout());
+		this.setName(Constant.messages.getString("spider.options.title"));
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(314, 245);
+		}
+		this.add(getPanelSpider(), getPanelSpider().getName());
 	}
+
 	/**
-	 * This method initializes panelSpider	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes the main panel containing all option controls.
+	 * 
+	 * @return the panel for the spider options.
+	 */
 	private JPanel getPanelSpider() {
 		if (panelSpider == null) {
-			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
-			gridBagConstraints21.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints21.weighty = 0.7D;
-			gridBagConstraints21.gridx = 0;
-			gridBagConstraints21.gridy = 6;
-			gridBagConstraints21.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints21.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints21.weightx = 1.0;
-			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-			gridBagConstraints12.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints12.gridy = 4;
-			gridBagConstraints12.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints12.weightx = 1.0D;
-			gridBagConstraints12.gridx = 0;
-			//jLabel5 = new JLabel();
-			//jLabel5.setText(Constant.messages.getString("spider.options.urls"));
-			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.gridx = 0;
-			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints.gridy = 10;
-			java.awt.GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 
-			java.awt.GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel3 = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel2 = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-
+			// Initialize the panel
 			panelSpider = new JPanel();
-			javax.swing.JLabel jLabel1 = new JLabel();
-
-			javax.swing.JLabel jLabel = new JLabel();
-
 			panelSpider.setLayout(new GridBagLayout());
-		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-		    	panelSpider.setSize(114, 132);
-		    }
+			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+				panelSpider.setSize(114, 132);
+			}
 			panelSpider.setName("");
-			jLabel.setText(Constant.messages.getString("spider.options.label.depth"));
-			jLabel1.setText(Constant.messages.getString("spider.options.label.threads"));
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.ipadx = 0;
-			gridBagConstraints1.ipady = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 1.0D;
-			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints2.ipadx = 0;
-			gridBagConstraints2.ipady = 0;
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.gridy = 2;
-			gridBagConstraints3.ipadx = 0;
-			gridBagConstraints3.ipady = 0;
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints3.weightx = 1.0D;
-			gridBagConstraints4.gridx = 0;
-			gridBagConstraints4.gridy = 3;
-			gridBagConstraints4.weightx = 1.0;
-			gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints4.ipadx = 0;
-			gridBagConstraints4.ipady = 0;
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints4.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 11;
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints6.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints6.weightx = 1.0D;
-			gridBagConstraints6.weighty = 1.0D;
-			jLabel2.setText("");
-			jLabel3.setText(Constant.messages.getString("spider.options.label.domains"));
-			gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints8.gridx = 0;
-			gridBagConstraints8.gridy = 7;
-			gridBagConstraints8.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints8.weightx = 1.0D;
-			gridBagConstraints10.weightx = 1.0;
-			gridBagConstraints10.weighty = 0.3D;
-			gridBagConstraints10.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints10.gridx = 0;
-			gridBagConstraints10.gridy = 8;
-			gridBagConstraints10.insets = new java.awt.Insets(2,2,2,2);
-			
-			gridBagConstraints11.weightx = 1.0;
-			gridBagConstraints11.weighty = 0;
-			gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints11.gridx = 0;
-			gridBagConstraints11.gridy = 11;
-			gridBagConstraints11.insets = new java.awt.Insets(2,2,2,2);
-			panelSpider.add(jLabel, gridBagConstraints1);
-			panelSpider.add(getSliderMaxDepth(), gridBagConstraints2);
-			panelSpider.add(jLabel1, gridBagConstraints3);
-			panelSpider.add(getSliderThreads(), gridBagConstraints4);
-			//panelSpider.add(jLabel5, gridBagConstraints12);
-			//panelSpider.add(getJScrollPane1(), gridBagConstraints21);
-			panelSpider.add(jLabel3, gridBagConstraints8);
-			panelSpider.add(getJScrollPane(), gridBagConstraints10);
-			panelSpider.add(getChkPostForm(), gridBagConstraints);
-			panelSpider.add(getUseCookies(), gridBagConstraints11);
-			panelSpider.add(jLabel2, gridBagConstraints6);
+
+			// Prepare the GridBagConstraints, defining the position/layout of elements
+			GridBagConstraints maxDepthSliderGridBag = new GridBagConstraints();
+			GridBagConstraints maxDepthLabelGridBag = new GridBagConstraints();
+			GridBagConstraints noThreadsSliderGridBag = new GridBagConstraints();
+			GridBagConstraints noThreadsLabelGridBag = new GridBagConstraints();
+			GridBagConstraints domainsScrollPaneGridBag = new GridBagConstraints();
+			GridBagConstraints domainsLabelGridBag = new GridBagConstraints();
+			GridBagConstraints processFormGridBag = new GridBagConstraints();
+			GridBagConstraints postFormGridBag = new GridBagConstraints();
+			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
+
+			maxDepthLabelGridBag.gridx = 0;
+			maxDepthLabelGridBag.gridy = 0;
+			maxDepthLabelGridBag.weightx = 1.0D;
+			maxDepthLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
+			maxDepthLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
+			maxDepthLabelGridBag.insets = new Insets(2, 2, 2, 2);
+
+			maxDepthSliderGridBag.gridx = 0;
+			maxDepthSliderGridBag.gridy = 1;
+			maxDepthSliderGridBag.weightx = 1.0;
+			maxDepthSliderGridBag.fill = GridBagConstraints.HORIZONTAL;
+			maxDepthSliderGridBag.anchor = GridBagConstraints.NORTHWEST;
+			maxDepthSliderGridBag.insets = new Insets(2, 2, 2, 2);
+
+			noThreadsLabelGridBag.gridx = 0;
+			noThreadsLabelGridBag.gridy = 2;
+			noThreadsLabelGridBag.weightx = 1.0D;
+			noThreadsLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
+			noThreadsLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
+			noThreadsLabelGridBag.insets = new Insets(2, 2, 2, 2);
+
+			noThreadsSliderGridBag.gridx = 0;
+			noThreadsSliderGridBag.gridy = 3;
+			noThreadsSliderGridBag.weightx = 1.0;
+			noThreadsSliderGridBag.fill = GridBagConstraints.HORIZONTAL;
+			noThreadsSliderGridBag.anchor = GridBagConstraints.NORTHWEST;
+			noThreadsSliderGridBag.insets = new Insets(2, 2, 2, 2);
+
+			domainsLabelGridBag.gridx = 0;
+			domainsLabelGridBag.gridy = 4;
+			domainsLabelGridBag.weightx = 1.0D;
+			domainsLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
+			domainsLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
+			domainsLabelGridBag.insets = new Insets(2, 2, 2, 2);
+
+			domainsScrollPaneGridBag.gridx = 0;
+			domainsScrollPaneGridBag.gridy = 5;
+			domainsScrollPaneGridBag.weightx = 1.0;
+			domainsScrollPaneGridBag.weighty = 0.3;
+			domainsScrollPaneGridBag.fill = GridBagConstraints.BOTH;
+			domainsScrollPaneGridBag.anchor = GridBagConstraints.NORTHWEST;
+			domainsScrollPaneGridBag.insets = new Insets(2, 2, 2, 2);
+
+			processFormGridBag.gridx = 0;
+			processFormGridBag.gridy = 6;
+			processFormGridBag.weightx = 1.0;
+			processFormGridBag.fill = GridBagConstraints.HORIZONTAL;
+			processFormGridBag.anchor = GridBagConstraints.WEST;
+			processFormGridBag.insets = new Insets(2, 2, 2, 2);
+
+			postFormGridBag.gridx = 0;
+			postFormGridBag.gridy = 7;
+			postFormGridBag.weightx = 1.0;
+			postFormGridBag.fill = GridBagConstraints.HORIZONTAL;
+			postFormGridBag.anchor = GridBagConstraints.WEST;
+			postFormGridBag.insets = new Insets(2, 15, 2, 2);
+
+			useCookiesGridBag.gridx = 0;
+			useCookiesGridBag.gridy = 8;
+			useCookiesGridBag.weightx = 1.0;
+			useCookiesGridBag.fill = GridBagConstraints.HORIZONTAL;
+			useCookiesGridBag.anchor = GridBagConstraints.NORTHWEST;
+			useCookiesGridBag.insets = new Insets(2, 2, 2, 2);
+
+			// Prepare the necessary labels
+			JLabel domainsLabel = new JLabel();
+			JLabel noThreadsLabel = new JLabel();
+			JLabel maxDepthLabel = new JLabel();
+
+			maxDepthLabel.setText(Constant.messages.getString("spider.options.label.depth"));
+			noThreadsLabel.setText(Constant.messages.getString("spider.options.label.threads"));
+			domainsLabel.setText(Constant.messages.getString("spider.options.label.domains"));
+
+			// Add the components on the panel
+			panelSpider.add(maxDepthLabel, maxDepthLabelGridBag);
+			panelSpider.add(getSliderMaxDepth(), maxDepthSliderGridBag);
+			panelSpider.add(noThreadsLabel, noThreadsLabelGridBag);
+			panelSpider.add(getSliderThreads(), noThreadsSliderGridBag);
+			panelSpider.add(domainsLabel, domainsLabelGridBag);
+			panelSpider.add(getDomainsScrollPane(), domainsScrollPaneGridBag);
+			panelSpider.add(getChkProcessForm(), processFormGridBag);
+			panelSpider.add(getChkPostForm(), postFormGridBag);
+			panelSpider.add(getChkUseCookies(), useCookiesGridBag);
 		}
 		return panelSpider;
 	}
+
 	@Override
 	public void initParam(Object obj) {
-	    OptionsParam options = (OptionsParam) obj;
-	    
-	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
-	    getSliderMaxDepth().setValue(param.getMaxDepth());
-	    getSliderThreads().setValue(param.getThreadCount());
-        //getTxtSkipURL().setText(param.getSkipURL());
-	    getTxtScope().setText(param.getScopeString());
-	    getTxtScope().discardAllEdits();
-        getChkPostForm().setSelected(param.isPostForm());
-        getUseCookies().setSelected(param.isSendCookies());
+		OptionsParam options = (OptionsParam) obj;
+
+		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
+		getSliderMaxDepth().setValue(param.getMaxDepth());
+		getSliderThreads().setValue(param.getThreadCount());
+		getDomainScopeTextArea().setText(param.getScopeString());
+		getDomainScopeTextArea().discardAllEdits();
+		getChkProcessForm().setSelected(param.isProcessForm());
+		getChkPostForm().setSelected(param.isPostForm());
+		getChkUseCookies().setSelected(param.isSendCookies());
+
 	}
-	
+
 	@Override
 	public void validateParam(Object obj) {
-	    // no validation needed
+		// no validation needed
 	}
-	
+
 	@Override
-	public void saveParam (Object obj) throws Exception {
-	    OptionsParam options = (OptionsParam) obj;
-	    SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
-	    param.setMaxDepth(getSliderMaxDepth().getValue());
-	    param.setThreadCount(getSliderThreads().getValue());
-        //param.setSkipURL(getTxtSkipURL().getText());
-        param.setScopeString(getTxtScope().getText());
-        param.setPostForm(getChkPostForm().isSelected());
-        param.setSendCookies(getUseCookies().isSelected());
+	public void saveParam(Object obj) throws Exception {
+		OptionsParam options = (OptionsParam) obj;
+		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
+		param.setMaxDepth(getSliderMaxDepth().getValue());
+		param.setThreadCount(getSliderThreads().getValue());
+		param.setScopeString(getDomainScopeTextArea().getText());
+		param.setProcessForm(getChkProcessForm().isSelected());
+		param.setPostForm(getChkPostForm().isSelected());
+		param.setSendCookies(getChkUseCookies().isSelected());
 	}
-	
+
 	/**
-	 * This method initializes sliderMaxDepth	
-	 * 	
-	 * @return javax.swing.JSlider	
-	 */    
+	 * This method initializes the slider for MaxDepth.
+	 * 
+	 * @return the slider for max depth
+	 */
 	private JSlider getSliderMaxDepth() {
 		if (sliderMaxDepth == null) {
 			sliderMaxDepth = new JSlider();
@@ -260,11 +250,12 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		}
 		return sliderMaxDepth;
 	}
+
 	/**
-	 * This method initializes sliderThreads	
-	 * 	
-	 * @return javax.swing.JSlider	
-	 */    
+	 * This method initializes the slider for maximum number of threads used.
+	 * 
+	 * @return javax.swing.JSlider
+	 */
 	private JSlider getSliderThreads() {
 		if (sliderThreads == null) {
 			sliderThreads = new JSlider();
@@ -280,99 +271,98 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		}
 		return sliderThreads;
 	}
-	
-	public int getThreads() {
-		return this.getSliderThreads().getValue();
-	}
-	
+
 	/**
-	 * This method initializes txtScope	
-	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextArea	
-	 */    
-	private ZapTextArea getTxtScope() {
-		if (txtScope == null) {
-			txtScope = new ZapTextArea();
-			txtScope.setLineWrap(true);
-			txtScope.setRows(3);
-			txtScope.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+	 * This method initializes the text area for the domain scope.
+	 * 
+	 * @return org.zaproxy.zap.utils.ZapTextArea
+	 */
+	private ZapTextArea getDomainScopeTextArea() {
+		if (txtDomainScope == null) {
+			txtDomainScope = new ZapTextArea();
+			txtDomainScope.setLineWrap(true);
+			txtDomainScope.setRows(3);
+			txtDomainScope.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
-		return txtScope;
+		return txtDomainScope;
 	}
+
 	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setPreferredSize(new java.awt.Dimension(294,30));
-			jScrollPane.setViewportView(getTxtScope());
+	 * This method initializes the ScrollPane for the domain scope.
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getDomainsScrollPane() {
+		if (scrollPaneDomainScope == null) {
+			scrollPaneDomainScope = new JScrollPane();
+			scrollPaneDomainScope.setPreferredSize(new java.awt.Dimension(294, 30));
+			scrollPaneDomainScope.setViewportView(getDomainScopeTextArea());
 		}
-		return jScrollPane;
+		return scrollPaneDomainScope;
 	}
-    /**
-     * This method initializes chkFormFill	
-     * 	
-     * @return javax.swing.JCheckBox	
-     */
-    private JCheckBox getChkPostForm() {
-        if (chkPostForm == null) {
-            chkPostForm = new JCheckBox();
-            chkPostForm.setText(Constant.messages.getString("spider.options.label.post"));
-        }
-        return chkPostForm;
-    }
-    
-    /**
-     * This method initializes the Use Cookies checkbox.	
-     * 	
-     * @return javax.swing.JCheckBox	
-     */
-    private JCheckBox getUseCookies() {
-        if (useCookies == null) {
-            useCookies = new JCheckBox();
-            useCookies.setText(Constant.messages.getString("spider.options.label.cookies"));
-        }
-        return useCookies;
-    }
-    /**
-     * This method initializes jScrollPane1	
-     * 	
-     * @return javax.swing.JScrollPane	
-     */
-    /* Replaced by the regexs in the session properties
-    private JScrollPane getJScrollPane1() {
-        if (jScrollPane1 == null) {
-            jScrollPane1 = new JScrollPane();
-            jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            jScrollPane1.setViewportView(getTxtSkipURL());
-        }
-        return jScrollPane1;
-    }
-    */
-    /**
-     * This method initializes ZapTextArea	
-     * 	
-     * @return org.zaproxy.zap.utils.ZapTextArea	
-     */
-    /* Replaced by the regexs in the session properties
-    private ZapTextArea getTxtSkipURL() {
-        if (txtSkipURL == null) {
-            txtSkipURL = new ZapTextArea();
-            txtSkipURL.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 11));
-    	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-    	    	txtSkipURL.setSize(new java.awt.Dimension(290,52));
-    	    }
-        }
-        return txtSkipURL;
-    }
-    */
+
+	/**
+	 * This method initializes the checkbox for POST form option. This option should not be enabled
+	 * if the forms are not processed at all.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkPostForm() {
+		if (chkPostForm == null) {
+			chkPostForm = new JCheckBox();
+			chkPostForm.setText(Constant.messages.getString("spider.options.label.post"));
+
+			if (!getChkProcessForm().isSelected())
+				chkPostForm.setEnabled(false);
+		}
+		return chkPostForm;
+	}
+
+	/**
+	 * This method initializes the checkbox for process form option.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkProcessForm() {
+		if (chkProcessForm == null) {
+			chkProcessForm = new JCheckBox();
+			chkProcessForm.setText(Constant.messages.getString("spider.options.label.processform"));
+
+			// Code for controlling the status of the chkPostForm
+			chkProcessForm.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ev) {
+					if (chkProcessForm.isSelected())
+						chkPostForm.setEnabled(true);
+					else
+						chkPostForm.setEnabled(false);
+				}
+			});
+		}
+		return chkProcessForm;
+	}
+
+	/**
+	 * This method initializes the Use Cookies checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkUseCookies() {
+		if (useCookies == null) {
+			useCookies = new JCheckBox();
+			useCookies.setText(Constant.messages.getString("spider.options.label.cookies"));
+		}
+		return useCookies;
+	}
+
+	/**
+	 * This method initializes the help index.
+	 * 
+	 * @return the help index
+	 */
 	@Override
 	public String getHelpIndex() {
-		// ZAP: added help index 
 		return "ui.dialogs.options.spider";
 	}
-    
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+
+}

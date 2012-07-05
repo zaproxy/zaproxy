@@ -220,7 +220,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	}
 	
     public int getThreadPerScan() {
-    	return this.getOptionsSpiderPanel().getThreads();
+    	return params.getThreadCount();
     }
 
 	public boolean isScanning(SiteNode node, boolean incPort) {

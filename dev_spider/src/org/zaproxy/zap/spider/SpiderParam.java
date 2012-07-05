@@ -31,6 +31,7 @@ public class SpiderParam extends AbstractParam {
 	private static final String SPIDER_THREAD = "spider.thread";
 	private static final String SPIDER_SCOPE = "spider.scope";
 	private static final String SPIDER_POST_FORM = "spider.postform";
+	private static final String SPIDER_PROCESS_FORM = "spider.processform";
 	private static final String SPIDER_SKIP_URL = "spider.skipurl";
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
 	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
@@ -41,7 +42,12 @@ public class SpiderParam extends AbstractParam {
 	private int threadCount = 2;
 	/** The scope of the crawl. */
 	private String scope = "";
-	/** Whether the forms are posted. */
+	/** Whether the forms are processed and submitted at all. */
+	private boolean processForm = true;
+	/**
+	 * Whether the forms are submitted, if their method is HTTP POST. This option should not be used
+	 * if the forms are not processed at all (processForm).
+	 */
 	private boolean postForm = false;
 	/** The waiting time between new requests to server - safe from DDOS. */
 	private int requestWait = 200;
@@ -81,6 +87,12 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			this.processForm = getConfig().getBoolean(SPIDER_PROCESS_FORM, false);
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -208,7 +220,8 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Checks if is the forms should be posted.
+	 * Checks if is the forms should be submitted with the HTTP POST method. This option should not
+	 * be used if the forms are not processed at all (processForm).
 	 * 
 	 * @return true, if the forms should be posted.
 	 */
@@ -217,13 +230,34 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Sets if the forms should be posted.
+	 * Sets if the forms should be submitted with the HTTP POST method. This option should not be
+	 * used if the forms are not processed at all (processForm).
 	 * 
 	 * @param postForm the new post form status
 	 */
 	public void setPostForm(boolean postForm) {
 		this.postForm = postForm;
 		getConfig().setProperty(SPIDER_POST_FORM, Boolean.toString(postForm));
+	}
+
+	/**
+	 * Checks if the forms should be processed
+	 * 
+	 * @return true, if the forms should be processed
+	 */
+	public boolean isProcessForm() {
+		return processForm;
+	}
+
+	/**
+	 * Sets if the forms should be processed.
+	 * 
+	 * 
+	 * @param processForm the new process form status
+	 */
+	public void setProcessForm(boolean processForm) {
+		this.processForm = processForm;
+		getConfig().setProperty(SPIDER_PROCESS_FORM, Boolean.toString(processForm));
 	}
 
 	/**
