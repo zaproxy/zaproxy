@@ -19,7 +19,6 @@ package org.zaproxy.zap.spider.parser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -36,11 +35,11 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
-
-import com.sun.corba.se.impl.orbutil.closure.Constant;
+import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Class SpiderHtmlFormParser is used for parsing HTML files and for processing forms.
@@ -49,20 +48,14 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 	private static final String DEFAULT_NUMBER_VALUE = "1";
 	private static final String DEFAULT_FILE_VALUE = "test_file.txt";
-	private static final String ATTR_CHECKED = "checked";
-	private static final String ATTR_DISABLED = "disabled";
-	private static final String ATTR_SELECTED = "selected";
-	private static final String TYPE_TEXT = "text";
-	private static final String TYPE_RADIO = "radio";
-	private static final String TYPE_CHECKBOX = "checkbox";
-	private static final String DEFAULT_ON = "on";
-	private static final String ATTR_VALUE = "value";
 	private static final String DEFAULT_TEXT_VALUE = org.parosproxy.paros.Constant.PROGRAM_NAME_SHORT;
+
 	private static final String METHOD_GET = "GET";
 	private static final String METHOD_POST = "POST";
-	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
 	private static final String DEFAULT_EMPTY_VALUE = "";
+	private static final String ATTR_ENCODING = "enctype";
+	private static final String DEFAULT_PASS_VALUE = DEFAULT_TEXT_VALUE;
 
 	/** The spider parameters. */
 	SpiderParam param;
@@ -114,9 +107,32 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			// Prepare data set
 			List<HtmlParameter> formDataSet = prepareFormDataSet(form.getFormFields());
 
-			// Process the case of a GET method
-			if (method == null || method.trim().equalsIgnoreCase(METHOD_GET)) {
-				String query = buildGetQuery(formDataSet);
+			// Process the case of a POST method
+			if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
+				String query = "";
+
+				// Get encoding
+				String encoding = form.getAttributeValue(ATTR_ENCODING);
+
+				if (encoding != null && encoding.equals("multipart/form-data")) {
+
+				} else {
+					query = buildEncodedUrlQuery(formDataSet);
+					log.info("Submiting form with POST method and message body with form parameters (normal encoding): "
+							+ query);
+				}
+
+				// Build the absolute canonical URL
+				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+				if (fullURL == null)
+					return;
+
+				log.debug("Canonical URL constructed using '" + action + "': " + fullURL);
+				notifyListenersPostResourceFound(message, depth + 1, fullURL, query);
+
+			} // Process anything else as a GET method
+			else {
+				String query = buildEncodedUrlQuery(formDataSet);
 				log.info("Submiting form with GET method and query with form parameters: " + query);
 
 				if (action.contains("?"))
@@ -227,7 +243,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			// If the control type was reduced to a TEXT type by the Jericho library, check the
 			// HTML5 type and use proper values
 			String type = fc.getAttributesMap().get(ATTR_TYPE);
-			if (type == null || type.equalsIgnoreCase("text") || type.equalsIgnoreCase("password"))
+			if (type == null || type.equalsIgnoreCase("text"))
 				return DEFAULT_TEXT_VALUE;
 
 			if (type.equalsIgnoreCase("number") || type.equalsIgnoreCase("range")) {
@@ -276,18 +292,23 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
 				return format.format(new Date());
 			}
-		} else if (fc.getFormControlType() == FormControlType.FILE)
+		} else if(fc.getFormControlType()==FormControlType.PASSWORD)
+			return DEFAULT_PASS_VALUE;
+		
+		else if (fc.getFormControlType() == FormControlType.FILE)
 			return DEFAULT_FILE_VALUE;
 		return DEFAULT_EMPTY_VALUE;
 	}
 
 	/**
-	 * Builds the get query.
+	 * Builds the query, encoded with "application/x-www-form-urlencoded".
 	 * 
+	 * 
+	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type
 	 * @param formDataSet the form data set
 	 * @return the query
 	 */
-	private String buildGetQuery(List<HtmlParameter> formDataSet) {
+	private String buildEncodedUrlQuery(List<HtmlParameter> formDataSet) {
 		StringBuilder request = new StringBuilder();
 		// Build the query
 		for (HtmlParameter p : formDataSet) {

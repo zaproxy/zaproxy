@@ -62,10 +62,25 @@ public abstract class SpiderParser {
 	 * @param message the http message containing the response.
 	 * @param depth the depth of this resource in the crawling tree
 	 * @param uri the uri
+	 * @param method the HTTP method that is required to fetch the resource
 	 */
 	protected void notifyListenersResourceFound(HttpMessage message, int depth, String uri) {
 		for (SpiderParserListener l : listeners)
 			l.resourceURIFound(message, depth, uri);
+	}
+
+	/**
+	 * Notify the listeners that a POST resource was found. You can read more about this call in the
+	 * documentation for resourcePostURIFound in {@link SpiderParserListener}.
+	 * 
+	 * @param message the http message containing the response.
+	 * @param depth the depth of this resource in the crawling tree
+	 * @param uri the uri
+	 * @param requestBody the request body
+	 */
+	protected void notifyListenersPostResourceFound(HttpMessage message, int depth, String uri, String requestBody) {
+		for (SpiderParserListener l : listeners)
+			l.resourcePostURIFound(message, depth, uri, requestBody);
 	}
 
 	/**
@@ -75,6 +90,7 @@ public abstract class SpiderParser {
 	 * @param depth the depth
 	 * @param localURL the local url
 	 * @param baseURL the base url
+	 * @param method the HTTP method that is required to fetch the resource
 	 */
 	protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
 		// Build the absolute canonical URL

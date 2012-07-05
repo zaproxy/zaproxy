@@ -52,4 +52,26 @@ public interface SpiderParserListener {
 	 * @param shouldIgnore whether this resource has a high chance of being not useful if fetched
 	 */
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore);
+
+	/**
+	 * Event triggered when a new resource URI is found. However, if the URI needs to be fetched, it
+	 * should be accessed with the HTTP POST method and the content of the request body message
+	 * should be the one specified in {@code messageContent}.
+	 * <p>
+	 * For example, this method can be triggered if a parser finds the {@code uri} inside a form
+	 * with the method set as {@code POST}. In this case, the messageContent should contain the form
+	 * data set necessary for a successful submission of the form.
+	 * </p>
+	 * <p>
+	 * The responseMessage contains all the required information regarding the page which contains
+	 * the URI.
+	 * </p>
+	 * 
+	 * @param responseMessage the response message
+	 * @param depth the depth of this resource in the crawling process
+	 * @param uri the universal resource locator
+	 * @param requestBody represents the content that a request message should have in its body, if
+	 *            fetching the resource
+	 */
+	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody);
 }
