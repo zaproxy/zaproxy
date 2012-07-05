@@ -118,6 +118,13 @@ public class SpiderStatistics {
 		test.putRequirement(test.getUrl() + "a.jsp");
 		test.putRequirement(test.getUrl() + "b.jsp");
 		tests.add(test);
+		
+		test = new SpiderTestCase(
+				"Medium Test 6 - Page containing simple HTML form with POST method.",
+				"/spider/SpiderMediumTest6FormPost/");
+		test.putRequirement(test.getUrl() + "index.jsp");
+		test.putRequirement(test.getUrl() + "a.jsp");
+		tests.add(test);
 
 		test = new SpiderTestCase(
 				"Advanced Test 1 - Page which sets cookies with Path attribute",
