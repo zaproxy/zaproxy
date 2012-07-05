@@ -17,12 +17,19 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.FormControl;
+import net.htmlparser.jericho.FormControlType;
 import net.htmlparser.jericho.FormField;
 import net.htmlparser.jericho.FormFields;
 import net.htmlparser.jericho.HTMLElementName;
@@ -33,11 +40,15 @@ import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
+
 /**
  * The Class SpiderHtmlFormParser is used for parsing HTML files and for processing forms.
  */
 public class SpiderHtmlFormParser extends SpiderParser {
 
+	private static final String DEFAULT_NUMBER_VALUE = "1";
+	private static final String DEFAULT_FILE_VALUE = "test_file.txt";
 	private static final String ATTR_CHECKED = "checked";
 	private static final String ATTR_DISABLED = "disabled";
 	private static final String ATTR_SELECTED = "selected";
@@ -46,11 +57,12 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	private static final String TYPE_CHECKBOX = "checkbox";
 	private static final String DEFAULT_ON = "on";
 	private static final String ATTR_VALUE = "value";
-	private static final String DEFAULT_TEXT_VALUE = "1";
+	private static final String DEFAULT_TEXT_VALUE = org.parosproxy.paros.Constant.PROGRAM_NAME_SHORT;
 	private static final String METHOD_GET = "GET";
 	private static final String METHOD_POST = "POST";
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_TYPE = "type";
+	private static final String DEFAULT_EMPTY_VALUE = "";
 
 	/** The spider parameters. */
 	SpiderParam param;
@@ -150,7 +162,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			// If there are no values at all or only an empty value
 			if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
-				String finalValue = "";
+				String finalValue = DEFAULT_EMPTY_VALUE;
 
 				// Check if we can use predefined values
 				Collection<String> predefValues = field.getPredefinedValues();
@@ -175,7 +187,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				log.info("No existing value for field " + field.getName() + ". Generated: " + finalValue);
 				HtmlParameter p = new HtmlParameter(Type.form, field.getName(), finalValue);
 				formDataSet.add(p);
-			} else
+			}
+			// If there are preselected values for the fields, use them
+			else
 				for (String v : values) {
 					// Save the finalValue in the FormDataSet
 					HtmlParameter p = new HtmlParameter(Type.form, field.getName(), v);
@@ -183,136 +197,88 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				}
 
 		}
-		//
-		//
-		//
-		// FormField checkbox=fs.get("type-checkbox");
-		// checkbox.setValue("Value2");
-		// log.info("vals:" +checkbox.getValues()+"/"+checkbox.getUserValueCount());
-		// Map<String, String[]> dataSet=fs.getDataSet();
-		// for(String k:dataSet.keySet())
-		// {
-		// log.warn("Data set entry "+k+": "+Arrays.toString(dataSet.get(k)));
-		// }
-		// //log.info("Processing new form: "+form.getFormFields().getDataSet());
-		// for(FormControl c:form.getFormControls())
-		// log.info(c.getFormControlType()+"/"+c.getValues()+"/"+c.getPredefinedValue());
-		//
-		// // Process INPUT elements
-		// elements = form.getAllElements(HTMLElementName.INPUT);
-		// for (Element e : elements) {
-		//
-		// // Check if disabled
-		// String disabled = e.getAttributeValue(ATTR_DISABLED);
-		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
-		// continue;
-		//
-		// // Get required attributes
-		// String type = e.getAttributeValue(ATTR_TYPE);
-		// String value = e.getAttributeValue(ATTR_VALUE);
-		// String name = e.getAttributeValue(ATTR_NAME);
-		// log.debug("New form INPUT element: " + type + "/" + name + "=" + value);
-		//
-		// // Check for name
-		// if (name == null || name.trim().isEmpty())
-		// continue;
-		//
-		// // Text input
-		// if (type.equalsIgnoreCase(TYPE_TEXT)) {
-		// // If no default value, use a default one
-		// if (value == null)
-		// value = DEFAULT_TEXT_VALUE;
-		//
-		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
-		// formDataSet.add(p);
-		// continue;
-		// }
-		//
-		// if (type.equalsIgnoreCase(TYPE_CHECKBOX) || type.equalsIgnoreCase(TYPE_RADIO)) {
-		// // Only add the checked fields
-		// String checked = e.getAttributeValue(ATTR_CHECKED);
-		// if (checked == null || !checked.equalsIgnoreCase("false"))
-		// continue;
-		//
-		// // If not default value, use a default one
-		// if (value == null)
-		// value = DEFAULT_ON;
-		//
-		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
-		// formDataSet.add(p);
-		// continue;
-		// }
-		// }
-		//
-		// // Process SELECT elements
-		// elements = form.getAllElements(HTMLElementName.SELECT);
-		// for (Element e : elements) {
-		//
-		// // Check if disabled
-		// String disabled = e.getAttributeValue(ATTR_DISABLED);
-		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
-		// continue;
-		//
-		// // Get required attributes
-		// String name = e.getAttributeValue(ATTR_NAME);
-		// log.debug("New form SELECT element: " + name);
-		//
-		// // Check for name
-		// if (name == null || name.trim().isEmpty())
-		// continue;
-		//
-		// // Process OPTION elements and add selected ones
-		// List<Element> options = e.getAllElements(HTMLElementName.OPTION);
-		// for (Element o : options) {
-		// String selected = o.getAttributeValue(ATTR_SELECTED);
-		// String value = o.getAttributeValue(ATTR_VALUE);
-		//
-		// if (selected != null && !selected.equalsIgnoreCase("false"))
-		// if (value != null) {
-		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
-		// formDataSet.add(p);
-		// }
-		// }
-		// }
-		//
-		// // Process TEXTAREA elements
-		// elements = form.getAllElements(HTMLElementName.TEXTAREA);
-		// for (Element e : elements) {
-		//
-		// // Check if disabled
-		// String disabled = e.getAttributeValue(ATTR_DISABLED);
-		// if (disabled != null && !disabled.equalsIgnoreCase("false"))
-		// continue;
-		//
-		// // Get required attributes
-		// String name = e.getAttributeValue(ATTR_NAME);
-		// log.debug("New form TEXTAREA element: " + name);
-		//
-		// // Check for name
-		// if (name == null || name.trim().isEmpty())
-		// continue;
-		//
-		// // Process OPTION elements and add selected ones
-		// String value = e.getContent().toString();
-		// if (value.isEmpty())
-		// value = DEFAULT_TEXT_VALUE;
-		// HtmlParameter p = new HtmlParameter(Type.form, name, value);
-		// formDataSet.add(p);
-		//
-		// }
-		//
+
 		return formDataSet;
 	}
 
 	/**
-	 * Gets the default value that a field of type TEXT (including its HTML5 child variants), should
-	 * have.
+	 * Gets the default value that the input field, including HTML5 types, should have.
+	 * 
+	 * <p>
+	 * Generates accurate field values for following types:
+	 * <ul>
+	 * <li>Text/Password/Search - DEFAULT_TEXT_VALUE</li>
+	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max
+	 * otherwise DEFAULT_NUMBER_VALUE;</li>
+	 * <li>url - http://www.example.com</li>
+	 * <li>email - contact@example.com</li>
+	 * <li>color - #000000</li>
+	 * <li>tel - 9999999999</li>
+	 * <li>date/datetime/time/month/week/datetime-local - current date in the proper format</li>
+	 * <li>file - DEFAULT_FILE_VALUE</li>
+	 * </ul>
 	 * 
 	 * @param field the field
 	 * @return the default text value
 	 */
 	private String getDefaultTextValue(FormField field) {
-		return DEFAULT_TEXT_VALUE;
+		FormControl fc = field.getFormControl();
+		if (fc.getFormControlType() == FormControlType.TEXT) {
+			// If the control type was reduced to a TEXT type by the Jericho library, check the
+			// HTML5 type and use proper values
+			String type = fc.getAttributesMap().get(ATTR_TYPE);
+			if (type == null || type.equalsIgnoreCase("text") || type.equalsIgnoreCase("password"))
+				return DEFAULT_TEXT_VALUE;
+
+			if (type.equalsIgnoreCase("number") || type.equalsIgnoreCase("range")) {
+				String min = fc.getAttributesMap().get("min");
+				if (min != null)
+					return min;
+				String max = fc.getAttributesMap().get("min");
+				if (max != null)
+					return max;
+				return DEFAULT_NUMBER_VALUE;
+			}
+
+			if (type.equalsIgnoreCase("url"))
+				return "http://www.example.com";
+
+			if (type.equalsIgnoreCase("email"))
+				return "foo-bar@example.com";
+
+			if (type.equalsIgnoreCase("color"))
+				return "#ffffff";
+
+			if (type.equalsIgnoreCase("tel"))
+				return "9999999999";
+
+			if (type.equalsIgnoreCase("datetime")) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+				return format.format(new Date());
+			}
+			if (type.equalsIgnoreCase("datetime-local")) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				return format.format(new Date());
+			}
+			if (type.equalsIgnoreCase("date")) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				return format.format(new Date());
+			}
+			if (type.equalsIgnoreCase("time")) {
+				SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+				return format.format(new Date());
+			}
+			if (type.equalsIgnoreCase("month")) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
+				return format.format(new Date());
+			}
+			if (type.equalsIgnoreCase("week")) {
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
+				return format.format(new Date());
+			}
+		} else if (fc.getFormControlType() == FormControlType.FILE)
+			return DEFAULT_FILE_VALUE;
+		return DEFAULT_EMPTY_VALUE;
 	}
 
 	/**
@@ -325,9 +291,16 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		StringBuilder request = new StringBuilder();
 		// Build the query
 		for (HtmlParameter p : formDataSet) {
-			request.append(p.getName());
-			request.append("=");
-			request.append(p.getValue());
+			String v;
+			try {
+				v = URLEncoder.encode(p.getName(), "UTF-8");
+				request.append(v);
+				request.append("=");
+				v = URLEncoder.encode(p.getValue(), "UTF-8");
+				request.append(v);
+			} catch (UnsupportedEncodingException e) {
+				log.warn("Error while encoding query for form", e);
+			}
 			request.append("&");
 		}
 		// Delete the last ampersand
