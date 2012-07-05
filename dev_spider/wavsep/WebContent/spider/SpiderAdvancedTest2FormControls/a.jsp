@@ -93,7 +93,12 @@
 			System.out.println("Missing type-textarea");
 			valid = false;
 		}
+		if (request.getParameter("type-file") == null) {
+			System.out.println("Missing type-file");
+			valid = false;
+		}
 
+		
 		if (valid)
 			SpiderStatistics.addVisited(request.getServletPath());
 	%>
