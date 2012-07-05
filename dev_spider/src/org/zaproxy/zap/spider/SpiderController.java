@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -102,7 +103,7 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	protected void addSeed(URI uri) {
 		// Create and submit the new task
-		SpiderTask task = new SpiderTask(spider, uri, 0);
+		SpiderTask task = new SpiderTask(spider, uri, 0, HttpRequestHeader.GET);
 		spider.submitTask(task);
 		// Add the uri to the found list
 		visitedGet.add(uri.toString());
@@ -150,7 +151,6 @@ public class SpiderController implements SpiderParserListener {
 		log.info("New resource found: " + uri);
 
 		// Check if the uri was processed already
-		// TODO: Differentiate by protocol
 		if (visitedGet.contains(uri)) {
 			log.debug("URI already visited: " + uri);
 			return;
@@ -188,7 +188,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, responseMessage, uriV, depth);
+		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.GET);
 		spider.submitTask(task);
 	}
 
@@ -209,5 +209,45 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	public List<SpiderParser> getParsers() {
 		return htmlParsers;
+	}
+
+	@Override
+	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
+		log.info("New POST resource found: " + uri);
+
+		// Check if the uri was processed already
+		if (visitedPost.contains(uri)) {
+			log.debug("URI already visited: " + uri);
+			return;
+		} else {
+			synchronized (visitedPost) {
+				visitedPost.add(uri);
+			}
+		}
+
+		// Create the uriV
+		URI uriV = null;
+		try {
+			uriV = new URI(uri, true);
+		} catch (Exception e) {
+			log.error("Error while converting to uri: " + uri, e);
+		}
+
+		// Check if any of the filters disallows this uri
+		for (FetchFilter f : fetchFilters) {
+			FetchStatus s = f.checkFilter(uriV);
+			if (s != FetchStatus.VALID) {
+				log.warn("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				spider.notifyListenersFoundURI(uri, s);
+				return;
+			}
+		}
+
+		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
+
+		// Submit the task
+		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.POST, requestBody);
+		spider.submitTask(task);
+
 	}
 }

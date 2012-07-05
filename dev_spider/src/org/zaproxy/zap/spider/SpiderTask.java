@@ -23,7 +23,6 @@ import java.net.HttpCookie;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.TreeSet;
 
 import net.htmlparser.jericho.Source;
 
@@ -31,7 +30,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -48,14 +46,8 @@ public class SpiderTask implements Runnable {
 	private Spider parent;
 
 	/**
-	 * The uri that this task processes. Can be null, in which case the {@code reference} field
-	 * should be used.
-	 */
-	private URI uri;
-
-	/**
 	 * The history reference to the database record where the request message has been partially
-	 * filled in. Can be null, in which case the {@code uri} should be used.
+	 * filled in. Cannot be null.
 	 */
 	private HistoryReference reference;
 
@@ -66,77 +58,83 @@ public class SpiderTask implements Runnable {
 	private static final Logger log = Logger.getLogger(SpiderTask.class);
 
 	/**
-	 * Instantiates a new spider task using only the target URI. The purpose of this task is to
-	 * crawl the given uri, find any other uris in the fetched resource and create other tasks.
+	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
+	 * given uri, using the provided method, find any other uris in the fetched resource and create
+	 * other tasks.
 	 * 
-	 * @param parent the spider
-	 * @param uri the uri this SpiderTask should process
-	 * @param depth the depth where this uri is at in the Spidering Process
+	 * 
+	 * @param parent the spider controlling the crawling process
+	 * @param uri the uri that this task should process
+	 * @param depth the depth where this uri is located in the spidering process
+	 * @param method the HTTP method that should be used to fetch the resource
+	 * 
 	 */
-	public SpiderTask(Spider parent, URI uri, int depth) {
-		super();
-		this.parent = parent;
-		this.uri = uri;
-		this.depth = depth;
-		this.reference = null;
+	public SpiderTask(Spider parent, URI uri, int depth, String method) {
+		this(parent, uri, depth, method, null);
 	}
 
 	/**
-	 * Instantiates a new spider task using both the target URI and the response message where the
-	 * uri was found. The purpose of this task is to crawl the given uri, find any other uris in the
-	 * fetched resource and create other tasks. <br/>
+	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
+	 * given uri, using the provided method, find any other uris in the fetched resource and create
+	 * other tasks.
+	 * 
 	 * <p>
-	 * Other information from the response message (e.g. cookies) can be used to partially build the
-	 * request message for this task and store it in the database using a {@link HistoryReference}.
-	 * If no additional information is used from the response message, then no
-	 * {@link HistoryReference} is used and only the task's uri is stored.
+	 * The body of the request message is also provided in the {@literal requestBody} parameter and
+	 * will be used when fetching the resource from the specified uri.
 	 * </p>
 	 * 
-	 * @param parent the parent
-	 * @param message the message
-	 * @param uri the uri
-	 * @param depth the depth
+	 * @param parent the spider controlling the crawling process
+	 * @param uri the uri that this task should process
+	 * @param depth the depth where this uri is located in the spidering process
+	 * @param method the HTTP method that should be used to fetch the resource
+	 * 
 	 */
-	public SpiderTask(Spider parent, HttpMessage message, URI uri, int depth) {
+	public SpiderTask(Spider parent, URI uri, int depth, String method, String requestBody) {
 		super();
 		this.parent = parent;
 		this.depth = depth;
 
 		// Check if cookies should be added
-		List<HttpCookie> cookies = prepareCookies(message);
-		if (cookies != null && cookies.size() > 0) {
-			log.info("New task submitted for uri: " + uri + " with cookies: " + cookies);
-			// Create a new HttpMessage that will be used for the request, add the cookies and
-			// persist it in the database using HistoryReference
-			try {
-				HttpMessage msg = new HttpMessage(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
+		List<HttpCookie> cookies = prepareCookies(uri.toString());
+
+		// Log the new task
+		if (log.isInfoEnabled())
+			if (cookies != null && cookies.size() > 0)
+				log.info("New task submitted for uri: " + uri + " with cookies: " + cookies);
+			else
+				log.info("New task submitted for uri: " + uri + " without cookies.");
+
+		// Create a new HttpMessage that will be used for the request, add the cookies (if any) and
+		// persist it in the database using HistoryReference
+		try {
+			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
+			if (cookies != null)
 				msg.setCookies(cookies);
-				this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
-				return;
-			} catch (HttpMalformedHeaderException e) {
-				log.error("Error while building HttpMessage for uri: " + uri, e);
-			} catch (SQLException e) {
-				log.error("Error while persisting HttpMessage for uri: " + uri, e);
+			if (requestBody != null)
+			{
+				msg.getRequestHeader().setContentLength(requestBody.length());
+				msg.setRequestBody(requestBody);
 			}
-		} else {
-			log.info("New task submitted for uri: " + uri + " without cookies.");
-			this.uri = uri;
-			this.reference = null;
+			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			return;
+		} catch (HttpMalformedHeaderException e) {
+			log.error("Error while building HttpMessage for uri: " + uri, e);
+		} catch (SQLException e) {
+			log.error("Error while persisting HttpMessage for uri: " + uri, e);
 		}
 	}
 
 	/**
-	 * Prepare the list of the cookies that should be sent in the request message for the processed.
+	 * Prepare the list of the cookies that should be sent in the request message for the given uri.
 	 * 
-	 * @param msg the response message where the uri was found
+	 * @param uriS the uri
 	 * @return the list of cookies to send with the request, or null if no cookies should be sent
-	 *         {@code URI}.
 	 */
-	private List<HttpCookie> prepareCookies(HttpMessage msg) {
+	private List<HttpCookie> prepareCookies(String uriS) {
 		if (parent.getSpiderParam().isSendCookies()) {
 			java.net.URI uri = null;
 			try {
-				uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
+				uri = new java.net.URI(uriS);
 			} catch (URISyntaxException e) {
 				log.error("Error while preparing cookies. ", e);
 			}
@@ -152,19 +150,16 @@ public class SpiderTask implements Runnable {
 	public void run() {
 
 		// Log the task start
-		// TODO: Take care because the second log is using database so it should be changed
+		// TODO: Take care because the log is using database so it should be changed
 		// eventually
 		if (log.isInfoEnabled()) {
-			if (uri != null)
-				log.info("Spider Task Started. Processing uri (depth " + depth + "): " + uri);
-			else
-				try {
-					log.info("Spider Task Started. Processing uri at depth " + depth
-							+ " using already constructed message:  "
-							+ reference.getHttpMessage().getRequestHeader().getURI());
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+			try {
+				log.info("Spider Task Started. Processing uri at depth " + depth
+						+ " using already constructed message:  "
+						+ reference.getHttpMessage().getRequestHeader().getURI());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 
 		// Check if the should stop
@@ -172,7 +167,7 @@ public class SpiderTask implements Runnable {
 			log.debug("Spider process is stopped. Skipping crawling task...");
 			return;
 		}
-		if (uri == null && reference == null) {
+		if (reference == null) {
 			log.warn("Null URI. Skipping crawling task...");
 			return;
 		}
@@ -185,7 +180,7 @@ public class SpiderTask implements Runnable {
 		try {
 			msg = fetchResource();
 		} catch (Exception e) {
-			log.error("An error occured while fetching resoure " + uri + ": " + e.getMessage(), e);
+			log.error("An error occured while fetching resoure: " + e.getMessage(), e);
 			return;
 		}
 
@@ -233,26 +228,23 @@ public class SpiderTask implements Runnable {
 		// Parse the resource
 		List<SpiderParser> parsers = parent.getController().getParsers();
 		Source source = new Source(msg.getResponseBody().toString());
-		for(SpiderParser parser:parsers)
+		for (SpiderParser parser : parsers)
 			parser.parseResource(msg, source, depth);
 	}
 
 	/**
 	 * Fetches a resource.
 	 * 
-	 * @return the http message
+	 * @return the response http message
 	 * @throws HttpException the http exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws SQLException
 	 */
 	private HttpMessage fetchResource() throws HttpException, IOException, SQLException {
 
-		// Build the request message or fetch it from the database, if it was already built
+		// Build fetch the request message from the database
 		HttpMessage msg;
-		if (reference == null)
-			msg = new HttpMessage(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
-		else
-			msg = reference.getHttpMessage();
+		msg = reference.getHttpMessage();
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
 
@@ -265,14 +257,6 @@ public class SpiderTask implements Runnable {
 
 		return msg;
 
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString() */
-	@Override
-	public String toString() {
-		return "SpiderTask [uri=" + uri + "]";
 	}
 
 }
