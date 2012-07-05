@@ -102,8 +102,10 @@
 			
 			<div class="text">
 				<label for="type-textarea">Text Area Control</label>
-				<textarea name="type-textarea" rows=3 cols="25">Empty</textarea>
+				<textarea name="type-textarea" rows=3 cols="25">Empty text area</textarea>
 			</div>
+
+			<input type="file" name="type-file" accept=".txt .doc .pdf">
 			
 			<div class="submit-area">
 				<input type="submit" value="Submit" name="submit-1">
