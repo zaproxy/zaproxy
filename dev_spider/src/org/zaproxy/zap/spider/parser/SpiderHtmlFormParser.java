@@ -46,6 +46,7 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
  */
 public class SpiderHtmlFormParser extends SpiderParser {
 
+	private static final String ENCODING_TYPE = "UTF-8";
 	private static final String DEFAULT_NUMBER_VALUE = "1";
 	private static final String DEFAULT_FILE_VALUE = "test_file.txt";
 	private static final String DEFAULT_TEXT_VALUE = org.parosproxy.paros.Constant.PROGRAM_NAME_SHORT;
@@ -111,16 +112,13 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
 				String query = "";
 
-				// Get encoding
-				String encoding = form.getAttributeValue(ATTR_ENCODING);
-
-				if (encoding != null && encoding.equals("multipart/form-data")) {
-
-				} else {
-					query = buildEncodedUrlQuery(formDataSet);
-					log.info("Submiting form with POST method and message body with form parameters (normal encoding): "
-							+ query);
-				}
+				/* Ignore encoding, as we will not POST files anyway, so using
+				 * "application/x-www-form-urlencoded" is adequate */
+				// String encoding = form.getAttributeValue(ATTR_ENCODING);
+				// if (encoding != null && encoding.equals("multipart/form-data"))
+				query = buildEncodedUrlQuery(formDataSet);
+				log.info("Submiting form with POST method and message body with form parameters (normal encoding): "
+						+ query);
 
 				// Build the absolute canonical URL
 				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
@@ -292,9 +290,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
 				return format.format(new Date());
 			}
-		} else if(fc.getFormControlType()==FormControlType.PASSWORD)
+		} else if (fc.getFormControlType() == FormControlType.PASSWORD)
 			return DEFAULT_PASS_VALUE;
-		
+
 		else if (fc.getFormControlType() == FormControlType.FILE)
 			return DEFAULT_FILE_VALUE;
 		return DEFAULT_EMPTY_VALUE;
@@ -314,10 +312,10 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		for (HtmlParameter p : formDataSet) {
 			String v;
 			try {
-				v = URLEncoder.encode(p.getName(), "UTF-8");
+				v = URLEncoder.encode(p.getName(), ENCODING_TYPE);
 				request.append(v);
 				request.append("=");
-				v = URLEncoder.encode(p.getValue(), "UTF-8");
+				v = URLEncoder.encode(p.getValue(), ENCODING_TYPE);
 				request.append(v);
 			} catch (UnsupportedEncodingException e) {
 				log.warn("Error while encoding query for form", e);
