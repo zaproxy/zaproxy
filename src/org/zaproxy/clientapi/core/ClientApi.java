@@ -172,7 +172,7 @@ public class ClientApi {
 		List<String> response = new ArrayList<String>();
 		URL url = new URL(apiurl);
 		if (debug) {
-			System.out.println("Oepn URL: " + apiurl);
+			System.out.println("Open URL: " + apiurl);
 		}
 		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 		uc.connect();
@@ -194,7 +194,7 @@ public class ClientApi {
 	private void accessUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
 		URL url = new URL(apiurl);
 		if (debug) {
-			System.out.println("Oepn URL: " + apiurl);
+			System.out.println("Open URL: " + apiurl);
 		}
 		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 		uc.connect();

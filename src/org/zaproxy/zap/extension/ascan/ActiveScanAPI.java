@@ -108,7 +108,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		
 		progress = 0;
 		activeScan.addScannerListener(this);
-		activeScan.scan(startNode);
+		activeScan.setStartNode(startNode);
+		activeScan.start();
 	}
 
 	@Override
@@ -150,6 +151,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	@Override
 	public void hostComplete(String hostAndPort) {
+        activeScan.reset();
 	}
 
 	@Override

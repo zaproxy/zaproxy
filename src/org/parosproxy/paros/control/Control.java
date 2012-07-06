@@ -151,16 +151,7 @@ public class Control extends AbstractControl implements SessionListener {
 	    log.debug("runCommandLineNewSession " + fileName);
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
-    	Session session = Model.getSingleton().getSession();
-    	try {
-    		Model.getSingleton().openSession(fileName);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-
-		if (!fileName.endsWith(".session")) {
-		    fileName += ".session";
-		}
+    	Session session = Model.getSingleton().newSession();
 		Model.getSingleton().saveSession(fileName);
 	    log.info("New session file created");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
@@ -177,7 +168,7 @@ public class Control extends AbstractControl implements SessionListener {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-	    log.info("New session file created");
+	    log.info("Session file opened");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
 

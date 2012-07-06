@@ -21,10 +21,13 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/10/29 Support for parameters
 // ZAP: 2012/03/15 Changed the parameter's type of the method 
-// removeDatabaseListener to DatabaseListener instead of SpiderListener.
-// Removed unnecessary castings in the methods notifyListenerDatabaseOpen.
+// removeDatabaseListener to DatabaseListener instead of SpiderListener. Removed
+// unnecessary cast in the method notifyListenerDatabaseOpen.
 // ZAP: 2012/05/02 Added the method createSingleton and changed the method
 // getSingleton to use it.
+// ZAP: 2012/06/11 Added JavaDoc to the method close(boolean), changed the 
+// method close(boolean) to call the method close(boolean, boolean), added 
+// method close(boolean, boolean).
 
 package org.parosproxy.paros.db;
 
@@ -53,10 +56,14 @@ public class Database {
 	private TableScan tableScan = null;
 	// ZAP: Added TableTag
 	private TableTag tableTag = null;
+	// ZAP: Added TableSessionUrl.
 	private TableSessionUrl tableSessionUrl = null;
+	// ZAP: Added TableParam.
 	private TableParam tableParam = null;
-    private static Logger log = Logger.getLogger(Database.class);
+	// ZAP: Added Logger.
+    private static final Logger log = Logger.getLogger(Database.class);
 
+	// ZAP: Added type arguments.
 	private Vector<DatabaseListener> listenerList = new Vector<DatabaseListener>();
 
 	public Database() {
@@ -64,15 +71,21 @@ public class Database {
 	    tableSession = new TableSession();
 	    tableAlert = new TableAlert();
 	    tableScan = new TableScan();
+	    // ZAP: Added statement.
 	    tableTag = new TableTag();
+	    // ZAP: Added statement.
 	    tableSessionUrl = new TableSessionUrl();
+	    // ZAP: Added statement.
 	    tableParam = new TableParam();
 	    addDatabaseListener(tableHistory);
 	    addDatabaseListener(tableSession);
 	    addDatabaseListener(tableAlert);
 	    addDatabaseListener(tableScan);
+	    // ZAP: Added statement.
 	    addDatabaseListener(tableTag);
+	    // ZAP: Added statement.
 	    addDatabaseListener(tableSessionUrl);
+	    // ZAP: Added statement.
 	    addDatabaseListener(tableParam);
 
 	}
@@ -138,6 +151,7 @@ public class Database {
 		
 	}
 	
+	// ZAP: Changed parameter's type from SpiderListener to DatabaseListener.
 	public void removeDatabaseListener(DatabaseListener listener) {
 		listenerList.remove(listener);
 	}
@@ -146,29 +160,80 @@ public class Database {
 	    DatabaseListener listener = null;
 	    
 	    for (int i=0;i<listenerList.size();i++) {
+	        // ZAP: Removed unnecessary cast.
 	        listener = listenerList.get(i);
-	        listener.databaseOpen(getDatabaseServer());	        
+	        listener.databaseOpen(getDatabaseServer());
 	    }
 	}
 
 	public void open(String path) throws ClassNotFoundException, Exception {
+	    // ZAP: Added log statement.
 		log.debug("open " + path);
 	    setDatabaseServer(new DatabaseServer(path));
 	    notifyListenerDatabaseOpen();
 	}
 	
-	public void close(boolean compact) {
+    /**
+     * Closes the database. If the parameter {@code compact} is {@code true},
+     * the database will be compacted, compacting the database ensures a minimal
+     * space disk usage but it will also take longer to close. Any necessary
+     * cleanups are performed prior to closing the database (the cleanup removes
+     * the temporary {@code HistoryRefernece}s).
+     * 
+     * <p>
+     * <b>Note:</b> Calling this method has the same effects as calling the
+     * method {@link #close(boolean, boolean)} with the parameter
+     * {@code cleanup} as {@code true}.
+     * </p>
+     * 
+     * @param compact
+     *            {@code true} if the database should be compacted,
+     *            {@code false} otherwise.
+     * @see org.parosproxy.paros.model.HistoryReference
+     */
+    // ZAP: Added JavaDoc.
+    public void close(boolean compact) {
+        // ZAP: Moved the content of this method to the method close(boolean,
+        // boolean) and changed to call that method instead.
+        close(compact, true);
+    }
+
+    /**
+     * Closes the database. If the parameter {@code compact} is {@code true},
+     * the database will be compacted, compacting the database ensures a minimal
+     * space disk usage but it will also take longer to close. If the parameter
+     * {@code cleanup} is {@code true} any necessary cleanups are performed
+     * prior to closing the database (the cleanup removes the temporary
+     * {@code HistoryRefernece}s.)
+     * 
+     * @param compact
+     *            {@code true} if the database should be compacted,
+     *            {@code false} otherwise.
+     * @param cleanup
+     *            {@code true} if any necessary cleanups should be performed,
+     *            {@code false} otherwise.
+     * @see org.parosproxy.paros.model.HistoryReference
+     */
+    // ZAP: Added method. Note: any change made to this method must have the
+    // ZAP comment as the content was moved from the paros method close(boolean).
+	public void close(boolean compact, boolean cleanup) {
+		// ZAP: Added statement.
 		log.debug("close");
 	    if (databaseServer == null) return;
 	    
 	    try {
-		    // perform clean up
-	        getTableHistory().deleteTemporary();
+	        // ZAP: Added if block.
+	        if (cleanup) {
+    		    // perform clean up
+    	        getTableHistory().deleteTemporary();
+	        }
 
 	        // shutdown
 	        getDatabaseServer().shutdown(compact);
-        } catch (Exception e) {
-            e.printStackTrace();
+	        // ZAP: Changed to catch SQLException instead of Exception.
+        } catch (SQLException e) {
+	        // ZAP: Changed to log the exception.
+            log.error(e.getMessage(), e);
         }
 	}
 	
@@ -206,14 +271,17 @@ public class Database {
 		this.tableTag = tableTag;
 	}
 
+	// ZAP: Added method.
 	public TableSessionUrl getTableSessionUrl() {
 		return tableSessionUrl;
 	}
 
+	// ZAP: Added method.
 	public void setTableSessionUrl(TableSessionUrl tableSessionUrl) {
 		this.tableSessionUrl = tableSessionUrl;
 	}
 
+	// ZAP: Added method.
 	public TableParam getTableParam() {
 		return tableParam;
 	}

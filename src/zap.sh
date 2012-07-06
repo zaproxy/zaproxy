@@ -23,11 +23,11 @@ then
 	echo "Failed to obtain current memory, using jmv default memory settings"
 else
 	echo "Available memory: " $MEM"Mb"
-	if [ $MEM -gt 2048 ]
+	if [ $MEM -gt 1500 ]
 	then
 		JMEM="-Xmx512m"
 	else
-		if [ $MEM -gt 1024 ]
+		if [ $MEM -gt 900 ]
 		then
 			JMEM="-Xmx256m"
 		else

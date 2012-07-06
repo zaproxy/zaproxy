@@ -25,9 +25,9 @@ import java.awt.Container;
 import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.zaproxy.zap.extension.httppanelviews.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 
 public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 1L;
@@ -61,7 +61,7 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	
 	@Override
     public boolean isEnableForComponent(Component invoker) {
-    	if (invoker instanceof JTextComponent && !(invoker instanceof HttpPanelSyntaxHighlightTextArea)) {
+    	if (invoker instanceof JTextComponent && !(invoker instanceof RSyntaxTextArea)) {
             setLastInvoker((JTextComponent) invoker);
             Container c = getLastInvoker().getParent();
             while (!(c instanceof JFrame)) {

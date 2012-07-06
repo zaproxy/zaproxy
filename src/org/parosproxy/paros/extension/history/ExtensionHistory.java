@@ -34,6 +34,8 @@
 // ZAP: 2012/04/24 Added type arguments to generic types, removed unnecessary
 // cast and added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/28 Added log of exception.
+// ZAP: 2012/05/31 Issue 308 NPE in sessionChangedEventHandler in daemon mode
+// ZAP: 2012/07/02 Added the method showAlertAddDialog(HttpMessage, int).
 
 package org.parosproxy.paros.extension.history;
 
@@ -57,6 +59,7 @@ import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
@@ -213,8 +216,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 	    getHistoryList().clear();
 	    getLogPanel().getListLog().setModel(getHistoryList());
-		getView().getRequestPanel().clearView(true);
-		getView().getResponsePanel().clearView(false);
+	    if (getView() != null) { 
+	    	getView().getRequestPanel().clearView(true);
+	    	getView().getResponsePanel().clearView(false);
+	    }
 		if (session == null) {
 			// Closedown
 			return;
@@ -536,6 +541,39 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
     }
 
+    /**
+     * Sets the {@code HttpMessage} and the history type of the
+     * {@code HistoryReference} that will be created if the user creates the
+     * alert. The current session will be used to create the
+     * {@code HistoryReference}. The alert created will be added to the newly
+     * created {@code HistoryReference}.
+     * <p>
+     * Should be used when the alert is added to a temporary
+     * {@code HistoryReference} as the temporary {@code HistoryReference}s are
+     * deleted when the session is closed.
+     * </p>
+     * 
+     * @param httpMessage
+     *            the {@code HttpMessage} that will be used to create the
+     *            {@code HistoryReference}, must not be {@code null}
+     * @param historyType
+     *            the type of the history reference that will be used to create
+     *            the {@code HistoryReference}
+     * 
+     * @see Model#getSession()
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
+     *      int, HttpMessage)
+     */
+    // ZAP: Added the method.
+    public void showAlertAddDialog(HttpMessage httpMessage, int historyType) {
+        if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setPlugin(this);
+            dialogAlertAdd.setHttpMessage(httpMessage, historyType);
+            dialogAlertAdd.setVisible(true);
+        }
+    }
+
     public void showAlertAddDialog(Alert alert) {
 		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
 			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
@@ -591,6 +629,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
 	@Override
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;

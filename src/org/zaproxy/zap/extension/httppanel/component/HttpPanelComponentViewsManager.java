@@ -23,8 +23,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,12 +58,13 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 	protected JPanel panelViews;
 	protected JComboBox comboBoxSelectView;
 	protected HttpPanelView currentView;
-	protected List<EnabledViewItem> enabledViews;
-	protected Map<String, EnabledViewItem> enabledViewsItems;
-	protected Map<String, ComboBoxViewsItem> comboBoxViewItems;
+	protected List<ViewItem> enabledViews;
+	protected Map<String, ViewItem> viewItems;
 	protected Map<String, HttpPanelView> views;
 	protected List<HttpPanelDefaultViewSelector> defaultViewsSelectors;
 	protected String savedSelectedViewName;
+	
+	private static DefaultViewSelectorComparator defaultViewSelectorComparator;
 
 	private static final String VIEWS_KEY = "views";
 	private static final String DEFAULT_VIEW_KEY = "defaultview";
@@ -74,9 +77,8 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 	private boolean changingComboBox;
 	
 	public HttpPanelComponentViewsManager(String configurationKey) {
-		enabledViews = new ArrayList<EnabledViewItem>();
-		enabledViewsItems = new HashMap<String, EnabledViewItem>();
-		comboBoxViewItems = new HashMap<String, ComboBoxViewsItem>();
+		enabledViews = new ArrayList<ViewItem>();
+		viewItems = new HashMap<String, ViewItem>();
 		views = new HashMap<String, HttpPanelView>();
 		defaultViewsSelectors = new ArrayList<HttpPanelDefaultViewSelector>();
 		
@@ -158,14 +160,15 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		
 		this.currentView = view;
 		
-		ComboBoxViewsItem selectedItem = (ComboBoxViewsItem)comboBoxSelectView.getSelectedItem();
+		ViewItem selectedItem = (ViewItem)comboBoxSelectView.getSelectedItem();
 		if (selectedItem != null) {
-			String selectedItemConfigName = selectedItem.getConfigName();
-			if (!this.currentView.getConfigName().equals(selectedItemConfigName)) {
-				comboBoxSelectView.setSelectedItem(comboBoxViewItems.get(this.currentView.getConfigName()));
+			final String currentViewConfigName = currentView.getConfigName();
+			final String selectedItemConfigName = selectedItem.getConfigName();
+			if (!currentViewConfigName.equals(selectedItemConfigName)) {
+				comboBoxSelectView.setSelectedItem(viewItems.get(currentViewConfigName));
 			}
 		} else {
-			comboBoxSelectView.setSelectedItem(comboBoxViewItems.get(this.currentView.getConfigName()));
+			comboBoxSelectView.setSelectedItem(viewItems.get(this.currentView.getConfigName()));
 		}
 		
 		this.currentView.getModel().setHttpMessage(httpMessage);
@@ -187,20 +190,24 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		while (it.hasNext()) {
 			HttpPanelView view = it.next().getValue();
 			
+			ViewItem viewItem = viewItems.get(view.getConfigName());
+			
 			if (!view.isEnabled(httpMessage)) {
-				enabledViews.remove(enabledViewsItems.get(view.getConfigName()));
-				((MutableComboBoxModel)comboBoxSelectView.getModel()).removeElement(comboBoxViewItems.get(view.getConfigName()));
-			} else if (!enabledViews.contains(enabledViewsItems.get(view.getConfigName()))) {
-				enabledViews.add(enabledViewsItems.get(view.getConfigName()));
+				if (enabledViews.contains(viewItem)) {
+					enabledViews.remove(viewItem);
+					((MutableComboBoxModel)comboBoxSelectView.getModel()).removeElement(viewItem);
+				}
+			} else if (!enabledViews.contains(viewItem)) {
+				enabledViews.add(viewItem);
 				Collections.sort(enabledViews);
-				((MutableComboBoxModel)comboBoxSelectView.getModel()).addElement(comboBoxViewItems.get(view.getConfigName()));
+				((MutableComboBoxModel)comboBoxSelectView.getModel()).addElement(viewItem);
 			}
 		}
 		
 		boolean switchView = false;
 		String viewName = currentView.getConfigName();
 		
-		if (!enabledViews.contains(enabledViewsItems.get(currentView.getConfigName()))) {
+		if (!enabledViews.contains(viewItems.get(viewName))) {
 			switchView = true;
 			viewName = null;
 		}
@@ -210,12 +217,12 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 			HttpPanelDefaultViewSelector defaultView = itD.next();
 			
 			if (defaultView.matchToDefaultView(httpMessage)) {
-				if (enabledViews.contains(enabledViewsItems.get(defaultView.getViewName()))) {
+				if (enabledViews.contains(viewItems.get(defaultView.getViewName()))) {
 					if (!currentView.getConfigName().equals(defaultView.getViewName())) {
 						switchView = true;
 						viewName = defaultView.getViewName();
-						break;
 					}
+					break;
 				}
 			}
 		}
@@ -248,7 +255,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 				return;
 			}
 			
-			ComboBoxViewsItem item = (ComboBoxViewsItem) comboBoxSelectView.getSelectedItem();
+			ViewItem item = (ViewItem) comboBoxSelectView.getSelectedItem();
 			
 			if (item == null || item.getConfigName().equals(currentView.getConfigName())) {
 				return;
@@ -273,24 +280,23 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 	}
 	
 	public void addView(HttpPanelView view) {
-		if (views.containsKey(view.getConfigName())) {
-			removeView(view.getConfigName());
+		final String viewConfigName = view.getConfigName();
+		if (views.containsKey(viewConfigName)) {
+			removeView(viewConfigName);
 		}
 		
-		views.put(view.getConfigName(), view);
+		views.put(viewConfigName, view);
 		
-		panelViews.add(view.getPane(), view.getConfigName());
+		panelViews.add(view.getPane(), viewConfigName);
 		
-		ComboBoxViewsItem item = new ComboBoxViewsItem(view.getPosition(), view.getName(), view.getConfigName());
-		comboBoxViewItems.put(view.getConfigName(), item);
-		EnabledViewItem viewItem = new EnabledViewItem(view.getPosition(), view.getConfigName());
-		enabledViewsItems.put(view.getConfigName(), viewItem);
+		ViewItem viewItem = new ViewItem(viewConfigName, view.getName(), view.getPosition());
+		viewItems.put(viewConfigName, viewItem);
 		
 		if (view.isEnabled(httpMessage)) {
 			synchronized (changingComboBoxLocker) {
 				changingComboBox = true;
 				
-				comboBoxSelectView.addItem(item);
+				comboBoxSelectView.addItem(viewItem);
 				
 				changingComboBox = false;
 			}
@@ -299,16 +305,16 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		}
 		
 		if (savedSelectedViewName != null) {
-			if (savedSelectedViewName.equals(view.getConfigName())) {
-				switchView(view.getConfigName());
+			if (savedSelectedViewName.equals(viewConfigName)) {
+				switchView(viewConfigName);
 			}
 		}
 		
 		if (view.isEnabled(httpMessage)) {
 			if (currentView == null) {
-				switchView(view.getConfigName());
+				switchView(viewConfigName);
 			} else if (savedSelectedViewName == null && currentView.getPosition() > view.getPosition()) {
-				switchView(view.getConfigName());
+				switchView(viewConfigName);
 			}
 		}
 		
@@ -332,21 +338,23 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		
 		panelViews.remove(view.getPane());
 		
-		if (enabledViews.contains(enabledViewsItems.get(view.getConfigName()))) {
+		final String viewConfigName = view.getConfigName();
+		
+		ViewItem viewItem = viewItems.get(viewConfigName);
+		if (enabledViews.contains(viewItem)) {
 			synchronized (changingComboBoxLocker) {
 				changingComboBox = true;
 				
-				comboBoxSelectView.removeItem(comboBoxViewItems.get(view.getConfigName()));
+				comboBoxSelectView.removeItem(viewItem);
 				
 				changingComboBox = false;
 			}
-			enabledViews.remove(enabledViewsItems.get(view.getConfigName()));
+			enabledViews.remove(viewItem);
 		}
 		
-		comboBoxViewItems.remove(view.getConfigName());
-		enabledViewsItems.remove(view.getConfigName());
+		viewItems.remove(view.getConfigName());
 		
-		if (view.getConfigName().equals(currentView.getConfigName())) {
+		if (viewConfigName.equals(currentView.getConfigName())) {
 			switchView(enabledViews.get(0).getConfigName());
 		}
 	}
@@ -367,6 +375,20 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 	
 	public void addDefaultViewSelector(HttpPanelDefaultViewSelector defaultViewSelector) {
 		defaultViewsSelectors.add(defaultViewSelector);
+		Collections.sort(defaultViewsSelectors, getDefaultViewSelectorComparator());
+	}
+	
+	private static Comparator<HttpPanelDefaultViewSelector> getDefaultViewSelectorComparator() {
+		if (defaultViewSelectorComparator == null) {
+			createDefaultViewSelectorComparator();
+		}
+		return defaultViewSelectorComparator;
+	}
+	
+	private static synchronized void createDefaultViewSelectorComparator() {
+		if (defaultViewSelectorComparator == null) {
+			defaultViewSelectorComparator = new DefaultViewSelectorComparator();
+		}
 	}
 	
 	public void removeDefaultViewSelector(String defaultViewSelectorName) {
@@ -462,76 +484,16 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		return searchableView;
 	}
 	
-	private static final class ComboBoxViewsItem implements Comparable<ComboBoxViewsItem> {
+	private static final class ViewItem implements Comparable<ViewItem> {
 		
-		private final int position;
+		private final String configName;
 		private final String name;
-		private final String configName;
-		
-		public ComboBoxViewsItem(int position, String name, String configName) {
-			this.position = position;
-			this.name = name;
-			this.configName = configName;
-		}
-		
-		public String getConfigName() {
-			return configName;
-		}
-		
-		@Override
-		public int compareTo(ComboBoxViewsItem o) {
-			if (position < o.position) {
-				return -1;
-			} else if (position > o.position) {
-				return 1;
-			}
-			
-			return name.compareTo(o.name);
-		}
-		
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = prime * name.hashCode();
-			result = prime * result + position;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object object) {
-			if (this == object) {
-				return true;
-			}
-			if (object == null) {
-				return false;
-			}
-			if (getClass() != object.getClass()) {
-				return false;
-			}
-			ComboBoxViewsItem viewsItem = (ComboBoxViewsItem) object;
-			if (!name.equals(viewsItem.name)) {
-				return false;
-			}
-			if (position != viewsItem.position) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
-	
-	private static final class EnabledViewItem implements Comparable<EnabledViewItem> {
-
 		private final int position;
-		private final String configName;
 		
-		public EnabledViewItem(int position, String configName) {
-			this.position = position;
+		public ViewItem(String configName, String name, int position) {
 			this.configName = configName;
+			this.name = name;
+			this.position = position;
 		}
 		
 		public String getConfigName() {
@@ -539,7 +501,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 		}
 		
 		@Override
-		public int compareTo(EnabledViewItem o) {
+		public int compareTo(ViewItem o) {
 			if (position < o.position) {
 				return -1;
 			} else if (position > o.position) {
@@ -548,10 +510,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 			
 			return 0;
 		}
-
+		
 		@Override
 		public int hashCode() {
-			return 31 + position;
+			return 31 * configName.hashCode();
 		}
 
 		@Override
@@ -565,12 +527,33 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			EnabledViewItem other = (EnabledViewItem) obj;
-			if (position != other.position) {
+			ViewItem other = (ViewItem) obj;
+			if (!configName.equals(other.configName)) {
 				return false;
 			}
 			return true;
 		}
-		
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	
+	private static final class DefaultViewSelectorComparator implements Comparator<HttpPanelDefaultViewSelector>, Serializable {
+
+		private static final long serialVersionUID = -1380844848294384189L;
+
+		@Override
+		public int compare(HttpPanelDefaultViewSelector o1, HttpPanelDefaultViewSelector o2) {
+			final int order1 = o1.getOrder();
+			final int order2 = o2.getOrder(); 
+			if (order1 < order2) {
+				return -1;
+			} else if (order1 > order2) {
+				return 1;
+			}
+			return 0;
+		}
 	}
 }
