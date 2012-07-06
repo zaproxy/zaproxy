@@ -533,7 +533,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					// TODO: What if e.g.: a close frame has got a huge payload
 					// that exceeds INTEGER.MAX_VALUE, then I send a OPCODE_CLOSE
 					// followed by another OPCODE_CONTINUATION, but that is not
-					// possible!
+					// allowed by RFC6455 (control frames aren't allowed to
+					// exceed one frame)
 				} while (!isLastFrame);
 			} else {
 				for (WebSocketFrameV13 frame : receivedFrames) {
