@@ -95,5 +95,4 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
     public void setExtension(ExtensionBreak extension) {
         this.extension = extension;
     }
-
 }

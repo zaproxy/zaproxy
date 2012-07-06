@@ -310,7 +310,8 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
 	/**
-	 * Expose functionality of breakpointMessageHandler.
+	 * Expose functionality from
+	 * {@link BreakpointMessageHandler#isBreakpoint(Message, boolean)}.
 	 * 
 	 * @param message
 	 * @param isRequest
