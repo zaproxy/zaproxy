@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.brk;
 
 public abstract class AbstractBreakPointMessage implements BreakpointMessageInterface {
 
-	private boolean isEnabled = false;
+	private boolean isEnabled = true;
 
 	@Override
 	public void setEnabled(boolean enabled) {
