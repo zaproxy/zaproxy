@@ -5,6 +5,7 @@
 	<property name="build" location="build" />
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
+	<property name="javadocs.dir" location="../javadocs" />
 
 	<!-- make the version accessible globally -->
 	<loadfile property="version" srcfile="version.txt">
@@ -184,6 +185,27 @@
 		<copy file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
 		
 	</target>
+
+	<target name="generate-language-file" description="generates the language file (note the X should be changed;)">
+		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
+		<!-- delete the previous one (if present) -->
+		<delete file="${langfile}" />
+		<!-- Zip up the language files -->
+		<zip destfile="${langfile}"
+			basedir="${src}"
+			includes="/lang/**"
+			excludes="**/.svn/**"
+		/>
+	</target>
+
+	<target name="generate-javadocs" description="generates the javadocs">
+		<javadoc packagenames="org.*"
+			sourcepath="${src}"
+			destdir="${javadocs.dir}"
+			windowTitle="OWASP Zed Attack Proxy">
+		</javadoc>
+	</target>
+	
 
 	<target name="package-linux" description="package the Linux build">
 		<echo message="Packaging the Linux build..." />

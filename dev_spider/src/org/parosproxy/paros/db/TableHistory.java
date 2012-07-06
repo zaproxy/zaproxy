@@ -19,9 +19,11 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
-// ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies instead of String.
+// ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies
+// instead of String.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
+// ZAP: 2012/06/11 Added method delete(List<Integer>).
 
 package org.parosproxy.paros.db;
 
@@ -31,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -384,6 +387,25 @@ public class TableHistory extends AbstractTable {
 		
 	}
 	
+    /**
+     * Deletes from the database all the {@code HistoryReference}s whose id is
+     * in the list {@code ids}.
+     * 
+     * @param ids
+     *            a {@code List} containing all the ids of the
+     *            {@code HistoryReference}s to be deleted
+     * @throws SQLException
+     *             if an error occurred while deleting the
+     *             {@code HistoryReference}s
+     */
+	// ZAP: Added method.
+    public void delete(List<Integer> ids) throws SQLException {
+        for (Iterator<Integer> it = ids.iterator(); it.hasNext();) {
+            psDelete.setInt(1, it.next().intValue());
+            psDelete.executeUpdate();
+        }
+    }
+
 	public void deleteTemporary() throws SQLException {
 	    psDeleteTemp.execute();
 	}

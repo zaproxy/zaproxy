@@ -350,7 +350,7 @@ public class ZAP {
 	        System.out.println(e.getMessage());
 	        rc = 1;
 	    } finally {
-            control.shutdown(false);
+            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
     	    log.info(Constant.PROGRAM_TITLE + " terminated.");
 	    }
 	    System.exit(rc);
@@ -376,7 +376,17 @@ public class ZAP {
             @Override
 			public void run() {
         		Control.initSingletonWithoutView();
+        		// This is the only non-daemon thread, so should keep running
+        		// CoreAPI.handleApiAction uses System.exit to shutdown
+        		while (true) {
+        			try {
+						Thread.sleep(100000);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+        		}
             }});
+        t.setName("ZAP-daemon");
         t.start();
 	}
 

@@ -39,7 +39,14 @@ public class PopupMenuAlert extends PopupMenuHistoryReference {
 	
 	@Override
 	public void performAction(HistoryReference href) throws Exception {
-		getExtensionHistory().showAlertAddDialog(href);
+	    Invoker lastInvoker = getLastInvoker();
+	    if (lastInvoker == Invoker.ascan) {
+	        getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
+	    } else if (lastInvoker == Invoker.fuzz) {
+	        getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
+	    } else {
+	        getExtensionHistory().showAlertAddDialog(href);
+	    }
 	}
 
     private ExtensionHistory getExtensionHistory() {
@@ -68,5 +75,17 @@ public class PopupMenuAlert extends PopupMenuHistoryReference {
 		}
 	}
 
-	
+	@Override
+    public boolean isEnabledForHistoryReference (HistoryReference href) {
+        if (href != null) {
+            switch (getLastInvoker()) {
+            case ascan:
+            case fuzz:
+                return true;
+            default:
+                return (href.getHistoryType() != HistoryReference.TYPE_TEMPORARY);
+            }
+        }
+        return false;
+    }
 }

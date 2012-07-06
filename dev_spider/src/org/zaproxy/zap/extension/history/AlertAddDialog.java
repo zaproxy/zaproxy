@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -36,6 +37,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertViewPanel;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 /**
@@ -45,7 +47,10 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
  */
 public class AlertAddDialog extends AbstractDialog {
 
+    private static final Logger logger = Logger.getLogger(AlertAddDialog.class);
+    
 	private static final long serialVersionUID = 1L;
+    
 	private JPanel jPanel = null;
 	private JButton btnOk = null;
 	private JButton btnCancel = null;
@@ -53,6 +58,37 @@ public class AlertAddDialog extends AbstractDialog {
 	private ExtensionHistory extension = null;
 
 	private HistoryReference historyRef;
+    
+    /**
+     * The history type that will be used, along with the instance variable
+     * {@code httpMessage}, to create a new {@code HistoryReference}. Used when
+     * the user wants to add an alert to a temporary {@code HistoryReference}
+     * (created when active scanning, fuzzing...), as the temporary
+     * {@code HistoryReference}s are deleted when the session is closed a new
+     * {@code HistoryReference} must be created.
+     * 
+     * @see #httpMessage
+     * @see #setHttpMessage(HttpMessage, int)
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
+     *      int, HttpMessage)
+     */
+    private int historyType;
+
+    /**
+     * The {@code HttpMessage} that will be used, along with {@code historyType}
+     * , to create a new {@code HistoryReference} (created when active scanning,
+     * fuzzing...). Used when the user wants to add an alert to a temporary
+     * {@code HistoryReference}, as the temporary {@code HistoryReference}s are
+     * deleted when the session is closed a new {@code HistoryReference} must be
+     * created. If {@code null} indicates that no {@code HistoryReference}
+     * should be created.
+     * 
+     * @see #historyType
+     * @see #setHttpMessage(HttpMessage, int)
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
+     *      int, HttpMessage)
+     */
+    private HttpMessage httpMessage;
 	
 	private JScrollPane jScrollPane = null;
 	private AlertViewPanel alertViewPanel = null;
@@ -187,6 +223,10 @@ public class AlertAddDialog extends AbstractDialog {
 							}
 
 						} else {
+						    if (httpMessage != null) {
+						        historyRef = new HistoryReference(Model.getSingleton().getSession(), historyType, httpMessage);
+						    }
+						    
 							historyRef.addAlert(alert);
 		                    extension.getHistoryList().notifyItemChanged(historyRef);
 						    // Raise it
@@ -194,8 +234,8 @@ public class AlertAddDialog extends AbstractDialog {
 								extAlert.alertFound(alert, historyRef);
 							}
 						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
+					} catch (Exception ex) {
+					    logger.error(ex.getMessage(), ex);
 					}
 					extension.hideAlertAddDialog();
 				}
@@ -268,7 +308,38 @@ public class AlertAddDialog extends AbstractDialog {
 
 	public void setHistoryRef(HistoryReference historyRef) {
 		this.historyRef = historyRef;
+        this.httpMessage = null;
 		alertViewPanel.setHistoryRef(historyRef);
 	}
+
+    /**
+     * Sets the {@code HttpMessage} and the history type of the
+     * {@code HistoryReference} that will be created if the user creates the
+     * alert. The current session will be used to create the
+     * {@code HistoryReference}. The alert created will be added to the newly
+     * created {@code HistoryReference}.
+     * <p>
+     * Should be used when the alert is added to a temporary
+     * {@code HistoryReference} as the temporary {@code HistoryReference}s are
+     * deleted when the session is closed.
+     * </p>
+     * 
+     * @param httpMessage
+     *            the {@code HttpMessage} that will be used to create the
+     *            {@code HistoryReference}, must not be {@code null}
+     * @param historyType
+     *            the type of the history reference that will be used to create
+     *            the {@code HistoryReference}
+     * 
+     * @see Model#getSession()
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
+     *      int, HttpMessage)
+     */
+    public void setHttpMessage(HttpMessage httpMessage, int historyType) {
+        this.historyRef = null;
+        this.httpMessage = httpMessage;
+        this.historyType = historyType;
+        alertViewPanel.setHttpMessage(httpMessage);
+    }
 
 }

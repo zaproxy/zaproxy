@@ -55,8 +55,8 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 		super.hook(extensionHook);
 	    if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
-	        extensionHook.addOptionsParamSet(getParams());
 	    }
+        extensionHook.addOptionsParamSet(getParams());
 	}
 
 	@Override

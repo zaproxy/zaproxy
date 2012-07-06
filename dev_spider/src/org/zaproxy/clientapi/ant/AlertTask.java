@@ -21,7 +21,7 @@ package org.zaproxy.clientapi.ant;
 
 import org.apache.tools.ant.Task;
 
-public abstract class AlertTask extends Task {
+public class AlertTask extends Task {
 	private String alert;
 	private String risk;
 	private String reliability;

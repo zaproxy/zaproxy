@@ -375,6 +375,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;

@@ -28,7 +28,7 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * A Plugable view which can display requests and responses in different ways 
  * @author Psiinon
- * @see org.zaproxy.zap.extension.httppanelviews.hex.HttpPanelHexView for an example of how to implement a new view
+ * @see org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView for an example of how to implement a new view
  *
  */
 public interface HttpPanelView {

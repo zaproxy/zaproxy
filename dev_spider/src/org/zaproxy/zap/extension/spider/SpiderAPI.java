@@ -133,6 +133,10 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		result.add("OK");
 		return result;
 	}
+	
+	private boolean scanInProgress () {
+		return spiderThread != null && ! spiderThread.isStopped();
+	}
 
 	/**
 	 * Start the scan of an url.
@@ -141,11 +145,9 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	 * @throws ApiException the api exception
 	 */
 	private void scanURL(String url) throws ApiException {
-
 		log.debug("API Spider scanning url: " + url);
+		if (scanInProgress()) {
 
-		// Check if scan is in progress
-		if (spiderThread != null && !spiderThread.isStopped()) {
 			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
 		}
 
@@ -160,6 +162,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		// Start the scan
 		this.foundURIs.clear();
 		this.progress = 0;
+
 		spiderThread = new SpiderThread(extension, "API", this, extension.getSpiderParam());
 		spiderThread.setStartNode(startNode);
 		spiderThread.addSpiderListener(this);
