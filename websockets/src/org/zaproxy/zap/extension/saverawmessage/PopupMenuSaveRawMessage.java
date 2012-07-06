@@ -215,6 +215,8 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
     		    }
                 break;
 
+            case ascan:
+    		case fuzz:
     		case history:
     			HistoryReference ref = (HistoryReference) listInvoker.getSelectedValue();
     			if (ref != null) {
@@ -230,11 +232,6 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
         	            httpMessage = alert.getHistoryRef().getHttpMessage();
         	        }
         	    }
-				break;
-				
-    		case ascan:
-    		case fuzz:
-    			httpMessage = (HttpMessage) listInvoker.getSelectedValue();
 				break;
 				
     		case search:

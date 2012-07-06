@@ -25,6 +25,7 @@
 // ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
 // ZAP: 2012/03/15 Changed the methods getQueryParamString and createReference to 
 //      use the class StringBuilder instead of StringBuffer 
+// ZAP: 2012/07/03 Issue 320: AScan can miss subtrees if invoked via the API
 
 package org.parosproxy.paros.model;
 
@@ -293,6 +294,7 @@ public class SiteMap extends DefaultTreeModel {
     public synchronized SiteNode addPath(HistoryReference ref, HttpMessage msg) {
         
         URI uri = msg.getRequestHeader().getURI();
+        log.debug("addPath " + uri.toString());
         
         String scheme = null;
         String host = null;
@@ -382,7 +384,7 @@ public class SiteMap extends DefaultTreeModel {
     private SiteNode findChild(SiteNode parent, String nodeName) {
     	// ZAP: Added debug
     	log.debug("findChild " + parent.getNodeName() + " / " + nodeName);
-
+    	
         for (int i=0; i<parent.getChildCount(); i++) {
             SiteNode child = (SiteNode) parent.getChildAt(i);
             if (child.getNodeName().equals(nodeName)) {
@@ -470,7 +472,13 @@ public class SiteMap extends DefaultTreeModel {
     }
     
     private String getLeafName(String nodeName, URI uri, String method) {
-        String leafName = method + ":" + nodeName;
+        String leafName;
+        
+        if (method != null) {
+        	leafName = method + ":" + nodeName;
+        } else {
+        	leafName = nodeName;
+        }
         
         String query = "";
 
@@ -568,7 +576,7 @@ public class SiteMap extends DefaultTreeModel {
         HttpMessage newMsg = base.cloneRequest();
         
         // ZAP: Prevents a possible URIException, because the passed string is not escaped.
-        URI uri = new URI(sb.toString(), false);
+		URI uri = new URI(sb.toString(), false);
         newMsg.getRequestHeader().setURI(uri);
         newMsg.getRequestHeader().setMethod(HttpRequestHeader.GET);
         newMsg.getRequestBody().setBody("");
