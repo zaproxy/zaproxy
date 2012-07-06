@@ -53,7 +53,6 @@ public class DefaultFetchFilter extends FetchFilter {
 			return FetchStatus.ILLEGAL_PROTOCOL;
 
 		try {
-
 			// Scope check
 			boolean ok = false;
 			for (String scope : scopes)
