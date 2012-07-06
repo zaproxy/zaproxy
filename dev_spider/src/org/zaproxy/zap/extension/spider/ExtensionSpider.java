@@ -67,7 +67,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	private List<String> excludeList = null;
     
 	/**
-     * 
+     *  
      */
     public ExtensionSpider() {
         super();
