@@ -22,6 +22,7 @@ import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
@@ -47,19 +48,23 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
     @Override
     public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-        if (!message.isFinished()) {
-        	// prevent forwarding unfinished message when there is a breakpoint
-        	// wait until all frames are received, before processing
-        	// (showing/saving/etc.)
-        	return false;
-        	
-        	// TODO:
-        	// could gain performance, if false is only returned in case there
-        	// is a breakpoint set - otherwise could send each frame on its own
-        	// How can I find out if one is set as in BreakpointMessageHandler#isBreakpoint()?
-        }
-        
         WebSocketMessageDAO dao = message.getDAO();
+    	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
+    	
+        if (!message.isFinished()) {
+        	
+        	if (extension.isBreakpointSet(dao, isRequest)) {
+            	// prevent forwarding unfinished message when there is a breakpoint
+            	// wait until all frames are received, before processing
+            	// (showing/saving/etc.)
+        		return false;
+        	} else {
+        		// gain performance by allowing each frame to be forwarded
+        		// immediately, as this frame is not changed
+        		return true;
+        	}
+        }
+
         if (dao.direction == WebSocketMessage.Direction.OUTGOING) {
             if (extension.messageReceivedFromClient(dao)) {
                 // As the DAO that is shown and modified in the
