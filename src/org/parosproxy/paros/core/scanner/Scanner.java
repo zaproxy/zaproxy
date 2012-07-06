@@ -262,4 +262,8 @@ public class Scanner implements Runnable {
 		return ignore;
 	}
 
+	public void setStartNode(SiteNode startNode) {
+		this.startNode = startNode;
+	}
+
 }

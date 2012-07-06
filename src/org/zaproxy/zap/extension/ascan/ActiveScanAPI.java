@@ -108,7 +108,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		
 		progress = 0;
 		activeScan.addScannerListener(this);
-		activeScan.scan(startNode);
+		activeScan.setStartNode(startNode);
+		activeScan.start();
 	}
 
 	@Override

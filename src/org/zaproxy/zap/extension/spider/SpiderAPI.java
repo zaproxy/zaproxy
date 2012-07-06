@@ -80,10 +80,14 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner {
 		result.add("OK");
 		return result;
 	}
+	
+	private boolean scanInProgress () {
+		return spiderThread != null && ! spiderThread.isStopped();
+	}
 
 	private void scanURL(String url) throws ApiException {
 		
-		if (spiderThread != null && ! spiderThread.isStopped()) {
+		if (scanInProgress()) {
 			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
 		}
 		
@@ -98,6 +102,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner {
 			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 		}
 
+		progress = 0;
 		spiderThread = new SpiderThread(extension, "API", this, extension.getSpiderParam());
 		spiderThread.setStartNode(startNode);
 		spiderThread.start();
@@ -109,6 +114,10 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner {
 			throws ApiException {
 		JSONArray result = new JSONArray();
 		if (VIEW_STATUS.equals(name)) {
+			if (progress == 100 && scanInProgress()) {
+				// Nasty hack to prevent us reporting the spider has finished too early
+				progress = 99;
+			}
 			result.add("" + progress);
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);

@@ -1,0 +1,15 @@
+ApacheLicense-2.0.txt
+LICENSE
+setup.py
+dist/python-owasp-zap-0.0.1.win32.zip
+doc/Makefile
+doc/code.rst
+doc/conf.py
+doc/example.rst
+doc/index.rst
+doc/make.bat
+src/python_owasp_zap.egg-info/PKG-INFO
+src/python_owasp_zap.egg-info/SOURCES.txt
+src/python_owasp_zap.egg-info/dependency_links.txt
+src/python_owasp_zap.egg-info/top_level.txt
+src/zap/__init__.py

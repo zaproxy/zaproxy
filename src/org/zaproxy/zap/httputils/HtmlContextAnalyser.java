@@ -77,7 +77,7 @@ public class HtmlContextAnalyser {
 							"frame",
 							"iframe",
 							"img",
-							"input",
+							"input",		// Special case - should also check to see if it has a type of 'image'
 							"script",
 							"src",
 	};
@@ -180,6 +180,8 @@ public class HtmlContextAnalyser {
     		Element element = src.getEnclosingElement(context.getStart());
     		if (element != null) {
     			// See if its in an attribute
+    			boolean isInputTag = element.getName().equalsIgnoreCase("input");	// Special case for input src attributes
+    			boolean isImageInputTag = false;
     			Iterator<Attribute> iter = element.getAttributes().iterator();
     			while (iter.hasNext()) {
     				Attribute att = iter.next();
@@ -190,10 +192,17 @@ public class HtmlContextAnalyser {
     					context.setInUrlAttribute(this.isUrlAttribute(att.getName()));
     					context.setInScriptAttribute(this.isScriptAttribute(att.getName()));
     				}
+    				if (isInputTag && att.getName().equalsIgnoreCase("type") && "image".equalsIgnoreCase(att.getValue())) {
+    					isImageInputTag = true;
+    				}
     			}
+
         		// record the tag hierarchy
         		context.addParentTag(element.getName());
-        		context.setInTagWithSrc(this.isInTagWithSrcAttribute(element.getName()));
+        		if (! isInputTag || isImageInputTag) {
+        			// Input tags only use the src attribute if the type is 'image'
+        			context.setInTagWithSrc(this.isInTagWithSrcAttribute(element.getName()));
+        		}
         		while ((element = element.getParentElement()) != null) {
             		context.addParentTag(element.getName());
         		}

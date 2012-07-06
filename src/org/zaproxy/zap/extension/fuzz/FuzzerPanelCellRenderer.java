@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -30,11 +31,17 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
+
+    private static final Logger logger = Logger.getLogger(FuzzerPanelCellRenderer.class);
+    
 	private JLabel txtId = null;
     private JLabel txtMethod = null;
     private JLabel txtURI = null;
@@ -259,26 +266,33 @@ public class FuzzerPanelCellRenderer extends JPanel implements ListCellRenderer 
     @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         
-        HttpMessage msg = (HttpMessage) value;
-        
-        // The fuzz payload is recorded in the note
-    	String note = msg.getNote();
-    	txtFlag.setIcon(null);
-        if (note != null && note.length() > 0) {
-        	if (msg.getResponseBody().toString().indexOf(note) >= 0) {
-        		// Found the exact payload - flag it
-        		txtFlag.setIcon(new ImageIcon(FuzzerPanelCellRenderer.class.getResource("/resource/icon/16/099.png")));	// Yellow fuzzy circle
-        	}
-        }
-
-        txtMethod.setText(msg.getRequestHeader().getMethod());
-        txtURI.setText(msg.getRequestHeader().getURI().toString());
-        txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
-        txtReason.setText(msg.getResponseHeader().getReasonPhrase());
-        txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
-        txtSize.setText(""+msg.getResponseBody().toString().length());
-        txtFuzz.setText(note);
+        HistoryReference ref = (HistoryReference) value;
+        try {
+            HttpMessage msg = ref.getHttpMessage();
             
+            // The fuzz payload is recorded in the note
+            String note = msg.getNote();
+            txtFlag.setIcon(null);
+            if (note != null && note.length() > 0) {
+                if (msg.getResponseBody().toString().indexOf(note) >= 0) {
+                    // Found the exact payload - flag it
+                    txtFlag.setIcon(new ImageIcon(FuzzerPanelCellRenderer.class.getResource("/resource/icon/16/099.png"))); // Yellow fuzzy circle
+                }
+            }
+
+            txtMethod.setText(msg.getRequestHeader().getMethod());
+            txtURI.setText(msg.getRequestHeader().getURI().toString());
+            txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
+            txtReason.setText(msg.getResponseHeader().getReasonPhrase());
+            txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
+            txtSize.setText(""+msg.getResponseBody().toString().length());
+            txtFuzz.setText(note);
+            
+        } catch (HttpMalformedHeaderException e) {
+            logger.error(e.getMessage(), e);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
         
         if (isSelected) {
             txtId.setBackground(list.getSelectionBackground());
