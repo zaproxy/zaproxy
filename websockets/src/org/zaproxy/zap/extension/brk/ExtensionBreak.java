@@ -37,6 +37,7 @@ import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface
 import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -307,5 +308,15 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	public boolean messageReceivedFromServer(Message aMessage) {
 	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage);
 	}
-	
+
+	/**
+	 * Expose functionality of breakpointMessageHandler.
+	 * 
+	 * @param message
+	 * @param isRequest
+	 * @return
+	 */
+	public boolean isBreakpointSet(Message message, boolean isRequest) {
+		return breakpointMessageHandler.isBreakpoint(message, isRequest);
+	}
 }

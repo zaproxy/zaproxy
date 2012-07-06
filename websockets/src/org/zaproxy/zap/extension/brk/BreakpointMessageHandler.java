@@ -137,7 +137,7 @@ class BreakpointMessageHandler {
         }
     }
 
-    private boolean isBreakpoint(Message aMessage, boolean request) {
+    public boolean isBreakpoint(Message aMessage, boolean request) {
         if (request && breakPanel.isBreakRequest()) {
             // Break on all requests
             return true;
