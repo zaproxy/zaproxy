@@ -132,6 +132,11 @@ public class Spider {
 		// Add a default fetch filter
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
+		// Add domains always in scope
+		String scopeS = spiderParam.getScopeString();
+		String[] scopeDomains = scopeS.split(";");
+		for (String scope : scopeDomains)
+			defaultFetchFilter.addScopeDomain(scope);
 
 		// Add a default parse filter
 		this.addParseFilter(new DefaultParseFilter());
