@@ -134,10 +134,11 @@ public class Spider {
 		this.addFetchFilter(defaultFetchFilter);
 		// Add domains always in scope
 		String scopeS = spiderParam.getScopeString();
-		String[] scopeDomains = scopeS.split(";");
-		for (String scope : scopeDomains)
-			defaultFetchFilter.addScopeDomain(scope);
-
+		if (!scopeS.trim().isEmpty()) {
+			String[] scopeDomains = scopeS.split(";");
+			for (String scope : scopeDomains)
+				defaultFetchFilter.addScopeDomain(scope);
+		}
 		// Add a default parse filter
 		this.addParseFilter(new DefaultParseFilter());
 	}
