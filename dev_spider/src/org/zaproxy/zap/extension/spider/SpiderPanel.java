@@ -41,45 +41,43 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.ScanPanel;
 
+/**
+ * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider
+ * Scan Tab.
+ */
 public class SpiderPanel extends ScanPanel implements ScanListenner {
-	
+
 	private static final long serialVersionUID = 1L;
-
-	public static final String PANEL_NAME = "spider";
-	
-	private JSplitPane splitPane = null;
-	private JPanel leftPanel = null;
-	private JPanel rightPanel = null;
-	private JLabel jLabel = null;
-    // TODO same hack as port scan??
-	private static ZapTextArea txtURIFound = null;
-	private JScrollPane jScrollPane = null;
-	private JLabel jLabel1 = null;
-    // TODO same hack as port scan??
-	private static ZapTextArea txtURISkip = null;
-	private JScrollPane jScrollPane1 = null;
-
 	private static Logger log = Logger.getLogger(SpiderPanel.class);
 
-	//private static JList portList = null;
-    
-    /**
-     * @param portScanParam 
-     * 
-     */
-    public SpiderPanel(ExtensionSpider extension, SpiderParam portScanParam) {
-        super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension, portScanParam);
-    }
+	public static final String PANEL_NAME = "spider";
+
+	private JSplitPane splitPane = null;
+	private JPanel topPanel = null;
+	private JPanel bottomPanel = null;
+	private static ZapTextArea txtURIFound = null;
+	private JScrollPane topScrollPane = null;
+	private static ZapTextArea txtURISkip = null;
+	private JScrollPane bottomScrollPane = null;
+
+	/**
+	 * Instantiates a new spider panel.
+	 * 
+	 * @param extension the extension
+	 * @param spiderScanParam the spider scan param
+	 */
+	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
+		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
+				spiderScanParam);
+	}
 
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
-		SpiderThread st = new SpiderThread((ExtensionSpider)this.getExtension(), site, this, 
-				(SpiderParam) params);
-		
-    		st.setStartNode(this.getSiteNode(site));
+		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this, (SpiderParam) params);
+		st.setStartNode(this.getSiteNode(site));
 		return st;
 	}
-	
+
 	@Override
 	protected void startScan() {
 		this.clear();
@@ -87,7 +85,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		this.getSiteSelect().setEnabled(false);
 		super.startScan();
 	}
-	
+
 	@Override
 	protected void siteSelected(String site) {
 		// Only allow one spider at a time, due to the way it uses the db
@@ -95,7 +93,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			super.siteSelected(site);
 		}
 	}
-	
+
 	@Override
 	public void scanFinshed(String host) {
 		super.scanFinshed(host);
@@ -106,231 +104,263 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	@Override
 	public boolean isScanning(SiteNode node, boolean incPort) {
 		// Only allow one spider at a time, due to the way it uses the db
-		return ! this.getSiteSelect().isEnabled();
+		return !this.getSiteSelect().isEnabled();
 	}
-
 
 	@Override
 	protected void switchView(String site) {
 		// Cant switch views in this version
 	}
-	
-	
+
 	/**
-	 * This method initializes splitPane	
-	 * 	
-	 * @return javax.swing.JSplitPane	
-	 */    
+	 * This method initializes the working SplitPane
+	 * 
+	 * @return javax.swing.JSplitPane
+	 */
 	@Override
 	protected JSplitPane getWorkPanel() {
 		if (splitPane == null) {
 			splitPane = new JSplitPane();
-			splitPane.setName("splitPane");
+			splitPane.setName("SpiderSplitPane");
 			splitPane.setDividerSize(3);
-			//splitPane.setDividerLocation(120);
 			splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-			splitPane.setTopComponent(getLeftPanel());
-			splitPane.setBottomComponent(getRightPanel());
+			splitPane.setTopComponent(getTopPanel());
+			splitPane.setBottomComponent(getBottomPanel());
 			splitPane.setResizeWeight(0.5D);
 		}
 		return splitPane;
 	}
+
 	/**
-	 * This method initializes leftPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getLeftPanel() {
-		if (leftPanel == null) {
-			jLabel = new JLabel();
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			leftPanel = new JPanel();
-			leftPanel.setLayout(new GridBagLayout());
-			jLabel.setText(Constant.messages.getString("spider.label.inScope")); 
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 1.0D;
-			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.weighty = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints2.insets = new java.awt.Insets(0,2,0,2);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints2.ipady = 24;
-			leftPanel.add(jLabel, gridBagConstraints1);
-			leftPanel.add(getJScrollPane(), gridBagConstraints2);
+	 * This method initializes the topPanel.
+	 * 
+	 * @return the top panel
+	 */
+	private JPanel getTopPanel() {
+		if (topPanel == null) {
+			topPanel = new JPanel();
+			topPanel.setLayout(new GridBagLayout());
+
+			GridBagConstraints topLabelGridBag = new GridBagConstraints();
+			GridBagConstraints topScrollPaneGridBag = new GridBagConstraints();
+
+			topLabelGridBag.gridx = 0;
+			topLabelGridBag.gridy = 0;
+			topLabelGridBag.weightx = 1.0D;
+			topLabelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			topLabelGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			topLabelGridBag.insets = new java.awt.Insets(2, 2, 2, 2);
+
+			topScrollPaneGridBag.gridx = 0;
+			topScrollPaneGridBag.gridy = 1;
+			topScrollPaneGridBag.ipady = 24;
+			topScrollPaneGridBag.weightx = 1.0;
+			topScrollPaneGridBag.weighty = 1.0;
+			topScrollPaneGridBag.fill = java.awt.GridBagConstraints.BOTH;
+			topScrollPaneGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			topScrollPaneGridBag.insets = new java.awt.Insets(0, 2, 0, 2);
+
+			JLabel topLabel = new JLabel();
+			topLabel.setText(Constant.messages.getString("spider.label.inScope"));
+
+			topPanel.add(topLabel, topLabelGridBag);
+			topPanel.add(getTopScrollPane(), topScrollPaneGridBag);
 		}
-		return leftPanel;
+		return topPanel;
 	}
+
 	/**
-	 * This method initializes rightPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getRightPanel() {
-		if (rightPanel == null) {
-			jLabel1 = new JLabel();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			rightPanel = new JPanel();
-			rightPanel.setLayout(new GridBagLayout());
-			jLabel1.setText(Constant.messages.getString("spider.label.outOfScope"));
-			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.gridy = 0;
-			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints3.weightx = 1.0D;
-			gridBagConstraints4.gridx = 0;
-			gridBagConstraints4.gridy = 1;
-			gridBagConstraints4.weightx = 1.0;
-			gridBagConstraints4.weighty = 1.0;
-			gridBagConstraints4.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints4.insets = new java.awt.Insets(0,2,0,2);
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints4.ipady = 24;
-			rightPanel.add(jLabel1, gridBagConstraints3);
-			rightPanel.add(getJScrollPane1(), gridBagConstraints4);
+	 * This method initializes the bottom panel.
+	 * 
+	 * @return the bottom panel
+	 */
+	private JPanel getBottomPanel() {
+		if (bottomPanel == null) {
+			bottomPanel = new JPanel();
+			bottomPanel.setLayout(new GridBagLayout());
+
+			GridBagConstraints bottomLabelGridBag = new GridBagConstraints();
+			GridBagConstraints bottomPanelGridBag = new GridBagConstraints();
+
+			bottomLabelGridBag.gridx = 0;
+			bottomLabelGridBag.gridy = 0;
+			bottomLabelGridBag.weightx = 1.0D;
+			bottomLabelGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			bottomLabelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			bottomLabelGridBag.insets = new java.awt.Insets(2, 2, 2, 2);
+
+			bottomPanelGridBag.gridx = 0;
+			bottomPanelGridBag.gridy = 1;
+			bottomPanelGridBag.ipady = 24;
+			bottomPanelGridBag.weightx = 1.0;
+			bottomPanelGridBag.weighty = 1.0;
+			bottomPanelGridBag.fill = java.awt.GridBagConstraints.BOTH;
+			bottomPanelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			bottomPanelGridBag.insets = new java.awt.Insets(0, 2, 0, 2);
+
+			JLabel bottomLabel = new JLabel();
+			bottomLabel.setText(Constant.messages.getString("spider.label.outOfScope"));
+
+			bottomPanel.add(bottomLabel, bottomLabelGridBag);
+			bottomPanel.add(getBottomScrollPane(), bottomPanelGridBag);
 		}
-		return rightPanel;
+		return bottomPanel;
 	}
+
 	/**
-	 * This method initializes txtURISkip	
-	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextArea	
-	 */    
+	 * This method initializes txtURISkip
+	 * 
+	 * @return org.zaproxy.zap.utils.ZapTextArea
+	 */
 	ZapTextArea getTxtURIFound() {
 		if (txtURIFound == null) {
 			txtURIFound = new ZapTextArea();
 			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
-			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() { 
+			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
-					
+
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
-				
+
 				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {    
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
-			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-			        }			    	
-			    }
-			    
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right
+																									// mouse
+																									// button
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}
+				}
+
 			});
 		}
 		return txtURIFound;
 	}
+
 	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTxtURIFound());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	 * This method initializes jScrollPane
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getTopScrollPane() {
+		if (topScrollPane == null) {
+			topScrollPane = new JScrollPane();
+			topScrollPane.setViewportView(getTxtURIFound());
+			topScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			topScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
-		return jScrollPane;
+		return topScrollPane;
 	}
+
 	/**
-	 * This method initializes txtURISkip	
-	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextArea	
-	 */    
+	 * This method initializes txtURISkip
+	 * 
+	 * @return org.zaproxy.zap.utils.ZapTextArea
+	 */
 	ZapTextArea getTxtURISkip() {
 		if (txtURISkip == null) {
 			txtURISkip = new ZapTextArea();
 			txtURISkip.setEditable(false);
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);
-			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() { 
+			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
-					
+
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
 					mouseClicked(e);
 				}
-				
+
 				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {   
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right mouse button
-			            View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-			        }			    	
-			    }
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right
+																									// mouse
+																									// button
+						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					}
+				}
 			});
 		}
 		return txtURISkip;
 	}
+
 	/**
-	 * This method initializes jScrollPane1	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane1() {
-		if (jScrollPane1 == null) {
-			jScrollPane1 = new JScrollPane();
-			jScrollPane1.setViewportView(getTxtURISkip());
-			jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	 * This method initializes jScrollPane1
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getBottomScrollPane() {
+		if (bottomScrollPane == null) {
+			bottomScrollPane = new JScrollPane();
+			bottomScrollPane.setViewportView(getTxtURISkip());
+			bottomScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
-		return jScrollPane1;
+		return bottomScrollPane;
 	}
-	
-	void appendFound(final String s) {
+
+	/**
+	 * Appends a new url found to the list of URLs found (top Pane). Can be called from other
+	 * threads, in which case it will do the change on the main thread.
+	 * 
+	 * @param url the url
+	 */
+	void appendURLFound(final String url) {
 		if (EventQueue.isDispatchThread()) {
-			getTxtURIFound().append(s);
+			getTxtURIFound().append(url);
 			return;
 		}
 		try {
-			EventQueue.invokeAndWait(new Runnable() {
+			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					getTxtURIFound().append(s);
+					synchronized (txtURIFound) {
+						getTxtURIFound().append(url);
+					}
 				}
 			});
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-	    
+
 	}
-	
-	void appendFoundButSkip(final String s) {
+
+	/**
+	 * Appends a new url found to the list of URLs found, but skipped (lower Pane). Can be called
+	 * from other threads, in which case it will do the change on the main thread.
+	 * 
+	 * @param url the url
+	 */
+	void appendURLFoundButSkipped(final String url) {
 		if (EventQueue.isDispatchThread()) {
-			getTxtURISkip().append(s);
+			getTxtURISkip().append(url);
 			return;
 		}
 		try {
-			EventQueue.invokeAndWait(new Runnable() {
+			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					getTxtURISkip().append(s);
+					synchronized (txtURISkip) {
+						getTxtURISkip().append(url);
+					}
 				}
 			});
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 	}
-	    
+
 	void clear() {
-	    getTxtURIFound().setText("");
-	    getTxtURISkip().setText("");
+		getTxtURIFound().setText("");
+		getTxtURISkip().setText("");
 	}
-	
 
 }

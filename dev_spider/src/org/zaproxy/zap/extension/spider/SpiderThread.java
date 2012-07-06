@@ -270,9 +270,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	public void foundURI(String uri, FetchStatus status) {
 		if (extension.getView() != null) {
 			if (status != FetchStatus.VALID) {
-				extension.getSpiderPanel().appendFoundButSkip(uri + " - " + status + "\n");
+				extension.getSpiderPanel().appendURLFoundButSkipped(uri + " - " + status + "\n");
 			} else {
-				extension.getSpiderPanel().appendFound(uri + "\n");
+				extension.getSpiderPanel().appendURLFound(uri + "\n");
 			}
 		}
 	}
