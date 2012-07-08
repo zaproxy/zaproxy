@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -63,6 +64,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -88,6 +90,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private JLabel filterStatus;
 
+	private JButton brkButton;
+
 	private WebSocketModelFilterDialog filterDialog;
 
 	private JComboBox channelSelect;
@@ -110,13 +114,17 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private Frame mainframe;
 
+	private WebSocketBreakpointsUiManagerInterface brkManager;
+
 	/**
 	 * Panel is added as tab beside the History tab.
 	 * 
 	 * @param mainframe Needed for dialog box.
+	 * @param brkManager 
 	 */
-	public WebSocketPanel(Frame mainframe) {
+	public WebSocketPanel(Frame mainframe, WebSocketBreakpointsUiManagerInterface brkManager) {
 		this.mainframe = mainframe;
+		this.brkManager = brkManager;
 		
 		channelSelectModel = new SortedComboBoxModel();
 		
@@ -124,6 +132,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 		// at the beginning all channels are shown
 		initializePanel();
+	}
+	
+	public ComboBoxModel getChannelComboBoxModel() {
+		return channelSelectModel;
 	}
 	
 	/**
@@ -454,6 +466,13 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			constraints.gridx = x++;
 			panelToolbar.add(getChannelSelect(), constraints);
 
+			if (brkManager != null) {
+				// ExtensionBreak is not disabled
+				constraints = new GridBagConstraints();
+				constraints.gridx = x++;
+				panelToolbar.add(getAddBreakpointButton(), constraints);
+			}
+
 			constraints = new GridBagConstraints();
 			constraints.gridx = x++;
 			panelToolbar.add(getFilterButton(), constraints);
@@ -518,7 +537,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		return optionsButton;
 	}
 	
-	protected class ComboBoxChannelItem implements Comparable<Object> {
+	public class ComboBoxChannelItem implements Comparable<Object> {
 		private final Integer channelId;
 		private final String label;
 		
@@ -535,6 +554,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			return label;
 		}
 
+		/**
+		 * Used for sorting items. If two items have identical names, the
+		 * channel number is used to determine order.
+		 */
 		@Override
 		public int compareTo(Object o) {
 			String otherString = o.toString().replaceAll("#[0-9]+", "");
@@ -575,6 +598,24 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			filterStatus = new JLabel(base + status);
 		}
 		return filterStatus;
+	}
+
+	private Component getAddBreakpointButton() {
+		if (brkButton == null) {
+			brkButton = new JButton();
+			brkButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/break_add.png")));
+			brkButton.setToolTipText(Constant.messages.getString("websocket.filter.button.break_add"));
+
+			final WebSocketBreakpointsUiManagerInterface brkManager = this.brkManager;
+			brkButton.addActionListener(new ActionListener() { 
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					brkManager.handleAddBreakpoint(new WebSocketMessageDAO());
+				}
+			});
+		}
+		return brkButton;
 	}
 
 	@Override

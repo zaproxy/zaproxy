@@ -30,6 +30,8 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.ComboBoxModel;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -98,6 +100,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Will be added to the hook view. 
 	 */
 	private OptionsWebSocketPanel optionsPanel;
+
+	/**
+	 * Allows to set custom breakpoints, e.g.: for specific opcodes only.
+	 */
+	private WebSocketBreakpointsUiManagerInterface brkManager;
 	
 	/**
 	 * Constructor initializes this class.
@@ -181,7 +188,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 				// Pop up to add the breakpoint
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
-				extBreak.addBreakpointsUiManager(new WebSocketBreakpointsUiManagerInterface(extBreak));
+				extBreak.addBreakpointsUiManager(getBrkManager());
 			}
         }
     }
@@ -377,10 +384,25 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	private WebSocketPanel getWebSocketPanel() {
 		if (panel == null) {
-			panel = new WebSocketPanel(getView().getMainFrame());
+			panel = new WebSocketPanel(getView().getMainFrame(), getBrkManager());
 		}
 		
 		return panel;
+	}
+
+	private WebSocketBreakpointsUiManagerInterface getBrkManager() {
+		if (brkManager == null) {
+			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
+			if (extBreak != null) {
+				brkManager = new WebSocketBreakpointsUiManagerInterface(extBreak, this);
+			}
+		}
+			
+		return brkManager;
+	}
+
+	public ComboBoxModel getChannelComboBoxModel() {
+		return getWebSocketPanel().getChannelComboBoxModel();
 	}
 
 	// TODO: find out what to do in this case
