@@ -162,18 +162,20 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-	                HistoryReference hRef = (HistoryReference) messageList.getSelectedValue();
-			        if (hRef == null) {
-                        return;
-                    }
-			        
-				    try {
-				        displayMessage(hRef.getHttpMessage());
-				    } catch (HttpMalformedHeaderException ex) {
-				        logger.error(ex.getMessage(), ex);
-                    } catch (SQLException ex) {
-                        logger.error(ex.getMessage(), ex);
-                    }
+				    if (!e.getValueIsAdjusting()) {
+    	                HistoryReference hRef = (HistoryReference) messageList.getSelectedValue();
+    			        if (hRef == null) {
+                            return;
+                        }
+    			        
+    				    try {
+    				        displayMessage(hRef.getHttpMessage());
+    				    } catch (HttpMalformedHeaderException ex) {
+    				        logger.error(ex.getMessage(), ex);
+                        } catch (SQLException ex) {
+                            logger.error(ex.getMessage(), ex);
+                        }
+				    }
 				}});
 			
 			resetMessageList();
