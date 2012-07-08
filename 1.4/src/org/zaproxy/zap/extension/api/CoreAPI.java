@@ -98,7 +98,7 @@ public class CoreAPI extends ApiImplementor {
 		Session session = Model.getSingleton().getSession();
 
 		if (ACTION_SHUTDOWN.equals(name)) {
-			Control.getSingleton().shutdown(false);
+			Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
 			log.info(Constant.PROGRAM_TITLE + " terminated.");
 			System.exit(0);
 

@@ -23,6 +23,10 @@
 // ZAP: 2011/11/15 Removed the getConfig method and the config field, now it's
 // used the method of the base class.
 // ZAP: 2012/05/03 Changed the type of one variable in the method getParamSet.
+// ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
+// getDatabaseParam() and changed the method parse() to also load the database
+// configurations.
+
 
 package org.parosproxy.paros.model;
 
@@ -32,6 +36,7 @@ import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -69,6 +74,11 @@ public class OptionsParam extends AbstractParam {
 	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	private SessionParam sessionParam = new SessionParam();
+    /**
+     * The database configurations.
+     */
+	// ZAP: Added the instance variable.
+    private DatabaseParam databaseParam = new DatabaseParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private boolean gui = true;
@@ -183,6 +193,8 @@ public class OptionsParam extends AbstractParam {
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
 		getSessionParam().load(getConfig());
+		// ZAP: Added the statement.
+        getDatabaseParam().load(getConfig());
 		
 		String userDir = null;
 		try {
@@ -264,5 +276,15 @@ public class OptionsParam extends AbstractParam {
 	public void setBruteForceParam(BruteForceParam bruteForceParam) {
 		this.bruteForceParam = bruteForceParam;
 	}
+
+    /**
+     * Gets the database configurations.
+     *
+     * @return the database configurations
+     */
+	// ZAP: Added the method.
+    public DatabaseParam getDatabaseParam() {
+        return databaseParam;
+    }
 	
 }

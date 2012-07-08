@@ -90,6 +90,12 @@ public class AlertViewPanel extends AbstractPanel {
 	private List <Vulnerability> vulnerabilities = null;
 
 	private HistoryReference historyRef = null;
+	
+    /**
+     * Used to set the {@code HttpMessage} to the new alert when there is no
+     * {@code historyRef}.
+     */
+	private HttpMessage httpMessage;
 
 	/**
      * 
@@ -555,7 +561,10 @@ public class AlertViewPanel extends AbstractPanel {
 			
 			String uri = null;
 			HttpMessage msg = null;
-			if (historyRef != null) {
+			if (httpMessage != null) {
+			    uri = httpMessage.getRequestHeader().getURI().toString();
+			    msg = httpMessage;
+			} else if (historyRef != null) {
 				try {
 					uri = historyRef.getHttpMessage().getRequestHeader().getURI().toString();
 					msg = historyRef.getHttpMessage();
@@ -584,6 +593,7 @@ public class AlertViewPanel extends AbstractPanel {
 
 	public void setHistoryRef(HistoryReference historyRef) {
 		this.historyRef = historyRef;
+		this.httpMessage = null;
 		try {
 			if (historyRef != null) {
 				setParamNames(historyRef.getHttpMessage().getParamNames());
@@ -594,6 +604,18 @@ public class AlertViewPanel extends AbstractPanel {
 			e.printStackTrace();
 		}
 	}
+
+    /**
+     * Sets the {@code HttpMessage} that will be set to the new alert.
+     * 
+     * @param httpMessage
+     *            the {@code HttpMessage} that will be set to the new alert
+     */
+    public void setHttpMessage(HttpMessage httpMessage) {
+        this.httpMessage = httpMessage;
+        setParamNames(httpMessage.getParamNames());
+        this.historyRef = null;
+    }
 	
 	public boolean isEditable() {
 		return editable;

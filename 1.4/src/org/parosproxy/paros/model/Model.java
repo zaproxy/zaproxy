@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/06/11 Changed the method copySessionDb to call the method
+// Database.close(boolean, boolean).
 
 package org.parosproxy.paros.model;
 
@@ -203,7 +205,8 @@ public class Model {
     
     protected void copySessionDb(String currentFile, String destFile) throws Exception {
         
-        getDb().close(false);
+        // ZAP: Changed to call the method close(boolean, boolean).
+        getDb().close(false, false);
         
         // copy session related files to the path specified
         FileCopier copier = new FileCopier();        

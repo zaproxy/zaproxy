@@ -77,6 +77,11 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		public String getViewName() {
 			return ResponseImageView.CONFIG_NAME;
 		}
+		
+		@Override
+		public int getOrder() {
+			return 20;
+		}
 	}
 
 	private static final class ImageDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {

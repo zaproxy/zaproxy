@@ -21,6 +21,9 @@
 // ZAP: 2011/11/20 Set order
 // ZAP: 2012/03/10 Issue 279: Flag as a core extension 
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
+// ZAP: 2012/07/02 Added the instance variable optionsDatabasePanel and the 
+// method getOptionsDatabasePanel() and changed the method hook(ExtensionHook)
+// to add the optionsDatabasePanel to the options panel.
 
 package org.parosproxy.paros.extension.option;
 
@@ -43,6 +46,12 @@ public class ExtensionOption extends ExtensionAdaptor {
 	private OptionsViewPanel optionsViewPanel = null;
 	private OptionsCheckForUpdatesPanel optionsCheckForUpdatesPanel = null;
 	private OptionsLangPanel optionsLangPanel = null;
+	
+	/**
+	 * The options database panel.
+	 */
+    // ZAP: Added the instance variable.
+	private OptionsDatabasePanel optionsDatabasePanel = null;
 
 	
     public ExtensionOption() {
@@ -71,6 +80,8 @@ public class ExtensionOption extends ExtensionAdaptor {
 	        extensionHook.getHookView().addOptionPanel(getOptionsViewPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsCheckForUpdatesPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsLangPanel());
+	        // ZAP: Added the statement.
+            extensionHook.getHookView().addOptionPanel(getOptionsDatabasePanel());
 	    }
 	}
 
@@ -136,6 +147,19 @@ public class ExtensionOption extends ExtensionAdaptor {
 		}
 		return optionsLangPanel;
 	}
+
+    /**
+     * Gets the database options panel.
+     *
+     * @return the database options panel
+     */
+    // ZAP: Added the method.
+    private OptionsDatabasePanel getOptionsDatabasePanel() {
+        if (optionsDatabasePanel == null) {
+            optionsDatabasePanel = new OptionsDatabasePanel();
+        }
+        return optionsDatabasePanel;
+    }
 	
 	@Override
 	public boolean isCore() {
