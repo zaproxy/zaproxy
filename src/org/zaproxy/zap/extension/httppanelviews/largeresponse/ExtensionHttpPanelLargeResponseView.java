@@ -85,6 +85,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		public String getViewName() {
 			return ResponseLargeResponseSplitView.CONFIG_NAME;
 		}
+		
+		@Override
+		public int getOrder() {
+			return 50;
+		}
 	}
 
 	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
@@ -123,6 +128,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		@Override
 		public String getViewName() {
 			return ResponseLargeResponseAllView.CONFIG_NAME;
+		}
+		
+		@Override
+		public int getOrder() {
+			return 50;
 		}
 	}
 
