@@ -131,7 +131,7 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
         add(jLabel2, gbc4);
 	}
 	
-	private GridBagConstraints getGridBackConstrants(int y, int x, double weight, boolean fullWidth) {
+	private GridBagConstraints getGridBagConstraints(int y, int x, double weight, boolean fullWidth) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = y;
         gbc.gridx = x;
@@ -230,18 +230,18 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
 	    	int rowId = 0;
 	        
 	        editPane.add(new JLabel(Constant.messages.getString("websocket.options.label.domain")), 
-	        		getGridBackConstrants(rowId, 0, 0, false));
-	        editPane.add(editDomain, getGridBackConstrants(rowId++, 1, 1, true));
+	        		getGridBagConstraints(rowId, 0, 0, false));
+	        editPane.add(editDomain, getGridBagConstraints(rowId++, 1, 1, true));
 	        
 	        editPane.add(new JLabel(Constant.messages.getString("websocket.options.label.port")), 
-	        		getGridBackConstrants(rowId, 0, 0, false));
-	        editPane.add(editPort, getGridBackConstrants(rowId++, 1, 1, true));
+	        		getGridBagConstraints(rowId, 0, 0, false));
+	        editPane.add(editPort, getGridBagConstraints(rowId++, 1, 1, true));
 	        
 	        JPanel buttons = new JPanel();
 	        buttons.add(newButton);
 	        buttons.add(saveButton);
 	        buttons.add(deleteButton);
-	        editPane.add(buttons, getGridBackConstrants(rowId++, 1, 1, true));
+	        editPane.add(buttons, getGridBagConstraints(rowId++, 1, 1, true));
 		}
 		return editPane;
 	}

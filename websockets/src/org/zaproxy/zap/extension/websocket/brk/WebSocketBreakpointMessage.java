@@ -17,6 +17,11 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
+import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
@@ -25,13 +30,26 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
     private static final String TYPE = "WebSocket";
     
-    // Define the criteria for WebSocket breakpoints.
-    
-    // Break on specified opcode.
+    /**
+     * Break on specified opcode or on all if null.
+     */
 	private String opcode;
+	
+	/**
+	 * Break on specified channel id or on all channels if null.
+	 */
+	private Integer channelId;
+	
+	/**
+	 * Break on specified pattern that has to match on the
+	 * {@link WebSocketMessageDAO#payload} or arbitrary payload if null.
+	 */
+	private Pattern payloadPattern;
 
-	public WebSocketBreakpointMessage(String opcode) {
-		this.opcode = opcode;
+	public WebSocketBreakpointMessage(String opcode, Integer channelId, String payloadPattern) {
+		setOpcode(opcode);
+		setChannelId(channelId);
+		setPayloadPattern(payloadPattern);
 	}
 
 	@Override
@@ -47,12 +65,64 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	    this.opcode = opcode;
 	}
 
+	public Integer getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(Integer channelId) {
+		this.channelId = channelId;
+	}
+
+	public String getPayloadPattern() {
+		if (payloadPattern != null) {
+			return payloadPattern.pattern();
+		}
+		return null;
+	}
+
+	public void setPayloadPattern(String payloadPattern) {
+		if (payloadPattern == null || payloadPattern.length() == 0) {
+			this.payloadPattern = null;
+		} else {
+			this.payloadPattern = Pattern.compile(payloadPattern);
+		}
+	}
+
 	@Override
 	public boolean match(Message aMessage) {
 	    if (aMessage instanceof WebSocketMessageDAO) {
+			int matches = 0;
+			boolean isMatch = true;
+			
 	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
-	        if (msg.readableOpcode.equals(opcode)) {
-	            return true;
+	        
+	        if (opcode != null) {
+		        if (msg.readableOpcode.equals(opcode)) {
+		            matches++;
+		        } else {
+		        	isMatch = false;
+		        }
+	        }
+	        
+	        if (channelId != null) {
+	        	if (msg.channelId == channelId) {
+		            matches++;
+	        	} else {
+		        	isMatch = false;
+		        }
+	        }
+	        
+	        if (payloadPattern != null) {
+	        	Matcher m = payloadPattern.matcher(msg.payload);
+	        	if (m.matches()) {
+	        		matches++;
+	        	} else {
+		        	isMatch = false;
+		        }
+	        }
+	        
+	        if (matches > 0 && isMatch) {
+	        	return true;
 	        }
 	    }
 	    
@@ -61,7 +131,25 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
     @Override
     public String getDisplayMessage() {
-        return "Break on opcode: " + opcode;
+    	ResourceBundle msgs = Constant.messages;
+    	String message = "";
+    	
+    	if (opcode != null) {
+    		message += msgs.getString("websocket.brk.add.opcode") + ": " + opcode + "; ";
+        }
+        
+        if (channelId != null) {
+    		message += msgs.getString("websocket.brk.add.channel") + ": #" + channelId + "; ";
+        }
+        
+        if (payloadPattern != null) {
+    		message += msgs.getString("websocket.brk.add.pattern") + ": " + payloadPattern.pattern() + "; ";
+        }
+        
+        if (message.isEmpty()) {
+        	return msgs.getString("websocket.brk.add.break_on_all");
+        }
+        
+        return msgs.getString("websocket.brk.add.break_on_custom") + " " + message;
     }
-
 }

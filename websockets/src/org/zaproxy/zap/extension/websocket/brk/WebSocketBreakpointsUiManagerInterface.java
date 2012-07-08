@@ -17,22 +17,24 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
-
 import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
 
-    private BreakAddDialog addDialog = null;
-    private BreakEditDialog editDialog = null;
-    
+    private WebSocketBreakAddDialog addDialog = null;
+    private WebSocketBreakEditDialog editDialog = null;
+
     private ExtensionBreak extensionBreak;
+    private ExtensionWebSocket extensionWebSocket;
     
-    public WebSocketBreakpointsUiManagerInterface(ExtensionBreak extensionBreak) {
+    public WebSocketBreakpointsUiManagerInterface(ExtensionBreak extensionBreak, ExtensionWebSocket extensionWebSocket) {
         this.extensionBreak = extensionBreak;
+        this.extensionWebSocket = extensionWebSocket;
     }
     
     @Override
@@ -79,7 +81,6 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     public void reset() {
     }
     
-    
     private void populateAddDialogAndSetVisible(Message aMessage) {
         addDialog.setMessage((WebSocketMessageDAO)aMessage);
         addDialog.setVisible(true);
@@ -87,7 +88,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showAddDialog(Message aMessage) {
         if (addDialog == null) {
-            addDialog = new BreakAddDialog(this);
+            addDialog = new WebSocketBreakAddDialog(this, extensionWebSocket.getChannelComboBoxModel());
             populateAddDialogAndSetVisible(aMessage);
         } else if (!addDialog.isVisible()) {
             populateAddDialogAndSetVisible(aMessage);
@@ -106,7 +107,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showEditDialog(WebSocketBreakpointMessage breakpoint) {
         if (editDialog == null) {
-            editDialog = new BreakEditDialog(this);
+            editDialog = new WebSocketBreakEditDialog(this, extensionWebSocket.getChannelComboBoxModel());
             populateEditDialogAndSetVisible(breakpoint);
         } else if (!editDialog.isVisible()) {
             populateEditDialogAndSetVisible(breakpoint);
@@ -117,5 +118,4 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
         editDialog.dispose();
         extensionBreak.dialogClosed();
     }
-    
 }
