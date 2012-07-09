@@ -67,8 +67,8 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
 		Direction direction = message.getDirection();
 
-		boolean isApplicable = (!message.isFinished() || message.getPayloadLength() == 0 || message.isBinary());
-		boolean hasPattern = (getPattern() == null);
+		boolean isApplicable = !(!message.isFinished() || message.getPayloadLength() == 0 || message.isBinary());
+		boolean hasPattern = (getPattern() != null);
 		boolean shouldBeApplied = ((direction.equals(Direction.INCOMING) && shouldApplyOnIncoming) ||
 				(direction.equals(Direction.OUTGOING) && shouldApplyOnOutgoing));
 

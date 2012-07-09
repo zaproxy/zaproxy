@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
+// ZAP: 2012/07/09 Update row in UI after editing its properties.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -35,6 +36,7 @@ import javax.swing.table.TableCellEditor;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor {
+	private static final long serialVersionUID = 1L;
     
     // This is the component that will handle the editing of the cell value
     private JButton button = null;
@@ -51,6 +53,10 @@ class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor
 				// ZAP: Removed unnecessary cast.
 				Filter filter = AllFilterTableEditor.this.model.getAllFilters().get(row);
 				filter.editProperty();
+				
+				// ZAP: filter might be enabled or disabled after editing properties
+				// change has to be propagated to the checkbox in the corresponding row
+				AllFilterTableEditor.this.model.fireTableRowsUpdated(row, row);
 			}
 		});
     }
