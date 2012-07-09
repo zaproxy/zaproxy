@@ -162,7 +162,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		add(getWorkPanel(), gridBagConstraints2);
 		
 		setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/029.png")));
-		setName(Constant.messages.getString("http.panel.websocket.title"));
+		setName(Constant.messages.getString("websocket.panel.title"));
     	
 		revalidate();
 	}
