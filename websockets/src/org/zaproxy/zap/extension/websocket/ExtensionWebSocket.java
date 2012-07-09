@@ -105,6 +105,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Allows to set custom breakpoints, e.g.: for specific opcodes only.
 	 */
 	private WebSocketBreakpointsUiManagerInterface brkManager;
+
+	/**
+	 * Used for setting up all channel observers.
+	 */
+	private boolean hasHookedAllObserver;
 	
 	/**
 	 * Constructor initializes this class.
@@ -113,6 +118,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		super();
 		setName(NAME);
 		setOrder(150);
+		allChannelObservers = new Vector<WebSocketObserver>();
+		hasHookedAllObserver = false;
 	}
 	
 	@Override
@@ -148,8 +155,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	        //TODO: Help
 //	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
         	
-        	allChannelObservers = extensionHook.getWebSocketObserverList();
-        	
         	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
 
 			// Add "HttpPanel" components and views.
@@ -180,7 +185,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			viewFactory = new SyntaxHighlightTextViewFactory();
 			manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
 			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
-
+			
 			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
 			if (extBreak != null) {
 				// Listen on the new messages so the breakpoints can apply.
@@ -192,6 +197,15 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			}
         }
     }
+
+	/**
+	 * Add an observer that is attached to every channel connected in future.
+	 * 
+	 * @param listener
+	 */
+	public void addAllChannelObserver(WebSocketObserver listener) {
+		allChannelObservers.add(listener);
+	}
 
 	/**
 	 * Lazy initialize options panel.
@@ -216,6 +230,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
 	public void addWebSocketsChannel(HttpMessage msg, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
+		if (!hasHookedAllObserver) {
+			hasHookedAllObserver = true;
+			// Cannot call this method in own hook() method, as one or another
+			// extension had no chance to add webSocketObserver!
+			Control.getSingleton().getExtensionLoader().hookWebSocketObserver(this);
+		}
+		
 		logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
 				+ " port " + localSocket.getPort() + " to "
 				+ remoteSocket.getInetAddress() + " port "

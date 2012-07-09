@@ -23,7 +23,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/25 Changed visibility of getJPanel() and initialize() from
 // private to protected. Use i18n strings for labels and warnings.
-
+// ZAP: 2012/07/09 Added 10 more pixels to the dialog's height.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;
@@ -64,7 +64,6 @@ public class FilterReplaceDialog extends AbstractDialog {
     public FilterReplaceDialog() throws HeadlessException {
         super();
  		initialize();
-       // TODO Auto-generated constructor stub
     }
 
     /**
@@ -76,7 +75,6 @@ public class FilterReplaceDialog extends AbstractDialog {
             throws HeadlessException {
         super(arg0, arg1);
         initialize();
-        // TODO Auto-generated constructor stub
     }
     
     public void setView(ViewDelegate view) {
@@ -91,10 +89,11 @@ public class FilterReplaceDialog extends AbstractDialog {
 	protected void initialize() {
 		// ZAP: Changed visibility from private to protected.
         this.setContentPane(getJPanel());
+        // ZAP: Added 10 more pixels to the dialog's height
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(346, 156);
+	    	this.setSize(346, 166);
 	    }
-	    this.setPreferredSize(new Dimension(346, 156));
+	    this.setPreferredSize(new Dimension(346, 166));
 		this.pack();
 	}
 	

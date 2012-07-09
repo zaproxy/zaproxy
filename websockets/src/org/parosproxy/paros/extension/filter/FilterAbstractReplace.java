@@ -77,11 +77,15 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	 * 
 	 * @param dialog
 	 */
-	protected void processFilterReplaceDialog(FilterReplaceDialog dialog) {
+	protected void processFilterReplaceDialog(FilterReplaceDialog dialog) {		
 	    if (dialog.getTxtPattern().getText().equals("")) {
 	        pattern = null;
+			// disable filter when empty pattern is entered
+			setEnabled(false);
 	    } else {
 	        pattern = Pattern.compile(dialog.getTxtPattern().getText(), Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+			// enable filter when pattern is entered
+			setEnabled(true);
 	    }
 	    
 	    txtReplace = dialog.getTxtReplaceWith().getText();

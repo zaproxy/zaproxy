@@ -70,6 +70,12 @@ public class ExtensionHook {
     public void addSiteMapListner(SiteMapListener listener) {
     	siteMapListenerList.add(listener);
     }
+    
+    /**
+     * The added observer is attached to each new channel.
+     * 
+     * @param observer
+     */
     public void addWebSocketObserver(WebSocketObserver observer) {
     	webSocketObserverList.add(observer);
     }
