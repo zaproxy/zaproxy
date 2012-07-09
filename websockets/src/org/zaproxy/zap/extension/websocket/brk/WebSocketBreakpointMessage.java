@@ -84,7 +84,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 		if (payloadPattern == null || payloadPattern.length() == 0) {
 			this.payloadPattern = null;
 		} else {
-			this.payloadPattern = Pattern.compile(payloadPattern);
+			this.payloadPattern = Pattern.compile(payloadPattern, Pattern.MULTILINE);
 		}
 	}
 
@@ -114,7 +114,8 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        
 	        if (payloadPattern != null) {
 	        	Matcher m = payloadPattern.matcher(msg.payload);
-	        	if (m.matches()) {
+	        	if (m.find()) {
+	        		// when m.matches() is used, the whole string has to match
 	        		matches++;
 	        	} else {
 		        	isMatch = false;
