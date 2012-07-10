@@ -24,15 +24,16 @@ import java.awt.event.ActionListener;
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
-public class WebSocketBreakAddDialog extends WebSocketBreakDialog {
+public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 
 	private static final long serialVersionUID = 1L;
 	private ActionListener actionListenerCancel;
 	private ActionListener actionListenerSubmit;
 
-	public WebSocketBreakAddDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
+	public WebSocketBreakDialogAdd(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
 		super(breakPointsManager, channelSelectModel);
 	}
 
@@ -70,8 +71,9 @@ public class WebSocketBreakAddDialog extends WebSocketBreakDialog {
 					String opcode = getSelectedOpcode();
 					Integer channelId = getSelectedChannelId();
 					String payloadPattern = getPayloadPattern();
+					Direction direction = getDirection();
 					
-				    breakPointsManager.addBreakpoint(new WebSocketBreakpointMessage(opcode, channelId, payloadPattern));
+				    breakPointsManager.addBreakpoint(new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction));
 				    breakPointsManager.hideAddDialog();
 				}
 			};
@@ -94,5 +96,18 @@ public class WebSocketBreakAddDialog extends WebSocketBreakDialog {
     	}
     	
     	getPayloadPatternField().setText("");
+    	
+    	if (aMessage.direction != null) {
+    		if (aMessage.direction.equals(Direction.OUTGOING)) {
+    			getOutgoingCheckbox().setSelected(true);
+    			getIncomingCheckbox().setSelected(false);
+    		} else {
+    			getOutgoingCheckbox().setSelected(false);
+    			getIncomingCheckbox().setSelected(true);
+    		}
+    	} else {
+    		getOutgoingCheckbox().setSelected(true);
+			getIncomingCheckbox().setSelected(true);
+    	}
     }
 }

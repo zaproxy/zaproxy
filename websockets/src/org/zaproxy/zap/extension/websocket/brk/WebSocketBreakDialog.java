@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,6 +27,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,6 +37,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelItem;
 import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelRenderer;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -49,10 +52,13 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	private JButton btnSubmit = null;
 	private JButton btnCancel = null;
 	private JScrollPane jScrollPane = null;
+	
 	private JComboBox comboBoxOpcodes = null;
 	private JComboBox comboBoxChannels;
 	private ComboBoxModel channelSelectModel;
 	private ZapTextField payloadPatternField;
+	private JCheckBox outgoingCheckbox;
+	private JCheckBox incomingCheckbox;
 
     public WebSocketBreakDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
         super(View.getSingleton().getMainFrame(), false);
@@ -86,8 +92,10 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		if (jPanel == null) {
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jPanel.setPreferredSize(new java.awt.Dimension(400,220));
-			jPanel.setMinimumSize(new java.awt.Dimension(400,220));
+			
+			Dimension size = new Dimension(400, 270);
+			jPanel.setPreferredSize(size);
+			jPanel.setMinimumSize(size);
 			
 			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -170,6 +178,17 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	protected String getPayloadPattern() {
 		return payloadPatternField.getText();
 	}
+	
+	protected Direction getDirection() {
+		if (outgoingCheckbox.isSelected() && incomingCheckbox.isSelected()) {
+			return null;
+		} else if (outgoingCheckbox.isSelected()) {
+			return Direction.OUTGOING;
+		} else if (incomingCheckbox.isSelected()) {
+			return Direction.INCOMING;
+		}
+		return null;
+	}
 
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
@@ -209,19 +228,27 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 			panel.add(getOpcodeSelect(), createConstraints(1, 1, 1, true));
 			
 			// channel restriction
-			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.channel")), createConstraints(0, 2, 0, true));
+			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.channel")), createConstraints(0, 2, 0, false));
 			panel.add(getChannelSelect(), createConstraints(1, 2, 1, true));
 			
 			// payload restriction
 			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.pattern")), createConstraints(0, 3, 0, false));
 			panel.add(getPayloadPatternField(), createConstraints(1, 3, 1, true));
 			
+			// direction restriction
+			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.direction")), createConstraints(0, 4, 0, false));
+
+			// add checkbox for outgoing messages
+			panel.add(getOutgoingCheckbox(), createConstraints(1, 4, 1, true));
+			// add checkbox for incoming messages
+			panel.add(getIncomingCheckbox(), createConstraints(1, 5, 1, true));
+			
 			jScrollPane.setViewportView(panel);			
 		}
 		return jScrollPane;
 	}
 
-    protected JComboBox getOpcodeSelect() {
+	protected JComboBox getOpcodeSelect() {
         if (comboBoxOpcodes == null) {
             String[] opcodes = new String[WebSocketMessage.OPCODES.length + 1];
             int i = 0;
@@ -264,6 +291,22 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		}
 		
 		return payloadPatternField;
+	}
+
+    protected JCheckBox getOutgoingCheckbox() {
+    	if (outgoingCheckbox == null) {
+    		outgoingCheckbox = new JCheckBox(Constant.messages.getString("websocket.filter.replacedialog.outgoing"));
+    		outgoingCheckbox.setSelected(true);
+    	}
+    	return outgoingCheckbox;		
+	}
+
+    protected JCheckBox getIncomingCheckbox() {
+    	if (incomingCheckbox == null) {
+			incomingCheckbox = new JCheckBox(Constant.messages.getString("websocket.filter.replacedialog.incoming"));
+			incomingCheckbox.setSelected(true);
+    	}
+    	return incomingCheckbox;		
 	}
 	
 	private GridBagConstraints createConstraints(int x, int y, double weight, boolean fullWidth) {

@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
@@ -46,10 +47,17 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	 */
 	private Pattern payloadPattern;
 
-	public WebSocketBreakpointMessage(String opcode, Integer channelId, String payloadPattern) {
+	/**
+	 * Break on specified directions {@link Direction#INCOMING} or/and
+	 * {@link Direction#OUTGOING} or on arbitrary directions if null.
+	 */
+	private Direction direction;
+
+	public WebSocketBreakpointMessage(String opcode, Integer channelId, String payloadPattern, Direction direction) {
 		setOpcode(opcode);
 		setChannelId(channelId);
 		setPayloadPattern(payloadPattern);
+		setDirection(direction);
 	}
 
 	@Override
@@ -88,27 +96,38 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 		}
 	}
 
+	public Direction getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Direction direction) {
+		if (direction == null) {
+			this.direction = null;
+		} else {
+			this.direction = direction;
+		}
+	}
+
 	@Override
 	public boolean match(Message aMessage) {
-	    if (aMessage instanceof WebSocketMessageDAO) {
-			int matches = 0;
-			boolean isMatch = true;
-			
+		boolean isMatch = false;
+		
+	    if (aMessage instanceof WebSocketMessageDAO) {			
 	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
 	        
 	        if (opcode != null) {
 		        if (msg.readableOpcode.equals(opcode)) {
-		            matches++;
+		        	isMatch = true;
 		        } else {
-		        	isMatch = false;
+		        	return false;
 		        }
 	        }
 	        
 	        if (channelId != null) {
 	        	if (msg.channelId == channelId) {
-		            matches++;
+	        		isMatch = true;
 	        	} else {
-		        	isMatch = false;
+		        	return false;
 		        }
 	        }
 	        
@@ -116,18 +135,22 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        	Matcher m = payloadPattern.matcher(msg.payload);
 	        	if (m.find()) {
 	        		// when m.matches() is used, the whole string has to match
-	        		matches++;
+	        		isMatch = true;
 	        	} else {
-		        	isMatch = false;
+		        	return false;
 		        }
 	        }
 	        
-	        if (matches > 0 && isMatch) {
-	        	return true;
+	        if (direction != null) {
+	        	if (direction == msg.direction) {
+	        		isMatch = true;
+	        	} else {
+		        	return false;
+		        }
 	        }
 	    }
 	    
-		return false;
+		return isMatch;
 	}
 
     @Override
@@ -136,15 +159,19 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
     	String message = "";
     	
     	if (opcode != null) {
-    		message += msgs.getString("websocket.brk.add.opcode") + ": " + opcode + "; ";
+    		message += msgs.getString("websocket.brk.add.opcode") + " " + opcode + "; ";
         }
         
         if (channelId != null) {
-    		message += msgs.getString("websocket.brk.add.channel") + ": #" + channelId + "; ";
+    		message += msgs.getString("websocket.brk.add.channel") + " #" + channelId + "; ";
         }
         
         if (payloadPattern != null) {
-    		message += msgs.getString("websocket.brk.add.pattern") + ": " + payloadPattern.pattern() + "; ";
+    		message += msgs.getString("websocket.brk.add.pattern") + " " + payloadPattern.pattern() + "; ";
+        }
+        
+        if (direction != null) {
+    		message += msgs.getString("websocket.brk.add.direction") + " " + direction + "; ";
         }
         
         if (message.isEmpty()) {

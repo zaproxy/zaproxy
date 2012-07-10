@@ -24,8 +24,9 @@ import java.awt.event.ActionListener;
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
-public class WebSocketBreakEditDialog extends WebSocketBreakDialog {
+public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 	private static final long serialVersionUID = 1L;
 
 	private ActionListener actionListenerCancel;
@@ -33,7 +34,7 @@ public class WebSocketBreakEditDialog extends WebSocketBreakDialog {
 	
 	private WebSocketBreakpointMessage breakpoint;
 
-	public WebSocketBreakEditDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
+	public WebSocketBreakDialogEdit(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
 		super(breakPointsManager, channelSelectModel);
 	}
 
@@ -72,8 +73,9 @@ public class WebSocketBreakEditDialog extends WebSocketBreakDialog {
 					String opcode = getSelectedOpcode();
 					Integer channelId = getSelectedChannelId();
 					String payloadPattern = getPayloadPattern();
+					Direction direction = getDirection();
 
-				    breakPointsManager.editBreakpoint(breakpoint, new WebSocketBreakpointMessage(opcode, channelId, payloadPattern));
+				    breakPointsManager.editBreakpoint(breakpoint, new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction));
                     breakpoint = null;
                     breakPointsManager.hideEditDialog();
 				}
@@ -101,6 +103,19 @@ public class WebSocketBreakEditDialog extends WebSocketBreakDialog {
         	getPayloadPatternField().setText(breakpoint.getPayloadPattern());
         } else {
         	getPayloadPatternField().setText("");
+        }
+        
+        if (breakpoint.getDirection() != null) {
+        	if (breakpoint.getDirection().equals(Direction.OUTGOING)) {
+        		getOutgoingCheckbox().setSelected(true);
+        		getIncomingCheckbox().setSelected(false);
+        	} else {
+        		getOutgoingCheckbox().setSelected(false);
+        		getIncomingCheckbox().setSelected(true);
+        	}
+        } else {
+        	getOutgoingCheckbox().setSelected(true);
+        	getIncomingCheckbox().setSelected(true);
         }
     }
 }
