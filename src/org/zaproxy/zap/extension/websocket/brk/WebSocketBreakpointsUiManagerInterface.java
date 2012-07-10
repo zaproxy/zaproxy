@@ -26,8 +26,8 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
 
-    private WebSocketBreakAddDialog addDialog = null;
-    private WebSocketBreakEditDialog editDialog = null;
+    private WebSocketBreakDialogAdd addDialog = null;
+    private WebSocketBreakDialogEdit editDialog = null;
 
     private ExtensionBreak extensionBreak;
     private ExtensionWebSocket extensionWebSocket;
@@ -88,7 +88,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showAddDialog(Message aMessage) {
         if (addDialog == null) {
-            addDialog = new WebSocketBreakAddDialog(this, extensionWebSocket.getChannelComboBoxModel());
+            addDialog = new WebSocketBreakDialogAdd(this, extensionWebSocket.getChannelComboBoxModel());
             populateAddDialogAndSetVisible(aMessage);
         } else if (!addDialog.isVisible()) {
             populateAddDialogAndSetVisible(aMessage);
@@ -107,7 +107,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showEditDialog(WebSocketBreakpointMessage breakpoint) {
         if (editDialog == null) {
-            editDialog = new WebSocketBreakEditDialog(this, extensionWebSocket.getChannelComboBoxModel());
+            editDialog = new WebSocketBreakDialogEdit(this, extensionWebSocket.getChannelComboBoxModel());
             populateEditDialogAndSetVisible(breakpoint);
         } else if (!editDialog.isVisible()) {
             populateEditDialogAndSetVisible(breakpoint);
