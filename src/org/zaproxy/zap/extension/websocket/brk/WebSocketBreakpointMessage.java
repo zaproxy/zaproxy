@@ -110,47 +110,39 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
 	@Override
 	public boolean match(Message aMessage) {
-		boolean isMatch = false;
-		
 	    if (aMessage instanceof WebSocketMessageDAO) {			
 	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
 	        
 	        if (opcode != null) {
-		        if (msg.readableOpcode.equals(opcode)) {
-		        	isMatch = true;
-		        } else {
+		        if (!msg.readableOpcode.equals(opcode)) {
 		        	return false;
 		        }
 	        }
 	        
 	        if (channelId != null) {
-	        	if (msg.channelId == channelId) {
-	        		isMatch = true;
-	        	} else {
+	        	if (msg.channelId != channelId) {
 		        	return false;
 		        }
 	        }
 	        
 	        if (payloadPattern != null) {
 	        	Matcher m = payloadPattern.matcher(msg.payload);
-	        	if (m.find()) {
+	        	if (!m.find()) {
 	        		// when m.matches() is used, the whole string has to match
-	        		isMatch = true;
-	        	} else {
 		        	return false;
 		        }
 	        }
 	        
 	        if (direction != null) {
-	        	if (direction == msg.direction) {
-	        		isMatch = true;
-	        	} else {
+	        	if (direction != msg.direction) {
 		        	return false;
 		        }
 	        }
+	        
+	        return true;
 	    }
 	    
-		return isMatch;
+		return false;
 	}
 
     @Override
