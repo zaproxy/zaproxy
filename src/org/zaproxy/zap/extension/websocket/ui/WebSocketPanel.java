@@ -22,7 +22,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -123,9 +122,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
-	
-	private Frame mainframe;
-
 	private WebSocketBreakpointsUiManagerInterface brkManager;
 
     private Vector<WebSocketMessageDAO> displayQueue = new Vector<WebSocketMessageDAO>();
@@ -138,8 +134,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @param mainframe Needed for dialog box.
 	 * @param brkManager 
 	 */
-	public WebSocketPanel(Frame mainframe, WebSocketBreakpointsUiManagerInterface brkManager) {
-		this.mainframe = mainframe;
+	public WebSocketPanel(WebSocketBreakpointsUiManagerInterface brkManager) {
 		this.brkManager = brkManager;
 		
 		channelSelectModel = new ComboBoxChannelModel();
@@ -755,7 +750,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	public WebSocketModelFilterDialog getFilterDialog() {
 		if (filterDialog == null) {
-			filterDialog = new WebSocketModelFilterDialog(mainframe, true);
+			filterDialog = new WebSocketModelFilterDialog(View.getSingleton().getMainFrame(), true);
 			
 		}
 		return filterDialog;

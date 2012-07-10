@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 	private static final long serialVersionUID = 1L;
@@ -70,12 +69,7 @@ public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String opcode = getSelectedOpcode();
-					Integer channelId = getSelectedChannelId();
-					String payloadPattern = getPayloadPattern();
-					Direction direction = getDirection();
-
-				    breakPointsManager.editBreakpoint(breakpoint, new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction));
+				    breakPointsManager.editBreakpoint(breakpoint, getWebSocketBreakpointMessage());
                     breakpoint = null;
                     breakPointsManager.hideEditDialog();
 				}
@@ -83,39 +77,12 @@ public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 		}
 		return actionListenerSubmit;
 	}
-	
-    public void setBreakpoint(WebSocketBreakpointMessage breakpoint) {
+
+	public void setBreakpoint(WebSocketBreakpointMessage breakpoint) {
+        resetDialogValues();
+        
         this.breakpoint = breakpoint;
         
-        if (breakpoint.getOpcode() != null) {
-        	getOpcodeSelect().setSelectedItem(breakpoint.getOpcode());
-        } else {
-        	getOpcodeSelect().setSelectedIndex(0);
-        }
-        
-        if (breakpoint.getChannelId() != null) {
-        	setSelectedChannel(breakpoint.getChannelId());
-        } else {
-        	getChannelSelect().setSelectedIndex(0);
-        }
-        
-        if (breakpoint.getPayloadPattern() != null) {
-        	getPayloadPatternField().setText(breakpoint.getPayloadPattern());
-        } else {
-        	getPayloadPatternField().setText("");
-        }
-        
-        if (breakpoint.getDirection() != null) {
-        	if (breakpoint.getDirection().equals(Direction.OUTGOING)) {
-        		getOutgoingCheckbox().setSelected(true);
-        		getIncomingCheckbox().setSelected(false);
-        	} else {
-        		getOutgoingCheckbox().setSelected(false);
-        		getIncomingCheckbox().setSelected(true);
-        	}
-        } else {
-        	getOutgoingCheckbox().setSelected(true);
-        	getIncomingCheckbox().setSelected(true);
-        }
+        setDialogValues(breakpoint.getOpcode(), breakpoint.getChannelId(), breakpoint.getPayloadPattern(), breakpoint.getDirection());
     }
 }

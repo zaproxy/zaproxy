@@ -16,6 +16,8 @@ public class ComboBoxChannelItem implements Comparable<Object> {
 
 	public ComboBoxChannelItem(String name) {
 		this.label = name;
+		
+		// set to -1 as this value is used for sorting
 		this.channelId = -1;
 	}
 

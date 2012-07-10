@@ -24,6 +24,7 @@
 // ZAP: 2012/06/25 Changed visibility of getJPanel() and initialize() from
 // private to protected. Use i18n strings for labels and warnings.
 // ZAP: 2012/07/09 Added 10 more pixels to the dialog's height.
+// Changed visibility of getJPanel1().
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;
@@ -197,7 +198,8 @@ public class FilterReplaceDialog extends AbstractDialog {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	private JPanel getJPanel1() {
+	protected JPanel getJPanel1() {
+		// ZAP: Changed visibility from private to protected
 		if (jPanel1 == null) {
 			jPanel1 = new JPanel();
 			jPanel1.add(getBtnOK(), null);

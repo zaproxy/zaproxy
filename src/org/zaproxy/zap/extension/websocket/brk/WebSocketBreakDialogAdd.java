@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
@@ -68,12 +67,7 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String opcode = getSelectedOpcode();
-					Integer channelId = getSelectedChannelId();
-					String payloadPattern = getPayloadPattern();
-					Direction direction = getDirection();
-					
-				    breakPointsManager.addBreakpoint(new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction));
+				    breakPointsManager.addBreakpoint(getWebSocketBreakpointMessage());
 				    breakPointsManager.hideAddDialog();
 				}
 			};
@@ -81,33 +75,14 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 		return actionListenerSubmit;
 	}
     
+	/**
+	 * Resets fields of dialog to default value or to values set in given
+	 * parameter.
+	 * 
+	 * @param aMessage
+	 */
     public void setMessage(WebSocketMessageDAO aMessage) {
-    	if (aMessage.readableOpcode != null) {
-    		getOpcodeSelect().setSelectedItem(aMessage.readableOpcode);
-    	} else {
-    		getOpcodeSelect().setSelectedIndex(0);
-    	}
-    	
-    	Integer channelId = aMessage.channelId;
-    	if (channelId != null) {
-    		setSelectedChannel(channelId);
-    	} else {
-    		getChannelSelect().setSelectedIndex(0);
-    	}
-    	
-    	getPayloadPatternField().setText("");
-    	
-    	if (aMessage.direction != null) {
-    		if (aMessage.direction.equals(Direction.OUTGOING)) {
-    			getOutgoingCheckbox().setSelected(true);
-    			getIncomingCheckbox().setSelected(false);
-    		} else {
-    			getOutgoingCheckbox().setSelected(false);
-    			getIncomingCheckbox().setSelected(true);
-    		}
-    	} else {
-    		getOutgoingCheckbox().setSelected(true);
-			getIncomingCheckbox().setSelected(true);
-    	}
+    	resetDialogValues();
+    	setDialogValues(aMessage.readableOpcode, aMessage.channelId, null, aMessage.direction);
     }
 }

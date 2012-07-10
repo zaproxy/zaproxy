@@ -17,7 +17,10 @@
  */
 package org.zaproxy.zap.extension.websocket.filter;
 
+import java.util.List;
 import java.util.regex.Matcher;
+
+import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.filter.FilterAbstractReplace;
@@ -36,6 +39,14 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	private FilterWebSocketReplaceDialog wsFilterReplaceDialog;
 	private boolean shouldApplyOnIncoming = false;
 	private boolean shouldApplyOnOutgoing = false;
+	private List<String> applicableOpcodes;
+	private List<Integer> applicableChannelIds;
+	private ComboBoxModel channelComboBoxModel;
+
+	public FilterWebSocketPayload(ComboBoxModel channelComboBoxModel) {
+		super();
+		this.channelComboBoxModel = channelComboBoxModel;
+	}
 
 	@Override
 	public int getId() {
@@ -65,30 +76,50 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	 */
 	@Override
 	public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
-		Direction direction = message.getDirection();
-
-		boolean isApplicable = !(!message.isFinished() || message.getPayloadLength() == 0 || message.isBinary());
+		boolean isApplicableMessage = (message.isFinished() && message.getPayloadLength() > 0);
 		boolean hasPattern = (getPattern() != null);
-		boolean shouldBeApplied = ((direction.equals(Direction.INCOMING) && shouldApplyOnIncoming) ||
-				(direction.equals(Direction.OUTGOING) && shouldApplyOnOutgoing));
+		
+		if (isApplicableMessage && hasPattern) {
+			if (isApplicableDirection(message.getDirection()) &&
+					isApplicableOpcode(message.getOpcodeString()) &&
+					isApplicableChannelId(message.getDAO().channelId)) {
 
-		if (isApplicable && hasPattern && shouldBeApplied) {
-			String from = message.getReadablePayload();
+				String from = message.getReadablePayload();
 
-			Matcher matcher = getPattern().matcher(from);
+				Matcher matcher = getPattern().matcher(from);
 
-			String to = matcher.replaceAll(getReplaceText());
+				String to = matcher.replaceAll(getReplaceText());
 
-			if (!from.equals(to)) {
-				message.setReadablePayload(to);
+				if (!from.equals(to)) {
+					message.setReadablePayload(to);
+				}
 			}
 		}
+	}
+
+	private boolean isApplicableDirection(Direction direction) {
+		return ((direction.equals(Direction.INCOMING) && shouldApplyOnIncoming) ||
+				(direction.equals(Direction.OUTGOING) && shouldApplyOnOutgoing));
+	}
+
+	private boolean isApplicableOpcode(String opcode) {
+		if (applicableOpcodes != null) {
+			return applicableOpcodes.contains(opcode);
+		}
+		return true;
+	}
+
+	private boolean isApplicableChannelId(Integer channelId) {
+		if (applicableChannelIds != null) {
+			return applicableChannelIds.contains(channelId);
+		}
+		return true;
 	}
 
 	@Override
 	protected FilterReplaceDialog getFilterReplaceDialog() {
 		if (wsFilterReplaceDialog == null) {
-			wsFilterReplaceDialog = new FilterWebSocketReplaceDialog(getView().getMainFrame(), true);
+			wsFilterReplaceDialog = new FilterWebSocketReplaceDialog(getView().getMainFrame(), true, channelComboBoxModel);
 		}
 		return wsFilterReplaceDialog;
 	}
@@ -103,5 +134,8 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 		// find out if pattern should be applied for IN- & OUTGOING messages
 		shouldApplyOnIncoming = wsDialog.isIncomingChecked();
 		shouldApplyOnOutgoing = wsDialog.isOutgoingChecked();
+		
+		applicableOpcodes = wsDialog.getOpcodes();
+		applicableChannelIds = wsDialog.getChannelIds();
 	}
 }
