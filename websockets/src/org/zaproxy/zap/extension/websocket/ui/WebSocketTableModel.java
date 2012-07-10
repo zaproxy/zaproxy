@@ -215,7 +215,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	/**
 	 * Extracts necessary data from the {@link WebSocketMessage} object and
 	 * stores only necessary informations.
-	 * @param channelId 
+	 * @param data.channelId 
 	 * 
 	 * @param message
 	 * @return 

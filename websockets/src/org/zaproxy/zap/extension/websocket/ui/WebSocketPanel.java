@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
@@ -46,10 +47,12 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -59,13 +62,14 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
-import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
 /**
@@ -84,37 +88,49 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
     public static final int WEBSOCKET_OBSERVING_ORDER = 100;
 
+    /**
+	 * Depending on this count, the tab uses either a connected or disconnected
+	 * icon.
+	 */
+	private AtomicInteger connectedCount;
+	
+	public static final ImageIcon disconnectIcon;
+	public static final ImageIcon connectIcon;
+	
+	static {
+		disconnectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-disconnect.png"));
+		connectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-connect.png"));
+	};
+
 	private JToolBar panelToolbar = null;
 
+	private JComboBox channelSelect;
+	private ComboBoxChannelModel channelSelectModel;
+
+	private JButton handshakeButton;
+	private JButton brkButton;
 	private JButton filterButton;
 
 	private JLabel filterStatus;
-
-	private JButton brkButton;
-
 	private WebSocketModelFilterDialog filterDialog;
-
-	private JComboBox channelSelect;
-
-	private SortedComboBoxModel channelSelectModel;
-
-	private JScrollPane scrollPanel;
-
-	private JTable messagesLog;
-
-	private HttpPanel requestPanel;
-
-	private HttpPanel responsePanel;
 	
-	private Map<Integer, WebSocketTableModel> models;
-	
-	private int currentChannelId;
-
 	private JButton optionsButton;
 
+	private JScrollPane scrollPanel;
+	private JTable messagesLog;
+	private int currentChannelId;
+	private Map<Integer, WebSocketTableModel> models;
+
+	private HttpPanel requestPanel;
+	private HttpPanel responsePanel;
+	
 	private Frame mainframe;
 
 	private WebSocketBreakpointsUiManagerInterface brkManager;
+
+    private Vector<WebSocketMessageDAO> displayQueue = new Vector<WebSocketMessageDAO>();
+    
+    private Thread thread = null;
 
 	/**
 	 * Panel is added as tab beside the History tab.
@@ -126,16 +142,14 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		this.mainframe = mainframe;
 		this.brkManager = brkManager;
 		
-		channelSelectModel = new SortedComboBoxModel();
+		channelSelectModel = new ComboBoxChannelModel();
 		
 		models = new HashMap<Integer, WebSocketTableModel>();
+		
+		connectedCount = new AtomicInteger(0);
 
 		// at the beginning all channels are shown
 		initializePanel();
-	}
-	
-	public ComboBoxModel getChannelComboBoxModel() {
-		return channelSelectModel;
 	}
 	
 	/**
@@ -145,26 +159,226 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		setName("websocket.panel");
 		setLayout(new GridBagLayout());
 		
-		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-		gridBagConstraints1.insets = new Insets(2,2,2,2);
-		gridBagConstraints1.anchor = GridBagConstraints.NORTHWEST;
-		gridBagConstraints1.fill = GridBagConstraints.HORIZONTAL;
-		gridBagConstraints1.weightx = 1.0;
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.insets = new Insets(2,2,2,2);
+		constraints.weightx = 1.0;
+		add(getPanelToolbar(), constraints);
 
-		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-		gridBagConstraints2.gridy = 1;
-		gridBagConstraints2.weightx = 1.0;
-		gridBagConstraints2.weighty = 1.0;
-		gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-
-		add(getPanelToolbar(), gridBagConstraints1);
-		add(getWorkPanel(), gridBagConstraints2);
+		constraints = new GridBagConstraints();
+		constraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+		constraints.fill = java.awt.GridBagConstraints.BOTH;
+		constraints.gridy = 1;
+		constraints.weightx = 1.0;
+		constraints.weighty = 1.0;
+		add(getWorkPanel(), constraints);
 		
-		setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/029.png")));
+		setIcon(WebSocketPanel.disconnectIcon);
 		setName(Constant.messages.getString("websocket.panel.title"));
     	
 		revalidate();
+	}
+	
+	/**
+	 * Lazy initializes header of this WebSocket tab with a select box and a
+	 * filter.
+	 * 
+	 * @return
+	 */
+	private Component getPanelToolbar() {
+		if (panelToolbar == null) {
+			panelToolbar = new JToolBar();
+			panelToolbar.setLayout(new GridBagLayout());
+			panelToolbar.setEnabled(true);
+			panelToolbar.setFloatable(false);
+			panelToolbar.setRollover(true);
+			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
+			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
+			panelToolbar.setName("websocket.toolbar");
+
+			int x = 0;
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(new JLabel(Constant.messages.getString("websocket.toolbar.channel.label")), constraints);
+			
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getChannelSelect(), constraints);
+			
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getShowHandshakeButton(), constraints);
+
+			if (brkManager != null) {
+				// ExtensionBreak is not disabled
+				constraints = new GridBagConstraints();
+				constraints.gridx = x++;
+				panelToolbar.add(getAddBreakpointButton(), constraints);
+			}
+			
+			panelToolbar.addSeparator();
+			x++;
+			
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getFilterButton(), constraints);
+
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getFilterStatus(), constraints);
+
+			// stretch pseudo-component to let options button appear on the right
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			constraints.weightx = 1;
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			panelToolbar.add(new JLabel(), constraints);
+
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getOptionsButton(), constraints);
+		}
+
+		return panelToolbar;
+	}
+
+	protected JComboBox getChannelSelect() {
+		if (channelSelect == null) {
+			channelSelect = new JComboBox(channelSelectModel);
+			channelSelect.addItem(new ComboBoxChannelItem(Constant.messages.getString("websocket.toolbar.channel.select")));
+			channelSelect.setSelectedIndex(0);
+			channelSelect.setRenderer(new ComboBoxChannelRenderer());
+			channelSelect.setMaximumRowCount(8);
+			channelSelect.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {    
+
+				    ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
+				    int index = channelSelect.getSelectedIndex();
+				    if (item != null && index > 0) {
+				        useModel(item.getChannelId());
+				        
+				        getShowHandshakeButton().setEnabled(true);
+				    } else if (index == 0) {
+				        useJoinedModel();
+				        
+				        getShowHandshakeButton().setEnabled(false);
+				    }
+				    messagesLog.revalidate();
+				}
+			});
+		}
+		return channelSelect;
+	}
+
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("websocket.toolbar.button.options"));
+			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl().options(
+							Constant.messages.getString("websocket.options.title"));
+				}
+			});
+		}
+		return optionsButton;
+	}
+
+	private Component getFilterButton() {
+		if (filterButton == null) {
+			filterButton = new JButton();
+			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
+			filterButton.setToolTipText(Constant.messages.getString("websocket.filter.button.filter"));
+
+			final WebSocketPanel panel = this;
+			filterButton.addActionListener(new ActionListener() { 
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					panel.showFilterDialog();
+				}
+			});
+		}
+		return filterButton;
+	}
+	
+	private JLabel getFilterStatus() {
+		if (filterStatus == null) {
+			String base = Constant.messages.getString("websocket.filter.label.filter");
+			String status = Constant.messages.getString("websocket.filter.label.off");
+			filterStatus = new JLabel(base + status);
+		}
+		return filterStatus;
+	}
+
+	private Component getShowHandshakeButton() {
+		if (handshakeButton == null) {
+			handshakeButton = new JButton();
+			handshakeButton.setEnabled(false);
+			handshakeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/handshake.png")));
+			handshakeButton.setToolTipText(Constant.messages.getString("websocket.filter.button.handshake"));
+
+			final JComboBox channelSelect = this.channelSelect;
+			handshakeButton.addActionListener(new ActionListener() { 
+
+				@Override
+				public void actionPerformed(ActionEvent evt) {
+					ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
+					HistoryReference handshakeRef = item.getHandshakeReference();
+					if (handshakeRef != null) {
+						HttpMessage msg;
+						try {
+                            msg = handshakeRef.getHttpMessage();
+                        } catch (Exception e) {
+                        	logger.warn(e.getMessage(), e);
+                            return;
+                        }
+						showHandshakeMessage(msg);
+					}
+				}
+			});
+		}
+		return handshakeButton;
+	}
+
+	private void showHandshakeMessage(HttpMessage msg) {        
+        if (msg.getRequestHeader().isEmpty()) {
+        	requestPanel.clearView(true);
+        } else {
+        	requestPanel.setMessage(msg);
+        }
+        
+        if (msg.getResponseHeader().isEmpty()) {
+        	responsePanel.clearView(false);
+        } else {
+        	responsePanel.setMessage(msg, true);
+        }
+        
+    	requestPanel.setTabFocus();
+	}
+
+	private Component getAddBreakpointButton() {
+		if (brkButton == null) {
+			brkButton = new JButton();
+			brkButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/break_add.png")));
+			brkButton.setToolTipText(Constant.messages.getString("websocket.filter.button.break_add"));
+
+			final WebSocketBreakpointsUiManagerInterface brkManager = this.brkManager;
+			brkButton.addActionListener(new ActionListener() { 
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					brkManager.handleAddBreakpoint(new WebSocketMessageDAO());
+				}
+			});
+		}
+		return brkButton;
 	}
 
 	/**
@@ -320,59 +534,52 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			column.setPreferredWidth(preferred);
 		}
 	}
-
+	
 	/**
-	 * Sets this panel up as {@link WebSocketObserver} for the given
-	 * {@link WebSocketProxy}.
+	 * Updates icon of this tab.
 	 * 
-	 * @param ws
-	 * @param hostName
+	 * @param icon
 	 */
-	public void addProxy(WebSocketProxy ws, String hostName) {
-		// listen to messages of this proxy
-		ws.addObserver(this);
+	private synchronized void updateIcon(ImageIcon icon) {
+		setIcon(icon);
 		
-		// add to select box
-		addChannelToComboBox(hostName + " (#" + ws.getChannelId() + ")", ws.getChannelId());
+		// workaround to update icon of tab
+		Component c = getParent();
+	    if (c instanceof JTabbedPane) {
+		    JTabbedPane tab = (JTabbedPane) c;
+		    int index = tab.indexOfComponent(this);
+		    tab.setIconAt(index, icon);
+	    }
 	}
 	
 	/**
 	 * Show channel in {@link JComboBox}.
 	 * 
 	 * @param channelName
-	 * @param channelId
+	 * @param ws
 	 */
-	private void addChannelToComboBox(String channelName, int channelId) {
-		ComboBoxChannelItem item = new ComboBoxChannelItem(channelName, channelId);
+	private void addChannelToComboBox(String channelName, WebSocketProxy ws) {
+		ComboBoxChannelItem item = new ComboBoxChannelItem(channelName, ws);
 		if (channelSelectModel.getIndexOf(item) < 0) {
 			// element is new
 	 		logger.debug("add channel to websocket panel (" + channelName + ")");
 			channelSelectModel.addElement(item);
 		}
 	}
-
-    private Vector<WebSocketMessageDAO> displayQueue = new Vector<WebSocketMessageDAO>();
-    private Thread thread = null;
+    
+    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
+        this.requestPanel = requestPanel;
+        this.responsePanel = responsePanel;
+    }
     
     private void readAndDisplay(final WebSocketMessageDAO message) {
         synchronized(displayQueue) {
-        	/*
-        	// ZAP: Disabled the platform specific browser
-            if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
-                // truncate queue if browser dialog is displayed to have better response
-                if (displayQueue.size()>0) {
-                    // replace all display queue because the newest display overrides all previous one
-                    // pending to be rendered.
-                    displayQueue.clear();
-                }
-            }
-            */
             if (displayQueue.size() > 0) {
                 displayQueue.clear();
             }
-            
+            ComboBoxChannelItem item = channelSelectModel.getByChannelId(message.channelId);
+            message.tempUserObj = item.isConnected();
             displayQueue.add(message);
-
         }
         
         if (thread != null && thread.isAlive()) {
@@ -380,7 +587,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
         }
         
         thread = new Thread(this);
-
         thread.setPriority(Thread.NORM_PRIORITY);
         thread.start();
     }
@@ -406,7 +612,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        
                         if (msg.direction == WebSocketMessage.Direction.OUTGOING) {
                             requestPanel.setMessage(msg);
                             responsePanel.clearView(false);
@@ -416,8 +621,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
                             responsePanel.setMessage(msg, true);
                             responsePanel.setTabFocus();
                         }
-                        
-                        //messagesLog.requestFocus();
                     }
                 });
                 
@@ -429,198 +632,30 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
             // wait some time to allow another selection event to be triggered
             try {
                 Thread.sleep(200);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            	// safely ignore exception
+            }
         } while (true);
     }
-    
-    
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
-    }
 
-    /**
-	 * Lazy initializes header of this WebSocket tab with a select box and a
-	 * filter.
+	/**
+	 * Sets this panel up as {@link WebSocketObserver} for the given
+	 * {@link WebSocketProxy}.
 	 * 
-	 * @return
+	 * @param ws
+	 * @param hostName
 	 */
-	private Component getPanelToolbar() {
-		if (panelToolbar == null) {
-			panelToolbar = new JToolBar();
-			panelToolbar.setLayout(new GridBagLayout());
-			panelToolbar.setEnabled(true);
-			panelToolbar.setFloatable(false);
-			panelToolbar.setRollover(true);
-			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			panelToolbar.setName("websocket.toolbar");
-
-			int x = 0;
-
-			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(new JLabel(Constant.messages.getString("websocket.toolbar.channel.label")), constraints);
-			
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(getChannelSelect(), constraints);
-
-			if (brkManager != null) {
-				// ExtensionBreak is not disabled
-				constraints = new GridBagConstraints();
-				constraints.gridx = x++;
-				panelToolbar.add(getAddBreakpointButton(), constraints);
-			}
-
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(getFilterButton(), constraints);
-
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(getFilterStatus(), constraints);
-
-			// stretch pseudo-component to let options button appear on the right
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			constraints.weightx = 1;
-			constraints.fill = GridBagConstraints.HORIZONTAL;
-			panelToolbar.add(new JLabel(), constraints);
-
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(getOptionsButton(), constraints);
-		}
-
-		return panelToolbar;
-	}
-
-	protected JComboBox getChannelSelect() {
-		if (channelSelect == null) {
-			channelSelect = new JComboBox(channelSelectModel);
-			channelSelect.addItem(new ComboBoxChannelItem(Constant.messages.getString("websocket.toolbar.channel.select"), -1));
-			channelSelect.setSelectedIndex(0);
-			channelSelect.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {    
-
-				    ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
-				    int index = channelSelect.getSelectedIndex();
-				    if (item != null && index > 0) {
-				        useModel(item.getChannelId());
-				    } else if (index == 0) {
-				        useJoinedModel();
-				    }
-				    
-				    messagesLog.revalidate();
-				}
-			});
-		}
-		return channelSelect;
-	}
-
-	private JButton getOptionsButton() {
-		if (optionsButton == null) {
-			optionsButton = new JButton();
-			optionsButton.setToolTipText(Constant.messages.getString("websocket.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
-			optionsButton.addActionListener(new ActionListener () {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Control.getSingleton().getMenuToolsControl().options(
-							Constant.messages.getString("websocket.options.title"));
-				}
-			});
-		}
-		return optionsButton;
-	}
-	
-	public class ComboBoxChannelItem implements Comparable<Object> {
-		private final Integer channelId;
-		private final String label;
+	public void addProxy(WebSocketProxy ws, String hostName) {
+		// listen to messages of this proxy
+		ws.addObserver(this);
 		
-		public ComboBoxChannelItem(String name, int channelId) {
-			this.label = name;
-			this.channelId = channelId;
-		}
+		// add to select box
+		addChannelToComboBox(hostName + " (#" + ws.getChannelId() + ")", ws);
 		
-		public Integer getChannelId() {
-			return channelId;
-		}
-
-		public String toString() {
-			return label;
-		}
-
-		/**
-		 * Used for sorting items. If two items have identical names, the
-		 * channel number is used to determine order.
-		 */
-		@Override
-		public int compareTo(Object o) {
-			String otherString = o.toString().replaceAll("#[0-9]+", "");
-			String thisString = toString().replaceAll("#[0-9]+", "");
-			int result = thisString.compareTo(otherString);
-			
-			if (result == 0) {
-				ComboBoxChannelItem otherItem = (ComboBoxChannelItem) o;
-				return getChannelId().compareTo(otherItem.getChannelId());
-			}
-			
-			return result;
-		}
-	}
-
-	private Component getFilterButton() {
-		if (filterButton == null) {
-			filterButton = new JButton();
-			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
-			filterButton.setToolTipText(Constant.messages.getString("websocket.filter.button.filter"));
-
-			final WebSocketPanel panel = this;
-			filterButton.addActionListener(new ActionListener() { 
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					panel.showFilterDialog();
-				}
-			});
-		}
-		return filterButton;
-	}
-	
-	private JLabel getFilterStatus() {
-		if (filterStatus == null) {
-			String base = Constant.messages.getString("websocket.filter.label.filter");
-			String status = Constant.messages.getString("websocket.filter.label.off");
-			filterStatus = new JLabel(base + status);
-		}
-		return filterStatus;
-	}
-
-	private Component getAddBreakpointButton() {
-		if (brkButton == null) {
-			brkButton = new JButton();
-			brkButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/break_add.png")));
-			brkButton.setToolTipText(Constant.messages.getString("websocket.filter.button.break_add"));
-
-			final WebSocketBreakpointsUiManagerInterface brkManager = this.brkManager;
-			brkButton.addActionListener(new ActionListener() { 
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					brkManager.handleAddBreakpoint(new WebSocketMessageDAO());
-				}
-			});
-		}
-		return brkButton;
-	}
-
-	@Override
-	public int getObservingOrder() {
-		return WEBSOCKET_OBSERVING_ORDER;
+		connectedCount.incrementAndGet();
+		
+		// change icon, as at least one WebSocket is available
+		updateIcon(WebSocketPanel.connectIcon);
 	}
 
 	/**
@@ -635,9 +670,21 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 					// joined model is used -> add message also there
 					((WebSocketTableModel) messagesLog.getModel()).addWebSocketMessage(dao);
 				}
+				
+				if (message.getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
+					if (connectedCount.decrementAndGet() == 0) {
+						// change icon, as no WebSocket channel is active
+						updateIcon(WebSocketPanel.disconnectIcon);
+					}
+				}
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public int getObservingOrder() {
+		return WEBSOCKET_OBSERVING_ORDER;
 	}
 	
 	/**
@@ -770,8 +817,68 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
     	WebSocketModelFilter filter = getFilterDialog().getFilter();
     	JLabel status = getFilterStatus();
     	
-    	status.setText(filter.toShortString());
+    	status.setText(filter.toLongString());
     	status.setToolTipText(filter.toLongString());
+    }
+    
+    /**
+	 * Exposes a cloned model from channel select box.
+	 * Can be used at other dialogs.
+	 * 
+	 * @return
+	 */
+	public ComboBoxModel getChannelComboBoxModel() {
+		return new ClonedComboBoxModel(channelSelectModel);
+	}
+    
+    /**
+	 * If a {@link ComboBoxModel} is shared by two different {@link JComboBox}
+	 * instances (i.e. set as model on both), then changing the selection of an
+	 * item in one {@link JComboBox} causes the same item to be selected in the
+	 * other {@link JComboBox} too.
+	 * <p>
+	 * This model wraps the original model and manages its own selected item. As
+	 * a result, the {@link JComboBox} is independent from the other. Moreover
+	 * items are always the same.
+	 */
+    private class ClonedComboBoxModel implements ComboBoxModel {
+		private ComboBoxModel wrappedModel;
+		private Object selectedObject;
+		
+		public ClonedComboBoxModel(ComboBoxModel wrappedModel) {
+			this.wrappedModel = wrappedModel; 
+			this.selectedObject = wrappedModel.getElementAt(0);
+		}
+
+		@Override
+		public void addListDataListener(ListDataListener l) {
+			wrappedModel.addListDataListener(l);
+		}
+
+		@Override
+		public Object getElementAt(int index) {
+			return wrappedModel.getElementAt(index);
+		}
+
+		@Override
+		public int getSize() {
+			return wrappedModel.getSize();
+		}
+
+		@Override
+		public void removeListDataListener(ListDataListener l) {
+			wrappedModel.removeListDataListener(l);
+		}
+
+		@Override
+		public Object getSelectedItem() {
+			return selectedObject;
+		}
+
+		@Override
+		public void setSelectedItem(Object anItem) {
+			selectedObject = anItem;
+		}    	
     }
 }
 

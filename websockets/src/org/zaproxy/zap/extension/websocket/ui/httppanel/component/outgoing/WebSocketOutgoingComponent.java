@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -34,6 +33,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketPanelTextView;
 
@@ -62,7 +62,7 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	
 	protected void initUi() {
 		// Common
-		buttonShowView = new JToggleButton(new ImageIcon(WebSocketOutgoingComponent.class.getResource("/resource/icon/16/029.png")));
+		buttonShowView = new JToggleButton(WebSocketPanel.connectIcon);
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 
 		panelOptions = new JPanel();
@@ -128,6 +128,15 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 		this.message = aMessage;
 		
 		views.setMessage(message);
+		if (((WebSocketMessageDAO) aMessage).tempUserObj instanceof Boolean) {
+			Boolean isConnected = (Boolean) ((WebSocketMessageDAO) aMessage).tempUserObj;
+			
+			if (isConnected) {
+				buttonShowView.setIcon(WebSocketPanel.connectIcon);
+			} else {
+				buttonShowView.setIcon(WebSocketPanel.disconnectIcon);
+			}
+		}
 	}
 	
 	@Override
