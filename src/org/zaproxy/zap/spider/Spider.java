@@ -63,7 +63,7 @@ public class Spider {
 	/** The the spider is currently stopped. */
 	private boolean stopped;
 
-	/** The pause lock, used for locking access to the "paused" vairable. */
+	/** The pause lock, used for locking access to the "paused" variable. */
 	private ReentrantLock pauseLock = new ReentrantLock();
 
 	/** The controller that manages the spidering process. */
@@ -87,7 +87,7 @@ public class Spider {
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(Spider.class);
 
-	/** The http sender. */
+	/** The HTTP sender used to effectively send the data. */
 	private HttpSender httpSender;
 
 	/** The count of the tasks finished. */
@@ -98,6 +98,13 @@ public class Spider {
 
 	/** The cookie manager. */
 	private CookieManager cookieManager;
+
+	/**
+	 * The initialized marks if the spidering process is completely started. It solves the problem
+	 * when the first task is processed and the process is finished before the other seeds are
+	 * added.
+	 */
+	private boolean initialized;
 
 	/**
 	 * Instantiates a new spider.
@@ -112,7 +119,7 @@ public class Spider {
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
-		this.controller = new SpiderController(this, connectionParam);
+		this.controller = new SpiderController(this);
 		this.listeners = new LinkedList<SpiderListener>();
 		this.seedList = new ArrayList<URI>();
 		this.cookieManager = new CookieManager();
@@ -128,6 +135,7 @@ public class Spider {
 		this.stopped = true;
 		this.tasksDoneCount = new AtomicInteger(0);
 		this.tasksTotalCount = new AtomicInteger(0);
+		this.initialized = false;
 
 		// Add a default fetch filter
 		defaultFetchFilter = new DefaultFetchFilter();
@@ -262,11 +270,11 @@ public class Spider {
 	 */
 	protected synchronized void submitTask(SpiderTask task) {
 		if (isStopped()) {
-			log.debug("Submit task skipped (" + task + ") as the Spider process is stopped.");
+			log.debug("Submitting task skipped (" + task + ") as the Spider process is stopped.");
 			return;
 		}
 		if (isTerminated()) {
-			log.debug("Submit task skipped (" + task + ") as the Spider process is terminated.");
+			log.debug("Submitting task skipped (" + task + ") as the Spider process is terminated.");
 			return;
 		}
 		this.tasksTotalCount.incrementAndGet();
@@ -294,8 +302,13 @@ public class Spider {
 		httpSender.setFollowRedirect(false);
 
 		// Add the seeds
-		for (URI uri : seedList)
+		for (URI uri : seedList) {
+			if (log.isInfoEnabled())
+				log.info("Adding seed for spider: " + uri);
 			controller.addSeed(uri);
+		}
+		// Mark the process as completely initialized
+		initialized = true;
 	}
 
 	/**
@@ -323,6 +336,7 @@ public class Spider {
 	private void complete() {
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
+		this.initialized = false;
 		if (httpSender != null) {
 			this.getHttpSender().shutdown();
 			httpSender = null;
@@ -395,7 +409,7 @@ public class Spider {
 		this.notifyListenersSpiderProgress(done / total, done, total - done);
 
 		// Check for ending conditions
-		if (done == total)
+		if (done == total && initialized == true)
 			this.complete();
 	}
 

@@ -98,11 +98,12 @@ public class SpiderTask implements Runnable {
 		List<HttpCookie> cookies = prepareCookies(uri.toString());
 
 		// Log the new task
-		if (log.isInfoEnabled())
+		if (log.isDebugEnabled()) {
 			if (cookies != null && cookies.size() > 0)
-				log.info("New task submitted for uri: " + uri + " with cookies: " + cookies);
+				log.debug("New task submitted for uri: " + uri + " with cookies: " + cookies);
 			else
-				log.info("New task submitted for uri: " + uri + " without cookies.");
+				log.debug("New task submitted for uri: " + uri + " without cookies.");
+		}
 
 		// Create a new HttpMessage that will be used for the request, add the cookies (if any) and
 		// persist it in the database using HistoryReference
@@ -110,13 +111,11 @@ public class SpiderTask implements Runnable {
 			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
 			if (cookies != null)
 				msg.setCookies(cookies);
-			if (requestBody != null)
-			{
+			if (requestBody != null) {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
 			}
 			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
-			return;
 		} catch (HttpMalformedHeaderException e) {
 			log.error("Error while building HttpMessage for uri: " + uri, e);
 		} catch (SQLException e) {
@@ -150,15 +149,12 @@ public class SpiderTask implements Runnable {
 	public void run() {
 
 		// Log the task start
-		// TODO: Take care because the log is using database so it should be changed
-		// eventually
-		if (log.isInfoEnabled()) {
+		if (log.isDebugEnabled()) {
 			try {
-				log.info("Spider Task Started. Processing uri at depth " + depth
+				log.debug("Spider Task Started. Processing uri at depth " + depth
 						+ " using already constructed message:  "
 						+ reference.getHttpMessage().getRequestHeader().getURI());
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} catch (Exception e1) { // Ignore it
 			}
 		}
 
@@ -168,7 +164,7 @@ public class SpiderTask implements Runnable {
 			return;
 		}
 		if (reference == null) {
-			log.warn("Null URI. Skipping crawling task...");
+			log.warn("Null URI. Skipping crawling task: " + this);
 			return;
 		}
 
@@ -191,7 +187,9 @@ public class SpiderTask implements Runnable {
 		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters())
 			if (filter.isFiltered(msg)) {
-				log.info("Resource fetched, but will not be parsed due to a ParseFilter rule.");
+				if (log.isInfoEnabled())
+					log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: "
+							+ msg.getRequestHeader().getURI());
 				isFiltered = true;
 				break;
 			}
@@ -202,7 +200,7 @@ public class SpiderTask implements Runnable {
 
 		// Update the progress and check if the spidering process should stop
 		parent.postTaskExecution();
-		log.info("Spider Task finished.");
+		log.debug("Spider Task finished.");
 	}
 
 	/**
@@ -213,16 +211,19 @@ public class SpiderTask implements Runnable {
 	private void processResource(HttpMessage msg) {
 		// Add the cookies
 		if (parent.getSpiderParam().isSendCookies()) {
+			
 			List<HttpCookie> cookies = msg.getResponseHeader().getHttpCookies();
-			CookieStore store = parent.getCookieManager().getCookieStore();
-			java.net.URI uri = null;
-			try {
-				uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
-			} catch (URISyntaxException e1) {
-				log.error("Error while building URI for cookie adding", e1);
+			if (!cookies.isEmpty()) {
+				CookieStore store = parent.getCookieManager().getCookieStore();
+				java.net.URI uri = null;
+				try {
+					uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
+				} catch (URISyntaxException e1) {
+					log.error("Error while building URI for cookie adding", e1);
+				}
+				for (HttpCookie c : cookies)
+					store.add(uri, c);
 			}
-			for (HttpCookie c : cookies)
-				store.add(uri, c);
 		}
 
 		// Parse the resource
@@ -253,7 +254,8 @@ public class SpiderTask implements Runnable {
 			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
 
 		// Fetch the page
-		parent.getHttpSender().sendAndReceive(msg);
+		if (parent.getHttpSender() != null)
+			parent.getHttpSender().sendAndReceive(msg);
 
 		return msg;
 

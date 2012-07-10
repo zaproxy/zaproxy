@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.filters.FetchFilter;
@@ -55,9 +54,6 @@ public class SpiderController implements SpiderParserListener {
 	/** The spider. */
 	private Spider spider;
 
-	/** The connection parameters. */
-	private ConnectionParam connectionParam;
-
 	/** The resources visited using GET method. */
 	private HashSet<String> visitedGet;
 
@@ -71,12 +67,10 @@ public class SpiderController implements SpiderParserListener {
 	 * Instantiates a new spider controller.
 	 * 
 	 * @param spider the spider
-	 * @param connectionParam the connection param
 	 */
-	protected SpiderController(Spider spider, ConnectionParam connectionParam) {
+	protected SpiderController(Spider spider) {
 		super();
 		this.spider = spider;
-		this.connectionParam = connectionParam;
 		this.fetchFilters = new LinkedList<FetchFilter>();
 		this.parseFilters = new LinkedList<ParseFilter>();
 		this.visitedGet = new HashSet<String>();
@@ -148,7 +142,7 @@ public class SpiderController implements SpiderParserListener {
 
 	@Override
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
-		log.info("New resource found: " + uri);
+		log.debug("New resource found: " + uri);
 
 		// Check if the uri was processed already
 		if (visitedGet.contains(uri)) {
@@ -213,7 +207,7 @@ public class SpiderController implements SpiderParserListener {
 
 	@Override
 	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
-		log.info("New POST resource found: " + uri);
+		log.debug("New POST resource found: " + uri);
 
 		// Check if the uri was processed already
 		if (visitedPost.contains(uri)) {
