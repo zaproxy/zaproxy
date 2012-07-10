@@ -58,7 +58,6 @@ public class SpiderHtmlParser extends SpiderParser {
 			baseURL = "";
 		else
 			baseURL = message.getRequestHeader().getURI().toString();
-		log.info("Base URL: " + baseURL);
 
 		// Process A elements
 		List<Element> elements = source.getAllElements(HTMLElementName.A);

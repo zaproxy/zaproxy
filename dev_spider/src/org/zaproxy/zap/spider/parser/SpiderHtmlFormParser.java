@@ -75,11 +75,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * , net.htmlparser.jericho.Source, int) */
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
-		
-		//If form processing is disabled, don't parse anything
-		if(!param.isProcessForm())
+
+		// If form processing is disabled, don't parse anything
+		if (!param.isProcessForm())
 			return;
-		
+
 		// Prepare the source, if not provided
 		if (source == null)
 			source = new Source(message.getResponseBody().toString());
@@ -90,7 +90,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			baseURL = "";
 		else
 			baseURL = message.getRequestHeader().getURI().toString();
-		log.info("Base URL: " + baseURL);
 
 		// Go through the forms
 		List<Element> forms = source.getAllElements(HTMLElementName.FORM);
@@ -103,13 +102,13 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			// If no action, skip the form
 			if (action == null) {
-				log.warn("Skipping form with no 'action' defined at: " + form.getDebugInfo());
+				log.info("Skipping form with no 'action' defined at: " + form.getDebugInfo());
 				continue;
 			}
 
 			// If POSTing forms is not enabled, skip processing of forms with POST method
 			if (!param.isPostForm() && method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
-				log.warn("Skipping form with POST method because of user settings.");
+				log.info("Skipping form with POST method because of user settings.");
 				continue;
 			}
 
@@ -125,7 +124,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				// String encoding = form.getAttributeValue("enctype");
 				// if (encoding != null && encoding.equals("multipart/form-data"))
 				query = buildEncodedUrlQuery(formDataSet);
-				log.info("Submiting form with POST method and message body with form parameters (normal encoding): "
+				log.debug("Submiting form with POST method and message body with form parameters (normal encoding): "
 						+ query);
 
 				// Build the absolute canonical URL
@@ -139,15 +138,16 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			} // Process anything else as a GET method
 			else {
 				String query = buildEncodedUrlQuery(formDataSet);
-				log.info("Submiting form with GET method and query with form parameters: " + query);
+				log.debug("Submiting form with GET method and query with form parameters: " + query);
 
-				if (action.contains("?"))
+				if (action.contains("?")) {
 					if (action.endsWith("?"))
 						processURL(message, depth, action + query, baseURL);
 					else
 						processURL(message, depth, action + "&" + query, baseURL);
-				else
+				} else {
 					processURL(message, depth, action + "?" + query, baseURL);
+				}
 			}
 
 		}
@@ -206,7 +206,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				}
 
 				// Save the finalValue in the FormDataSet
-				log.info("No existing value for field " + field.getName() + ". Generated: " + finalValue);
+				log.debug("No existing value for field " + field.getName() + ". Generated: " + finalValue);
 				HtmlParameter p = new HtmlParameter(Type.form, field.getName(), finalValue);
 				formDataSet.add(p);
 			}
@@ -297,11 +297,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
 				return format.format(new Date());
 			}
-		} else if (fc.getFormControlType() == FormControlType.PASSWORD)
+		} else if (fc.getFormControlType() == FormControlType.PASSWORD) {
 			return DEFAULT_PASS_VALUE;
-
-		else if (fc.getFormControlType() == FormControlType.FILE)
+		} else if (fc.getFormControlType() == FormControlType.FILE) {
 			return DEFAULT_FILE_VALUE;
+		}
 		return DEFAULT_EMPTY_VALUE;
 	}
 
@@ -325,7 +325,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				v = URLEncoder.encode(p.getValue(), ENCODING_TYPE);
 				request.append(v);
 			} catch (UnsupportedEncodingException e) {
-				log.warn("Error while encoding query for form", e);
+				log.warn("Error while encoding query for form.", e);
 			}
 			request.append("&");
 		}

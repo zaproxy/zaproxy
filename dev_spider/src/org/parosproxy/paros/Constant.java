@@ -134,6 +134,7 @@ public final class Constant {
     private static Constant instance = null;
     
     public static final int MAX_HOST_CONNECTION = 50;
+    public static final int MAX_THREADS_PER_SCAN = 16;
     // ZAP: Dont announce ourselves
     //public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
     public static final String USER_AGENT = "";

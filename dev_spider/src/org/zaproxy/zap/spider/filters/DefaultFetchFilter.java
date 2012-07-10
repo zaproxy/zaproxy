@@ -49,7 +49,8 @@ public class DefaultFetchFilter extends FetchFilter {
 	public FetchStatus checkFilter(URI uri) {
 
 		// Protocol check
-		if (!uri.getScheme().equalsIgnoreCase("http") && !uri.getScheme().equalsIgnoreCase("https"))
+		String scheme = uri.getScheme();
+		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))
 			return FetchStatus.ILLEGAL_PROTOCOL;
 
 		try {

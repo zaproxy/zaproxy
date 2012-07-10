@@ -259,7 +259,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JSlider getSliderThreads() {
 		if (sliderThreads == null) {
 			sliderThreads = new JSlider();
-			sliderThreads.setMaximum(Constant.MAX_HOST_CONNECTION);
+			sliderThreads.setMaximum(Constant.MAX_THREADS_PER_SCAN);
 			sliderThreads.setMinimum(1);
 			sliderThreads.setValue(1);
 			sliderThreads.setPaintTicks(true);
