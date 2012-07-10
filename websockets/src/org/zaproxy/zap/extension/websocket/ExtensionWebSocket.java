@@ -146,7 +146,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
     	ExtensionFilter extFilter = (ExtensionFilter) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFilter.NAME);
     	if (extFilter != null) {
     		// filter is not disabled, otherwise ignore it
-    		extFilter.addFilter(new FilterWebSocketPayload());
+    		extFilter.addFilter(new FilterWebSocketPayload(getChannelComboBoxModel()));
     	}
 	}
 	
@@ -422,7 +422,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	private WebSocketPanel getWebSocketPanel() {
 		if (panel == null) {
-			panel = new WebSocketPanel(getView().getMainFrame(), getBrkManager());
+			panel = new WebSocketPanel(getBrkManager());
 		}
 		
 		return panel;

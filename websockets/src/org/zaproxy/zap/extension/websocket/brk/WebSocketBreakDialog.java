@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,8 +26,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,35 +33,29 @@ import javax.swing.JScrollPane;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
-import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelItem;
-import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelRenderer;
-import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketUiHelper;
 
 public abstract class WebSocketBreakDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	
     protected WebSocketBreakpointsUiManagerInterface breakPointsManager;
+
+	protected WebSocketUiHelper wsUiHelper;
     
 	private JPanel jPanel = null;
 	private JButton btnSubmit = null;
 	private JButton btnCancel = null;
 	private JScrollPane jScrollPane = null;
-	
-	private JComboBox comboBoxOpcodes = null;
-	private JComboBox comboBoxChannels;
-	private ComboBoxModel channelSelectModel;
-	private ZapTextField payloadPatternField;
-	private JCheckBox outgoingCheckbox;
-	private JCheckBox incomingCheckbox;
 
     public WebSocketBreakDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
         super(View.getSingleton().getMainFrame(), false);
         
         this.breakPointsManager = breakPointsManager;
-        this.channelSelectModel = channelSelectModel;
+        
+        wsUiHelper = new WebSocketUiHelper();
+        wsUiHelper.setChannelComboBoxModel(channelSelectModel);
         
         initialize();
     }
@@ -88,12 +79,20 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		pack();
 	}
 
+	protected abstract String getDialogTitle();
+
+	protected abstract ActionListener getActionListenerSubmit();
+
+	protected abstract ActionListener getActionListenerCancel();
+
+	protected abstract String getBtnSubmitText();
+
 	private JPanel getJPanel() {
 		if (jPanel == null) {
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			
-			Dimension size = new Dimension(400, 270);
+			Dimension size = new Dimension(400, 250);
 			jPanel.setPreferredSize(size);
 			jPanel.setMinimumSize(size);
 			
@@ -152,44 +151,6 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		return btnSubmit;
 	}
 
-	protected abstract String getDialogTitle();
-
-	protected abstract ActionListener getActionListenerSubmit();
-
-	protected abstract ActionListener getActionListenerCancel();
-
-	protected abstract String getBtnSubmitText();
-
-	protected String getSelectedOpcode() {
-		if (getOpcodeSelect().getSelectedIndex() == 0) {
-			return null;
-		}
-		return (String) getOpcodeSelect().getSelectedItem();
-	}
-
-	protected Integer getSelectedChannelId() {
-		if (getChannelSelect().getSelectedIndex() == 0) {
-			return null;
-		}
-		ComboBoxChannelItem item = (ComboBoxChannelItem) getChannelSelect().getSelectedItem();
-		return item.getChannelId();
-	}
-	
-	protected String getPayloadPattern() {
-		return payloadPatternField.getText();
-	}
-	
-	protected Direction getDirection() {
-		if (outgoingCheckbox.isSelected() && incomingCheckbox.isSelected()) {
-			return null;
-		} else if (outgoingCheckbox.isSelected()) {
-			return Direction.OUTGOING;
-		} else if (incomingCheckbox.isSelected()) {
-			return Direction.INCOMING;
-		}
-		return null;
-	}
-
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
@@ -216,113 +177,78 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 			panel.setLayout(new GridBagLayout());
 			
 			// description
-			GridBagConstraints constraints = createConstraints(0, 0, 1, true);
-			constraints.insets = new java.awt.Insets(5, 10, 5, 10);
 			JLabel description = new JLabel(Constant.messages.getString("websocket.brk.add.desc"));
-			description.setPreferredSize(new Dimension(350, 70));
+			description.setPreferredSize(new Dimension(350, 60));
 			description.setMaximumSize(new Dimension(350, 150));
-			panel.add(description, constraints);
+			panel.add(description, wsUiHelper.getDescriptionConstraints(0, 0));
 
 			// opcode restriction
-			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.opcode")), createConstraints(0, 1, 0, false));
-			panel.add(getOpcodeSelect(), createConstraints(1, 1, 1, true));
+			panel.add(wsUiHelper.getOpcodeLabel(), wsUiHelper.getLabelConstraints(0, 1));
+			panel.add(wsUiHelper.getOpcodeSingleSelect(), wsUiHelper.getFieldConstraints(1, 1));
 			
 			// channel restriction
-			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.channel")), createConstraints(0, 2, 0, false));
-			panel.add(getChannelSelect(), createConstraints(1, 2, 1, true));
+			panel.add(wsUiHelper.getChannelLabel(), wsUiHelper.getLabelConstraints(0, 2));
+			panel.add(wsUiHelper.getChannelSingleSelect(), wsUiHelper.getFieldConstraints(1, 2));
 			
 			// payload restriction
-			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.pattern")), createConstraints(0, 3, 0, false));
-			panel.add(getPayloadPatternField(), createConstraints(1, 3, 1, true));
+			panel.add(wsUiHelper.getPatternLabel(), wsUiHelper.getLabelConstraints(0, 3));
+			panel.add(wsUiHelper.getPatternTextField(), wsUiHelper.getFieldConstraints(1, 3));
 			
 			// direction restriction
-			panel.add(new JLabel(Constant.messages.getString("websocket.brk.add.direction")), createConstraints(0, 4, 0, false));
+			panel.add(wsUiHelper.getDirectionLabel(), wsUiHelper.getLabelConstraints(0, 4));
 
-			// add checkbox for outgoing messages
-			panel.add(getOutgoingCheckbox(), createConstraints(1, 4, 1, true));
-			// add checkbox for incoming messages
-			panel.add(getIncomingCheckbox(), createConstraints(1, 5, 1, true));
+			// add checkbox for outgoing & incoming messages
+			panel.add(wsUiHelper.getOutgoingCheckbox(), wsUiHelper.getFieldConstraints(1, 4));
+			panel.add(wsUiHelper.getIncomingCheckbox(), wsUiHelper.getFieldConstraints(1, 5));
 			
 			jScrollPane.setViewportView(panel);			
 		}
 		return jScrollPane;
 	}
-
-	protected JComboBox getOpcodeSelect() {
-        if (comboBoxOpcodes == null) {
-            String[] opcodes = new String[WebSocketMessage.OPCODES.length + 1];
-            int i = 0;
-            
-            // all opcodes
-            opcodes[i++] = Constant.messages.getString("websocket.brk.add.select.opcodes");
-            
-            // specific opcodes
-            for (int opcode : WebSocketMessage.OPCODES) {
-                opcodes[i++] = WebSocketMessage.opcode2string(opcode);
-            }
-            comboBoxOpcodes = new JComboBox(opcodes);
-        }
-        return comboBoxOpcodes;
-    }
-
-    protected JComboBox getChannelSelect() {
-		if (comboBoxChannels == null) {
-            comboBoxChannels = new JComboBox(channelSelectModel);
-            comboBoxChannels.setRenderer(new ComboBoxChannelRenderer());
-        }
-        return comboBoxChannels;
-	}
-
-	protected void setSelectedChannel(Integer channelId) {
-		// set default value first, if channelId is not found
-		getChannelSelect().setSelectedIndex(0);
-		
-		for (int i = 0; i < channelSelectModel.getSize(); i++) {
-			ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelectModel.getElementAt(i);
-			if (item.getChannelId() == channelId) {
-				getChannelSelect().setSelectedItem(item);
-			}
-		}
-	}
 	
-    protected ZapTextField getPayloadPatternField() {
-		if (payloadPatternField == null) {
-			payloadPatternField = new ZapTextField();
-		}
+	/**
+	 * Returns {@link WebSocketBreakpointMessage} with values set in dialog.
+	 * 
+	 * @return
+	 */
+    protected WebSocketBreakpointMessage getWebSocketBreakpointMessage() {
+		String opcode = wsUiHelper.getSelectedOpcode();
+		Integer channelId = wsUiHelper.getSelectedChannelId();
+		String payloadPattern = wsUiHelper.getPattern();
+		Direction direction = wsUiHelper.getDirection();
 		
-		return payloadPatternField;
+    	return new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction);
 	}
 
-    protected JCheckBox getOutgoingCheckbox() {
-    	if (outgoingCheckbox == null) {
-    		outgoingCheckbox = new JCheckBox(Constant.messages.getString("websocket.filter.replacedialog.outgoing"));
-    		outgoingCheckbox.setSelected(true);
-    	}
-    	return outgoingCheckbox;		
+	protected void resetDialogValues() {
+		wsUiHelper.getOpcodeSingleSelect().setSelectedIndex(0);
+		wsUiHelper.getChannelSingleSelect().setSelectedIndex(0);
+    	
+    	wsUiHelper.getPatternTextField().setText("");
+    	
+		wsUiHelper.getOutgoingCheckbox().setSelected(true);
+		wsUiHelper.getIncomingCheckbox().setSelected(true);
 	}
 
-    protected JCheckBox getIncomingCheckbox() {
-    	if (incomingCheckbox == null) {
-			incomingCheckbox = new JCheckBox(Constant.messages.getString("websocket.filter.replacedialog.incoming"));
-			incomingCheckbox.setSelected(true);
-    	}
-    	return incomingCheckbox;		
-	}
-	
-	private GridBagConstraints createConstraints(int x, int y, double weight, boolean fullWidth) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = x;
-        gbc.gridy = y;
-		gbc.weightx = weight;
-		
-		if (fullWidth) {
-			gbc.gridwidth = 2;
-		}
-		
-        gbc.insets = new java.awt.Insets(0,5,0,5);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-		
-        return gbc;
+	protected void setDialogValues(String opcode, Integer channelId, String payloadPattern, Direction direction) {
+        if (opcode != null) {
+        	wsUiHelper.getOpcodeSingleSelect().setSelectedItem(opcode);
+        }
+        
+        if (channelId != null) {
+        	wsUiHelper.setSelectedChannelId(channelId);
+        }
+        
+        if (payloadPattern != null) {
+        	wsUiHelper.getPatternTextField().setText(payloadPattern);
+        }
+        
+        if (direction != null) {
+        	if (direction.equals(Direction.OUTGOING)) {
+        		wsUiHelper.getIncomingCheckbox().setSelected(false);
+        	} else {
+        		wsUiHelper.getOutgoingCheckbox().setSelected(false);
+        	}
+        }
 	}
 }
