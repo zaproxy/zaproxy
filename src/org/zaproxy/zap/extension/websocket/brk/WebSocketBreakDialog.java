@@ -17,9 +17,11 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 
 import javax.swing.ComboBoxModel;
@@ -28,13 +30,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.ListDataListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel.ComboBoxChannelItem;
+import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelItem;
+import org.zaproxy.zap.extension.websocket.ui.ComboBoxChannelRenderer;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public abstract class WebSocketBreakDialog extends AbstractDialog {
@@ -56,65 +58,17 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
         super(View.getSingleton().getMainFrame(), false);
         
         this.breakPointsManager = breakPointsManager;
-        this.channelSelectModel = new ClonedComboBoxModel(channelSelectModel);
+        this.channelSelectModel = channelSelectModel;
+        
         initialize();
-    }
-    
-    /**
-	 * If a {@link ComboBoxModel} is shared by two different {@link JComboBox}
-	 * instances (i.e. set as model on both), then changing the selection of an
-	 * item in one {@link JComboBox} causes the same item to be selected in the
-	 * other {@link JComboBox} too.
-	 * <p>
-	 * This model wraps the original model and manages its own selected item. As
-	 * a result, the {@link JComboBox} is independent from the other. Moreover
-	 * items are always the same.
-	 */
-    private class ClonedComboBoxModel implements ComboBoxModel {
-		private ComboBoxModel wrappedModel;
-		private Object selectedObject;
-		
-		public ClonedComboBoxModel(ComboBoxModel wrappedModel) {
-			this.wrappedModel = wrappedModel; 
-			this.selectedObject = wrappedModel.getElementAt(0);
-		}
-
-		@Override
-		public void addListDataListener(ListDataListener l) {
-			wrappedModel.removeListDataListener(l);
-		}
-
-		@Override
-		public Object getElementAt(int index) {
-			return wrappedModel.getElementAt(index);
-		}
-
-		@Override
-		public int getSize() {
-			return wrappedModel.getSize();
-		}
-
-		@Override
-		public void removeListDataListener(ListDataListener l) {
-			wrappedModel.removeListDataListener(l);
-		}
-
-		@Override
-		public Object getSelectedItem() {
-			return selectedObject;
-		}
-
-		@Override
-		public void setSelectedItem(Object anItem) {
-			selectedObject = anItem;
-		}    	
     }
 
 	private void initialize() {
-        this.setTitle(getDialogTitle());
-        this.setContentPane(getJPanel());
-        this.setSize(407, 280);
-        this.addWindowListener(new java.awt.event.WindowAdapter() {   
+        setTitle(getDialogTitle());
+        setContentPane(getJPanel());
+        setSize(407, 280);
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {   
         	@Override
         	public void windowOpened(java.awt.event.WindowEvent e) {    
         	} 
@@ -130,49 +84,41 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 
 	private JPanel getJPanel() {
 		if (jPanel == null) {
-			GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel2 = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.setPreferredSize(new java.awt.Dimension(400,220));
 			jPanel.setMinimumSize(new java.awt.Dimension(400,220));
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.gridy = 5;
-			gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints3.gridx = 2;
-			gridBagConstraints3.gridy = 5;
-			gridBagConstraints3.insets = new java.awt.Insets(2,2,2,10);
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.EAST;
+			
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			constraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			constraints.gridwidth = 3;
+			constraints.gridy = 2;
+			constraints.ipady = 10;
+			constraints.weightx = 1.0;
+			constraints.insets = new Insets(2,10,5,10);
+			jPanel.add(getJScrollPane(), constraints);
+			
+			constraints = new GridBagConstraints();
+			constraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			constraints.insets = new java.awt.Insets(2,10,2,5);
+			constraints.gridy = 5;
+			constraints.weightx = 1.0D;
+			jPanel.add(new JLabel(), constraints);
 
-			gridBagConstraints13.gridx = 0;
-			gridBagConstraints13.gridy = 5;
-			gridBagConstraints13.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints13.weightx = 1.0D;
-			gridBagConstraints13.insets = new java.awt.Insets(2,10,2,5);
+			constraints = new GridBagConstraints();
+			constraints.anchor = java.awt.GridBagConstraints.EAST;
+			constraints.insets = new java.awt.Insets(2,2,2,2);
+			constraints.gridx = 1;
+			constraints.gridy = 5;
+			jPanel.add(getBtnCancel(), constraints);
 
-			gridBagConstraints15.weightx = 1.0;
-			gridBagConstraints15.weighty = 0.0D;
-			gridBagConstraints15.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints15.insets = new java.awt.Insets(2,10,5,10);
-			gridBagConstraints15.gridwidth = 3;
-			gridBagConstraints15.gridx = 0;
-			gridBagConstraints15.gridy = 2;
-			gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints15.ipadx = 0;
-			gridBagConstraints15.ipady = 10;
-
-			jPanel.add(getJScrollPane(), gridBagConstraints15);
-			jPanel.add(jLabel2, gridBagConstraints13);
-			jPanel.add(getBtnCancel(), gridBagConstraints2);
-			jPanel.add(getBtnSubmit(), gridBagConstraints3);
+			constraints = new GridBagConstraints();
+			constraints.anchor = java.awt.GridBagConstraints.EAST;
+			constraints.insets = new java.awt.Insets(2,2,2,10);
+			constraints.gridx = 2;
+			constraints.gridy = 5;
+			jPanel.add(getBtnSubmit(), constraints);
 		}
 		return jPanel;
 	}
@@ -184,11 +130,14 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	 */
 	private JButton getBtnSubmit() {
 		if (btnSubmit == null) {
+			Dimension size = new Dimension(75,30);
+			
 			btnSubmit = new JButton();
 			btnSubmit.setText(getBtnSubmitText());
-			btnSubmit.setMinimumSize(new java.awt.Dimension(75,30));
-			btnSubmit.setPreferredSize(new java.awt.Dimension(75,30));
-			btnSubmit.setMaximumSize(new java.awt.Dimension(100,40));
+			btnSubmit.setMinimumSize(size);
+			btnSubmit.setPreferredSize(size);
+			btnSubmit.setMaximumSize(new Dimension(100,40));
+			
 			btnSubmit.addActionListener(getActionListenerSubmit());
 
 		}
@@ -226,10 +175,11 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
 			btnCancel.setText(Constant.messages.getString("brk.add.button.cancel"));
-			btnCancel.setMaximumSize(new java.awt.Dimension(100,40));
-			btnCancel.setMinimumSize(new java.awt.Dimension(70,30));
-			btnCancel.setPreferredSize(new java.awt.Dimension(70,30));
+			btnCancel.setMaximumSize(new Dimension(100,40));
+			btnCancel.setMinimumSize(new Dimension(70,30));
+			btnCancel.setPreferredSize(new Dimension(70,30));
 			btnCancel.setEnabled(true);
+			
 			btnCancel.addActionListener(getActionListenerCancel());
 
 		}
@@ -250,8 +200,8 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 			GridBagConstraints constraints = createConstraints(0, 0, 1, true);
 			constraints.insets = new java.awt.Insets(5, 10, 5, 10);
 			JLabel description = new JLabel(Constant.messages.getString("websocket.brk.add.desc"));
-			description.setPreferredSize(new java.awt.Dimension(350, 70));
-			description.setMaximumSize(new java.awt.Dimension(350, 150));
+			description.setPreferredSize(new Dimension(350, 70));
+			description.setMaximumSize(new Dimension(350, 150));
 			panel.add(description, constraints);
 
 			// opcode restriction
@@ -291,6 +241,7 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
     protected JComboBox getChannelSelect() {
 		if (comboBoxChannels == null) {
             comboBoxChannels = new JComboBox(channelSelectModel);
+            comboBoxChannels.setRenderer(new ComboBoxChannelRenderer());
         }
         return comboBoxChannels;
 	}

@@ -22,16 +22,18 @@ package org.zaproxy.zap.view;
 import java.awt.Component;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.SiteMapPanel;
-import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
  * Custom {@link TreeCellRenderer} for {@link SiteMapPanel} to set custom icons
@@ -44,10 +46,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
-	/**
-	 * Lazy initialized icon for WebSocket HTTP handshakes.
-	 */
-	private ImageIcon webSocketIcon;
+	private ExtensionWebSocket extWebSocket;
 
 	/**
 	 * Sets custom tree node logos.
@@ -59,13 +58,25 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
 		if (leaf && isWebSocketNode(value)) {
-			setIcon(getWebSocketIcon());
+			ExtensionWebSocket extWebSocket = getExtWebSocket();
+			if (extWebSocket != null && extWebSocket.isConnected(getHttpMessageFromNode(value))) {
+				setIcon(getWebSocketConnectIcon());
+			} else {
+				setIcon(getWebSocketDisconnectIcon());
+			}
 			// setToolTipText("This node represents a WebSocket HTTP handshake.");
 		} else {
 			// setToolTipText(null); // no tool tip
 		}
 
 		return this;
+	}
+
+	private ExtensionWebSocket getExtWebSocket() {
+		if (extWebSocket == null) {
+			extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
+		}
+		return extWebSocket;
 	}
 
 	/**
@@ -76,38 +87,55 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	 */
 	private boolean isWebSocketNode(Object value) {
 		HttpMessage msg = null;
+		
+		msg = getHttpMessageFromNode(value);
+		
+		if (msg != null && msg.isWebSocketUpgrade()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Extract HttpMessage out of {@link SiteMap} node.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	private HttpMessage getHttpMessageFromNode(Object value) {
 		SiteNode node = null;
-
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
-
+	
 			if (node.getHistoryReference() != null) {
 				try {
-					msg = node.getHistoryReference().getHttpMessage();
+					HttpMessage msg = node.getHistoryReference().getHttpMessage();
 	
-					if (msg != null && msg.isWebSocketUpgrade()) {
-						return true;
-					}
+					return msg;
 				} catch (Exception e) {
 					log.warn(e.getMessage(), e);
 				}
 			}
 		}
-
-		return false;
+		return null;
 	}
 
 	/**
-	 * Initializes and returns the WebSockets icon.
+	 * Initializes and returns the WebSockets icon for connected WebSockets.
 	 * 
 	 * @return
 	 */
-	private Icon getWebSocketIcon() {
-		if (webSocketIcon == null) {
-			webSocketIcon = new ImageIcon(
-					View.class.getResource("/resource/icon/16/029.png"));
-		}
+	private Icon getWebSocketConnectIcon() {
+		return WebSocketPanel.connectIcon;
+	}
 
-		return webSocketIcon;
+	/**
+	 * Initializes and returns the WebSockets icon for connected WebSockets.
+	 * 
+	 * @return
+	 */
+	private Icon getWebSocketDisconnectIcon() {
+		return WebSocketPanel.disconnectIcon;
 	}
 }

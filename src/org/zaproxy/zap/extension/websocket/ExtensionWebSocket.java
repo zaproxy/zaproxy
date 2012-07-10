@@ -39,6 +39,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -110,6 +111,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Used for setting up all channel observers.
 	 */
 	private boolean hasHookedAllObserver;
+
+	/**
+	 * Contains all proxies with their corresponding handshake message.
+	 */
+	private Map<HistoryReference, WebSocketProxy> wsProxies;
 	
 	/**
 	 * Constructor initializes this class.
@@ -120,6 +126,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		setOrder(150);
 		allChannelObservers = new Vector<WebSocketObserver>();
 		hasHookedAllObserver = false;
+		wsProxies = new HashMap<HistoryReference, WebSocketProxy>();
 	}
 	
 	@Override
@@ -247,19 +254,29 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		String wsProtocol = parseWebSocketSubProtocol(msg);
 		String wsVersion = parseWebSocketVersion(msg);
 
-		WebSocketProxy ws = null;
+		WebSocketProxy wsProxy = null;
 		try {
-			ws = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
-			ws.startListeners(getListenerThreadPool(), remoteReader);
+			wsProxy = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
+			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
 			
-			String name = remoteSocket.getInetAddress().getHostName() + ":" + remoteSocket.getPort();
-			
+			try {
+				// Workaround: Have to wait for HistoryReference object. Immediately it is null.
+				while (msg.getHistoryRef() == null) {
+					Thread.sleep(100);
+				}
+			} catch (InterruptedException e) {
+				logger.error(e);
+			}
+			wsProxy.setHandshakeReference(msg.getHistoryRef());
+			wsProxies.put(msg.getHistoryRef(), wsProxy);
+
 			// install GUI listener
-			getWebSocketPanel().addProxy(ws, name);
+			String name = remoteSocket.getInetAddress().getHostName() + ":" + remoteSocket.getPort();
+			getWebSocketPanel().addProxy(wsProxy, name);
 			
 			// add other observers
 			for (WebSocketObserver observer : allChannelObservers) {
-				ws.addObserver(observer);
+				wsProxy.addObserver(observer);
 			}
 		} catch (WebSocketException e) {
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
@@ -424,6 +441,21 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	public ComboBoxModel getChannelComboBoxModel() {
 		return getWebSocketPanel().getChannelComboBoxModel();
+	}
+
+	/**
+	 * Returns true if the WebSocket connection that followed the given
+	 * WebSocket handshake is already alive.
+	 * 
+	 * @param handshakeMessage
+	 * @return
+	 */
+	public boolean isConnected(HttpMessage handshakeMessage) {
+		HistoryReference ref = handshakeMessage.getHistoryRef();
+		if (wsProxies.containsKey(ref)) {
+			return wsProxies.get(ref).isConnected();
+		}
+		return false;
 	}
 
 	// TODO: find out what to do in this case

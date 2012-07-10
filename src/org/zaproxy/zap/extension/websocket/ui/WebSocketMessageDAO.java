@@ -80,6 +80,11 @@ public class WebSocketMessageDAO implements Message {
 	public int payloadLength;
 
 	/**
+	 * Temporary object holding arbitrary values.
+	 */
+	public volatile Object tempUserObj;
+
+	/**
 	 * Useful representation for debugging purposes.
 	 */
 	public String toString() {

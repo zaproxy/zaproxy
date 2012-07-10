@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.HistoryReference;
 
 /**
  * This class represents two WebSocket channels. Code is inspired by the Monsoon
@@ -100,13 +101,9 @@ public abstract class WebSocketProxy {
 	private Vector<WebSocketObserver> observerList = new Vector<WebSocketObserver>();
 
 	/**
-	 * Used to find this channel later from UI. As I did not know how to find
-	 * the appropriate channel to some HTTP message, I create a hash from the
-	 * HTTP message request & response headers (it is cloned for the UI) and add
-	 * it also to the UI Channel panel. Later I'm able to find the right
-	 * {@link WebSocketProxy} instance from the HttpMessage selected in the UI.
+	 * Contains link to handshake message.
 	 */
-	private String handshakeHash;
+	private HistoryReference handshakeReference;
 
 	/**
 	 * Just a consecutive number, identifying one channel within a session.
@@ -312,6 +309,18 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
+	 * Returns true if this proxies' state is {@link State#OPEN}.
+	 * 
+	 * @return
+	 */
+	public boolean isConnected() {
+		if (state.equals(State.OPEN)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Read one frame from given input stream
 	 * and forward it to given output stream.
 	 * 
@@ -484,21 +493,11 @@ public abstract class WebSocketProxy {
 		return messageCounter.incrementAndGet();
 	}
 	
-	/**
-	 * Returns a hash from the HTTP handshake. Used to find this channel again.
-	 * 
-	 * @return
-	 */
-	public String getHandshakeHash() {
-		return handshakeHash;
+	public HistoryReference getHandshakeReference() {
+		return handshakeReference;
 	}
-
-	/**
-	 * Set the hash from the HTTP handshake.
-	 * 
-	 * @param hash
-	 */
-	public void setHandshakeHash(String hash) {
-		handshakeHash = hash;
+	
+	public void setHandshakeReference(HistoryReference handshakeReference) {
+		this.handshakeReference = handshakeReference;
 	}
 }
