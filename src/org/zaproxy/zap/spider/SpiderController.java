@@ -140,6 +140,14 @@ public class SpiderController implements SpiderParserListener {
 		parseFilters.add(filter);
 	}
 
+	/**
+	 * Clears the previous process.
+	 */
+	public void reset() {
+		visitedGet.clear();
+		visitedPost.clear();
+	}
+
 	@Override
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.debug("New resource found: " + uri);
@@ -157,7 +165,7 @@ public class SpiderController implements SpiderParserListener {
 		// Create the uriV
 		URI uriV = null;
 		try {
-			uriV = new URI(uri, true);
+			uriV = new URI(uri, false);
 		} catch (Exception e) {
 			log.error("Error while converting to uri: " + uri, e);
 		}
@@ -166,7 +174,7 @@ public class SpiderController implements SpiderParserListener {
 		for (FetchFilter f : fetchFilters) {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
-				log.warn("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
 				spider.notifyListenersFoundURI(uri, s);
 				return;
 			}
@@ -174,7 +182,7 @@ public class SpiderController implements SpiderParserListener {
 
 		// Check if should be ignored and not fetched
 		if (shouldIgnore) {
-			log.warn("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
+			log.info("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
 			spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
 			return;
 		}
@@ -222,7 +230,7 @@ public class SpiderController implements SpiderParserListener {
 		// Create the uriV
 		URI uriV = null;
 		try {
-			uriV = new URI(uri, true);
+			uriV = new URI(uri, false);
 		} catch (Exception e) {
 			log.error("Error while converting to uri: " + uri, e);
 		}
@@ -231,7 +239,7 @@ public class SpiderController implements SpiderParserListener {
 		for (FetchFilter f : fetchFilters) {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
-				log.warn("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
 				spider.notifyListenersFoundURI(uri, s);
 				return;
 			}

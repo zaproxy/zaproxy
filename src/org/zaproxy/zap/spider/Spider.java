@@ -326,6 +326,11 @@ public class Spider {
 			httpSender = null;
 		}
 
+		// Notify the controller to clean up memory
+		controller.reset();
+		this.threadPool = null;
+		System.gc();
+
 		// Notify the listeners -- in the meanwhile
 		notifyListenersSpiderComplete(false);
 	}
@@ -350,6 +355,8 @@ public class Spider {
 				threadPool.shutdownNow();
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
+				controller.reset();
+				threadPool = null;
 			}
 		}).start();
 	}
