@@ -192,17 +192,17 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 				spider.addSpiderListener(l);
 
 
-			inOrderSeed(spider, startNode);
+//			inOrderSeed(spider, startNode);
 			// TODO: Debugging purpose
-//			try {
-//				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest7NonEscapedPaths/", true));
-//			} catch (URIException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (NullPointerException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest8NonHTMLFiles/", true));
+			} catch (URIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		extension.getSpiderPanel().setTabFocus();

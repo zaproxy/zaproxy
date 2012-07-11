@@ -291,6 +291,7 @@ public class Spider {
 		log.info("Starting spider...");
 		this.stopped = false;
 		this.paused = false;
+		this.initialized = false;
 
 		// Initialize the thread pool
 		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
@@ -329,7 +330,6 @@ public class Spider {
 		// Notify the controller to clean up memory
 		controller.reset();
 		this.threadPool = null;
-		System.gc();
 
 		// Notify the listeners -- in the meanwhile
 		notifyListenersSpiderComplete(false);
@@ -341,7 +341,6 @@ public class Spider {
 	private void complete() {
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
-		this.initialized = false;
 		if (httpSender != null) {
 			this.getHttpSender().shutdown();
 			httpSender = null;

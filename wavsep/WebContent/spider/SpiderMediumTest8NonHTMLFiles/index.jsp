@@ -13,13 +13,11 @@
 	<p>Pages in this section should by used for testing crawlers and
 		spiders. The spider should explore the links that are provided below.</p>
 
-	<p>This test is for pages containing URIs to resources with
-		non-ASCII characters or not valid URIs</p>
+	<p>This test is for pages containing URIs to resources with which
+		are not HTML</p>
 	<br />
 
-	<a href="Liste_des_Wikipédias.jsp">URI with UTF8 characters</a>
-	<a href="a ' + 33">Illegal URI</a>
-	<a href="a.jsp?a=1&amp;b=2">URI with &amp;amp;</a>
+	<a href="txt_file.jsp">TXT file</a>
 	<br />
 
 
