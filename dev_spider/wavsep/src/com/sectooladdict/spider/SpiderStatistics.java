@@ -125,6 +125,13 @@ public class SpiderStatistics {
 		test.putRequirement(test.getUrl() + "index.jsp");
 		test.putRequirement(test.getUrl() + "a.jsp");
 		tests.add(test);
+		
+		test = new SpiderTestCase(
+				"Medium Test 7 - Page containing unescaped characters (i.e. NON-ASCII) in URIs.",
+				"/spider/SpiderMediumTest7NonEscapedPaths/");
+		test.putRequirement(test.getUrl() + "index.jsp");
+		test.putRequirement(test.getUrl() + "Liste_des_Wikipédias.jsp");
+		tests.add(test);
 
 		test = new SpiderTestCase(
 				"Advanced Test 1 - Page which sets cookies with Path attribute",

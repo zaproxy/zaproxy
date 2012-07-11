@@ -71,7 +71,9 @@ public class URLCanonicalizer {
 
 		try {
 			/* Build the absolute URL, from the url and the baseURL */
-			URI canonicalURI = new URI(URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url));
+			String resolvedURL = URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url);
+			log.info("Resolved URL: " + resolvedURL);
+			URI canonicalURI = new URI(resolvedURL);
 
 			/* Some checking. */
 			if (canonicalURI.getScheme() == null)
@@ -130,10 +132,10 @@ public class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (MalformedURLException ex) {
-			log.warn("Error while Processing URL: " + url, ex);
+			log.error("Error while Processing URL in the spidering process: " + url, ex);
 			return null;
 		} catch (URISyntaxException ex) {
-			log.warn("Error while Processing URI: " + url, ex);
+			log.error("Error while Processing URI in the spidering process: " + url, ex);
 			return null;
 		}
 	}
@@ -241,7 +243,7 @@ public class URLCanonicalizer {
 	 * @throws URISyntaxException the uRI syntax exception
 	 */
 	public static void main(String args[]) throws URISyntaxException {
-		//TODO: Test code - to delete
+		// TODO: Test code - to delete
 		BasicConfigurator.configure();
 		String url = "java.sun.com/a/b/../j2se/1.3/./docs/guide/index.html";
 		URI uri = new URI(url);

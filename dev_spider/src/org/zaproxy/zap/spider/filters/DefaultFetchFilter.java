@@ -48,6 +48,7 @@ public class DefaultFetchFilter extends FetchFilter {
 	@Override
 	public FetchStatus checkFilter(URI uri) {
 
+		log.info("Checking: "+uri);
 		// Protocol check
 		String scheme = uri.getScheme();
 		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))

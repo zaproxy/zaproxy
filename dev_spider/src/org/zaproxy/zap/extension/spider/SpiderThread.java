@@ -195,7 +195,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			inOrderSeed(spider, startNode);
 			// TODO: Debugging purpose
 //			try {
-//				spider.addSeed(new URI("http://www.feedrz.com/login.jsp", true));
+//				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest7NonEscapedPaths/", true));
 //			} catch (URIException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
