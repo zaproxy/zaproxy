@@ -29,7 +29,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 
 public class SpiderPanelCellRenderer extends JPanel implements ListCellRenderer {
