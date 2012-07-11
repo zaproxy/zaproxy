@@ -192,7 +192,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 		this.getSpiderPanel().nodeSelected(node, true);
 	}
 
-    private PopupMenuSpider getPopupMenuSpider() {
+    @SuppressWarnings("unused")
+	private PopupMenuSpider getPopupMenuSpider() {
         if (popupMenuSpider == null) {
         	popupMenuSpider = new PopupMenuSpider();
         	popupMenuSpider.setExtension(this);
