@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
  * Used as filter for the {@link WebSocketPanel}, which is applied in the
@@ -34,30 +35,18 @@ public class WebSocketModelFilter {
 	 * applied.
 	 */
 	private List<String> opcodeList = new ArrayList<String>();
+	private Direction direction = null;
 	
 	/**
 	 * Filter specific messages.
 	 * 
-	 * @param selectedOpcodes
+	 * @param list
 	 */
-	public void setOpcodes(Object[] selectedOpcodes) {
+	public void setOpcodes(List<String> list) {
 		opcodeList.clear();
-		opcodeList.addAll(getAsList(selectedOpcodes));		
-	}
-
-	/**
-	 * Helper that transforms the given objects array to a {@link List<String>}.
-	 * @param objects
-	 * @return
-	 */
-	private List<String> getAsList(Object[] objects) {
-		List<String> list = new ArrayList<String>();
-		
-		for (Object obj : objects) {
-			list.add(obj.toString());
+		if (list != null) {
+			opcodeList.addAll(list);
 		}
-		
-		return list;
 	}
 
 	/**
@@ -76,16 +65,18 @@ public class WebSocketModelFilter {
 	 */
 	public boolean isBlacklisted(WebSocketMessageDAO message) {
 		if (opcodeList.size() > 0) {
-			if (opcodeList.contains(message.readableOpcode)) {
-				return false;
+			if (!opcodeList.contains(message.readableOpcode)) {
+				return true;
 			}
-		} else {
-			// no opcodes are set => show all
-			return false;
 		}
 		
-		// do not show the given message
-		return true;
+		if (direction != null) {
+			if (!message.direction.equals(direction)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
@@ -133,6 +124,19 @@ public class WebSocketModelFilter {
 			}
 		}
 
+		if (direction != null) {
+			empty = false;
+			sb.append(Constant.messages.getString("websocket.filter.label.direction"));
+			
+			if (shouldIncludeValues) {
+				sb.append(": ");
+				sb.append(Constant.messages.getString("websocket.filter.label.direction_" + direction.toString().toLowerCase()));
+				sb.append(" ");
+			} else {
+				sb.append(" ");
+			}
+		}
+
 		sb.insert(0, " ");
 		
 		if (empty) {
@@ -145,5 +149,9 @@ public class WebSocketModelFilter {
 		sb.insert(0, Constant.messages.getString("websocket.filter.label.filter"));
 		
 		return sb.toString();
+	}
+
+	public void setDirection(Direction direction) {
+		this.direction  = direction;
 	}
 }

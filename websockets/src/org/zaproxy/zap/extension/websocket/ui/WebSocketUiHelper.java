@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import org.parosproxy.paros.Constant;
@@ -38,6 +39,10 @@ public class WebSocketUiHelper {
 	
 	// ************************************************************************
 	// ***** HELPER
+
+	public int getDialogWidth() {
+		return 400;
+	}
 	
 	public GridBagConstraints getLabelConstraints(int x, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -59,7 +64,7 @@ public class WebSocketUiHelper {
 
 	public GridBagConstraints getDescriptionConstraints(int x, int y) {
 		GridBagConstraints gbc = getLabelConstraints(x, y);
-		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.insets = new Insets(5, 5, 10, 5);
 		gbc.gridwidth = 3;
 		gbc.weightx = 1;
         return gbc;
@@ -94,6 +99,10 @@ public class WebSocketUiHelper {
 	}
 
 	public JScrollPane getOpcodeMultipleSelect() {
+		return (JScrollPane) getOpcodeList().getParent().getParent();
+	}
+
+	private JList getOpcodeList() {
 		if (opcodeList == null) {
 			int itemsCount = WebSocketMessage.OPCODES.length + 1;
 			
@@ -105,7 +114,7 @@ public class WebSocketUiHelper {
 			
 			new JScrollPane(opcodeList);
 		}
-		return (JScrollPane) opcodeList.getParent().getParent();
+		return opcodeList;
 	}
 
 	private String[] getOpcodeModel() {
@@ -148,6 +157,24 @@ public class WebSocketUiHelper {
 		}
 	}
 
+	public void setSelectedOpcodes(ArrayList<String> opcodes) {
+		JList opcodesList = getOpcodeList();
+		if (opcodes == null || opcodes.contains(SELECT_ALL_OPCODES)) {
+			opcodesList.setSelectedIndex(0);
+		} else {
+			int j = 0;
+			int[] selectedIndices = new int[opcodes.size()];
+			ListModel model = opcodesList.getModel();
+			for (int i = 0; i < model.getSize(); i++) {
+				String item = (String) model.getElementAt(i);
+				if (opcodes.contains(item)) {
+					selectedIndices[j++] = i;
+				}
+			}
+			opcodesList.setSelectedIndices(selectedIndices);
+		}
+	}
+
 	// ************************************************************************
 	// ***** CHANNEL
 	
@@ -163,12 +190,17 @@ public class WebSocketUiHelper {
 
 	public JComboBox getChannelSingleSelect() {
 		if (channelsComboBox == null) {
-            channelsComboBox = new JComboBox(channelComboBoxModel);
+			// dropdown can be wider than JComboBox
+            channelsComboBox = new WiderDropdownJComboBox(channelComboBoxModel, true);
             channelsComboBox.setRenderer(new ComboBoxChannelRenderer());
+            
+            // fixes width of JComboBox
+            channelsComboBox.setPrototypeDisplayValue(new ComboBoxChannelItem("XXXXXXXXXXXXXXXXXX"));
+
         }
         return channelsComboBox;
 	}
-	
+
 	/**
 	 * Returns null if '--All Channels--' is selected.
 	 * 
@@ -195,6 +227,10 @@ public class WebSocketUiHelper {
 	}
 
 	public JScrollPane getChannelMultipleSelect() {
+		return (JScrollPane) getChannelsList().getParent().getParent();
+	}
+	
+	private JList getChannelsList() {
 		if (channelsList == null) {
 			int itemsCount = 4;
 			
@@ -204,12 +240,15 @@ public class WebSocketUiHelper {
 			channelsList.setSelectedIndex(0);
 			channelsList.setLayoutOrientation(JList.VERTICAL);
 			channelsList.setVisibleRowCount(itemsCount);
+            
+            // fixes width of JList
+			channelsList.setPrototypeCellValue(new ComboBoxChannelItem("XXXXXXXXXXXXXXXXXX"));
 			
 			new JScrollPane(channelsList);
 		}
-		return (JScrollPane) channelsList.getParent().getParent();
+		return channelsList;
 	}
-	
+
 	/**
 	 * Returns null if '--All Channels--' is selected.
 	 * 
@@ -232,6 +271,24 @@ public class WebSocketUiHelper {
 			return null;
 		} else {
 			return values;
+		}
+	}
+
+	public void setSelectedChannelIds(ArrayList<Integer> channelIds) {
+		JList channelsList = getChannelsList();
+		if (channelIds == null || channelIds.contains(-1)) {
+			channelsList.setSelectedIndex(0);
+		} else {
+			int j = 0;
+			int[] selectedIndices = new int[channelIds.size()];
+			ComboBoxChannelModel model = (ComboBoxChannelModel) channelsList.getModel();
+			for (int i = 0; i < model.getSize(); i++) {
+				ComboBoxChannelItem item = (ComboBoxChannelItem) model.getElementAt(i);
+				if (channelIds.contains(item.getChannelId())) {
+					selectedIndices[j++] = i;
+				}
+			}
+			channelsList.setSelectedIndices(selectedIndices);
 		}
 	}
 
@@ -270,14 +327,27 @@ public class WebSocketUiHelper {
 	}
 	
 	public Direction getDirection() {
-		if (outgoingCheckbox.isSelected() && incomingCheckbox.isSelected()) {
+		if (getOutgoingCheckbox().isSelected() && getIncomingCheckbox().isSelected()) {
 			return null;
-		} else if (outgoingCheckbox.isSelected()) {
+		} else if (getOutgoingCheckbox().isSelected()) {
 			return Direction.OUTGOING;
-		} else if (incomingCheckbox.isSelected()) {
+		} else if (getIncomingCheckbox().isSelected()) {
 			return Direction.INCOMING;
 		}
 		return null;
+	}
+
+	public void setDirection(Direction direction) {
+		if (direction == null) {
+			getOutgoingCheckbox().setSelected(true);
+			getIncomingCheckbox().setSelected(true);
+		} else if (direction.equals(Direction.OUTGOING)) {
+			getOutgoingCheckbox().setSelected(true);
+			getIncomingCheckbox().setSelected(false);
+		} else if (direction.equals(Direction.INCOMING)) {
+			getOutgoingCheckbox().setSelected(false);
+			getIncomingCheckbox().setSelected(true);
+		}
 	}
 
 	// ************************************************************************

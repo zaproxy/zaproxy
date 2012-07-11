@@ -63,7 +63,6 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	private void initialize() {
         setTitle(getDialogTitle());
         setContentPane(getJPanel());
-        setSize(407, 280);
         
         addWindowListener(new java.awt.event.WindowAdapter() {   
         	@Override
@@ -92,7 +91,7 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			
-			Dimension size = new Dimension(400, 250);
+			Dimension size = new Dimension(wsUiHelper.getDialogWidth(), 250);
 			jPanel.setPreferredSize(size);
 			jPanel.setMinimumSize(size);
 			
@@ -178,8 +177,7 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 			
 			// description
 			JLabel description = new JLabel(Constant.messages.getString("websocket.brk.add.desc"));
-			description.setPreferredSize(new Dimension(350, 60));
-			description.setMaximumSize(new Dimension(350, 150));
+			description.setPreferredSize(new Dimension(wsUiHelper.getDialogWidth() - 30, 60));
 			panel.add(description, wsUiHelper.getDescriptionConstraints(0, 0));
 
 			// opcode restriction

@@ -61,10 +61,8 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 	}
 
 	private void postInitialize() {
-		int width = 400, height = 410;
 		
         setContentPane(getJPanel());
-	    setPreferredSize(new Dimension(width, height));
 		pack();
 	}
 
@@ -75,6 +73,10 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 		if (jPanel == null) {
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
+			
+			Dimension size = new Dimension(wsUiHelper.getDialogWidth(), 380);
+			jPanel.setPreferredSize(size);
+			jPanel.setMinimumSize(size);
 			
 			int y = 0;
 			
