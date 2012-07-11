@@ -51,7 +51,7 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer 
 			setIcon(null);
 		}
 		
-		setText("<html><p style=\"padding: 3px;\">" + value.toString() + "</p></html>");
+		setText("<html><p style=\"padding:3px;white-space:nowrap;\">" + value.toString() + "</p></html>");
 		setFont(list.getFont());
 
 		return this;
