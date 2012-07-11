@@ -180,6 +180,18 @@ public class HttpResponseHeader extends HttpHeader {
 		return false;
 	}
 	
+	public boolean isHtml() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
 

@@ -118,19 +118,27 @@ public class SpiderStatistics {
 		test.putRequirement(test.getUrl() + "a.jsp");
 		test.putRequirement(test.getUrl() + "b.jsp");
 		tests.add(test);
-		
+
 		test = new SpiderTestCase(
 				"Medium Test 6 - Page containing simple HTML form with POST method.",
 				"/spider/SpiderMediumTest6FormPost/");
 		test.putRequirement(test.getUrl() + "index.jsp");
 		test.putRequirement(test.getUrl() + "a.jsp");
 		tests.add(test);
-		
+
 		test = new SpiderTestCase(
 				"Medium Test 7 - Page containing unescaped characters (i.e. NON-ASCII) in URIs.",
 				"/spider/SpiderMediumTest7NonEscapedPaths/");
 		test.putRequirement(test.getUrl() + "index.jsp");
 		test.putRequirement(test.getUrl() + "Liste_des_Wikipédias.jsp");
+		test.putRequirement(test.getUrl() + "a.jsp");
+		tests.add(test);
+
+		test = new SpiderTestCase("Medium Test 8 - Non HTML text files",
+				"/spider/SpiderMediumTest8NonHTMLFiles/");
+		test.putRequirement(test.getUrl() + "index.jsp");
+		test.putRequirement(test.getUrl() + "txt_file.jsp");
+		test.putRequirement(test.getUrl() + "a.jsp");
 		tests.add(test);
 
 		test = new SpiderTestCase(

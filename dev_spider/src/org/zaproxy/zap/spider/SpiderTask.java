@@ -211,7 +211,7 @@ public class SpiderTask implements Runnable {
 	private void processResource(HttpMessage msg) {
 		// Add the cookies
 		if (parent.getSpiderParam().isSendCookies()) {
-			
+
 			List<HttpCookie> cookies = msg.getResponseHeader().getHttpCookies();
 			if (!cookies.isEmpty()) {
 				CookieStore store = parent.getCookieManager().getCookieStore();
@@ -227,7 +227,7 @@ public class SpiderTask implements Runnable {
 		}
 
 		// Parse the resource
-		List<SpiderParser> parsers = parent.getController().getParsers();
+		List<SpiderParser> parsers = parent.getController().getParsers(msg);
 		Source source = new Source(msg.getResponseBody().toString());
 		for (SpiderParser parser : parsers)
 			parser.parseResource(msg, source, depth);

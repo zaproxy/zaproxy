@@ -132,10 +132,10 @@ public class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (MalformedURLException ex) {
-			log.error("Error while Processing URL in the spidering process: " + url, ex);
+			log.error("Error while Processing URL in the spidering process: " + ex.getMessage());
 			return null;
 		} catch (URISyntaxException ex) {
-			log.error("Error while Processing URI in the spidering process: " + url, ex);
+			log.error("Error while Processing URI in the spidering process: " + ex.getMessage());
 			return null;
 		}
 	}

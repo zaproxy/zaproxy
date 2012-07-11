@@ -32,6 +32,7 @@ import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
+import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
  * The SpiderController is used to manage the crawling process and interacts directly with the
@@ -50,6 +51,9 @@ public class SpiderController implements SpiderParserListener {
 
 	/** The parsers for HTML files. */
 	private List<SpiderParser> htmlParsers;
+
+	/** The text parsers. Initialized dinamically, only if needed. */
+	private List<SpiderParser> txtParsers;
 
 	/** The spider. */
 	private Spider spider;
@@ -87,6 +91,12 @@ public class SpiderController implements SpiderParserListener {
 		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
 		this.htmlParsers.add(parser);
+
+		// Prepare the parsers for simple non-HTML files
+		this.txtParsers = new LinkedList<SpiderParser>();
+		parser = new SpiderTextParser();
+		parser.addSpiderParserListener(this);
+		this.txtParsers.add(parser);
 
 	}
 
@@ -209,8 +219,14 @@ public class SpiderController implements SpiderParserListener {
 	 * 
 	 * @return the parser
 	 */
-	public List<SpiderParser> getParsers() {
-		return htmlParsers;
+	public List<SpiderParser> getParsers(HttpMessage message) {
+		// If it reached this point, it is definitely text
+		if (message.getResponseHeader().isHtml())
+			return htmlParsers;
+		else {
+			// Parsing non-HTML text resource.
+			return txtParsers;
+		}
 	}
 
 	@Override
