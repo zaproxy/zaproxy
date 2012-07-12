@@ -425,8 +425,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			messagesLog = new JTable();
 			messagesLog.setName("websocket.table");
 			
-			// set JTable's model - start with all channels
-			useJoinedModel();
+			// initially start with joined model
+			currentChannelId = -1; // indicates joined model usage
+			messagesLog.setModel(getJoinedMessagesModel());
 			
 			messagesLog.setColumnSelectionAllowed(false);
 			messagesLog.setCellSelectionEnabled(false);
@@ -483,18 +484,18 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 				public void valueChanged(ListSelectionEvent e) {
 					// only display messages when there are no more selection changes.
 					if (!e.getValueIsAdjusting()) {
-					    if (messagesLog.getSelectedRow() < 0) {
+						int rowIndex = messagesLog.getSelectedRow();
+					    if (rowIndex < 0) {
 					    	// selection got filtered away
 					        return;
 					    }
-					    WebSocketTableModel model;
-					    if (currentChannelId == -1) {
-					        model = getJoinedMessagesModel();
-				        } else {
-				            model =  models.get(Integer.valueOf(currentChannelId));
-				        }
 					    
-						final WebSocketMessageDAO message = model.getMessages().get(messagesLog.getSelectedRow());
+					    WebSocketTableModel model = (WebSocketTableModel) messagesLog.getModel();
+					    
+					    // as we use a JTable here, that can be sorted, we have to
+					    // transform the row index to the appropriate model row
+	                    int modelRow = messagesLog.convertRowIndexToModel(rowIndex);
+						final WebSocketMessageDAO message = model.getMessages().get(modelRow);
 	                    readAndDisplay(message);
 					}
 				}
@@ -657,13 +658,26 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * Collects WebSocket messages.
 	 */
 	@Override
-	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
+	public boolean onMessageFrame(final int channelId, WebSocketMessage message) {
 		synchronized (models) {
 			if (message.isFinished()) {
-				WebSocketMessageDAO dao = getMessagesModel(channelId).addWebSocketMessage(message);
+				final WebSocketMessageDAO dao = message.getDAO();
+				
+				SwingUtilities.invokeLater(new Runnable(){
+		            @Override
+		            public void run(){
+						getMessagesModel(channelId).addWebSocketMessage(dao);
+		            }
+		        });
+				
 				if (currentChannelId == -1) {
 					// joined model is used -> add message also there
-					((WebSocketTableModel) messagesLog.getModel()).addWebSocketMessage(dao);
+					SwingUtilities.invokeLater(new Runnable(){
+			            @Override
+			            public void run(){
+			            	((WebSocketTableModel) messagesLog.getModel()).addWebSocketMessage(dao);
+			            }
+			        });
 				}
 				
 				if (message.getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
@@ -689,11 +703,19 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private void useModel(int channelId) {
 		currentChannelId = channelId;
+
+		final JTable table = messagesLog;
+		final WebSocketTableModel model = getMessagesModel(channelId);
 		
-		WebSocketTableModel model = getMessagesModel(channelId);
 		model.reFilter();
 		
-		messagesLog.setModel(model);
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    @Override
+		    public void run() {
+		    	table.setModel(model);
+		    }
+		});
 	}
 
 	/**
@@ -716,7 +738,17 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	private void useJoinedModel() {
 		currentChannelId = -1;
 		reFilterJoinedModel();
-		messagesLog.setModel(getJoinedMessagesModel());
+
+		final JTable table = messagesLog;
+		final WebSocketTableModel model = getJoinedMessagesModel();
+		
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    @Override
+		    public void run() {
+		    	table.setModel(model);
+		    }
+		});
 	}
 	
 	/**
