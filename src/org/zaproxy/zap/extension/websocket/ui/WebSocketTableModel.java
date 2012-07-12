@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
@@ -159,7 +160,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	public Class<? extends Object> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return String.class;
+			return ChannelColumnValue.class;
 		case 1:
 			return String.class;
 		case 2:
@@ -172,6 +173,35 @@ public class WebSocketTableModel extends DefaultTableModel {
 			return String.class;
 		}
 		return null;
+	}
+	
+	private class ChannelColumnValue implements Comparable<ChannelColumnValue> {
+		private Integer channelId;
+		private Integer messageId;
+
+		public ChannelColumnValue(Integer channelId, Integer messageId) {
+			this.channelId = channelId;
+			this.messageId = messageId;
+		}
+
+		@Override
+		public int compareTo(ChannelColumnValue other) {
+			int result = channelId.compareTo(other.channelId);
+			
+			if (result == 0) {
+				result = messageId.compareTo(other.messageId);
+			}
+			
+			return result;
+		}
+		
+		/**
+		 * This value is displayed in the table. No {@link TableCellRenderer}
+		 * needed.
+		 */
+		public String toString() {
+			return "#" + channelId + "." + messageId;
+		}
 	}
 
 	/**
@@ -186,7 +216,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 			
 			switch (columnIndex) {
 			case 0:
-				return "#" + message.channelId + "." + message.id;
+				return new ChannelColumnValue(message.channelId, message.id);
 
 			case 1:
 				if (message.direction.equals(Direction.OUTGOING)) {
