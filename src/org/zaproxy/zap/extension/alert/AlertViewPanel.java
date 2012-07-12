@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +47,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
@@ -70,6 +68,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private JPanel alertDisplay = null;
 	private CardLayout cardLayout = null;
 	
+	private JLabel alertUrl = null;
 	private JLabel alertName = null;
 	private JLabel alertRisk = null;
 	private JLabel alertReliability = null;
@@ -234,6 +233,7 @@ public class AlertViewPanel extends AbstractPanel {
 				alertAttack = new JLabel();
 			}
 			
+			alertUrl = new JLabel();
 			alertDescription = createZapTextArea();
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
 			descSp.setViewportView(alertDescription);
@@ -309,33 +309,33 @@ public class AlertViewPanel extends AbstractPanel {
 			gbc11.anchor = java.awt.GridBagConstraints.WEST;
 			//gbc11.weightx = 1.0D;
 
-			java.awt.GridBagConstraints gbc12 = new GridBagConstraints();
-			gbc12.gridy = 2;
-			gbc12.gridx = 0;
-			gbc12.insets = new java.awt.Insets(1,1,1,1);
-			gbc12.anchor = java.awt.GridBagConstraints.WEST;
-			//gbc12.weightx = 0.5D;
-
-			java.awt.GridBagConstraints gbc13 = new GridBagConstraints();
-			gbc13.gridy = 2;
-			gbc13.gridx = 1;
-			gbc13.insets = new java.awt.Insets(1,1,1,1);
-			gbc13.anchor = java.awt.GridBagConstraints.WEST;
-			//gbc13.weightx = 1.0D;
-
 			java.awt.GridBagConstraints gbc20 = new GridBagConstraints();
-			gbc20.gridy = 3;
+			gbc20.gridy = 2;
 			gbc20.gridx = 0;
 			gbc20.insets = new java.awt.Insets(1,1,1,1);
 			gbc20.anchor = java.awt.GridBagConstraints.WEST;
-			//gbc20.weightx = 0.5D;
+			//gbc10.weightx = 0.5D;
 
 			java.awt.GridBagConstraints gbc21 = new GridBagConstraints();
-			gbc21.gridy = 3;
+			gbc21.gridy = 2;
 			gbc21.gridx = 1;
 			gbc21.insets = new java.awt.Insets(1,1,1,1);
 			gbc21.anchor = java.awt.GridBagConstraints.WEST;
-			//gbc21.weightx = 1.0D;
+			//gbc11.weightx = 1.0D;
+
+			java.awt.GridBagConstraints gbc22 = new GridBagConstraints();
+			gbc22.gridy = 3;
+			gbc22.gridx = 0;
+			gbc22.insets = new java.awt.Insets(1,1,1,1);
+			gbc22.anchor = java.awt.GridBagConstraints.WEST;
+			//gbc12.weightx = 0.5D;
+
+			java.awt.GridBagConstraints gbc23 = new GridBagConstraints();
+			gbc23.gridy = 3;
+			gbc23.gridx = 1;
+			gbc23.insets = new java.awt.Insets(1,1,1,1);
+			gbc23.anchor = java.awt.GridBagConstraints.WEST;
+			//gbc13.weightx = 1.0D;
 
 			java.awt.GridBagConstraints gbc30 = new GridBagConstraints();
 			gbc30.gridy = 4;
@@ -349,19 +349,22 @@ public class AlertViewPanel extends AbstractPanel {
 			gbc31.gridx = 1;
 			gbc31.insets = new java.awt.Insets(1,1,1,1);
 			gbc31.anchor = java.awt.GridBagConstraints.WEST;
-			gbc31.fill = java.awt.GridBagConstraints.BOTH;
-			gbc31.weightx = 1.0D;
+			//gbc21.weightx = 1.0D;
 
 			java.awt.GridBagConstraints gbc40 = new GridBagConstraints();
 			gbc40.gridy = 5;
 			gbc40.gridx = 0;
 			gbc40.insets = new java.awt.Insets(1,1,1,1);
 			gbc40.anchor = java.awt.GridBagConstraints.WEST;
-			gbc40.fill = java.awt.GridBagConstraints.BOTH;
-			gbc40.weightx = 1.0D;
-			gbc40.weighty = 1.0D;
-			gbc40.gridwidth = 2;
-			gbc40.gridheight = 1;
+			//gbc20.weightx = 0.5D;
+
+			java.awt.GridBagConstraints gbc41 = new GridBagConstraints();
+			gbc41.gridy = 5;
+			gbc41.gridx = 1;
+			gbc41.insets = new java.awt.Insets(1,1,1,1);
+			gbc41.anchor = java.awt.GridBagConstraints.WEST;
+			gbc41.fill = java.awt.GridBagConstraints.BOTH;
+			gbc41.weightx = 1.0D;
 
 			java.awt.GridBagConstraints gbc50 = new GridBagConstraints();
 			gbc50.gridy = 6;
@@ -396,32 +399,47 @@ public class AlertViewPanel extends AbstractPanel {
 			gbc70.gridwidth = 2;
 			gbc70.gridheight = 1;
 
+			java.awt.GridBagConstraints gbc80 = new GridBagConstraints();
+			gbc80.gridy = 9;
+			gbc80.gridx = 0;
+			gbc80.insets = new java.awt.Insets(1,1,1,1);
+			gbc80.anchor = java.awt.GridBagConstraints.WEST;
+			gbc80.fill = java.awt.GridBagConstraints.BOTH;
+			gbc80.weightx = 1.0D;
+			gbc80.weighty = 1.0D;
+			gbc80.gridwidth = 2;
+			gbc80.gridheight = 1;
+
 			if (editable) {
 				alertDisplay.add(alertEditName, gbc00);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc10);
-				alertDisplay.add(alertEditRisk, gbc11);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc12);
-				alertDisplay.add(alertEditReliability, gbc13);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc20);
-				alertDisplay.add(alertEditParam, gbc21);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc30);
-				alertDisplay.add(alertEditAttack, gbc31);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.url")), gbc10);
+				alertDisplay.add(alertUrl, gbc11);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc20);
+				alertDisplay.add(alertEditRisk, gbc21);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc22);
+				alertDisplay.add(alertEditReliability, gbc23);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc30);
+				alertDisplay.add(alertEditParam, gbc31);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc40);
+				alertDisplay.add(alertEditAttack, gbc41);
 			} else {
 				alertDisplay.add(alertName, gbc00);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc10);
-				alertDisplay.add(alertRisk, gbc11);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc12);
-				alertDisplay.add(alertReliability, gbc13);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc20);
-				alertDisplay.add(alertParam, gbc21);
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc30);
-				alertDisplay.add(alertAttack, gbc31);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.url")), gbc10);
+				alertDisplay.add(alertUrl, gbc11);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), gbc20);
+				alertDisplay.add(alertRisk, gbc21);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), gbc22);
+				alertDisplay.add(alertReliability, gbc23);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), gbc30);
+				alertDisplay.add(alertParam, gbc31);
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")), gbc40);
+				alertDisplay.add(alertAttack, gbc41);
 			}
 			
-			alertDisplay.add(descSp, gbc40);
-			alertDisplay.add(otherSp, gbc50);
-			alertDisplay.add(solutionSp, gbc60);
-			alertDisplay.add(referenceSp, gbc70);
+			alertDisplay.add(descSp, gbc50);
+			alertDisplay.add(otherSp, gbc60);
+			alertDisplay.add(solutionSp, gbc70);
+			alertDisplay.add(referenceSp, gbc80);
 			
 		}
 		return alertDisplay;
@@ -429,6 +447,8 @@ public class AlertViewPanel extends AbstractPanel {
 	
 	public void displayAlert (Alert alert) {
 		this.originalAlert = alert;
+		
+		alertUrl.setText(alert.getUri());
 		
 		if (editable) {
 			nameListModel.addElement(alert.getAlert());
@@ -451,6 +471,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setText(alert.getAlert());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
+			/*
 	    	switch (alert.getRisk()) {
 	    	case Alert.RISK_INFO:	// blue flag
 				alertRisk.setIcon(new ImageIcon(Constant.INFO_FLAG_IMAGE_URL));
@@ -465,9 +486,12 @@ public class AlertViewPanel extends AbstractPanel {
 				alertRisk.setIcon(new ImageIcon(Constant.HIGH_FLAG_IMAGE_URL));
 	    		break;
 	    	}
+	    	*/
 	    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
 	    		// Special case - theres no risk - use the green flag
 				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
+	    	} else {
+				alertRisk.setIcon(new ImageIcon(alert.getIconUrl()));
 	    	}
 			
 			alertReliability.setText(Alert.MSG_RELIABILITY[alert.getReliability()]);
@@ -578,7 +602,7 @@ public class AlertViewPanel extends AbstractPanel {
 					uri = historyRef.getHttpMessage().getRequestHeader().getURI().toString();
 					msg = historyRef.getHttpMessage();
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			} else if (originalAlert != null) {
 				uri = originalAlert.getUri();
@@ -606,11 +630,10 @@ public class AlertViewPanel extends AbstractPanel {
 		try {
 			if (historyRef != null) {
 				setParamNames(historyRef.getHttpMessage().getParamNames());
+		        this.alertUrl.setText(historyRef.getHttpMessage().getRequestHeader().getURI().toString());
 			}
-		} catch (HttpMalformedHeaderException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -623,6 +646,7 @@ public class AlertViewPanel extends AbstractPanel {
     public void setHttpMessage(HttpMessage httpMessage) {
         this.httpMessage = httpMessage;
         setParamNames(httpMessage.getParamNames());
+        this.alertUrl.setText(httpMessage.getRequestHeader().getURI().toString());
         this.historyRef = null;
     }
 	

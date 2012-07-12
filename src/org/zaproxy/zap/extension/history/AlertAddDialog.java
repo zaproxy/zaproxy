@@ -120,7 +120,7 @@ public class AlertAddDialog extends AbstractDialog {
         this.setTitle(Constant.messages.getString("alert.add.title"));
         this.setContentPane(getJPanel());
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        	this.setSize(407, 607);
+        	this.setSize(407, 657);
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
         	@Override
@@ -285,6 +285,8 @@ public class AlertAddDialog extends AbstractDialog {
 		} else {
 			this.setHistoryRef(alert.getMessage().getHistoryRef());
 		}
+		// Change the title as we're editing an existing alert
+        this.setTitle(Constant.messages.getString("alert.edit.title"));
 	}
 	
 	/**
