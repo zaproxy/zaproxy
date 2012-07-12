@@ -428,18 +428,20 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 
 				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                    HistoryReference hRef = (HistoryReference) fuzzResultList.getSelectedValue();
-                    if (hRef == null) {
-                        return;
-                    }
-                    
-                    try {
-                        displayMessage(hRef.getHttpMessage());
-                    } catch (HttpMalformedHeaderException ex) {
-                        logger.error(ex.getMessage(), ex);
-                    } catch (SQLException ex) {
-                        logger.error(ex.getMessage(), ex);
-                    }
+				    if (!e.getValueIsAdjusting()) {
+                        HistoryReference hRef = (HistoryReference) fuzzResultList.getSelectedValue();
+                        if (hRef == null) {
+                            return;
+                        }
+                        
+                        try {
+                            displayMessage(hRef.getHttpMessage());
+                        } catch (HttpMalformedHeaderException ex) {
+                            logger.error(ex.getMessage(), ex);
+                        } catch (SQLException ex) {
+                            logger.error(ex.getMessage(), ex);
+                        }
+				    }
 				}
 			});
 			

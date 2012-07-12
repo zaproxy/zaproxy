@@ -65,33 +65,18 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     private void appendIcons(StringBuilder sb) {
-    	int highest = -1;
+    	int highestRisk = -1;
+    	Alert highestAlert = null;
     	for (Alert alert : this.getAlerts()) {
-    		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
-    			highest = alert.getRisk();
+    		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highestRisk) {
+    			highestRisk = alert.getRisk();
+    			highestAlert = alert;
     		}
     	}
-    	switch (highest) {
-    	case Alert.RISK_INFO:
+    	if (highestAlert != null) {
     		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.INFO_FLAG_IMAGE_URL);
+    		sb.append(highestAlert.getIconUrl());
     		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_LOW:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.LOW_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_MEDIUM:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.MED_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_HIGH:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.HIGH_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
     	}
     	if (justSpidered) {
         	sb.append("&nbsp;<img src=\"");
@@ -103,7 +88,6 @@ public class SiteNode extends DefaultMutableTreeNode {
     @Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
-    	
     	sb.append("<html><body>");
     	appendIcons(sb);
     	sb.append(StringEscapeUtils.escapeHtml(nodeName));
