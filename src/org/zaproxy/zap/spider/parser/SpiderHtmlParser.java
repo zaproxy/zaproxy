@@ -24,8 +24,11 @@ import java.util.regex.Pattern;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import net.htmlparser.jericho.StartTagType;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.<br/>
@@ -40,11 +43,24 @@ public class SpiderHtmlParser extends SpiderParser {
 	/** The Constant urlPattern defining the pattern for a meta url. */
 	private static final Pattern urlPattern = Pattern.compile("url\\s*=\\s*([^;]+)", Pattern.CASE_INSENSITIVE);
 
+	/** The params. */
+	private SpiderParam params;
+
+	/**
+	 * Instantiates a new spider html parser.
+	 * 
+	 * @param params the params
+	 */
+	public SpiderHtmlParser(SpiderParam params) {
+		super();
+		this.params = params;
+	}
+
 	/* (non-Javadoc)
 	 * 
 	 * @see
 	 * org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
-	 * , net.htmlparser.jericho.Source) */
+	 * , net.htmlparser.jericho.Source, int) */
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
 
@@ -59,6 +75,29 @@ public class SpiderHtmlParser extends SpiderParser {
 		else
 			baseURL = message.getRequestHeader().getURI().toString();
 
+		// Parse the source
+		parseSource(message, source, depth, baseURL);
+
+		// Parse the comments
+		if (params.isParseComments()) {
+			List<StartTag> comments = source.getAllStartTags(StartTagType.COMMENT);
+			for (StartTag comment : comments) {
+				Source s = new Source(comment.getTagContent());
+				parseSource(message, s, depth, baseURL);
+			}
+		}
+
+	}
+
+	/**
+	 * Parses the HTML Jericho source for the elements that contain references to other resources.
+	 * 
+	 * @param message the message
+	 * @param source the source
+	 * @param depth the depth
+	 * @param baseURL the base url
+	 */
+	private void parseSource(HttpMessage message, Source source, int depth, String baseURL) {
 		// Process A elements
 		List<Element> elements = source.getAllElements(HTMLElementName.A);
 		for (Element el : elements) {
@@ -121,7 +160,6 @@ public class SpiderHtmlParser extends SpiderParser {
 				}
 			}
 		}
-
 	}
 
 	/**

@@ -50,6 +50,7 @@
 		<sendCookies>true</sendCookies>
 		<skipurl></skipurl>
 		<requestwait>200</requestwait>
+		<parseComments>true</parseComments>
 	</spider>
 
 	<trap>
