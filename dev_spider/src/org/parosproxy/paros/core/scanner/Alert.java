@@ -27,10 +27,14 @@
 // calls to the method append of the class StringBuilder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Changed to not create a new String in the setters.
+// ZAP: 2012/07/10 Issue 323: Added getIconUrl()
 
 package org.parosproxy.paros.core.scanner;
 
+import java.net.URL;
+
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
@@ -360,6 +364,25 @@ public class Alert implements Comparable<Object>  {
      */
     public int getRisk() {
         return risk;
+    }
+    
+    public URL getIconUrl() {
+    	if (reliability == Alert.FALSE_POSITIVE) {
+    		// Special case - theres no risk - use the green flag
+			return Constant.OK_FLAG_IMAGE_URL;
+    	}
+
+    	switch (risk) {
+    	case Alert.RISK_INFO:
+    		return Constant.INFO_FLAG_IMAGE_URL;
+    	case Alert.RISK_LOW:
+    		return Constant.LOW_FLAG_IMAGE_URL;
+    	case Alert.RISK_MEDIUM:
+    		return Constant.MED_FLAG_IMAGE_URL;
+    	case Alert.RISK_HIGH:
+    		return Constant.HIGH_FLAG_IMAGE_URL;
+    	}
+    	return null;
     }
     /**
      * @return Returns the solution.

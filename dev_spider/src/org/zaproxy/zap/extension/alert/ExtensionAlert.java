@@ -65,6 +65,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
+    private PopupMenuShowAlerts popupMenuShowAlerts = null;
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
 
     /**
@@ -99,6 +100,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowAlerts());
 
             extensionHook.getHookView().addStatusPanel(getAlertPanel());
 
@@ -355,6 +357,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             popupMenuAlertsRefresh.setExtension(this);
         }
         return popupMenuAlertsRefresh;
+    }
+
+    private PopupMenuShowAlerts getPopupMenuShowAlerts() {
+        if (popupMenuShowAlerts == null) {
+            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup")); // TODO
+        }
+        return popupMenuShowAlerts;
     }
 
     public void deleteAlert(Alert alert) {

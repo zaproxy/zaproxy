@@ -25,6 +25,7 @@
 // ZAP: 2012/02/19 Removed the Delete button
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/06/06 Issue 323: Added isDummyItem to support dynamic menus
 
 package org.parosproxy.paros.view;
 
@@ -46,11 +47,9 @@ public class MainPopupMenu extends JPopupMenu {
 	private static final long serialVersionUID = -3021348328961418293L;
 
 	private List<JMenuItem> itemList = null;
-//	private PopupFindMenu popupFindMenu = null;  //  @jve:decl-index=0:visual-constraint="125,151"
-	private PopupDeleteMenu popupDeleteMenu = null;
 	private PopupPurgeMenu popupPurgeMenu = null;
 	// ZAP: Added support for submenus
-    Map<String, JMenu> superMenus = new HashMap<String, JMenu>();
+    Map<String, JMenuItem> superMenus = new HashMap<String, JMenuItem>();
     /**
      * 
      */
@@ -121,9 +120,15 @@ public class MainPopupMenu extends JPopupMenu {
 	            if (menuItem.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
 	            	if (menuItem.isSubMenu()) {
 	            		if (menuItem.precedeWithSeparator()) {
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).addSeparator();
+	            			((JMenu)getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex())).addSeparator();
 	            		}
-	            		getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
+	            		if (menuItem.isDummyItem()) {
+	            			// This assumes the dummy item is the first of the children - non dummy children will enable this
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).setEnabled(false);
+	            		} else {
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).setEnabled(true);
+	            		}
 	            		if (menuItem.succeedWithSeparator()) {
 	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
 	            		}
@@ -153,11 +158,11 @@ public class MainPopupMenu extends JPopupMenu {
             if (menu.isEnableForComponent(invoker)) {
             	if (menu.isSubMenu()) {
             		if (menu.precedeWithSeparator()) {
-            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            			((JMenu)getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex())).addSeparator();
             		}
             		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
             		if (menu.succeedWithSeparator()) {
-            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            			((JMenu)getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex())).addSeparator();
             		}
             		
             	} else {
@@ -177,8 +182,8 @@ public class MainPopupMenu extends JPopupMenu {
 	}
 	
 	// ZAP: Added support for submenus
-	private JMenu getSuperMenu (String name, int index) {
-		JMenu superMenu = superMenus.get(name);
+	private JMenuItem getSuperMenu (String name, int index) {
+		JMenuItem superMenu = superMenus.get(name);
 		if (superMenu == null) {
 			superMenu = new JMenu(name);
 			superMenus.put(name, superMenu);
@@ -188,17 +193,6 @@ public class MainPopupMenu extends JPopupMenu {
 		
 	}
 
-	/**
-	 * This method initializes popupDeleteMenu	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private JMenuItem getPopupDeleteMenu() {
-		if (popupDeleteMenu == null) {
-			popupDeleteMenu = new PopupDeleteMenu();
-		}
-		return popupDeleteMenu;
-	}
 	/**
 	 * This method initializes popupPurgeMenu	
 	 * 	
