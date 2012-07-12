@@ -47,7 +47,7 @@
 		<scope></scope>
 		<postform>true</postform>
 		<processform>true</processform>
-		<sendCookies>true</sendCookies>
+		<sendCookies>false</sendCookies>
 		<skipurl></skipurl>
 		<requestwait>200</requestwait>
 		<parseComments>true</parseComments>
