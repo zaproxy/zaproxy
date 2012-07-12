@@ -63,7 +63,7 @@ public class SpiderParam extends AbstractParam {
 	/** The user agent string, if diferent than the default one. */
 	private String userAgent = null;
 	/** Whether the spider sends back the cookies received from the server. */
-	private boolean sendCookies = true;
+	private boolean sendCookies = false;
 
 	/** The log. */
 	Logger log = Logger.getLogger(SpiderParam.class);
