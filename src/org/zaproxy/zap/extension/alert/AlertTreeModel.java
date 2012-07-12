@@ -81,18 +81,7 @@ class AlertTreeModel extends DefaultTreeModel {
     	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
     		return "<html><!--5--><img src=\"" + Constant.OK_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	}
-    	switch (alert.getRisk()) {
-    	case Alert.RISK_INFO:
-    		return "<html><!--4--><img src=\"" + Constant.INFO_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
-    	case Alert.RISK_LOW:
-    		return "<html><!--3--><img src=\"" + Constant.LOW_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
-    	case Alert.RISK_MEDIUM:
-    		return "<html><!--2--><img src=\"" + Constant.MED_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
-    	case Alert.RISK_HIGH:
-    		return "<html><!--1--><img src=\"" + Constant.HIGH_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
-        default:
-        	return alert.getAlert();
-    	}
+		return "<html><!--" + (5 - alert.getRisk()) + "--><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
     }
     
     /**

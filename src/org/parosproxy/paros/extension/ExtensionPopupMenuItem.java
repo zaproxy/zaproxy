@@ -22,6 +22,7 @@
 // ZAP: 2012/01/12 Renamed the class from ExtensionPopupMenu to ExtensionPopupMenuItem 
 //                 and added the method succeedWithSeparator
 // ZAP: 2012/03/03 Added setters for separators
+// ZAP: 2012/07/11 Issue 323: Added support for supermenus
 
 package org.parosproxy.paros.extension;
 
@@ -77,6 +78,16 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     
     // ZAP: Support submenus
     public boolean isSubMenu() {
+    	return false;
+    }
+    
+    // ZAP: Support supermenus
+    public boolean isSuperMenu() {
+    	return false;
+    }
+    
+    // ZAP: Support dummy menu items - used for dynamic menus
+    public boolean isDummyItem () {
     	return false;
     }
     
