@@ -439,7 +439,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 			// channel + consecutive number
 			setColumnWidth(0, 50, 100, 70);
-			
+
 			// direction
 			setColumnWidth(1, 25, 100, 25);
 			
