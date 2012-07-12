@@ -238,6 +238,7 @@ public class ZAP {
 		    }
 	    } else if (cmdLine.isDaemon()) {
 	    	runDaemon();
+	    	Thread.sleep(1000);
 	    } else {
 	        runCommandLine();
 	    }

@@ -27,6 +27,7 @@
 
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -795,5 +796,11 @@ public class HttpMessage {
 	// based on values in cookieParams
 	public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
 		mReqHeader.setCookieParams(cookieParams);
+	}
+	
+	// Rewrite cookie line in the Request Header,
+	// based on values in cookieParams
+	public void setCookies(List<HttpCookie> cookies) {
+		mReqHeader.setCookies(cookies);
 	}
 }
