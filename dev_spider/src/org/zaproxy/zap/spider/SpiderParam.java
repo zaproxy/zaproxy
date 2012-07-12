@@ -35,6 +35,7 @@ public class SpiderParam extends AbstractParam {
 	private static final String SPIDER_SKIP_URL = "spider.skipurl";
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
 	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
+	private static final String SPIDER_PARSE_COMMENTS = "spider.parseComments";
 
 	/** The max depth of the crawling. */
 	private int maxDepth = 5;
@@ -42,6 +43,8 @@ public class SpiderParam extends AbstractParam {
 	private int threadCount = 2;
 	/** The scope of the crawl. */
 	private String scope = "";
+	/** Whether comments should be parsed for URIs. */
+	private boolean parseComments = true;
 	/** Whether the forms are processed and submitted at all. */
 	private boolean processForm = true;
 	/**
@@ -111,6 +114,12 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.sendCookies = getConfig().getBoolean(SPIDER_SEND_COOKIES, true);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			this.parseComments = getConfig().getBoolean(SPIDER_PARSE_COMMENTS, true);
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -367,6 +376,25 @@ public class SpiderParam extends AbstractParam {
 	public void setSendCookies(boolean sendCookies) {
 		this.sendCookies = sendCookies;
 		getConfig().setProperty(SPIDER_SEND_COOKIES, Boolean.toString(sendCookies));
+	}
+
+	/**
+	 * Checks if the spider should parse the comments.
+	 * 
+	 * @return true, if it parses the comments
+	 */
+	public boolean isParseComments() {
+		return parseComments;
+	}
+
+	/**
+	 * Sets the whether the spider parses the comments.
+	 * 
+	 * @param parseComments the new parses the comments value
+	 */
+	public void setParseComments(boolean parseComments) {
+		this.parseComments = parseComments;
+		getConfig().setProperty(SPIDER_PARSE_COMMENTS, Boolean.toString(parseComments));
 	}
 
 }

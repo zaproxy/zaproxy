@@ -83,7 +83,7 @@ public class SpiderController implements SpiderParserListener {
 		// Prepare the parsers for HTML
 		this.htmlParsers = new LinkedList<SpiderParser>();
 		// Simple HTML parser
-		SpiderParser parser = new SpiderHtmlParser();
+		SpiderParser parser = new SpiderHtmlParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
 		this.htmlParsers.add(parser);
 

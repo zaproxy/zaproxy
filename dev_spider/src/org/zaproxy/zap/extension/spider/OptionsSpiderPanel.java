@@ -63,6 +63,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox useCookies = null;
+	private JCheckBox parseComments = null;
 
 	/**
 	 * Instantiates a new options spider panel.
@@ -110,6 +111,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints processFormGridBag = new GridBagConstraints();
 			GridBagConstraints postFormGridBag = new GridBagConstraints();
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
+			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
 
 			maxDepthLabelGridBag.gridx = 0;
 			maxDepthLabelGridBag.gridy = 0;
@@ -175,6 +177,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			useCookiesGridBag.anchor = GridBagConstraints.NORTHWEST;
 			useCookiesGridBag.insets = new Insets(2, 2, 2, 2);
 
+			parseCommentsGridBag.gridx = 0;
+			parseCommentsGridBag.gridy = 9;
+			parseCommentsGridBag.weightx = 1.0;
+			parseCommentsGridBag.fill = GridBagConstraints.HORIZONTAL;
+			parseCommentsGridBag.anchor = GridBagConstraints.NORTHWEST;
+			parseCommentsGridBag.insets = new Insets(2, 2, 2, 2);
+
 			// Prepare the necessary labels
 			JLabel domainsLabel = new JLabel();
 			JLabel noThreadsLabel = new JLabel();
@@ -194,6 +203,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getChkProcessForm(), processFormGridBag);
 			panelSpider.add(getChkPostForm(), postFormGridBag);
 			panelSpider.add(getChkUseCookies(), useCookiesGridBag);
+			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
 		}
 		return panelSpider;
 	}
@@ -210,6 +220,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkProcessForm().setSelected(param.isProcessForm());
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkUseCookies().setSelected(param.isSendCookies());
+		getChkParseComments().setSelected(param.isParseComments());
 
 	}
 
@@ -228,6 +239,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setProcessForm(getChkProcessForm().isSelected());
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setSendCookies(getChkUseCookies().isSelected());
+		param.setParseComments(getChkParseComments().isSelected());
 	}
 
 	/**
@@ -353,6 +365,19 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			useCookies.setText(Constant.messages.getString("spider.options.label.cookies"));
 		}
 		return useCookies;
+	}
+
+	/**
+	 * This method initializes the Parse Comments checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkParseComments() {
+		if (parseComments == null) {
+			parseComments = new JCheckBox();
+			parseComments.setText(Constant.messages.getString("spider.options.label.comments"));
+		}
+		return parseComments;
 	}
 
 	/**
