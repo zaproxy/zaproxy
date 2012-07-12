@@ -74,6 +74,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	
 	/**
 	 * Ctor.
+	 * @param table 
 	 * 
 	 * @param webSocketFilter
 	 */
@@ -213,29 +214,26 @@ public class WebSocketTableModel extends DefaultTableModel {
 	}
 
 	/**
-	 * Extracts necessary data from the {@link WebSocketMessage} object and
-	 * stores only necessary informations.
-	 * @param data.channelId 
+	 * Call this method via:<code>
+	 * SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+            	// call addWebSocketMessage(dao)
+            }
+        });
+        </code>
 	 * 
 	 * @param message
-	 * @return 
 	 */
-	public WebSocketMessageDAO addWebSocketMessage(WebSocketMessage message) {
-		WebSocketMessageDAO dao = message.getDAO();
-		
-		addWebSocketMessage(dao);
-		
-		return dao;
-	}
-
-	public void addWebSocketMessage(WebSocketMessageDAO message) {
+	public synchronized void addWebSocketMessage(WebSocketMessageDAO message) {
 		allMessages.add(message);
 		if (filter.isBlacklisted(message)) {
 			// no need for adding the message to the filteredMessages list
 		} else {
-			int rows = filteredMessages.size();
 			filteredMessages.add(message);
-			fireTableRowsInserted(rows - 1, rows);
+			
+			int modelIndex = filteredMessages.size() - 1;
+			fireTableRowsInserted(modelIndex, modelIndex);
 		}
 	}
 
@@ -306,6 +304,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	}
 	
 	public String toString() {
-		return "Model listing " + getRowCount() + " of " + allMessages.size() + " possible messages!";
+		return "TableModel currently shows " + getRowCount() + " of "
+				+ allMessages.size() + " possible messages!";
 	}
 }
