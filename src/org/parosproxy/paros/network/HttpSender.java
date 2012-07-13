@@ -351,7 +351,7 @@ public class HttpSender {
         mgr.getParams().setSoTimeout(this.param.getTimeoutInSecs() * 1000);
         mgr.getParams().setStaleCheckingEnabled(true);
         
-        mgr.getParams().setDefaultMaxConnectionsPerHost((Constant.MAX_HOST_CONNECTION > 5) ? 10 : 5*Constant.MAX_HOST_CONNECTION);
+        mgr.getParams().setDefaultMaxConnectionsPerHost(Constant.MAX_HOST_CONNECTION);
 
         // to use for HttpClient 3.0.1
         //mgr.getParams().setDefaultMaxConnectionsPerHost((Constant.MAX_HOST_CONNECTION > 5) ? 15 : 3*Constant.MAX_HOST_CONNECTION);

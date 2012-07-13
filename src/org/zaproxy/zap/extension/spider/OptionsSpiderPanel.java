@@ -272,14 +272,25 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		if (sliderThreads == null) {
 			sliderThreads = new JSlider();
 			sliderThreads.setMaximum(Constant.MAX_THREADS_PER_SCAN);
-			sliderThreads.setMinimum(1);
+			sliderThreads.setMinimum(0);
 			sliderThreads.setValue(1);
 			sliderThreads.setPaintTicks(true);
 			sliderThreads.setPaintLabels(true);
 			sliderThreads.setMinorTickSpacing(1);
-			sliderThreads.setMajorTickSpacing(1);
+			sliderThreads.setMajorTickSpacing(5);
 			sliderThreads.setSnapToTicks(true);
 			sliderThreads.setPaintTrack(true);
+
+			sliderThreads.addChangeListener(new ChangeListener () {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					// If the minimum is set to 1 then the ticks are at 6, 11 etc
+					// But we dont want to support 0 threads, hence this hack
+					if (getSliderThreads().getValue() == 0) {
+						getSliderThreads().setValue(1);
+					}
+					//setLabelThreadsPerHostValue(getSliderThreads().getValue());
+				}});
 		}
 		return sliderThreads;
 	}
