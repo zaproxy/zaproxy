@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.htmlparser.jericho.Config;
+
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
@@ -86,6 +88,7 @@ public class SpiderController implements SpiderParserListener {
 		SpiderParser parser = new SpiderHtmlParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
 		this.htmlParsers.add(parser);
+		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 
 		// HTML Form parser
 		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
@@ -175,9 +178,10 @@ public class SpiderController implements SpiderParserListener {
 		// Create the uriV
 		URI uriV = null;
 		try {
-			uriV = new URI(uri, false);
+			uriV = new URI(uri, true);
 		} catch (Exception e) {
 			log.error("Error while converting to uri: " + uri, e);
+			return;
 		}
 
 		// Check if any of the filters disallows this uri
@@ -246,9 +250,10 @@ public class SpiderController implements SpiderParserListener {
 		// Create the uriV
 		URI uriV = null;
 		try {
-			uriV = new URI(uri, false);
+			uriV = new URI(uri, true);
 		} catch (Exception e) {
 			log.error("Error while converting to uri: " + uri, e);
+			return;
 		}
 
 		// Check if any of the filters disallows this uri
