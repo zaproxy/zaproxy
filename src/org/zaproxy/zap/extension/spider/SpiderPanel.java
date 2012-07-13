@@ -216,6 +216,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		if (txtURIFound == null) {
 			txtURIFound = new ZapTextArea();
 			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			txtURIFound.setText(Constant.messages.getString("spider.panel.emptyView"));
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
 			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() {

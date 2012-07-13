@@ -24,6 +24,7 @@
 // Changed to use the byte[] body. Changed to use the class StringBuilder instead
 // of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 
 package org.parosproxy.paros.network;
 
@@ -799,7 +800,7 @@ public class HttpMessage {
 	}
 	
 	// Rewrite cookie line in the Request Header,
-	// based on values in cookieParams
+	// based on values in cookies
 	public void setCookies(List<HttpCookie> cookies) {
 		mReqHeader.setCookies(cookies);
 	}
