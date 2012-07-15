@@ -52,7 +52,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -5623691753271231473L;
 
-	/** The full panel for the spideroptions. */
+	/** The full panel for the spider options. */
 	private JPanel panelSpider = null;
 
 	// The controls for the options:
@@ -215,7 +215,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 		getSliderMaxDepth().setValue(param.getMaxDepth());
 		getSliderThreads().setValue(param.getThreadCount());
-		getDomainScopeTextArea().setText(param.getScopeString());
+		getDomainScopeTextArea().setText(param.getScopeText());
 		getDomainScopeTextArea().discardAllEdits();
 		getChkProcessForm().setSelected(param.isProcessForm());
 		getChkPostForm().setSelected(param.isPostForm());
