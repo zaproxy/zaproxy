@@ -22,7 +22,7 @@
 // ZAP: 2011/08/04 Changed to support new Features
 // ZAP: 2011/08/04 Changed to support new interface
 // ZAP: 2012/03/15 Changed so the display options can be modified dynamically.
-//
+// ZAP: 2012/07/16 Issue 326: Add response time and total length to manual request dialog 
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -35,13 +35,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -107,6 +110,11 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private String configurationKey;
 	
 	private RequestResponsePanel requestResponsePanel;
+
+	private static JLabel labelTimeElapse = null;
+	private static JLabel labelContentLength = null;
+	private static JLabel labelTotalLength = null;
+	private static JToolBar footerToolbar = null; 
 	
 	/**
 	 * @param parent
@@ -137,7 +145,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		requestResponsePanel.addSeparator();
 		requestResponsePanel.addToolbarButton(getButtonUseTrackingSessionState());
 		requestResponsePanel.addToolbarButton(getButtonFollowRedirect());
-		
+
 		requestResponsePanel.loadConfig();
 		
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -148,7 +156,15 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			}
 		});
 
+		//setting footer status bar label and separator
+		getFooterStatusBar().add(getLabelTimeLapse());
+		getFooterStatusBar().addSeparator();
+		getFooterStatusBar().add(getLabelContentLength());
+		getFooterStatusBar().addSeparator();
+		getFooterStatusBar().add(getLabelTotalLength());
+		
 		this.setContentPane(getWindowPanel());
+		
 		this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
 
@@ -158,6 +174,8 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			panelWindow.setLayout(new BorderLayout());
 
 			panelWindow.add(requestResponsePanel);
+			// add footer status bar
+			panelWindow.add(getFooterStatusBar(), BorderLayout.SOUTH);
 		}
 
 		return panelWindow;
@@ -190,7 +208,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		}
 		return responsePanel;
 	}
-
+	
 	public void setExtension(Extension extension) {
 		requestPanel.setExtension(extension);
 		responsePanel.setExtension(extension);
@@ -241,6 +259,8 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 
 		getRequestPanel().setMessage(httpMessage);
 		getResponsePanel().setMessage(httpMessage);
+		//reload footer status
+		setFooterStatus(null);
 		switchToTab(0);
 	}
 
@@ -335,7 +355,36 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		}
 		return btnSend;
 	}
-
+    /**
+     * Get Label status time lapse
+     * @return
+     */
+	private JLabel getLabelTimeLapse(){
+		if (labelTimeElapse==null){
+			labelTimeElapse = new JLabel("", JLabel.LEADING);
+		}
+		return labelTimeElapse;
+	}
+	 /**
+     * Get Label status Content Length
+     * @return
+     */
+	private JLabel getLabelContentLength(){
+		if (labelContentLength==null){
+			labelContentLength = new JLabel("", JLabel.LEADING);
+		}
+		return labelContentLength;
+	}
+	 /**
+     * Get Label status Total Length
+     * @return
+     */
+	private JLabel getLabelTotalLength(){
+		if (labelTotalLength==null){
+			labelTotalLength = new JLabel("", JLabel.LEADING);
+		}
+		return labelTotalLength;
+	}
 	private void btnSendAction() {
 		btnSend.setEnabled(false);
 
@@ -349,8 +398,53 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 
 		// redraw request, as it could have changed
 		requestPanel.updateContent();
+		
 	}
 
+	/**
+	 * Return the footer status bar object
+	 * @return
+	 */
+	private JToolBar getFooterStatusBar() {
+		if (footerToolbar == null) {
+			footerToolbar = new JToolBar();
+			footerToolbar.setEnabled(true);
+			footerToolbar.setFloatable(false);
+			footerToolbar.setRollover(true);
+			footerToolbar.setName("Footer Toolbar Left");
+			footerToolbar.setBorder(BorderFactory.createEtchedBorder());
+		}
+		return footerToolbar;
+	}
+	
+	/**
+	 * Set footer status bar
+	 * @param msg
+	 */
+	private void setFooterStatus(HttpMessage msg){
+		if (msg != null) {
+			//get values
+			long totalLength = msg.getResponseBody().toString().length()+msg.getResponseHeader().getHeadersAsString().length();
+			long contentLength = msg.getResponseBody().toString().length();
+			long timeLapse =msg.getTimeElapsedMillis(); 
+			// show time lapse and content length between request and response Constant.messages.getString("manReq.label.timeLapse")
+			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")+String.valueOf(timeLapse)+" ms"); 
+			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength")+String.valueOf(contentLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
+			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength") +String.valueOf(totalLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
+		}else{
+			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")); 
+			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength"));
+			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength"));
+		}
+	}
+	
+/**
+ * 
+ * The footer should really be a javax.swing.JToolBar containing one or more JLabels
+It might be clearer if you separate the info in the toolbar with using toolbar.addSeparator() - 
+ * @param msg
+ */
+	
 	private void send(final HttpMessage msg) {
 		final Thread t = new Thread(new Runnable() {
 			@Override
@@ -362,10 +456,13 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 						@Override
 						public void run() {
 							if (!msg.getResponseHeader().isEmpty()) {
+								
+								setFooterStatus(getResponsePanel().getHttpMessage());
+							    
 								// Indicate UI new response arrived
 								switchToTab(1);
 								responsePanel.updateContent();
-
+								
 								final int finalType = HistoryReference.TYPE_MANUAL;
 								final Thread t = new Thread(new Runnable() {
 									@Override
@@ -443,6 +540,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			if (request == null || response == null) {
 				throw new IllegalArgumentException("The request and response panels cannot be null.");
 			}
+			
 			
 			this.configurationKey = configurationKey;
 
