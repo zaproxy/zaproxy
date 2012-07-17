@@ -41,7 +41,7 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderListener {
 
-	private static Logger log = Logger.getLogger(SpiderAPI.class);
+	private static final Logger log = Logger.getLogger(SpiderAPI.class);
 
 	/** The Constant PREFIX defining the name/prefix of the api. */
 	private static final String PREFIX = "spider";
@@ -80,7 +80,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	private int progress;
 
 	/** The URIs found during the scan. */
-	private ArrayList<String> foundURIs;
+	private List<String> foundURIs;
 
 	/**
 	 * Instantiates a new spider API.
@@ -154,6 +154,9 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		SiteNode startNode;
 		try {
 			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true));
+			if (startNode == null) {
+			     throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			} 
 		} catch (URIException e) {
 			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 		}
@@ -163,7 +166,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		this.progress = 0;
 
 
-		spiderThread = new SpiderThread(extension, "API", this, extension.getSpiderParam());
+		spiderThread = new SpiderThread(extension, "API", this);
 		spiderThread.setStartNode(startNode);
 		spiderThread.addSpiderListener(this);
 		spiderThread.start();

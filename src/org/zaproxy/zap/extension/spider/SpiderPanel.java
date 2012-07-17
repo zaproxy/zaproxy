@@ -48,7 +48,7 @@ import org.zaproxy.zap.view.ScanPanel;
 public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger log = Logger.getLogger(SpiderPanel.class);
+	private static final Logger log = Logger.getLogger(SpiderPanel.class);
 
 	public static final String PANEL_NAME = "spider";
 
@@ -73,7 +73,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
-		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this, (SpiderParam) params);
+		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
 		st.setStartNode(this.getSiteNode(site));
 		return st;
 	}
@@ -212,13 +212,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * 
 	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */
-	ZapTextArea getTxtURIFound() {
+	protected ZapTextArea getTxtURIFound() {
 		if (txtURIFound == null) {
 			txtURIFound = new ZapTextArea();
 			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURIFound.setText(Constant.messages.getString("spider.panel.emptyView"));
 			txtURIFound.setEditable(false);
 			txtURIFound.setLineWrap(true);
+			//TODO: To fix this when moving to JList:
 			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
@@ -264,12 +265,13 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * 
 	 * @return org.zaproxy.zap.utils.ZapTextArea
 	 */
-	ZapTextArea getTxtURISkip() {
+	protected ZapTextArea getTxtURISkip() {
 		if (txtURISkip == null) {
 			txtURISkip = new ZapTextArea();
 			txtURISkip.setEditable(false);
 			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			txtURISkip.setLineWrap(true);
+			//TODO: To fix this when moving to JList:
 			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
@@ -310,7 +312,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	/**
 	 * Appends a new url found to the list of URLs found (top Pane). Can be called from other
-	 * threads, in which case it will do the change on the main thread.
+	 * threads, in which case it will do the change on the EDT thread.
 	 * 
 	 * @param url the url
 	 */
@@ -323,9 +325,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					synchronized (txtURIFound) {
-						getTxtURIFound().append(url);
-					}
+					getTxtURIFound().append(url);
 				}
 			});
 		} catch (Exception e) {
@@ -336,7 +336,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	/**
 	 * Appends a new url found to the list of URLs found, but skipped (lower Pane). Can be called
-	 * from other threads, in which case it will do the change on the main thread.
+	 * from other threads, in which case it will do the change on the EDT thread.
 	 * 
 	 * @param url the url
 	 */
@@ -349,9 +349,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					synchronized (txtURISkip) {
 						getTxtURISkip().append(url);
-					}
 				}
 			});
 		} catch (Exception e) {
