@@ -19,7 +19,7 @@ package org.zaproxy.zap.extension.websocket.ui.httppanel.models;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.AbstractByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 
 public abstract class AbstractWebSocketBytePanelViewModel extends AbstractByteHttpPanelViewModel {
 

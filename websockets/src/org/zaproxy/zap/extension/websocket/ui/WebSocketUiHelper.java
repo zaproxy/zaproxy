@@ -17,6 +17,7 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -157,6 +158,26 @@ public class WebSocketUiHelper {
 		}
 	}
 
+	/**
+	 * Returns null if '--All Opcodes--' is selected.
+	 * 
+	 * @return
+	 */
+	public List<Integer> getSelectedOpcodeIntegers() {
+		List<String> opcodes = getSelectedOpcodes();
+		if (opcodes == null) {
+			return null;
+		} else {
+			ArrayList<Integer> values = new ArrayList<Integer>();
+			for (int opcode : WebSocketMessage.OPCODES) {
+				if (opcodes.contains(WebSocketMessage.opcode2string(opcode))) {
+					values.add(opcode);
+				}
+			}
+			return values;
+		}
+	}
+
 	public void setSelectedOpcodes(ArrayList<String> opcodes) {
 		JList opcodesList = getOpcodeList();
 		if (opcodes == null || opcodes.contains(SELECT_ALL_OPCODES)) {
@@ -195,7 +216,7 @@ public class WebSocketUiHelper {
             channelsComboBox.setRenderer(new ComboBoxChannelRenderer());
             
             // fixes width of JComboBox
-            channelsComboBox.setPrototypeDisplayValue(new ComboBoxChannelItem("XXXXXXXXXXXXXXXXXX"));
+            channelsComboBox.setPrototypeDisplayValue(new WebSocketChannelDAO("XXXXXXXXXXXXXXXXXX"));
 
         }
         return channelsComboBox;
@@ -210,8 +231,8 @@ public class WebSocketUiHelper {
 		if (getChannelSingleSelect().getSelectedIndex() == 0) {
 			return null;
 		}
-		ComboBoxChannelItem item = (ComboBoxChannelItem) getChannelSingleSelect().getSelectedItem();
-		return item.getChannelId();
+		WebSocketChannelDAO item = (WebSocketChannelDAO) getChannelSingleSelect().getSelectedItem();
+		return item.channelId;
 	}
 	
 	public void setSelectedChannelId(Integer channelId) {
@@ -219,8 +240,8 @@ public class WebSocketUiHelper {
 		getChannelSingleSelect().setSelectedIndex(0);
 	
 		for (int i = 0; i < channelComboBoxModel.getSize(); i++) {
-			ComboBoxChannelItem item = (ComboBoxChannelItem) channelComboBoxModel.getElementAt(i);
-			if (item.getChannelId() == channelId) {
+			WebSocketChannelDAO item = (WebSocketChannelDAO) channelComboBoxModel.getElementAt(i);
+			if (item.channelId == channelId) {
 				channelComboBoxModel.setSelectedItem(item);
 			}
 		}
@@ -242,7 +263,7 @@ public class WebSocketUiHelper {
 			channelsList.setVisibleRowCount(itemsCount);
             
             // fixes width of JList
-			channelsList.setPrototypeCellValue(new ComboBoxChannelItem("XXXXXXXXXXXXXXXXXX"));
+			channelsList.setPrototypeCellValue(new WebSocketChannelDAO("XXXXXXXXXXXXXXXXXX"));
 			
 			new JScrollPane(channelsList);
 		}
@@ -259,8 +280,8 @@ public class WebSocketUiHelper {
 		ArrayList<Integer> values = new ArrayList<Integer>();
 		
 		for (Object value : channelsList.getSelectedValues()) {
-			int channelId = ((ComboBoxChannelItem) value).getChannelId();
-			if (channelId == -1) {
+			Integer channelId = ((WebSocketChannelDAO) value).channelId;
+			if (channelId == null) {
 				isSelectAll = true;
 				break;
 			}
@@ -283,8 +304,8 @@ public class WebSocketUiHelper {
 			int[] selectedIndices = new int[channelIds.size()];
 			ComboBoxChannelModel model = (ComboBoxChannelModel) channelsList.getModel();
 			for (int i = 0; i < model.getSize(); i++) {
-				ComboBoxChannelItem item = (ComboBoxChannelItem) model.getElementAt(i);
-				if (channelIds.contains(item.getChannelId())) {
+				WebSocketChannelDAO item = (WebSocketChannelDAO) model.getElementAt(i);
+				if (channelIds.contains(item.channelId)) {
 					selectedIndices[j++] = i;
 				}
 			}

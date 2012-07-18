@@ -23,12 +23,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-
-import org.apache.commons.lang.time.FastDateFormat;
-import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
@@ -36,8 +30,6 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
  * Monsoon project (http://code.google.com/p/monsoon/).
  */
 public abstract class WebSocketMessage {
-
-	private static final Logger logger = Logger.getLogger(WebSocketMessage.class);
 
 	public enum Direction {
 		INCOMING, OUTGOING
@@ -60,7 +52,7 @@ public abstract class WebSocketMessage {
 	protected boolean isFinished;
 
 	/**
-	 * Indicating when this message (or current frame) was received.
+	 * Indicating when this message was received.
 	 */
 	protected Timestamp timestamp;
 	
@@ -168,20 +160,10 @@ public abstract class WebSocketMessage {
 	protected static final Charset UTF8_CHARSET;
 	
 	/**
-	 * Used to format {@link WebSocketMessage#timestamp} in user's locale.
-	 */
-	protected static final FastDateFormat dateFormatter;
-	
-	/**
 	 * Use the static initializer for setting up one date formatter for all
 	 * instances.
 	 */
-	static {
-		// milliseconds are added later (via usage java.sql.Timestamp.getNanos())
-		dateFormatter = FastDateFormat.getDateTimeInstance(
-				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
-				Constant.getLocale());
-		
+	static {		
 		UTF8_CHARSET = Charset.forName("UTF-8");
 	}
 	
@@ -480,17 +462,7 @@ public abstract class WebSocketMessage {
 		WebSocketMessageDAO dao = new WebSocketMessageDAO();
 		
 		Timestamp ts = getTimestamp();
-		dao.timestamp = ts.getTime() + (ts.getNanos() / 1000000);
-		
-		String dateTime = "";
-		synchronized (dateFormatter) {
-			dateTime = dateFormatter.format(ts);
-		}
-		String nanos = (ts.getNanos() + "").replaceAll("0+$", "");
-		if (nanos.length() == 0) {
-			nanos = "0";
-		}
-		dao.dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
+		dao.setTime(ts);
 		
 		dao.opcode = getOpcode();
 		dao.readableOpcode = getOpcodeString();
@@ -499,6 +471,7 @@ public abstract class WebSocketMessage {
 			dao.payload = getReadablePayload();
 		} else if (isBinary()) {
 			// TODO: find binary websocket demo and set appropriate representation
+			dao.payload = getReadablePayload();
 //			dao.payload = byteArrayToHexString(getPayload());
 		} else {
 			dao.payload = getReadablePayload();
@@ -509,7 +482,7 @@ public abstract class WebSocketMessage {
 			dao.payload = "";
 		}
 		
-		dao.direction = getDirection();
+		dao.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;
 		
 		dao.payloadLength = getPayloadLength();
 		

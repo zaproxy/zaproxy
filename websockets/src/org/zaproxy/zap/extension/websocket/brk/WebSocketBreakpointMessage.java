@@ -20,12 +20,13 @@ package org.zaproxy.zap.extension.websocket.brk;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
@@ -53,7 +54,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	 */
 	private Direction direction;
 
-	public WebSocketBreakpointMessage(String opcode, Integer channelId, String payloadPattern, Direction direction) {
+	public WebSocketBreakpointMessage(String opcode, Integer channelId, String payloadPattern, Direction direction) throws PatternSyntaxException {
 		setOpcode(opcode);
 		setChannelId(channelId);
 		setPayloadPattern(payloadPattern);
@@ -88,7 +89,14 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 		return null;
 	}
 
-	public void setPayloadPattern(String payloadPattern) {
+	/**
+	 * Catch {@link PatternSyntaxException} in dialog & show warning. You can do
+	 * this by <code>View.getSingleton().showWarningDialog(message)</code>.
+	 * 
+	 * @param payloadPattern
+	 * @throws PatternSyntaxException
+	 */
+	public void setPayloadPattern(String payloadPattern) throws PatternSyntaxException {
 		if (payloadPattern == null || payloadPattern.length() == 0) {
 			this.payloadPattern = null;
 		} else {
@@ -134,7 +142,9 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        }
 	        
 	        if (direction != null) {
-	        	if (direction != msg.direction) {
+	        	if (msg.isOutgoing && !direction.equals(Direction.OUTGOING)) {
+		        	return false;
+		        } else if (!msg.isOutgoing && !direction.equals(Direction.INCOMING)) {
 		        	return false;
 		        }
 	        }

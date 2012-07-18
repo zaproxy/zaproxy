@@ -6,6 +6,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+
 /**
  * Displays a connected or disconnected plug beside channel name.
  */
@@ -22,7 +24,7 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer 
 	 */
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
-		ComboBoxChannelItem item = (ComboBoxChannelItem) value;
+		WebSocketChannelDAO item = (WebSocketChannelDAO) value;
 				
 		if (isSelected) {
             setBackground(list.getSelectionBackground());
@@ -40,18 +42,24 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer 
 		
 		// avoid usage of index param, as it is not always valid
 		// a channel id of -1 indicates a non-WebSocketChannel item
-		if (item != null && item.getChannelId() != -1) {
-			if (item.isConnected()) {
-				setIcon(WebSocketPanel.connectIcon);
+		String text = "";
+		if (item != null) {
+			text = item.toString();
+			
+			if (item.channelId != null) {
+				Boolean isConnected = item.isConnected();
+				if (isConnected != null && isConnected) {
+					setIcon(WebSocketPanel.connectIcon);
+				} else {
+					setIcon(WebSocketPanel.disconnectIcon);
+				}
 			} else {
-				setIcon(WebSocketPanel.disconnectIcon);
+				// unset icon
+				setIcon(null);
 			}
-		} else {
-			// unset icon
-			setIcon(null);
 		}
 		
-		setText("<html><p style=\"padding:3px;white-space:nowrap;\">" + value.toString() + "</p></html>");
+		setText("<html><p style=\"padding:3px;white-space:nowrap;\">" + text + "</p></html>");
 		setFont(list.getFont());
 
 		return this;

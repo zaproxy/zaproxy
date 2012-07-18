@@ -19,7 +19,6 @@ package org.zaproxy.zap.extension.websocket;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.SocketException;
 
@@ -27,7 +26,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Wrap it in a thread to listen for one end of a WebSockets connection. It does
- * so by using blocking reads and passes read bytes to WebSocketsProxy for
+ * so by using blocking reads and passes read bytes to {@link WebSocketProxy} for
  * processing. If you want to listen (a.k.a. observe) for WebSocket messages, see
  * the {@link WebSocketObserver} class.
  */
@@ -86,27 +85,13 @@ public class WebSocketListener implements Runnable {
 				// there is something to read => process in WebSockets version specific message
 				wsProxy.processRead(in, out, buffer[0]);
 			}
-		} catch (InterruptedIOException e) {
-			// ignore this interruption, as it indicates a valid shutdown
-//		} catch (Exception e) {
-//			if (Thread.currentThread().isInterrupted()) {
-//				// this thread has been interrupted -> it was an intentional shutdown
-//				// does not work as intended
-//			} else {
-//				// shutdown was not intended
-//				// error has to be taken seriously
-//			}
 		} catch (SocketException e) {
 			// no more reading possible
+			stop();
 		} catch (IOException e) {
 			// no more reading possible
-		} finally {			
-			// no more bytes can be read
-			closeReaderStream();
-			
-			// no more bytes can be written
-			closeWriterStream();
-			
+			stop();
+		} finally {				
 			// mark as finished
 			isFinished = true;
 			
@@ -141,7 +126,11 @@ public class WebSocketListener implements Runnable {
 	 * Interrupts current thread, stopping its execution.
 	 */
 	public void stop() {
-		Thread.currentThread().interrupt();
+		// no more bytes can be read
+		closeReaderStream();
+		
+		// no more bytes can be written
+		closeWriterStream();
 	}
 
 	/**

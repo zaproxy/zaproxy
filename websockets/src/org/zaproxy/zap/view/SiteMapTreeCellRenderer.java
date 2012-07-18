@@ -110,6 +110,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	
 			if (node.getHistoryReference() != null) {
 				try {
+					// TODO: When a new session is created, a HttpMalformedHeaderException is received here.
 					HttpMessage msg = node.getHistoryReference().getHttpMessage();
 	
 					return msg;

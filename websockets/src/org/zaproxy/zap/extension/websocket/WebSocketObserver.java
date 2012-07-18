@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.websocket;
 
+import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
+
 /**
  * Provides a callback mechanism to get notified of WebSocket messages.
  * You can add your observer via {@link WebSocketProxy#addObserver(WebSocketObserver)}.
@@ -31,13 +33,23 @@ public interface WebSocketObserver {
 	public int getObservingOrder();
 	
 	/**
-	 * This method will be called by the observed class ({@link WebSocketProxy}
-	 * ). If it returns false, the given message will not be further processed
-	 * (i.e. forwarded).
+	 * Called by the observed class ({@link WebSocketProxy}) when a new part of
+	 * a message arrives. Use {@link WebSocketMessage#isFinished()} to determine
+	 * if it is ready to process. If false is returned, the given message part will
+	 * not be further processed (i.e. forwarded).
 	 * 
-	 * @param channelId The identifier of the {@link WebSocketProxy} instance.
-	 * @param message The given message might not be finished so far.
-	 * @return False if it shouldn't be passed to further observers, nor forwarded.
+	 * @param channelId
+	 * @param message
+	 * @return
 	 */
 	public boolean onMessageFrame(int channelId, WebSocketMessage message);
+	
+	/**
+	 * Called by the observed class ({@link WebSocketProxy}) when its internal
+	 * {@link WebSocketProxy#state} changes.
+	 * 
+	 * @param state
+	 * @param proxy
+	 */
+	public void onStateChange(State state, WebSocketProxy proxy);
 }

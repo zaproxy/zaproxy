@@ -43,6 +43,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 
 /**
  *
@@ -60,15 +62,10 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	private FilterFactory filterFactory = new FilterFactory();
 	private boolean isStop = false;
 	
-    /**
-     * 
-     */
     public ExtensionFilter() {
         super();
         this.setOrder(8);
     }
-
-
     
     @Override
     public void init() {
@@ -137,7 +134,6 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 		}
 		return menuToolsFilter;
 	}
-
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -168,6 +164,11 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public void onStateChange(State state, WebSocketProxy proxy) {
+		// no need to react on state change
 	}
 
 	// ZAP: Added the method.

@@ -18,6 +18,8 @@
 package org.zaproxy.zap.extension.websocket.brk;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JTable;
 
@@ -25,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel;
 
 public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
@@ -47,10 +49,10 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.add.popup"));
 
-        this.addActionListener(new java.awt.event.ActionListener() { 
+        this.addActionListener(new ActionListener() {
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
+        	public void actionPerformed(ActionEvent evt) {
                 
                 int[] rows = tableWebSocket.getSelectedRows();
                 if (rows.length != 1) {
@@ -59,10 +61,10 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
                 
                 try {
                     WebSocketTableModel model = (WebSocketTableModel)tableWebSocket.getModel();
-                    WebSocketMessageDAO dao = model.getMessages().get(rows[0]);
+                    WebSocketMessageDAO dao = model.getDAO(rows[0]);
                     extension.addUiBreakpoint(dao);
                     
-                } catch (Exception e1) {
+                } catch (Exception e) {
                     extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
                 }
         	}

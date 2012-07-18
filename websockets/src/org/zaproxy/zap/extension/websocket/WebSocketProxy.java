@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,7 +59,17 @@ public abstract class WebSocketProxy {
 	/**
 	 * State of this channel, start in CONNECTING state and evolve over time.
 	 */
-	protected State state = State.CONNECTING;
+	protected State state;
+	
+	/**
+	 * Timestamp is set when {@link WebSocketProxy} reaches {@link State#OPEN}.
+	 */
+	protected Timestamp start;
+
+	/**
+	 * Timestamp is set when {@link WebSocketProxy} reaches {@link State#CLOSED}.
+	 */
+	protected Timestamp end;
 
 	/**
 	 * Non-finished messages.
@@ -80,12 +92,6 @@ public abstract class WebSocketProxy {
 	private static AtomicInteger channelCounter = new AtomicInteger(0);
 
 	/**
-	 * This name is used for debugging messages.
-	 * It helps to distinguish between several WebSocket connections.
-	 */
-	private final String name;
-
-	/**
 	 * Listens for messages from the server.
 	 */
 	private WebSocketListener remoteListener;
@@ -106,9 +112,19 @@ public abstract class WebSocketProxy {
 	private HistoryReference handshakeReference;
 
 	/**
+	 * Host of remote socket.
+	 */
+	private final String host;
+
+	/**
+	 * Port of remote socket.
+	 */
+	private final int port;
+
+	/**
 	 * Just a consecutive number, identifying one channel within a session.
 	 */
-	private int channelId;
+	private final int channelId;
 	
 	/**
 	 * Add a unique id to each message of one view model.
@@ -167,14 +183,31 @@ public abstract class WebSocketProxy {
 		this.remoteSocket = remoteSocket;
 
 		// create unique identifier for this WebSocket connection
-		// for use in logging - for UI I have to come back to another trick
-		// see handshakeHash for more information
-		this.channelId = channelCounter.incrementAndGet();
-		this.messageCounter = new AtomicInteger(0);
-		this.name = remoteSocket.getInetAddress().getHostName() + "/"
-				+ remoteSocket.getPort() + " (channel#" + channelId + ")";
+		channelId = channelCounter.incrementAndGet();
+		messageCounter = new AtomicInteger(0);
+		host = remoteSocket.getInetAddress().getHostName();
+		port = remoteSocket.getPort();
 	}
 	
+	protected void setState(State newState) {
+		switch (newState) {
+		case OPEN:
+			start = new Timestamp(Calendar.getInstance().getTimeInMillis());
+			break;
+		case CLOSED:
+			end = new Timestamp(Calendar.getInstance().getTimeInMillis());
+			break;
+		}
+		
+		state = newState;
+		
+		synchronized (observerList) {
+			for (WebSocketObserver observer : observerList) {
+				observer.onStateChange(state, this);
+			}
+		}
+	}
+
 	/**
 	 * Registers both channels (local & remote) with the given selector,
 	 * that fires on read.
@@ -184,6 +217,8 @@ public abstract class WebSocketProxy {
 	 * @throws WebSocketException
 	 */
 	public void startListeners(ExecutorService listenerThreadPool, InputStream remoteReader) throws WebSocketException {
+		setState(State.CONNECTING);
+		
 		// check if both sockets are open, otherwise no need for listening
 		if (localSocket.isClosed() || !localSocket.isConnected()) {
 			throw new WebSocketException("local socket is closed or not connected");
@@ -206,7 +241,7 @@ public abstract class WebSocketProxy {
 			throw new WebSocketException(e);
 		}
 		
-		logger.debug("Start listeners for channel '" + name + "'.");
+		logger.debug("Start listeners for channel '" + toString() + "'.");
 		
 		try {
 			// use existing InputStream for remote socket,
@@ -218,10 +253,13 @@ public abstract class WebSocketProxy {
 			throw e;
 		}
 		
+		// need to set State.OPEN before listening to sockets, otherwise
+		// it might happen, that observers are notified about a new message
+		// before they are informed about a new channel state.
+		setState(State.OPEN);
+		
 		listenerThreadPool.execute(remoteListener);
 		listenerThreadPool.execute(localListener);
-		
-		state = State.OPEN;
 	}
 	
 	/**
@@ -238,7 +276,7 @@ public abstract class WebSocketProxy {
 	private WebSocketListener createListener(Socket readEnd, InputStream reader, String side) throws WebSocketException {
 		try {
 			OutputStream writer = getOppositeSocket(readEnd).getOutputStream();
-			String name = "ZAP-WS-Listener (" + side + ") '" + this.name + "'";
+			String name = "ZAP-WS-Listener (" + side + ") '" + toString() + "'";
 			
 			return new WebSocketListener(this, reader, writer, name);
 		} catch (IOException e) {
@@ -270,7 +308,7 @@ public abstract class WebSocketProxy {
 	 * Stop & close all resources, i.e.: threads, streams & sockets
 	 */
 	public void shutdown() {
-		state = State.CLOSING;
+		setState(State.CLOSING);
 		
 		int closedCount = 0;
 		
@@ -304,7 +342,7 @@ public abstract class WebSocketProxy {
 				logger.warn(e.getMessage(), e);
 			}
 			
-			state = State.CLOSED;
+			setState(State.CLOSED);
 		}
 	}
 
@@ -499,5 +537,23 @@ public abstract class WebSocketProxy {
 	
 	public void setHandshakeReference(HistoryReference handshakeReference) {
 		this.handshakeReference = handshakeReference;
+	}
+
+	public WebSocketChannelDAO getDAO() {
+		WebSocketChannelDAO dao = new WebSocketChannelDAO();
+		dao.channelId = getChannelId();
+		dao.host = host;
+		dao.port = port;
+		dao.startTimestamp = (start != null) ? start.getTime() : null;
+		dao.endTimestamp = (end != null) ? end.getTime() : null;
+		
+		HistoryReference handshakeRef = getHandshakeReference();
+		dao.historyId = (handshakeRef != null) ? handshakeRef.getHistoryId() : null;
+		
+		return dao;
+	}
+	
+	public String toString() {
+		return host + ":" + port + " (#" + channelId + ")";
 	}
 }

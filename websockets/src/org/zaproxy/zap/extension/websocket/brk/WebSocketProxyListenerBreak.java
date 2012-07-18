@@ -21,9 +21,11 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
@@ -45,7 +47,6 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         return WEBSOCKET_OBSERVING_ORDER;
     }
 
-
     @Override
     public boolean onMessageFrame(int channelId, WebSocketMessage message) {
         WebSocketMessageDAO dao = message.getDAO();
@@ -65,7 +66,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         	}
         }
 
-        if (dao.direction == WebSocketMessage.Direction.OUTGOING) {
+        if (dao.isOutgoing) {
             if (extension.messageReceivedFromClient(dao)) {
                 // As the DAO that is shown and modified in the
                 // Request/Response panels we must set the content to message
@@ -77,7 +78,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 				}
                 return true;
             }
-        } else if (dao.direction == WebSocketMessage.Direction.INCOMING) {
+        } else {
             if (extension.messageReceivedFromServer(dao)) {
             	try {
 	                message.setReadablePayload(dao.payload);
@@ -90,4 +91,9 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
         return false;
     }
+
+	@Override
+	public void onStateChange(State state, WebSocketProxy proxy) {
+		// no need to do something on state change
+	}
 }
