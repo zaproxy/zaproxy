@@ -54,11 +54,11 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
 	private JButton newButton = null;
 	private JButton saveButton = null;
 	private JButton deleteButton = null;
-	private ExtensionWebSocket extension = null;
+//	private ExtensionWebSocket extension = null;
 	
     public OptionsWebSocketPanel(ExtensionWebSocket extension) {
         super();
-        this.extension  = extension;
+//        this.extension  = extension;
  		initialize();
     }
 

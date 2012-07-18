@@ -20,10 +20,13 @@ package org.zaproxy.zap.extension.websocket.brk;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 	private static final long serialVersionUID = 1L;
@@ -68,10 +71,17 @@ public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
 			actionListenerSubmit = new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
-				    breakPointsManager.editBreakpoint(breakpoint, getWebSocketBreakpointMessage());
-                    breakpoint = null;
-                    breakPointsManager.hideEditDialog();
+				public void actionPerformed(ActionEvent evt) {
+					try {
+						breakPointsManager.editBreakpoint(breakpoint, getWebSocketBreakpointMessage());
+	                    breakpoint = null;
+	                    breakPointsManager.hideEditDialog();
+					} catch (PatternSyntaxException e) {
+						// show popup
+						View.getSingleton().showWarningDialog(Constant.messages.getString("filter.replacedialog.invalidpattern"));
+				        wsUiHelper.getPatternTextField().grabFocus();
+				        return;
+					}
 				}
 			};
 		}
@@ -83,6 +93,11 @@ public class WebSocketBreakDialogEdit extends WebSocketBreakDialog {
         
         this.breakpoint = breakpoint;
         
-        setDialogValues(breakpoint.getOpcode(), breakpoint.getChannelId(), breakpoint.getPayloadPattern(), breakpoint.getDirection());
+        Direction direction = breakpoint.getDirection();
+        Boolean isOutgoing = null;
+        if (direction != null) {
+        	isOutgoing = direction.equals(Direction.OUTGOING) ? true : false;
+        }
+        setDialogValues(breakpoint.getOpcode(), breakpoint.getChannelId(), breakpoint.getPayloadPattern(), isOutgoing);
     }
 }

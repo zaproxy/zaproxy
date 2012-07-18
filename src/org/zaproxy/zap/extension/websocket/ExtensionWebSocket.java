@@ -40,12 +40,13 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -116,19 +117,38 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Contains all proxies with their corresponding handshake message.
 	 */
 	private Map<HistoryReference, WebSocketProxy> wsProxies;
+
+	/**
+	 * Interface to database.
+	 */
+	private WebSocketStorage storage;
+
+	/**
+	 * Replace payload in background.
+	 */
+	private FilterWebSocketPayload payloadFilter;
 	
 	/**
 	 * Constructor initializes this class.
 	 */
 	public ExtensionWebSocket() {
 		super();
-		setName(NAME);
-		setOrder(150);
 		allChannelObservers = new Vector<WebSocketObserver>();
 		hasHookedAllObserver = false;
 		wsProxies = new HashMap<HistoryReference, WebSocketProxy>();
+		
+		initialize();
 	}
 	
+	private void initialize() {
+		setName(NAME);
+		setOrder(150);
+		
+		// TODO: Do not observe blacklisted channels from Options Dialog.
+		storage = new WebSocketStorage(Model.getSingleton().getDb().getTableWebSocket());
+		allChannelObservers.add(storage);
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -145,8 +165,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
     	ExtensionFilter extFilter = (ExtensionFilter) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFilter.NAME);
     	if (extFilter != null) {
+    		payloadFilter = new FilterWebSocketPayload(getChannelComboBoxModel());
     		// filter is not disabled, otherwise ignore it
-    		extFilter.addFilter(new FilterWebSocketPayload(getChannelComboBoxModel()));
+    		extFilter.addFilter(payloadFilter);
     	}
 	}
 	
@@ -155,7 +176,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	    super.hook(extensionHook);
         extensionHook.addSessionListener(this);
         if (getView() != null) {
-        	WebSocketPanel panel = getWebSocketPanel();
         	panel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 	        
         	extensionHook.getHookView().addStatusPanel(panel);	
@@ -196,12 +216,15 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
 			if (extBreak != null) {
 				// Listen on the new messages so the breakpoints can apply.
-				allChannelObservers.add(new WebSocketProxyListenerBreak(extBreak));
+				addAllChannelObserver(new WebSocketProxyListenerBreak(extBreak));
 
 				// Pop up to add the breakpoint
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
 				extBreak.addBreakpointsUiManager(getBrkManager());
 			}
+			
+			// TODO: add daemon mode
+			allChannelObservers.add(getWebSocketPanel());
         }
     }
 
@@ -257,6 +280,22 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		WebSocketProxy wsProxy = null;
 		try {
 			wsProxy = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
+			
+			// set other observers and handshake reference, before starting listeners
+			for (WebSocketObserver observer : allChannelObservers) {
+				wsProxy.addObserver(observer);
+			}
+			
+			// wait until HistoryReference is saved to database
+			while (msg.getHistoryRef() == null) {
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			wsProxy.setHandshakeReference(msg.getHistoryRef());
+			
 			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
 			
 			try {
@@ -267,17 +306,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			} catch (InterruptedException e) {
 				logger.error(e);
 			}
-			wsProxy.setHandshakeReference(msg.getHistoryRef());
-			wsProxies.put(msg.getHistoryRef(), wsProxy);
-
-			// install GUI listener
-			String name = remoteSocket.getInetAddress().getHostName() + ":" + remoteSocket.getPort();
-			getWebSocketPanel().addProxy(wsProxy, name);
 			
-			// add other observers
-			for (WebSocketObserver observer : allChannelObservers) {
-				wsProxy.addObserver(observer);
-			}
+			wsProxies.put(msg.getHistoryRef(), wsProxy);
 		} catch (WebSocketException e) {
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
@@ -420,14 +450,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		return listenerThreadPool;
 	}
 
-	private WebSocketPanel getWebSocketPanel() {
-		if (panel == null) {
-			panel = new WebSocketPanel(getBrkManager());
-		}
-		
-		return panel;
-	}
-
 	private WebSocketBreakpointsUiManagerInterface getBrkManager() {
 		if (brkManager == null) {
 			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
@@ -441,6 +463,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	public ComboBoxModel getChannelComboBoxModel() {
 		return getWebSocketPanel().getChannelComboBoxModel();
+	}
+
+	private WebSocketPanel getWebSocketPanel() {
+		if (panel == null) {
+			panel = new WebSocketPanel(storage.getTable(), getBrkManager());
+		}
+		return panel;
 	}
 
 	/**
@@ -458,12 +487,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		return false;
 	}
 
-	// TODO: find out what to do in this case
 	@Override
 	public void sessionChanged(final Session session) {
 		if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
-
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
@@ -478,29 +505,25 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	    }
 	}
 	
-	// TODO: find out what to do in this case
 	private void sessionChangedEventHandler(Session session) {
-		// do something here
-//		throw new RuntimeException("sessionChangedEventHandler called");
-		// clear all scans
-//		this.getWebSocketPanel().clear();
-//		this.getWebSocketPanel().reset();
-//		if (session == null) {
-//			// Closedown
-//			return;
-//		}
-//		// Add new hosts
-//		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
-//		@SuppressWarnings("unchecked")
-//		Enumeration<SiteNode> en = root.children();
-//		while (en.hasMoreElements()) {
-//			this.getWebSocketPanel().addSite(en.nextElement().getNodeName(), true);
-//		}
+		// close existing connections
+		for (WebSocketProxy wsProxy : wsProxies.values()) {
+			wsProxy.shutdown();
+		}
+		wsProxies.clear();
+		
+		// reset WebSocket panel
+		panel.reset();
+		
+		// reset replace payload filter
+		if (payloadFilter != null) {
+			payloadFilter.reset();
+		}
 	}
 
-	// TODO: find out what to do in this case
 	@Override
 	public void sessionAboutToChange(Session session) {
+		// do nothing
 	}
 	
 	private PopupMenuAddBreakWebSocket popupMenuAddBreakWebSocket;

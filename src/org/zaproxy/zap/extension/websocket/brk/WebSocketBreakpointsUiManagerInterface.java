@@ -22,7 +22,7 @@ import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 
 public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
 

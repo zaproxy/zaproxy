@@ -31,11 +31,10 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
@@ -65,10 +64,15 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
+import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
+import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.view.ScanPanel;
 
 /**
@@ -83,15 +87,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	private static final Logger logger = Logger.getLogger(WebSocketPanel.class);
 	
 	/**
-	 * Just observe it somewhere and let others catch them too.
+	 * Observe messages after storage handler was called.
 	 */
-    public static final int WEBSOCKET_OBSERVING_ORDER = 100;
+    public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketStorage.WEBSOCKET_OBSERVING_ORDER + 1;
 
     /**
-	 * Depending on this count, the tab uses either a connected or disconnected
+	 * Depending on its count, the tab uses either a connected or disconnected
 	 * icon.
 	 */
-	private AtomicInteger connectedCount;
+	private static Set<Integer> connectedChannelIds;
 	
 	public static final ImageIcon disconnectIcon;
 	public static final ImageIcon connectIcon;
@@ -111,39 +115,40 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	private JButton filterButton;
 
 	private JLabel filterStatus;
-	private WebSocketModelFilterDialog filterDialog;
+	private WebSocketTableModelFilterDialog filterDialog;
 	
 	private JButton optionsButton;
 
 	private JScrollPane scrollPanel;
 	private JTable messagesLog;
-	private int currentChannelId;
-	private Map<Integer, WebSocketTableModel> models;
+	private WebSocketTableModel messagesModel;
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
 	private WebSocketBreakpointsUiManagerInterface brkManager;
 
-    private Vector<WebSocketMessageDAO> displayQueue = new Vector<WebSocketMessageDAO>();
+    private Vector<WebSocketMessageDAO> displayQueue;
     
     private Thread thread = null;
+
+	private TableWebSocket table;
+
 
 	/**
 	 * Panel is added as tab beside the History tab.
 	 * 
-	 * @param mainframe Needed for dialog box.
+	 * @param webSocketTable
 	 * @param brkManager 
 	 */
-	public WebSocketPanel(WebSocketBreakpointsUiManagerInterface brkManager) {
+	public WebSocketPanel(TableWebSocket webSocketTable, WebSocketBreakpointsUiManagerInterface brkManager) {
 		this.brkManager = brkManager;
 		
-		channelSelectModel = new ComboBoxChannelModel();
-		
-		models = new HashMap<Integer, WebSocketTableModel>();
-		
-		connectedCount = new AtomicInteger(0);
+		table = webSocketTable;
 
-		// at the beginning all channels are shown
+		connectedChannelIds = new HashSet<Integer>();
+		channelSelectModel = new ComboBoxChannelModel();
+		displayQueue = new Vector<WebSocketMessageDAO>();
+
 		initializePanel();
 	}
 	
@@ -240,10 +245,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	}
 
 	protected JComboBox getChannelSelect() {
-		if (channelSelect == null) {
+		if (channelSelect == null) {			
 			channelSelect = new JComboBox(channelSelectModel);
-			channelSelect.addItem(new ComboBoxChannelItem(Constant.messages.getString("websocket.toolbar.channel.select")));
-			channelSelect.setSelectedIndex(0);
 			channelSelect.setRenderer(new ComboBoxChannelRenderer());
 			channelSelect.setMaximumRowCount(8);
 			channelSelect.addActionListener(new ActionListener() {
@@ -251,17 +254,20 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 				@Override
 				public void actionPerformed(ActionEvent e) {    
 
-				    ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
-				    int index = channelSelect.getSelectedIndex();
-				    if (item != null && index > 0) {
-				        useModel(item.getChannelId());
-				        
-				        getShowHandshakeButton().setEnabled(true);
-				    } else if (index == 0) {
+				    WebSocketChannelDAO item = (WebSocketChannelDAO) channelSelect.getSelectedItem();
+				    if (item != null && item.channelId != null) {
+				    	// has valid element selected + a valid reference
+				        useModel(item.channelId);
+				    } else {
 				        useJoinedModel();
-				        
-				        getShowHandshakeButton().setEnabled(false);
 				    }
+			        
+			        if (item != null && item.historyId != null) {
+			        	getShowHandshakeButton().setEnabled(true);
+			        } else {
+				        getShowHandshakeButton().setEnabled(false);
+			        }
+			        
 				    messagesLog.revalidate();
 				}
 			});
@@ -324,7 +330,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 				@Override
 				public void actionPerformed(ActionEvent evt) {
-					ComboBoxChannelItem item = (ComboBoxChannelItem) channelSelect.getSelectedItem();
+					WebSocketChannelDAO item = (WebSocketChannelDAO) channelSelect.getSelectedItem();
 					HistoryReference handshakeRef = item.getHandshakeReference();
 					if (handshakeRef != null) {
 						HttpMessage msg;
@@ -384,6 +390,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	private JComponent getWorkPanel() {
 		if (scrollPanel == null) {
+			// alternatively you can use:
+			// scrollPanel = LazyViewport.createLazyScrollPaneFor(getMessagesLog());
+			// updates viewport only when scrollbar is released
+			
 			scrollPanel = new JScrollPane(getMessagesLog());
 			scrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -422,17 +432,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 */
 	protected JTable getMessagesLog() {
 		if (messagesLog == null) {
+			messagesModel = new WebSocketTableModel(table, getFilterDialog().getFilter());
+			
 			messagesLog = new JTable();
 			messagesLog.setName("websocket.table");
-			
-			// initially start with joined model
-			currentChannelId = -1; // indicates joined model usage
-			messagesLog.setModel(getJoinedMessagesModel());
-			
+			messagesLog.setModel(messagesModel);
 			messagesLog.setColumnSelectionAllowed(false);
 			messagesLog.setCellSelectionEnabled(false);
 			messagesLog.setRowSelectionAllowed(true);
-			messagesLog.setAutoCreateRowSorter(true);
+			messagesLog.setAutoCreateRowSorter(false);
 			
 			// prevents columns to loose their width when switching models
 			messagesLog.setAutoCreateColumnsFromModel(false);
@@ -495,7 +503,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 					    // as we use a JTable here, that can be sorted, we have to
 					    // transform the row index to the appropriate model row
 	                    int modelRow = messagesLog.convertRowIndexToModel(rowIndex);
-						final WebSocketMessageDAO message = model.getMessages().get(modelRow);
+						final WebSocketMessageDAO message = model.getDAO(modelRow);
 	                    readAndDisplay(message);
 					}
 				}
@@ -547,21 +555,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		    tab.setIconAt(index, icon);
 	    }
 	}
-	
-	/**
-	 * Show channel in {@link JComboBox}.
-	 * 
-	 * @param channelName
-	 * @param ws
-	 */
-	private void addChannelToComboBox(String channelName, WebSocketProxy ws) {
-		ComboBoxChannelItem item = new ComboBoxChannelItem(channelName, ws);
-		if (channelSelectModel.getIndexOf(item) < 0) {
-			// element is new
-	 		logger.debug("add channel to websocket panel (" + channelName + ")");
-			channelSelectModel.addElement(item);
-		}
-	}
     
     public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
         this.requestPanel = requestPanel;
@@ -573,8 +566,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
             if (displayQueue.size() > 0) {
                 displayQueue.clear();
             }
-            ComboBoxChannelItem item = channelSelectModel.getByChannelId(message.channelId);
-            message.tempUserObj = item.isConnected();
+            
+            message.tempUserObj = connectedChannelIds.contains(message.channelId);
             displayQueue.add(message);
         }
         
@@ -608,7 +601,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        if (msg.direction == WebSocketMessage.Direction.OUTGOING) {
+                        if (msg.isOutgoing) {
                             requestPanel.setMessage(msg);
                             responsePanel.clearView(false);
                             requestPanel.setTabFocus();
@@ -634,66 +627,57 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
         } while (true);
     }
 
-	/**
-	 * Sets this panel up as {@link WebSocketObserver} for the given
-	 * {@link WebSocketProxy}.
-	 * 
-	 * @param ws
-	 * @param hostName
-	 */
-	public void addProxy(WebSocketProxy ws, String hostName) {
-		// listen to messages of this proxy
-		ws.addObserver(this);
-		
-		// add to select box
-		addChannelToComboBox(hostName + " (#" + ws.getChannelId() + ")", ws);
-		
-		connectedCount.incrementAndGet();
-		
-		// change icon, as at least one WebSocket is available
-		updateIcon(WebSocketPanel.connectIcon);
+	@Override
+	public int getObservingOrder() {
+		return WEBSOCKET_OBSERVING_ORDER;
 	}
 
 	/**
 	 * Collects WebSocket messages.
 	 */
 	@Override
-	public boolean onMessageFrame(final int channelId, WebSocketMessage message) {
-		synchronized (models) {
-			if (message.isFinished()) {
-				final WebSocketMessageDAO dao = message.getDAO();
-				
-				SwingUtilities.invokeLater(new Runnable(){
-		            @Override
-		            public void run(){
-						getMessagesModel(channelId).addWebSocketMessage(dao);
-		            }
-		        });
-				
-				if (currentChannelId == -1) {
-					// joined model is used -> add message also there
-					SwingUtilities.invokeLater(new Runnable(){
-			            @Override
-			            public void run(){
-			            	((WebSocketTableModel) messagesLog.getModel()).addWebSocketMessage(dao);
-			            }
-			        });
-				}
-				
-				if (message.getOpcode() == WebSocketMessage.OPCODE_CLOSE) {
-					if (connectedCount.decrementAndGet() == 0) {
-						// change icon, as no WebSocket channel is active
-						updateIcon(WebSocketPanel.disconnectIcon);
-					}
-				}
-			}
+	public synchronized boolean onMessageFrame(final int channelId, WebSocketMessage message) {
+		if (message.isFinished()) {
+			messagesModel.fireMessageArrived(message.getDAO());
 		}
 		return true;
 	}
 
 	@Override
-	public int getObservingOrder() {
-		return WEBSOCKET_OBSERVING_ORDER;
+	public synchronized void onStateChange(State state, WebSocketProxy proxy) {
+		WebSocketChannelDAO dao = proxy.getDAO();
+		
+		boolean isNewChannel = false;
+		boolean isConnectedChannel = connectedChannelIds.contains(dao.channelId);
+		
+		if (isConnectedChannel && state.equals(State.CLOSED)) {
+			if (dao.endTimestamp != null) {
+				connectedChannelIds.remove(dao.channelId);
+				
+				// updates icon
+				channelSelectModel.updateElement(dao);
+			}
+		} else if (!isConnectedChannel && state.equals(State.OPEN)) {
+			if (channelSelectModel.getIndexOf(dao) < 0) {
+				channelSelectModel.addElement(dao);
+			}
+			
+			if (dao.endTimestamp == null) {
+				connectedChannelIds.add(dao.channelId);
+				isNewChannel = true;
+			}
+		} else {
+			return;
+		}
+		
+		int count = connectedChannelIds.size();
+		if (count == 0) {
+			// change icon, as no WebSocket channel is active
+			updateIcon(WebSocketPanel.disconnectIcon);
+		} else if (count == 1 && isNewChannel) {
+			// change icon, as at least one WebSocket is available
+			updateIcon(WebSocketPanel.connectIcon);
+		}
 	}
 	
 	/**
@@ -702,77 +686,14 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @param channelId
 	 */
 	private void useModel(int channelId) {
-		currentChannelId = channelId;
-
-		final JTable table = messagesLog;
-		final WebSocketTableModel model = getMessagesModel(channelId);
-		
-		model.reFilter();
-		
-		SwingUtilities.invokeLater(new Runnable() {
-
-		    @Override
-		    public void run() {
-		    	table.setModel(model);
-		    }
-		});
-	}
-
-	/**
-	 * Returns or creates the model for the given channelId.
-	 * 
-	 * @param channelId
-	 * @return
-	 */
-	private WebSocketTableModel getMessagesModel(int channelId) {
-		if (!models.containsKey(channelId)) {
-			models.put(channelId, new WebSocketTableModel(getFilterDialog().getFilter(), channelId));
-		}
-
-		return models.get(channelId);
+		messagesModel.setActiveChannel(channelId);
 	}
 	
 	/**
 	 * Get model that contains all messages from all channels.
 	 */
 	private void useJoinedModel() {
-		currentChannelId = -1;
-		reFilterJoinedModel();
-
-		final JTable table = messagesLog;
-		final WebSocketTableModel model = getJoinedMessagesModel();
-		
-		SwingUtilities.invokeLater(new Runnable() {
-
-		    @Override
-		    public void run() {
-		    	table.setModel(model);
-		    }
-		});
-	}
-	
-	/**
-	 * Returns all models combined into a new one.
-	 * 
-	 * @return
-	 */
-	private WebSocketTableModel getJoinedMessagesModel() {
-		WebSocketTableModel joinedModel = new WebSocketTableModel(getFilterDialog().getFilter(), -1);
-		
-		for (Entry<Integer, WebSocketTableModel> model  : models.entrySet()) {
-			joinedModel.addMessages(model.getValue().getMessages());
-		}
-		
-		return joinedModel;
-	}
-
-	/**
-	 * Filter all models according to selected filter.
-	 */
-	private void reFilterJoinedModel() {
-		for (Entry<Integer, WebSocketTableModel> model : models.entrySet()) {
-			model.getValue().reFilter();
-		}
+		messagesModel.setActiveChannel(null);
 	}
 	
 	/**
@@ -780,9 +701,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * 
 	 * @return
 	 */
-	public WebSocketModelFilterDialog getFilterDialog() {
+	public WebSocketTableModelFilterDialog getFilterDialog() {
 		if (filterDialog == null) {
-			filterDialog = new WebSocketModelFilterDialog(View.getSingleton().getMainFrame(), true);
+			filterDialog = new WebSocketTableModelFilterDialog(View.getSingleton().getMainFrame(), true);
 			
 		}
 		return filterDialog;
@@ -794,7 +715,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @return 1 is returned if applied, -1 when dialog was reseted.
 	 */
 	protected int showFilterDialog() {
-		WebSocketModelFilterDialog dialog = getFilterDialog();
+		WebSocketTableModelFilterDialog dialog = getFilterDialog();
 		dialog.setModal(true);
 		
 		int exit = dialog.showDialog();
@@ -826,13 +747,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * Apply {@link WebSocketFilter} to visible parts of models.
 	 */
 	private void applyFilter() {
-		if (currentChannelId == -1) {
-			// as no specific model is chosen, I've to refilter all models
-			useJoinedModel();
-		} else {
-			// filtering the model that is currently shown suffices
-			models.get(currentChannelId).reFilter();
-		}
+		messagesModel.fireFilterChanged();
 	}
 	
 	/**
@@ -841,7 +756,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	 * @param filter
 	 */
     private void setFilterStatus() {
-    	WebSocketModelFilter filter = getFilterDialog().getFilter();
+    	WebSocketTableModelFilter filter = getFilterDialog().getFilter();
     	JLabel status = getFilterStatus();
     	
     	status.setText(filter.toLongString());
@@ -907,5 +822,28 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			selectedObject = anItem;
 		}    	
     }
+
+    /**
+     * Clear control elements, set back to default.
+     */
+	public void reset() {
+		// reset table contents
+		messagesModel.fireTableDataChanged();
+		
+		// reset channel selector's model
+		channelSelectModel.reset();
+		channelSelect.setSelectedItem(channelSelectModel.getElementAt(0));
+		
+		try {
+			for (WebSocketChannelDAO item : table.getChannelItems()) {
+				channelSelectModel.addElement(item);
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		// reset filter 
+		getFilterDialog().getFilter().reset();
+	}
 }
 

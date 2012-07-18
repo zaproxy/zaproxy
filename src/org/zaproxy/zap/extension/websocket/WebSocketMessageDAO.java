@@ -15,10 +15,14 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.ui;
+package org.zaproxy.zap.extension.websocket;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
+import org.apache.commons.lang.time.FastDateFormat;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 /**
  * Data Access Object used for displaying WebSockets communication. Intended to
@@ -30,17 +34,17 @@ public class WebSocketMessageDAO implements Message {
 	/**
 	 * WebSocket channel id
 	 */
-	public int channelId;
+	public Integer channelId;
 
 	/**
 	 * consecutive number
 	 */
-	public int id;
+	public Integer messageId;
 
 	/**
-	 * Used for sorting, containing time in milliseconds.
+	 * Used for sorting, containing time of arrival in milliseconds.
 	 */
-	public long timestamp;
+	public Long timestamp;
 
 	/**
 	 * When the message was finished (it might contain of several frames).
@@ -51,7 +55,7 @@ public class WebSocketMessageDAO implements Message {
 	 * You can retrieve a textual version of this opcode via:
 	 * {@link WebSocketMessage#opcode2string(int)}.
 	 */
-	public int opcode;
+	public Integer opcode;
 
 	/**
 	 * Textual representation of {@link WebSocketMessageDAO#opcode}.
@@ -67,17 +71,17 @@ public class WebSocketMessageDAO implements Message {
 	/**
 	 * For close messages, there is always a reason.
 	 */
-	public int closeCode;
+	public Integer closeCode;
 
 	/**
 	 * Outgoing or incoming message.
 	 */
-	public WebSocketMessage.Direction direction;
+	public Boolean isOutgoing;
 
 	/**
 	 * Number of the payload bytes.
 	 */
-	public int payloadLength;
+	public Integer payloadLength;
 
 	/**
 	 * Temporary object holding arbitrary values.
@@ -88,7 +92,44 @@ public class WebSocketMessageDAO implements Message {
 	 * Useful representation for debugging purposes.
 	 */
 	public String toString() {
-		return "Id=" + id + ";Opcode=" + readableOpcode + ";Bytes="
+		return "Id=" + messageId + ";Opcode=" + readableOpcode + ";Bytes="
 				+ payloadLength;
+	}
+	
+	/**
+	 * Used to format {@link WebSocketMessage#timestamp} in user's locale.
+	 */
+	protected static final FastDateFormat dateFormatter;
+	
+	/**
+	 * Use the static initializer for setting up one date formatter for all
+	 * instances.
+	 */
+	static {
+		// milliseconds are added later (via usage java.sql.Timestamp.getNanos())
+		dateFormatter = FastDateFormat.getDateTimeInstance(
+				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
+				Constant.getLocale());
+	}
+
+	/**
+	 * Helper to set {@link WebSocketMessageDAO#timestamp} and
+	 * {@link WebSocketMessageDAO#dateTime}.
+	 * 
+	 * @param ts
+	 */
+	public void setTime(Timestamp ts) {
+		timestamp = ts.getTime() + (ts.getNanos() / 1000000000);
+		
+		synchronized (dateFormatter) {
+			dateTime = dateFormatter.format(ts);
+		}
+		
+		String nanos = (ts.getNanos() + "").replaceAll("0+$", "");
+		if (nanos.length() == 0) {
+			nanos = "0";
+		}
+		
+		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 	}
 }

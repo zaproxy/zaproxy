@@ -17,30 +17,30 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.AbstractTableModel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
+import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
+import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
 
 /**
- * This model takes an arbitrary number of {@link WebSocketMessage} instances,
- * extracts necessary information for the user interface out of it and stores
- * them in a {@link List}.
- * <p>
- * It manages two lists internally, one that contains all messages and another
- * one, that contains just those messages not blacklisted by the given
- * {@link WebSocketModelFilter}. TODO: Use {@link WebSocketTable}.
+ * This model uses the {@link TableWebSocket} instance to load only needed
+ * entries from database. Moreover it shows only those entries that are not
+ * blacklisted by given {@link WebSocketTableModelFilter}.
  */
-public class WebSocketTableModel extends DefaultTableModel {
+public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	
 	private static final long serialVersionUID = -5047686640383236512L;
+
+	private static final Logger logger = Logger.getLogger(WebSocketTableModel.class);
 	
 	/**
 	 * Number of columns in this table model
@@ -53,37 +53,31 @@ public class WebSocketTableModel extends DefaultTableModel {
 	private final Vector<String> columnNames;
 
 	/**
-	 * This list holds all WebSocket messages for this view model.
-	 */
-	private List<WebSocketMessageDAO> allMessages = new ArrayList<WebSocketMessageDAO>();
-
-	/**
-	 * This list holds all WebSocket messages that are not blacklisted by
-	 * {@link WebSocketTableModel#filter}.
-	 */
-	private List<WebSocketMessageDAO> filteredMessages = new ArrayList<WebSocketMessageDAO>();
-
-	/**
 	 * Used to show only specific messages.
 	 */
-	private WebSocketModelFilter filter;
+	private WebSocketTableModelFilter filter;
 
-//	/**
-//	 * WebSocket channel id.
-//	 */
-//	private int channelId;
+	/**
+	 * Interface to database.
+	 */
+	private TableWebSocket table;
+
+	/**
+	 * If null, all messages are shown.
+	 */
+	private Integer activeChannelId;
 	
 	/**
 	 * Ctor.
-	 * @param table 
 	 * 
-	 * @param webSocketFilter
+	 * @param webSocketTable 
+	 * @param webSocketFilter 
 	 */
-	public WebSocketTableModel(WebSocketModelFilter webSocketFilter, int channelId) {
+	public WebSocketTableModel(TableWebSocket webSocketTable, WebSocketTableModelFilter webSocketFilter) {
 		super();
-		
+
+		table = webSocketTable;
 		filter = webSocketFilter;
-//		this.channelId = channelId;
 
 		ResourceBundle msgs = Constant.messages;
 		columnNames = new Vector<String>(COLUMN_COUNT);
@@ -95,14 +89,10 @@ public class WebSocketTableModel extends DefaultTableModel {
 		columnNames.add(msgs.getString("websocket.table.header.payload"));
 	}
 	
-	/**
-	 * Returns all whitelisted messages for this model, each with a unique id.
-	 * Those blacklisted by the {@link WebSocketModelFilter} are excluded.
-	 * 
-	 * @return
-	 */
-	public List<WebSocketMessageDAO> getMessages() {
-		return filteredMessages;
+	public void setActiveChannel(Integer channelId) {
+		activeChannelId = channelId;
+		clear();
+		fireTableDataChanged();
 	}
 
 	/**
@@ -112,13 +102,73 @@ public class WebSocketTableModel extends DefaultTableModel {
 	 */
 	@Override
 	public int getRowCount() {
-		// this method is called by the parent constructor,
-		// when filteredMessages is not initialized
-		if (filteredMessages == null) {
+		try {			
+			return table.getMessageCount(getCriterionDao(), filter.getOpcodes());
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
 			return 0;
 		}
+	}
+
+	private WebSocketMessageDAO getCriterionDao() {
+		WebSocketMessageDAO dao = new WebSocketMessageDAO();
 		
-		return filteredMessages.size();
+		if (activeChannelId != null) {
+			dao.channelId = activeChannelId;
+		}
+		
+		if (filter.getDirection() != null) {
+			dao.isOutgoing = filter.getDirection().equals(Direction.OUTGOING) ? true : false;
+		}
+		
+		return dao;
+	}
+	
+	@Override
+	public Object getColumnValue(WebSocketMessageDAO message, int columnIndex) {
+		switch (columnIndex) {
+		case 0:
+			return new WebSocketMessagePrimaryKey(message.channelId, message.messageId);
+
+		case 1:
+			if (message.isOutgoing) {
+				return "→";
+			} else {
+				return "←";
+			}
+
+		case 2:
+			return message.dateTime;
+
+		case 3:
+			return message.opcode + "=" + message.readableOpcode;
+
+		case 4:
+			return message.payloadLength;
+
+		case 5:
+			return message.payload;
+		}
+
+		return null;
+	}
+
+	@Override
+	protected Object getPlaceholderValueAt(int columnIndex) {
+		if (getColumnClass(columnIndex).equals(String.class)) {
+			return "..";
+		}
+		return null;
+	}
+
+	@Override
+	protected List<WebSocketMessageDAO> loadPage(int offset, int length) {
+		try {
+			return table.getMessages(getCriterionDao(), filter.getOpcodes(), offset, length);
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			return null;
+		}
 	}
 
 	/**
@@ -160,7 +210,7 @@ public class WebSocketTableModel extends DefaultTableModel {
 	public Class<? extends Object> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return ChannelColumnValue.class;
+			return WebSocketMessagePrimaryKey.class;
 		case 1:
 			return String.class;
 		case 2:
@@ -174,167 +224,43 @@ public class WebSocketTableModel extends DefaultTableModel {
 		}
 		return null;
 	}
-	
-	private class ChannelColumnValue implements Comparable<ChannelColumnValue> {
-		private Integer channelId;
-		private Integer messageId;
-
-		public ChannelColumnValue(Integer channelId, Integer messageId) {
-			this.channelId = channelId;
-			this.messageId = messageId;
-		}
-
-		@Override
-		public int compareTo(ChannelColumnValue other) {
-			int result = channelId.compareTo(other.channelId);
-			
-			if (result == 0) {
-				result = messageId.compareTo(other.messageId);
-			}
-			
-			return result;
-		}
-		
-		/**
-		 * This value is displayed in the table. No {@link TableCellRenderer}
-		 * needed.
-		 */
-		public String toString() {
-			return "#" + channelId + "." + messageId;
-		}
-	}
 
 	/**
-	 * Returns the object for given field indexes.
+	 * Might return null. Always check!
 	 * 
+	 * @param rowIndex
 	 * @return
 	 */
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		if (filteredMessages.size() > rowIndex) {
-			WebSocketMessageDAO message = filteredMessages.get(rowIndex);
-			
-			switch (columnIndex) {
-			case 0:
-				return new ChannelColumnValue(message.channelId, message.id);
-
-			case 1:
-				if (message.direction.equals(Direction.OUTGOING)) {
-					return "→";
-				} else if (message.direction.equals(Direction.INCOMING)) {
-					return "←";
-				}
-				break;
-
-			case 2:
-				return message.dateTime;
-
-			case 3:
-				return message.opcode + "=" + message.readableOpcode;
-
-			case 4:
-				return message.payloadLength;
-
-			case 5:
-				return message.payload;
-			}
-		}
-
-		return null;
+	public WebSocketMessageDAO getDAO(int rowIndex) {
+		return getRowObject(rowIndex);
 	}
 
 	/**
-	 * Call this method via:<code>
-	 * SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run(){
-            	// call addWebSocketMessage(dao)
-            }
-        });
-        </code>
-	 * 
-	 * @param message
+	 * Call this method when a new filter is applied on the messages list.
 	 */
-	public synchronized void addWebSocketMessage(WebSocketMessageDAO message) {
-		allMessages.add(message);
-		if (filter.isBlacklisted(message)) {
-			// no need for adding the message to the filteredMessages list
-		} else {
-			filteredMessages.add(message);
-			
-			int modelIndex = filteredMessages.size() - 1;
-			fireTableRowsInserted(modelIndex, modelIndex);
-		}
-	}
-
-	/**
-	 * Fills the list of messages that will be displayed (i.e. that are not
-	 * blacklisted by the {@link WebSocketModelFilter}.
-	 */
-	public void reFilter() {
-		synchronized (filteredMessages) {
-			filteredMessages.clear();
-			for (WebSocketMessageDAO message : allMessages) {
-				if (!filter.isBlacklisted(message)) {
-					filteredMessages.add(message);
-				}
-			}
-		}
-		
+	public void fireFilterChanged() {
+		clear();
 		fireTableDataChanged();
 	}
 
-//	private byte[] hexStringToByteArray(String hexStr) {
-//		int len = hexStr.length() - 1;
-//		byte[] data = new byte[(len / 2) + 1];
-//		for (int i = 0; i < len; i += 2) {
-//			data[i / 2] = (byte) ((Character.digit(hexStr.charAt(i), 16) << 4) + Character
-//					.digit(hexStr.charAt(i + 1), 16));
-//		}
-//		return data;
-//	}
-//	
-//	private String byteArrayToHexString(byte[] byteArray) {
-//		StringBuffer hexString = new StringBuffer("");
-//
-//		for (int i = 0; i < byteArray.length; i++) {
-//			String hexCharacter = Integer.toHexString(byteArray[i]);
-//
-//			if (hexCharacter.length() < 2) {
-//				hexCharacter = "0" + Integer.toHexString(byteArray[i]);
-//			}
-//			
-//			if (i < 10) {
-//				hexString.append(" " + hexCharacter.toUpperCase());
-//			} else {
-//				hexString.append(" " + hexCharacter.toUpperCase() + "\n");
-//				i = 0;
-//			}
-//		}
-//		
-//		return hexString.toString();
-//	}
-
 	/**
-	 * Resets the messages list.
-	 */
-	public void clear() {
-		allMessages.clear();
-		reFilter();
-	}
-
-	/**
-	 * Add a bulk of messages with this operation.
+	 * A new message has arrived. Find out if we need to
+	 * {@link AbstractTableModel#fireTableDataChanged()}.
 	 * 
-	 * @param messages
+	 * @param dao
 	 */
-	public void addMessages(List<WebSocketMessageDAO> messages) {
-		allMessages.addAll(messages);
-		reFilter();
-	}
-	
-	public String toString() {
-		return "TableModel currently shows " + getRowCount() + " of "
-				+ allMessages.size() + " possible messages!";
+	public void fireMessageArrived(WebSocketMessageDAO dao) {
+		boolean isWhitelistedChannel = (activeChannelId == null) || dao.channelId.equals(activeChannelId);
+		if (filter.isBlacklisted(dao) || !isWhitelistedChannel) {
+			// no need to fire update, as it isn't active now
+		} else {
+			// find out where it is inserted and update precisely
+			
+			// if new row is inserted at the end
+			// it suffices to fire inserted row at the end of list
+			
+			// with enabled row sorter, you'll have to take care about this
+			fireTableRowsInserted(getRowCount(), getRowCount());
+		}
 	}
 }

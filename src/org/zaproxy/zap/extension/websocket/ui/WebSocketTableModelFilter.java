@@ -17,43 +17,58 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
  * Used as filter for the {@link WebSocketPanel}, which is applied in the
  * {@link WebSocketPanelCellRenderer}.
  */
-public class WebSocketModelFilter {
+public class WebSocketTableModelFilter {
 
 	/**
 	 * Contains a sublist of {@link WebSocketMessage#OPCODES} or nothing, if not
 	 * applied.
 	 */
-	private List<String> opcodeList = new ArrayList<String>();
-	private Direction direction = null;
+	private List<Integer> opcodeList;
+	private Direction direction;
+	
+	public void setOpcodes(List<Integer> list) {
+		opcodeList = list;
+	}
 	
 	/**
-	 * Filter specific messages.
+	 * Returns null if all opcodes are allowed.
 	 * 
-	 * @param list
+	 * @return
 	 */
-	public void setOpcodes(List<String> list) {
-		opcodeList.clear();
-		if (list != null) {
-			opcodeList.addAll(list);
-		}
+	public List<Integer> getOpcodes() {
+		return opcodeList;
+	}
+
+	public void setDirection(Direction direction) {
+		this.direction = direction;
+	}
+
+	/**
+	 * Returns null if both directions should be shown.
+	 * 
+	 * @return
+	 */
+	public Direction getDirection() {
+		return direction;
 	}
 
 	/**
 	 * Resets this filter. Message will no longer be blacklisted.
 	 */
 	public void reset() {
-		opcodeList.clear();
+		opcodeList = null;
+		direction = null;
 	}
 	
 	/**
@@ -64,14 +79,16 @@ public class WebSocketModelFilter {
 	 * @return True if the given entry is filtered out, false if valid.
 	 */
 	public boolean isBlacklisted(WebSocketMessageDAO message) {
-		if (opcodeList.size() > 0) {
+		if (opcodeList != null) {
 			if (!opcodeList.contains(message.readableOpcode)) {
 				return true;
 			}
 		}
 		
 		if (direction != null) {
-			if (!message.direction.equals(direction)) {
+			if (message.isOutgoing && !direction.equals(Direction.OUTGOING)) {
+				return true;
+			} else if (!message.isOutgoing && !direction.equals(Direction.INCOMING)) {
 				return true;
 			}
 		}
@@ -108,15 +125,15 @@ public class WebSocketModelFilter {
 
 		boolean empty = true;
 
-		if (opcodeList.size() > 0) {
+		if (opcodeList != null) {
 			empty = false;
 			sb.append(Constant.messages.getString("websocket.filter.label.opcodes"));
 			
 			if (shouldIncludeValues) {
 				sb.append(": ");
 
-				for (String opcode : opcodeList) {
-					sb.append(opcode);
+				for (Integer opcode : opcodeList) {
+					sb.append(WebSocketMessage.opcode2string(opcode));
 					sb.append(" ");
 				}
 			} else {
@@ -149,9 +166,5 @@ public class WebSocketModelFilter {
 		sb.insert(0, Constant.messages.getString("websocket.filter.label.filter"));
 		
 		return sb.toString();
-	}
-
-	public void setDirection(Direction direction) {
-		this.direction  = direction;
 	}
 }

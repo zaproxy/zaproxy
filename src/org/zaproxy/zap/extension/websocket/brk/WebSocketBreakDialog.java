@@ -23,6 +23,7 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
@@ -208,14 +209,16 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	 * Returns {@link WebSocketBreakpointMessage} with values set in dialog.
 	 * 
 	 * @return
+	 * @throws PatternSyntaxException
 	 */
-    protected WebSocketBreakpointMessage getWebSocketBreakpointMessage() {
+    protected WebSocketBreakpointMessage getWebSocketBreakpointMessage() throws PatternSyntaxException {
 		String opcode = wsUiHelper.getSelectedOpcode();
 		Integer channelId = wsUiHelper.getSelectedChannelId();
 		String payloadPattern = wsUiHelper.getPattern();
 		Direction direction = wsUiHelper.getDirection();
 		
-    	return new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction);
+		WebSocketBreakpointMessage brkMsg = new WebSocketBreakpointMessage(opcode, channelId, payloadPattern, direction);
+		return brkMsg;
 	}
 
 	protected void resetDialogValues() {
@@ -228,7 +231,7 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 		wsUiHelper.getIncomingCheckbox().setSelected(true);
 	}
 
-	protected void setDialogValues(String opcode, Integer channelId, String payloadPattern, Direction direction) {
+	protected void setDialogValues(String opcode, Integer channelId, String payloadPattern, Boolean isOutgoing) {
         if (opcode != null) {
         	wsUiHelper.getOpcodeSingleSelect().setSelectedItem(opcode);
         }
@@ -241,8 +244,8 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
         	wsUiHelper.getPatternTextField().setText(payloadPattern);
         }
         
-        if (direction != null) {
-        	if (direction.equals(Direction.OUTGOING)) {
+        if (isOutgoing != null) {
+        	if (isOutgoing) {
         		wsUiHelper.getIncomingCheckbox().setSelected(false);
         	} else {
         		wsUiHelper.getOutgoingCheckbox().setSelected(false);

@@ -20,11 +20,13 @@ package org.zaproxy.zap.extension.websocket.brk;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 
 public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 
@@ -66,9 +68,16 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 			actionListenerSubmit = new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
-				    breakPointsManager.addBreakpoint(getWebSocketBreakpointMessage());
-				    breakPointsManager.hideAddDialog();
+				public void actionPerformed(ActionEvent evt) {
+					try {
+						breakPointsManager.addBreakpoint(getWebSocketBreakpointMessage());
+					    breakPointsManager.hideAddDialog();
+					} catch (PatternSyntaxException e) {
+						// show popup
+						View.getSingleton().showWarningDialog(Constant.messages.getString("filter.replacedialog.invalidpattern"));
+				        wsUiHelper.getPatternTextField().grabFocus();
+				        return;
+					}
 				}
 			};
 		}
@@ -83,6 +92,6 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 	 */
     public void setMessage(WebSocketMessageDAO aMessage) {
     	resetDialogValues();
-    	setDialogValues(aMessage.readableOpcode, aMessage.channelId, null, aMessage.direction);
+    	setDialogValues(aMessage.readableOpcode, aMessage.channelId, null, aMessage.isOutgoing);
     }
 }

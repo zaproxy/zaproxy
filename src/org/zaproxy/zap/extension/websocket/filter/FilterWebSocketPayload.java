@@ -138,4 +138,16 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 		applicableOpcodes = wsDialog.getOpcodes();
 		applicableChannelIds = wsDialog.getChannelIds();
 	}
+	
+	/**
+	 * After resetting this filter, it is disabled
+	 * and its values are set to default values.
+	 */
+	public void reset() {
+		this.setEnabled(false);
+		shouldApplyOnIncoming = false;
+		shouldApplyOnOutgoing = false;
+		applicableOpcodes = null;
+		applicableChannelIds = null;
+	}
 }

@@ -30,7 +30,6 @@ import java.util.Random;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessageDAO;
 
 /**
  * This proxy implements the WebSocket protocol version 13 as specified in
@@ -89,11 +88,17 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			 */
 			private boolean isSealed = false;
 			
+			/**
+			 * Contains value of RSV1, RSV2 & RSV3.
+			 */
+			private int rsv;
+			
 			public WebSocketFrameV13() {
 				buffer = ByteBuffer.allocate(4096);
 				isMasked = false;
 				mask = new byte[4];
 				isForwarded = false;
+				rsv = 0;
 			}
 
 			/**
@@ -102,9 +107,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			 * 
 			 * @param payload
 			 */
-			public WebSocketFrameV13(ByteBuffer payload, Direction direction, boolean isFinished, int frameOpcode) {
+			public WebSocketFrameV13(ByteBuffer payload, Direction direction, boolean isFinished, int frameOpcode, int rsv) {
 				// at maximum 16 bytes are added as header data
 				buffer = ByteBuffer.allocate(payload.limit() + 16);
+				this.rsv = rsv;
 
 				int payloadLength = payload.limit();
 				if (direction.equals(Direction.OUTGOING)) {
@@ -124,8 +130,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				}
 				
 				isForwarded = false;
-				
-				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | (frameOpcode & 0x0F));
+
+				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | ((this.rsv & 0x07) << 4) | (frameOpcode & 0x0F));
 				buffer.put(frameHeader);
 				logger.debug("Frame header of newly created WebSocketFrame: " + getByteAsBitString(frameHeader));
 
@@ -215,6 +221,19 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			public void setForwarded(boolean isForwarded) {
 				this.isForwarded = isForwarded;
 			}
+
+			/**
+			 * Valid values are in the interval [1,6].
+			 * 
+			 * @param rsv
+			 */
+			public void setRsv(int rsv) {
+				this.rsv  = rsv;
+			}
+
+			public int getRsv() {
+				return rsv;
+			}
 		}
 		
 		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
@@ -269,6 +288,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			// 4 least significant bits are opcode
 			opcode = (frameHeader & 0x0F);
 			
+			// timestamp represents first arrival of message
+			Calendar calendar = Calendar.getInstance();
+			timestamp = new Timestamp(calendar.getTimeInMillis());
+			
 			readFrame(in, frameHeader);
 		}
 
@@ -314,6 +337,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			// currentFrame buffer is filled by read() method directly
 			currentFrame = new WebSocketFrameV13();
 			currentFrame.put(frameHeader);
+			
+			currentFrame.setRsv((frameHeader >> 4 & 0x7));
 
 			byte payloadByte = read(in);
 			
@@ -393,8 +418,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			appendPayload(payload);
-			Calendar calendar = Calendar.getInstance();
-			timestamp = new Timestamp(calendar.getTimeInMillis());
 			
 			// add currentFrame to frames list
 			currentFrame.seal();
@@ -524,7 +547,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					
 					isLastFrame = (frameLength <= 0); 
 				
-					WebSocketFrameV13 frame = new WebSocketFrameV13(tempBuffer, getDirection(), isLastFrame, frameOpcode);
+					// TODO: use RSV from first original frame?
+					WebSocketFrameV13 frame = new WebSocketFrameV13(tempBuffer, getDirection(), isLastFrame, frameOpcode, 0);
 					logger.debug("forward modified frame");
 					forwardFrame(frame, out);
 					// next frame is a continuation of the current one
@@ -617,7 +641,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			WebSocketMessageDAO dao = super.getDAO();
 			
 			dao.channelId = getChannelId();
-			dao.id = getMessageId();
+			dao.messageId = getMessageId();
 			
 			return dao;
 		}
