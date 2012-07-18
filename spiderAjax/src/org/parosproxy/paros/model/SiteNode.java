@@ -112,7 +112,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     	}
     	if (justAJAXSpidered){
     		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.class.getResource("/resource/icon/10/spiderAjax.png"));
+    		sb.append(Constant.class.getResource("/org/zaproxy/zap/extension/spiderAjax/10.png"));
     		sb.append("\">&nbsp;");
     	}
     }
