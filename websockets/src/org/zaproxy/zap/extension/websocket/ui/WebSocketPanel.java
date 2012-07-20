@@ -455,8 +455,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			setColumnWidth(2, 160, 200, 160);
 			
 			// opcode
-			setColumnWidth(3, 70, 120, 70);
-
+			setColumnWidth(3, 70, 120, 75);
+			
 			// payload length
 			setColumnWidth(4, 45, 100, 45);
 			
