@@ -85,6 +85,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     
     private JPanel allOptions;
     private JPanel componentOptions;
+    private JPanel moreOptionsComponent;
     private JToolBar toolBarComponents;
     private JToolBar toolBarMoreOptions;
     private JPanel endAllOptions;
@@ -126,6 +127,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         allOptions = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         
         componentOptions = new JPanel(new BorderLayout(0, 0));
+        moreOptionsComponent = new JPanel(new BorderLayout(0, 0));
         
         toolBarComponents = new JToolBar();
         toolBarComponents.setFloatable(false);
@@ -146,6 +148,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         panelFlow.add(allOptions);
         panelFlow.add(componentOptions);
         panelFlow.add(toolBarComponents);
+        panelFlow.add(moreOptionsComponent);
         panelFlow.add(toolBarMoreOptions);
         panel1.add(panelFlow, BorderLayout.WEST);
         
@@ -319,6 +322,10 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
             if (currentComponent.getOptionsPanel() != null) {
                 componentOptions.remove(0);
             }
+            
+            if (currentComponent.getMoreOptionsPanel() != null) {
+                moreOptionsComponent.remove(0);
+            }
         }
         
         this.currentComponent = newComponent;
@@ -328,8 +335,14 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         JPanel componentOptionsPanel = currentComponent.getOptionsPanel();
         if (componentOptionsPanel != null) {
             componentOptions.add(componentOptionsPanel);
-            componentOptions.validate();
         }
+        componentOptions.validate();
+        
+        JPanel componentMoreOptionsPanel = currentComponent.getMoreOptionsPanel();
+        if (componentMoreOptionsPanel != null) {
+            moreOptionsComponent.add(componentMoreOptionsPanel);
+        }
+        moreOptionsComponent.validate();
         
         ((CardLayout)getPanelContent().getLayout()).show(panelContent, name);
         

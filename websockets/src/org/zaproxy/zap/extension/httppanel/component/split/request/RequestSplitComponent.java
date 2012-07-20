@@ -114,6 +114,11 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 		return panelOptions;
 	}
 
+    @Override
+    public JPanel getMoreOptionsPanel() {
+        return null;
+    }
+
 	@Override
 	public JPanel getMainPanel() {
 		return panelMain;

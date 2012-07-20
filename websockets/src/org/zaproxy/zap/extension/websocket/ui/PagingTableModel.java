@@ -17,11 +17,13 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 

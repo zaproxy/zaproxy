@@ -200,6 +200,8 @@ public class OptionsParam extends AbstractParam {
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
 		getSessionParam().load(getConfig());
+        // ZAP: Added the statement.
+        getWebSocketParam().load(getConfig());
 		// ZAP: Added the statement.
         getDatabaseParam().load(getConfig());
 		

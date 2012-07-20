@@ -37,7 +37,6 @@ import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface
 import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener {
 

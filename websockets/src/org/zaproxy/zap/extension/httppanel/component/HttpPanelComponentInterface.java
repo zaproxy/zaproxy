@@ -45,6 +45,8 @@ public interface HttpPanelComponentInterface {
 	
 	JPanel getOptionsPanel();
 	
+    JPanel getMoreOptionsPanel();
+	
 	// Set a new Message for this Component
 	// For example, the user selects a new message in the history tab. 
 	// The component should update it's models accordingly.

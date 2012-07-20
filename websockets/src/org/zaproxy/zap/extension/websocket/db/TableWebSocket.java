@@ -53,6 +53,8 @@ public class TableWebSocket extends AbstractTable {
 	
     private PreparedStatement psInsertChannel;
 	private PreparedStatement psUpdateChannel;
+	
+	private PreparedStatement psUpdateHistoryFk;
 
 //	private PreparedStatement psMergeChannel;
 
@@ -73,7 +75,7 @@ public class TableWebSocket extends AbstractTable {
 								+ "start_timestamp TIMESTAMP NOT NULL,"
 								+ "end_timestamp TIMESTAMP NULL,"
 								+ "history_id INTEGER NULL,"
-								+ "FOREIGN KEY (history_id) REFERENCES HISTORY(HISTORYID)"
+								+ "FOREIGN KEY (history_id) REFERENCES HISTORY(HISTORYID) ON DELETE SET NULL ON UPDATE SET NULL"
 								+ ")");
 				stmt.execute();
 				stmt.close();
@@ -137,6 +139,10 @@ public class TableWebSocket extends AbstractTable {
 
 		psUpdateChannel = conn.prepareStatement("UPDATE websocket_channel SET "
 				+ "host = ?, port = ?, start_timestamp = ?, end_timestamp = ?, history_id = ? "
+				+ "WHERE id = ?");
+		
+		psUpdateHistoryFk = conn.prepareStatement("UPDATE websocket_channel SET "
+				+ "history_id = ? "
 				+ "WHERE id = ?");
 		
 //		psMergeChannel = conn.prepareStatement("MERGE INTO websocket_channel AS old "
@@ -382,13 +388,7 @@ public class TableWebSocket extends AbstractTable {
 			stmt.setInt(2, dao.port);
 			stmt.setTimestamp(3, (dao.startTimestamp != null) ? new Timestamp(dao.startTimestamp) : null);
 			stmt.setTimestamp(4, (dao.endTimestamp != null) ? new Timestamp(dao.endTimestamp) : null);
-			
-			if (dao.historyId == null) {
-				stmt.setNull(5, Types.INTEGER);
-			} else {
-				stmt.setInt(5, dao.historyId);
-			}
-			
+			stmt.setNull(5, Types.INTEGER);
 			stmt.setInt(6, dao.channelId);
 			
 			try {
@@ -398,6 +398,18 @@ public class TableWebSocket extends AbstractTable {
 				}
 			} catch (SQLException e) {
 				throw e;
+			}
+			
+			if (dao.historyId != null) {
+				psUpdateHistoryFk.setInt(1, dao.historyId);
+				psUpdateHistoryFk.setInt(2, dao.channelId);
+				try {
+					psUpdateHistoryFk.execute();
+				} catch (SQLException e) {
+					// safely ignore this exception
+					// on shutdown, the history table is cleaned before
+					// WebSocket channels are closed and updated
+				}
 			}
 			
 			// with newer version of HSQLDB I could have used the MERGE command
