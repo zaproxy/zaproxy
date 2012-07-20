@@ -72,7 +72,14 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
         boolean result = false;
         if (other instanceof WebSocketChannelDAO) {
         	WebSocketChannelDAO that = (WebSocketChannelDAO) other;
-            result = that.canEqual(this) && (this.channelId == that.channelId);
+        	
+        	if (that.canEqual(this)) {
+        		if (channelId == null) {
+        			result = (that.channelId == null);
+        		} else {
+        			result = channelId.equals(that.channelId);
+        		}
+        	}
         }
         return result;
     }

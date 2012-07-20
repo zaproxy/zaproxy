@@ -132,7 +132,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 
 	private TableWebSocket table;
 
-
+	static {
+		connectedChannelIds = new HashSet<Integer>();
+	}
+	
 	/**
 	 * Panel is added as tab beside the History tab.
 	 * 
@@ -143,8 +146,6 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		this.brkManager = brkManager;
 		
 		table = webSocketTable;
-
-		connectedChannelIds = new HashSet<Integer>();
 		channelSelectModel = new ComboBoxChannelModel();
 		displayQueue = new Vector<WebSocketMessageDAO>();
 
