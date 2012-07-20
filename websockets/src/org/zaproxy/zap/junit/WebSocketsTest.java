@@ -170,7 +170,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		
 		// now I would send back a close frame and close the physical socket connection
 	}
-
+// requires Autobahn to be running via "wstest -m fuzzingserver"
 //	@Test
 	public void doAutobahnTest() throws HttpException {
 		// use HTTP-client with custom connection manager
@@ -203,7 +203,6 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		} catch (IOException e) {
 			assertTrue("reading websocket frame failed", false);
 		}
-		System.err.println(dst);
 	}
 
 //	/**

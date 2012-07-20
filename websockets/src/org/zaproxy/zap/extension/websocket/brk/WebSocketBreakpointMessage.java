@@ -128,7 +128,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        }
 	        
 	        if (channelId != null) {
-	        	if (msg.channelId != channelId) {
+	        	if (!channelId.equals(msg.channelId)) {
 		        	return false;
 		        }
 	        }

@@ -215,11 +215,15 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 		}
 
 		public boolean equals(Object o) {
-			boolean isSegment = (o instanceof Segment);
-			boolean hasSameBase = (base == ((Segment) o).base);
-			boolean hasSameLength = (length == ((Segment) o).length);
-			
-			return isSegment && hasSameBase && hasSameLength;
+			if (o != null && o instanceof Segment) {
+				Segment s = (Segment) o;
+				
+				boolean hasSameBase = (base == s.base);
+				boolean hasSameLength = (length == s.length);
+				
+				return hasSameBase && hasSameLength;
+			}
+			return false;
 		}
 
 		public int compareTo(Segment other) {

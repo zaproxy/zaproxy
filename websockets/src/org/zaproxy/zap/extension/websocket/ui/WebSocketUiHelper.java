@@ -236,15 +236,18 @@ public class WebSocketUiHelper {
 	}
 	
 	public void setSelectedChannelId(Integer channelId) {
-		// set default value first, if channelId is not found
-		getChannelSingleSelect().setSelectedIndex(0);
-	
-		for (int i = 0; i < channelComboBoxModel.getSize(); i++) {
-			WebSocketChannelDAO item = (WebSocketChannelDAO) channelComboBoxModel.getElementAt(i);
-			if (item.channelId == channelId) {
-				channelComboBoxModel.setSelectedItem(item);
+		if (channelId != null) {
+			for (int i = 0; i < channelComboBoxModel.getSize(); i++) {
+				WebSocketChannelDAO item = (WebSocketChannelDAO) channelComboBoxModel.getElementAt(i);
+				if (channelId.equals(item.channelId)) {
+					channelComboBoxModel.setSelectedItem(item);
+					return;
+				}
 			}
 		}
+		
+		// set default value, if channelId is not found or none provided
+		getChannelSingleSelect().setSelectedIndex(0);
 	}
 
 	public JScrollPane getChannelMultipleSelect() {

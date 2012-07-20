@@ -80,7 +80,7 @@ public class WebSocketTableModelFilter {
 	 */
 	public boolean isBlacklisted(WebSocketMessageDAO message) {
 		if (opcodeList != null) {
-			if (!opcodeList.contains(message.readableOpcode)) {
+			if (!opcodeList.contains(message.opcode)) {
 				return true;
 			}
 		}
