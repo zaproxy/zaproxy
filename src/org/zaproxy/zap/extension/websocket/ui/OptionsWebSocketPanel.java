@@ -323,6 +323,7 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
 	}
 
 	private void saveEditForm() {
+	    // FIXME Consider using the class ZapPortNumberSpinner or validate the port in the method validateParam.
 		CommunicationChannel channel = new CommunicationChannel(editDomain.getText(), new Integer(editPort.getText()));
 
 		if (originsTable.getSelectedRow() > -1) {

@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -46,9 +47,12 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	protected JToggleButton buttonShowView;
 	
 	protected JPanel panelOptions;
+	protected JPanel panelMoreOptions;
 	protected JPanel panelMain;
 
-	protected Message message;
+	private JLabel informationLabel;
+ 	
+	protected WebSocketMessageDAO message;
 	
 	protected HttpPanelComponentViewsManager views;
 
@@ -66,7 +70,11 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 
 		panelOptions = new JPanel();
-		panelOptions.add(views.getSelectableViewsComponent());
+ 		panelOptions.add(views.getSelectableViewsComponent());
+		
+		informationLabel = new JLabel();
+		panelMoreOptions = new JPanel();
+		panelMoreOptions.add(informationLabel);
 		
 		initViews();
 
@@ -90,6 +98,11 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	@Override
 	public JPanel getOptionsPanel() {
 		return panelOptions;
+	}
+
+	@Override
+	public JPanel getMoreOptionsPanel() {
+		return panelMoreOptions;
 	}
 
 	@Override
@@ -125,11 +138,19 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	
 	@Override
 	public void setMessage(Message aMessage) {
-		this.message = aMessage;
+		this.message = (WebSocketMessageDAO) aMessage;
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("#").append(message.channelId).append(".").append(message.messageId).append(" - ");
+		sb.append(message.dateTime).append(" - ");
+		sb.append(message.readableOpcode);
+		
+		informationLabel.setText(sb.toString());
 		
 		views.setMessage(message);
-		if (((WebSocketMessageDAO) aMessage).tempUserObj instanceof Boolean) {
-			Boolean isConnected = (Boolean) ((WebSocketMessageDAO) aMessage).tempUserObj;
+		if (message.tempUserObj instanceof Boolean) {
+			Boolean isConnected = (Boolean) message.tempUserObj;
 			
 			if (isConnected) {
 				buttonShowView.setIcon(WebSocketPanel.connectIcon);
@@ -161,11 +182,13 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	@Override
 	public void clearView() {
 		views.clearView();
+		
+		informationLabel.setText("");
 	}
 
 	@Override
 	public void clearView(boolean enableViewSelect) {
-		views.clearView();
+	    clearView();
 		
 		setEnableViewSelect(enableViewSelect);
 	}

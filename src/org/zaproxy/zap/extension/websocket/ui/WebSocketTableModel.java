@@ -22,12 +22,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-import javax.swing.table.AbstractTableModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
 

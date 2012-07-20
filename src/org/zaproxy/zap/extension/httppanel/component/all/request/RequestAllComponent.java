@@ -92,6 +92,11 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 		return panelOptions;
 	}
 
+    @Override
+    public JPanel getMoreOptionsPanel() {
+        return null;
+    }
+
 	@Override
 	public JPanel getMainPanel() {
 		return panelMain;

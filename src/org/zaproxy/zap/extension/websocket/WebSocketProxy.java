@@ -190,6 +190,10 @@ public abstract class WebSocketProxy {
 	}
 	
 	protected void setState(State newState) {
+		if (state == newState) {
+			return;
+		}
+		
 		switch (newState) {
 		case OPEN:
 			start = new Timestamp(Calendar.getInstance().getTimeInMillis());

@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap;
 
-import java.net.Socket;
-
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
