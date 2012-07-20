@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
@@ -64,6 +66,14 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	 * If null, all messages are shown.
 	 */
 	private Integer activeChannelId;
+	
+	private static final ImageIcon outgoingDirection;
+	private static final ImageIcon incomingDirection;
+	
+	static {
+		outgoingDirection = new ImageIcon(WebSocketTableModel.class.getResource("/resource/icon/105_gray.png"));
+		incomingDirection = new ImageIcon(WebSocketTableModel.class.getResource("/resource/icon/106_gray.png"));
+	}
 	
 	/**
 	 * Ctor.
@@ -129,10 +139,11 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 			return new WebSocketMessagePrimaryKey(message.channelId, message.messageId);
 
 		case 1:
+			// had problems with ASCII arrows => use icons
 			if (message.isOutgoing) {
-				return "→";
+				return outgoingDirection; //"→";
 			} else {
-				return "←";
+				return incomingDirection; //"←";
 			}
 
 		case 2:
@@ -210,7 +221,7 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 		case 0:
 			return WebSocketMessagePrimaryKey.class;
 		case 1:
-			return String.class;
+			return ImageIcon.class;
 		case 2:
 			return String.class;
 		case 3:
