@@ -151,25 +151,33 @@ public class CoreAPI extends ApiImplementor {
 		} else if (ACTION_NEW_SESSION.equals(name)) {
 			String sessionName = params.getString(ACTION_SESSION_PARAM_NAME);
 			if (sessionName == null || sessionName.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER,
-						ACTION_SESSION_PARAM_NAME);
-			}
-			session.setSessionName(name);
-			if (!sessionName.endsWith(".session")) {
-				sessionName = sessionName + ".session";
-			}
-			String filename = Model.getSingleton().getOptionsParam()
-					.getUserDirectory()
-					+ File.separator + sessionName;
-			if (new File(filename).exists()) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
-						filename);
-			}
-			try {
-				Control.getSingleton().runCommandLineNewSession(filename);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
-						e.getMessage());
+				// Create a new 'unnamed' session
+				Control.getSingleton().discardSession();
+				try {
+					Control.getSingleton().createAndOpenUntitledDb();
+				} catch (Exception e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+							e.getMessage());
+				}
+				Control.getSingleton().newSession();
+			} else {
+				session.setSessionName(name);
+				if (!sessionName.endsWith(".session")) {
+					sessionName = sessionName + ".session";
+				}
+				String filename = Model.getSingleton().getOptionsParam()
+						.getUserDirectory()
+						+ File.separator + sessionName;
+				if (new File(filename).exists()) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+							filename);
+				}
+				try {
+					Control.getSingleton().runCommandLineNewSession(filename);
+				} catch (Exception e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+							e.getMessage());
+				}
 			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);

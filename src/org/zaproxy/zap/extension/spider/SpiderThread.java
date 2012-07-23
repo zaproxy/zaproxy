@@ -20,17 +20,21 @@ package org.zaproxy.zap.extension.spider;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.swing.DefaultListModel;
-import org.apache.commons.httpclient.URI;
+
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.core.spider.Spider;
-import org.parosproxy.paros.core.spider.SpiderListener;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.spider.Spider;
+import org.zaproxy.zap.spider.SpiderListener;
+import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.utils.SortedListModel;
 
 public class SpiderThread extends ScanThread implements ScanListenner, SpiderListener {
@@ -45,27 +49,30 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
 	private Spider spider = null;
 	private SiteNode startNode = null;
-	
+
+	private List<SpiderListener> pendingSpiderListeners;
+
 	private int spiderDone = 0;
-	private int spiderTodo = 100;	// Will get updated ;)
+	private int spiderTodo = 100; // Will get updated ;)
 
-    private static Logger log = Logger.getLogger(SpiderThread.class);
+	private static final Logger log = Logger.getLogger(SpiderThread.class);
 
-	public SpiderThread (ExtensionSpider extension, String site, ScanListenner listenner, org.parosproxy.paros.core.spider.SpiderParam portScanParam) {
+	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
 		super(site, listenner);
 		this.extension = extension;
 		this.site = site;
 		this.listenner = listenner;
+		this.pendingSpiderListeners = new LinkedList<SpiderListener>();
 
 		this.list = new SortedListModel();
 		log.debug("Spider : " + site);
 	}
-	
+
 	@Override
 	public void run() {
 		runScan();
 	}
-	
+
 	private void runScan() {
 		// Do the scan
 		spiderDone = 0;
@@ -93,9 +100,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	public String getSite() {
 		return site;
 	}
-	
+
 	@Override
-	public int getProgress () {
+	public int getProgress() {
 		return this.spiderDone;
 	}
 
@@ -132,7 +139,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 		this.isPaused = false;
 	}
-	
+
 	@Override
 	public boolean isPaused() {
 		return this.isPaused;
@@ -142,142 +149,180 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	public int getMaximum() {
 		return this.spiderDone + this.spiderTodo;
 	}
-	
+
 	public void startSpider() {
 		if (startNode == null) {
 			log.error("Spider: No start node set for site " + site);
 			return;
 		}
 
-	    if (spider == null) {
-	        try {
-	        	extension.getModel().getDb().getTableHistory().deleteHistoryType(
-	        			extension.getModel().getSession().getSessionId(), HistoryReference.TYPE_SPIDER_SEED);
-	        	extension.getModel().getDb().getTableHistory().deleteHistoryType(
-	        			extension.getModel().getSession().getSessionId(), HistoryReference.TYPE_SPIDER_VISITED);
+		if (spider == null) {
+			try {
+				extension
+						.getModel()
+						.getDb()
+						.getTableHistory()
+						.deleteHistoryType(extension.getModel().getSession().getSessionId(),
+								HistoryReference.TYPE_SPIDER_SEED);
+				extension
+						.getModel()
+						.getDb()
+						.getTableHistory()
+						.deleteHistoryType(extension.getModel().getSession().getSessionId(),
+								HistoryReference.TYPE_SPIDER_VISITED);
 
-	        } catch (SQLException e) {
-            	log.error(e.getMessage(), e);
-            }
-	        
-	        spider = new Spider(extension.getSpiderParam(), extension.getModel().getOptionsParam().getConnectionParam(), extension.getModel());
-	        spider.addSpiderListener(this);
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
 
-	        inOrderSeed(spider, startNode);
+			spider = new Spider(extension.getSpiderParam(),
+					extension.getModel().getOptionsParam().getConnectionParam(), extension.getModel());
+			spider.addSpiderListener(this);
+			// Add the pending listeners
+			for (SpiderListener l : pendingSpiderListeners)
+				spider.addSpiderListener(l);
 
-	    }
-	    
-	    extension.getSpiderPanel().setTabFocus();
-	    spider.setExcludeList(extension.getExcludeList());
+
+			inOrderSeed(spider, startNode);
+			// TODO: Debugging purpose
+//			try {
+//				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest8NonHTMLFiles/", true));
+//			} catch (URIException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (NullPointerException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+		}
+
+		extension.getSpiderPanel().setTabFocus();
+		spider.setExcludeList(extension.getExcludeList());
 
 		try {
 			spider.start();
-		    
-        } catch (NullPointerException e1) {
-        	log.error(e1.getMessage(), e1);
-        }
+
+		} catch (NullPointerException e1) {
+			log.error(e1.getMessage(), e1);
+		}
 	}
-	
+
 	private void inOrderSeed(Spider spider, SiteNode node) {
 
-	    try {
-	        if (!node.isRoot() && node.getHistoryReference() != null) {
-	            HttpMessage msg = node.getHistoryReference().getHttpMessage();
-	            if (msg != null) {
-	                if (!msg.getResponseHeader().isImage()) {
-	                    spider.addSeed(msg);
-	                }
-	            }
-	        }
-	    } catch (Exception e) {
-        	log.error(e.getMessage(), e);
-	    }
-	    
-	    if (!node.isLeaf()) {
-	        for (int i=0; i<node.getChildCount(); i++) {
-	            try {
-	                inOrderSeed(spider, (SiteNode) node.getChildAt(i));
-	            } catch (Exception e) {
-                	log.error(e.getMessage(), e);
-	            }
-	        }
-	    }
-	}
-	
-	@Override
-	public void spiderComplete() {
-        try {
-        	extension.getModel().getDb().getTableHistory().deleteHistoryType(
-        			extension.getModel().getSession().getSessionId(), HistoryReference.TYPE_SPIDER_SEED);
-        	extension.getModel().getDb().getTableHistory().deleteHistoryType(
-        			extension.getModel().getSession().getSessionId(), HistoryReference.TYPE_SPIDER_VISITED);
-
-        } catch (SQLException e) {
-        	log.warn(e.getMessage(), e);
-        }
-
-		if (this.listenner != null) {
-			this.listenner.scanFinshed(site);
-			// Nasty, but otherwise can stick on 90+%
-			this.listenner.scanProgress(site, this.getMaximum(), this.getMaximum());
+		try {
+			if (!node.isRoot() && node.getHistoryReference() != null) {
+				HttpMessage msg = node.getHistoryReference().getHttpMessage();
+				if (msg != null) {
+					if (!msg.getResponseHeader().isImage()) {
+						spider.addSeed(msg);
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
+
+		if (!node.isLeaf()) {
+			for (int i = 0; i < node.getChildCount(); i++) {
+				try {
+					inOrderSeed(spider, (SiteNode) node.getChildAt(i));
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void spiderComplete(boolean successful) {
+		try {
+			extension
+					.getModel()
+					.getDb()
+					.getTableHistory()
+					.deleteHistoryType(extension.getModel().getSession().getSessionId(),
+							HistoryReference.TYPE_SPIDER_SEED);
+			extension
+					.getModel()
+					.getDb()
+					.getTableHistory()
+					.deleteHistoryType(extension.getModel().getSession().getSessionId(),
+							HistoryReference.TYPE_SPIDER_VISITED);
+
+		} catch (SQLException e) {
+			log.warn(e.getMessage(), e);
+		}
+		log.warn("Spider scanning complete: " + successful);
 		stopScan = true;
+		this.listenner.scanFinshed(site);
 
 	}
-	
+
 	@Override
-	public void foundURI(HttpMessage msg, boolean isSkip) {
-	    if (extension.getView() != null) {
-	        if (isSkip) {
-	        	extension.getSpiderPanel().appendFoundButSkip(msg.getRequestHeader().getURI().toString() + "\n");
-	        } else {
-	        	extension.getSpiderPanel().appendFound(msg.getRequestHeader().getURI().toString() + "\n");
-	        }
-        }
+	public void foundURI(String uri, FetchStatus status) {
+		if (extension.getView() != null) {
+			if (status != FetchStatus.VALID) {
+				extension.getSpiderPanel().appendURLFoundButSkipped(uri + " - " + status + "\n");
+			} else {
+				extension.getSpiderPanel().appendURLFound(uri + "\n");
+			}
+		}
 	}
-	
+
 	@Override
 	public void readURI(HttpMessage msg) {
 
-	    SiteMap siteTree = extension.getModel().getSession().getSiteTree();
+		SiteMap siteTree = extension.getModel().getSession().getSiteTree();
 
 		HistoryReference historyRef = null;
-        try {
-        	historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
-            siteTree.addPath(historyRef, msg);
-        } catch (Exception e) {
-        	log.warn(e.getMessage(), e);
-        }
+		try {
+			historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			siteTree.addPath(historyRef, msg);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+		}
 	}
 
-    public Spider getSpider() {
-	    return spider;
+	public Spider getSpider() {
+		return spider;
 	}
-	
-	@Override
-	public void spiderProgress(final URI uri, final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
-	    this.spiderDone = numberCrawled;
-	    this.spiderTodo = numberToCrawl;
-	    this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);
-	}
-    /**
-     * @return Returns the startNode.
-     */
-    @Override
-    public SiteNode getStartNode() {
-        return startNode;
-    }
-    /**
-     * @param startNode The startNode to set.
-     */
-    @Override
-    public void setStartNode(SiteNode startNode) {
-        this.startNode = startNode;
-    }
 
 	@Override
+	public void spiderProgress(final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
+		this.spiderDone = numberCrawled;
+		this.spiderTodo = numberToCrawl;
+		this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);
+	}
+
+	/**
+	 * @return Returns the startNode.
+	 */
+	@Override
+	public SiteNode getStartNode() {
+		return startNode;
+	}
+
+	/**
+	 * @param startNode The startNode to set.
+	 */
+	@Override
+	public void setStartNode(SiteNode startNode) {
+		this.startNode = startNode;
+	}
+
 	public void reset() {
 		this.list = new SortedListModel();
+	}
+
+	/**
+	 * Adds a new spider listener.
+	 * 
+	 * @param listener the listener
+	 */
+	public void addSpiderListener(SpiderListener listener) {
+		this.pendingSpiderListeners.add(listener);
+		if (spider != null)
+			this.spider.addSpiderListener(listener);
 	}
 
 }

@@ -40,6 +40,8 @@ import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 /**
  * This test uses the Echo Server from websockets.org
  * for testing a valid WebSockets connection.
+ * TODO: Always get a: java.util.MissingResourceException: Can't find bundle for base name Messages.
+ * Why? - Don't know.
  */
 public class WebSocketsTest extends BaseZapProxyTest {
 
