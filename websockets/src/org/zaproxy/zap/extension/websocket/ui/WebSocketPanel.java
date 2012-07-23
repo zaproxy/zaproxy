@@ -56,7 +56,6 @@ import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -72,7 +71,6 @@ import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
-import org.zaproxy.zap.view.ScanPanel;
 
 /**
  * Represents the WebSockets tab. It listens to all WebSocket channels and
@@ -116,7 +114,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	private JLabel filterStatus;
 	private WebSocketTableModelFilterDialog filterDialog;
 	
-	private JButton optionsButton;
+//	private JButton optionsButton;
 
 	private JScrollPane scrollPanel;
 	private JTable messagesLog;
@@ -236,9 +234,10 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			panelToolbar.add(new JLabel(), constraints);
 
-			constraints = new GridBagConstraints();
-			constraints.gridx = x++;
-			panelToolbar.add(getOptionsButton(), constraints);
+			// TODO: add options button to panel toolbar again
+//			constraints = new GridBagConstraints();
+//			constraints.gridx = x++;
+//			panelToolbar.add(getOptionsButton(), constraints);
 		}
 
 		return panelToolbar;
@@ -275,21 +274,21 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 		return channelSelect;
 	}
 
-	private JButton getOptionsButton() {
-		if (optionsButton == null) {
-			optionsButton = new JButton();
-			optionsButton.setToolTipText(Constant.messages.getString("websocket.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
-			optionsButton.addActionListener(new ActionListener () {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Control.getSingleton().getMenuToolsControl().options(
-							Constant.messages.getString("websocket.options.title"));
-				}
-			});
-		}
-		return optionsButton;
-	}
+//	private JButton getOptionsButton() {
+//		if (optionsButton == null) {
+//			optionsButton = new JButton();
+//			optionsButton.setToolTipText(Constant.messages.getString("websocket.toolbar.button.options"));
+//			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
+//			optionsButton.addActionListener(new ActionListener () {
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					Control.getSingleton().getMenuToolsControl().options(
+//							Constant.messages.getString("websocket.options.title"));
+//				}
+//			});
+//		}
+//		return optionsButton;
+//	}
 
 	private Component getFilterButton() {
 		if (filterButton == null) {
