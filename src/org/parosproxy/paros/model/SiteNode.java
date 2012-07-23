@@ -53,20 +53,35 @@ public class SiteNode extends DefaultMutableTreeNode {
     private SiteMap siteMap = null;
 	private ArrayList<Alert> alerts = new ArrayList<Alert>();
 	private boolean justSpidered = false;
-	private boolean justAJAXSpidered = false;
+	//private boolean justAJAXSpidered = false;
+	private boolean specificIcon = false;
+	private String iconURL = null;
+	private boolean clearIfManual = false;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
-	
+    
+    
+
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
+        specificIcon= false;
 		this.nodeName = nodeName;
 		if (type == HistoryReference.TYPE_SPIDER) {
 			this.justSpidered = true;
 		}
-		if (type == HistoryReference.TYPE_SPIDERAJAX) {
+
+		/*if (type == HistoryReference.TYPE_SPIDERAJAX) {
 			this.justAJAXSpidered = true;
-		}
+		}*/
+	}
+    public SiteNode(SiteMap siteMap, int type, String nodeName, String icon, boolean clear) {
+        super();
+        this.specificIcon= true;
+        this.siteMap = siteMap;
+		this.nodeName = nodeName;
+		this.iconURL = icon;
+		this.clearIfManual = clear;
 	}
     
     private void appendIcons(StringBuilder sb) {
@@ -103,9 +118,15 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
+    	/*
     	if (justAJAXSpidered){
     		sb.append("&nbsp;<img src=\"");
     		sb.append(Constant.class.getResource("/org/zaproxy/zap/extension/spiderAjax/10.png"));
+    		sb.append("\">&nbsp;");
+    	}*/
+    	if(this.specificIcon){
+    		sb.append("&nbsp;<img src=\"");
+    		sb.append(Constant.class.getResource(this.iconURL));
     		sb.append("\">&nbsp;");
     	}
     }
@@ -176,14 +197,18 @@ public class SiteNode extends DefaultMutableTreeNode {
 //                getPastHistoryReference().add(getHistoryReference());
 //            }
             
-        	if (this.justSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        	if (this.justSpidered && this.clearIfManual && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
-        	if (this.justAJAXSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
-        		this.justAJAXSpidered = false;
-        		this.nodeChanged();
-        	}
+        	/*if (this.justAJAXSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+    		this.justAJAXSpidered = false;
+    		this.nodeChanged();
+    	}*/
+        	if (this.specificIcon && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+    		this.specificIcon = false;
+    		this.nodeChanged();
+    	}
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {
                 getPastHistoryReference().add(getHistoryReference());
