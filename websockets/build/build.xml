@@ -181,8 +181,8 @@
 		/>
 		<!-- Delete old file in lib directory -->
 		<delete file="lib/zaphelp.jar" />
-		<!-- Copy new one to the lib dirctory -->
-		<copy file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
+		<!-- Move the new one to the lib directory -->
+		<move file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
 		
 	</target>
 

@@ -26,8 +26,10 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/06/11 Added method boolean isWebSocketUpgrade()
 // ZAP: 2012/07/02 Implement Message interface for more flexibility.
+// ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -819,5 +821,11 @@ public class HttpMessage implements Message {
 		}
 		
 		return false;
+	}
+	
+	// Rewrite cookie line in the Request Header,
+	// based on values in cookies
+	public void setCookies(List<HttpCookie> cookies) {
+		mReqHeader.setCookies(cookies);
 	}
 }
