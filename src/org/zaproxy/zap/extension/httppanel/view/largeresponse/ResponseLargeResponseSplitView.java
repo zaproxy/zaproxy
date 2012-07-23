@@ -25,13 +25,12 @@ import javax.swing.JPanel;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
-import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
+import org.zaproxy.zap.extension.httppanel.view.ImmutableHttpPanelViewModel;
 
-public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelViewModelListener {
+public class ResponseLargeResponseSplitView implements HttpPanelView {
 
 	public static final String CONFIG_NAME = "largeResponseSplit";
 	
@@ -39,15 +38,9 @@ public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelV
 	
 	private JPanel mainPanel;
 	
-	private HttpPanelViewModel model;
-	
-	public ResponseLargeResponseSplitView(HttpPanelViewModel model) {
-		this.model = model;
-		
+	public ResponseLargeResponseSplitView() {
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.add(new JLabel(Constant.messages.getString("http.panel.view.largeresponse.split.warning")));
-		
-		this.model.addHttpPanelViewModelListener(this);
 	}
 	
 	@Override
@@ -77,8 +70,8 @@ public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelV
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage httpMessage) {
-		return isLargeResponse(httpMessage);
+	public boolean isEnabled(Message message) {
+		return LargeResponseUtil.isLargeResponse(message);
 	}
 
 	@Override
@@ -99,19 +92,6 @@ public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelV
 	@Override
 	public void setEditable(boolean editable) {
 	}
-
-	private boolean isLargeResponse(final HttpMessage httpMessage) {
-		if (httpMessage == null || httpMessage.getResponseBody() == null) {
-			return false;
-		}
-		
-		int contentLength = httpMessage.getResponseHeader().getContentLength();
-		if (contentLength < 0) {
-			contentLength = httpMessage.getResponseBody().length();
-		}
-		
-		return contentLength > ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
-	}
 	
 	@Override
 	public void setParentConfigurationKey(String configurationKey) {
@@ -127,10 +107,7 @@ public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelV
 
 	@Override
 	public HttpPanelViewModel getModel() {
-		return model;
+		return ImmutableHttpPanelViewModel.getInstance();
 	}
 	
-	@Override
-	public void dataChanged(HttpPanelViewModelEvent e) {
-	}
 }

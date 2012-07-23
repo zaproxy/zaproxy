@@ -17,15 +17,19 @@
  */
 package org.zaproxy.zap.extension.httppanel.view;
 
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+
 
 public interface HttpPanelDefaultViewSelector {
 
+	
 	public String getName(); 
 	
-	public boolean matchToDefaultView(HttpMessage httpMessage);
+	public boolean matchToDefaultView(Message aMessage);
+	
 	
 	public String getViewName();
+	
 	
 	public int getOrder();
 

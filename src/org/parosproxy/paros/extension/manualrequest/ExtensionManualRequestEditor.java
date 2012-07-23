@@ -26,12 +26,15 @@
 // ManualRequestEditorDialog.
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/02 ManualRequestEditorDialog changed to receive Message instead
+// of HttpMessage. Changed logger to static.
 
 package org.parosproxy.paros.extension.manualrequest;
 
 import javax.swing.JMenuItem;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -39,41 +42,31 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class ExtensionManualRequestEditor extends ExtensionAdaptor implements SessionChangedListener {
 
 	private ManualRequestEditorDialog manualRequestEditorDialog = null;
 	private JMenuItem menuManualRequestEditor = null;
 	// ZAP Added logger
-	private Logger logger = Logger.getLogger(ExtensionManualRequestEditor.class);
+	private static final Logger logger = Logger.getLogger(ExtensionManualRequestEditor.class);
 
-	/**
-	 * 
-	 */
+	
 	public ExtensionManualRequestEditor() {
 		super();
 		initialize();
 	}
 
-	/**
-	 * @param name
-	 */
+	
 	public ExtensionManualRequestEditor(String name) {
 		super(name);
 	}
 
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
+	
 	private void initialize() {
 		this.setName("ExtensionManualRequest");
         this.setOrder(36);
@@ -90,11 +83,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	}
 
 
-	/**
-	 * This method initializes menuManualRequest
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
+	    
 	private JMenuItem getMenuManualRequestEditor() {
 		if (menuManualRequestEditor == null) {
 			menuManualRequestEditor = new JMenuItem();
@@ -103,9 +92,13 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					ManualRequestEditorDialog dialog = getManualRequestEditorDialog();
-					if (dialog.getHttpMessage() == null || dialog.getHttpMessage().getRequestHeader().isEmpty()) {
-						setDefaultMessageToManualRequestEditor();
-					}
+					// ZAP: method was refactored from getHttpMessage() to getMessage()
+					Message message = dialog.getMessage();
+					if (message == null) {
+					    setDefaultMessageToManualRequestEditor();
+					} else if (message instanceof HttpMessage && ((HttpMessage)message).getRequestHeader().isEmpty()) {
+					    setDefaultMessageToManualRequestEditor();
+				    }
 					dialog.setVisible(true);
 				}
 			});
@@ -113,11 +106,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 		return menuManualRequestEditor;
 	}
 
-	/**
-	 * This method initializes manualRequestEditorDialog	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.ResendDialog	
-	 */    
+	    
 	ManualRequestEditorDialog getManualRequestEditorDialog() {
 		if (manualRequestEditorDialog == null) {
 			manualRequestEditorDialog = new ManualRequestEditorDialog(getView().getMainFrame(), false, true, this, "manual");
@@ -148,10 +137,13 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 		try {
 			URI uri = new URI("http://www.any_domain_name.org/path", true);
 			msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
-			manualRequestEditorDialog.setHttpMessage(msg);
-		} catch (Exception e1) {
-			logger.error(e1.getMessage(), e1);
-		}
+			// ZAP: method was refactored from setHttpMessage() to setMessage()
+			manualRequestEditorDialog.setMessage(msg);
+		} catch (HttpMalformedHeaderException e) {
+			logger.error(e.getMessage(), e);
+		} catch (URIException e) {
+		    logger.error(e.getMessage(), e);
+        }
 	}
 	
 }

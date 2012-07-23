@@ -26,6 +26,7 @@
 // the configuration and disable the response panel.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
+// ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
 
 package org.parosproxy.paros.view;
 
@@ -187,7 +188,8 @@ public class View implements ViewDelegate {
     @Override
     public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
-            requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
+        	// ZAP: constructor changed
+            requestPanel = new HttpPanelRequest(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
@@ -199,7 +201,8 @@ public class View implements ViewDelegate {
     @Override
     public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
-            responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
+        	// ZAP: constructor changed
+            responsePanel = new HttpPanelResponse(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n

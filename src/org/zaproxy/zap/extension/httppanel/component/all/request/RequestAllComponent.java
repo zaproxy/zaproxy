@@ -28,11 +28,12 @@ import javax.swing.JToggleButton;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentViewsManager;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
 
@@ -47,12 +48,12 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 	protected JPanel panelOptions;
 	protected JPanel panelMain;
 
-	protected HttpMessage httpMessage;
+	protected Message message;
 	
 	protected HttpPanelComponentViewsManager views;
 
 	public RequestAllComponent() {
-		this.httpMessage = null;
+		this.message = null;
 		
 		views = new HttpPanelComponentViewsManager("all");
 		
@@ -65,7 +66,7 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 
 		panelOptions = new JPanel();
-		panelOptions.add(views.getComboBox());
+		panelOptions.add(views.getSelectableViewsComponent());
 		
 		initViews();
 
@@ -91,6 +92,11 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 		return panelOptions;
 	}
 
+    @Override
+    public JPanel getMoreOptionsPanel() {
+        return null;
+    }
+
 	@Override
 	public JPanel getMainPanel() {
 		return panelMain;
@@ -102,6 +108,15 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 
 		views.setSelected(selected);
 	}
+
+    @Override
+    public boolean isEnabled(Message aMessage) {
+        if (aMessage == null) {
+            return true;
+        }
+        
+        return (aMessage instanceof HttpMessage);
+    }
 	
 	protected void initViews() {
 		views.addView(new HttpRequestAllPanelTextView(new RequestStringHttpPanelViewModel()));
@@ -113,15 +128,20 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 	}
 
 	@Override
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
+	public int getPosition() {
+	    return 2;
+	}
+	
+	@Override
+	public void setMessage(Message aMessage) {
+		this.message = aMessage;
 		
-		views.setHttpMessage(httpMessage);
+		views.setMessage(message);
 	}
 	
 	@Override
 	public void save() {
-		if (httpMessage == null) {
+		if (message == null) {
 			return;
 		}
 		

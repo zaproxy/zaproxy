@@ -22,18 +22,21 @@
 // ZAP: 2011/08/04 Changed to support new Features
 // ZAP: 2011/08/04 Changed to support new interface
 // ZAP: 2012/03/15 Changed so the display options can be modified dynamically.
+// ZAP: 2012/07/02 Wraps no HttpMessage object, but more generalized Message.
+// new map of supported message types; removed history list; removed unused
+// methods.
 // ZAP: 2012/07/16 Issue 326: Add response time and total length to manual request dialog 
 
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -48,36 +51,21 @@ import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.manualrequest.http.impl.HttpPanelSender;
 import org.parosproxy.paros.extension.option.OptionsParamView;
-import org.parosproxy.paros.model.HistoryList;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 
 
-/**
- *
- * Creates:
- *
- * +----------------------------+
- * | panelHeader                |
- * +----------------------------+
- * | panelContent               |
- * |                            |
- * |                            |
- * +----------------------------+
- *
- */
+
 public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
 
@@ -103,24 +91,24 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private HttpSender httpSender = null;
 	private boolean isSendEnabled = true;
 
-	private HistoryList historyList = null;
 	private Extension extension = null;
-	private HttpMessage httpMessage = null;
+	
+	// ZAP: Use more general class than HttpMessage
+	private Message message = null;
 	
 	private String configurationKey;
 	
 	private RequestResponsePanel requestResponsePanel;
 
+	// ZAP: introduced map of supported message types
+    private Map<Class<? extends Message>, MessageSender> mapMessageSenders;
+
 	private static JLabel labelTimeElapse = null;
 	private static JLabel labelContentLength = null;
 	private static JLabel labelTotalLength = null;
-	private static JToolBar footerToolbar = null; 
+	private static JToolBar footerToolbar = null;
 	
-	/**
-	 * @param parent
-	 * @param modal
-	 * @throws HeadlessException
-	 */
+	
 	public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension, String configurationKey) throws HeadlessException {
 		super();
 		this.isSendEnabled = isSendEnabled;
@@ -130,13 +118,12 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		
 		this.setPreferredSize(new Dimension(700, 800));
 		initialize();
+        
+        mapMessageSenders = new HashMap<Class<? extends Message>, MessageSender>();
+        mapMessageSenders.put(HttpMessage.class, new HttpPanelSender(getHttpSender(), getResponsePanel(), getButtonFollowRedirect()));
 	}
 
-	/**
-	 * This method initializes this
-	 *
-	 * @return void
-	 */
+	
 	private void initialize() {
 		
 		requestResponsePanel = new RequestResponsePanel(configurationKey, getRequestPanel(), getResponsePanel());
@@ -164,8 +151,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		getFooterStatusBar().add(getLabelTotalLength());
 		
 		this.setContentPane(getWindowPanel());
-		
-		this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
 	}
 
 	private JPanel getWindowPanel() {
@@ -181,42 +166,31 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		return panelWindow;
 	}
 
-	/**
-	 * This method initializes requestPanel
-	 *
-	 * @return org.parosproxy.paros.view.HttpPanel
-	 */
+	
 	private HttpPanelRequest getRequestPanel() {
 		if (requestPanel == null) {
-			requestPanel = new HttpPanelRequest(true, extension, httpMessage, configurationKey);
+			requestPanel = new HttpPanelRequest(true, configurationKey);
 			requestPanel.setEnableViewSelect(true);
 			requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return requestPanel;
 	}
 
-	/**
-	 * This method initializes httpPanel
-	 *
-	 * @return org.parosproxy.paros.view.HttpPanel
-	 */
+	
 	private HttpPanelResponse getResponsePanel() {
 		if (responsePanel == null) {
-			responsePanel = new HttpPanelResponse(false, extension, httpMessage, configurationKey);
+			responsePanel = new HttpPanelResponse(false, configurationKey);
 			responsePanel.setEnableViewSelect(true);
 			responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return responsePanel;
 	}
 	
-	public void setExtension(Extension extension) {
-		requestPanel.setExtension(extension);
-		responsePanel.setExtension(extension);
-	}
+	// ZAP: Removed the method setExtension(Extension), not used anymore.
 
 	@Override
 	public void setVisible(boolean show) {
-		if (show) {
+		if (!show) {
 			try {
 				if (httpSender != null) {
 					httpSender.shutdown();
@@ -239,7 +213,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private HttpSender getHttpSender() {
 		if (httpSender == null) {
 			httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), getButtonUseTrackingSessionState().isSelected());
-
 		}
 		return httpSender;
 	}
@@ -249,39 +222,32 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	 * Copy the message (this is not a viewer. User will modify it),
 	 * and update Request/Response views.
 	 */
-	public void setMessage(HttpMessage msg) {
-		if (msg == null) {
+	
+	public void setMessage(Message aMessage) {
+		if (aMessage == null) {
 			System.out.println("Manual: set message NULL");
 			return;
 		}
 
-		this.httpMessage = msg.cloneAll();
+		this.message = aMessage; // .cloneAll();
 
-		getRequestPanel().setMessage(httpMessage);
-		getResponsePanel().setMessage(httpMessage);
+		getRequestPanel().setMessage(aMessage);
+		getResponsePanel().setMessage(aMessage);
 		//reload footer status
 		setFooterStatus(null);
 		switchToTab(0);
 	}
 
-	public HttpMessage getHttpMessage() {
-		return httpMessage;
+	public Message getMessage() {
+		return message;
 	}
 
-	public void setHttpMessage(HttpMessage httpMessage) {
-		setMessage(httpMessage);
-	}
-	
 	public void clear() {
 		requestPanel.clearView();
 		responsePanel.clearView();
 	}
 
-	/**
-	 * This method initializes followRedirect
-	 *
-	 * @return javax.swing.JToggleButton
-	 */
+	
 	private JToggleButton getButtonFollowRedirect() {
 		if (followRedirect == null) {
 			followRedirect = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/16/118.png"))); // Arrow turn around left
@@ -291,11 +257,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		return followRedirect;
 	}
 
-	/**
-	 * This method initializes useTrackingSessionState
-	 *
-	 * @return javax.swing.JToggleButton
-	 */
+	
 	private JToggleButton getButtonUseTrackingSessionState() {
 		if (useTrackingSessionState == null) {
 			useTrackingSessionState = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/fugue/cookie.png"))); // Cookie
@@ -304,43 +266,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		return useTrackingSessionState;
 	}
 
-	private void addHistory(HttpMessage msg, int type) {
-		HistoryReference historyRef = null;
-		try {
-			historyRef = new HistoryReference(Model.getSingleton().getSession(), type, msg);
-			synchronized (historyList) {
-				if (type == HistoryReference.TYPE_MANUAL) {
-					addHistoryInEventQueue(historyRef);
-					historyList.notifyItemChanged(historyRef);
-				}
-			}
-		} catch (final Exception e) {
-			log.error(e.getMessage(), e);
-		}
-	}
-
-	private void addHistoryInEventQueue(final HistoryReference ref) {
-		if (EventQueue.isDispatchThread()) {
-			historyList.addElement(ref);
-		} else {
-			try {
-				EventQueue.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						historyList.addElement(ref);
-					}
-				});
-			} catch (final Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	/**
-	 * This method initializes btnSend
-	 *
-	 * @return javax.swing.JButton
-	 */
+	
 	private JButton getBtnSend() {
 		if (btnSend == null) {
 			btnSend = new JButton();
@@ -388,13 +314,11 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private void btnSendAction() {
 		btnSend.setEnabled(false);
 
-		// Get current HttpMessage
+		// Save current Message
 		requestPanel.saveData();
-		final HttpMessage msg = requestPanel.getHttpMessage();
-		msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 
 		// Send Request, Receive Response
-		send(msg);
+		send(requestPanel.getMessage());
 
 		// redraw request, as it could have changed
 		requestPanel.updateContent();
@@ -437,57 +361,29 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength"));
 		}
 	}
-	
-/**
- * 
- * The footer should really be a javax.swing.JToolBar containing one or more JLabels
-It might be clearer if you separate the info in the toolbar with using toolbar.addSeparator() - 
- * @param msg
- */
-	
-	private void send(final HttpMessage msg) {
-		final Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					getHttpSender().sendAndReceive(msg, getButtonFollowRedirect().isSelected());
 
-					EventQueue.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							if (!msg.getResponseHeader().isEmpty()) {
-								
-								setFooterStatus(getResponsePanel().getHttpMessage());
-							    
-								// Indicate UI new response arrived
-								switchToTab(1);
-								responsePanel.updateContent();
-								
-								final int finalType = HistoryReference.TYPE_MANUAL;
-								final Thread t = new Thread(new Runnable() {
-									@Override
-									public void run() {
-										addHistory(msg, finalType);
-									}
-								});
-								t.start();
-							}
-						}
-					});
-				} catch (final HttpMalformedHeaderException mhe) {
-					requestPanel.getExtension().getView().showWarningDialog("Malformed header error.");
-				} catch (final IOException ioe) {
-					requestPanel.getExtension().getView().showWarningDialog("IO error in sending request.");
-				} catch (final Exception e) {
-					// ZAP: Log exceptions
-					log.error(e.getMessage(), e);
-				} finally {
-					btnSend.setEnabled(true);
-				}
-			}
-		});
-		t.setPriority(Thread.NORM_PRIORITY);
-		t.start();
+	private void send(final Message aMessage) {
+	    final MessageSender sender = mapMessageSenders.get(aMessage.getClass());
+	    if (sender != null) {
+	        final Thread t = new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                try {
+	                    sender.handleSendMessage(aMessage);
+	                    // FIXME change to the HttpPanelSender
+                        switchToTab(1);
+                        
+                        setFooterStatus((HttpMessage) getResponsePanel().getMessage());
+	                } catch (Exception e) {
+	                    extension.getView().showWarningDialog(e.getMessage());
+                    } finally {
+                        btnSend.setEnabled(true);
+                    }
+	            }
+            });
+			t.setPriority(Thread.NORM_PRIORITY);
+			t.start();
+	    }
 	}
 
 	private void switchToTab(int i) {
@@ -604,6 +500,7 @@ It might be clearer if you separate the info in the toolbar with using toolbar.a
 			case SIDE_BY_SIDE_VIEW:
 				horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
 				break;
+			default:
 			}
 			
 			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(verticalDividerLocation));
@@ -649,6 +546,7 @@ It might be clearer if you separate the info in the toolbar with using toolbar.a
 					case SIDE_BY_SIDE_VIEW:
 						horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
 						break;
+					default:
 					}
 				}
 				

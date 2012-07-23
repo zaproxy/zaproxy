@@ -20,7 +20,7 @@ package org.zaproxy.zap.extension.httppanel.view.image;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.extension.httppanel.view.DefaultHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
@@ -39,9 +39,11 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-		
-		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new ImageDefaultViewSelectorFactory());
+	    if (getView() != null) {
+    		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
+    		
+    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new ImageDefaultViewSelectorFactory());
+	    }
 	}
 	
 	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
@@ -65,12 +67,8 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		}
 		
 		@Override
-		public boolean matchToDefaultView(HttpMessage httpMessage) {
-			if (httpMessage == null || httpMessage.getResponseBody() == null) {
-				return false;
-			}
-			
-			return httpMessage.getResponseHeader().isImage();
+		public boolean matchToDefaultView(Message aMessage) {
+			return ResponseImageView.isImage(aMessage);
 		}
 
 		@Override

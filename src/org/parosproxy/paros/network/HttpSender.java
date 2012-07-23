@@ -20,6 +20,8 @@
  */
 // ZAP: 2011/09/19 Added debugging
 // ZAP: 2012/04/23 Removed unnecessary cast.
+// ZAP: 2012/05/08 Use custom http client on "Connection: Upgrade" in executeMethod().
+//                 Retrieve upgraded socket and save for later use in send() method.
 
 package org.parosproxy.paros.network;
 
@@ -29,6 +31,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
@@ -41,6 +44,8 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.ZapGetMethod;
+import org.zaproxy.zap.ZapHttpConnectionManager;
 
 public class HttpSender {
 
@@ -52,8 +57,7 @@ public class HttpSender {
     // Issue 90
     private static boolean allowUnsafeSSLRenegotiation = false;
     
-    static {
-        
+    static {        
 	    try {
 	        protocol = Protocol.getProtocol("https");
 	        sslFactory = protocol.getSocketFactory();
@@ -162,7 +166,16 @@ public class HttpSender {
         if (param.isUseProxy(hostName)) {
             return clientViaProxy.executeMethod(method);
         } else {
-            return client.executeMethod(method);
+        	// ZAP: use custom client on upgrade connection
+        	Header connectionHeader = method.getRequestHeader("connection");
+        	if (connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade")) {
+        		// use another client that allows us to expose the socket connection.
+        		HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
+        		return upgradeClient.executeMethod(method);
+        	} else {
+        		// ZAP: in this case apply original handling of ParosProxy
+        		return client.executeMethod(method);
+        	}
         }
     }
     
@@ -274,6 +287,11 @@ public class HttpSender {
 	        // process response for each listner
 	        msg.getResponseBody().setLength(0);
             msg.getResponseBody().append(method.getResponseBody());
+            
+            // ZAP: set method to retrieve upgraded channel later
+            if (method instanceof ZapGetMethod) {
+            	msg.setUserObject(method);
+            }
         } finally {
 	        if (method != null) {
 	            method.releaseConnection();
