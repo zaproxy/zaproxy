@@ -358,7 +358,12 @@ public class SiteMap extends DefaultTreeModel {
     	log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);    	
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
-            SiteNode newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
+        	SiteNode newNode =null;
+        	if(baseRef.getHistoryType()>8){
+                newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName, baseRef.getIconURL(), baseRef.getClearIfManual());
+        	} else {
+        		newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
+        	}
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
             	if (((SiteNode)parent.getChildAt(i)).isParentOf(nodeName)) {
@@ -399,7 +404,12 @@ public class SiteMap extends DefaultTreeModel {
         String leafName = getLeafName(nodeName, msg);
         SiteNode node = findChild(parent, leafName);
         if (node == null) {
-            node = new SiteNode(this, ref.getHistoryType(), leafName);
+        	if(ref.getHistoryType()>8){
+        		node = new SiteNode(this, ref.getHistoryType(), leafName, ref.getIconURL(), ref.getClearIfManual());
+        	} else {
+        		node = new SiteNode(this, ref.getHistoryType(), leafName);
+        	}
+            //node = new SiteNode(this, ref.getHistoryType(), leafName);
             node.setHistoryReference(ref);
             
             hrefMap.put(ref.getHistoryId(), node);
