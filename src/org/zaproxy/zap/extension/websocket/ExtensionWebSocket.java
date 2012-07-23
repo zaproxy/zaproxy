@@ -43,10 +43,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
-import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -101,7 +99,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	/**
 	 * Will be added to the hook view. 
 	 */
-	private OptionsWebSocketPanel optionsPanel;
+//	private OptionsWebSocketPanel optionsPanel;
 
 	/**
 	 * Allows to set custom breakpoints, e.g.: for specific opcodes only.
@@ -182,7 +180,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	        //TODO: Help
 //	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
         	
-        	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
+        	// TODO: Add options panel again
+//        	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
 
 			// Add "HttpPanel" components and views.
 			HttpPanelManager manager = HttpPanelManager.getInstance();
@@ -242,13 +241,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * 
 	 * @return
 	 */
-	private AbstractParamPanel getOptionsPanel() {
-		if (optionsPanel == null) {
-			optionsPanel = new OptionsWebSocketPanel(this);
-		}
-		
-		return optionsPanel;
-	}
+//	private AbstractParamPanel getOptionsPanel() {
+//		if (optionsPanel == null) {
+//			optionsPanel = new OptionsWebSocketPanel(this);
+//		}
+//		
+//		return optionsPanel;
+//	}
 
 	/**
 	 * Add an open channel to this extension after
