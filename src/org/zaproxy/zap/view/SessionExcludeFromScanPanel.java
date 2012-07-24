@@ -49,8 +49,7 @@ public class SessionExcludeFromScanPanel extends AbstractParamPanel {
     public SessionExcludeFromScanPanel() {
         super();
  		initialize();
-   }
-
+    }
     
 	/**
 	 * This method initializes this
@@ -62,6 +61,7 @@ public class SessionExcludeFromScanPanel extends AbstractParamPanel {
         this.setName(PANEL_NAME);
         this.add(getPanelSession(), getPanelSession().getName());
 	}
+	
 	/**
 	 * This method initializes panelSession	
 	 * 	
@@ -131,6 +131,7 @@ public class SessionExcludeFromScanPanel extends AbstractParamPanel {
 		}
 		return tableIgnore;
 	}
+	
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -149,6 +150,6 @@ public class SessionExcludeFromScanPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.sessprop";
+		return "ui.dialogs.sessprop";
 	}
 }

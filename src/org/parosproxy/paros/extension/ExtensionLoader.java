@@ -29,6 +29,8 @@
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 // ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
 // ZAP: 2012/07/09 Added hookWebSocketObserver() method.
+// ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
+
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -523,7 +525,8 @@ public class ExtensionLoader {
         addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
         addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
  
-        addParamPanel(pv.getSessionPanel(), view.getSessionDialog(""));
+        // ZAP: removed session dialog parameter
+        addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
         
         

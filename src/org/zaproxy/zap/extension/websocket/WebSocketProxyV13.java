@@ -231,9 +231,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				this.rsv  = rsv;
 			}
 
-			public int getRsv() {
-				return rsv;
-			}
+//			public int getRsv() {
+//				return rsv;
+//			}
 		}
 		
 		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
@@ -331,6 +331,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws IOException
 		 */
 		private void readFrame(InputStream in, byte frameHeader) throws IOException {
+			// TODO: could gain performance in case WebSocketProxy#isForwardOnly is set.
+			// in that case we won't have to dissect each frame, just storing its bytes would suffice
+			// Then I'd have to throw WebSocketExceptions in case a DAO is retrieved.
+			
 			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			

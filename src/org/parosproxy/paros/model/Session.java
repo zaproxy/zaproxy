@@ -25,6 +25,8 @@
 // removed unnecessary casts.
 // ZAP: 2012/05/15 Changed the method parse() to get the session description.
 // ZAP: 2012/06/11 Changed the JavaDoc of the method isNewState().
+// ZAP: 2012/07/23 Added excludeFromWebSocketRegexs list, getter and setter.
+// Load also on open() from DB.
 
 package org.parosproxy.paros.model;
 
@@ -44,6 +46,7 @@ import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 
 
 public class Session extends FileXML {
@@ -69,11 +72,14 @@ public class Session extends FileXML {
 	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
 	private List<String> excludeFromScanRegexs = new ArrayList<String>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
+	// ZAP: Added list.
+	private List<String> excludeFromWebSocketRegexs = new ArrayList<String>();
 	
 	// parameters in XML
 	private long sessionId = 0;
 	private String sessionName = "";
 	private SiteMap siteTree = null;
+
 	
 	/**
 	 * Constructor for the current session.  The current system time will be used as the session ID.
@@ -260,8 +266,15 @@ public class Session extends FileXML {
 	    }
 	    this.setExcludeFromSpiderRegexs(urls);
 
+	    // ZAP: Load from database on open.
+	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET);
+	    urls = new ArrayList<String>(ignoreUrls.size());
+	    for (RecordSessionUrl url : ignoreUrls) {
+	    	urls.add(url.getUrl());
+	    }
+	    this.setExcludeFromWebSocketRegexs(urls);
+
 		System.gc();
-		
 	}
 	
 	@Override
@@ -444,4 +457,19 @@ public class Session extends FileXML {
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, ignoredRegexs);
 	}
 
+	// ZAP: Added method
+	public List<String> getExcludeFromWebSocketRegexs() {
+		return excludeFromWebSocketRegexs;
+	}
+
+	// ZAP: Added method
+	public void setExcludeFromWebSocketRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromWebSocketRegexs = ignoredRegexs;
+		ExtensionWebSocket extWebSocket = 
+			(ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
+		if (extWebSocket != null) {
+			extWebSocket.setStorageBlacklist(ignoredRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET, ignoredRegexs);
+	}
 }

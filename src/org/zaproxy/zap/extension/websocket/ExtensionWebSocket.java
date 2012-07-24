@@ -24,8 +24,11 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +40,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.model.HistoryReference;
@@ -45,6 +49,8 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
+import org.zaproxy.zap.extension.websocket.ui.PopupMenuExcludeFromWebSockets;
+import org.zaproxy.zap.extension.websocket.ui.SessionExcludeFromWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -125,6 +131,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Replace payload in background.
 	 */
 	private FilterWebSocketPayload payloadFilter;
+
+	/**
+	 * Messages for those {@link WebSocketProxy} on this list are just
+	 * forwarded, but not stored nor shown in UI.
+	 */
+	private ArrayList<Pair<String, Integer>> storageBlacklist;
 	
 	/**
 	 * Constructor initializes this class.
@@ -134,6 +146,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		allChannelObservers = new Vector<WebSocketObserver>();
 		hasHookedAllObserver = false;
 		wsProxies = new HashMap<HistoryReference, WebSocketProxy>();
+		storageBlacklist = new ArrayList<Pair<String, Integer>>();
 		
 		initialize();
 	}
@@ -142,7 +155,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		setName(NAME);
 		setOrder(150);
 		
-		// TODO: Do not observe blacklisted channels from Options Dialog.
 		storage = new WebSocketStorage(Model.getSingleton().getDb().getTableWebSocket());
 		allChannelObservers.add(storage);
 	}
@@ -154,7 +166,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("websockets.desc");
+		return Constant.messages.getString("websocket.desc");
 	}
 	
 	@Override
@@ -213,14 +225,19 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
 			
 			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
+			ExtensionHookMenu menu = extensionHook.getHookMenu();
+			
 			if (extBreak != null) {
 				// Listen on the new messages so the breakpoints can apply.
 				addAllChannelObserver(new WebSocketProxyListenerBreak(extBreak));
 
 				// Pop up to add the breakpoint
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
+				menu.addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
 				extBreak.addBreakpointsUiManager(getBrkManager());
 			}
+			
+			getView().getSessionDialog().addParamPanel(new String[]{}, new SessionExcludeFromWebSocketPanel(), false);
+			menu.addPopupMenuItem(new PopupMenuExcludeFromWebSockets(Model.getSingleton().getDb().getTableWebSocket()));
 			
 			// TODO: add daemon mode
 			allChannelObservers.add(getWebSocketPanel());
@@ -294,7 +311,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				}
 			}
 			wsProxy.setHandshakeReference(msg.getHistoryRef());
-			
+			wsProxy.setForwardOnly(isStorageBlacklisted(wsProxy));
 			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
 			
 			try {
@@ -483,6 +500,63 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		if (wsProxies.containsKey(ref)) {
 			return wsProxies.get(ref).isConnected();
 		}
+		return false;
+	}
+
+    /**
+	 * Submitted list of strings will be interpreted as regular expression on
+	 * WebSocket channel URLs.
+	 * <p>
+	 * While connections to those excluded URLs will be established and messages
+	 * will be forwarded, nothing is stored nor can you view the communication
+	 * in the UI.
+	 * 
+	 * @param ignoredRegexs
+	 */
+	public void setStorageBlacklist(List<String> ignoredStrings) {
+		synchronized (storageBlacklist) {
+			storageBlacklist.clear();
+			for (String regex : ignoredStrings) {
+				Integer port = null;
+				try {
+					port = Integer.parseInt(regex.replaceAll("^.*:([0-9]+).*$", "$1"));
+				} catch (NumberFormatException e) {
+					// safely ignore, null is used as wildcard
+				}
+				
+				String host = regex.replaceAll("^(.*):[0-9]+(.*)$", "$1$2");
+				if (host.isEmpty()) {
+					// special case if ":80" is entered
+					host = null;
+				}
+				
+				storageBlacklist.add(new Pair<String, Integer>(host, port));
+			}
+		}
+		
+		for (Entry<HistoryReference, WebSocketProxy> entry : wsProxies.entrySet()) {
+			WebSocketProxy wsProxy = entry.getValue();
+			
+			if (isStorageBlacklisted(wsProxy)) {
+				wsProxy.setForwardOnly(true);
+			} else {
+				wsProxy.setForwardOnly(false);
+			}
+		}
+	}
+
+	private boolean isStorageBlacklisted(WebSocketProxy wsProxy) {
+		WebSocketChannelDAO dao = wsProxy.getDAO();
+		
+		for (Pair<String, Integer> regex : storageBlacklist) {
+			if (regex.x == null || dao.host.matches(regex.x)) {
+				if (regex.y == null || dao.port.equals(regex.y)) {
+					// match found => should go onto storage blacklist
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 
