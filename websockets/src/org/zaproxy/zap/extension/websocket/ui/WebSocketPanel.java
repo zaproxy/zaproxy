@@ -646,29 +646,45 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 	public synchronized void onStateChange(State state, WebSocketProxy proxy) {
 		WebSocketChannelDAO dao = proxy.getDAO();
 		
-		boolean isNewChannel = false;
 		boolean isConnectedChannel = connectedChannelIds.contains(dao.channelId);
-		
-		if (isConnectedChannel && state.equals(State.CLOSED)) {
-			if (dao.endTimestamp != null) {
+		boolean isNewChannel = false;
+
+		switch (state){
+		case CLOSED:
+			if (isConnectedChannel && dao.endTimestamp != null) {
 				connectedChannelIds.remove(dao.channelId);
-				
+					
 				// updates icon
 				channelSelectModel.updateElement(dao);
 			}
-		} else if (!isConnectedChannel && state.equals(State.OPEN)) {
-			if (channelSelectModel.getIndexOf(dao) < 0) {
+			break;
+			
+		case EXCLUDED:
+			// remove from UI
+			connectedChannelIds.remove(dao.channelId);
+			channelSelectModel.removeElement(dao);
+			
+			messagesModel.fireTableDataChanged();
+            break;
+			
+		case OPEN:
+			if (!isConnectedChannel && dao.endTimestamp == null) {
+				connectedChannelIds.add(dao.channelId);
 				channelSelectModel.addElement(dao);
 			}
+			break;
+            
+		case INCLUDED:
+			// add to UI (probably again)
+			connectedChannelIds.add(dao.channelId);
+			channelSelectModel.addElement(dao);
 			
-			if (dao.endTimestamp == null) {
-				connectedChannelIds.add(dao.channelId);
-				isNewChannel = true;
-			}
-		} else {
-			return;
+			messagesModel.fireTableDataChanged();
+			isNewChannel = true;
+			break;
 		}
 		
+		// change appearance of WebSocket tab header
 		int count = connectedChannelIds.size();
 		if (count == 0) {
 			// change icon, as no WebSocket channel is active
@@ -821,24 +837,44 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			selectedObject = anItem;
 		}    	
     }
-
+    
     /**
-     * Clear control elements, set back to default.
-     */
-	public void reset() {
-		// reset table contents
+	 * Updates {@link JTable} that contains all messages and the
+	 * {@link JComboBox} that is used to filter channels.
+	 */
+    public void update() {
+    	// reset table contents
 		messagesModel.fireTableDataChanged();
 		
 		// reset channel selector's model
+		Object selectedItem = channelSelectModel.getSelectedItem();
 		channelSelectModel.reset();
-		channelSelect.setSelectedItem(channelSelectModel.getElementAt(0));
 		
 		try {
 			for (WebSocketChannelDAO item : table.getChannelItems()) {
 				channelSelectModel.addElement(item);
 			}
+
+			int index = channelSelectModel.getIndexOf(selectedItem);
+			if (index == -1) {
+				index = 0;
+			}
+			channelSelect.setSelectedIndex(index);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
+		}
+    }
+
+    /**
+     * Clear control elements, set back to default.
+     */
+	public void reset() {
+		// update contents in views
+		update();
+		
+		// select '-- All Channels --' item
+		if (channelSelect.getSelectedIndex() != 0) {
+			channelSelect.setSelectedIndex(0);
 		}
 		
 		// reset filter 

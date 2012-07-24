@@ -56,6 +56,9 @@ public class TableWebSocket extends AbstractTable {
 	
 	private PreparedStatement psUpdateHistoryFk;
 
+	private PreparedStatement psDeleteChannel;
+	private PreparedStatement psDeleteMessagesByChannelId;
+
 //	private PreparedStatement psMergeChannel;
 
     /**
@@ -136,6 +139,11 @@ public class TableWebSocket extends AbstractTable {
 		psInsertChannel = conn.prepareStatement("INSERT INTO "
 				+ "websocket_channel (host, port, start_timestamp, end_timestamp, history_id, id) "
 				+ "VALUES (?,?,?,?,?,?)");
+		
+		psDeleteChannel = conn.prepareStatement("DELETE FROM websocket_channel "
+				+ "WHERE id = ?");
+		psDeleteMessagesByChannelId = conn.prepareStatement("DELETE FROM websocket_message "
+				+ "WHERE websocket_channel_id = ?");
 
 		psUpdateChannel = conn.prepareStatement("UPDATE websocket_channel SET "
 				+ "host = ?, port = ?, start_timestamp = ?, end_timestamp = ?, history_id = ? "
@@ -226,7 +234,7 @@ public class TableWebSocket extends AbstractTable {
 	 */
 	public synchronized int getMessageCount(WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
 		String query = "SELECT COUNT(m.id) FROM websocket_message AS m <where>";
-		PreparedStatement stmt = buildCriteriaStatement(query, criteria, opcodes);
+		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		return executeAndGetRowCount(stmt);
 	}
 
@@ -253,7 +261,7 @@ public class TableWebSocket extends AbstractTable {
 
 		PreparedStatement stmt;
 		try {
-			stmt = buildCriteriaStatement(query, criteria, opcodes);
+			stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
 				return new ArrayList<WebSocketMessageDAO>();
@@ -271,7 +279,7 @@ public class TableWebSocket extends AbstractTable {
 		return buildMessageDAOs(stmt.getResultSet());
 	}
 
-	private PreparedStatement buildCriteriaStatement(String query, WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
+	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
 		List<String> where = new ArrayList<String>();
 		List<Object> params = new ArrayList<Object>();
 
@@ -299,32 +307,8 @@ public class TableWebSocket extends AbstractTable {
 			opcodeExpr.append(")");
 			where.add(opcodeExpr.toString());
 		}
-
-		int conditionsCount = where.size();
-		if (conditionsCount > 0) {
-			StringBuilder whereExpr = new StringBuilder();
-		    int i = 0;
-			for (String condition : where) {
-				whereExpr.append(condition);
-				
-				i++;
-				if (i < conditionsCount) {
-					// one more will be appended
-					whereExpr.append(" AND ");
-				}
-			}
-			query = query.replace("<where>", "WHERE " + whereExpr.toString());
-		} else {
-			query = query.replace(" <where>", "");
-		}
 		
-		PreparedStatement stmt = getConnection().prepareStatement(query.toString());
-		int i = 1;
-		for (Object param : params) {
-			stmt.setObject(i++, param);
-		}
-		
-		return stmt;
+		return buildCriteriaStatementHelper(query, where, params);
 	}
 
 	public WebSocketMessagePrimaryKey getMessagePrimaryKey(WebSocketMessageDAO dao) {
@@ -338,12 +322,6 @@ public class TableWebSocket extends AbstractTable {
 		return buildChannelDAOs(rs);
 	}
 
-	/**
-	 * 
-	 * @param rs
-	 * @return
-	 * @throws SQLException
-	 */
 	private List<WebSocketChannelDAO> buildChannelDAOs(ResultSet rs) throws SQLException {
 		List<WebSocketChannelDAO> channels = new ArrayList<WebSocketChannelDAO>();
 		try {
@@ -424,15 +402,17 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	public void insertMessage(WebSocketMessageDAO dao) throws SQLException {
-		if (!channelIds.contains(dao.channelId)) {
-			try {
-				logger.warn("channel not inserted: " + dao.channelId);
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-			}
-		}
+
 		// synchronize on whole object to avoid race conditions with insertOrUpdateChannel()
 		synchronized (this) {
+			if (!channelIds.contains(dao.channelId)) {
+				try {
+					logger.warn("channel not inserted: " + dao.channelId);
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+				}
+			}
+			
 			logger.info("insert message: " + dao.toString());
 			try {
 				psInsertMessage.setInt(1, dao.messageId);
@@ -447,6 +427,88 @@ public class TableWebSocket extends AbstractTable {
 				psInsertMessage.execute();
 			} catch (SQLException e) {
 				throw e;
+			}
+		}
+	}
+
+	public List<WebSocketChannelDAO> getChannels(WebSocketChannelDAO criteria) throws SQLException {
+		String query = "SELECT c.* "
+        		+ "FROM websocket_channel AS c "
+        		+ "<where> "
+        		+ "ORDER BY c.start_timestamp, c.id";
+
+		PreparedStatement stmt;
+		try {
+			stmt = buildMessageCriteriaStatement(query, criteria);
+		} catch (SQLException e) {
+			if (getConnection().isClosed()) {
+				return new ArrayList<WebSocketChannelDAO>();
+			} else {
+				throw e;
+			}
+		}
+		
+		stmt.execute();
+		
+		return buildChannelDAOs(stmt.getResultSet());
+	}
+	
+	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketChannelDAO criteria) throws SQLException {
+		List<String> where = new ArrayList<String>();
+		List<Object> params = new ArrayList<Object>();
+	
+		if (criteria.channelId != null) {
+			where.add("c.id = ?");
+			params.add(criteria.channelId);
+		}
+		
+		return buildCriteriaStatementHelper(query, where, params);
+	}
+
+	private PreparedStatement buildCriteriaStatementHelper(String query, List<String> where, List<Object> params) throws SQLException {
+		int conditionsCount = where.size();
+		if (conditionsCount > 0) {
+			StringBuilder whereExpr = new StringBuilder();
+		    int i = 0;
+			for (String condition : where) {
+				whereExpr.append(condition);
+				
+				i++;
+				if (i < conditionsCount) {
+					// one more will be appended
+					whereExpr.append(" AND ");
+				}
+			}
+			query = query.replace("<where>", "WHERE " + whereExpr.toString());
+		} else {
+			query = query.replace(" <where>", "");
+		}
+		
+		PreparedStatement stmt = getConnection().prepareStatement(query.toString());
+		int i = 1;
+		for (Object param : params) {
+			stmt.setObject(i++, param);
+		}
+		
+		return stmt;
+	}
+
+	/**
+	 * Deletes all entries from given channelId from database.
+	 * 
+	 * @param channelId
+	 * @throws SQLException 
+	 */
+	public void purgeChannel(Integer channelId) throws SQLException {
+		synchronized (this) {
+			if (channelIds.contains(channelId)) {
+				psDeleteMessagesByChannelId.setInt(1, channelId);
+				psDeleteMessagesByChannelId.execute();
+				
+				psDeleteChannel.setInt(1, channelId);
+				psDeleteChannel.execute();
+				
+				channelIds.remove(channelId);
 			}
 		}
 	}

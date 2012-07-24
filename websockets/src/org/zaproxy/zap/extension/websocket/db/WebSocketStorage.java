@@ -71,9 +71,17 @@ public class WebSocketStorage implements WebSocketObserver {
 
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
-		if (state.equals(State.OPEN) || state.equals(State.CLOSED)) {
+		if (state.equals(State.OPEN) || state.equals(State.CLOSED) || state.equals(State.INCLUDED)) {
 			try {
 				table.insertOrUpdateChannel(proxy.getDAO());
+			} catch (SQLException e) {
+				logger.error(e.getMessage(), e);
+			}
+		} else if (state.equals(State.EXCLUDED)) {
+			// when proxy is excluded from ZAP, then messages are forwarded
+			// but not stored - all existing communication is deleted
+            try {
+				table.purgeChannel(proxy.getChannelId());
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}

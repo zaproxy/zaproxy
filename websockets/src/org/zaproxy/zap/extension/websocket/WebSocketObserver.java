@@ -20,8 +20,8 @@ package org.zaproxy.zap.extension.websocket;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 
 /**
- * Provides a callback mechanism to get notified of WebSocket messages.
- * You can add your observer via {@link WebSocketProxy#addObserver(WebSocketObserver)}.
+ * Provides a callback mechanism to get notified of WebSocket messages. You can
+ * add your observer via {@link WebSocketProxy#addObserver(WebSocketObserver)}.
  */
 public interface WebSocketObserver {
 
@@ -47,6 +47,9 @@ public interface WebSocketObserver {
 	/**
 	 * Called by the observed class ({@link WebSocketProxy}) when its internal
 	 * {@link WebSocketProxy#state} changes.
+	 * <p>
+	 * This state does not only represent all possible WebSocket connection
+	 * states, but also state changes that affect how messages are processed.
 	 * 
 	 * @param state
 	 * @param proxy

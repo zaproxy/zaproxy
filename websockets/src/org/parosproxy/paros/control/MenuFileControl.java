@@ -28,6 +28,7 @@
 // class Control.
 // ZAP: 2012/07/02 Changed to use the new database compact option in the method
 // exit().
+// ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 
 package org.parosproxy.paros.control;
  
@@ -251,7 +252,8 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void properties() {
-	    SessionDialog dialog = view.getSessionDialog(Constant.messages.getString("session.properties.title"));	// ZAP: i18n
+		// ZAP: removed session dialog parameter
+	    SessionDialog dialog = view.getSessionDialog();
 	    dialog.initParam(model.getSession());
 	    dialog.showDialog(false);
 
