@@ -309,14 +309,11 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
 	/**
-	 * Expose functionality from
-	 * {@link BreakpointMessageHandler#isBreakpoint(Message, boolean)}.
+	 * Exposes list of enabled breakpoints.
 	 * 
-	 * @param message
-	 * @param isRequest
 	 * @return
 	 */
-	public boolean isBreakpointSet(Message message, boolean isRequest) {
-		return breakpointMessageHandler.isBreakpoint(message, isRequest);
+	public List<BreakpointMessageInterface> getBreakpointsEnabledList() {
+		return getBreakpointsModel().getBreakpointsEnabledList();
 	}
 }
