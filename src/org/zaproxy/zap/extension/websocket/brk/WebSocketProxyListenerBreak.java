@@ -18,7 +18,7 @@
 package org.zaproxy.zap.extension.websocket.brk;
 
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
@@ -32,12 +32,12 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
 	private static final Logger logger = Logger.getLogger(WebSocketProxyListenerBreak.class);
 
-	private ExtensionBreak extension = null;
+	private BreakpointMessageHandler wsBrkMessageHandler;
 	
 	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketPanel.WEBSOCKET_OBSERVING_ORDER - 5;
 
-	public WebSocketProxyListenerBreak(ExtensionBreak extension) {
-	    this.extension = extension;
+	public WebSocketProxyListenerBreak(BreakpointMessageHandler messageHandler) {
+	    this.wsBrkMessageHandler = messageHandler;
 	}
 	
     @Override
@@ -54,7 +54,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
     	
         if (!message.isFinished()) {
         	
-        	if (extension.isBreakpointSet(dao, isRequest)) {
+        	if (wsBrkMessageHandler.isBreakpoint(dao, isRequest)) {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
             	// (showing/saving/etc.)
@@ -67,7 +67,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         }
 
         if (dao.isOutgoing) {
-            if (extension.messageReceivedFromClient(dao)) {
+            if (wsBrkMessageHandler.handleMessageReceivedFromClient(dao)) {
                 // As the DAO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
@@ -79,7 +79,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
                 return true;
             }
         } else {
-            if (extension.messageReceivedFromServer(dao)) {
+            if (wsBrkMessageHandler.handleMessageReceivedFromServer(dao)) {
             	try {
 	                message.setReadablePayload(dao.payload);
 				} catch (WebSocketException e) {

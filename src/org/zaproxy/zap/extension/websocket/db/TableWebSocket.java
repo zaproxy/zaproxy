@@ -406,11 +406,7 @@ public class TableWebSocket extends AbstractTable {
 		// synchronize on whole object to avoid race conditions with insertOrUpdateChannel()
 		synchronized (this) {
 			if (!channelIds.contains(dao.channelId)) {
-				try {
-					logger.warn("channel not inserted: " + dao.channelId);
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-				}
+				throw new SQLException("channel not inserted: " + dao.channelId);
 			}
 			
 			logger.info("insert message: " + dao.toString());

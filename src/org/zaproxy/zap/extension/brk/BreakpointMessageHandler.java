@@ -28,15 +28,15 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 
-class BreakpointMessageHandler {
+public class BreakpointMessageHandler {
 
     private static final Logger logger = Logger.getLogger(BreakpointMessageHandler.class);
     
-    private static final java.lang.Object semaphore = new java.lang.Object();
+    protected static final java.lang.Object semaphore = new java.lang.Object();
     
-    private final BreakPanel breakPanel;
+    protected final BreakPanel breakPanel;
     
-    private List<BreakpointMessageInterface> enabledBreakpoints;
+    protected List<BreakpointMessageInterface> enabledBreakpoints;
     
     public BreakpointMessageHandler(BreakPanel aBreakPanel) {
         this.breakPanel = aBreakPanel;
@@ -137,19 +137,35 @@ class BreakpointMessageHandler {
         }
     }
 
-    public boolean isBreakpoint(Message aMessage, boolean request) {
-        if (request && breakPanel.isBreakRequest()) {
+    public boolean isBreakpoint(Message aMessage, boolean isRequest) {
+        if (isBreakOnAllRequests(aMessage, isRequest)) {
             // Break on all requests
             return true;
-        } else if ( ! request && breakPanel.isBreakResponse()) {
+        } else if (isBreakOnAllResponses(aMessage, isRequest)) {
             // Break on all responses
             return true;
-        } else if (breakPanel.isStepping()) {
+        } else if (isBreakOnStepping(aMessage, isRequest)) {
             // Stopping through all requests and responses
             return true;
         }
         
-        if (enabledBreakpoints.isEmpty()) {
+        return isBreakOnEnabledBreakpoint(aMessage, isRequest);
+    }
+
+	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
+    	return isRequest && breakPanel.isBreakRequest();
+	}
+    
+	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
+    	return !isRequest && breakPanel.isBreakResponse();
+	}
+
+	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
+		return breakPanel.isStepping();
+	}
+
+    protected boolean isBreakOnEnabledBreakpoint(Message aMessage, boolean isRequest) {
+		if (enabledBreakpoints.isEmpty()) {
             // No break points
             return false;
         }
@@ -168,9 +184,9 @@ class BreakpointMessageHandler {
         }
 
         return false;
-    }
+	}
     
-    private void clearAndDisableRequest() {
+	private void clearAndDisableRequest() {
         if (EventQueue.isDispatchThread()) {
             breakPanel.clearAndDisableRequest();
         } else {

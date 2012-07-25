@@ -16,7 +16,7 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	 * Adds first element that is used as a wildcard entry.
 	 */
 	private void init() {
-		String text = Constant.messages.getString("websocket.toolbar.channel.select");
+		String text = Constant.messages.getString("websocket.dialog.channel.select_all");
 		WebSocketChannelDAO allChannelsItem = new WebSocketChannelDAO(text);
 		addElement(allChannelsItem);
 	}
@@ -39,7 +39,8 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	public void updateElement(WebSocketChannelDAO dao) {
 		synchronized (this) {
 			boolean isSelected = false;
-			if (getSelectedItem().equals(dao)) {
+			Object selectedItem = getSelectedItem();
+			if (selectedItem != null && selectedItem.equals(dao)) {
 				isSelected = true;
 			}
 			
