@@ -36,7 +36,7 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
      */
     public PopupMenuSpiderSite(String label) {
         super(label);
-        this.setIcon(new ImageIcon(getClass().getResource("org/zaproxy/zap/extension/spiderAjax/16.png")));
+        this.setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/spiderAjax.png")));
 
     }
     
