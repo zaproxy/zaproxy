@@ -17,8 +17,9 @@
  */
 package org.zaproxy.zap.spider.filters;
 
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -27,7 +28,7 @@ import org.apache.commons.httpclient.URIException;
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering
  * process. Its filter rules are the following:<br/>
  * <ul>
- * <li>the resource protocol/scheme must be 'http' or 'https'.</li>
+ * <li>the resource protocol/scheme must be 'HTTP' or 'HTTPs'.</li>
  * <li>the resource must be found in the scope (domain) of the spidering process.</li>
  * <li>the resource must be not be excluded by user request - exclude list.</li>
  * </ul>
@@ -36,7 +37,7 @@ import org.apache.commons.httpclient.URIException;
 public class DefaultFetchFilter extends FetchFilter {
 
 	/** The scope. */
-	private LinkedList<String> scopes = new LinkedList<String>();
+	private Set<String> scopes = new LinkedHashSet<String>();
 
 	/** The exclude list. */
 	private List<String> excludeList = null;
@@ -48,7 +49,7 @@ public class DefaultFetchFilter extends FetchFilter {
 	@Override
 	public FetchStatus checkFilter(URI uri) {
 
-		log.info("Checking: "+uri);
+		log.info("Checking: " + uri);
 		// Protocol check
 		String scheme = uri.getScheme();
 		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))
@@ -57,8 +58,9 @@ public class DefaultFetchFilter extends FetchFilter {
 		try {
 			// Scope check
 			boolean ok = false;
+			String host = uri.getHost();
 			for (String scope : scopes)
-				if (uri.getHost().endsWith(scope)) {
+				if (host.matches(scope)) {
 					ok = true;
 					break;
 				}
@@ -86,7 +88,7 @@ public class DefaultFetchFilter extends FetchFilter {
 	 * 
 	 * @param scope the scope
 	 */
-	public void addScopeDomain(String scope) {
+	public void addScopeRegex(String scope) {
 		this.scopes.add(scope);
 	}
 

@@ -248,7 +248,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JSlider getSliderThreadsPerHost() {
 		if (sliderThreadsPerHost == null) {
 			sliderThreadsPerHost = new JSlider();
-			sliderThreadsPerHost.setMaximum(Constant.MAX_HOST_CONNECTION);
+			sliderThreadsPerHost.setMaximum(Constant.MAX_THREADS_PER_SCAN);
 			sliderThreadsPerHost.setMinimum(0);
 			sliderThreadsPerHost.setValue(1);
 			sliderThreadsPerHost.setPaintTicks(true);

@@ -23,78 +23,46 @@ package org.zaproxy.zap.extension.httppanel.view;
 import javax.swing.JComponent;
 
 import org.apache.commons.configuration.FileConfiguration;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- * A Plugable view which can display requests and responses in different ways 
- * @author Psiinon
- * @see org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView for an example of how to implement a new view
- *
- */
+
 public interface HttpPanelView {
 
-	public void save();
-	
-	//Used to inform the view that was selected/unselected
-	//The view can request the focus when is selected
-	void setSelected(boolean selected);
-	
-	/**
-	 * The name to be used in the drop down - should be internationalised
-	 * @return
-	 */
-	public String getName();
-	
-	/**
-	 * The position in the drop down.
-	 * 
-	 * @return 
-	 */
-	public int getPosition();
-	
-	public String getConfigName();
-	
+    
+    public String getConfigName();
 
-	/**
-	 * If this returns true then this view will appear in the drop down for this message
-	 * @param msg
-	 * @return 
-	 */
-	public boolean isEnabled(HttpMessage msg);
-	
-	/**
-	 * 
-	 * @return 
-	 */
-	public HttpPanelViewModel getModel();
+    public String getName();
 
-	/**
-	 * 
-	 * 
-	 * @return true if the content has been changed
-	 */
-	public boolean hasChanged();
-	
-	/**
-	 * Get the scrolling pane which contains the content
-	 * @return
-	 */
-	public JComponent getPane();
-	
-	/**
-	 * @return true if this view is editable
-	 */
-	public boolean isEditable();
-	
-	/**
-	 * Set if this view can be changed 
-	 * @param editable
-	 */
-	public void setEditable(boolean editable);
-	
-	public void setParentConfigurationKey(String configurationKey);
-	
-	public void loadConfiguration(FileConfiguration configuration);
-	
-	public void saveConfiguration(FileConfiguration configuration);
+    public int getPosition();
+
+    public JComponent getPane();
+
+    void setSelected(boolean selected);
+
+    
+    public void save();
+
+    
+    public HttpPanelViewModel getModel();
+    
+    
+    public boolean isEnabled(Message aMessage);
+
+    
+    public boolean hasChanged();
+
+    
+    public boolean isEditable();
+
+    
+    public void setEditable(boolean editable);
+
+    
+    public void setParentConfigurationKey(String configurationKey);
+
+    
+    public void loadConfiguration(FileConfiguration configuration);
+
+    
+    public void saveConfiguration(FileConfiguration configuration);
 }

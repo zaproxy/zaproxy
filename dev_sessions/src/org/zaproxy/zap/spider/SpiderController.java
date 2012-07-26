@@ -21,7 +21,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.htmlparser.jericho.Config;
+
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -86,6 +89,7 @@ public class SpiderController implements SpiderParserListener {
 		SpiderParser parser = new SpiderHtmlParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
 		this.htmlParsers.add(parser);
+		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 
 		// HTML Form parser
 		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
@@ -162,6 +166,9 @@ public class SpiderController implements SpiderParserListener {
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.debug("New resource found: " + uri);
 
+		if (uri == null)
+			return;
+
 		// Check if the uri was processed already
 		if (visitedGet.contains(uri)) {
 			log.debug("URI already visited: " + uri);
@@ -172,13 +179,10 @@ public class SpiderController implements SpiderParserListener {
 			}
 		}
 
-		// Create the uriV
-		URI uriV = null;
-		try {
-			uriV = new URI(uri, false);
-		} catch (Exception e) {
-			log.error("Error while converting to uri: " + uri, e);
-		}
+		// Create the uri
+		URI uriV = createURI(uri);
+		if (uriV == null)
+			return;
 
 		// Check if any of the filters disallows this uri
 		for (FetchFilter f : fetchFilters) {
@@ -243,13 +247,10 @@ public class SpiderController implements SpiderParserListener {
 			}
 		}
 
-		// Create the uriV
-		URI uriV = null;
-		try {
-			uriV = new URI(uri, false);
-		} catch (Exception e) {
-			log.error("Error while converting to uri: " + uri, e);
-		}
+		// Create the uri
+		URI uriV = createURI(uri);
+		if (uriV == null)
+			return;
 
 		// Check if any of the filters disallows this uri
 		for (FetchFilter f : fetchFilters) {
@@ -267,5 +268,35 @@ public class SpiderController implements SpiderParserListener {
 		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.POST, requestBody);
 		spider.submitTask(task);
 
+	}
+
+	/**
+	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a
+	 * String considering it's already encoded and, if it fails, tries to create it considering it's
+	 * not encoded.
+	 * 
+	 * @param uri the string of the uri
+	 * @return the URI, or null if an error occured and the URI could not be constructed.
+	 */
+	private URI createURI(String uri) {
+		URI uriV = null;
+		try {
+			// Try to see if we can create the URI, considering it's encoded.
+			uriV = new URI(uri, true);
+		} catch (URIException e) {
+			// An error occured, so try to create the URI considering it's not encoded.
+			try {
+				log.debug("Second try...");
+				uriV = new URI(uri, false);
+			} catch (Exception ex) {
+				log.error("Error while converting to uri: " + uri, ex);
+				return null;
+			}
+			// A non URIException occured, so just ignore the URI
+		} catch (Exception e) {
+			log.error("Error while converting to uri: " + uri, e);
+			return null;
+		}
+		return uriV;
 	}
 }

@@ -35,7 +35,8 @@ import javax.swing.table.TableCellRenderer;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 class AllFilterTableRenderer extends JComponent implements TableCellRenderer {
-
+	private static final long serialVersionUID = 1L;
+	
     JComponent button = new JButton();
     JComponent label = new JLabel();
     

@@ -25,12 +25,12 @@ import javax.swing.ListSelectionModel;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.AbstractByteHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
-import org.zaproxy.zap.extension.httppanel.view.models.AbstractByteHttpPanelViewModel;
 
 public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListener {
 
@@ -110,7 +110,7 @@ public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListen
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage msg) {
+	public boolean isEnabled(Message aMessage) {
 		return true;
 	}
 

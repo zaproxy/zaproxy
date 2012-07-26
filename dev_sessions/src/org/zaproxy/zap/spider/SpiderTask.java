@@ -20,6 +20,7 @@ package org.zaproxy.zap.spider;
 import java.io.IOException;
 import java.net.CookieStore;
 import java.net.HttpCookie;
+import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
@@ -241,7 +242,7 @@ public class SpiderTask implements Runnable {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws SQLException
 	 */
-	private HttpMessage fetchResource() throws HttpException, IOException, SQLException {
+	private HttpMessage fetchResource() throws HttpException, IOException, SQLException, SocketTimeoutException {
 
 		// Build fetch the request message from the database
 		HttpMessage msg;

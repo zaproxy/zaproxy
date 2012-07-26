@@ -21,6 +21,7 @@
  */
 // ZAP: 2012/01/12 Changed the method createRequestMethod to always use CRLF
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer
+// ZAP: 2012/05/04 Changed to use the class ZapGetMethod instead of org.apache.commons.httpclient.methods.GetMethod
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -33,13 +34,13 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.TraceMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.zaproxy.zap.ZapGetMethod;
 
 public class HttpMethodHelper {
 
@@ -148,7 +149,9 @@ public class HttpMethodHelper {
 		}
 		
 		if (method.equalsIgnoreCase(GET)) {
-			httpMethod = new GetMethod();
+			//httpMethod = new GetMethod();
+			// ZAP: avoid discarding HTTP status code 101 that is used for WebSocket upgrade 
+			httpMethod = new ZapGetMethod();
 		} else if (method.equalsIgnoreCase(POST)) {
 			httpMethod = new PostMethod();
 		} else if (method.equalsIgnoreCase(DELETE)) {
