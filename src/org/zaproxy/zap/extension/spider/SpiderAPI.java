@@ -47,7 +47,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	private static final String PREFIX = "spider";
 
 	/** The Constant ACTION_START_SCAN that defines the action of starting a new scan. */
-	private static final String ACTION_START_SCAN = "start";
+	private static final String ACTION_START_SCAN = "scan";
 
 	/** The Constant ACTION_STOP_SCAN that defines the action of stopping a pending scan. */
 	private static final String ACTION_STOP_SCAN = "stop";
