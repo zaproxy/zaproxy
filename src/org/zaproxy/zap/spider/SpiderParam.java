@@ -19,6 +19,7 @@ package org.zaproxy.zap.spider;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -41,8 +42,6 @@ public class SpiderParam extends AbstractParam {
 	private int maxDepth = 5;
 	/** The thread count. */
 	private int threadCount = 2;
-	/** The scope of the crawl. */
-	private String scope = "";
 	/** Whether comments should be parsed for URIs. */
 	private boolean parseComments = true;
 	/** Whether the forms are processed and submitted at all. */
@@ -58,12 +57,18 @@ public class SpiderParam extends AbstractParam {
 	private String skipURL = "";
 	/** The pattern for skip url. */
 	private Pattern patternSkipURL = null;
-	/** The pattern for scope. */
-	private Pattern patternScope = null;
+	/** The regex for the scope. */
+	private String scopeRegex = null;
 	/** The user agent string, if diferent than the default one. */
 	private String userAgent = null;
 	/** Whether the spider sends back the cookies received from the server. */
 	private boolean sendCookies = false;
+
+	/**
+	 * The simple scope text used just for caching the get for the scope. the scopeRegex is the
+	 * 'regexed' version of this variable's value.
+	 */
+	private String simpleScopeText;
 
 	/** The log. */
 	Logger log = Logger.getLogger(SpiderParam.class);
@@ -84,55 +89,55 @@ public class SpiderParam extends AbstractParam {
 		// others.
 		try {
 			this.threadCount = getConfig().getInt(SPIDER_THREAD, 2);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.processForm = getConfig().getBoolean(SPIDER_PROCESS_FORM, false);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.sendCookies = getConfig().getBoolean(SPIDER_SEND_COOKIES, true);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			this.parseComments = getConfig().getBoolean(SPIDER_PARSE_COMMENTS, true);
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
-		} catch (Exception e) {
+		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 	}
@@ -158,12 +163,21 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Gets the scope string
+	 * Gets the text describing the text.
 	 * 
-	 * @return Returns the scope.
+	 * @return returns the scope.
 	 */
-	public String getScopeString() {
-		return scope;
+	public String getScopeText() {
+		return simpleScopeText;
+	}
+
+	/**
+	 * Gets the scope's regex.
+	 * 
+	 * @return returns the scope.
+	 */
+	public String getScope() {
+		return scopeRegex;
 	}
 
 	/**
@@ -172,9 +186,9 @@ public class SpiderParam extends AbstractParam {
 	 * @param scope The scope string to set.
 	 */
 	public void setScopeString(String scope) {
-		this.scope = scope;
-		getConfig().setProperty(SPIDER_SCOPE, this.scope);
-		parseScope(this.scope);
+		simpleScopeText = scope;
+		getConfig().setProperty(SPIDER_SCOPE, scope);
+		parseScope(scope);
 	}
 
 	/**
@@ -183,30 +197,15 @@ public class SpiderParam extends AbstractParam {
 	 * @param scope the scope string
 	 */
 	private void parseScope(String scope) {
-		patternScope = null;
 
 		if (scope == null || scope.equals("")) {
 			return;
 		}
 
-		scope = scope.replaceAll("\\.", "\\\\.");
-		scope = scope.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
-		scope = "(" + scope.replaceAll(";+", "|") + ")$";
-		patternScope = Pattern.compile(scope, Pattern.CASE_INSENSITIVE);
-	}
+		scopeRegex = scope.replaceAll("\\.", "\\\\.");
+		scopeRegex = scopeRegex.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
+		scopeRegex = "(" + scopeRegex.replaceAll(";+", "|") + ")$";
 
-	/**
-	 * Check if given host name is in scope of the spider.
-	 * 
-	 * @param hostName host name to be checked.
-	 * @return true, if is in scope
-	 */
-	public boolean isInScope(String hostName) {
-		if (patternScope == null || hostName == null) {
-			return false;
-		}
-
-		return patternScope.matcher(hostName).find();
 	}
 
 	/**

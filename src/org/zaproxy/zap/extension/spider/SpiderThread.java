@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.spider;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 
@@ -33,7 +34,6 @@ import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.utils.SortedListModel;
 
@@ -50,14 +50,14 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private Spider spider = null;
 	private SiteNode startNode = null;
 
-	LinkedList<SpiderListener> pendingSpiderListeners;
+	private List<SpiderListener> pendingSpiderListeners;
 
 	private int spiderDone = 0;
 	private int spiderTodo = 100; // Will get updated ;)
 
-	private static Logger log = Logger.getLogger(SpiderThread.class);
+	private static final Logger log = Logger.getLogger(SpiderThread.class);
 
-	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner, SpiderParam portScanParam) {
+	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
 		super(site, listenner);
 		this.extension = extension;
 		this.site = site;

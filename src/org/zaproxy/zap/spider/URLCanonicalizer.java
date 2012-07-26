@@ -132,10 +132,10 @@ public class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (MalformedURLException ex) {
-			log.error("Error while Processing URL in the spidering process: " + ex.getMessage());
+			log.error("Error while Processing URL in the spidering process (on base "+baseURL+"): " + ex.getMessage());
 			return null;
 		} catch (URISyntaxException ex) {
-			log.error("Error while Processing URI in the spidering process: " + ex.getMessage());
+			log.error("Error while Processing URI in the spidering process (on base "+baseURL+"): " + ex.getMessage());
 			return null;
 		}
 	}
@@ -236,19 +236,4 @@ public class URLCanonicalizer {
 		return path.replace("%7E", "~").replace(" ", "%20");
 	}
 
-	/**
-	 * The main method. NOTE: TEST Code...
-	 * 
-	 * @param args the arguments
-	 * @throws URISyntaxException the uRI syntax exception
-	 */
-	public static void main(String args[]) throws URISyntaxException {
-		// TODO: Test code - to delete
-		BasicConfigurator.configure();
-		String url = "java.sun.com/a/b/../j2se/1.3/./docs/guide/index.html";
-		URI uri = new URI(url);
-		System.out.println("URI: " + uri.normalize().toString());
-		System.out.println("URL Resolver: " + URLResolver.resolveUrl("", url));
-		System.out.println("URL Canonicalizer: " + URLCanonicalizer.getCanonicalURL(url));
-	}
 }

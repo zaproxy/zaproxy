@@ -91,6 +91,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		else
 			baseURL = message.getRequestHeader().getURI().toString();
 
+		// Try to see if there's any BASE tag that could change the base URL
+		Element base = source.getFirstElement(HTMLElementName.BASE);
+		if (base != null) {
+			if (log.isDebugEnabled())
+				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
+			if (base.getAttributeValue("href") != null)
+				baseURL = base.getAttributeValue("href");
+		}
+		
 		// Go through the forms
 		List<Element> forms = source.getAllElements(HTMLElementName.FORM);
 

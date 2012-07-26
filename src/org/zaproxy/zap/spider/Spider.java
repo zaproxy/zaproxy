@@ -141,11 +141,9 @@ public class Spider {
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
 		// Add domains always in scope
-		String scopeS = spiderParam.getScopeString();
-		if (!scopeS.trim().isEmpty()) {
-			String[] scopeDomains = scopeS.split(";");
-			for (String scope : scopeDomains)
-				defaultFetchFilter.addScopeDomain(scope);
+		String scope = spiderParam.getScope();
+		if (scope!=null && !scope.trim().isEmpty()) {
+			defaultFetchFilter.addScopeRegex(scope);
 		}
 		// Add a default parse filter
 		this.addParseFilter(new DefaultParseFilter());
@@ -161,7 +159,7 @@ public class Spider {
 		URI uri = msg.getRequestHeader().getURI();
 		// Update the scope of the spidering process
 		try {
-			defaultFetchFilter.addScopeDomain(uri.getHost());
+			defaultFetchFilter.addScopeRegex(uri.getHost());
 		} catch (URIException e) {
 			log.error("There was an error while adding seed value: " + uri, e);
 			return;
@@ -179,7 +177,7 @@ public class Spider {
 	public void addSeed(URI uri) {
 		// Update the scope of the spidering process
 		try {
-			defaultFetchFilter.addScopeDomain(uri.getHost());
+			defaultFetchFilter.addScopeRegex(uri.getHost());
 		} catch (URIException e) {
 			log.error("There was an error while adding seed value: " + uri, e);
 			return;
@@ -289,6 +287,7 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+		this.controller.reset();
 		this.stopped = false;
 		this.paused = false;
 		this.initialized = false;
@@ -313,7 +312,7 @@ public class Spider {
 	}
 
 	/**
-	 * Stops the Spider crawling.
+	 * Stops the Spider crawling. Must not be called from any of the threads in the thread pool.
 	 */
 	public void stop() {
 		log.info("Stopping spidering process by request.");
@@ -345,6 +344,9 @@ public class Spider {
 			this.getHttpSender().shutdown();
 			httpSender = null;
 		}
+
+		// Notify the controller to clean up memory
+		controller.reset();
 
 		// Issue the shutdown command on a separate thread, as the current thread is most likely one
 		// from the pool

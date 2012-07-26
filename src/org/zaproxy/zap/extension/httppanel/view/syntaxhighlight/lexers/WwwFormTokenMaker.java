@@ -60,45 +60,34 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
 
 public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
-  /** This character denotes the end of file */
+  
   public static final int YYEOF = -1;
 
-  /** initial size of the lookahead buffer */
+  
   private static final int ZZ_BUFFERSIZE = 16384;
 
-  /** lexical states */
+  
   public static final int ERROR = 2;
   public static final int YYINITIAL = 0;
   public static final int SEPARATOR = 6;
   public static final int VALUE = 8;
   public static final int NAME = 4;
 
-  /**
-   * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
-   * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
-   *                  at the beginning of a line
-   * l is of the form l = 2*k, k a non negative integer
-   */
+  
   private static final int ZZ_LEXSTATE[] = { 
      0,  0,  1,  1,  0,  0,  2,  2,  3, 3
   };
 
-  /** 
-   * Translates characters to character classes
-   */
+  
   private static final String ZZ_CMAP_PACKED = 
     "\12\0\1\0\32\0\1\5\1\2\3\0\1\6\1\3\1\0\2\6"+
     "\1\0\12\4\3\0\1\1\3\0\6\4\24\6\4\0\1\6\1\0"+
     "\6\4\24\6\uff85\0";
 
-  /** 
-   * Translates characters to character classes
-   */
+  
   private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
 
-  /** 
-   * Translates DFA states to action switch labels.
-   */
+  
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
@@ -124,9 +113,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  /** 
-   * Translates a state to a row index in the transition table
-   */
+  
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
@@ -151,9 +138,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
     return j;
   }
 
-  /** 
-   * The transition table of the DFA
-   */
+  
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
@@ -220,41 +205,36 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
     return j;
   }
 
-  /** the input device */
+  
   private java.io.Reader zzReader;
 
-  /** the current state of the DFA */
+  
   private int zzState;
 
-  /** the current lexical state */
+  
   private int zzLexicalState = YYINITIAL;
 
-  /** this buffer contains the current text to be matched and is
-      the source of the yytext() string */
+  
   private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
 
-  /** the textposition at the last accepting state */
+  
   private int zzMarkedPos;
 
-  /** the current text position in the buffer */
+  
   private int zzCurrentPos;
 
-  /** startRead marks the beginning of the yytext() string in the buffer */
+  
   private int zzStartRead;
 
-  /** endRead marks the last character in the buffer, that has been read
-      from input */
+  
   private int zzEndRead;
 
-  /** zzAtEOF == true <=> the scanner is at the EOF */
+  
   private boolean zzAtEOF;
 
   /* user code: */
 
-	/**
-	 * Constructor.  This must be here because JFlex does not generate a
-	 * no-parameter constructor.
-	 */
+	
 	public WwwFormTokenMaker() {
 		super();
 	}
@@ -274,37 +254,20 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 		addToken(zzMarkedPos,zzMarkedPos, tokenType);
 	}
 
-	/**
-	 * Adds the token specified to the current linked list of tokens.
-	 *
-	 * @param tokenType The token's type.
-	 */
+	
 	private void addToken(int tokenType) {
 		addToken(zzStartRead, zzMarkedPos-1, tokenType);
 	}
 
 
-	/**
-	 * Adds the token specified to the current linked list of tokens.
-	 *
-	 * @param tokenType The token's type.
-	 */
+	
 	private void addToken(int start, int end, int tokenType) {
 		int so = start + offsetShift;
 		addToken(zzBuffer, start,end, tokenType, so);
 	}
 
 
-	/**
-	 * Adds the token specified to the current linked list of tokens.
-	 *
-	 * @param array The character array.
-	 * @param start The starting offset in the array.
-	 * @param end The ending offset in the array.
-	 * @param tokenType The token's type.
-	 * @param startOffset The offset in the document at which this token
-	 *                    occurs.
-	 */
+	
 	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
@@ -397,32 +360,17 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 
 
-  /**
-   * Creates a new scanner
-   * There is also a java.io.InputStream version of this constructor.
-   *
-   * @param   in  the java.io.Reader to read input from.
-   */
+  
   public WwwFormTokenMaker(java.io.Reader in) {
     this.zzReader = in;
   }
 
-  /**
-   * Creates a new scanner.
-   * There is also java.io.Reader version of this constructor.
-   *
-   * @param   in  the java.io.Inputstream to read input from.
-   */
+  
   public WwwFormTokenMaker(java.io.InputStream in) {
     this(new java.io.InputStreamReader(in));
   }
 
-  /** 
-   * Unpacks the compressed character translation table.
-   *
-   * @param packed   the packed character translation table
-   * @return         the unpacked character translation table
-   */
+  
   private static char [] zzUnpackCMap(String packed) {
     char [] map = new char[0x10000];
     int i = 0;  /* index in packed string  */
@@ -438,9 +386,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 
     
-  /**
-   * Closes the input stream.
-   */
+  
   public final void yyclose() throws java.io.IOException {
     zzAtEOF = true;            /* indicate end of file */
     zzEndRead = zzStartRead;  /* invalidate buffer    */
@@ -450,27 +396,19 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  /**
-   * Returns the current lexical state.
-   */
+  
   public final int yystate() {
     return zzLexicalState;
   }
 
 
-  /**
-   * Enters a new lexical state
-   *
-   * @param newState the new lexical state
-   */
+  
   public final void yybegin(int newState) {
     zzLexicalState = newState;
   }
 
 
-  /**
-   * Returns the text matched by the current regular expression.
-   */
+  
   public final String yytext() {
     return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
   }
@@ -492,9 +430,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  /**
-   * Returns the length of the matched text region.
-   */
+  
   public final int yylength() {
     return zzMarkedPos-zzStartRead;
   }
@@ -527,14 +463,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   } 
 
 
-  /**
-   * Pushes the specified amount of characters back into the input stream.
-   *
-   * They will be read again by then next call of the scanning method
-   *
-   * @param number  the number of characters to be read again.
-   *                This number must not be greater than yylength()!
-   */
+  
   public void yypushback(int number)  {
     if ( number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);

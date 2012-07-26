@@ -21,6 +21,8 @@
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary casts.
+// ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
+// 		as introduced with version 3.1 of HttpClient
 
 package org.parosproxy.paros.core.scanner;
 

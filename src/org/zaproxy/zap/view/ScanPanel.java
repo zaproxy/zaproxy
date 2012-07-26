@@ -654,7 +654,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	                }
 	            });
 	        } catch (InterruptedException e) {
-				log.info("Interupt scan progress update on GUI.");
+				log.info("Interrupt scan progress update on GUI.");
 			} 
 	        catch (Exception e) {
 	            log.error(e.getMessage(), e);

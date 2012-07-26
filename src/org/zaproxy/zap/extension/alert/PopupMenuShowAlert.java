@@ -2,19 +2,13 @@ package org.zaproxy.zap.extension.alert;
 
 import java.awt.Component;
 
-import javax.swing.JList;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
-import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
-import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
-import org.zaproxy.zap.view.PopupMenuHistoryReference.Invoker;
 
 public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Comparable<PopupMenuShowAlert> {
 

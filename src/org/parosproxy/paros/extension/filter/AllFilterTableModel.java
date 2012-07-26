@@ -40,8 +40,9 @@ import org.parosproxy.paros.Constant;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class AllFilterTableModel extends DefaultTableModel {
-
-    private static final String[] columnNames = {
+	private static final long serialVersionUID = 1L;
+	
+	private static final String[] columnNames = {
     	Constant.messages.getString("filter.table.name"), Constant.messages.getString("filter.table.enabled"), ""};
     // ZAP: Added the type argument.
     private List<Filter> allFilters = null;
