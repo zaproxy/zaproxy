@@ -175,11 +175,11 @@ public class SiteNode extends DefaultMutableTreeNode {
 //                getPastHistoryReference().add(getHistoryReference());
 //            }
             
-        	if (this.justSpidered && this.clearIfManual && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        	if (this.justSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
-        	if (this.specificIcon && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        	if (this.specificIcon && this.clearIfManual && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
     			this.specificIcon = false;
     			this.nodeChanged();
     		}
