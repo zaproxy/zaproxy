@@ -82,6 +82,11 @@ public class HistoryReference {
 	private SiteNode siteNode = null;
     private String display = null;
     private long sessionId = 0;
+    
+    //ZAP: Support for specific icons
+	private String iconURL = null;
+	public static final int TYPE_SPEC_ICON = 10;
+	private boolean clearIfManual = false;
 	
 	// ZAP: Support for linking Alerts to Hrefs
 	private List<Alert> alerts;
@@ -127,7 +132,47 @@ public class HistoryReference {
 			this.addAlert(new Alert(alert, this));
 		}
 	}
+	
+	
+	public boolean getClearIfManual() {
+		return this.clearIfManual;
+	}
 
+	public String getIconURL(){
+		return this.iconURL;
+	}
+
+	/**
+	 * If we want to use a specific icon, this is the constructor to use
+	 * @param session
+	 * @param iconURL path to the icon image i.e. /org/zaproxy/zap/extension/spiderAjax/10.png
+	 * @param msg
+	 * @param clear 
+	 * @throws HttpMalformedHeaderException
+	 * @throws SQLException
+	 */
+	public HistoryReference(Session session, String iconURL, HttpMessage msg, boolean clear) throws HttpMalformedHeaderException, SQLException {
+
+		this.historyType = TYPE_SPEC_ICON;
+		this.iconURL= iconURL;
+		this.clearIfManual=clear;
+		RecordHistory history = null;		
+		history = staticTableHistory.write(session.getSessionId(), TYPE_SPEC_ICON, msg);		
+		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
+		// ZAP: Init HttpMessage HistoryReference field
+		msg.setHistoryRef(this);
+		// ZAP: Support for multiple tags
+		for (String tag : msg.getTags()) {
+			this.addTag(tag);
+		}
+		// ZAP: Support for loading the alerts from the db
+		List<RecordAlert> alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
+		for (RecordAlert alert: alerts) {
+			this.addAlert(new Alert(alert, this));
+		}
+	}
+	
+	
 	private void build(long sessionId, int historyId, int historyType, HttpMessage msg) {
 	    this.sessionId = sessionId;
 	    this.historyId = historyId;
