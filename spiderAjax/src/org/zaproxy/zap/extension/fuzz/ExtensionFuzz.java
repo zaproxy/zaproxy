@@ -40,13 +40,15 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.search.SearchResult;
 
-public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
+public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, SessionChangedListener {
 
 	public final static String NAME = "ExtensionFuzz";
 	public final static String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
@@ -100,6 +102,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	        this.getFuzzerPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsFuzzerPanel());
 
+	        extensionHook.addSessionListener(this);
+	        
 	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
 	    }
         extensionHook.addOptionsParamSet(getFuzzerParam());
@@ -134,7 +138,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 	}
 	
 	public void stopFuzzers() {
-		fuzzerThread.stop();
+	    if (fuzzerThread != null) {
+	        fuzzerThread.stop();
+	    }
 	}
 
 	public void pauseFuzzers() {
@@ -364,4 +370,15 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener {
 			return null;
 		}
 	}
+
+    @Override
+    public void sessionAboutToChange(Session session) {
+        if (getView() != null) {
+            getFuzzerPanel().reset();
+        }
+    }
+
+    @Override
+    public void sessionChanged(Session session) {
+    }
 }

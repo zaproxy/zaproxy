@@ -21,9 +21,14 @@
  */
 // ZAP: 2012/03/15 Added the @Override annotation to the appropriate methods.
 // Moved to this class the method getCookieParams().
+// ZAP: 2012/06/24 Added new method of getting cookies from the request header.
+// ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
 package org.parosproxy.paros.network;
 
+import java.net.HttpCookie;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -176,6 +181,18 @@ public class HttpResponseHeader extends HttpHeader {
 		return false;
 	}
 	
+	public boolean isHtml() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
 
@@ -199,6 +216,25 @@ public class HttpResponseHeader extends HttpHeader {
 		}
 		return prime;
 	}
+	
+	// ZAP: Added method for working directly with HttpCookie
+	public List<HttpCookie> getHttpCookies() {
+		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+
+		Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
+		if (cookiesS != null)
+			for (String c : cookiesS)
+				cookies.addAll(HttpCookie.parse(c));
+
+		cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
+		if (cookiesS != null)
+			for (String c : cookiesS)
+				cookies.addAll(HttpCookie.parse(c));
+
+		return cookies;
+
+	}
+
 	
 	// ZAP: Added method.
 	public TreeSet<HtmlParameter> getCookieParams() {

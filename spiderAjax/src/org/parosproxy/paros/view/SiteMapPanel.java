@@ -22,7 +22,7 @@
 // ZAP: 2012/03/15 Changed to initiate the tree with a default model. Changed to
 // clear the http panels when the root node is selected.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
-
+// ZAP: 2012/06/13 Added custom tree cell renderer to treeSite in getTreeSite().
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -45,6 +46,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 
 public class SiteMapPanel extends JPanel {
@@ -206,6 +208,9 @@ public class SiteMapPanel extends JPanel {
 				}
 			});
 
+			// ZAP: Add custom tree cell renderer.
+	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer();
+			treeSite.setCellRenderer(renderer);
 		}
 		return treeSite;
 	}

@@ -33,6 +33,8 @@ package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
@@ -118,7 +120,7 @@ public class HostProcess implements Runnable {
         if (plugin instanceof AbstractHostPlugin) {
             scanSingleNode(plugin, startNode);
         } else if (plugin instanceof AbstractAppPlugin) {
-            traverse(plugin, startNode);
+            traverse(plugin, startNode, true);
             threadPool.waitAllThreadComplete(600000);
         	pluginCompleted(plugin);
 
@@ -134,25 +136,55 @@ public class HostProcess implements Runnable {
     }
     
     private void traverse(Plugin plugin, SiteNode node) {
+    	this.traverse(plugin, node, false);
+    }
+    
+    private void traverse(Plugin plugin, SiteNode node, boolean incRelatedSiblings) {
+    	//log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
         
         if (node == null || plugin == null) {
             return;
         }
-
+        
+        Set<SiteNode> parentNodes = new HashSet<SiteNode>();
+        parentNodes.add(node);
+        
         scanSingleNode(plugin, node);
 
-        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
-            // ZAP: Implement pause and resume
-            while (parentScanner.isPaused() && ! this.isStop()) {
-            	Util.sleep(500);
-            }
-
-            try {
-                traverse(plugin, (SiteNode) node.getChildAt(i));
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
+        if (incRelatedSiblings) {
+        	// Also match siblings with the same hierarchic name
+        	// If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
+        	// note that this is only done for the top level.
+        	SiteNode sibling = node;
+        	while ((sibling = (SiteNode) sibling.getPreviousSibling()) != null) {
+        		if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
+            		log.debug("traverse: adding related sibling " + sibling.getNodeName());
+        			parentNodes.add(sibling);
+        		}
+        	}
+        	sibling = node;
+        	while ((sibling = (SiteNode) sibling.getNextSibling()) != null) {
+        		if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
+            		log.debug("traverse: adding related sibling " + sibling.getNodeName());
+        			parentNodes.add(sibling);
+        		}
+        	}
         }
+
+		for (SiteNode pNode : parentNodes) {
+	        for (int i=0; i<pNode.getChildCount() && !isStop(); i++) {
+	            // ZAP: Implement pause and resume
+	            while (parentScanner.isPaused() && ! this.isStop()) {
+	            	Util.sleep(500);
+	            }
+	
+	            try {
+	                traverse(plugin, (SiteNode) pNode.getChildAt(i));
+	            } catch (Exception e) {
+	                log.error(e.getMessage(), e);
+	            }
+	        }
+		}
 
 
     }
@@ -286,4 +318,7 @@ public class HostProcess implements Runnable {
 	    return kb;
 	}
 
+	protected ScannerParam getScannerParam() {
+		return scannerParam;
+	}
 }

@@ -17,9 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanel;
 
-import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 
@@ -28,14 +26,10 @@ public class HttpPanelResponse extends HttpPanel  {
 
 	private static final String RESPONSE_KEY = "response.";
 	
-	public HttpPanelResponse(boolean isEditable, HttpMessage httpMessage, String configurationKey) {
-		this(isEditable, null, httpMessage, configurationKey);
-	}
+	public HttpPanelResponse(boolean isEditable, String configurationKey) {
+        super(isEditable, configurationKey + RESPONSE_KEY);
 
-	public HttpPanelResponse(boolean isEditable, Extension extension, HttpMessage httpMessage, String configurationKey) {
-		super(isEditable, extension, httpMessage, configurationKey + RESPONSE_KEY);
-
-		HttpPanelManager.getInstance().addResponsePanel(this);
+        HttpPanelManager.getInstance().addResponsePanel(this);
 	}
 
 	@Override

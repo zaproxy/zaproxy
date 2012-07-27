@@ -215,6 +215,8 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
     		    }
                 break;
 
+            case ascan:
+    		case fuzz:
     		case history:
     			HistoryReference ref = (HistoryReference) listInvoker.getSelectedValue();
     			if (ref != null) {
@@ -232,11 +234,6 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
         	    }
 				break;
 				
-    		case ascan:
-    		case fuzz:
-    			httpMessage = (HttpMessage) listInvoker.getSelectedValue();
-				break;
-				
     		case search:
         	    SearchResult sr = (SearchResult) listInvoker.getSelectedValue();
         	    if (sr != null) {
@@ -252,7 +249,10 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
 				break;
 				
     		case httppanel:
-    			httpMessage = httpPanelInvoker.getHttpMessage();
+    		    org.zaproxy.zap.extension.httppanel.Message message = httpPanelInvoker.getMessage();
+    		    if (message instanceof HttpMessage) {
+    		        httpMessage = (HttpMessage) message;
+    		    }
     			break;
     			
     		}

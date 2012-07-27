@@ -26,6 +26,8 @@
 // ZAP: 2012/06/19 Changed the method sessionOpened(File,Exception) to not call
 // the method ExtensionLoader.sessionChangedAllPlugin, now it's done in the
 // class Control.
+// ZAP: 2012/07/02 Changed to use the new database compact option in the method
+// exit().
 
 package org.parosproxy.paros.control;
  
@@ -82,8 +84,8 @@ public class MenuFileControl implements SessionListener {
 	    Thread t = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
-	            // ZAP: Changed to true.
-	            control.shutdown(true);
+	            // ZAP: Changed to use the option compact database.
+	            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
 	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
 	    		System.exit(0);   
 	        }

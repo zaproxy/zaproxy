@@ -24,7 +24,9 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added type argument to generic type, removed unnecessary
 // casts and added @Override annotation to all appropriate methods.
-
+// ZAP: 2012/06/25 Added addFilter() plus searchFilterIndex() method, that
+// allows to add some custom filter to the FilterFactory (e.g.: by third
+// party extensions).
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;
@@ -39,13 +41,17 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy;
+import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
+public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, WebSocketObserver, Runnable {
 
 	private static final Logger log = Logger.getLogger(ExtensionFilter.class);
 	
@@ -56,15 +62,10 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	private FilterFactory filterFactory = new FilterFactory();
 	private boolean isStop = false;
 	
-    /**
-     * 
-     */
     public ExtensionFilter() {
         super();
         this.setOrder(8);
     }
-
-
     
     @Override
     public void init() {
@@ -133,7 +134,6 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 		}
 		return menuToolsFilter;
 	}
-
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -141,6 +141,34 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuToolsFilter());
 	    }
 	    extensionHook.addProxyListener(this);
+	    extensionHook.addWebSocketObserver(this);
+	}
+
+	// ZAP: Added the method from WebSocketObserver interface.
+	@Override
+	public int getObservingOrder() {
+		return PROXY_LISTENER_ORDER;
+	}
+
+	// ZAP: Added the method from WebSocketObserver interface.
+	@Override
+	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
+		Filter filter = null;
+		for (int i = 0; i < filterFactory.getAllFilter().size(); i++) {
+			filter = filterFactory.getAllFilter().get(i);
+			try {
+				if (filter.isEnabled()) {
+					filter.onWebSocketPayload(message);
+				}
+			} catch (Exception e) {
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public void onStateChange(State state, WebSocketProxy proxy) {
+		// no need to react on state change
 	}
 
 	// ZAP: Added the method.
@@ -233,4 +261,59 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
 	}
-  }
+	
+	/**
+	 * ZAP: New method that allows to add another filter. The
+	 * {@link Filter#getId()} method is used to determine its position in the
+	 * list.
+	 * 
+	 * @param filter
+	 */
+	public void addFilter(Filter filter) {
+		List<Filter> filters = filterFactory.getAllFilter();
+		int index = searchFilterIndex(filters, filter.getId(), 0, filters.size());
+		
+		if (index == -1) {
+			// not found - put at the end
+			filters.add(filter);
+		} else {
+			filters.add(index, filter);
+		}
+	}
+	
+	/**
+	 * ZAP: New method for doing a binary search on the filter id. Used to
+	 * determine where (index) to insert the filter to the filter's list. Basic
+	 * algorithm taken from Wikipedia:
+	 * http://en.wikipedia.org/wiki/Binary_search_algorithm#Recursive
+	 * 
+	 * @param A
+	 * @param key
+	 * @param imin
+	 * @param imax
+	 * @return
+	 */
+	private int searchFilterIndex(List<Filter> filters, int targetId, int min, int max)
+	{
+		if (max <= min) {
+			// set is empty, so return value showing not found
+			return max + 1;
+		} else {
+			// calculate midpoint to cut set in half
+			int mid = (min + max) / 2;
+
+			// three-way comparison
+			int id = filters.get(mid).getId();
+			if (id > targetId) {
+				// id is in lower subset
+				return searchFilterIndex(filters, targetId, min, mid - 1);
+			} else if (id < targetId) {
+				// id is in upper subset
+				return searchFilterIndex(filters, targetId, mid + 1, max);
+			} else {
+				// index has been found
+				return mid + 1;
+			}
+		}
+	}
+}

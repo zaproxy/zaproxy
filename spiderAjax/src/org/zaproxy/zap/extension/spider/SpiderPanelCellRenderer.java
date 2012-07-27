@@ -29,103 +29,104 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 
 public class SpiderPanelCellRenderer extends JPanel implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
-	
-	private JLabel txtPort = null;
-    private JLabel txtDescription = null;
 
-    /**
-     * This is the default constructor
-     */
-    public SpiderPanelCellRenderer() {
-        super();
+	private JLabel txtURL = null;
+	private JLabel txtDescription = null;
 
-        initialize();
-    }
+	/**
+	 * Instantiates a new spider panel cell renderer.
+	 */
+	public SpiderPanelCellRenderer() {
+		super();
+		initialize();
+	}
 
-    /**
-     * This method initializes this
-     * 
-     * @return void
-     */
-    private void initialize() {
-        
-        txtPort = new JLabel();
-        txtPort.setText(" ");
-        txtPort.setBackground(java.awt.SystemColor.text);
-        txtPort.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        txtPort.setPreferredSize(new java.awt.Dimension(60,15));
-        txtPort.setMinimumSize(new java.awt.Dimension(60,15));
-        txtPort.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-        txtPort.setOpaque(true);
-        txtDescription = new JLabel();
-        txtDescription.setText(" ");
-        txtDescription.setBackground(java.awt.SystemColor.text);
-        txtDescription.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        txtDescription.setPreferredSize(new java.awt.Dimension(200,15));
-        txtDescription.setMinimumSize(new java.awt.Dimension(200,15));
-        txtDescription.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-        txtDescription.setOpaque(true);
-        
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints2.gridy = 0;
-        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.weightx = 0.75D;
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints2.ipadx = 4;
-        gridBagConstraints2.ipady = 1;
-        gridBagConstraints2.gridx = 1;
-        
-        GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-        gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.weightx = 0.0D;
-        gridBagConstraints1.ipadx = 4;
-        gridBagConstraints1.ipady = 1;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.NONE;
-        gridBagConstraints1.gridx = 0;
+	/**
+	 * This method initializes this renderer.
+	 * 
+	 * @return void
+	 */
+	private void initialize() {
 
-        this.setLayout(new GridBagLayout());
-        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        	this.setSize(328, 11);
-        }
-        this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-        this.add(txtPort, gridBagConstraints1);
-        this.add(txtDescription, gridBagConstraints2);
-    }
+		txtURL = new JLabel();
+		txtURL.setText(" ");
+		txtURL.setBackground(java.awt.SystemColor.text);
+		txtURL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		txtURL.setPreferredSize(new java.awt.Dimension(60, 15));
+		txtURL.setMinimumSize(new java.awt.Dimension(60, 15));
+		txtURL.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+		txtURL.setOpaque(true);
 
-    @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        
-        Integer port = (Integer) value;
-        
-		String portDesc = Constant.messages.getString("port.unknown");
-		if (Constant.messages.containsKey("port." + port)) {
-			portDesc = Constant.messages.getString("port." + port);
+		txtDescription = new JLabel();
+		txtDescription.setText(" ");
+		txtDescription.setBackground(java.awt.SystemColor.text);
+		txtDescription.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+		txtDescription.setPreferredSize(new java.awt.Dimension(200, 15));
+		txtDescription.setMinimumSize(new java.awt.Dimension(200, 15));
+		txtDescription.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+		txtDescription.setOpaque(true);
+
+		GridBagConstraints txtDescriptionGridBag = new GridBagConstraints();
+		txtDescriptionGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+		txtDescriptionGridBag.gridx = 1;
+		txtDescriptionGridBag.gridy = 0;
+		txtDescriptionGridBag.ipadx = 4;
+		txtDescriptionGridBag.ipady = 1;
+		txtDescriptionGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		txtDescriptionGridBag.weightx = 0.75D;
+		txtDescriptionGridBag.anchor = java.awt.GridBagConstraints.WEST;
+
+		GridBagConstraints txtURLGridBag = new GridBagConstraints();
+		txtURLGridBag.gridx = 0;
+		txtURLGridBag.gridy = 0;
+		txtURLGridBag.weightx = 0.0D;
+		txtURLGridBag.ipadx = 4;
+		txtURLGridBag.ipady = 1;
+		txtURLGridBag.anchor = java.awt.GridBagConstraints.WEST;
+		txtURLGridBag.fill = java.awt.GridBagConstraints.NONE;
+		txtURLGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+
+		this.setLayout(new GridBagLayout());
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(328, 11);
 		}
 
-        txtPort.setText(""+port);
-        txtDescription.setText(portDesc);
-        
-        if (isSelected) {
-        	txtPort.setBackground(list.getSelectionBackground());
-        	txtPort.setForeground(list.getSelectionForeground());
-        	txtDescription.setBackground(list.getSelectionBackground());
-        	txtDescription.setForeground(list.getSelectionForeground());
-        } else {
-            Color darker = new Color(list.getBackground().getRGB() & 0xFFECECEC);
-        	txtPort.setBackground(list.getBackground());
-        	txtPort.setForeground(list.getForeground());
-        	txtDescription.setBackground(darker);
-        	txtDescription.setForeground(list.getForeground());
-        }
-        return this;
-    }
+		this.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
+		this.add(txtURL, txtURLGridBag);
+		this.add(txtDescription, txtDescriptionGridBag);
+	}
+
+	@Override
+	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+			boolean cellHasFocus) {
+
+		String url = (String) value;
+
+		// String portDesc = Constant.messages.getString("port.unknown");
+		// if (Constant.messages.containsKey("port." + port)) {
+		// portDesc = Constant.messages.getString("port." + port);
+		// }
+
+		txtURL.setText(url);
+		txtDescription.setText("-");
+
+		if (isSelected) {
+			txtURL.setBackground(list.getSelectionBackground());
+			txtURL.setForeground(list.getSelectionForeground());
+			txtDescription.setBackground(list.getSelectionBackground());
+			txtDescription.setForeground(list.getSelectionForeground());
+		} else {
+			Color darker = new Color(list.getBackground().getRGB() & 0xFFECECEC);
+			txtURL.setBackground(list.getBackground());
+			txtURL.setForeground(list.getForeground());
+			txtDescription.setBackground(darker);
+			txtDescription.setForeground(list.getForeground());
+		}
+		return this;
+	}
 }
