@@ -28,7 +28,7 @@
 // are saved in the method Control.shutdown(boolean).
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 // ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
-
+// ZAP: 2012/07/09 Added hookWebSocketObserver() method.
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -52,6 +52,8 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
+import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
@@ -145,6 +147,26 @@ public class ExtensionLoader {
                 }
             }
         }
+    }
+    
+    // ZAP: Added support for WebSocket listeners
+    public void hookWebSocketObserver(ExtensionWebSocket extWebSocket) {
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<WebSocketObserver> listenerList = hook.getWebSocketObserverList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                	WebSocketObserver listener = listenerList.get(j);
+                    if (listener != null) {
+                    	extWebSocket.addAllChannelObserver(listener);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
     }
     
     public void optionsChangedAllPlugin(OptionsParam options) {

@@ -31,18 +31,13 @@ import javax.swing.JToolBar;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 
-/**
- *
- * Break Panel UI Element
- * 
- */
 public class BreakPanel extends AbstractPanel implements Tab {
 
 	private static final long serialVersionUID = 1L;
@@ -60,19 +55,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		super();
 		initialize();
 	}
-
-	/**
-	 * @param isEditable
-	 */
-	public BreakPanel(boolean isEditable) {
-		initialize();
-	}
-
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
+	
 	private void initialize() {
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new BorderLayout());
@@ -82,9 +65,9 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		panelContent = new JPanel(new CardLayout());
 		this.add(panelContent, BorderLayout.CENTER);
 
-		requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".break.");
+		requestPanel = new HttpPanelRequest(false, OptionsParamView.BASE_VIEW_KEY + ".break.");
 		requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-		responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".break.");
+		responsePanel = new HttpPanelResponse(false, OptionsParamView.BASE_VIEW_KEY + ".break.");
 		responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
 
 		panelContent.add(requestPanel, REQUEST_PANEL);
@@ -114,37 +97,36 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			getPanelMainToolbarCommand();
 		}
 	}
-
+	
 	public boolean isBreakRequest() {
 		return breakToolbarFactory.isBreakRequest();
 	}
-
+	
 	public boolean isBreakResponse() {
 		return breakToolbarFactory.isBreakResponse();
 	}
-
-	public void breakPointHit () {
-		breakToolbarFactory.breakPointHit();
+	
+	public void breakpointHit () {
+		breakToolbarFactory.breakpointHit();
 	}
-
+	
 	public boolean isHoldMessage() {
 		return breakToolbarFactory.isHoldMessage();
 	}
-
+	
 	public boolean isStepping() {
 		return breakToolbarFactory.isStepping();
 	}
-
-	protected void breakPointDisplayed () {
+    
+    public boolean isToBeDropped() {
+        return breakToolbarFactory.isToBeDropped();
+    }
+	
+	protected void breakpointDisplayed () {
 		// Grab the focus
 		this.setTabFocus();
 	}
-
-	/**
-	 * This method initializes panelCommand
-	 * 
-	 * @return javax.swing.JPanel
-	 */
+	
 	private JToolBar getPanelCommand() {
 		JToolBar panelCommand = new JToolBar();
 		panelCommand.setFloatable(false);
@@ -169,42 +151,32 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnContinue());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnDrop());
 	}
-
-	public void setMessage(HttpMessage msg, boolean isRequest) {
+	
+	public void setMessage(Message aMessage, boolean isRequest) {
 		CardLayout cl = (CardLayout)(panelContent.getLayout());
 
 		if (isRequest) {
+            requestPanel.setMessage(aMessage, true);
+            requestPanel.setEditable(true);
 			cl.show(panelContent, REQUEST_PANEL);
-			requestPanel.setMessage(msg, true);
-			requestPanel.setEditable(true);
 		} else {
+            responsePanel.setMessage(aMessage, true);
+            responsePanel.setEditable(true);
 			cl.show(panelContent, RESPONSE_PANEL);
-			responsePanel.setMessage(msg, true);
-			responsePanel.setEditable(true);
 		}
-		
-		breakToolbarFactory.gotMessage(isRequest);
-		
 	}
 
-	public void getMessage(HttpMessage msg, boolean isRequest) {
+	
+	public void saveMessage(boolean isRequest) {
 		CardLayout cl = (CardLayout)(panelContent.getLayout());
 
 		if (isRequest) {
 			requestPanel.saveData();
 			cl.show(panelContent, REQUEST_PANEL);
-			requestPanel.getHttpMessage().getRequestHeader().setContentLength(requestPanel.getHttpMessage().getRequestBody().length());
-			requestPanel.setMessage(msg);
 		} else {
 			responsePanel.saveData();
-			responsePanel.getHttpMessage().getResponseHeader().setContentLength(responsePanel.getHttpMessage().getResponseBody().length());
 			cl.show(panelContent, RESPONSE_PANEL);
-			responsePanel.setMessage(msg);
 		}
-	}
-
-	public boolean isToBeDropped() {
-		return breakToolbarFactory.isToBeDropped();
 	}
 
 	public void savePanels() {
@@ -221,11 +193,11 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		responsePanel.clearView(false);
 		responsePanel.setEditable(false);
 	}
-
+	
 	public void init() {
 		breakToolbarFactory.init();
 	}
-
+	
 	public void reset() {
 		breakToolbarFactory.reset();
 	}

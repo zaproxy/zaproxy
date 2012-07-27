@@ -36,12 +36,12 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
-import org.parosproxy.paros.extension.spider.OptionsSpiderPanel;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.SiteMapListener;
 
 /**
@@ -63,11 +63,11 @@ public class ExtensionSpider extends ExtensionAdaptor
     private PopupMenuSpider popupMenuSpider = null;
     private PopupMenuSpiderSite popupMenuSpiderSite = null;
 	private OptionsSpiderPanel optionsSpiderPanel = null;
-	private org.parosproxy.paros.core.spider.SpiderParam params = null;
+	private SpiderParam params = null;
 	private List<String> excludeList = null;
     
 	/**
-     * 
+     *  
      */
     public ExtensionSpider() {
         super();
@@ -114,9 +114,9 @@ public class ExtensionSpider extends ExtensionAdaptor
         extensionHook.addOptionsParamSet(getSpiderParam());
 	}
 	
-	protected org.parosproxy.paros.core.spider.SpiderParam getSpiderParam() {
+	protected SpiderParam getSpiderParam() {
 		if (params == null) {
-			params = new org.parosproxy.paros.core.spider.SpiderParam();
+			params = new SpiderParam();
 		}
 		return params;
 	}
@@ -192,7 +192,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 		this.getSpiderPanel().nodeSelected(node, true);
 	}
 
-    private PopupMenuSpider getPopupMenuSpider() {
+    @SuppressWarnings("unused")
+	private PopupMenuSpider getPopupMenuSpider() {
         if (popupMenuSpider == null) {
         	popupMenuSpider = new PopupMenuSpider();
         	popupMenuSpider.setExtension(this);
@@ -220,7 +221,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	}
 	
     public int getThreadPerScan() {
-    	return this.getOptionsSpiderPanel().getThreads();
+    	return params.getThreadCount();
     }
 
 	public boolean isScanning(SiteNode node, boolean incPort) {

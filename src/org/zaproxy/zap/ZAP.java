@@ -323,7 +323,7 @@ public class ZAP {
 	        System.out.println(e.getMessage());
 	        rc = 1;
 	    } finally {
-            control.shutdown(true);
+            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
     	    log.info(Constant.PROGRAM_TITLE + " terminated.");
 	    }
 	    System.exit(rc);

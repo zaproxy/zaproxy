@@ -228,7 +228,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	private JSlider getSliderThreadsPerScan() {
 		if (sliderThreadsPerScan == null) {
 			sliderThreadsPerScan = new JSlider();
-			sliderThreadsPerScan.setMaximum(Constant.MAX_HOST_CONNECTION);
+			sliderThreadsPerScan.setMaximum(Constant.MAX_THREADS_PER_SCAN);
 			sliderThreadsPerScan.setMinimum(1);
 			sliderThreadsPerScan.setValue(1);
 			sliderThreadsPerScan.setPaintTicks(true);

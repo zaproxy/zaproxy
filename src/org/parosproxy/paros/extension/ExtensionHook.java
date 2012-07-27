@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/06/25 Added support for WebSocket observer
 package org.parosproxy.paros.extension;
 
 import java.util.Vector;
@@ -25,6 +26,7 @@ import java.util.Vector;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -40,6 +42,8 @@ public class ExtensionHook {
     private Vector<AbstractParam> optionsParamSetList = new Vector<AbstractParam>();
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<SiteMapListener>();
+    // ZAP: Added support for WebSocket observer
+    private Vector<WebSocketObserver> webSocketObserverList = new Vector<WebSocketObserver>();
     
     private ViewDelegate view = null;
     private CommandLineArgument arg[] = new CommandLineArgument[0];
@@ -65,6 +69,15 @@ public class ExtensionHook {
     }
     public void addSiteMapListner(SiteMapListener listener) {
     	siteMapListenerList.add(listener);
+    }
+    
+    /**
+     * The added observer is attached to each new channel.
+     * 
+     * @param observer
+     */
+    public void addWebSocketObserver(WebSocketObserver observer) {
+    	webSocketObserverList.add(observer);
     }
     
     public void addCommandLine(CommandLineArgument arg[]) {
@@ -117,6 +130,10 @@ public class ExtensionHook {
     
     public Vector<SiteMapListener> getSiteMapListenerList() {
         return siteMapListenerList;
+    }
+    
+    public Vector<WebSocketObserver> getWebSocketObserverList() {
+        return webSocketObserverList;
     }
     
     /**

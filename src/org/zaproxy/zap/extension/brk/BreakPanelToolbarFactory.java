@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
@@ -31,8 +30,6 @@ public class BreakPanelToolbarFactory {
 	private LinkedList<JToggleButton> btnBreakRequestList = new LinkedList<JToggleButton>();
 	private LinkedList<JToggleButton> btnBreakResponseList = new LinkedList<JToggleButton>();
 
-	private LinkedList<JLabel> labelInfo = new LinkedList<JLabel>();
-
 	private boolean cont = false;
 	private boolean step = false;
 	private boolean stepping = false;
@@ -40,9 +37,6 @@ public class BreakPanelToolbarFactory {
 	private boolean isBreakRequest = false;
 	private boolean isBreakResponse = false;
 	
-	private boolean isVirgin = true;
-	private boolean isRequest = true;
-
 	private BreakPanel breakPanel = null;
 
 	
@@ -69,7 +63,7 @@ public class BreakPanelToolbarFactory {
 		}
 	}
 
-	public void breakPointHit () {
+	public void breakpointHit () {
 		// This could have been via a break point, so force the serialisation
 		resetRequestSerialization(true);
 
@@ -105,11 +99,7 @@ public class BreakPanelToolbarFactory {
 		return btnStep;
 	}
 
-	/**
-	 * This method initializes btnContinue	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	    
 	public JButton getBtnContinue() {
 		JButton btnContinue;
 
@@ -129,11 +119,7 @@ public class BreakPanelToolbarFactory {
 		return btnContinue;
 	}
 
-	/**
-	 * This method initializes btnDrop	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	    
 	public JButton getBtnDrop() {
 		JButton btnDrop;
 
@@ -155,11 +141,7 @@ public class BreakPanelToolbarFactory {
 		return btnDrop;
 	}
 	
-	/**
-	 * This method initializes btnContinue	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	    
 	public JToggleButton getBtnBreakRequest() {
 		JToggleButton btnBreakRequest;
 
@@ -180,11 +162,7 @@ public class BreakPanelToolbarFactory {
 		return btnBreakRequest;
 	}
 
-	/**
-	 * This method initializes btnContinue	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */ 
+	 
 	public JToggleButton getBtnBreakResponse() {
 		JToggleButton btnBreakResponse;
 
@@ -228,7 +206,6 @@ public class BreakPanelToolbarFactory {
 		resetRequestSerialization(false);
 
 		updateBreakRequestBtn();
-		updateInfoLabel();
 	}
 
 	private void toggleBreakResponse() {
@@ -236,27 +213,8 @@ public class BreakPanelToolbarFactory {
 		resetRequestSerialization(false);
 
 		updateBreakResponseBtn();
-		updateInfoLabel();
 	}
 
-	private void updateInfoLabel() {
-	/*	String label = "";
-		
-		if (isRequest) {
-			label = "Request: ";
-		} else {
-			label = "Response: ";
-		}
-	
-		
-		if (isVirgin) {
-			label += "fresh";
-		} else {
-			label += "rotten";
-		}
-		*/
-	}
-	
 	private void updateBreakRequestBtn() {
 		if (isBreakRequest()) {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
@@ -290,9 +248,7 @@ public class BreakPanelToolbarFactory {
 	}
 
 
-	/**
-	 * @return Returns the true if the message (request or response) should be held (ie not submited)
-	 */
+	
 	public boolean isHoldMessage() {
 		if (step) {
 			// Only works one time, until its pressed again
@@ -313,9 +269,7 @@ public class BreakPanelToolbarFactory {
 		return cont;
 	}
 
-	/**
-	 * @param isContinue The isContinue to set.
-	 */
+	
 	private void setContinue(boolean isContinue) {
 		this.cont = isContinue;
 
@@ -355,12 +309,6 @@ public class BreakPanelToolbarFactory {
 		if (isStep) {
 			this.setActiveIcon(false);
 		}
-	}
-
-	public void gotMessage(boolean isRequest) {
-		this.isRequest = isRequest; 
-		this.isVirgin = true;
-		updateInfoLabel();
 	}
 
 	public boolean isToBeDropped() {

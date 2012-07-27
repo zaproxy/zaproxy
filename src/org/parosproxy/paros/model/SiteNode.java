@@ -59,72 +59,50 @@ public class SiteNode extends DefaultMutableTreeNode {
 	private boolean clearIfManual = false;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
-    
-    
-
+	
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
-        specificIcon= false;
+        this.specificIcon= false;
 		this.nodeName = nodeName;
 		if (type == HistoryReference.TYPE_SPIDER) {
 			this.justSpidered = true;
 		}
-
-		/*if (type == HistoryReference.TYPE_SPIDERAJAX) {
-			this.justAJAXSpidered = true;
-		}*/
 	}
     public SiteNode(SiteMap siteMap, int type, String nodeName, String icon, boolean clear) {
         super();
-        this.specificIcon= true;
+        if (type == HistoryReference.TYPE_SPEC_ICON) {
+        	this.specificIcon = true;
+        	this.iconURL = icon;
+        }
         this.siteMap = siteMap;
 		this.nodeName = nodeName;
-		this.iconURL = icon;
 		this.clearIfManual = clear;
+		if (type == HistoryReference.TYPE_SPIDER) {
+			this.justSpidered = true;
+		}
 	}
     
     private void appendIcons(StringBuilder sb) {
-    	int highest = -1;
+    	int highestRisk = -1;
+    	Alert highestAlert = null;
     	for (Alert alert : this.getAlerts()) {
-    		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highest) {
-    			highest = alert.getRisk();
+    		if (alert.getReliability() != Alert.FALSE_POSITIVE && alert.getRisk() > highestRisk) {
+    			highestRisk = alert.getRisk();
+    			highestAlert = alert;
     		}
     	}
-    	switch (highest) {
-    	case Alert.RISK_INFO:
+    	if (highestAlert != null) {
     		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.INFO_FLAG_IMAGE_URL);
+    		sb.append(highestAlert.getIconUrl());
     		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_LOW:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.LOW_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_MEDIUM:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.MED_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
-    	case Alert.RISK_HIGH:
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.HIGH_FLAG_IMAGE_URL);
-    		sb.append("\">&nbsp;");
-    		break;
     	}
     	if (justSpidered) {
         	sb.append("&nbsp;<img src=\"");
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
-    	/*
-    	if (justAJAXSpidered){
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.class.getResource("/org/zaproxy/zap/extension/spiderAjax/10.png"));
-    		sb.append("\">&nbsp;");
-    	}*/
-    	if(this.specificIcon){
+    	if (this.specificIcon) {
     		sb.append("&nbsp;<img src=\"");
     		sb.append(Constant.class.getResource(this.iconURL));
     		sb.append("\">&nbsp;");
@@ -201,14 +179,10 @@ public class SiteNode extends DefaultMutableTreeNode {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
-        	/*if (this.justAJAXSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
-    		this.justAJAXSpidered = false;
-    		this.nodeChanged();
-    	}*/
         	if (this.specificIcon && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
-    		this.specificIcon = false;
-    		this.nodeChanged();
-    	}
+    			this.specificIcon = false;
+    			this.nodeChanged();
+    		}
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {
                 getPastHistoryReference().add(getHistoryReference());

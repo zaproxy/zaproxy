@@ -23,18 +23,13 @@ import java.awt.Component;
 
 import javax.swing.JList;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
@@ -42,26 +37,18 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
     private JList listLog = null;
     private static Logger log = Logger.getLogger(PopupMenuAddBreakHistory.class);
     
-    /**
-     * 
-     */
+    
     public PopupMenuAddBreakHistory() {
         super();
  		initialize();
     }
 
-    /**
-     * @param label
-     */
+    
     public PopupMenuAddBreakHistory(String label) {
         super(label);
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
+	
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.add.popup"));
 
@@ -77,17 +64,13 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
                 
                 try {
                     HistoryReference ref = (HistoryReference) obj[0];
-                    URI uri = ref.getHttpMessage().getRequestHeader().getURI();
-                    
-                    extension.showBreakAddDialog(uri.getURI());
+                    extension.addUiBreakpoint(ref.getHttpMessage());
                     
                 } catch (Exception e1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
                 }
         	}
         });
-
-			
 	}
 	
     @Override
@@ -99,7 +82,7 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
                 listLog = list;
                 Object[] obj = listLog.getSelectedValues();
 
-                if (obj.length == 1 && extension.canAddBreakPoint()) {
+                if (obj.length == 1 && extension.canAddBreakpoint()) {
                     this.setEnabled(true);
                 } else {
                     this.setEnabled(false);

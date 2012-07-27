@@ -25,6 +25,10 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Added type argument to generic type.
 // ZAP: 2012/05/03 Changed the type of one variable in the method getParamSet.
+// ZAP: 2012/06/29 Added OptionsWebSocketParam.
+// ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
+// getDatabaseParam() and changed the method parse() to also load the database
+// configurations.
 
 package org.parosproxy.paros.model;
 
@@ -34,6 +38,7 @@ import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -43,6 +48,7 @@ import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.session.SessionParam;
+import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketParam;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
@@ -66,11 +72,18 @@ public class OptionsParam extends AbstractParam {
 	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
+	// ZAP: Added OptionsWebSocketParam
+	private OptionsWebSocketParam websocketParam = new OptionsWebSocketParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	private SessionParam sessionParam = new SessionParam();
+    /**
+     * The database configurations.
+     */
+	// ZAP: Added the instance variable.
+    private DatabaseParam databaseParam = new DatabaseParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
 	private boolean gui = true;
@@ -187,6 +200,10 @@ public class OptionsParam extends AbstractParam {
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
 		getSessionParam().load(getConfig());
+        // ZAP: Added the statement.
+        getWebSocketParam().load(getConfig());
+		// ZAP: Added the statement.
+        getDatabaseParam().load(getConfig());
 		
 		String userDir = null;
 		try {
@@ -245,6 +262,10 @@ public class OptionsParam extends AbstractParam {
 		return invokeParam;
 	}
 
+	public OptionsWebSocketParam getWebSocketParam() {
+		return websocketParam;
+	}
+
 	public AntiCsrfParam getAntiCsrfParam() {
 		return antiCsrfParam;
 	}
@@ -268,5 +289,15 @@ public class OptionsParam extends AbstractParam {
 	public void setBruteForceParam(BruteForceParam bruteForceParam) {
 		this.bruteForceParam = bruteForceParam;
 	}
+
+    /**
+     * Gets the database configurations.
+     *
+     * @return the database configurations
+     */
+	// ZAP: Added the method.
+    public DatabaseParam getDatabaseParam() {
+        return databaseParam;
+    }
 	
 }

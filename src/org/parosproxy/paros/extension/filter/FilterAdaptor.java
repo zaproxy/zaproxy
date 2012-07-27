@@ -19,11 +19,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/06/25 Added default implementation for Filter#onWebSocketPayload() method.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 
 /**
@@ -104,5 +107,11 @@ abstract public class FilterAdaptor implements Filter {
     
     public ViewDelegate getView() {
         return view;
+    }
+    
+    // ZAP: Added default implementation.
+    @Override
+    public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
+        // default implementation does nothing
     }
 }

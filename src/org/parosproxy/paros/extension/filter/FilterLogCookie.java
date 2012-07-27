@@ -21,6 +21,8 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added type arguments to generic types, removed unused class
 // variable and added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
+// as introduced with version 3.1 of HttpClient
 
 package org.parosproxy.paros.extension.filter;
 
@@ -77,9 +79,15 @@ public class FilterLogCookie extends FilterAdaptor {
         if (header != null ) {
             String cookie = header.getHeader("Cookie");
             synchronized (cookieList){
-                if (cookie != null && cookieList.indexOf(cookie)==-1){           		
-                    URI uri = (URI) header.getURI().clone();
+                if (cookie != null && cookieList.indexOf(cookie)==-1){
                     try {
+                    	// ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+                        URI uri;
+						try {
+							uri = (URI) header.getURI().clone();
+						} catch (CloneNotSupportedException e) {
+							throw new URIException(e.getMessage());
+						}
                         uri.setQuery(null);
                         String sUri = uri.toString();
                         cookieList.add(cookie);

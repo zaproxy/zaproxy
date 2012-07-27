@@ -88,7 +88,6 @@ public class SiteParameters {
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
 		}
-		p.addHttpMessage(msg);
 		return p;
 	}
 

@@ -55,24 +55,15 @@ public class ProxyParam extends AbstractParam {
 	private String reverseProxyIp = "localhost";
 	private int reverseProxyHttpPort = 80;
 	private int reverseProxyHttpsPort = 443;
-	private boolean newProx = false;
-
+		
 	public ProxyParam() {
 	}
-
-	public ProxyParam(int port) {
-		this.proxyPort = port;
-		this.newProx = true;
-	}
+	
 	@Override
 	protected void parse() {
 		proxyIp = getConfig().getString(PROXY_IP, "localhost");
 		try {
-			if (newProx == false) {
-				proxyPort = getConfig().getInt(PROXY_PORT, 8080);
-			} else {
-				proxyPort = getConfig().getInt(PROXY_PORT, this.proxyPort);
-			}
+			proxyPort = getConfig().getInt(PROXY_PORT, 8080);
 		} catch (Exception e) {}
 
 		try {
