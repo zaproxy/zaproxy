@@ -32,6 +32,8 @@
 // initialize singleton variable first. Allows to retrieve the singleton while
 // not fully initialized (e.g.: to get another extension in the hook() method of
 // and extension).
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+
 package org.parosproxy.paros.control;
 
 import java.io.File;
@@ -253,5 +255,9 @@ public class Control extends AbstractControl implements SessionListener {
 			lastCallback.sessionSaved(e);
 			lastCallback = null;
 		}
+	}
+	
+	public void sessionScopeChanged() {
+		getExtensionLoader().sessionScopeChangedAllPlugin(model.getSession());
 	}
 }

@@ -213,6 +213,11 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;

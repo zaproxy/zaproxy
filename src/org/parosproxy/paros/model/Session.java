@@ -459,12 +459,14 @@ public class Session extends FileXML {
 	private void refreshScope() {
         if (EventQueue.isDispatchThread()) {
         	refreshScope((SiteNode) siteTree.getRoot());
+        	Control.getSingleton().sessionScopeChanged();
         } else {
             try {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                     	refreshScope((SiteNode) siteTree.getRoot());
+                    	Control.getSingleton().sessionScopeChanged();
                     }
                 });
             } catch (Exception e) {
@@ -535,7 +537,6 @@ public class Session extends FileXML {
 		    }
 		    if (!changed) {
 		    	// No point reapplying the same regexs
-System.out.println("SBSB inc no change :)");
 		    	return;
 		    }
 		}
@@ -578,7 +579,6 @@ System.out.println("SBSB inc no change :)");
 		    }
 		    if (!changed) {
 		    	// No point reapplying the same regexs
-System.out.println("SBSB inc no change :)");
 		    	return;
 		    }
 		}

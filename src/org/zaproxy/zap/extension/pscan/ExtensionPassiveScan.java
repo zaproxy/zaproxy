@@ -212,6 +212,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		getPassiveScanThread().shutdown();
 		this.pst = null;
 	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;

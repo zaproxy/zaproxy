@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/02/18 Rationalised session handling
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 
 package org.parosproxy.paros.extension;
 
@@ -43,4 +44,11 @@ public interface SessionChangedListener {
      * @param session
      */
     public void sessionAboutToChange(Session session);
+    
+    /**
+     * sessionScopeChanged may be called by non-event thread.  Should handle with care in
+     * all the listener.  Use EventThread for each GUI event.
+     * @param session
+     */
+    public void sessionScopeChanged(Session session);
 }

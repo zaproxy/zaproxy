@@ -500,4 +500,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 		}
 	}
 
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
 }

@@ -36,6 +36,7 @@
 // ZAP: 2012/04/28 Added log of exception.
 // ZAP: 2012/05/31 Issue 308 NPE in sessionChangedEventHandler in daemon mode
 // ZAP: 2012/07/02 Added the method showAlertAddDialog(HttpMessage, int).
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 
 package org.parosproxy.paros.extension.history;
 
@@ -633,5 +634,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
+	}
+
+	@Override
+	public void sessionScopeChanged(Session session) {
 	}
 }

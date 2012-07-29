@@ -212,6 +212,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 	}
 	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	public void shutdown() {
 		this.shutDown = true;
 	}
