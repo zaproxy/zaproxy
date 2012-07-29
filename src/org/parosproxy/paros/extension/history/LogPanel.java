@@ -229,7 +229,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		if (scopeButton == null) {
 			scopeButton = new JToggleButton();
 			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-			scopeButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -241,7 +241,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
 					} else {
 						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 					}
 				}
 			});
