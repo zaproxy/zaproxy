@@ -25,14 +25,17 @@
 // removed unnecessary casts.
 // ZAP: 2012/05/15 Changed the method parse() to get the session description.
 // ZAP: 2012/06/11 Changed the JavaDoc of the method isNewState().
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.model;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -66,10 +69,15 @@ public class Session extends FileXML {
 	private Model model = null;
 	private String fileName = "";
 	private String sessionDesc = "";
+	private List<String> includeInScopeRegexs = new ArrayList<String>();
+	private List<String> excludeFromScopeRegexs = new ArrayList<String>();
 	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
 	private List<String> excludeFromScanRegexs = new ArrayList<String>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
-	
+
+    private List<Pattern> includeInScopePatterns = new ArrayList<Pattern>();
+    private List<Pattern> excludeFromScopePatterns = new ArrayList<Pattern>();
+
 	// parameters in XML
 	private long sessionId = 0;
 	private String sessionName = "";
@@ -188,16 +196,36 @@ public class Session extends FileXML {
 		// update history reference
 		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_MANUAL);
 		HistoryReference historyRef = null;
-		
+
+	    // Load the session urls
+	    this.setIncludeInScopeRegexs(
+	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE)));
+
+	    this.setExcludeFromScopeRegexs(
+	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE)));
+
+	    this.setExcludeFromProxyRegexs(
+	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
+
+	    this.setExcludeFromScanRegexs(
+	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN)));
+
+	    this.setExcludeFromSpiderRegexs(
+	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER)));
+
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
 			int historyId = list.get(i).intValue();
 
 			try {
 				historyRef = new HistoryReference(historyId);
-				getSiteTree().addPath(historyRef);
+				SiteNode sn = getSiteTree().addPath(historyRef);
 				// ZAP: Load alerts from db
 				historyRef.loadAlerts();
+				if (sn != null) {
+					sn.setIncludedInScope(this.isIncludedInScope(sn), false);
+					sn.setExcludedFromScope(this.isExcludedFromScope(sn), false);
+				}
 
 				if (i % 100 == 99) Thread.yield();
 			} catch (Exception e) {
@@ -238,30 +266,16 @@ public class Session extends FileXML {
 		    View.getSingleton().getSiteTreePanel().expandRoot();
 		}
 
-	    // Load the session urls
-	    List<RecordSessionUrl> ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY);
-	    List<String> urls = new ArrayList<String>(ignoreUrls.size());
-	    for (RecordSessionUrl url : ignoreUrls) {
-	    	urls.add(url.getUrl());
-	    }
-	    this.setExcludeFromProxyRegexs(urls);
-
-	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN);
-	    urls = new ArrayList<String>(ignoreUrls.size());
-	    for (RecordSessionUrl url : ignoreUrls) {
-	    	urls.add(url.getUrl());
-	    }
-	    this.setExcludeFromScanRegexs(urls);
-
-	    ignoreUrls = model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER);
-	    urls = new ArrayList<String>(ignoreUrls.size());
-	    for (RecordSessionUrl url : ignoreUrls) {
-	    	urls.add(url.getUrl());
-	    }
-	    this.setExcludeFromSpiderRegexs(urls);
-
 		System.gc();
 		
+	}
+	
+	private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
+	    List<String> urlList = new ArrayList<String>(rsuList.size());
+	    for (RecordSessionUrl url : rsuList) {
+	    	urlList.add(url.getUrl());
+	    }
+	    return urlList;
 	}
 	
 	@Override
@@ -409,39 +423,239 @@ public class Session extends FileXML {
 	public List<String> getExcludeFromProxyRegexs() {
 		return excludeFromProxyRegexs;
 	}
+	
+	private List<String> stripEmptyLines(List<String> list) {
+		List<String> slist = new ArrayList<String>();
+		for (String str : list) {
+			if (str.length() > 0) {
+				slist.add(str);
+			}
+		}
+		return slist;
+	}
+	
+	private void refreshScope(SiteNode node) {
+		if (node == null) {
+			return;
+		}
+		if (node.isIncludedInScope() == ! this.isIncludedInScope(node)) {
+			// Its 'scope' state has changed, so switch it!
+			node.setIncludedInScope(!node.isIncludedInScope(), false);
+		}
+		if (node.isExcludedFromScope() == ! this.isExcludedFromScope(node)) {
+			// Its 'scope' state has changed, so switch it!
+			node.setExcludedFromScope(!node.isExcludedFromScope(), false);
+		}
+		// Recurse down
+		if (node.getChildCount() > 0) {
+	    	SiteNode c = (SiteNode) node.getFirstChild();
+	    	while (c != null) {
+	    		refreshScope(c);
+	    		c = (SiteNode) node.getChildAfter(c);
+	    	}
+		}
+	}
+
+	private void refreshScope() {
+        if (EventQueue.isDispatchThread()) {
+        	refreshScope((SiteNode) siteTree.getRoot());
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	refreshScope((SiteNode) siteTree.getRoot());
+                    }
+                });
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+	}
+
+	public boolean isIncludedInScope(SiteNode sn) {
+		if (sn == null) {
+			return false;
+		}
+		String name = sn.getHierarchicNodeName();
+		for (Pattern p : this.includeInScopePatterns) {
+			if (p.matcher(name).matches()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isExcludedFromScope(SiteNode sn) {
+		if (sn == null) {
+			return false;
+		}
+		String name = sn.getHierarchicNodeName();
+		for (Pattern p : this.excludeFromScopePatterns) {
+			if (p.matcher(name).matches()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isInScope(SiteNode sn) {
+		if (! this.isIncludedInScope(sn)) {
+			// Not explicity included
+			return false;
+		}
+		// Chyeck to see if its explicity excluded
+		return ! this.isExcludedFromScope(sn);
+	}
+
+	public List<String> getIncludeInScopeRegexs() {
+		return includeInScopeRegexs;
+	}
+	
+	private void checkRegexs (List<String> regexs) throws Exception {
+	    for (String url : regexs) {
+	    	url = url.trim();
+	    	if (url.length() > 0) {
+				Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+	    	}
+	    }
+	}
+
+	public void setIncludeInScopeRegexs(List<String> includeRegexs) throws Exception {
+		// Check they are all valid regexes first
+		checkRegexs(includeRegexs);
+		// Check if theyve been changed
+		if (includeInScopeRegexs.size() == includeRegexs.size()) {
+			boolean changed = false;
+		    for (int i=0; i < includeInScopeRegexs.size(); i++) {
+		    	if (! includeInScopeRegexs.get(i).equals(includeRegexs.get(i))) {
+		    		changed = true;
+		    		break;
+		    	}
+		    }
+		    if (!changed) {
+		    	// No point reapplying the same regexs
+System.out.println("SBSB inc no change :)");
+		    	return;
+		    }
+		}
+		includeInScopeRegexs.clear();
+		includeInScopePatterns.clear();
+	    for (String url : includeRegexs) {
+	    	url = url.trim();
+	    	if (url.length() > 0) {
+				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+				includeInScopeRegexs.add(url);
+				includeInScopePatterns.add(p);
+	    	}
+	    }
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE, this.includeInScopeRegexs);
+		refreshScope();
+	}
+	
+	public void addIncludeInScopeRegex(String includeRegex) throws SQLException {
+		Pattern p = Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE);
+		includeInScopePatterns.add(p);
+		includeInScopeRegexs.add(includeRegex);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE, this.includeInScopeRegexs);
+	}
+	
+	public List<String> getExcludeFromScopeRegexs() {
+		return excludeFromScopeRegexs;
+	}
+
+	public void setExcludeFromScopeRegexs(List<String> excludeRegexs) throws Exception {
+		// Check they are all valid regexes first
+		checkRegexs(excludeRegexs);
+		// Check if theyve been changed
+		if (excludeFromScopeRegexs.size() == excludeRegexs.size()) {
+			boolean changed = false;
+		    for (int i=0; i < excludeFromScopeRegexs.size(); i++) {
+		    	if (! excludeFromScopeRegexs.get(i).equals(excludeRegexs.get(i))) {
+		    		changed = true;
+		    		break;
+		    	}
+		    }
+		    if (!changed) {
+		    	// No point reapplying the same regexs
+System.out.println("SBSB inc no change :)");
+		    	return;
+		    }
+		}
+		
+		excludeFromScopeRegexs.clear();
+		excludeFromScopePatterns.clear();
+	    for (String url : excludeRegexs) {
+	    	url = url.trim();
+	    	if (url.length() > 0) {
+				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+				excludeFromScopePatterns.add(p);
+				excludeFromScopeRegexs.add(url);
+	    	}
+	    }
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE, this.excludeFromScopeRegexs);
+		refreshScope();
+	}
+
+	public void addExcludeFromScopeRegex(String excludeRegex) throws SQLException {
+		Pattern p = Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE);
+		excludeFromScopePatterns.add(p);
+		excludeFromScopeRegexs.add(excludeRegex);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE, this.excludeFromScopeRegexs);
+	}
 
 	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
-		this.excludeFromProxyRegexs = ignoredRegexs;
-		Control.getSingleton().setExcludeFromProxyUrls(ignoredRegexs);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, ignoredRegexs);
+		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
+		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
 	}
 
 	public List<String> getExcludeFromScanRegexs() {
 		return excludeFromScanRegexs;
 	}
 
-	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
-		this.excludeFromScanRegexs = ignoredRegexs;
+	public void addExcludeFromScanRegexs(String ignoredRegex) throws SQLException {
+		this.excludeFromScanRegexs.add(ignoredRegex);
 		ExtensionActiveScan extAscan = 
 			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
 		if (extAscan != null) {
-			extAscan.setExcludeList(ignoredRegexs);
+			extAscan.setExcludeList(this.excludeFromScanRegexs);
 		}
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, ignoredRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
+	}
+
+	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromScanRegexs = stripEmptyLines(ignoredRegexs);
+		ExtensionActiveScan extAscan = 
+			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
+		if (extAscan != null) {
+			extAscan.setExcludeList(this.excludeFromScanRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
 
 	public List<String> getExcludeFromSpiderRegexs() {
 		return excludeFromSpiderRegexs;
 	}
 
-	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
-		this.excludeFromSpiderRegexs = ignoredRegexs;
+	public void addExcludeFromSpiderRegex(String ignoredRegex) throws SQLException {
+		this.excludeFromSpiderRegexs.add(ignoredRegex);
 		ExtensionSpider extSpider = 
 			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
 		if (extSpider != null) {
-			extSpider.setExcludeList(ignoredRegexs);
+			extSpider.setExcludeList(this.excludeFromSpiderRegexs);
 		}
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, ignoredRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
 
+
+	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromSpiderRegexs = stripEmptyLines(ignoredRegexs);
+		ExtensionSpider extSpider = 
+			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
+		if (extSpider != null) {
+			extSpider.setExcludeList(this.excludeFromSpiderRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
+	}
 }

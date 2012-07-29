@@ -27,6 +27,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 // ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.view;
 
@@ -50,7 +51,9 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
+import org.zaproxy.zap.view.SessionExcludeFromScopePanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.SessionIncludeInScopePanel;
 
 public class View implements ViewDelegate {
 	
@@ -218,6 +221,8 @@ public class View implements ViewDelegate {
             sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
             sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionIncludeInScopePanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScopePanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);

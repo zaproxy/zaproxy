@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2012 The ZAP Development Team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -33,13 +33,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
-public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
+public class SessionExcludeFromScopePanel extends AbstractParamPanel {
 
-	public static final String PANEL_NAME = Constant.messages.getString("session.proxy.exclude.title"); 
+	public static final String PANEL_NAME = Constant.messages.getString("session.scope.exclude.title"); 
 	private static final long serialVersionUID = -8337361808959321380L;
 	
 	private JPanel panelSession = null;
@@ -47,7 +46,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
 	
-    public SessionExcludeFromProxyPanel() {
+    public SessionExcludeFromScopePanel() {
         super();
  		initialize();
    }
@@ -73,14 +72,14 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 
 			panelSession = new JPanel();
 			panelSession.setLayout(new GridBagLayout());
-			panelSession.setName("Ignoreproxy");
+			panelSession.setName("ExcludeInScope");
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 	        javax.swing.JLabel jLabel = new JLabel();
 
-	        jLabel.setText(Constant.messages.getString("session.proxy.label.ignore"));
+	        jLabel.setText(Constant.messages.getString("session.scope.label.exclude"));
 	        gridBagConstraints1.gridx = 0;
 	        gridBagConstraints1.gridy = 0;
 	        gridBagConstraints1.gridheight = 1;
@@ -106,7 +105,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
-	    getModel().setLines(session.getExcludeFromProxyRegexs());
+	    getModel().setLines(session.getExcludeFromScopeRegexs());
 	}
 	
 	@Override
@@ -122,7 +121,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
-	    session.setExcludeFromProxyRegexs(getModel().getLines());
+	    session.setExcludeFromScopeRegexs(getModel().getLines());
 	}
 	
 	private JTable getTableIgnore() {
@@ -144,7 +143,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	
 	private SingleColumnTableModel getModel() {
 		if (model == null) {
-			model = new SingleColumnTableModel(Constant.messages.getString("session.proxy.table.header.ignore"));
+			model = new SingleColumnTableModel(Constant.messages.getString("session.scope.table.header.exclude"));
 		}
 		return model;
 	}
