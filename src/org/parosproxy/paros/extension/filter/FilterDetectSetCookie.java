@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Changed to use StringBuilder and replaced some string concatenations 
 // with calls to the method append of the class StringBuilder. Reworked some code.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Removed incorrect (and unused) init method 
 
 package org.parosproxy.paros.extension.filter;
 
@@ -65,10 +66,6 @@ public class FilterDetectSetCookie extends FilterAdaptor {
     public String getName() {
         return Constant.messages.getString("filter.setcookie.name");
         
-    }
-
-    public void init() {
-     	
     }
 
     /* (non-Javadoc)
