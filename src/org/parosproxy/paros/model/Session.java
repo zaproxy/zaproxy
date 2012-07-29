@@ -479,9 +479,12 @@ public class Session extends FileXML {
 		if (sn == null) {
 			return false;
 		}
-		String name = sn.getHierarchicNodeName();
+		return isIncludedInScope(sn.getHierarchicNodeName());
+	}
+	
+	public boolean isIncludedInScope(String url) {
 		for (Pattern p : this.includeInScopePatterns) {
-			if (p.matcher(name).matches()) {
+			if (p.matcher(url).matches()) {
 				return true;
 			}
 		}
@@ -492,9 +495,12 @@ public class Session extends FileXML {
 		if (sn == null) {
 			return false;
 		}
-		String name = sn.getHierarchicNodeName();
+		return isExcludedFromScope(sn.getHierarchicNodeName());
+	}
+	
+	public boolean isExcludedFromScope(String url) {
 		for (Pattern p : this.excludeFromScopePatterns) {
-			if (p.matcher(name).matches()) {
+			if (p.matcher(url).matches()) {
 				return true;
 			}
 		}
@@ -502,12 +508,19 @@ public class Session extends FileXML {
 	}
 
 	public boolean isInScope(SiteNode sn) {
-		if (! this.isIncludedInScope(sn)) {
-			// Not explicity included
+		if (sn == null) {
 			return false;
 		}
-		// Chyeck to see if its explicity excluded
-		return ! this.isExcludedFromScope(sn);
+		return isInScope(sn.getHierarchicNodeName());
+	}
+	
+	public boolean isInScope(String url) {
+		if (! this.isIncludedInScope(url)) {
+			// Not explicitly included
+			return false;
+		}
+		// Check to see if its explicitly excluded
+		return ! this.isExcludedFromScope(url);
 	}
 
 	public List<String> getIncludeInScopeRegexs() {
@@ -559,6 +572,7 @@ public class Session extends FileXML {
 		includeInScopePatterns.add(p);
 		includeInScopeRegexs.add(includeRegex);
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE, this.includeInScopeRegexs);
+    	Control.getSingleton().sessionScopeChanged();
 	}
 	
 	public List<String> getExcludeFromScopeRegexs() {
@@ -602,6 +616,7 @@ public class Session extends FileXML {
 		excludeFromScopePatterns.add(p);
 		excludeFromScopeRegexs.add(excludeRegex);
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE, this.excludeFromScopeRegexs);
+    	Control.getSingleton().sessionScopeChanged();
 	}
 
 	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {

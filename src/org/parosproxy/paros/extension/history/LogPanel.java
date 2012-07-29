@@ -23,6 +23,7 @@
 // ZAP: 2012/04/28 Added logger and log of exception.
 // ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
 // class at runtime, to get the resource.
+// ZAP: 2012/07/29 Issue 43: added Scope support
 
 package org.parosproxy.paros.extension.history;
 
@@ -36,6 +37,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -62,6 +64,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private javax.swing.JToolBar panelToolbar = null;
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
+	private JToggleButton scopeButton = null;
 	
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
@@ -161,8 +164,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
 
 			gridBagConstraints1.gridx = 0;
@@ -181,16 +182,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraints4.gridx = 3;
-			gridBagConstraints4.gridy = 0;
-			gridBagConstraints4.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
-
-			gridBagConstraints5.gridx = 4;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-
 			gridBagConstraintsX.gridx = 5;
 			gridBagConstraintsX.gridy = 0;
 			gridBagConstraintsX.weightx = 1.0;
@@ -203,8 +194,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					Constant.messages.getString("history.filter.label.off"));
 			JLabel t1 = new JLabel();
 
-			panelToolbar.add(getFilterButton(), gridBagConstraints1);
-			panelToolbar.add(filterStatus, gridBagConstraints2);
+			panelToolbar.add(getScopeButton(), gridBagConstraints1);
+			panelToolbar.add(getFilterButton(), gridBagConstraints2);
+			panelToolbar.add(filterStatus, gridBagConstraints3);
 			/*
 			panelToolbar.add(getBtnSearch(), gridBagConstraints3);
 			panelToolbar.add(getBtnNext(), gridBagConstraints4);
@@ -233,6 +225,30 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		return filterButton;
 	}
 
+	private JToggleButton getScopeButton() {
+		if (scopeButton == null) {
+			scopeButton = new JToggleButton();
+			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+
+			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					extension.setShowJustInScope(scopeButton.isSelected());
+					if (scopeButton.isSelected()) {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
+					} else {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+					}
+				}
+			});
+		}
+		return scopeButton;
+	}
+
 	/**
 
 	 * This method initializes listLog	
@@ -242,7 +258,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	 * @return javax.swing.JList	
 
 	 */    
-	public javax.swing.JList getListLog() {
+	protected javax.swing.JList getListLog() {
 		if (listLog == null) {
 			listLog = new javax.swing.JList();
 			listLog.setDoubleBuffered(true);

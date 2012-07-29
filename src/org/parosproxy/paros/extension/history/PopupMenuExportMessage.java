@@ -23,6 +23,8 @@
 // ZAP: 2012/03/15 Changed the method initialize to check if "fw" is not null before closing.
 // Made the "log" final.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -30,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JList;
@@ -84,9 +87,8 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
-                JList listLog = extension.getLogPanel().getListLog();
-        	    Object[] obj = listLog.getSelectedValues();
-        	    if (obj.length == 0) {
+        		List<HistoryReference> hrefs = extension.getSelectedHistoryReferences();
+        	    if (hrefs.size() == 0) {
                     extension.getView().showWarningDialog(Constant.messages.getString("history.export.messages.select.warning"));        	        
                     return;
         	    }
@@ -109,9 +111,8 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
         	    BufferedWriter fw = null;
                 try {
                     fw = new BufferedWriter(new FileWriter(file, isAppend));
-            	    for (int i=0; i<obj.length; i++) {
-            	        HistoryReference ref = (HistoryReference) obj[i];
-            	        exportHistory(ref, fw);
+            		for (HistoryReference href : hrefs) {
+            	        exportHistory(href, fw);
             	    }
 
                 } catch (Exception e1) {

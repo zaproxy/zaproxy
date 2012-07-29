@@ -147,10 +147,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		alert.setSourceHistoryId(historyRecord.getHistoryId());
 		
 		try {
-			href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
+			href = extHist.getHistoryReference(historyRecord.getHistoryId());
 			if (href != null) {
 				href.addAlert(alert);
-				extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
+				extHist.notifyHistoryItemChanged(href);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -168,11 +168,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 			init();
 		}
 		try {
-			HistoryReference href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
+			HistoryReference href = extHist.getHistoryReference(historyRecord.getHistoryId());
 			if (href != null) {
 				if (! href.getTags().contains(tag)) {
 					href.addTag(tag);
-					extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
+					extHist.notifyHistoryItemChanged(href);
 				}
 			}
 		} catch (Exception e) {

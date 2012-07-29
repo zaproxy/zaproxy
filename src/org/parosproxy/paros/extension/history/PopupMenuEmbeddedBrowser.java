@@ -21,6 +21,8 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -88,9 +90,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
                     return;
                 }
                 if (lastInvoker.getName().equalsIgnoreCase("ListLog")) {
-                    JList listLog = extension.getLogPanel().getListLog();
-                    
-                    ref = (HistoryReference) listLog.getSelectedValue();
+                    ref = extension.getSelectedHistoryReference();
                     showBrowser(ref);                                   
 
                 } else if (lastInvoker.getName().equals("treeSite")) {

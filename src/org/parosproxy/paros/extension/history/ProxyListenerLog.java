@@ -22,15 +22,15 @@
 // ZAP: 2012/03/15 Changed the method addHistory to use the class StringBuilder 
 // instead of StringBuffer. Added the method getProxyListenerOrder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
  
 import java.awt.EventQueue;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
@@ -57,30 +57,15 @@ public class ProxyListenerLog implements ProxyListener {
     
 	private ViewDelegate view = null;
 	private Model model = null;
-	private HistoryList historyList = null;
-	private Pattern pattern = null;
 	private boolean isFirstAccess = true;
-	// ZAP: filter log using a HistoryFilter
-	private HistoryFilter historyFilter = null;
+	private ExtensionHistory extension = null;
 	
-	public ProxyListenerLog(Model model, ViewDelegate view, HistoryList historyList) {
+	public ProxyListenerLog(Model model, ViewDelegate view, ExtensionHistory extension) {
 	    this.model = model;
 	    this.view = view;
-	    this.historyList = historyList;
+	    this.extension = extension;
 	}
 
-	public void setFilter(String filter) {
-	    if (filter == null || filter.equals("")) {
-	        pattern = null;
-	    } else {
-	        pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-	    }
-	}
-	
-	public void setHistoryFilter (HistoryFilter historyFilter) {
-		this.historyFilter = historyFilter;
-	}
-	
 	// ZAP: Added method.
 	@Override
 	public int getProxyListenerOrder() {
@@ -168,31 +153,7 @@ public class ProxyListenerLog implements ProxyListener {
             return;
         }
         
-        // add history to list (log panel).  Must use event queue because this proxylistener may not be run from event queue.
-        synchronized(historyList) {
-            if (type == HistoryReference.TYPE_MANUAL) {
-                
-                if (pattern == null && historyFilter == null) {
-                    addHistoryInEventQueue(historyRef);
-                } else if (historyFilter != null) {
-                	if (historyFilter.matches(historyRef)) {
-                        addHistoryInEventQueue(historyRef);
-                	}
-                } else {
-                	StringBuilder sb = new StringBuilder();
-                    sb.append(msg.getRequestHeader().toString());
-                    sb.append(msg.getRequestBody().toString());
-                    if (!msg.getResponseHeader().isEmpty()) {
-                        sb.append(msg.getResponseHeader().toString());
-                        sb.append(msg.getResponseBody().toString());
-                        
-                    }
-                    if (pattern.matcher(sb.toString()).find()) {
-                        addHistoryInEventQueue(historyRef);
-                    }
-                }
-            }
-        }
+        extension.addHistory(historyRef);
 
         // add history to site panel.  Must use event queue because this proxylistener may not be run from event queue.
         final HistoryReference ref = historyRef;
@@ -219,27 +180,6 @@ public class ProxyListenerLog implements ProxyListener {
                             }
                         }
                     }
-                });
-            } catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
-            }
-            
-            
-        }
-    }
-    
-    private void addHistoryInEventQueue(final HistoryReference ref) {
-        if (EventQueue.isDispatchThread()) {
-            historyList.addElement(ref);
-        } else {
-            try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        historyList.addElement(ref);
-                    }
-                    
                 });
             } catch (Exception e) {
             	// ZAP: Log exceptions
