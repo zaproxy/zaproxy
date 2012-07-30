@@ -26,6 +26,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
@@ -50,10 +51,14 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
     @Override
     public boolean onMessageFrame(int channelId, WebSocketMessage message) {
         WebSocketMessageDAO dao = message.getDAO();
-    	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
+        
+        if (dao instanceof WebSocketFuzzMessageDAO) {
+        	// as this message was sent by some fuzzer, do not catch it
+        	return true;
+        }
     	
         if (!message.isFinished()) {
-        	
+        	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
         	if (wsBrkMessageHandler.isBreakpoint(dao, isRequest)) {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
