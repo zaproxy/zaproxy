@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.utility;
+package org.zaproxy.zap.utils;
 
 import java.awt.Adjustable;
 import java.awt.event.AdjustmentEvent;

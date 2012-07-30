@@ -60,7 +60,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
-import org.zaproxy.zap.extension.websocket.utility.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 
 /**
  * Represents the WebSockets tab. It listens to all WebSocket channels and
