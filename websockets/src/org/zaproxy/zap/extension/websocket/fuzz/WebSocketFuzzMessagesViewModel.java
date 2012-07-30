@@ -205,7 +205,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 			int erroneousRowCount = erroneousMessages.size();
 		
 			if ((offset + 1) >= sqlRowCount) {
-				offset = offset - sqlRowCount;
+				offset = offset - (sqlRowCount - 1);
 				return new ArrayList<WebSocketMessageDAO>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
 			} else if (offset + length >= sqlRowCount) {
 				int sqlLength = sqlRowCount - offset;
