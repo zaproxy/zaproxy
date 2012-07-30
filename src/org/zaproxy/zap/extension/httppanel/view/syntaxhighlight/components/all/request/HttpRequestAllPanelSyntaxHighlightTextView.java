@@ -26,10 +26,12 @@ import javax.swing.text.BadLocationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
+import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
@@ -58,10 +60,15 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 		public HttpRequestAllPanelSyntaxHighlightTextArea() {
 			//addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
 		}
+		
+	    @Override
+	    public Class<? extends Message> getMessageClass() {
+	        return HttpMessage.class;
+	    }
 
 		@Override
-		public FuzzableTextHttpMessage getFuzzableHttpMessage() {
-			HttpMessage httpMessage = getHttpMessage();
+		public FuzzableMessage getFuzzableMessage() {
+			HttpMessage httpMessage = (HttpMessage)getMessage();
 			//This only happens in the Request/Response Header
 			//As we replace all \r\n with \n we must add one character
 			//for each line until the line where the selection is.
@@ -84,7 +91,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 				} catch (BadLocationException e) {
 					//Shouldn't happen, but in case it does log it and return.
 					log.error(e.getMessage(), e);
-					return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
 				}
 				
 				try {
@@ -92,7 +99,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 				} catch (BadLocationException e) {
 					//Shouldn't happen, but in case it does log it and return.
 					log.error(e.getMessage(), e);
-					return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, start, 0);
+					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, 0);
 				}
 				
 				if (end > headerLen) {
@@ -106,7 +113,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 				location = FuzzableTextHttpMessage.Location.BODY;
 			}
 			
-			return new FuzzableTextHttpMessage(getHttpMessage(), location, start, end);
+			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), location, start, end);
 		}
 
 		@Override
@@ -131,7 +138,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 		
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
-			HttpMessage httpMessage = getHttpMessage();
+			HttpMessage httpMessage = (HttpMessage)getMessage();
 			//This only happens in the Request/Response Header
 			//As we replace all \r\n with \n we must add one character
 			//for each line until the line where the selection is.

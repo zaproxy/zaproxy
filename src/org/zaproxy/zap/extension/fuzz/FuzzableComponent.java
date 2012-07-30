@@ -17,12 +17,17 @@
  */
 package org.zaproxy.zap.extension.fuzz;
 
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
+
 public interface FuzzableComponent {
 
-	public FuzzableHttpMessage getFuzzableHttpMessage();
-	
-	public boolean canFuzz();
+    Class<? extends Message> getMessageClass();
 
-	public String getFuzzTarget();
-	
+    public FuzzableMessage getFuzzableMessage();
+
+    public boolean canFuzz();
+
+    public String getFuzzTarget();
+
 }

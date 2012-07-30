@@ -54,7 +54,7 @@ public abstract class WebSocketProxy {
 
 	public enum State {  
 		CONNECTING, OPEN, CLOSING, CLOSED, // ready state
-		EXCLUDED, INCLUDED; // new black- or whitelisted channel
+		EXCLUDED, INCLUDED; // no WebSocket state, used for new black- or whitelisted channels
 	}
 	
 	/**
@@ -205,6 +205,12 @@ public abstract class WebSocketProxy {
 		isForwardOnly = false;
 	}
 	
+	/**
+	 * {@link State#EXCLUDED} and {@link State#INCLUDED} are never set as status,
+	 * but are used to inform observers.
+	 *  
+	 * @param newState
+	 */
 	protected void setState(State newState) {
 		if (state == newState) {
 			return;
@@ -457,6 +463,16 @@ public abstract class WebSocketProxy {
 	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
+	 * Returns a version specific WebSockets message, that is build upon given
+	 * {@link WebSocketMessageDAO}.
+	 * 
+	 * @param dao Contains content to be used to create {@link WebSocketMessage}.
+	 * @return
+	 * @throws WebSocketException
+	 */
+	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDAO dao) throws WebSocketException;
+
+	/**
 	 * Returns the opposed socket.
 	 * 
 	 * @param socket
@@ -495,16 +511,14 @@ public abstract class WebSocketProxy {
 			// be sure that observers got to know this channel
 			logger.info(toString() + " is re-included in storage & UI!");
 			
-			// set to false first, otherwise no notification is sent
 			isForwardOnly = false;
-			setState(State.INCLUDED);
+			notifyStateObservers(State.INCLUDED);
 		} else if (!isForwardOnly && shouldBeForwardOnly) {
 			// current channel is not tracked in future
 			logger.info(toString() + " is excluded from storage & UI!");
-			
-			// set to true afterwards, otherwise no notification is sent
-			setState(State.EXCLUDED);
+
 			isForwardOnly = true;
+			notifyStateObservers(State.EXCLUDED);
 		}
 	}
 	
@@ -629,5 +643,30 @@ public abstract class WebSocketProxy {
 	
 	public String toString() {
 		return host + ":" + port + " (#" + channelId + ")";
+	}
+
+	/**
+	 * Sends a custom message and informs {@link WebSocketObserver} instances of
+	 * this new message.
+	 * 
+	 * @param msg
+	 * @throws IOException
+	 */
+	public void sendAndNotify(WebSocketMessageDAO msg) throws IOException {
+		logger.info("send custom message");
+		WebSocketMessage message = createWebSocketMessage(msg);
+		
+		OutputStream out;
+		if (msg.isOutgoing) {
+			// an outgoing message is caught by the local listener
+			// and forwarded to its output stream
+			out = localListener.getOutputStream();
+		} else {
+			// an incoming message is caught by the remote listener
+			out = remoteListener.getOutputStream();
+		}
+		message.forward(out);
+		
+		notifyMessageObservers(message);
 	}
 }

@@ -1,6 +1,6 @@
 // CHECKSTYLE_OFF
 // Copied verbatim (other than these lines) from jetty-util trunk @r1179.
-package org.zaproxy.zap.extension.websocket;
+package org.zaproxy.zap.extension.websocket.utility;
 
 
 /* ------------------------------------------------------------ */

@@ -52,4 +52,19 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 			}
 		}
 	}
+	
+	public void setSelectedChannelId(Integer channelId) {
+		if (channelId == null) {
+			setSelectedItem(getElementAt(0));
+			return;
+		}
+		
+		for (int i = 0; i < getSize(); i++) {
+			WebSocketChannelDAO dao = (WebSocketChannelDAO) getElementAt(i);
+			if (dao.channelId.equals(channelId)) {
+				setSelectedItem(dao);
+				return;
+			}
+		}
+	}
 }

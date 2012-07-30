@@ -46,8 +46,8 @@ import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.SyntaxMenu;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -74,7 +74,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private static final String BRACKET_MATCHING = "bracketmatch";
 	private static final String ANIMATED_BRACKET_MATCHING = "animatedbracketmatch";
 	
-	private HttpMessage httpMessage;
+	private Message message;
 	private Vector<SyntaxStyle> syntaxStyles;
 	
 	private static SyntaxMenu syntaxMenu = null;
@@ -105,7 +105,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		
 		setPopupMenu(null);
 		
-		this.httpMessage = null;
+		this.message = null;
 		
 		setHyperlinksEnabled(false);
 
@@ -142,7 +142,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		
 		highlighter.addObserver(this);
 		
-		if (httpMessage != null) {
+		if (message != null) {
 			highlightAll();
 		}
 	}
@@ -227,12 +227,12 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		this.invalidate();
 	}
 	
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
+	public void setMessage(Message aMessage) {
+		this.message = aMessage;
 	}
 	
-	public HttpMessage getHttpMessage() {
-		return httpMessage;
+	public Message getMessage() {
+		return message;
 	}
 	
 	public void loadConfiguration(String key, FileConfiguration fileConfiguration) {

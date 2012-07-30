@@ -87,14 +87,6 @@ public class WebSocketMessageDAO implements Message {
 	 * Temporary object holding arbitrary values.
 	 */
 	public volatile Object tempUserObj;
-
-	/**
-	 * Useful representation for debugging purposes.
-	 */
-	public String toString() {
-		return "Id=" + messageId + ";Opcode=" + readableOpcode + ";Bytes="
-				+ payloadLength;
-	}
 	
 	/**
 	 * Used to format {@link WebSocketMessage#timestamp} in user's locale.
@@ -131,5 +123,31 @@ public class WebSocketMessageDAO implements Message {
 		}
 		
 		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
+	}
+
+	/**
+	 * Useful representation for debugging purposes.
+	 */
+	public String toString() {
+		return "id=" + messageId + ";opcode=" + readableOpcode + ";bytes=" + payloadLength;
+	}
+
+	/**
+	 * Assigns all values to given object.
+	 * 
+	 * @param other
+	 */
+	public void copyInto(WebSocketMessageDAO other) {
+		other.channelId = this.channelId;
+		other.closeCode = this.closeCode;
+		other.dateTime = this.dateTime;
+		other.isOutgoing = this.isOutgoing;
+		other.messageId = this.messageId;
+		other.opcode = this.opcode;
+		other.payload = this.payload;
+		other.payloadLength = this.payloadLength;
+		other.readableOpcode = this.readableOpcode;
+		other.tempUserObj = this.tempUserObj;
+		other.timestamp = this.timestamp;
 	}
 }

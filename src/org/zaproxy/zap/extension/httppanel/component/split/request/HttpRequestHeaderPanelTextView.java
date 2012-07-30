@@ -24,7 +24,8 @@ import java.util.regex.Pattern;
 import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.fuzz.FuzzableHttpMessage;
+import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
@@ -48,15 +49,14 @@ public class HttpRequestHeaderPanelTextView extends HttpPanelTextView {
 
 		private static final long serialVersionUID = 985537589818833350L;
 		
-		@Override
-		public FuzzableHttpMessage getFuzzableHttpMessage() {
+		public FuzzableMessage getFuzzableMessage() {
 			int start = getSelectionStart();
 			try {
 				start += getLineOfOffset(start);
 			} catch (BadLocationException e) {
 				//Shouldn't happen, but in case it does log it and return.
 				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
 			}
 
 			int end = getSelectionEnd();
@@ -65,10 +65,10 @@ public class HttpRequestHeaderPanelTextView extends HttpPanelTextView {
 			} catch (BadLocationException e) {
 				//Shouldn't happen, but in case it does log it and return.
 				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
 			}
 			
-			return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
+			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
 		}
 		
 		@Override

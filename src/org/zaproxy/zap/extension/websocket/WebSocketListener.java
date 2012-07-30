@@ -141,4 +141,13 @@ public class WebSocketListener implements Runnable {
 	public boolean isFinished() {
 		return isFinished;
 	}
+	
+	/**
+	 * Returns the outgoing stream.
+	 * 
+	 * @return
+	 */
+	public OutputStream getOutputStream() {
+		return out;
+	}
 }

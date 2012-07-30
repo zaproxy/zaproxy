@@ -20,10 +20,12 @@
 package org.zaproxy.zap.extension.fuzz;
 
 public interface FuzzerListener {
-	
-	public void notifyFuzzProcessStarted (FuzzProcess fp);
 
-	public void notifyFuzzProcessComplete (FuzzProcess fp);
+    public void notifyFuzzerStarted (int total);
+
+	public void notifyFuzzProcessStarted (FuzzProcess fuzzProcess);
+
+	public void notifyFuzzProcessComplete (FuzzResult fuzzResult);
 	
 	public void notifyFuzzerComplete();
 }

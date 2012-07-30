@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.websocket.ui;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -30,17 +31,18 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
+import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
 
 /**
  * This model uses the {@link TableWebSocket} instance to load only needed
  * entries from database. Moreover it shows only those entries that are not
- * blacklisted by given {@link WebSocketTableModelFilter}.
+ * blacklisted by given {@link WebSocketMessagesViewFilter}.
  */
-public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
+public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessageDAO> {
 	
 	private static final long serialVersionUID = -5047686640383236512L;
 
-	private static final Logger logger = Logger.getLogger(WebSocketTableModel.class);
+	private static final Logger logger = Logger.getLogger(WebSocketMessagesViewModel.class);
 	
 	/**
 	 * Number of columns in this table model
@@ -55,12 +57,12 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	/**
 	 * Used to show only specific messages.
 	 */
-	private WebSocketTableModelFilter filter;
+	private WebSocketMessagesViewFilter filter;
 
 	/**
 	 * Interface to database.
 	 */
-	private TableWebSocket table;
+	protected TableWebSocket table;
 
 	/**
 	 * If null, all messages are shown.
@@ -71,8 +73,8 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	private static final ImageIcon incomingDirection;
 	
 	static {
-		outgoingDirection = new ImageIcon(WebSocketTableModel.class.getResource("/resource/icon/105_gray.png"));
-		incomingDirection = new ImageIcon(WebSocketTableModel.class.getResource("/resource/icon/106_gray.png"));
+		outgoingDirection = new ImageIcon(WebSocketMessagesViewModel.class.getResource("/resource/icon/105_gray.png"));
+		incomingDirection = new ImageIcon(WebSocketMessagesViewModel.class.getResource("/resource/icon/106_gray.png"));
 	}
 	
 	/**
@@ -81,26 +83,42 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	 * @param webSocketTable 
 	 * @param webSocketFilter 
 	 */
-	public WebSocketTableModel(TableWebSocket webSocketTable, WebSocketTableModelFilter webSocketFilter) {
-		super();
+	public WebSocketMessagesViewModel(TableWebSocket webSocketTable, WebSocketMessagesViewFilter webSocketFilter) {
+		this(webSocketTable);
 
-		table = webSocketTable;
 		filter = webSocketFilter;
-
+	}
+	
+	/**
+	 * Useful Ctor for subclasses.
+	 */
+	protected WebSocketMessagesViewModel(TableWebSocket webSocketTable) {
+		super();
+		
+		table = webSocketTable;
+		columnNames = getColumnNames();
+	}
+	
+	protected Vector<String> getColumnNames() {
+		Vector<String> names = new Vector<String>(getColumnCount());
 		ResourceBundle msgs = Constant.messages;
-		columnNames = new Vector<String>(COLUMN_COUNT);
-		columnNames.add(msgs.getString("websocket.table.header.id"));
-		columnNames.add(msgs.getString("websocket.table.header.direction"));
-		columnNames.add(msgs.getString("websocket.table.header.timestamp"));
-		columnNames.add(msgs.getString("websocket.table.header.opcode"));
-		columnNames.add(msgs.getString("websocket.table.header.payload_length"));
-		columnNames.add(msgs.getString("websocket.table.header.payload"));
+		names.add(msgs.getString("websocket.table.header.id"));
+		names.add(msgs.getString("websocket.table.header.direction"));
+		names.add(msgs.getString("websocket.table.header.timestamp"));
+		names.add(msgs.getString("websocket.table.header.opcode"));
+		names.add(msgs.getString("websocket.table.header.payload_length"));
+		names.add(msgs.getString("websocket.table.header.payload"));
+		return names;
 	}
 	
 	public void setActiveChannel(Integer channelId) {
 		activeChannelId = channelId;
 		clear();
 		fireTableDataChanged();
+	}
+
+	public Integer getActiveChannelId() {
+		return activeChannelId;
 	}
 
 	/**
@@ -111,14 +129,14 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	@Override
 	public int getRowCount() {
 		try {			
-			return table.getMessageCount(getCriterionDao(), filter.getOpcodes());
+			return table.getMessageCount(getCriterionDao(), getCriterionOpcodes());
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			return 0;
 		}
 	}
 
-	private WebSocketMessageDAO getCriterionDao() {
+	protected WebSocketMessageDAO getCriterionDao() {
 		WebSocketMessageDAO dao = new WebSocketMessageDAO();
 		
 		if (activeChannelId != null) {
@@ -131,9 +149,13 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 		
 		return dao;
 	}
+
+	protected List<Integer> getCriterionOpcodes() {
+		return filter.getOpcodes();
+	}
 	
 	@Override
-	public Object getColumnValue(WebSocketMessageDAO message, int columnIndex) {
+	public Object getWebSocketValueAt(WebSocketMessageDAO message, int columnIndex) {
 		switch (columnIndex) {
 		case 0:
 			return new WebSocketMessagePrimaryKey(message.channelId, message.messageId);
@@ -173,10 +195,10 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	@Override
 	protected List<WebSocketMessageDAO> loadPage(int offset, int length) {
 		try {
-			return table.getMessages(getCriterionDao(), filter.getOpcodes(), offset, length);
+			return table.getMessages(getCriterionDao(), getCriterionOpcodes(), offset, length);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			return new ArrayList<WebSocketMessageDAO>();
 		}
 	}
 
@@ -260,7 +282,7 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 	 */
 	public void fireMessageArrived(WebSocketMessageDAO dao) {
 		boolean isWhitelistedChannel = (activeChannelId == null) || dao.channelId.equals(activeChannelId);
-		if (filter.isBlacklisted(dao) || !isWhitelistedChannel) {
+		if ((filter != null && filter.isBlacklisted(dao)) || !isWhitelistedChannel) {
 			// no need to fire update, as it isn't active now
 		} else {
 			// find out where it is inserted and update precisely
@@ -269,7 +291,25 @@ public class WebSocketTableModel extends PagingTableModel<WebSocketMessageDAO> {
 			// it suffices to fire inserted row at the end of list
 			
 			// with enabled row sorter, you'll have to take care about this
-			fireTableRowsInserted(getRowCount(), getRowCount());
+			int rowCount = getRowCount();
+			fireTableRowsInserted(rowCount, rowCount);
+		}
+	}
+
+	public Integer getModelRowIndexOf(WebSocketMessageDAO dao) {
+		if (dao.messageId == null) {
+			return null;
+		}
+		
+		WebSocketMessageDAO criteria = getCriterionDao();
+		criteria.channelId = dao.channelId;
+		criteria.messageId = dao.messageId;
+		try {
+			return table.getIndexOf(criteria, null);
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			// maybe I'm right with this guess - try
+			return dao.messageId - 1;
 		}
 	}
 }

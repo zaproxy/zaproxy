@@ -90,35 +90,12 @@ public class TableHistory extends AbstractTable {
     
     @Override
     protected void reconnect(Connection conn) throws SQLException {
-        psRead = conn.prepareStatement("SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
-        // updatable recordset does not work in hsqldb jdbc impelementation!
-        //psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
-        psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = " + HistoryReference.TYPE_TEMPORARY);
-        psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
-
         isExistStatusCode = false;
         ResultSet rs = conn.getMetaData().getColumns(null, null, "HISTORY", "STATUSCODE");
         if (rs.next()) {
             isExistStatusCode = true;
         }
         rs.close();
-        // ZAP: Added support for the tag when creating a history record
-        if (isExistStatusCode) {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
-                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
-                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?)");
-        } else {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
-                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
-                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?)");
-            
-        }
-        psWrite2 = conn.prepareCall("CALL IDENTITY();");
 
         rs = conn.getMetaData().getColumns(null, null, "HISTORY", "TAG");
         if (!rs.next()) {
@@ -127,8 +104,6 @@ public class TableHistory extends AbstractTable {
             stmt.close();
         }
         rs.close();
-        
-        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
         // ZAP: Add the NOTE column to the db if necessary
         rs = conn.getMetaData().getColumns(null, null, "HISTORY", "NOTE");
@@ -138,6 +113,33 @@ public class TableHistory extends AbstractTable {
             stmt.close();
         }
         rs.close();
+        
+        psRead = conn.prepareStatement("SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
+        // updatable recordset does not work in hsqldb jdbc impelementation!
+        //psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
+        psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = " + HistoryReference.TYPE_TEMPORARY);
+        psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
+
+        
+        // ZAP: Added support for the tag when creating a history record
+        if (isExistStatusCode) {
+            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
+                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?)");
+        } else {
+            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
+                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?)");
+            
+        }
+        psWrite2 = conn.prepareCall("CALL IDENTITY();");
+        
+        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
        	psLastIndex = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
@@ -167,6 +169,7 @@ public class TableHistory extends AbstractTable {
 	    String method = "";
 	    String uri = "";
         int statusCode = 0;
+        String note = msg.getNote();
 	    
 	    if (!msg.getRequestHeader().isEmpty()) {
 	        reqHeader = msg.getRequestHeader().toString();
@@ -182,13 +185,13 @@ public class TableHistory extends AbstractTable {
 	    }
 	    
 	    //return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, msg.getTag());
-	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null);
+	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null, note);
 	    
 	}
 	
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
-	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag) throws HttpMalformedHeaderException, SQLException {
+	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException, SQLException {
 
 		psWrite1.setLong(1, sessionId);
 		psWrite1.setInt(2, histType);
@@ -205,6 +208,10 @@ public class TableHistory extends AbstractTable {
         if (isExistStatusCode) {
             psWrite1.setInt(12, statusCode);
         }
+        
+        // ZAP: Added the statement.
+        psWrite1.setString(13, note);
+        
 		psWrite1.executeUpdate();
 				
 		/*

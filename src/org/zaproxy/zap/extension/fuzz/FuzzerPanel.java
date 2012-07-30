@@ -20,90 +20,57 @@
 package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.CardLayout;
-import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
-import org.zaproxy.zap.extension.search.ExtensionSearch;
-import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.extension.search.SearchResult;
+import org.zaproxy.zap.extension.websocket.utility.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
+
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
+public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 	
-	private static final long serialVersionUID = 1L;
-
 	public static final String PANEL_NAME = "fuzzpanel";
 	
-    private static Logger logger = Logger.getLogger(FuzzerPanel.class);
+    private static final long serialVersionUID = 1L;
+	
+    private static final Logger logger = Logger.getLogger(FuzzerPanel.class);
 	
 	private ExtensionFuzz extension = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
-    private FuzzerPanelCellRenderer portPanelCellRenderer = null;
-	private DefaultListModel resultsModel;
 	private JTextPane initialMessage = null;
 
-	//private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
-	private JList fuzzResultList = null;
 	private JProgressBar progressBar = null;
-
-	//private HttpPanelRequest requestPanel = null;
-	//private HttpPanelResponse responsePanel = null;
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
 
 	private ScanStatus scanStatus = null;
 
-    /**
-     * A list containing all the {@code HistoryReference} IDs that are added to
-     * the instance variable {@code resultsModel}. Used to delete the
-     * {@code HistoryReference}s from the database when no longer needed.
-     */
-    private List<Integer> historyReferencesToDelete = new ArrayList<Integer>();
+    private FuzzerContentPanel contentPanel;
     
-    public FuzzerPanel(ExtensionFuzz extension, FuzzerParam fuzzerParam) {
+    public FuzzerPanel(ExtensionFuzz extension) {
         super();
         this.extension = extension;
  		initialize();
@@ -161,7 +128,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			
-			panelCommand.add(this.getPanelToolbar(), gridBagConstraints1);
+			panelCommand.add(getPanelToolbar(), gridBagConstraints1);
 			panelCommand.add(getJScrollPane(), gridBagConstraints2);
 			
 		}
@@ -331,6 +298,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 			jScrollPane.setViewportView(getInitialMessage());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			jScrollPane.getVerticalScrollBar().addAdjustmentListener(new StickyScrollbarAdjustmentListener());
 		}
 		return jScrollPane;
 	}
@@ -347,153 +315,10 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		return initialMessage;
 	}
 
-	private void resetFuzzResultList() {
-        if (historyReferencesToDelete.size() != 0) {
-            try {
-                Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
-            } catch (SQLException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-		resultsModel = new DefaultListModel();
-		historyReferencesToDelete = new ArrayList<Integer>();
-		getFuzzResultList().setModel(resultsModel);
+	protected void setContentPanel(FuzzerContentPanel aContentPanel) {
+	    contentPanel = aContentPanel;
 	}
 	
-	protected void addFuzzResult(final HttpMessage msg) {
-		
-		if (EventQueue.isDispatchThread()) {
-		    addFuzzResultToView(msg);
-		    return;
-		}
-		try {
-			EventQueue.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-				    addFuzzResultToView(msg);
-				}
-			});
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	private void addFuzzResultToView(final HttpMessage msg) {
-	    try {
-	        HistoryReference hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
-            this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
-            
-            resultsModel.addElement(hRef);
-        } catch (HttpMalformedHeaderException e) {
-            logger.error(e.getMessage(), e);
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        getProgressBar().setValue(getProgressBar().getValue() + 1);
-	}
-
-	private JList getFuzzResultList() {
-		if (fuzzResultList == null) {
-			fuzzResultList = new JList();
-			fuzzResultList.setDoubleBuffered(true);
-			fuzzResultList.setCellRenderer(getPortPanelCellRenderer());
-			fuzzResultList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			fuzzResultList.setName(PANEL_NAME);
-			fuzzResultList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-			
-			fuzzResultList.setFixedCellHeight(16);	// Significantly speeds up rendering
-
-	        fuzzResultList.addMouseListener(new java.awt.event.MouseAdapter() { 
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-				    if (SwingUtilities.isRightMouseButton(e)) {
-						// Select list item on right click
-					    int Idx = fuzzResultList.locationToIndex( e.getPoint() );
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = fuzzResultList.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    if ( Idx < 0 || !fuzzResultList.getSelectionModel().isSelectedIndex( Idx ) ) {
-					    	fuzzResultList.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		fuzzResultList.getSelectionModel().setSelectionInterval( Idx, Idx );
-					    	}
-					    }
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-				    }	
-				}
-			});
-
-			fuzzResultList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
-
-				@Override
-				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				    if (!e.getValueIsAdjusting()) {
-                        HistoryReference hRef = (HistoryReference) fuzzResultList.getSelectedValue();
-                        if (hRef == null) {
-                            return;
-                        }
-                        
-                        try {
-                            displayMessage(hRef.getHttpMessage());
-                        } catch (HttpMalformedHeaderException ex) {
-                            logger.error(ex.getMessage(), ex);
-                        } catch (SQLException ex) {
-                            logger.error(ex.getMessage(), ex);
-                        }
-				    }
-				}
-			});
-			
-			resetFuzzResultList();
-		}
-		return fuzzResultList;
-	}
-
-    private void displayMessage(HttpMessage msg) {
-		try {
-			if (msg.getRequestHeader().isEmpty()) {
-	            requestPanel.clearView(true);
-	        } else {
-	            requestPanel.setMessage(msg);
-	        }
-	        
-	        if (msg.getResponseHeader().isEmpty()) {
-	            responsePanel.clearView(false);
-	        } else {
-	            responsePanel.setMessage(msg, true);
-	        }
-			
-			// The fuzz payload is recorded in the note
-			
-	        String note = msg.getNote();
-	        if (note != null && note.length() > 0) {
-	        	int startIndex = msg.getResponseBody().toString().indexOf(note);
-	        	if (startIndex >= 0) {
-	        		// Found the exact pattern - highlight it
-	        		SearchMatch sm = new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, startIndex, startIndex + note.length());
-	        		responsePanel.setTabFocus();
-	        		responsePanel.requestFocus();
-					responsePanel.highlightBody(sm);
-	        	}
-	        }
-
-			
-		} catch (Exception e) {
-			logger.error("Failed to access message ", e);
-		}
-    }
-
-	private ListCellRenderer getPortPanelCellRenderer() {
-        if (portPanelCellRenderer == null) {
-            portPanelCellRenderer = new FuzzerPanelCellRenderer();
-            portPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            portPanelCellRenderer.setBackground(java.awt.Color.white);
-            portPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return portPanelCellRenderer;
-	}
-
 	private void stopScan() {
 		logger.debug("Stopping fuzzing");
 		extension.stopFuzzers ();
@@ -512,10 +337,13 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		}
 	}
 
-	public void scanStarted() {
-		this.getJScrollPane().setViewportView(getFuzzResultList());
+	private void scanStarted() {
+        logger.debug("Starting fuzzing");
+        
+        contentPanel.clear();
+		this.getJScrollPane().setViewportView(contentPanel.getComponent());
+        this.getJScrollPane().validate();
 		this.setTabFocus();
-		resetFuzzResultList();
 
 		getProgressBar().setEnabled(true);
 		getStopScanButton().setEnabled(true);
@@ -523,7 +351,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		scanStatus.incScanCount();
 	}
 
-	public void scanFinshed() {
+	private void scanFinshed() {
 		getStopScanButton().setEnabled(false);
 		getPauseScanButton().setEnabled(false);
 		getPauseScanButton().setSelected(false);
@@ -532,7 +360,7 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 		scanStatus.decScanCount();
 	}
 
-	public void scanProgress(int done, int todo) {
+	private void scanProgress(int done, int todo) {
 		getProgressBar().setValue(done);
 		getProgressBar().setMaximum(todo);
 	}
@@ -540,57 +368,36 @@ public class FuzzerPanel extends AbstractPanel { //implements FuzzerListenner {
 	public void reset() {
 		this.stopScan();
 		
-		resetFuzzResultList();
-		//getStartScanButton().setEnabled(false);
+		if (contentPanel != null) {
+		    contentPanel.clear();
+		    contentPanel = null;
+		}
+		
 		getStopScanButton().setEnabled(false);
 		getProgressBar().setEnabled(false);
 		getProgressBar().setValue(0);
 		
         this.getJScrollPane().setViewportView(getInitialMessage());
 	}
-
-    //public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
-
+	
+	@Override
+    public void notifyFuzzerStarted(int total) {
+        this.scanStarted();
+        scanProgress(0, total);
+    }
+    
+    @Override
+    public void notifyFuzzProcessStarted(FuzzProcess fp) {
     }
 
-	public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
-		List<SearchResult> results = new ArrayList<SearchResult>();
-		
-		if (resultsModel == null) {
-			return results;
-		}
-		
-		@SuppressWarnings("unchecked")
-		Enumeration<HistoryReference> enumeration = (Enumeration<HistoryReference>) resultsModel.elements();
-		Matcher matcher;
-		while (enumeration.hasMoreElements()) {
-		    HistoryReference historyReference = enumeration.nextElement();
-            try {
-                HttpMessage msg = historyReference.getHttpMessage();
-                if (msg != null && msg.getRequestBody() != null) {
-                    matcher = pattern.matcher(msg.getResponseBody().toString());
-                    if (inverse) {
-                        if (! matcher.find()) {
-                            results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
-                        }
-                    } else {
-                        while (matcher.find()) {
-                            results.add(
-                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(), 
-                                            new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
-                        }
-                    }
-                }
-            } catch (HttpMalformedHeaderException e) {
-                logger.error(e.getMessage(), e);
-            } catch (SQLException e) {
-                logger.error(e.getMessage(), e);
-            }
-		}
-		return results;
-	}
+    @Override
+    public void notifyFuzzProcessComplete(FuzzResult fuzzResult) {
+        contentPanel.addFuzzResult(fuzzResult);
+        getProgressBar().setValue(getProgressBar().getValue() + 1);
+    }
 
+    @Override
+    public void notifyFuzzerComplete() {
+        this.scanFinshed();
+    }
 }
