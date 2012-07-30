@@ -63,7 +63,7 @@ public class PopupMenuActiveScanScope extends PopupMenuSiteNode {
 
 	@Override
 	public void performAction(SiteNode node) throws Exception {
-    	extension.startScan();
+    	extension.startScanAllInScope();
 	}
 
 	@Override

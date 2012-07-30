@@ -390,12 +390,29 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	
+	public void scanAllInScope() {
+ 		log.debug("scanSite (all in scope)");
+		this.setTabFocus();
+		if (this.getStartScanButton().isEnabled()) {
+			startScan();
+		}
+	}
+	
 	public void scanSite(SiteNode node, boolean incPort) {
  		log.debug("scanSite " + prefix + " node=" + node.getNodeName());
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node);
+			startScan(node, true);
+		}
+	}
+	
+	public void scanNode(SiteNode node, boolean incPort) {
+ 		log.debug("scanNode" + prefix + " node=" + node.getNodeName());
+		this.setTabFocus();
+		nodeSelected(node, incPort);
+		if (currentSite != null && this.getStartScanButton().isEnabled()) {
+			startScan(node, false);
 		}
 	}
 	
@@ -540,13 +557,14 @@ public abstract class ScanPanel extends AbstractPanel {
 	public void nodeSelected(SiteNode node, boolean incPort) {
 		siteSelected(cleanSiteName(node, incPort));
 	}
-	
+
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
 	protected void startScan() {
-		this.startScan(null);
+		this.startScan(null, true);
 	}
-	protected void startScan(SiteNode startNode) {
+	
+	protected void startScan(SiteNode startNode, boolean scanChildren) {
  		log.debug("startScan " + prefix);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
@@ -560,10 +578,17 @@ public abstract class ScanPanel extends AbstractPanel {
 			scanThread = this.newScanThread(currentSite, scanParam);
 			scanMap.put(currentSite, scanThread);
 		}
-		if (scanThread.getStartNode() == null) {
-			// Quick fix - need to look at this again
-			scanThread.setStartNode(startNode);
+		if (startNode == null) {
+			scanThread.setStartNode(null);
+			scanThread.setJustScanInScope(true);
+		} else {
+			scanThread.setJustScanInScope(false);
+			if (scanThread.getStartNode() == null) {
+				// Quick fix - need to look at this again
+				scanThread.setStartNode(startNode);
+			}
 		}
+		scanThread.setScanChildren(scanChildren);
 		scanThread.start();
 		scanMap.put(currentSite, scanThread);
 		setActiveScanLabels();
@@ -721,8 +746,8 @@ public abstract class ScanPanel extends AbstractPanel {
     public boolean isCurrentSite(String site) {
     	return currentSite != null && currentSite.equals(site);
     }
-    
-	protected abstract Component getWorkPanel();
+
+    protected abstract Component getWorkPanel();
 	
 	protected abstract void switchView (String site);
 	

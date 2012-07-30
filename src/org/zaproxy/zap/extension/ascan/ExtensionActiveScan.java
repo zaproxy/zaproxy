@@ -150,8 +150,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return activeScanPanel;
 	}
 	
-	public void startScan() {
-		this.getActiveScanPanel().scanSite();
+	public void startScanAllInScope() {
+		this.getActiveScanPanel().scanAllInScope();
 	}
 
 	public void startScan(SiteNode startNode) {
