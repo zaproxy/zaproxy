@@ -39,7 +39,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.websocket.utility.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
 
 /**
