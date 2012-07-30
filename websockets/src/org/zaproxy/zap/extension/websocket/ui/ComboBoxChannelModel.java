@@ -61,7 +61,7 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 		
 		for (int i = 0; i < getSize(); i++) {
 			WebSocketChannelDAO dao = (WebSocketChannelDAO) getElementAt(i);
-			if (dao.channelId.equals(channelId)) {
+			if (dao.channelId != null && dao.channelId.equals(channelId)) {
 				setSelectedItem(dao);
 				return;
 			}

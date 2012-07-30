@@ -692,6 +692,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		if (filter.isBlacklisted(message)) {
 			// make it visible by resetting filter
 			filter.reset();
+		    setFilterStatus();
+			applyFilter();
 		}
 		
 		// select message and scroll there
