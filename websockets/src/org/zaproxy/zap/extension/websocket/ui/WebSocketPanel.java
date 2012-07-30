@@ -465,6 +465,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 				if (!isConnectedChannel && dao.endTimestamp == null) {
 					connectedChannelIds.add(dao.channelId);
 					channelSelectModel.addElement(dao);
+					isNewChannel = true;
 				}
 				break;
 	            
@@ -485,7 +486,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		if (connectedChannelsCount == 0) {
 			// change icon, as no WebSocket channel is active
 			updateIcon(WebSocketPanel.disconnectIcon);
-		} else if (connectedChannelsCount == 1 && isNewChannel) {
+		} else if (connectedChannelsCount > 0 && isNewChannel) {
 			// change icon, as at least one WebSocket is available
 			updateIcon(WebSocketPanel.connectIcon);
 		}
