@@ -49,7 +49,7 @@ public class HttpResponseAllPanelTextView extends HttpPanelTextView {
 
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
-			HttpMessage httpMessage = getHttpMessage();
+			HttpMessage httpMessage = (HttpMessage)getMessage();
 			//This only happens in the Request/Response Header
 			//As we replace all \r\n with \n we must add one character
 			//for each line until the line where the selection is.

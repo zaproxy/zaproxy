@@ -24,6 +24,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 
+import org.zaproxy.zap.extension.websocket.utility.Utf8StringBuilder;
+
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
  * This class was created with sight on the WebSocketMessage class of the
@@ -153,6 +155,12 @@ public abstract class WebSocketMessage {
 	 * Initially it is set to -1, meaning that its close code is unknown.
 	 */
 	protected int closeCode = -1;
+
+	/**
+	 * One Data Access Object is created per {@link WebSocketMessage} instance.
+	 * Might be also some subtype.
+	 */
+	private final WebSocketMessageDAO dao;
 	
 	/**
 	 * Used for en- & decoding from bytes to String and vice versa.
@@ -168,7 +176,12 @@ public abstract class WebSocketMessage {
 	}
 	
 	public WebSocketMessage(int messageId) {
+		this(messageId, new WebSocketMessageDAO());
+	}
+
+	protected WebSocketMessage(int messageId, WebSocketMessageDAO dao) {
 		this.messageId = messageId;
+		this.dao = dao;
 	}
 
 	/**
@@ -181,8 +194,7 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Write all frames of this message to given channel if and only if message
-	 * is finished.
+	 * Write all frames of this message to given stream.
 	 * 
 	 * @param out
 	 * @throws IOException
@@ -459,8 +471,6 @@ public abstract class WebSocketMessage {
 	 * @return
 	 */
 	public WebSocketMessageDAO getDAO() {
-		WebSocketMessageDAO dao = new WebSocketMessageDAO();
-		
 		Timestamp ts = getTimestamp();
 		dao.setTime(ts);
 		
@@ -471,6 +481,7 @@ public abstract class WebSocketMessage {
 			dao.payload = getReadablePayload();
 		} else if (isBinary()) {
 			// TODO: find binary websocket demo and set appropriate representation
+			// In the meanwhile use the same procedure as for TEXT messages
 			dao.payload = getReadablePayload();
 //			dao.payload = byteArrayToHexString(getPayload());
 		} else {

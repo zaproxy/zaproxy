@@ -32,7 +32,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 
-public class SessionExcludeFromWebSocketPanel extends AbstractParamPanel {
+public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
 	public static final String PANEL_NAME = Constant.messages.getString("websocket.session.exclude.title");
 	private static final long serialVersionUID = -1000465438379563850L;
 
@@ -41,7 +41,7 @@ public class SessionExcludeFromWebSocketPanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
 
-	public SessionExcludeFromWebSocketPanel() {
+	public ExcludeFromWebSocketSessionPanel() {
 		super();
 		initialize();
 	}

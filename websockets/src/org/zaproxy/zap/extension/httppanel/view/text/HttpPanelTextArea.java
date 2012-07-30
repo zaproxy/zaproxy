@@ -30,7 +30,7 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.HighlightSearchEntry;
@@ -45,10 +45,10 @@ public abstract class HttpPanelTextArea extends ZapTextArea implements Observer 
 
 	private static Logger log = Logger.getLogger(HttpPanelTextArea.class);
 	
-	private HttpMessage httpMessage;
+	private Message message;
 	
 	public HttpPanelTextArea() {
-		this.httpMessage = null;
+		this.message = null;
 		
 		initHighlighter();
 	}
@@ -58,7 +58,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea implements Observer 
 		
 		highlighter.addObserver(this);
 		
-		if (httpMessage != null) {
+		if (message != null) {
 			highlightAll();
 		}
 	}
@@ -143,12 +143,12 @@ public abstract class HttpPanelTextArea extends ZapTextArea implements Observer 
 	// highlight a specific SearchMatch in the editor
 	public abstract void highlight(SearchMatch sm);
 	
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
+	public void setMessage(Message aMessage) {
+		this.message = aMessage;
 	}
 	
-	public HttpMessage getHttpMessage() {
-		return httpMessage;
+	public Message getMessage() {
+		return message;
 	}
 
 }

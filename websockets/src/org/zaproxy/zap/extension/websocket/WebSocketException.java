@@ -22,8 +22,8 @@ import java.io.IOException;
 /**
  * Reports a WebSocket-specific error.
  */
-@SuppressWarnings("serial")
 public class WebSocketException extends IOException {
+	private static final long serialVersionUID = -4708303277965511632L;
 
 	public WebSocketException() {
 		super();

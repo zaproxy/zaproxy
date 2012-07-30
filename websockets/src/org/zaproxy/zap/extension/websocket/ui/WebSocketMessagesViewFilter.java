@@ -28,7 +28,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
  * Used as filter for the {@link WebSocketPanel}, which is applied in the
  * {@link WebSocketPanelCellRenderer}.
  */
-public class WebSocketTableModelFilter {
+public class WebSocketMessagesViewFilter {
 
 	/**
 	 * Contains a sublist of {@link WebSocketMessage#OPCODES} or nothing, if not

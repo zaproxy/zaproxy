@@ -17,8 +17,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
  * The UI which wants to implement highlights has to find the strings
  * for itself.
  * 
- * TODO:
- * Add Regex or similar, not only 
+ * TODO: Add Regex or similar, not only 
  */
 public class HighlightSearchEntry {
 

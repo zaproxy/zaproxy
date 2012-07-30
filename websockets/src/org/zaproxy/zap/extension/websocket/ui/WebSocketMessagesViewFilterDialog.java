@@ -40,7 +40,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 /**
  * Filter WebSocket messages in {@link WebSocketPanel}. Show only specific ones.
  */
-public class WebSocketTableModelFilterDialog extends AbstractDialog {
+public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -67,7 +67,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
 	/**
 	 * The model holding the values set by this filter dialog.
 	 */
-	private WebSocketTableModelFilter filter = new WebSocketTableModelFilter();
+	private WebSocketMessagesViewFilter filter = new WebSocketMessagesViewFilter();
 
 	private WebSocketUiHelper wsUiHelper;
 
@@ -76,7 +76,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
      * @param isModal
      * @throws HeadlessException
      */
-    public WebSocketTableModelFilterDialog(Frame owner, boolean isModal) throws HeadlessException {
+    public WebSocketMessagesViewFilterDialog(Frame owner, boolean isModal) throws HeadlessException {
         super(owner, isModal);
         wsUiHelper = new WebSocketUiHelper();
         initialize();
@@ -101,7 +101,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WebSocketTableModelFilterDialog.this.dispose();
+				WebSocketMessagesViewFilterDialog.this.dispose();
             }
         };
         
@@ -179,7 +179,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
 					filter.setOpcodes(wsUiHelper.getSelectedOpcodeIntegers());
 					filter.setDirection(wsUiHelper.getDirection());
 				    exitResult = JOptionPane.OK_OPTION;
-				    WebSocketTableModelFilterDialog.this.dispose();
+				    WebSocketMessagesViewFilterDialog.this.dispose();
 				}
 			});
 
@@ -200,7 +200,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 				    exitResult = JOptionPane.CANCEL_OPTION;
-				    WebSocketTableModelFilterDialog.this.dispose();
+				    WebSocketMessagesViewFilterDialog.this.dispose();
 				}
 			});
 		}
@@ -246,7 +246,7 @@ public class WebSocketTableModelFilterDialog extends AbstractDialog {
 	 * 
 	 * @return
 	 */
-	public WebSocketTableModelFilter getFilter() {
+	public WebSocketMessagesViewFilter getFilter() {
 		return filter;
 	}
 }

@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.fuzz;
+package org.zaproxy.zap.extension.fuzz.impl.http;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -33,7 +33,7 @@ import javax.swing.ScrollPaneConstants;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 
-public class FuzzerDialogTokenPane {
+public class HttpFuzzerDialogTokenPane {
 	private JScrollPane pane;
 	private JPanel pane2;
 	private JLabel sourceURL = new JLabel();
@@ -43,18 +43,18 @@ public class FuzzerDialogTokenPane {
 	private JCheckBox enableCheck = new JCheckBox();
 	private AntiCsrfToken token;
 
-	public FuzzerDialogTokenPane(boolean enable, AntiCsrfToken token, String targetURL) {
+	public HttpFuzzerDialogTokenPane(boolean enable, AntiCsrfToken token, String targetURL) {
 		this(enable, token.getMsg().getRequestHeader().getURI().toString(), targetURL, token.getName(), token.getValue());
 		this.token = token;
 	}
 
-	public FuzzerDialogTokenPane() {
+	public HttpFuzzerDialogTokenPane() {
 		this(false, null, null, null, null);
 		this.enableCheck.setEnabled(false);
 	}
 
 
-	private FuzzerDialogTokenPane(boolean enable, String sourceURL,
+	private HttpFuzzerDialogTokenPane(boolean enable, String sourceURL,
 			String targetURL, String tokenName, String prevValue) {
 		super();
 		this.sourceURL.setText(sourceURL);
@@ -64,9 +64,6 @@ public class FuzzerDialogTokenPane {
 		
 		pane = new JScrollPane();
 		String tmpName = null;
-		if (token != null) {
-			tmpName = token.getTargetURL();
-		}
 		pane.setBorder(
 				javax.swing.BorderFactory.createTitledBorder(
 						null, tmpName, //"TBI Anti CRSF Tokens", // Constant.messages.getString("invoke.options.edit"), 

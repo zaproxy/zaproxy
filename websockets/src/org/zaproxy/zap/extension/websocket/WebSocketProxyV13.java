@@ -63,6 +63,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		return new WebSocketMessageV13(in, frameHeader);
 	}
 
+	@Override
+	protected WebSocketMessage createWebSocketMessage(WebSocketMessageDAO dao) throws WebSocketException {
+		return new WebSocketMessageV13(dao);
+	}
+
 	/**
 	 * Version 13 specific WebSockets message.
 	 */
@@ -261,6 +266,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private boolean isValidUtf8Payload;
 
 		/**
+		 * Determined after first frame is processed.
+		 */
+		private Direction direction;
+
+		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
 		 * length can not be shown with 7 bits, the payload length is set to
 		 * 126. Then the next 16 bits interpreted as unsigned integer is the
@@ -293,6 +303,31 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			timestamp = new Timestamp(calendar.getTimeInMillis());
 			
 			readFrame(in, frameHeader);
+			direction = receivedFrames.get(0).isMasked() ? Direction.OUTGOING : Direction.INCOMING;
+		}
+
+		/**
+		 * Use this constructor to create a custom message from given data.
+		 * 
+		 * @param dao
+		 * @throws WebSocketException 
+		 */
+		public WebSocketMessageV13(WebSocketMessageDAO dao) throws WebSocketException {
+			// TODO: Shouldn't I add the message count later when I send the message?
+			super(getIncrementedMessageCount(), dao);
+			dao.messageId = getMessageId();
+			
+			Calendar calendar = Calendar.getInstance();
+			timestamp = new Timestamp(calendar.getTimeInMillis());
+			dao.setTime(timestamp);
+			
+			isFinished = true;
+			opcode = dao.opcode;
+			closeCode = (dao.closeCode == null) ? -1 : dao.closeCode;
+			direction = dao.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
+			
+			payload = ByteBuffer.allocate(0);
+			setReadablePayload(dao.payload);
 		}
 
 		/**
@@ -581,9 +616,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param frame
 		 * @param out
 		 */
-		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {			
-			out.write(frame.getBuffer());
-			out.flush();
+		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {
+			synchronized (out) {
+				out.write(frame.getBuffer());
+				out.flush();
+			}
 			
 			frame.setForwarded(true);
 		}
@@ -637,7 +674,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 
 		@Override
 		public Direction getDirection() {
-			return receivedFrames.get(0).isMasked() ? Direction.OUTGOING : Direction.INCOMING;
+			return direction;
 		}
 		
 		@Override

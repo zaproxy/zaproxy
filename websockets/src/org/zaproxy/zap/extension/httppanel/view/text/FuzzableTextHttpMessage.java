@@ -17,11 +17,10 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.text;
 
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableHttpMessage;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 
-public class FuzzableTextHttpMessage implements FuzzableHttpMessage {
+public class FuzzableTextHttpMessage implements FuzzableMessage {
 
 	public enum Location {HEADER, BODY};
 	
@@ -31,19 +30,19 @@ public class FuzzableTextHttpMessage implements FuzzableHttpMessage {
 	private final int end;
 	
 	public FuzzableTextHttpMessage(HttpMessage httpMessage, Location location, int start, int end) {
-		this.httpMessage = httpMessage.cloneRequest();
+		this.httpMessage = httpMessage.cloneAll();
 		this.location = location;
 		this.start = start;
 		this.end = end;
 	}
 	
 	@Override
-	public HttpMessage getHttpMessage() {
+	public HttpMessage getMessage() {
 		return httpMessage;
 	}
 
 	@Override
-	public HttpMessage fuzz(String fuzzString) throws HttpMalformedHeaderException {
+	public HttpMessage fuzz(String fuzzString) throws Exception {
 		HttpMessage fuzzedHttpMessage = httpMessage.cloneRequest();
 		
 		String orig;
@@ -60,7 +59,7 @@ public class FuzzableTextHttpMessage implements FuzzableHttpMessage {
 		sb.append(orig.substring(end));
 		
 		if (location == Location.HEADER) {
-			fuzzedHttpMessage.setRequestHeader(sb.toString());
+	        fuzzedHttpMessage.setRequestHeader(sb.toString());
 		} else {
 			fuzzedHttpMessage.setRequestBody(sb.toString());
 		}

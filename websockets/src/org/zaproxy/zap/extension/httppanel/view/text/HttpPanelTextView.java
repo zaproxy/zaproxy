@@ -79,7 +79,6 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 		mainPanel.add(new JScrollPane(httpPanelTextArea), BorderLayout.CENTER);
 	}
 	
-	
 	protected abstract HttpPanelTextArea createHttpPanelTextArea();
 	
 	@Override
@@ -139,8 +138,7 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
-	    // FIXME(Remove the dependency on the implementation HttpMessage)
-		//httpPanelTextArea.setHttpMessage((HttpMessage)model.getMessage());
+		httpPanelTextArea.setMessage(model.getMessage());
 		
 		httpPanelTextArea.setText(model.getData());
 		httpPanelTextArea.setCaretPosition(0);

@@ -15,27 +15,18 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.fuzz;
+package org.zaproxy.zap.extension.fuzz.impl.http;
 
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
+public class Pair<T1, T2> {
 
-public interface FuzzableHttpMessage {
-
-	/**
-	 * 
-	 * @return the unmodified HttpMessage.
-	 */
-	public HttpMessage getHttpMessage();
-	
-	/**
-	 * 
-	 * Must be thread safe.
-	 * 
-	 * @param fuzzString the fuzz string.
-	 * @return a HttpMessage with the target replaced with the fuzz string.
-	 * @throws HttpMalformedHeaderException
-	 */
-	public HttpMessage fuzz(String fuzzString) throws HttpMalformedHeaderException;
-	
+    public T1 first;
+    public T2 second;
+    
+    public Pair() {
+    }
+    
+    public Pair(T1 first, T2 second) {
+        this.first = first;
+        this.second = second;
+    }
 }

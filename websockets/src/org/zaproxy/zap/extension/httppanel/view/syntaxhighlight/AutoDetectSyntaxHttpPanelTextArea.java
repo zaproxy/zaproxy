@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 
 abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxHighlightTextArea {
 	
@@ -33,8 +34,8 @@ abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxH
 	}
 	
 	@Override
-	public void setHttpMessage(HttpMessage httpMessage) {
-		super.setHttpMessage(httpMessage);
+	public void setMessage(Message aMessage) {
+		super.setMessage(aMessage);
 
 		if (isAutoDetectSyntax) {
 			detectAndSetSyntax();
@@ -53,8 +54,11 @@ abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxH
 	}
 
 	private void detectAndSetSyntax() {
-		final String syntax = detectSyntax(getHttpMessage());
-		setSyntaxEditingStyle(syntax);
+	    Message message = getMessage();
+	    if (message instanceof HttpMessage) {
+	        final String syntax = detectSyntax((HttpMessage)message);
+	        setSyntaxEditingStyle(syntax);
+	    }
 	}
 
 	abstract protected String detectSyntax(HttpMessage httpMessage);
