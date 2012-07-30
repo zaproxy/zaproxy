@@ -28,9 +28,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 
 	public static final String NAME = "ExtensionStandardMenus"; 
 
-	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
+	private PopupMenuActiveScanScope popupMenuActiveScanScope = null;
+	private PopupMenuActiveScanNode popupMenuActiveScanSubtree = null;
 	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
 	private PopupIncludeInScopeMenu popupIncludeInScopeMenu = null;
+	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromScopeMenu popupExcludeFromScopeMenu = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -58,8 +60,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	    if (getView() != null) {
 	    	// Be careful when changing the menu indexes (and order above) - its easy to get unexpected results!
             extensionHook.getHookMenu().addPopupMenuItem(getPopupIncludeInScopeMenu(0));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(1));
 	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(1));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScopeMenu(2));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(2));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(2));
@@ -74,6 +78,13 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	    }
 	}
 
+	private PopupMenuActiveScanScope getPopupMenuActiveScanScope(int menuIndex) {
+		if (popupMenuActiveScanScope == null) {
+			popupMenuActiveScanScope = new PopupMenuActiveScanScope(Constant.messages.getString("ascan.scope.popup"));
+		}
+		return popupMenuActiveScanScope;
+	}
+
 	private PopupMenuActiveScanSite getPopupMenuActiveScanSite(int menuIndex) {
 		if (popupMenuActiveScanSite == null) {
 			popupMenuActiveScanSite = new PopupMenuActiveScanSite(Constant.messages.getString("ascan.site.popup"));
@@ -81,11 +92,18 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 		return popupMenuActiveScanSite;
 	}
 
-	private PopupMenuActiveScanNode getPopupMenuActiveScanNode(int menuIndex) {
-		if (popupMenuActiveScanNode == null) {
-			popupMenuActiveScanNode = new PopupMenuActiveScanNode(Constant.messages.getString("ascan.node.popup"));
+	private PopupMenuActiveScanNode getPopupMenuActiveScanSubtree(int menuIndex) {
+		if (popupMenuActiveScanSubtree == null) {
+			popupMenuActiveScanSubtree = new PopupMenuActiveScanNode(Constant.messages.getString("ascan.subtree.popup"));
 		}
-		return popupMenuActiveScanNode;
+		return popupMenuActiveScanSubtree;
+	}
+
+	private PopupMenuActiveScanURL getPopupMenuActiveScanURL(int menuIndex) {
+		if (popupMenuActiveScanURL == null) {
+			popupMenuActiveScanURL = new PopupMenuActiveScanURL(Constant.messages.getString("ascan.url.popup"));
+		}
+		return popupMenuActiveScanURL;
 	}
 
 	private PopupMenuOpenUrlInBrowser getPopupMenuOpenUrlInBrowser(int menuIndex) {

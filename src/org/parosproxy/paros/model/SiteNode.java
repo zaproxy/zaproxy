@@ -154,6 +154,11 @@ public class SiteNode extends DefaultMutableTreeNode {
     			// Strip the param summary off
     			nodeName = nodeName.substring(0, bracketIndex);
     		}
+    		int quesIndex = nodeName.indexOf("?");
+    		if (quesIndex > 0) {
+    			// Strip the parameters off
+    			nodeName = nodeName.substring(0, quesIndex);
+    		}
     	}
     	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
     }

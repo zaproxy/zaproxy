@@ -23,6 +23,8 @@
 // ZAP: 2012/04/25 Removed unnecessary casts.
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // 		as introduced with version 3.1 of HttpClient
+// ZAP: 2012/07/30 Issue 43: Added support for Scope
+
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -99,6 +101,10 @@ public class Analyser {
 		// move to host part
 		if (node.getHistoryReference() == null) {
 		    return;
+		}
+		
+		if (! parent.nodeInScope(node)) {
+			return;
 		}
 		
 		// ZAP: Removed unnecessary cast.
