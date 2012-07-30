@@ -83,6 +83,11 @@ public class ExtensionSession extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;

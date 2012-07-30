@@ -257,6 +257,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 	}
 
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
 
 	/**
 	 * This method initializes optionsScannerPanel	

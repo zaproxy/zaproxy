@@ -28,6 +28,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/02 ManualRequestEditorDialog changed to receive Message instead
 // of HttpMessage. Changed logger to static.
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -146,4 +147,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         }
 	}
 	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
 }

@@ -27,6 +27,7 @@
 // ZAP: 2012/03/15 Changed the method toString to use the class StringBuilder 
 //      and reworked the method toString and getIcons. Renamed the method 
 //      getIcons to appendIcons.
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.model;
 
@@ -59,6 +60,8 @@ public class SiteNode extends DefaultMutableTreeNode {
 	private boolean clearIfManual = false;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
+    private boolean isIncludedInScope = false;
+    private boolean isExcludedFromScope = false;
 	
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
@@ -274,17 +277,19 @@ public class SiteNode extends DefaultMutableTreeNode {
     	// is present in another child node
     	boolean removed = true;
     	alerts.remove(alert);
-    	SiteNode c = (SiteNode) this.getFirstChild();
-    	while (c != null) {
-    		if (! c.equals(child)) {
-    			if (c.hasAlert(alert)) {
-    				alerts.add(alert);
-    				removed = false;
-    				break;
-    			}
-    		}
-    		c = (SiteNode) this.getChildAfter(c);
-    	}
+		if (this.getChildCount() > 0) {
+	    	SiteNode c = (SiteNode) this.getFirstChild();
+	    	while (c != null) {
+	    		if (! c.equals(child)) {
+	    			if (c.hasAlert(alert)) {
+	    				alerts.add(alert);
+	    				removed = false;
+	    				break;
+	    			}
+	    		}
+	    		c = (SiteNode) this.getChildAfter(c);
+	    	}
+		}
 	 	if (removed && this.getParent() != null && 
 	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
@@ -330,6 +335,43 @@ public class SiteNode extends DefaultMutableTreeNode {
 			}
 		}
 		return true;
+	}
+
+	public boolean isIncludedInScope() {
+		return isIncludedInScope;
+	}
+
+	public void setIncludedInScope(boolean isIncludedInScope, boolean applyToChildNodes) {
+		this.isIncludedInScope = isIncludedInScope;
+		this.nodeChanged();
+		// Recurse down
+		if (this.getChildCount() > 0 && applyToChildNodes) {
+			SiteNode c = (SiteNode) this.getFirstChild();
+    		while (c != null) {
+    			c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
+    			c = (SiteNode) this.getChildAfter(c);
+    		}
+		}
+	}
+
+	public boolean isExcludedFromScope() {
+		return isExcludedFromScope;
+	}
+
+	public void setExcludedFromScope(boolean isExcludedFromScope, boolean applyToChildNodes) {
+		this.isExcludedFromScope = isExcludedFromScope;
+		if (isExcludedFromScope) {
+			this.isIncludedInScope = false;
+		}
+		this.nodeChanged();
+		// Recurse down
+		if (this.getChildCount() > 0 && applyToChildNodes) {
+	    	SiteNode c = (SiteNode) this.getFirstChild();
+	    	while (c != null) {
+	    		c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);
+	    		c = (SiteNode) this.getChildAfter(c);
+	    	}
+		}
 	}
 	
 }

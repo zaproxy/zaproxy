@@ -25,6 +25,7 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -110,17 +111,18 @@ public class SessionExcludeFromScanPanel extends AbstractParamPanel {
 	
 	@Override
 	public void validateParam(Object obj) {
-	    // no validation needed
+	    // Check for valid regexs
+		for (String regex : getModel().getLines()) {
+			if (regex.trim().length() > 0) {
+				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
+			}
+		}
 	}
 	
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
 	    session.setExcludeFromScanRegexs(getModel().getLines());
-	    // ZAP Save session details
-	    if ( ! session.isNewState()) {
-	    	Control.getSingleton().saveSession(session.getFileName());
-	    }
 	}
 	
 	private JTable getTableIgnore() {

@@ -123,7 +123,11 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 	}
 	
-    private JMenuItem getMenuCompare() {
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
+	private JMenuItem getMenuCompare() {
         if (menuCompare == null) {
         	menuCompare = new JMenuItem();
         	menuCompare.setText(Constant.messages.getString("cmp.file.menu.compare"));

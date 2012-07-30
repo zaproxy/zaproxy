@@ -111,6 +111,10 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	}
 	
 	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+	
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}

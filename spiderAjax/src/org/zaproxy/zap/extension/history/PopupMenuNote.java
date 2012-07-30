@@ -70,8 +70,7 @@ public class PopupMenuNote extends ExtensionPopupMenuItem {
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    HistoryReference ref = (HistoryReference) listLog.getSelectedValue();
+        	    HistoryReference ref = extension.getSelectedHistoryReference();
         	    HttpMessage msg = null;
         	    try {
                     msg = ref.getHttpMessage();

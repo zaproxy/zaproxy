@@ -17,6 +17,8 @@
  */
 // ZAP: 2012/07/02 Introduced new class. Moved code from class
 // ManualRequestEditorDialog to here (HistoryList).
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -28,9 +30,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
-import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -46,13 +46,13 @@ public class HttpPanelSender implements MessageSender {
     
     private final HttpSender delegate;
     private final HttpPanelResponse responsePanel;
-    private final HistoryList historyList;
     private final JToggleButton followRedirects;
+    private final ExtensionHistory extension;
     
     public HttpPanelSender(HttpSender httpSender, HttpPanelResponse responsePanel, JToggleButton followRedirects) {
         this.delegate = httpSender;
         this.responsePanel = responsePanel;
-        this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME)).getHistoryList();
+        this.extension = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
         this.followRedirects = followRedirects;
     }
     
@@ -77,7 +77,7 @@ public class HttpPanelSender implements MessageSender {
                         final Thread t = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                addHistory(httpMessage, finalType);
+                                extension.addHistory(httpMessage, finalType);
                             }
                         });
                         t.start();
@@ -90,38 +90,6 @@ public class HttpPanelSender implements MessageSender {
             throw new Exception("IO error in sending request.");
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
-        }
-    }
-
-    private void addHistory(HttpMessage msg, int type) {
-        HistoryReference historyRef = null;
-        try {
-            historyRef = new HistoryReference(Model.getSingleton().getSession(), type, msg);
-            synchronized (historyList) {
-                if (type == HistoryReference.TYPE_MANUAL) {
-                    addHistoryInEventQueue(historyRef);
-                    historyList.notifyItemChanged(historyRef);
-                }
-            }
-        } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    private void addHistoryInEventQueue(final HistoryReference ref) {
-        if (EventQueue.isDispatchThread()) {
-            historyList.addElement(ref);
-        } else {
-            try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        historyList.addElement(ref);
-                    }
-                });
-            } catch (final Exception e) {
-                logger.error(e.getMessage(), e);
-            }
         }
     }
     
