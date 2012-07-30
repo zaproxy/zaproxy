@@ -158,6 +158,9 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	public void addErroneousWebSocketMessage(WebSocketFuzzMessageDAO message) {
 		if (currentFuzzId != null && currentFuzzId.equals(getFuzzId(message))) {
 			erroneousMessages.add(message);
+			
+			int rowCount = getRowCount();
+			fireTableRowsInserted(rowCount, rowCount);
 		}
 	}
 	
@@ -170,6 +173,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 				super.fireMessageArrived(message);
 			} else {
 				currentFuzzId = fuzzId;
+				clear();
 				fireTableDataChanged();
 			}
 		}
