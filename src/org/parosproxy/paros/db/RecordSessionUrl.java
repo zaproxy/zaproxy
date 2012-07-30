@@ -30,6 +30,8 @@ public class RecordSessionUrl {
 	public static final int TYPE_EXCLUDE_FROM_PROXY = 1;
 	public static final int TYPE_EXCLUDE_FROM_SCAN = 2;
 	public static final int TYPE_EXCLUDE_FROM_SPIDER = 3;
+	public static final int TYPE_EXCLUDE_FROM_SCOPE = 4;
+	public static final int TYPE_INCLUDE_IN_SCOPE = 5;
 	
     private long urlId = 0;
     private int type = 0;

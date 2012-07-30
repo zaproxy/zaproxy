@@ -381,4 +381,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
     @Override
     public void sessionChanged(Session session) {
     }
+    
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
 }

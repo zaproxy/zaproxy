@@ -220,6 +220,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 
 	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+	
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}

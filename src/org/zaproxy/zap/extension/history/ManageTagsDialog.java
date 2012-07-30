@@ -221,7 +221,7 @@ public class ManageTagsDialog extends AbstractDialog {
 		for (String tag : deletedTags) {
 			historyRef.deleteTag(tag);
 		}
-        extension.getHistoryList().notifyItemChanged(historyRef);
+        extension.notifyHistoryItemChanged(historyRef);
 	}
 	
 	private void addTag (String tag) {

@@ -24,6 +24,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/03 Changed the method hook(ExtensionHook) to check if there is
 // a view. 
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 
 package org.parosproxy.paros.extension.state;
 
@@ -158,4 +159,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 		return Constant.PAROS_TEAM;
 	}
 
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
 }

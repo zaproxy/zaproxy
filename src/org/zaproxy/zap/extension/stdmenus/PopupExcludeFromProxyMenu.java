@@ -66,8 +66,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
            // delete reference in node
            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
            if (ext != null) {
-        	   // TODO shouldnt be allowed direct access to this!
-        	   ext.getHistoryList().removeElement(node.getHistoryReference());
+        	   ext.removeFromHistoryList(node.getHistoryReference());
            }
 
            if (node.getHistoryReference()!= null) {
@@ -78,7 +77,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
            while (node.getPastHistoryReference().size() > 0) {
                HistoryReference ref = node.getPastHistoryReference().get(0);
                if (ext != null) {
-            	   ext.getHistoryList().removeElement(ref);
+            	   ext.removeFromHistoryList(ref);
                }
                ref.delete();
                node.getPastHistoryReference().remove(0);

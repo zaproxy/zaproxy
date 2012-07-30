@@ -29,6 +29,8 @@
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 // ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
 // ZAP: 2012/07/09 Added hookWebSocketObserver() method.
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -243,6 +245,25 @@ public class ExtensionLoader {
         }
     }
     
+    public void sessionScopeChangedAllPlugin(Session session) {
+    	logger.debug("sessionScopeChangedAllPlugin");
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<SessionChangedListener> listenerList = hook.getSessionListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    SessionChangedListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        listener.sessionScopeChanged(session);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
 
     public void startAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {

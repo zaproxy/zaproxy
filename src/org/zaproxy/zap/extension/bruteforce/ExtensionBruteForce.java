@@ -256,6 +256,10 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	}
 	
 	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}

@@ -524,7 +524,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public void sessionAboutToChange(Session session) {
 		// do nothing
 	}
-	
+
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	private PopupMenuAddBreakWebSocket popupMenuAddBreakWebSocket;
 	
     private PopupMenuAddBreakWebSocket getPopupMenuAddBreakWebSocket(ExtensionBreak extensionBreak) {

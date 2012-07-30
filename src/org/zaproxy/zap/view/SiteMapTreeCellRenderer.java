@@ -22,11 +22,14 @@ package org.zaproxy.zap.view;
 import java.awt.Component;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.SiteMapPanel;
@@ -54,8 +57,14 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			boolean hasFocus) {
 
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+		
+		SiteNode node = null;
+		if (value instanceof SiteNode) {
+			node = (SiteNode) value;
+		}
 
 		if (leaf && isWebSocketNode(value)) {
+			// WebSocket icon
 			ExtensionWebSocket extWebSocket = getExtWebSocket();
 			if (extWebSocket != null && extWebSocket.isConnected(getHttpMessageFromNode(value))) {
 				setIcon(getWebSocketConnectIcon());
@@ -63,7 +72,31 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 				setIcon(getWebSocketDisconnectIcon());
 			}
 			// setToolTipText("This node represents a WebSocket HTTP handshake.");
-		} else {
+		} else if (node != null) {
+			// folder / file icons with scope 'target' if relevant
+			if (node.isRoot()) {
+				setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/094.png")));	// 'World' icon
+			} else if (leaf) {
+				if (node.isIncludedInScope()) {
+					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document-target.png")));
+				} else {
+					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document.png")));
+				}
+			} else {
+				if  (expanded) {
+					if (node.isIncludedInScope()) {
+						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open-target.png")));
+					} else {
+						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open.png")));
+					}
+				} else {
+					if (node.isIncludedInScope()) {
+						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-target.png")));
+					} else {
+						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal.png")));
+					}
+				}
+			}
 			// setToolTipText(null); // no tool tip
 		}
 

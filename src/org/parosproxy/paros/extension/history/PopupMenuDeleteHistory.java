@@ -21,12 +21,14 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
+import java.util.List;
 
 import javax.swing.JList;
-import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -46,7 +48,6 @@ import org.parosproxy.paros.view.PopupDeleteMenu;
 public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;
-    private JTree treeSite = null;
     
     /**
      * 
@@ -74,13 +75,11 @@ public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    Object[] obj = listLog.getSelectedValues();
-        	    for (int i=0; i<obj.length; i++) {
-        	        HistoryReference ref = (HistoryReference) obj[i];
-        	        deleteHistory(ref);
-        	    }
+        	public void actionPerformed(java.awt.event.ActionEvent e) {
+        		List<HistoryReference> hrefs = extension.getSelectedHistoryReferences();
+        		for (HistoryReference href : hrefs) {
+        	        deleteHistory(href);
+        		}
         	}
         });
 
@@ -106,17 +105,6 @@ public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
         return false;
     }
 
-    private JTree getTree(Component invoker) {
-        if (invoker instanceof JTree) {
-            JTree tree = (JTree) invoker;
-            if (tree.getName().equals("treeSite")) {
-                return tree;
-            }
-        }
-
-        return null;
-    }
-    
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }
@@ -126,7 +114,7 @@ public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
         if (ref == null) {
             return;
         }
-        extension.getHistoryList().removeElement(ref);
+        extension.removeFromHistoryList(ref);
 
         SiteNode node = ref.getSiteNode();
         if (node == null) {

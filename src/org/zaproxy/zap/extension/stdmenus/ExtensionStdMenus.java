@@ -30,6 +30,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 
 	private PopupMenuActiveScanNode popupMenuActiveScanNode = null;
 	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
+	private PopupIncludeInScopeMenu popupIncludeInScopeMenu = null;
+	private PopupExcludeFromScopeMenu popupExcludeFromScopeMenu = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
 	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
@@ -55,17 +57,19 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    if (getView() != null) {
 	    	// Be careful when changing the menu indexes (and order above) - its easy to get unexpected results!
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(0));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode(0));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(1));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(1));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(1));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(2));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(3));
-   			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(4));		// Both are index 4 
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(4));		// on purpose ;)
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(5));
-	    	//extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(6));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupIncludeInScopeMenu(0));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanNode(1));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScopeMenu(2));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(2));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(2));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(2));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(3));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(4));
+   			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(5));		// Both are index 5
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(5));		// on purpose ;)
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(6));
+	    	//extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
 	    }
 	}
@@ -104,6 +108,22 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	*/
 	
 	
+	private PopupIncludeInScopeMenu getPopupIncludeInScopeMenu(int menuIndex) {
+		if (popupIncludeInScopeMenu == null) {
+			popupIncludeInScopeMenu = new PopupIncludeInScopeMenu();
+			popupIncludeInScopeMenu.setMenuIndex(menuIndex);
+		}
+		return popupIncludeInScopeMenu;
+	}
+
+	private PopupExcludeFromScopeMenu getPopupExcludeFromScopeMenu(int menuIndex) {
+		if (popupExcludeFromScopeMenu == null) {
+			popupExcludeFromScopeMenu = new PopupExcludeFromScopeMenu();
+			popupExcludeFromScopeMenu.setMenuIndex(menuIndex);
+		}
+		return popupExcludeFromScopeMenu;
+	}
+
 	private PopupExcludeFromProxyMenu getPopupExcludeFromProxyMenu(int menuIndex) {
 		if (popupExcludeFromProxyMenu == null) {
 			popupExcludeFromProxyMenu = new PopupExcludeFromProxyMenu();
