@@ -24,16 +24,21 @@ package org.parosproxy.paros.extension.manualrequest.http.impl;
 import java.awt.EventQueue;
 import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 
@@ -44,16 +49,24 @@ public class HttpPanelSender implements MessageSender {
 
     private static final Logger logger = Logger.getLogger(HttpPanelSender.class);
     
-    private final HttpSender delegate;
     private final HttpPanelResponse responsePanel;
-    private final JToggleButton followRedirects;
     private final ExtensionHistory extension;
+
+    private HttpSender delegate;
     
-    public HttpPanelSender(HttpSender httpSender, HttpPanelResponse responsePanel, JToggleButton followRedirects) {
-        this.delegate = httpSender;
+    private JToggleButton followRedirect = null;
+    private JToggleButton useTrackingSessionState = null;
+
+    public HttpPanelSender(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.responsePanel = responsePanel;
+        
+        requestPanel.addOptions(getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        requestPanel.addOptions(getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+
+        final boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
+        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+        
         this.extension = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
-        this.followRedirects = followRedirects;
     }
     
     /* (non-Javadoc)
@@ -64,7 +77,7 @@ public class HttpPanelSender implements MessageSender {
         final HttpMessage httpMessage = (HttpMessage)aMessage;
         try {
             httpMessage.getRequestHeader().setContentLength(httpMessage.getRequestBody().length());
-            delegate.sendAndReceive(httpMessage, followRedirects.isSelected());
+            getDelegate().sendAndReceive(httpMessage, getButtonFollowRedirects().isSelected());
 
             EventQueue.invokeAndWait(new Runnable() {
                 @Override
@@ -91,6 +104,44 @@ public class HttpPanelSender implements MessageSender {
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.parosproxy.paros.extension.manualrequest.MessageSender#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        if (delegate != null) {
+            delegate.shutdown();
+            delegate = null;
+        }
+
+        final boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
+        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+    }
+    
+    private HttpSender getDelegate() {
+        if (delegate == null) {
+            delegate = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), getButtonUseTrackingSessionState().isSelected());
+        }
+        return delegate;
+    }
+    
+    private JToggleButton getButtonFollowRedirects() {
+        if (followRedirect == null) {
+            followRedirect = new JToggleButton(new ImageIcon(HttpPanelSender.class.getResource("/resource/icon/16/118.png"))); // Arrow turn around left
+            followRedirect.setToolTipText(Constant.messages.getString("manReq.checkBox.followRedirect"));
+            followRedirect.setSelected(true);
+        }
+        return followRedirect;
+    }
+
+    private JToggleButton getButtonUseTrackingSessionState() {
+        if (useTrackingSessionState == null) {
+            useTrackingSessionState = new JToggleButton(new ImageIcon(HttpPanelSender.class.getResource("/resource/icon/fugue/cookie.png"))); // Cookie
+            useTrackingSessionState.setToolTipText(Constant.messages.getString("manReq.checkBox.useSession"));
+        }
+        return useTrackingSessionState;
     }
     
 }
