@@ -362,8 +362,9 @@ public class SiteMap extends DefaultTreeModel {
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
         	SiteNode newNode =null;
-        	if(baseRef.getHistoryType() == 10){
-                newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName, baseRef.getIconURL(), baseRef.getClearIfManual());
+        	if(!baseRef.getCustomIcons().isEmpty()) {
+                newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
+                newNode.setCustomIcons(baseRef.getCustomIcons(), baseRef.getClearIfManual());
         	} else {
         		newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
         	}
@@ -413,8 +414,9 @@ public class SiteMap extends DefaultTreeModel {
         String leafName = getLeafName(nodeName, msg);
         SiteNode node = findChild(parent, leafName);
         if (node == null) {
-        	if(ref.getHistoryType() == 10){
-        		node = new SiteNode(this, ref.getHistoryType(), leafName, ref.getIconURL(), ref.getClearIfManual());
+        	if(!ref.getCustomIcons().isEmpty()){
+        		node = new SiteNode(this, ref.getHistoryType(), leafName);
+        		node.setCustomIcons(ref.getCustomIcons(), ref.getClearIfManual());
         	} else {
         		node = new SiteNode(this, ref.getHistoryType(), leafName);
         	}
