@@ -394,7 +394,7 @@ public abstract class ScanPanel extends AbstractPanel {
  		log.debug("scanSite (all in scope)");
 		this.setTabFocus();
 		if (this.getStartScanButton().isEnabled()) {
-			startScan();
+			this.startScan(null, true, true);
 		}
 	}
 	
@@ -403,7 +403,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, true);
+			startScan(node, false, true);
 		}
 	}
 	
@@ -412,7 +412,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, false);
+			startScan(node, false, false);
 		}
 	}
 	
@@ -561,11 +561,11 @@ public abstract class ScanPanel extends AbstractPanel {
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
 	protected void startScan() {
-		this.startScan(null, true);
+		this.startScan(null, false, true);
 	}
 	
-	protected void startScan(SiteNode startNode, boolean scanChildren) {
- 		log.debug("startScan " + prefix);
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren) {
+ 		log.debug("startScan " + prefix + " " + startNode);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
 		this.getPauseScanButton().setEnabled(true);
@@ -578,7 +578,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			scanThread = this.newScanThread(currentSite, scanParam);
 			scanMap.put(currentSite, scanThread);
 		}
-		if (startNode == null) {
+		if (justScanInScope) {
 			scanThread.setStartNode(null);
 			scanThread.setJustScanInScope(true);
 		} else {
