@@ -23,7 +23,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 class LargeResponseUtil {
     
-    private static final int DEFAULT_MIN_CONTENT_LENGTH = 10000;
+    private static final int DEFAULT_MIN_CONTENT_LENGTH = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
     
     private static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
     

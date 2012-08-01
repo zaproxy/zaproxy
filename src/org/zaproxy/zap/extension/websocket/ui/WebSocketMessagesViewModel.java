@@ -44,6 +44,8 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 
 	private static final Logger logger = Logger.getLogger(WebSocketMessagesViewModel.class);
 	
+	private static final int PAYLOAD_PREVIEW_LENGTH = 150;
+	
 	/**
 	 * Number of columns in this table model
 	 */
@@ -178,7 +180,11 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 			return message.payloadLength;
 
 		case 5:
-			return message.payload;
+			if (message.payload.length() > PAYLOAD_PREVIEW_LENGTH) {
+				return message.payload.substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
+			} else {
+				return message.payload;
+			}
 		}
 
 		return null;
@@ -304,6 +310,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		WebSocketMessageDAO criteria = getCriterionDao();
 		criteria.channelId = dao.channelId;
 		criteria.messageId = dao.messageId;
+		
 		try {
 			return table.getIndexOf(criteria, null);
 		} catch (SQLException e) {
