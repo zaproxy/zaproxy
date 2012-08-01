@@ -27,6 +27,8 @@
 // ZAP: 2012/06/11 Added method boolean isWebSocketUpgrade()
 // ZAP: 2012/07/02 Implement Message interface for more flexibility.
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
+// ZAP: 2012/08/01 Issue 332: added support for Modes
+
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -42,6 +44,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
@@ -403,18 +406,15 @@ public class HttpMessage implements Message {
 	    TreeSet<String> set = new TreeSet<String>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
-		String value = null;
 		int pos = 0;
 		for (int i=0; i<keyValue.length; i++) {
 			key = null;
-			value = null;
 			pos = keyValue[i].indexOf('=');
 			try {
 				if (pos > 0) {
 					// param found
 
 					key = keyValue[i].substring(0,pos);
-					value = keyValue[i].substring(pos+1);
 
 					//!!! note: this means param not separated by & and = is not parsed
 				} else {
@@ -827,5 +827,9 @@ public class HttpMessage implements Message {
 	// based on values in cookies
 	public void setCookies(List<HttpCookie> cookies) {
 		mReqHeader.setCookies(cookies);
+	}
+	
+	public boolean isInScope() {
+		return Model.getSingleton().getSession().isInScope(this.getRequestHeader().getURI().toString());
 	}
 }

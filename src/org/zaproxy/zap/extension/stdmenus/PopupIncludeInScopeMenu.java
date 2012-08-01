@@ -75,4 +75,8 @@ public class PopupIncludeInScopeMenu extends PopupMenuSiteNode {
     	return true;
     }
 
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

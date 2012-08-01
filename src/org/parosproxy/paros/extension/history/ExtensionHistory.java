@@ -37,6 +37,7 @@
 // ZAP: 2012/05/31 Issue 308 NPE in sessionChangedEventHandler in daemon mode
 // ZAP: 2012/07/02 Added the method showAlertAddDialog(HttpMessage, int).
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event and removed access to some UI elements
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.history;
 
@@ -51,6 +52,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -640,5 +642,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public void sessionScopeChanged(Session session) {
 	    searchHistory(getFilterPlusDialog().getFilter());
+	}
+
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

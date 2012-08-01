@@ -26,6 +26,7 @@
 // ZAP: 2012/05/15 Changed the method parse() to get the session description.
 // ZAP: 2012/06/11 Changed the JavaDoc of the method isNewState().
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.model;
 
@@ -475,14 +476,21 @@ public class Session extends FileXML {
         }
 	}
 
-	public boolean isIncludedInScope(SiteNode sn) {
+	protected boolean isIncludedInScope(SiteNode sn) {
 		if (sn == null) {
 			return false;
 		}
 		return isIncludedInScope(sn.getHierarchicNodeName());
 	}
 	
-	public boolean isIncludedInScope(String url) {
+	private boolean isIncludedInScope(String url) {
+		if (url == null) {
+			return false;
+		}
+		if (url.indexOf("?") > 0) {
+			// Strip off any parameters
+			url = url.substring(0, url.indexOf("?"));
+		}
 		for (Pattern p : this.includeInScopePatterns) {
 			if (p.matcher(url).matches()) {
 				return true;
@@ -491,14 +499,21 @@ public class Session extends FileXML {
 		return false;
 	}
 
-	public boolean isExcludedFromScope(SiteNode sn) {
+	protected boolean isExcludedFromScope(SiteNode sn) {
 		if (sn == null) {
 			return false;
 		}
 		return isExcludedFromScope(sn.getHierarchicNodeName());
 	}
 	
-	public boolean isExcludedFromScope(String url) {
+	private boolean isExcludedFromScope(String url) {
+		if (url == null) {
+			return false;
+		}
+		if (url.indexOf("?") > 0) {
+			// Strip off any parameters
+			url = url.substring(0, url.indexOf("?"));
+		}
 		for (Pattern p : this.excludeFromScopePatterns) {
 			if (p.matcher(url).matches()) {
 				return true;
@@ -507,6 +522,24 @@ public class Session extends FileXML {
 		return false;
 	}
 
+	public boolean isInScope(HistoryReference href) {
+		if (href == null) {
+			return false;
+		}
+		if (href.getSiteNode() != null) {
+			return this.isInScope(href.getSiteNode());
+		}
+		try {
+			HttpMessage msg = href.getHttpMessage();
+			if (msg != null) {
+				return this.isInScope(msg.getRequestHeader().getURI().toString());
+			}
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+		}
+		return false;
+	}
+	
 	public boolean isInScope(SiteNode sn) {
 		if (sn == null) {
 			return false;

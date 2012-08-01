@@ -33,6 +33,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordScan;
@@ -41,13 +42,13 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 /**
@@ -502,5 +503,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

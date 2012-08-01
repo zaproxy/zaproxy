@@ -59,7 +59,7 @@ public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Compar
         	return true;
         }
 
-        return false;	// TODO HACK
+        return false;
     }
     
     @Override
@@ -81,4 +81,8 @@ public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Compar
 		return - this.getAlert().compareTo(o.getAlert());
 	}
 
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

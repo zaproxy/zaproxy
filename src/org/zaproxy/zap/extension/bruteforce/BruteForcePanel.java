@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,9 +55,12 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -112,6 +116,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private HttpPanel responsePanel = null;
 
 	private ScanStatus scanStatus = null;
+	private Mode mode = Control.getSingleton().getMode();
 
     private static Logger log = Logger.getLogger(BruteForcePanel.class);
     
@@ -589,7 +594,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 				    String item = (String) siteSelect.getSelectedItem();
 				    if (item != null && siteSelect.getSelectedIndex() > 0) {
-				        siteSelected(item);
+				        siteSelected(item, false);
 				    }
 				}
 			});
@@ -625,9 +630,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
 	}
 	
-	private void siteSelected(String site) {
+	private void siteSelected(String site, boolean forceRefresh) {
+		if (Mode.safe.equals(this.mode)) {
+			// Safe mode so ignore this
+			return;
+		}
 		site = getSiteFromLabel(site);
-		if (! site.equals(currentSite)) {
+		if (forceRefresh || ! site.equals(currentSite)) {
 			if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
 				siteModel.setSelectedItem(activeSitelabel(site));
 			} else {
@@ -677,6 +686,14 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			bruteForceList.setModel(bruteForce.getList());
 			currentSite = site;
 		}
+		if (Mode.protect.equals(this.mode)) {
+			if (! Model.getSingleton().getSession().isInScope(this.getSiteNode(currentSite))) {
+				getStartScanButton().setEnabled(false);
+				getStopScanButton().setEnabled(false);
+				getPauseScanButton().setEnabled(false);
+				getProgressBar().setEnabled(false);
+			}
+		}
 	}
 
 	protected String getSiteName(SiteNode node) {
@@ -688,9 +705,36 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
 		return null;
 	}
+	
+	protected SiteNode getSiteNode (String siteName) {
+		SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
+		SiteNode rootNode = (SiteNode) siteTree.getRoot();
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			String nodeName = sn.getNodeName();
+			if (nodeName.toLowerCase().startsWith("https:")) {
+				nodeName += ":443";
+			}
+			if (nodeName.toLowerCase().startsWith("http:") && 
+                                nodeName.toLowerCase().lastIndexOf(":")==nodeName.toLowerCase().indexOf(":")) { // Does not contain port number (second column)
+				nodeName += ":80";
+			}                        
+			if (nodeName.indexOf("//") >= 0) {
+				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
+			}
+			if (siteName.equals(nodeName)) {
+				return sn;
+			}
+		}
+		return null;
+	}
+
 
 	public void nodeSelected(SiteNode node) {
-		siteSelected(getSiteName(node));
+		siteSelected(getSiteName(node), false);
 	}
 	
 
@@ -791,16 +835,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			getProgressBar().setEnabled(false);
 		}
 		this.activeScans.remove(host);
-		// Note the label is not now changed back from bold - so you can see which sites have been scanned
-		/*
-		// Change the label back from bold
-		siteModel.removeElement(activeSitelabel(host));
-		siteModel.addElement(passiveSitelabel(host));
-		if (host.equals(currentSite)) {
-			// Its changed under our feet :)
-			siteModel.setSelectedItem(passiveSitelabel(currentSite));
-		}
-		*/
 		setActiveScanLabels();
 	}
 
@@ -923,4 +957,30 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		this.getFileSelect().setSelectedItem(file);
 	}
 
+	public void sessionScopeChanged(Session session) {
+		this.siteSelected(currentSite, true);
+	}
+
+	public void sessionModeChanged(Mode mode) {
+		this.mode = mode;
+		switch (mode) {
+		case standard:
+		case protect:
+			getSiteSelect().setEnabled(true);
+			if (currentSite != null) {
+				this.siteSelected(currentSite, true);
+			}
+			break;
+		case safe:
+			// Stop all scans, disable everything
+			reset();
+			getStartScanButton().setEnabled(false);
+			getStopScanButton().setEnabled(false);
+			getPauseScanButton().setEnabled(false);
+			getPauseScanButton().setSelected(false);
+			getProgressBar().setEnabled(false);
+			getSiteSelect().setSelectedIndex(0);
+			getSiteSelect().setEnabled(false);
+		}
+	}
 }

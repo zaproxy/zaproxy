@@ -20,9 +20,11 @@
  */
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension;
 
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Session;
 
 /**
@@ -32,6 +34,7 @@ import org.parosproxy.paros.model.Session;
  */
 public interface SessionChangedListener {
     /**
+     * Called just after the session has changed.
      * sessionChanged may be called by non-event thread.  Should handle with care in
      * all the listener.  Use EventThread for each GUI event.
      * @param session
@@ -39,6 +42,8 @@ public interface SessionChangedListener {
     public void sessionChanged(Session session);
     
     /**
+     * Called just prior to the session changing.
+     * Listeners should close down any resources associaited with this session. 
      * sessionAboutToChange may be called by non-event thread.  Should handle with care in
      * all the listener.  Use EventThread for each GUI event.
      * @param session
@@ -46,9 +51,19 @@ public interface SessionChangedListener {
     public void sessionAboutToChange(Session session);
     
     /**
+     * Called when the user has changes the session scope.
      * sessionScopeChanged may be called by non-event thread.  Should handle with care in
      * all the listener.  Use EventThread for each GUI event.
      * @param session
      */
     public void sessionScopeChanged(Session session);
+    
+    /**
+     * Called when the user changes the mode.
+     * sessionModeChanged may be called by non-event thread.  Should handle with care in
+     * all the listener.  Use EventThread for each GUI event.
+     * @param session
+     */
+    public void sessionModeChanged(Mode mode);
+    
 }

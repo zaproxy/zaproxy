@@ -35,6 +35,7 @@ import javax.swing.ComboBoxModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -43,9 +44,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
-import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
@@ -53,8 +51,11 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
 import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
-import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
+import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
+import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
+import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.component.incoming.WebSocketIncomingComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing.WebSocketOutgoingComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
@@ -646,4 +647,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
             return null;
         }
     }
+    
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
+	}
 }

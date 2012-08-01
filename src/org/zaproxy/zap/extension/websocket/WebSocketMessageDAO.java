@@ -132,4 +132,10 @@ public class WebSocketMessageDAO implements Message {
 		
 		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 	}
+
+	public boolean isInScope() {
+		// TODO Implement
+		return false;
+	}
+
 }

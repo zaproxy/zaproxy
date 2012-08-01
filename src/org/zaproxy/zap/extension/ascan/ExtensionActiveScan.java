@@ -34,6 +34,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -88,8 +89,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	private List<AbstractParamPanel> policyPanels = new ArrayList<AbstractParamPanel>();
 
-    private PopupMenuScanHistory popupMenuScanHistory = null;
-
     /**
      * 
      */
@@ -123,8 +122,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    super.hook(extensionHook);
 	    if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
-
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuScanHistory());
 
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
@@ -265,10 +262,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 	}
 
-	@Override
-	public void sessionScopeChanged(Session session) {
-	}
-
 	/**
 	 * This method initializes optionsScannerPanel	
 	 * 	
@@ -321,19 +314,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private CommandLineArgument[] getCommandLineArguments() {
         arguments[ARG_SCAN_IDX] = new CommandLineArgument("-scan", 0, null, "", "-scan : Run vulnerability scan depending on previously saved policy.");
         return arguments;
-    }
-
-    /**
-     * This method initializes popupMenuScanHistory	
-     * 	
-     * @return org.parosproxy.paros.extension.scanner.PopupMenuScanHistory	
-     */
-	private PopupMenuScanHistory getPopupMenuScanHistory() {
-        if (popupMenuScanHistory == null) {
-            popupMenuScanHistory = new PopupMenuScanHistory();
-            popupMenuScanHistory.setExtension(this);
-        }
-        return popupMenuScanHistory;
     }
 
 	@Override
@@ -404,5 +384,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+		this.getActiveScanPanel().sessionScopeChanged(session);
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		this.getActiveScanPanel().sessionModeChanged(mode);
 	}
 }

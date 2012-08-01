@@ -28,6 +28,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -65,6 +67,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     
     private Map<Class<? extends Message>, BreakpointsUiManagerInterface> mapMessageUiManager;
     
+	private Mode mode = Control.getSingleton().getMode();
 	
     public ExtensionBreak() {
         super();
@@ -305,11 +308,17 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	public boolean messageReceivedFromClient(Message aMessage) {
-	    return breakpointMessageHandler.handleMessageReceivedFromClient(aMessage);
+		if (mode.equals(Mode.safe)) {
+			return true;
+		}
+	    return breakpointMessageHandler.handleMessageReceivedFromClient(aMessage, mode.equals(Mode.protect));
 	}
 	
 	public boolean messageReceivedFromServer(Message aMessage) {
-	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage);
+		if (mode.equals(Mode.safe)) {
+			return true;
+		}
+	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage, mode.equals(Mode.protect));
 	}
 
 	/**
@@ -321,6 +330,16 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	 * @return
 	 */
 	public boolean isBreakpointSet(Message message, boolean isRequest) {
-		return breakpointMessageHandler.isBreakpoint(message, isRequest);
+		if (mode.equals(Mode.safe)) {
+			return false;
+		}
+		
+		return breakpointMessageHandler.isBreakpoint(message, isRequest, mode.equals(Mode.protect));
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		this.mode = mode;
+		this.getBreakPanel().sessionModeChanged(mode);
 	}
 }

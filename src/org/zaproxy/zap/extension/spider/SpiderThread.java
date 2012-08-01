@@ -39,7 +39,7 @@ import org.zaproxy.zap.utils.SortedListModel;
 
 public class SpiderThread extends ScanThread implements ScanListenner, SpiderListener {
 
-	private String site;
+	private String site = "";
 	private SortedListModel list;
 	private boolean stopScan = false;
 	private boolean isPaused = false;
@@ -327,20 +327,18 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
 	@Override
 	public void setJustScanInScope(boolean scanInScope) {
-		// TODO Auto-generated method stub
-		
+		// TODO Implement
 	}
 
 	@Override
 	public boolean getJustScanInScope() {
-		// TODO Auto-generated method stub
+		// TODO Implement
 		return false;
 	}
 
 	@Override
 	public void setScanChildren(boolean scanChildren) {
-		// TODO Auto-generated method stub
-		
+		// TODO Implement
 	}
 
 }

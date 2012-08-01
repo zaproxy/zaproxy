@@ -29,6 +29,7 @@
 // ZAP: 2012/07/02 ManualRequestEditorDialog changed to receive Message instead
 // of HttpMessage. Changed logger to static.
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -38,6 +39,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -150,4 +152,18 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	@Override
 	public void sessionScopeChanged(Session session) {
 	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		switch (mode) {
+		case safe:	
+			getMenuManualRequestEditor().setEnabled(false);
+			break;
+		case protect:
+		case standard:
+			getMenuManualRequestEditor().setEnabled(true);
+			break;
+		}
+	}
+
 }

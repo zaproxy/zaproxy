@@ -30,6 +30,7 @@
 // useTrackingSessionState and httpSender. Removed the methods getHttpSender,
 // getButtonFollowRedirect and getButtonUseTrackingSessionState and changed the
 // methods windowClosing and setVisible.
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -55,12 +56,15 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.manualrequest.http.impl.HttpPanelSender;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -215,7 +219,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	
 	public void setMessage(Message aMessage) {
 		if (aMessage == null) {
-			System.out.println("Manual: set message NULL");
 			return;
 		}
 
@@ -291,6 +294,19 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		requestPanel.saveData();
 
 		// Send Request, Receive Response
+		if (Control.getSingleton().getMode().equals(Mode.safe)) {
+			// Can happen if the user turns on safe mode with the dialog open
+			View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.safe.warning"));
+			btnSend.setEnabled(true);
+			return;
+		} else if (Control.getSingleton().getMode().equals(Mode.protect)) {
+			if (! requestPanel.getMessage().isInScope()) {
+				// In protected mode and not in scope, so fail
+				View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.outofscope.warning"));
+				btnSend.setEnabled(true);
+				return;
+			}
+		}
 		send(requestPanel.getMessage());
 
 		// redraw request, as it could have changed
@@ -325,10 +341,13 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			long contentLength = msg.getResponseBody().toString().length();
 			long timeLapse =msg.getTimeElapsedMillis(); 
 			// show time lapse and content length between request and response Constant.messages.getString("manReq.label.timeLapse")
-			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")+String.valueOf(timeLapse)+" ms"); 
-			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength")+String.valueOf(contentLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
-			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength") +String.valueOf(totalLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
-		}else{
+			getLabelTimeLapse().setText(
+					Constant.messages.getString("manReq.label.timeLapse") + String.valueOf(timeLapse) + " ms"); 
+			getLabelContentLength().setText(
+					Constant.messages.getString("manReq.label.contentLength") + String.valueOf(contentLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
+			getLabelTotalLength().setText(
+					Constant.messages.getString("manReq.label.totalLength") + String.valueOf(totalLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
+		} else {
 			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")); 
 			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength"));
 			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength"));

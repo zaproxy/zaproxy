@@ -61,5 +61,8 @@ public class PopupMenuAlert extends PopupMenuHistoryReference {
 		}
 	}
 
-	
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

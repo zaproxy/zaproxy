@@ -91,4 +91,8 @@ public class PopupExcludeFromScopeMenu extends PopupMenuSiteNode {
     	return true;
     }
 
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

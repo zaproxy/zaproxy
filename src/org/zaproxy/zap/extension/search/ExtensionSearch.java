@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -240,5 +241,10 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	public void setSearchJustInScope(boolean searchJustInScope) {
 		this.searchJustInScope = searchJustInScope;
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

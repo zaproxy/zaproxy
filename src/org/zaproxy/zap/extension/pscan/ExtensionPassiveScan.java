@@ -29,6 +29,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.DynamicLoader;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -234,5 +235,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

@@ -23,6 +23,7 @@ import java.net.URL;
 import javax.swing.JMenuItem;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -131,5 +132,10 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

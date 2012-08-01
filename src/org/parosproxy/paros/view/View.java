@@ -28,6 +28,7 @@
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 // ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.view;
 
@@ -42,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -74,7 +76,7 @@ public class View implements ViewDelegate {
 	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
 	
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
-	
+
 	/**
 	 * @return Returns the mainFrame.
 	 */
@@ -258,7 +260,7 @@ public class View implements ViewDelegate {
     
     @Override
     public MainPopupMenu getPopupMenu() {
-        MainPopupMenu popup = new MainPopupMenu(popupList);
+        MainPopupMenu popup = new MainPopupMenu(popupList, this);
         return popup;
     }
     
@@ -285,5 +287,4 @@ public class View implements ViewDelegate {
 	public void addMainToolbarButton(JToggleButton button) {
     	this.getMainFrame().getMainToolbarPanel().addButton(button);
 	}
-
 }

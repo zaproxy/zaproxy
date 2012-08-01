@@ -117,7 +117,8 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	}
 
 	@Override
-	public boolean match(Message aMessage) {
+	public boolean match(Message aMessage, boolean onlyIfInScope) {
+		// TODO implement onlyIfInScope
 	    if (aMessage instanceof WebSocketMessageDAO) {			
 	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
 	        

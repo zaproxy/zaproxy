@@ -23,6 +23,7 @@
 //                 and added the method succeedWithSeparator
 // ZAP: 2012/03/03 Added setters for separators
 // ZAP: 2012/07/11 Issue 323: Added support for supermenus
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension;
 
@@ -107,5 +108,10 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     
     public void setSucceedWithSeparator(boolean succeed) {
     	this.succeedWithSeparator = succeed;
+    }
+
+    // Override if the menuitem is safe!
+    public boolean isSafe() {
+    	return false;
     }
 }

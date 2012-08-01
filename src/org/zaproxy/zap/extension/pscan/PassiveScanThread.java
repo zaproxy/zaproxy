@@ -7,6 +7,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
@@ -222,5 +223,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

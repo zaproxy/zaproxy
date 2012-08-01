@@ -49,9 +49,11 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
@@ -84,6 +86,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	private Map <String, GenericScanner> scanMap = new HashMap <String, GenericScanner>();
 	private AbstractParam scanParam = null;
 	private ScanStatus scanStatus = null;
+	private Mode mode = Control.getSingleton().getMode();
 	
 	private static Logger log = Logger.getLogger(ScanPanel.class);
     
@@ -446,10 +449,17 @@ public abstract class ScanPanel extends AbstractPanel {
 			siteModel.addElement(passiveSitelabel(site));
 		}
 	}
-	
 	protected void siteSelected(String site) {
+		siteSelected(site, false); 
+	}
+	
+	protected void siteSelected(String site, boolean forceRefresh) {
+		if (Mode.safe.equals(this.mode)) {
+			// Safe mode so ignore this
+			return;
+		}
 		site = getSiteFromLabel(site);
-		if (! site.equals(currentSite)) {
+		if (forceRefresh || ! site.equals(currentSite)) {
 			if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
 				siteModel.setSelectedItem(activeSitelabel(site));
 			} else {
@@ -485,6 +495,15 @@ public abstract class ScanPanel extends AbstractPanel {
 			getProgressBar().setMaximum(scanThread.getMaximum());
 			currentSite = site;
 			switchView(currentSite);
+		}
+		if (Mode.protect.equals(this.mode)) {
+			// Check to see if in scope
+			if (! Model.getSingleton().getSession().isInScope(this.getSiteNode(currentSite))) {
+				getStartScanButton().setEnabled(false);
+				getStopScanButton().setEnabled(false);
+				getPauseScanButton().setEnabled(false);
+				getProgressBar().setEnabled(false);
+			}
 		}
 	}
 	
@@ -746,6 +765,34 @@ public abstract class ScanPanel extends AbstractPanel {
     public boolean isCurrentSite(String site) {
     	return currentSite != null && currentSite.equals(site);
     }
+    
+	public void sessionScopeChanged(Session session) {
+		this.siteSelected(currentSite, true);
+	}
+
+	public void sessionModeChanged(Mode mode) {
+		this.mode = mode;
+		switch (mode) {
+		case standard:
+		case protect:
+			getSiteSelect().setEnabled(true);
+			if (currentSite != null) {
+				this.siteSelected(currentSite, true);
+			}
+			break;
+		case safe:
+			// Stop all scans
+			reset();
+			// And disable everything
+			getStartScanButton().setEnabled(false);
+			getStopScanButton().setEnabled(false);
+			getPauseScanButton().setEnabled(false);
+			getPauseScanButton().setSelected(false);
+			getProgressBar().setEnabled(false);
+			getSiteSelect().setSelectedIndex(0);
+			getSiteSelect().setEnabled(false);
+		}
+	}
 
     protected abstract Component getWorkPanel();
 	
