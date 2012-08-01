@@ -26,6 +26,7 @@
 // ZAP: 2012/03/15 Changed the methods getQueryParamString and createReference to 
 //      use the class StringBuilder instead of StringBuffer 
 // ZAP: 2012/07/03 Issue 320: AScan can miss subtrees if invoked via the API
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.model;
 
@@ -270,7 +271,7 @@ public class SiteMap extends DefaultTreeModel {
      * This method will rely on reading message from the History table.
      * @param ref
      */
-    public synchronized void addPath(HistoryReference ref) {
+    public synchronized SiteNode addPath(HistoryReference ref) {
 
         HttpMessage msg = null;
         try {
@@ -278,10 +279,10 @@ public class SiteMap extends DefaultTreeModel {
         } catch (Exception e) {
             // ZAP: Added error
             log.error(e.getMessage(), e);
-            return;
+            return null;
         }
         
-        addPath(ref, msg);
+        return addPath(ref, msg);
     }
     
     /**
@@ -366,6 +367,7 @@ public class SiteMap extends DefaultTreeModel {
         	} else {
         		newNode = new SiteNode(this, baseRef.getHistoryType(), nodeName);
         	}
+            
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
             	if (((SiteNode)parent.getChildAt(i)).isParentOf(nodeName)) {
@@ -374,8 +376,13 @@ public class SiteMap extends DefaultTreeModel {
                 }
             }
             insertNodeInto(newNode, parent, pos);
+
             result = newNode;
             result.setHistoryReference(createReference(result, baseRef, baseMsg));
+
+            // Check if its in or out of scope - has to be done after the node is entered into the tree
+            newNode.setIncludedInScope(model.getSession().isIncludedInScope(newNode), true);
+            newNode.setExcludedFromScope(model.getSession().isExcludedFromScope(newNode), true);
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
             
         }
@@ -428,6 +435,10 @@ public class SiteMap extends DefaultTreeModel {
             }
 
             insertNodeInto(node, parent, pos);
+            
+            // Check if its in or out of scope - has to be done after the node is entered into the tree
+            node.setIncludedInScope(model.getSession().isIncludedInScope(node), true);
+            node.setExcludedFromScope(model.getSession().isExcludedFromScope(node), true);
         } else {
            
             // do not replace if

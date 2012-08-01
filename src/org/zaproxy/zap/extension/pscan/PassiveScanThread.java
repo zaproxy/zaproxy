@@ -7,6 +7,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
@@ -147,10 +148,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		alert.setSourceHistoryId(historyRecord.getHistoryId());
 		
 		try {
-			href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
+			href = extHist.getHistoryReference(historyRecord.getHistoryId());
 			if (href != null) {
 				href.addAlert(alert);
-				extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
+				extHist.notifyHistoryItemChanged(href);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -168,11 +169,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 			init();
 		}
 		try {
-			HistoryReference href = extHist.getHistoryList().getHistoryReference(historyRecord.getHistoryId());
+			HistoryReference href = extHist.getHistoryReference(historyRecord.getHistoryId());
 			if (href != null) {
 				if (! href.getTags().contains(tag)) {
 					href.addTag(tag);
-					extHist.getHistoryList().notifyItemChanged(historyRecord.getHistoryId());
+					extHist.notifyHistoryItemChanged(href);
 				}
 			}
 		} catch (Exception e) {
@@ -212,11 +213,20 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 	}
 	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	public void shutdown() {
 		this.shutDown = true;
 	}
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

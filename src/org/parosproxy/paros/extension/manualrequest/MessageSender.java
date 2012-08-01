@@ -26,4 +26,6 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public interface MessageSender {
 
     void handleSendMessage(Message aMessage) throws Exception;
+
+    void cleanup();
 }

@@ -33,7 +33,8 @@ public class ZapHttpConnectionManager extends SimpleHttpConnectionManager {
 	/**
 	 * Use custom {@link ZapHttpConnection} to allow for socket exposure.
 	 */
-	public HttpConnection getConnectionWithTimeout(
+	@Override
+    public HttpConnection getConnectionWithTimeout(
 			HostConfiguration hostConfiguration, long timeout) {
 
 		if (httpConnection == null) {

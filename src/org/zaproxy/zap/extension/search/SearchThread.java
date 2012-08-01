@@ -42,14 +42,16 @@ public class SearchThread extends Thread {
 	private SearchPanel searchPanel;
 	private boolean stopSearch = false;
 	private boolean inverse = false;
+	private boolean searchJustInScope = false;
     private static Logger log = Logger.getLogger(SearchThread.class);
 	
-    public SearchThread(String filter, Type reqType, SearchPanel searchPanel, boolean inverse) {
+    public SearchThread(String filter, Type reqType, SearchPanel searchPanel, boolean inverse, boolean searchJustInScope) {
 		super();
 		this.filter = filter;
 		this.reqType = reqType;
 		this.searchPanel = searchPanel;
 		this.inverse = inverse;
+		this.searchJustInScope = searchJustInScope;
 	}
 
     public void stopSearch() {
@@ -89,6 +91,10 @@ public class SearchThread extends Thread {
 			        	// Create the href to ensure the msg is set up correctly
 			        	HistoryReference href = new HistoryReference(hr.getHistoryId());
 			        	HttpMessage message = href.getHttpMessage();
+			        	if (searchJustInScope && ! session.isInScope(message.getRequestHeader().getURI().toString())) {
+			        		// Not in scope, so ignore
+			        		continue;
+			        	}
 				
 				        if (Type.URL.equals(reqType)) {
 				            // URL

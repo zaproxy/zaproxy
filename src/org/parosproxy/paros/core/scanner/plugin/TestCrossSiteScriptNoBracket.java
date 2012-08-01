@@ -24,6 +24,7 @@
 // instead of StringBuffer.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Added @Deprecated annotation to the class.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -73,17 +74,11 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
         String msg = "Cross-site scripting or HTML injection is possible without '<' and '>'.  Malicious script may be injected into the browser which appeared to be genuine content from the original site.  "
@@ -95,17 +90,11 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
         String msg = "Do not trust client side input even if there is client side validation.  Sanitize potentially danger characters in the server side.  Very often filtering the <, >, \" characters prevented injected script to be executed in most cases.  "
@@ -114,9 +103,6 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
@@ -128,9 +114,6 @@ public class TestCrossSiteScriptNoBracket extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 

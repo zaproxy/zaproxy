@@ -219,7 +219,7 @@ public class AlertAddDialog extends AbstractDialog {
 							// Update history tree
 							if (historyRef != null) {
 								historyRef.updateAlert(alert);
-			                    extension.getHistoryList().notifyItemChanged(historyRef);
+			                    extension.notifyHistoryItemChanged(historyRef);
 							}
 
 						} else {
@@ -228,7 +228,7 @@ public class AlertAddDialog extends AbstractDialog {
 						    }
 						    
 							historyRef.addAlert(alert);
-		                    extension.getHistoryList().notifyItemChanged(historyRef);
+		                    extension.notifyHistoryItemChanged(historyRef);
 						    // Raise it
 							if (extAlert != null) {
 								extAlert.alertFound(alert, historyRef);

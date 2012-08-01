@@ -47,4 +47,9 @@ public class PopupMenuOpenUrlInBrowser extends PopupMenuHttpMessage {
 	public boolean isEnableForInvoker(Invoker invoker) {
 		return DesktopUtils.canOpenUrlInBrowser();
 	}
+	
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

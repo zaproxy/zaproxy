@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -34,6 +35,7 @@ import javax.swing.JToolBar;
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
@@ -41,6 +43,7 @@ public class MainToolbarPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JToolBar toolbar = null;
+ 	private JComboBox modeSelect = null;
 	private JButton btnNew = null;
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
@@ -83,6 +86,7 @@ public class MainToolbarPanel extends JPanel {
 		add(getToolbar(), gridBagConstraints1);
 		add(t1, gridBagConstraints2);
 
+		toolbar.add(getModeSelect());
 		toolbar.add(getBtnNew());
 		toolbar.add(getBtnOpen());
 		toolbar.add(getBtnSave());
@@ -122,6 +126,37 @@ public class MainToolbarPanel extends JPanel {
 
 	public void addSeparator() {
 		getToolbar().addSeparator();
+	}
+	
+	private JComboBox getModeSelect() {
+		if (modeSelect == null) {
+			modeSelect = new JComboBox();
+			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.safe.select"));
+			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.protect.select"));
+			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.standard.select"));
+			// Control wont have finished initialising yet, so get from the params
+			Mode mode = Mode.valueOf(Model.getSingleton().getOptionsParam().getViewParam().getMode());
+			switch (mode) {
+				case safe:		modeSelect.setSelectedIndex(0); break;
+				case protect:	modeSelect.setSelectedIndex(1); break;
+				case standard:	modeSelect.setSelectedIndex(2); break;
+			}
+
+			modeSelect.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					Mode mode = null;
+					switch(modeSelect.getSelectedIndex()) {
+						case 0:	mode = Mode.safe;	break;
+						case 1:	mode = Mode.protect;	break;
+						case 2:	mode = Mode.standard;	break;
+						default: return;	// Not recognised
+					}
+					Control.getSingleton().setMode(mode);
+				}
+			});
+		}
+		return modeSelect;
 	}
 
 	private JButton getBtnNew() {
