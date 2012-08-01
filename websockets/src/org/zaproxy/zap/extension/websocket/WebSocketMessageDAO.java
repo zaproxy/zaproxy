@@ -66,7 +66,7 @@ public class WebSocketMessageDAO implements Message {
 	 * Might be either a string (readable representation for TEXT frames) OR
 	 * byte[].
 	 */
-	public String payload;
+	public Object payload;
 
 	/**
 	 * For close messages, there is always a reason.
@@ -125,11 +125,8 @@ public class WebSocketMessageDAO implements Message {
 		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 	}
 
-	/**
-	 * Useful representation for debugging purposes.
-	 */
 	public String toString() {
-		return "id=" + messageId + ";opcode=" + readableOpcode + ";bytes=" + payloadLength;
+		return "#" + channelId + "." + messageId;
 	}
 
 	/**

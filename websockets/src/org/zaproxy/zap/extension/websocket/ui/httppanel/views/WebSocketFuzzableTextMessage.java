@@ -61,9 +61,12 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 	public WebSocketFuzzMessageDAO fuzz(String fuzzString) throws Exception {
 		WebSocketFuzzMessageDAO fuzzedMessage = copyMessage(message);
 	    
-		String orig = fuzzedMessage.payload;
+		if (!(fuzzedMessage.payload instanceof String)) {
+			throw new IllegalArgumentException("You cannot fuzz binary messages!");
+		}
+		String orig = (String) fuzzedMessage.payload;
 		
-		final int length = fuzzedMessage.payload.length();
+		final int length = orig.length();
 		StringBuilder sb = new StringBuilder(start + fuzzString.length() + length - end);
 		
 		sb.append(orig.substring(0, start));

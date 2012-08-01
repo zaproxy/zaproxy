@@ -327,7 +327,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			direction = dao.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
 			
 			payload = ByteBuffer.allocate(0);
-			setReadablePayload(dao.payload);
+			if (dao.opcode == WebSocketMessage.OPCODE_BINARY) {
+				setPayload((byte[])dao.payload);
+			} else {
+				setReadablePayload((String)dao.payload);
+			}
 		}
 
 		/**
@@ -627,9 +631,25 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		
 		@Override
 		public byte[] getPayload() {
+			if (!isFinished) {
+				return new byte[0];
+			}
+			payload.rewind();
 			byte[] bytes = new byte[payload.limit()];
 			payload.get(bytes);
 			return bytes;
+		}
+
+		@Override
+		public void setPayload(byte[] newPayload) throws WebSocketException {
+			if (!isFinished()) {
+				throw new WebSocketException("Only allowed to set payload of finished message!");
+			}
+			
+			if (!Arrays.equals(newPayload, getPayload())) {
+				hasChanged = true;
+				payload = ByteBuffer.wrap(newPayload);
+			}
 		}
 
 		@Override
@@ -665,7 +685,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			String readablePayload = getReadablePayload();
 			// compare readable strings (working on byte arrays did not work)
 			if (isValidUtf8Payload && !Arrays.equals(decodePayloadFromUtf8(newReadablePayload), decodePayloadFromUtf8(readablePayload))) {
-				// mark this messages as changed in order to propagate changed
+				// mark this message as changed in order to propagate changed
 				// payload into frames or build up a big frame (see forward())
 				hasChanged = true;
 				payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
