@@ -515,6 +515,10 @@ public class Session extends FileXML {
 	}
 	
 	public boolean isInScope(String url) {
+		if (url.indexOf("?") > 0) {
+			// String off any parameters
+			url = url.substring(0, url.indexOf("?"));
+		}
 		if (! this.isIncludedInScope(url)) {
 			// Not explicitly included
 			return false;

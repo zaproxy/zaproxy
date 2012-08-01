@@ -15,33 +15,33 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.spider;
+package org.zaproxy.zap.extension.stdmenus;
 
 import javax.swing.ImageIcon;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
 
-public class PopupMenuSpiderSite extends PopupMenuSiteNode {
+public class PopupMenuActiveScanScope extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 1L;
-    private ExtensionSpider extension = null;
+    private ExtensionActiveScan extension = null;
 
     /**
      * @param label
      */
-    public PopupMenuSpiderSite(String label) {
+    public PopupMenuActiveScanScope(String label) {
         super(label);
-        this.setIcon(new ImageIcon(PopupMenuSpiderSite.class.getResource("/resource/icon/16/spider.png")));
+        this.setIcon(new ImageIcon(PopupMenuActiveScanScope.class.getResource("/resource/icon/16/093.png")));
     }
     
-    private ExtensionSpider getExtensionSpider() {
+    private ExtensionActiveScan getExtensionActiveScan() {
     	if (extension == null) {
-    		extension = (ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
+    		extension = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
     	}
     	return extension;
     }
@@ -63,18 +63,12 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
 
 	@Override
 	public void performAction(SiteNode node) throws Exception {
-	    if (node != null) {
-	    	// Loop up to get the top parent
-			while (node.getParent() != null && node.getParent().getParent() != null) {
-				node = (SiteNode) node.getParent();
-			}
-	    	extension.spiderSite(node, true);
-	    }
+    	extension.startScanAllInScope();
 	}
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {
-		if (getExtensionSpider() == null) {
+		if (getExtensionActiveScan() == null) {
 			return false;
 		}
 		switch (invoker) {

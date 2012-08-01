@@ -293,4 +293,20 @@ public class PortScan extends ScanThread implements ScanListenner {
 		this.list = new SortedListModel();
 	}
 
+	@Override
+	public void setJustScanInScope(boolean scanInScope) {
+		// Dont support
+	}
+
+	@Override
+	public boolean getJustScanInScope() {
+		// Dont support
+		return false;
+	}
+
+	@Override
+	public void setScanChildren(boolean scanChildren) {
+		// Dont support
+	}
+
 }

@@ -79,8 +79,7 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
         	    HistoryReference ref = extension.getSelectedHistoryReference();
         	    HttpMessage msg = null;
         	    try {
-        	    	// Dont clone. ManualRequestEditor will do it.
-        	    	msg = ref.getHttpMessage();
+                    msg = ref.getHttpMessage().cloneRequest();
                     dialog.setMessage(msg);
                     dialog.setVisible(true);
                 } catch (HttpMalformedHeaderException e1) {
