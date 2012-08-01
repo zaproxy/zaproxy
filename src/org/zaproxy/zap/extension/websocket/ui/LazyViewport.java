@@ -27,6 +27,7 @@ public class LazyViewport extends JViewport {
     /**
      * overridden to not repaint during during a vertical drag
      */
+    @Override
     public void setViewPosition(Point p) {
         Component parent = getParent();
         if ( parent instanceof JScrollPane &&

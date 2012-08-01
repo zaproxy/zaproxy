@@ -232,30 +232,18 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner {
 		return getString("weakauthentication.name");
 	}
 
-	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.core.scanner.Test#getDescription()
-	 */
 	public String getDescription() {
 		return getString("weakauthentication.desc");
 	}
 
-	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.core.scanner.Test#getCategory()
-	 */
 	public int getCategory() {
 		return Category.INFO_GATHER;  //leaking username or username + password.. therefore information gathering
 	}
 
-	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.core.scanner.Test#getSolution()
-	 */
 	public String getSolution() {
 		return getString("weakauthentication.soln");
 	}
 
-	/* (non-Javadoc)
-	 * @see com.proofsecure.paros.core.scanner.Test#getReference()
-	 */
 	public String getReference() {
 		return getString("weakauthentication.refs");  
 	}

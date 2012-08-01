@@ -557,6 +557,7 @@ public abstract class WebSocketProxy {
 		return dao;
 	}
 	
+	@Override
 	public String toString() {
 		return host + ":" + port + " (#" + channelId + ")";
 	}

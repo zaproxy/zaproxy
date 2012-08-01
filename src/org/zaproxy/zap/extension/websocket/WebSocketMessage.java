@@ -489,6 +489,7 @@ public abstract class WebSocketMessage {
 		return dao;
 	}
 	
+	@Override
 	public String toString() {
 		return "WebSocketMessage#" + getMessageId();
 	}

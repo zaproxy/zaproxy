@@ -25,11 +25,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.SiteMapPanel;
@@ -52,6 +49,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	/**
 	 * Sets custom tree node logos.
 	 */
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {

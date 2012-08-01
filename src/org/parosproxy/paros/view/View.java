@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;

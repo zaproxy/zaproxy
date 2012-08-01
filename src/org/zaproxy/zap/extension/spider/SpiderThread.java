@@ -310,6 +310,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.startNode = startNode;
 	}
 
+	@Override
 	public void reset() {
 		this.list = new SortedListModel();
 	}

@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import java.util.regex.Pattern;
@@ -53,34 +54,22 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
         String msg = "Certain parameters may cause Server Side Include commands to be executed.  This may allow database connection or arbitrary code to be executed.";
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
         String msg = "Do not trust client side input and enforece tight check in the server side.  Disable server side include." + CRLF
@@ -93,18 +82,12 @@ public class TestServerSideInclude extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
         String msg = "http://www.carleton.ca/~dmcfet/html/ssi.html";
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 

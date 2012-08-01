@@ -829,6 +829,7 @@ public class HttpMessage implements Message {
 		mReqHeader.setCookies(cookies);
 	}
 	
+	@Override
 	public boolean isInScope() {
 		return Model.getSingleton().getSession().isInScope(this.getRequestHeader().getURI().toString());
 	}

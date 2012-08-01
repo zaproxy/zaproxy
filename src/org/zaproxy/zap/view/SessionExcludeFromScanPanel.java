@@ -33,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 

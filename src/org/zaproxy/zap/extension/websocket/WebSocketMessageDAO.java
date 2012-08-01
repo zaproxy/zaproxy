@@ -91,6 +91,7 @@ public class WebSocketMessageDAO implements Message {
 	/**
 	 * Useful representation for debugging purposes.
 	 */
+	@Override
 	public String toString() {
 		return "Id=" + messageId + ";Opcode=" + readableOpcode + ";Bytes="
 				+ payloadLength;
@@ -133,6 +134,7 @@ public class WebSocketMessageDAO implements Message {
 		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 	}
 
+	@Override
 	public boolean isInScope() {
 		// TODO Implement
 		return false;

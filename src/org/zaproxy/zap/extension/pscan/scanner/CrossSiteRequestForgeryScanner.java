@@ -137,9 +137,6 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner {
     	return "Cross Site Request Forgery";
 	}
 	
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     public String getDescription() {
     	if (vuln != null) {
     		return vuln.getDescription();
@@ -147,16 +144,10 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner {
     	return "Failed to load vulnerability description from file";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     public int getCategory() {
         return Category.MISC;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     public String getSolution() {
     	if (vuln != null) {
     		return vuln.getSolution();
@@ -164,9 +155,6 @@ public class CrossSiteRequestForgeryScanner extends PluginPassiveScanner {
     	return "Failed to load vulnerability solution from file";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     public String getReference() {
     	if (vuln != null) {
     		StringBuilder sb = new StringBuilder();

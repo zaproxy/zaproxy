@@ -69,17 +69,11 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     	return Constant.messages.getString("scanner.plugin.xssatt");
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
     	if (vuln != null) {
@@ -88,17 +82,11 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     	return "Failed to load vulnerability description from file";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
     	if (vuln != null) {
@@ -107,9 +95,6 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     	return "Failed to load vulnerability solution from file";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
     	if (vuln != null) {
@@ -125,9 +110,6 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
     	return "Failed to load vulnerability reference from file";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 

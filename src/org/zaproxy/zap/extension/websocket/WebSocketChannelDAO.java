@@ -60,6 +60,7 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
 		}
 	}
 
+	@Override
 	public String toString() {
 		if (port != null && channelId != null) {
 			return host + ":" + port + " (#" + channelId + ")";
