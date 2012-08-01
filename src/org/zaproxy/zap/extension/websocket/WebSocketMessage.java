@@ -383,17 +383,24 @@ public abstract class WebSocketMessage {
 	
 	/**
 	 * Use this helper for concatenating payloads of different WebSocket frames.
+	 * Flips the {@link WebSocketMessage#payload} buffer as soon as this message
+	 * is finished.
 	 * 
 	 * @param bytes
 	 */
-	protected void appendPayload(byte[] bytes) {
+	protected void appendPayload(byte[] bytes) {		
 		if (payload == null) {
 			// initialize first
-			payload = ByteBuffer.wrap(bytes);
+			payload = ByteBuffer.allocate(bytes.length);
+			payload.put(bytes);
 		} else {
 			// increase buffer
 			payload = reallocate(payload, payload.capacity() + bytes.length);
 			payload.put(bytes);
+		}
+		
+		if (isFinished) {
+			payload.flip();
 		}
 	}
 	
@@ -434,11 +441,23 @@ public abstract class WebSocketMessage {
 	public abstract Integer getPayloadLength();
 	
 	/**
-	 * Returns the 'original' payload as found in the WebSocket frame.
+	 * Returns the 'original' payload as found in the WebSocket frame. Returned
+	 * bytes array does not back the messages payload buffer (i.e. it is a
+	 * copy).
 	 * 
 	 * @return
 	 */
 	public abstract byte[] getPayload();
+
+	/**
+	 * Modifies the payload to given byte array. Use
+	 * {@link WebSocketMessage#setReadablePayload(String)} for setting payloads
+	 * of non-binary messages.
+	 * 
+	 * @param payload
+	 * @throws WebSocketException
+	 */
+	public abstract void setPayload(byte[] newPayload) throws WebSocketException;
 
 	/**
 	 * Returns the payload from {@link WebSocketMessage#getPayload()} as
@@ -477,20 +496,19 @@ public abstract class WebSocketMessage {
 		dao.opcode = getOpcode();
 		dao.readableOpcode = getOpcodeString();
 
-		if (isText()) {
-			dao.payload = getReadablePayload();
-		} else if (isBinary()) {
-			// TODO: find binary websocket demo and set appropriate representation
-			// In the meanwhile use the same procedure as for TEXT messages
-			dao.payload = getReadablePayload();
-//			dao.payload = byteArrayToHexString(getPayload());
+		if (isBinary()) {
+			dao.payload = getPayload();
 		} else {
-			dao.payload = getReadablePayload();
-		}
-		
-		if (dao.payload == null) {
-			// prevents NullPointerException
-			dao.payload = "";
+			if (isText()) {
+				dao.payload = getReadablePayload();
+			} else  {
+				dao.payload = getReadablePayload();
+			}
+			
+			if (dao.payload == null) {
+				// prevents NullPointerException
+				dao.payload = "";
+			}
 		}
 		
 		dao.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;

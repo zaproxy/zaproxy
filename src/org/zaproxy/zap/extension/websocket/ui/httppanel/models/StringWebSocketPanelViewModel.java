@@ -25,12 +25,22 @@ public class StringWebSocketPanelViewModel extends AbstractWebSocketStringPanelV
             return "";
         }
         
-        return webSocketMessage.payload;
+        if (webSocketMessage.payload instanceof String) {
+        	return (String) webSocketMessage.payload;
+        } else if (webSocketMessage.payload instanceof byte[]) {
+        	return "<binary data>";
+        }
+        
+        return "";
     }
 
     @Override
     public void setData(String data) {
-        webSocketMessage.payload = data;
+    	if (webSocketMessage.payload instanceof String) {
+    		webSocketMessage.payload = data;
+        } else if (webSocketMessage.payload instanceof byte[]) {
+        	webSocketMessage.payload = data.getBytes();
+        }
     }
 
 }

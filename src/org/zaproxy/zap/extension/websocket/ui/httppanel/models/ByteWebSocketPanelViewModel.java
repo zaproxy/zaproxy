@@ -29,11 +29,21 @@ public class ByteWebSocketPanelViewModel extends AbstractWebSocketBytePanelViewM
 			return new byte[0];
 		}
 		
-		return webSocketMessage.payload.getBytes();
+		if (webSocketMessage.payload instanceof String) {
+			return ((String) webSocketMessage.payload).getBytes();
+		} else if (webSocketMessage.payload instanceof byte[]) {
+			return (byte[]) webSocketMessage.payload;
+		}
+		
+		return new byte[0];
 	}
 
 	@Override
 	public void setData(byte[] data) {
-	    webSocketMessage.payload = new String(data, Charset.forName("UTF-8"));
+		if (webSocketMessage.payload instanceof String) {
+			webSocketMessage.payload = new String(data, Charset.forName("UTF-8"));
+		} else if (webSocketMessage.payload instanceof byte[]) {
+			webSocketMessage.payload = data;
+		}
 	}
 }

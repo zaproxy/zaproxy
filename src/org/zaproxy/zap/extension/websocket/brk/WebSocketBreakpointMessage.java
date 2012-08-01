@@ -134,11 +134,16 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        }
 	        
 	        if (payloadPattern != null) {
-	        	Matcher m = payloadPattern.matcher(msg.payload);
-	        	if (!m.find()) {
-	        		// when m.matches() is used, the whole string has to match
-		        	return false;
-		        }
+	        	if (msg.payload instanceof String) {
+		        	Matcher m = payloadPattern.matcher((String) msg.payload);
+		        	if (!m.find()) {
+		        		// when m.matches() is used, the whole string has to match
+			        	return false;
+			        }
+	        	} else {
+	        		// binary messages are not affected by pattern
+	        		return false;
+	        	}
 	        }
 	        
 	        if (direction != null) {

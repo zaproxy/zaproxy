@@ -76,20 +76,12 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
                 // As the DAO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
-                try {
-					message.setReadablePayload(dao.payload);
-				} catch (WebSocketException e) {
-					logger.error(e);
-				}
+            	setPayload(message, dao.payload);
                 return true;
             }
         } else {
             if (wsBrkMessageHandler.handleMessageReceivedFromServer(dao)) {
-            	try {
-	                message.setReadablePayload(dao.payload);
-				} catch (WebSocketException e) {
-					logger.error(e);
-				}
+            	setPayload(message, dao.payload);
                 return true;
             }
         }
@@ -100,5 +92,17 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
 		// no need to do something on state change
+	}
+
+	private void setPayload(WebSocketMessage message, Object payload) {
+		try {
+			if (payload instanceof String) {
+				message.setReadablePayload((String) payload);
+			} else if (payload instanceof byte[]) {
+				message.setPayload((byte[]) payload);
+			}
+		} catch (WebSocketException e) {
+			logger.error(e);
+		}
 	}
 }
