@@ -23,6 +23,7 @@
 // unnecessary casts.
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // 		as introduced with version 3.1 of HttpClient
+// ZAP: 2012/07/30 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.core.scanner;
 
@@ -32,9 +33,9 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
@@ -60,6 +61,8 @@ public class Scanner implements Runnable {
 	private SiteNode startNode = null;
 	private long startTimeMillis = 0;
     private List<Pattern> excludeUrls = null;
+	private boolean justScanInScope = false;
+	private boolean scanChildren = true;
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
@@ -245,25 +248,43 @@ public class Scanner implements Runnable {
 		}
 	}
 	
-	public boolean excludeUrl(URI uri) {
-		boolean ignore = false;
+	public boolean urlInScope(String uri) {
+		if (this.justScanInScope && ! Model.getSingleton().getSession().isInScope(uri)) {
+			// Restricted to urls in scope, and this isnt
+			return false;
+		}
+		
 		if (excludeUrls != null) {
-			String uriString = uri.toString();
 			for (Pattern p : excludeUrls) {
-				if (p.matcher(uriString).matches()) {
-					ignore = true;
+				if (p.matcher(uri).matches()) {
 					if (log.isDebugEnabled()) {
-						log.debug("URL excluded: " + uriString + " Regex: " + p.pattern());
+						log.debug("URL excluded: " + uri + " Regex: " + p.pattern());
 					}
-					break;
+					// Explicitly excluded
+					return false;
 				}
 			}
 		}
-		return ignore;
+		return true;
 	}
 
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
 	}
 
+	public void setJustScanInScope(boolean scanInScope) {
+		justScanInScope = scanInScope;
+	}
+
+	public boolean getJustScanInScope() {
+		return justScanInScope;
+	}
+
+	public void setScanChildren(boolean scanChildren) {
+		this.scanChildren = scanChildren;
+	}
+	
+	public boolean scanChildren() {
+		return this.scanChildren;
+	}
 }

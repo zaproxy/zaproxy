@@ -325,4 +325,22 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			this.spider.addSpiderListener(listener);
 	}
 
+	@Override
+	public void setJustScanInScope(boolean scanInScope) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getJustScanInScope() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setScanChildren(boolean scanChildren) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
