@@ -88,4 +88,9 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
         return false;
     }
     
+
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

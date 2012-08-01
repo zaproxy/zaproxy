@@ -29,9 +29,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertNode;
@@ -231,9 +235,13 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	}
 	
 	@Override
-    public boolean isEnableForComponent(Component invoker) {
+    public final boolean isEnableForComponent(Component invoker) {
     	boolean display = false;
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
+    	if (invoker.getName() == null) {
+    		return false;
+    	}
+    	
+        if (invoker.getName().equals("ListLog")) {
         	this.lastInvoker = Invoker.history;
             this.listInvoker = (JList) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
@@ -243,7 +251,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	this.treeInvoker = (JTree) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals("treeAlert")) {
+        } else if (invoker.getName().equals("treeAlert")) {
         	this.lastInvoker = Invoker.alerts;
         	this.treeInvoker = (JTree) invoker;
         	JTree tree = (JTree) invoker;
@@ -254,29 +262,29 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             	} else {
 	                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 	                if (!node.isRoot() && node.getUserObject() != null) {
-	                    this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReference()));
+	                    this.setEnabled(isEnabledForHistoryReference(getSelectedHistoryReferences().get(0)));
 	                } else {
 	                    this.setEnabled(false);
 	                }
             	}
             }
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals("listSearch")) {
+        } else if (invoker.getName().equals("listSearch")) {
         	this.lastInvoker = Invoker.search;
             this.listInvoker = (JList) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
+        } else if (invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.ascan;
             this.listInvoker = (JList) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
+        } else if (invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.fuzz;
             this.listInvoker = (JList) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
+        } else if (invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
             this.listInvoker = (JList) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
@@ -288,6 +296,20 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         }
 
         if (display) {
+        	if (this.isEnabled() && ! this.isSafe() && Control.getSingleton().getMode().equals(Mode.protect)) {
+        		boolean inScope = true;
+        		Session session = Model.getSingleton().getSession();
+        		for (HistoryReference href : getSelectedHistoryReferences()) {
+        			if ( ! session.isInScope(href)) {
+        				inScope = false;
+        				break;
+        			}
+        		}
+        		if (!inScope) {
+        			// Not safe and not in scope while in protected mode
+        			this.setEnabled(false);
+        		}
+        	}
         	return this.isEnableForInvoker(lastInvoker);
         }
        

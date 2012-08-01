@@ -46,8 +46,8 @@ class BreakpointMessageHandler {
         this.enabledBreakpoints = breakpoints;
     }
     
-    public boolean handleMessageReceivedFromClient(Message aMessage) {
-        if ( ! isBreakpoint(aMessage, true)) {
+    public boolean handleMessageReceivedFromClient(Message aMessage, boolean onlyIfInScope) {
+        if ( ! isBreakpoint(aMessage, true, onlyIfInScope)) {
             return true;
         }
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
@@ -64,8 +64,8 @@ class BreakpointMessageHandler {
         return ! breakPanel.isToBeDropped();
     }
     
-    public boolean handleMessageReceivedFromServer(Message aMessage) {
-        if (! isBreakpoint(aMessage, false)) {
+    public boolean handleMessageReceivedFromServer(Message aMessage, boolean onlyIfInScope) {
+        if (! isBreakpoint(aMessage, false, onlyIfInScope)) {
             return true;
         }
         
@@ -137,7 +137,10 @@ class BreakpointMessageHandler {
         }
     }
 
-    public boolean isBreakpoint(Message aMessage, boolean request) {
+    public boolean isBreakpoint(Message aMessage, boolean request, boolean onlyIfInScope) {
+    	if (onlyIfInScope && ! aMessage.isInScope()) {
+    		return false;
+    	}
         if (request && breakPanel.isBreakRequest()) {
             // Break on all requests
             return true;
@@ -161,7 +164,7 @@ class BreakpointMessageHandler {
             while(it.hasNext()) {
                 BreakpointMessageInterface breakpoint = it.next();
                 
-                if (breakpoint.match(aMessage)) {
+                if (breakpoint.match(aMessage, onlyIfInScope)) {
                     return true;
                 }
             }

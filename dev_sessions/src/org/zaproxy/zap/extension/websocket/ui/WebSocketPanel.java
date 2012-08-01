@@ -402,6 +402,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver, 
 			scrollPanel.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 				private int previousMaximum;
 
+				@Override
 				public void adjustmentValueChanged(AdjustmentEvent e) {
 					Adjustable source = (Adjustable) e.getSource();
 					

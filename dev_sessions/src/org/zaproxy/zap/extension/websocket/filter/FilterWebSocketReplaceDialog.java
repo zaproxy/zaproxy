@@ -56,6 +56,7 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 		postInitialize();
 	}
 
+	@Override
 	protected void initialize() {
 		// do nothing
 	}
@@ -69,6 +70,7 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 	/**
 	 * Adds WebSocket related filter options.
 	 */
+	@Override
 	protected JPanel getJPanel() {
 		if (jPanel == null) {
 			jPanel = new JPanel();

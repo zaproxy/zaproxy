@@ -317,7 +317,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private String getByteAsBitString(byte word) {
 	      StringBuffer buf = new StringBuffer();
 	      for (int i = 0; i < 8; i++) {
-	         buf.append((int)(word >> (8 - (i+1)) & 0x0001));
+	         buf.append(word >> (8 - (i+1)) & 0x0001);
 	      }
 	      return buf.toString();
 	   }

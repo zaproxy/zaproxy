@@ -53,4 +53,8 @@ public class PopupMenuShowInSites extends PopupMenuSiteNode {
 		View.getSingleton().getSiteTreePanel().showInSites(sn);
 	}
 	
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

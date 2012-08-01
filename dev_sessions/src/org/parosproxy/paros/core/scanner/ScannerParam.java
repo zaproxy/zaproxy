@@ -20,6 +20,8 @@
  */
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/06/07 Added targetParam options
+// ZAP: 2012/07/30 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.core.scanner;
 
@@ -34,12 +36,22 @@ public class ScannerParam extends AbstractParam {
 	private static final String DELAY_IN_MS = "scanner.delayInMs";
 	private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
 	private static final String LEVEL = "scanner.level";
+	/* Work in progress
+	private static final String TARGET_PARAMS_URL = "scanner.params.url";
+	private static final String TARGET_PARAMS_FORM = "scanner.params.form";
+	private static final String TARGET_PARAMS_COOKIE = "scanner.params.cookie";
+	*/
 		
 	private int hostPerScan = 2;
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
 	private boolean handleAntiCSRFTokens = false;
 	private Plugin.Level level = Level.MEDIUM; 
+	/* Work in progress
+	private boolean targetParamsUrl = true;
+	private boolean targetParamsForm = true;
+	private boolean targetParamsCookie = true;
+	*/
 
     /**
      * @param rootElementName
@@ -67,7 +79,18 @@ public class ScannerParam extends AbstractParam {
 		} catch (Exception e) {}
 		try {
 			this.level = Level.valueOf(getConfig().getString(LEVEL, Level.MEDIUM.name()));
-			} catch (Exception e) {}
+		} catch (Exception e) {}
+		/* Work in progress
+		try {
+			this.targetParamsUrl = getConfig().getBoolean(TARGET_PARAMS_URL, true);
+		} catch (Exception e) {}
+		try {
+			this.targetParamsForm = getConfig().getBoolean(TARGET_PARAMS_FORM, true);
+		} catch (Exception e) {}
+		try {
+			this.targetParamsCookie = getConfig().getBoolean(TARGET_PARAMS_COOKIE, true);
+		} catch (Exception e) {}
+		*/
 
     }
 
@@ -127,5 +150,33 @@ public class ScannerParam extends AbstractParam {
 		this.setLevel(Level.valueOf(level));
 	}
 
+	/* Work in progress
+	public boolean isTargetParamsUrl() {
+		return targetParamsUrl;
+	}
+
+	public void setTargetParamsUrl(boolean targetParamsUrl) {
+		this.targetParamsUrl = targetParamsUrl;
+		getConfig().setProperty(TARGET_PARAMS_URL, this.targetParamsUrl);
+	}
+
+	public boolean isTargetParamsForm() {
+		return targetParamsForm;
+	}
+
+	public void setTargetParamsForm(boolean targetParamsForm) {
+		this.targetParamsForm = targetParamsForm;
+		getConfig().setProperty(TARGET_PARAMS_FORM, this.targetParamsForm);
+	}
+
+	public boolean isTargetParamsCookie() {
+		return targetParamsCookie;
+	}
+
+	public void setTargetParamsCookie(boolean targetParamsCookie) {
+		this.targetParamsCookie = targetParamsCookie;
+		getConfig().setProperty(TARGET_PARAMS_COOKIE, this.targetParamsCookie);
+	}
+	*/
 
 }

@@ -25,7 +25,6 @@ import java.net.Socket;
 
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
@@ -37,8 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * Is essential for the WebSockets extension.
  */
-public class ZapGetMethod extends GetMethod implements HttpMethod
-{
+public class ZapGetMethod extends GetMethod {
     private static final Log LOG = LogFactory.getLog(ZapGetMethod.class);
     
     /**

@@ -27,6 +27,8 @@
 // ZAP: 2012/06/25 Added addFilter() plus searchFilterIndex() method, that
 // allows to add some custom filter to the FilterFactory (e.g.: by third
 // party extensions).
+// ZAP: 2012/08/01 Issue 332: added support for Modes
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;
@@ -35,6 +37,7 @@ import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -184,6 +187,17 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     @Override
     public boolean onHttpRequestSend(HttpMessage httpMessage) {
         Filter filter = null;
+        // Check mode
+        switch(Control.getSingleton().getMode()) {
+        case safe:	
+        	// Only safe thing to do is to disable all filters
+        	return true;
+        case protect:
+        	if (!httpMessage.isInScope()) {
+        		// Target not in scope, so ignore
+        		return true;
+        	}
+        }
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
             // ZAP: Removed unnecessary cast.
             filter = filterFactory.getAllFilter().get(i);
@@ -204,6 +218,15 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
     @Override
     public boolean onHttpResponseReceive(HttpMessage httpMessage) {
         Filter filter = null;
+        // Check mode
+        switch(Control.getSingleton().getMode()) {
+        case safe:	
+        	return true;
+        case protect:
+        	if (!httpMessage.isInScope()) {
+        		return true;
+        	}
+        }
         for (int i=0; i<filterFactory.getAllFilter().size(); i++) {
             // ZAP: Removed unnecessary cast.
             filter = filterFactory.getAllFilter().get(i);
