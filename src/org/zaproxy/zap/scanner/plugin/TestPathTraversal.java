@@ -17,53 +17,153 @@
  */
 package org.zaproxy.zap.scanner.plugin;
 
+import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
+import org.parosproxy.paros.core.scanner.AbstractAppPlugin;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 
-public class TestPathTraversal extends AbstractAppParamPlugin {
+/**
+ * 
+ * a scanner that looks for Path Traversal vulnerabilities
+ *
+ */
+public class TestPathTraversal extends AbstractAppPlugin {
 
-	private static final String [] TARGETS = {
-		// Linux
+	/**
+	 * the various prefixes to try, for each of the local file targets below
+	 */
+	private static final String [] LOCAL_FILE_TARGET_PREFIXES = {
+		"",
+		"../",
+		"../../",
+		"/..",
+		"/../",
+		"/../..",
+		"/../../",		
+		"file://",
+		"fiLe://",
+		"file:",
+		"fiLe:",
+		"FILE:",
+		"FILE://",
+		".",
+		"./",
+		"/",
+		"/./",
+		"\\.", 
+		"\\.\\"	,
+		"\\",
+		"\\\\",
+		"\\.",
+		"\\..",
+		"\\..\\",
+		"\\..\\..\\"
+	};
+	
+	/**
+	 * the various local file targets to look for (prefixed by the prefixes above)
+	 */
+	private static final String [] LOCAL_FILE_TARGETS = {
+		// Linux specific
 		"/etc/passwd",
 		"../../../../../../../../../../../../../../../../etc/passwd",
 		"..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
 		"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f" + 
 				"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
-		// Windows
+		"\\etc\\passwd", //expands to \etc\password  
+		// Windows specific
 		"%5cWindows%5csystem.ini",
 		"..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5cWindows%5csystem.ini",
 		"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c" +
-				"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cWindows%5csystem.ini",
+				"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cWindows%5csystem.ini",				
+		//Web App
+		"WEB-INF\\web.xml",
+		"WEB-INF\\\\web.xml",
+		"WEB-INF/web.xml"
 	};
 	
-	private static final String [] PATTERNS = {
+	/**
+	 * the patterns to look for, associated with the equivalent local file targets above
+	 */
+	private static final String [] LOCAL_FILE_PATTERNS = {
 		// Linux
 		"root:.:0:0",		// Dot used to match 'x' or '!' (used in AIX)
 		"root:.:0:0",
 		"root:.:0:0",
 		"root:.:0:0",
+		"root:.:0:0",
 		// Windows
 		"\\[drivers\\]",
 		"\\[drivers\\]",
 		"\\[drivers\\]",
+		//Web App
+		"</web-app>",
+		"</web-app>",
+		"</web-app>"
 	};
+	
+		
+	/**
+	 * the various prefixes to try, for each of the remote file targets below
+	 */
+	private static final String [] REMOTE_FILE_TARGET_PREFIXES = {
+		"http://", "https://", "", "HTTP://", "HTTPS://", "HtTp://", "HtTpS://"
+	};
+	
+	/**
+	 * the various local file targets to look for (prefixed by the prefixes above)
+	 */
+	private static final String [] REMOTE_FILE_TARGETS = {
+		"www.google.com/",
+		"www.google.com:80/",
+		"www.google.com",
+		"www.google.com/search?q=OWASP%20ZAP",
+		"www.google.com:80/search?q=OWASP%20ZAP"
+	};
+	
+	/**
+	 * the patterns to look for, associated with the equivalent remote file targets above
+	 */
+	private static final String [] REMOTE_FILE_PATTERNS = {
+		"I'm Feeling Lucky",
+		"I'm Feeling Lucky",
+		"I'm Feeling Lucky",
+		"OWASP ZAP - Google Search", //do not use "OWASP Zed Attack Proxy", as it causes false positives!
+		"OWASP ZAP - Google Search"	 //do not use "OWASP Zed Attack Proxy", as it causes false positives!		
+	};
+	
 
+	/**
+	 * details of the vulnerability which we are attempting to find
+	 */
     private static Vulnerability vuln = Vulnerabilities.getVulnerability("wasc_33");
+    
+    /**
+     * the logger object
+     */
     private static Logger log = Logger.getLogger(TestPathTraversal.class);
 
+    /**
+     * returns the plugin id 
+     */
     @Override
     public int getId() {
         return 6;
     }
 
+    /**
+     * returns the name of the plugin
+     */
     @Override
     public String getName() {
     	if (vuln != null) {
@@ -118,26 +218,201 @@ public class TestPathTraversal extends AbstractAppParamPlugin {
 
     }
 
-    @Override
-    public void scan(HttpMessage msg, String param, String value) {
-	
-		try {
-	        Matcher matcher = null;
-
-			for (int i=0; i < TARGETS.length; i++) {
-				msg = msg.cloneRequest();
-				setEscapedParameter(msg, param, TARGETS[i]);
-	            sendAndReceive(msg);
-				String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
-	            matcher = Pattern.compile(PATTERNS[i]).matcher(response);
-	            if (matcher.find()) {
-	                bingo(Alert.RISK_HIGH, Alert.WARNING, "", param, null, TARGETS[i] , msg);
-	                break;
-	            }
-			}
+    /**
+     * scans all GET and POST parameters for Path Traversal vulnerabilities
+     */
+    public void scan () {
+    
+    	try {
+	    	//find all params set in the request (GET/POST)
+	    	TreeSet<HtmlParameter> htmlParams = new TreeSet<HtmlParameter> ();
+	    	htmlParams.addAll(getBaseMsg().getUrlParams()); //add in the GET params
+			htmlParams.addAll(getBaseMsg().getFormParams());  //add in the POST params
 			
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-	}
+			//for each parameter in turn.. 
+			for (Iterator<HtmlParameter> iter = htmlParams.iterator(); iter.hasNext(); ) {
+				Matcher matcher = null;
+				HttpMessage msg = null;
+				HtmlParameter currentHtmlParameter = iter.next();
+				
+				if (log.isDebugEnabled()) log.debug("Checking ["+getBaseMsg().getRequestHeader().getMethod() + "] [" + getBaseMsg().getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for Path Traversal to local files");
+			    
+				//for each local prefix in turn
+		        for (int h=0; h < LOCAL_FILE_TARGET_PREFIXES.length; h++) {
+		        	String prefix=LOCAL_FILE_TARGET_PREFIXES[h];
+		        	//for each target in turn
+					for (int i=0; i < LOCAL_FILE_TARGETS.length; i++) {
+						String target=LOCAL_FILE_TARGETS[i];
+						
+						//get a new copy of the original message (request only) for each parameter value to try
+						msg = getNewMsg();
+										
+						if (log.isDebugEnabled()) log.debug("Checking ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for Path Traversal (local file) with value ["+ prefix+target+"]");
+				        	        				        	
+			        	if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.url)) {
+			        		//GET parameter
+			        		TreeSet <HtmlParameter> params = msg.getUrlParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefix+target));
+							msg.setGetParams(params); //restore the params
+			        	} else if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.form)) {
+			        		//POST parameter
+			        		TreeSet <HtmlParameter> params = msg.getFormParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefix+target));
+							msg.setFormParams(params); //restore the params
+			        	} else {
+			        		throw new Exception ("Unsupported parameter type ["+currentHtmlParameter.getType()+ "] for param ["+ currentHtmlParameter.getName()+ "] on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"]");
+			        	}
+			        	//send the modified request, and see what we get back
+			        	sendAndReceive(msg);
+			        	//does it match the pattern specified for that file name?
+						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
+			            matcher = Pattern.compile(LOCAL_FILE_PATTERNS[i]).matcher(response);
+			            //if the output matches, and we get a 200
+			            if (matcher.find() && msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
+			            	log.info("Path Traversal (local file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefix+target+"]");
+			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , getBaseMsg());
+			                return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact) 
+			            }
+					}
+		        }
+		        //Check 2: try a local file Path Traversal on the file name of the URL (which obviously will not be in the target list above).
+		        //first send a query for a random parameter value, and see if we get a 200 back
+		        //if 200 is returned, abort this check (on the url filename itself), because it would be unreliable.
+		        //if we know that a random query returns <> 200, then a 200 response likely means something!
+		        //this logic is all about avoiding false positives, while still attempting to match on actual vulnerabilities
+				msg = getNewMsg();
+				if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.url)) {
+	        		//GET parameter
+	        		TreeSet <HtmlParameter> params = msg.getUrlParams();
+	        		params.remove(currentHtmlParameter);
+	        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), "thishouldnotexistandhopefullyitwillnot"));
+					msg.setGetParams(params); //restore the params
+	        	} else if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.form)) {
+	        		//POST parameter
+	        		TreeSet <HtmlParameter> params = msg.getFormParams();
+	        		params.remove(currentHtmlParameter);
+	        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), "thishouldnotexistandhopefullyitwillnot"));
+					msg.setFormParams(params); //restore the params
+	        	} else {
+	        		throw new Exception ("Unsupported parameter type ["+currentHtmlParameter.getType()+ "] for param ["+ currentHtmlParameter.getName()+ "] on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"]");
+	        	}
+				//send the modified message (with a hopefully non-existent filename), and see what we get back
+	            sendAndReceive(msg);
+	            
+	            //do some pattern matching on the results.
+	            Pattern exceptionPattern = Pattern.compile("Exception");
+	            Matcher exceptionMatcher = exceptionPattern.matcher(msg.getResponseBody().toString());
+	            Pattern errorPattern = Pattern.compile("Error");
+	            Matcher errorMatcher = errorPattern.matcher(msg.getResponseBody().toString());
+	        	
+	            if ( msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK 
+	            			|| exceptionMatcher.find() 
+	            			|| errorMatcher.find() ) {
+	            	if (log.isDebugEnabled()) log.debug("It IS possible to check for local file Path Traversal on the url filename on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "]");
+	            	String urlfilename = msg.getRequestHeader().getURI().getName();
+	            	
+	            	//for the url filename, try each of the prefixes in turn
+	            	for (int h=0; h < LOCAL_FILE_TARGET_PREFIXES.length; h++) {
+	            		String prefixedUrlfilename = LOCAL_FILE_TARGET_PREFIXES[h]+urlfilename;
+	            		msg = getNewMsg();
+						//setParameter(msg, param, prefixedUrlfilename);
+						if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.url)) {
+			        		//GET parameter
+			        		TreeSet <HtmlParameter> params = msg.getUrlParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefixedUrlfilename));
+							msg.setGetParams(params); //restore the params
+			        	} else if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.form)) {
+			        		//POST parameter
+			        		TreeSet <HtmlParameter> params = msg.getFormParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefixedUrlfilename));
+							msg.setFormParams(params); //restore the params
+			        	} else {
+			        		throw new Exception ("Unsupported parameter type ["+currentHtmlParameter.getType()+ "] for param ["+ currentHtmlParameter.getName()+ "] on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"]");
+			        	}
+						//send the modified message (with the url filename), and see what we get back
+			            sendAndReceive(msg);
+			            
+			            //did we get an Exception or an Error?
+			            exceptionMatcher = exceptionPattern.matcher(msg.getResponseBody().toString());
+			            errorMatcher = errorPattern.matcher(msg.getResponseBody().toString());
+			            
+			            if ( msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK
+			            		&& ( ! exceptionMatcher.find()) 
+		            			&& ( ! errorMatcher.find())
+		            			) {
+							//if it returns OK, and the random string above did NOT return ok, then raise an alert
+				            //since the filename has likely been picked up and used as a file name from the parameter
+			            	log.info("Path Traversal (local file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefixedUrlfilename+"]");
+				            bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefixedUrlfilename , getBaseMsg());
+				            return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact)
+			            }
+	            	}
+	            }
+	            
+	            
+	            //Check 3 for local file names
+	            //TODO: make this check 1, for performance reasons
+		        //TODO: if the original query was http://www.example.com/a/b/c/d.jsp?param=paramvalue
+		        //then check if the following gives comparable results to the original query
+		        //http://www.example.com/a/b/c/d.jsp?param=../c/paramvalue
+	            //if it does, then we likely have a local file Path Traversal vulnerability
+	            //this is nice because it means we do not have to guess any file names, and would only require one
+	            //request to find the vulnerability 
+	            //but it would be foiled by simple input validation on "..", for instance.
+	            
+	            
+	            //Now check for Remote files.
+				if (log.isDebugEnabled()) log.debug("Checking ["+getBaseMsg().getRequestHeader().getMethod() + "] [" + getBaseMsg().getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for Path Traversal to remote files");
+			    
+				//for each prefix in turn
+		        for (int h=0; h < REMOTE_FILE_TARGET_PREFIXES.length; h++) {
+		        	String prefix=REMOTE_FILE_TARGET_PREFIXES[h];
+		        	//for each target in turn
+					for (int i=0; i < REMOTE_FILE_TARGETS.length; i++) {
+						String target=REMOTE_FILE_TARGETS[i];
+						
+						//get a new copy of the original message (request only) for each parameter value to try
+						msg = getNewMsg();
+										
+						if (log.isDebugEnabled()) log.debug("Checking ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for remote file Path Traversal with value ["+ prefix+target+"]");
+				        	        				        	
+			        	if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.url)) {
+			        		//GET parameter
+			        		TreeSet <HtmlParameter> params = msg.getUrlParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefix+target));
+							msg.setGetParams(params); //restore the params
+			        	} else if ( currentHtmlParameter.getType().equals (HtmlParameter.Type.form)) {
+			        		//POST parameter
+			        		TreeSet <HtmlParameter> params = msg.getFormParams();
+			        		params.remove(currentHtmlParameter);
+			        		params.add(new HtmlParameter(currentHtmlParameter.getType(), currentHtmlParameter.getName(), prefix+target));
+							msg.setFormParams(params); //restore the params
+			        	} else {
+			        		throw new Exception ("Unsupported parameter type ["+currentHtmlParameter.getType()+ "] for param ["+ currentHtmlParameter.getName()+ "] on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"]");
+			        	}
+			        	//send the modified request, and see what we get back
+			        	sendAndReceive(msg);
+			        	//does it match the pattern specified for that file name?
+						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
+			            matcher = Pattern.compile(REMOTE_FILE_PATTERNS[i]).matcher(response);
+			            //if the output matches, and we get a 200
+			            if (matcher.find() && msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
+			            	log.info("Path Traversal (remote file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefix+target+"]");
+			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , getBaseMsg());
+			                return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact) 
+			            }
+					}
+		        }
+			}
+    	}
+		catch (Exception e) {
+			log.error("Error scanning parameters for Path Traversal: "+ e.getMessage());
+			return;
+		}
+    }    
 }
