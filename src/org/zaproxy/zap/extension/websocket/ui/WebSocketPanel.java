@@ -642,23 +642,26 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
     public void update() {
     	// reset table contents
 		messagesModel.fireTableDataChanged();
-		
-		// reset channel selector's model
-		Object selectedItem = channelSelectModel.getSelectedItem();
-		channelSelectModel.reset();
-		
-		try {
-			for (WebSocketChannelDAO item : table.getChannelItems()) {
-				channelSelectModel.addElement(item);
-			}
 
-			int index = channelSelectModel.getIndexOf(selectedItem);
-			if (index == -1) {
-				index = 0;
+		synchronized (channelSelectModel) {
+			// reset channel selector's model
+			Object selectedItem = channelSelectModel.getSelectedItem();
+				
+			channelSelectModel.reset();
+			
+			try {
+				for (WebSocketChannelDAO item : table.getChannelItems()) {
+					channelSelectModel.addElement(item);
+				}
+	
+				int index = channelSelectModel.getIndexOf(selectedItem);
+				if (index == -1) {
+					index = 0;
+				}
+				channelSelect.setSelectedIndex(index);
+			} catch (SQLException e) {
+				logger.error(e.getMessage(), e);
 			}
-			channelSelect.setSelectedIndex(index);
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
 		}
     }
 
