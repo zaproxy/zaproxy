@@ -248,7 +248,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				logger.error(e);
 			}
 			
-			wsProxies.put(wsProxy.getChannelId(), wsProxy);
+			synchronized (wsProxies) {
+				wsProxies.put(wsProxy.getChannelId(), wsProxy);
+			}
 		} catch (WebSocketException e) {
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
@@ -375,10 +377,27 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 */
 	public boolean isConnected(HttpMessage handshakeMessage) {
 		int historyId = handshakeMessage.getHistoryRef().getHistoryId();
-		for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
-			WebSocketProxy proxy = entry.getValue();
-			if (historyId == proxy.getHandshakeReference().getHistoryId()) {
-				return proxy.isConnected();
+		synchronized (wsProxies) {
+			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
+				WebSocketProxy proxy = entry.getValue();
+				if (historyId == proxy.getHandshakeReference().getHistoryId()) {
+					return proxy.isConnected();
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if given channel id is connected.
+	 * 
+	 * @param channelId
+	 * @return
+	 */
+	public boolean isConnected(Integer channelId) {
+		synchronized (wsProxies) {
+			if (wsProxies.containsKey(channelId)) {
+				return wsProxies.get(channelId).isConnected();
 			}
 		}
 		return false;
@@ -414,14 +433,16 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				storageBlacklist.add(new Pair<String, Integer>(host, port));
 			}
 		}
-		
-		for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
-			WebSocketProxy wsProxy = entry.getValue();
-			
-			if (isStorageBlacklisted(wsProxy)) {
-				wsProxy.setForwardOnly(true);
-			} else {
-				wsProxy.setForwardOnly(false);
+
+		synchronized (wsProxies) {
+			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
+				WebSocketProxy wsProxy = entry.getValue();
+				
+				if (isStorageBlacklisted(wsProxy)) {
+					wsProxy.setForwardOnly(true);
+				} else {
+					wsProxy.setForwardOnly(false);
+				}
 			}
 		}
 	}
@@ -472,10 +493,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	
 	private void sessionChangedEventHandler(Session session) {
 		// close existing connections
-		for (WebSocketProxy wsProxy : wsProxies.values()) {
-			wsProxy.shutdown();
+		synchronized (wsProxies) {
+			for (WebSocketProxy wsProxy : wsProxies.values()) {
+				wsProxy.shutdown();
+			}
+			wsProxies.clear();	
 		}
-		wsProxies.clear();
 		
 		// reset WebSocket panel
 		getWebSocketPanel().reset();
@@ -795,7 +818,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		public Object getOptions() {
 			return null;
 		}
-		
 	}
 
 	private static final class WebSocketLargePayloadDefaultViewSelector implements HttpPanelDefaultViewSelector {
