@@ -23,17 +23,19 @@ import java.util.regex.Pattern;
 
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 
 public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
-	
+
 	public WebSocketSyntaxHighlightTextView(StringWebSocketPanelViewModel model) {
 		super(model);
 	}
@@ -53,6 +55,8 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
         private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
         
         private static WebSocketTokenMakerFactory tokenMakerFactory = null;
+
+		private final ExtensionWebSocket extWebSocket;
 		
 		public WebSocketSyntaxHighlightTextArea() {
 			// Nice-2-Have: JSON support
@@ -60,6 +64,8 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
             addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
             addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
+            
+    		this.extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
 		}
 
 	    @Override
@@ -76,11 +82,11 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
 	        }
 	        
 	        WebSocketMessageDAO message = (WebSocketMessageDAO) getMessage();
-	        // Do not allow to fuzz if there is no active connection.
-	        if (Boolean.FALSE.equals(message.tempUserObj)) {
-                return false;
+	        
+	        // do not allow to fuzz if there is no active connection
+	        if (!extWebSocket.isConnected(message.channelId)) {
+	        	return false;
 	        }
-	        // TODO: Not reliable / use another method!
 	        
 	        final String selectedText = getSelectedText();
 	        if (selectedText == null || selectedText.isEmpty()) {
