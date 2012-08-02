@@ -42,7 +42,6 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 /**
  * Encapsulates a {@link JTable} that is used to display WebSocket
  * messages. It expects a {@link TableModel} from the outside.
- * TODO: Limit characters of payload/fuzz shown in table. Use ViewTooltips for overfloating content?
  */
 public class WebSocketMessagesView implements Runnable {
 	private static final Logger logger = Logger.getLogger(WebSocketMessagesView.class);
