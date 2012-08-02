@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hsqldb.jdbc.jdbcBlob;
+import org.hsqldb.jdbc.jdbcClob;
 import org.parosproxy.paros.db.AbstractTable;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
@@ -92,12 +93,19 @@ public class TableWebSocket extends AbstractTable {
 								+ "channel_id BIGINT NOT NULL,"
 								+ "timestamp TIMESTAMP NOT NULL,"
 								+ "opcode TINYINT NOT NULL,"
-								+ "payload LONGVARBINARY NOT NULL,"
+								+ "payload_utf8 LONGVARCHAR NULL,"
+								+ "payload_bytes LONGVARBINARY NULL,"
 								+ "payload_length BIGINT NOT NULL,"
 								+ "is_outgoing BOOLEAN NOT NULL,"
 								+ "PRIMARY KEY (message_id, channel_id),"
 								+ "FOREIGN KEY (channel_id) REFERENCES websocket_channel(channel_id)"
 								+ ")");
+				stmt.execute();
+				stmt.close();
+				
+				stmt = conn.prepareStatement("ALTER TABLE websocket_message "
+						+ "ADD CONSTRAINT websocket_message_payload "
+						+ "CHECK (payload_utf8 IS NOT NULL OR payload_bytes IS NOT NULL)");
 				stmt.execute();
 				stmt.close();
 				
@@ -178,8 +186,8 @@ public class TableWebSocket extends AbstractTable {
 //			    + "WHEN NOT MATCHED THEN INSERT VALUES (new.channel_id, new.host, new.port, new.start_timestamp, new.end_timestamp, new.history_id)");
 
 		psInsertMessage = conn.prepareStatement("INSERT INTO "
-				+ "websocket_message (message_id, channel_id, timestamp, opcode, payload, payload_length, is_outgoing) "
-				+ "VALUES (?,?,?,?,?,?,?)");
+				+ "websocket_message (message_id, channel_id, timestamp, opcode, payload_utf8, payload_bytes, payload_length, is_outgoing) "
+				+ "VALUES (?,?,?,?,?,?,?,?)");
 		
 		psInsertFuzz = conn.prepareStatement("INSERT INTO "
 				+ "websocket_message_fuzz (fuzz_id, message_id, channel_id, state, fuzz) "
@@ -267,7 +275,7 @@ public class TableWebSocket extends AbstractTable {
 		// SUBSTRING returns byte values
 		payloadPreviewLength *= 2;
 		String query = "SELECT m.message_id, m.channel_id, m.timestamp, m.opcode, m.payload_length, m.is_outgoing, "
-				+ "SUBSTRING(m.payload FROM 0 FOR " + payloadPreviewLength + ") AS payload, "
+				+ "SUBSTRING(m.payload_utf8 FROM 0 FOR " + payloadPreviewLength + ") AS payload_utf8, '' AS payload_bytes, "
 				+ "f.fuzz_id, f.state, f.fuzz "
         		+ "FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
@@ -330,14 +338,13 @@ public class TableWebSocket extends AbstractTable {
 				
 				// read payload
 				if (dao.opcode == WebSocketMessage.OPCODE_BINARY) {
-					dao.payload = rs.getBytes("payload");
+					dao.payload = rs.getBytes("payload_bytes");
+					if (dao.payload == null) {
+						dao.payload = new byte[0];
+					}
 				} else {
-					try {
-						dao.payload = new String(rs.getBytes("payload"));
-						if (interpretLiteralBytes) {
-							dao.payload = hexToString((String) dao.payload);
-						}
-					} catch (NullPointerException e) {
+					dao.payload = rs.getString("payload_utf8");
+					if (dao.payload == null) {
 						dao.payload = "";
 					}
 				}
@@ -353,15 +360,6 @@ public class TableWebSocket extends AbstractTable {
 		
 		return messages;
 	}
-	
-    private String hexToString(String txtInHex) {
-        byte [] txtInByte = new byte [txtInHex.length() / 2];
-        int j = 0;
-        for (int i = 0; i < txtInHex.length(); i += 2) {
-                txtInByte[j++] = Byte.parseByte(txtInHex.substring(i, i + 2), 16);
-        }
-        return new String(txtInByte);
-    }
 
 	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
 		List<String> where = new ArrayList<String>();
@@ -512,15 +510,17 @@ public class TableWebSocket extends AbstractTable {
 
 				// write payload
 				if (dao.payload instanceof String) {
-					psInsertMessage.setBlob(5, new jdbcBlob(((String) dao.payload).getBytes()));
+					psInsertMessage.setClob(5, new jdbcClob((String) dao.payload));
+					psInsertMessage.setNull(6, Types.BLOB);
 				} else if (dao.payload instanceof byte[]) {
-					psInsertMessage.setBlob(5, new jdbcBlob((byte[]) dao.payload));
+					psInsertMessage.setNull(5, Types.CLOB);
+					psInsertMessage.setBlob(6, new jdbcBlob((byte[]) dao.payload));
 				} else {
 					throw new SQLException("Attribute 'payload' of class WebSocketMessageDAO has got wrong type!");
 				}
 				
-				psInsertMessage.setInt(6, dao.payloadLength);
-				psInsertMessage.setBoolean(7, dao.isOutgoing);
+				psInsertMessage.setInt(7, dao.payloadLength);
+				psInsertMessage.setBoolean(8, dao.isOutgoing);
 				psInsertMessage.execute();
 				
 				if (dao instanceof WebSocketFuzzMessageDAO) {
