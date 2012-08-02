@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing;
+package org.zaproxy.zap.extension.websocket.ui.httppanel.component;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import org.apache.commons.configuration.FileConfiguration;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentViewsManager;
@@ -38,11 +39,11 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketPanelTextView;
 
-public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, SearchableHttpPanelComponent {
+public class WebSocketComponent implements HttpPanelComponentInterface, SearchableHttpPanelComponent {
 	
-	public static final String NAME = "WebSocketOutgoingComponent";
+	public static final String NAME = "WebSocketComponent";
 
-	private static final String BUTTON_TOOL_TIP = "WebSocket";//Constant.messages.getString("http.panel.component.all.tooltip");
+	private static final String BUTTON_TOOL_TIP = Constant.messages.getString("websocket.panel.component.all.tooltip");
 	
 	protected JToggleButton buttonShowView;
 	
@@ -56,7 +57,7 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 	
 	protected HttpPanelComponentViewsManager views;
 
-	public WebSocketOutgoingComponent() {
+	public WebSocketComponent() {
 		this.message = null;
 		
 		views = new HttpPanelComponentViewsManager("websocket");
@@ -142,7 +143,7 @@ public class WebSocketOutgoingComponent implements HttpPanelComponentInterface, 
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("#").append(message.channelId).append(".").append(message.messageId).append(" - ");
+		sb.append(message.toString()).append(" - ");
 		sb.append(message.dateTime).append(" - ");
 		sb.append(message.readableOpcode);
 		

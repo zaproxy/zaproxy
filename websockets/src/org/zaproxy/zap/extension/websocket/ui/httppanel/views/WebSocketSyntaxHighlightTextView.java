@@ -55,6 +55,7 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
         private static WebSocketTokenMakerFactory tokenMakerFactory = null;
 		
 		public WebSocketSyntaxHighlightTextArea() {
+			// Nice-2-Have: JSON support
             addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
             addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
@@ -79,6 +80,7 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
 	        if (Boolean.FALSE.equals(message.tempUserObj)) {
                 return false;
 	        }
+	        // TODO: Not reliable / use another method!
 	        
 	        final String selectedText = getSelectedText();
 	        if (selectedText == null || selectedText.isEmpty()) {

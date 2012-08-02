@@ -15,27 +15,54 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.ui.httppanel.component.incoming;
+package org.zaproxy.zap.extension.websocket.ui.httppanel.views.large;
 
-import org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing.WebSocketOutgoingComponent;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketPanelTextView;
 
-public class WebSocketIncomingComponent extends WebSocketOutgoingComponent {
+public class WebSocketLargePayloadView extends WebSocketPanelTextView {
 
-	public static final String NAME = "WebSocketsIncomingComponent";
+	public static final String CONFIG_NAME = "largePayload";
 	
-	public WebSocketIncomingComponent() {
+	public static final String CAPTION_NAME = Constant.messages.getString("websocket.panel.view.largepayload.name");
+	
+	public WebSocketLargePayloadView(StringWebSocketPanelViewModel model) {
+		super(model);
 	}
-
+	
 	@Override
 	public String getName() {
-		return NAME;
+		return CAPTION_NAME;
 	}
 	
 	@Override
-	protected void initViews() {
-		views.addView(new WebSocketPanelTextView(new StringWebSocketPanelViewModel()));
+	public String getConfigName() {
+		return CONFIG_NAME;
 	}
-	
+
+	@Override
+	public int getPosition() {
+		return 1;
+	}
+
+	@Override
+	public boolean isEnabled(Message message) {
+		return WebSocketLargePayloadUtil.isLargePayload(message);
+	}
+
+	@Override
+	public boolean hasChanged() {
+		return false;
+	}
+
+	@Override
+	public boolean isEditable() {
+		return false;
+	}
+
+	@Override
+	public void setEditable(boolean editable) {
+	}
 }

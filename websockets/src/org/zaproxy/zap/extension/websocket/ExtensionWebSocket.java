@@ -47,11 +47,13 @@ import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
+
 import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
@@ -65,11 +67,13 @@ import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
-import org.zaproxy.zap.extension.websocket.ui.httppanel.component.incoming.WebSocketIncomingComponent;
-import org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing.WebSocketOutgoingComponent;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.component.WebSocketComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketSyntaxHighlightTextView;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadUtil;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadView;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargetPayloadViewModel;
 import org.zaproxy.zap.extension.websocket.utility.Pair;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
@@ -622,56 +626,51 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		// Add "HttpPanel" components and views.
 		HttpPanelManager manager = HttpPanelManager.getInstance();
 
-		// Component for outgoing and incoming messages (the component
-		// contains the normal text view (without syntax highlight))
-		// Probably is needed only one component, it depends if all the
-		// views are equal to both the outgoing and incoming messages.
-		manager.addRequestComponent(new WebSocketOutgoingComponentFactory());
-		manager.addResponseComponent(new WebSocketIncomingComponentFactory());
+		// component factory for outgoing and incoming messages with Text view
+		HttpPanelComponentFactory componentFactory = new WebSocketComponentFactory();
+		manager.addRequestComponent(componentFactory);
+		manager.addResponseComponent(componentFactory);
 
-		// Hex views to outgoing and incoming messages.
-		// Can use the same view factory as the view use the same model
-		// because the payload is accessed the same way.
+		// use same factory for request & response,
+		// as Hex payloads are accessed the same way
 		HttpPanelViewFactory viewFactory = new WebSocketHexViewFactory();
-		manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
-		manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
 		
-		// Add the default Hex view for binary-opcode messages.
-		// Can use the same default view selector.
+		// add the default Hex view for binary-opcode messages
 		HttpPanelDefaultViewSelectorFactory viewSelectorFactory = new HexDefaultViewSelectorFactory();
-		manager.addResponseDefaultView(WebSocketOutgoingComponent.NAME, viewSelectorFactory);
-		manager.addResponseDefaultView(WebSocketIncomingComponent.NAME, viewSelectorFactory);
+		manager.addRequestDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+		manager.addResponseDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
 
-		// Replace the normal text views with the ones that use syntax
-		// highlight (use the same type of view).
+		// replace the normal Text views with the ones that use syntax highlighting
 		viewFactory = new SyntaxHighlightTextViewFactory();
-		manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
-		manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
+
+		// support large payloads on incoming and outgoing messages
+		viewFactory = new WebSocketLargePayloadViewFactory();
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
+		
+		viewSelectorFactory = new WebSocketLargePayloadDefaultViewSelectorFactory();
+		manager.addRequestDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+		manager.addResponseDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
 	}
 
-    private static final class WebSocketOutgoingComponentFactory implements HttpPanelComponentFactory {
+	/**
+	 * The component returned by this factory contain the normal text view
+	 * (without syntax highlighting).
+	 */
+    private static final class WebSocketComponentFactory implements HttpPanelComponentFactory {
         
         @Override
         public HttpPanelComponentInterface getNewComponent() {
-            return new WebSocketOutgoingComponent();
+            return new WebSocketComponent();
         }
 
         @Override
         public String getComponentName() {
-            return WebSocketOutgoingComponent.NAME;
-        }
-    }
-	
-    private static final class WebSocketIncomingComponentFactory implements HttpPanelComponentFactory {
-        
-        @Override
-        public HttpPanelComponentInterface getNewComponent() {
-            return new WebSocketIncomingComponent();
-        }
-
-        @Override
-        public String getComponentName() {
-            return WebSocketIncomingComponent.NAME;
+            return WebSocketComponent.NAME;
         }
     }
 	
@@ -756,4 +755,70 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
             return null;
         }
     }
+	
+	private static final class WebSocketLargePayloadViewFactory implements HttpPanelViewFactory {
+		
+		@Override
+		public HttpPanelView getNewView() {
+			return new WebSocketLargePayloadView(new WebSocketLargetPayloadViewModel());
+		}
+
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+	}
+	
+	private static final class WebSocketLargePayloadDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+		
+		private static HttpPanelDefaultViewSelector defaultViewSelector = null;
+		
+		private HttpPanelDefaultViewSelector getDefaultViewSelector() {
+			if (defaultViewSelector == null) {
+				createViewSelector();
+			}
+			return defaultViewSelector;
+		}
+		
+		private synchronized void createViewSelector() {
+			if (defaultViewSelector == null) {
+				defaultViewSelector = new WebSocketLargePayloadDefaultViewSelector();
+			}
+		}
+		
+		@Override
+		public HttpPanelDefaultViewSelector getNewDefaultViewSelector() {
+			return getDefaultViewSelector();
+		}
+		
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+		
+	}
+
+	private static final class WebSocketLargePayloadDefaultViewSelector implements HttpPanelDefaultViewSelector {
+
+		@Override
+		public String getName() {
+			return "WebSocketLargePayloadDefaultViewSelector";
+		}
+		
+		@Override
+		public boolean matchToDefaultView(Message aMessage) {
+		    return WebSocketLargePayloadUtil.isLargePayload(aMessage);
+		}
+
+		@Override
+		public String getViewName() {
+			return WebSocketLargePayloadView.CONFIG_NAME;
+		}
+        
+        @Override
+        public int getOrder() {
+        	// has to come before HexDefaultViewSelector
+            return 15;
+        }
+	}
 }
