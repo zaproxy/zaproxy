@@ -66,7 +66,8 @@ public class HistoryReference {
    public static final int TYPE_FUZZER = 8;
    // ZAP: Added TYPE_SPIDER_TASK for use in spider tasks
    public static final int TYPE_SPIDER_TASK = 9;
-   
+   // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
+   public static final int TYPE_SPIDER_AJAX = 10;
    // -ve means unsaved message;
    public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;
 
@@ -84,9 +85,8 @@ public class HistoryReference {
     private long sessionId = 0;
     
     //ZAP: Support for specific icons
-	private String iconURL = null;
-	public static final int TYPE_SPEC_ICON = 10;
-	private boolean clearIfManual = false;
+	private ArrayList<String> icons = null;
+	private ArrayList<Boolean> clearIfManual = null;
 	
 	// ZAP: Support for linking Alerts to Hrefs
 	private List<Alert> alerts;
@@ -99,8 +99,9 @@ public class HistoryReference {
     }
 
     public HistoryReference(int historyId) throws HttpMalformedHeaderException, SQLException {
-		RecordHistory history = null;		
-
+		RecordHistory history = null;
+		this.icons =  new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
 		history = staticTableHistory.read(historyId);
 		if (history == null) {
 			throw new HttpMalformedHeaderException();
@@ -117,7 +118,9 @@ public class HistoryReference {
 	
 	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
 		
-		RecordHistory history = null;		
+		RecordHistory history = null;	
+		this.icons =  new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
 		history = staticTableHistory.write(session.getSessionId(), historyType, msg);		
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
@@ -134,43 +137,33 @@ public class HistoryReference {
 	}
 	
 	
-	public boolean getClearIfManual() {
+	/**
+	 * 
+	 * @return whether the icon has to be cleaned when being manually visited or not.
+	 */
+	public ArrayList<Boolean> getClearIfManual() {
 		return this.clearIfManual;
 	}
-
-	public String getIconURL(){
-		return this.iconURL;
-	}
-
+	
+	
 	/**
-	 * If we want to use a specific icon, this is the constructor to use
-	 * @param session
-	 * @param iconURL path to the icon image i.e. /org/zaproxy/zap/extension/spiderAjax/10.png
-	 * @param msg
-	 * @param clear 
-	 * @throws HttpMalformedHeaderException
-	 * @throws SQLException
+	 * 
+	 * @return The icon's string path (i.e. /resource/icon/16/xx.png)
 	 */
-	public HistoryReference(Session session, String iconURL, HttpMessage msg, boolean clear) throws HttpMalformedHeaderException, SQLException {
-
-		this.historyType = TYPE_SPEC_ICON;
-		this.iconURL= iconURL;
-		this.clearIfManual=clear;
-		RecordHistory history = null;		
-		history = staticTableHistory.write(session.getSessionId(), TYPE_SPEC_ICON, msg);		
-		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
-		// ZAP: Init HttpMessage HistoryReference field
-		msg.setHistoryRef(this);
-		// ZAP: Support for multiple tags
-		for (String tag : msg.getTags()) {
-			this.addTag(tag);
-		}
-		// ZAP: Support for loading the alerts from the db
-		List<RecordAlert> alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
-		for (RecordAlert alert: alerts) {
-			this.addAlert(new Alert(alert, this));
-		}
+	public ArrayList<String> getCustomIcons(){
+		return this.icons;
 	}
+	
+	/**
+	 * 
+	 * @param i the icon's URL (i.e. /resource/icon/16/xx.png)
+	 * @param c if the icon has to be cleaned when the node is manually visited
+	 */
+	public void setCustomIcon(String i, boolean c){
+		this.icons.add(i);
+		this.clearIfManual.add(c);
+	}
+	
 	
 	
 	private void build(long sessionId, int historyId, int historyType, HttpMessage msg) {
