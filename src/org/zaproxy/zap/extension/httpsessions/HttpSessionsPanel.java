@@ -17,12 +17,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.httpsession;
+package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,11 +35,8 @@ import javax.swing.SwingUtilities;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.params.HtmlParameterStats;
-import org.zaproxy.zap.extension.params.ParamsTableModel;
-import org.zaproxy.zap.extension.params.SiteParameters;
+import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -47,13 +45,13 @@ import org.zaproxy.zap.view.ScanPanel;
  * To change the template for this generated type comment go to Window - Preferences - Java - Code
  * Generation - Code and Comments
  */
-public class HttpSessionPanel extends AbstractPanel {
+public class HttpSessionsPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String PANEL_NAME = "httpsession";
+	public static final String PANEL_NAME = "httpsessions";
 
-	private ExtensionHttpSession extension = null;
+	private ExtensionHttpSessions extension = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
@@ -61,18 +59,26 @@ public class HttpSessionPanel extends AbstractPanel {
 	private String currentSite = null;
 	private JComboBox siteSelect = null;
 	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+	private JButton newSessionButton = null;
 
-	private JTable paramsTable = null;
-	private ParamsTableModel paramsModel = new ParamsTableModel();
+	private JTable sessionsTable = null;
+	private HttpSessionsTableModel sessionsModel = new HttpSessionsTableModel();
 
 	/**
 	 * Instantiates a new http session panel.
 	 * 
 	 * @param extensionHttpSession the extension http session
 	 */
-	public HttpSessionPanel(ExtensionHttpSession extensionHttpSession) {
+	public HttpSessionsPanel(ExtensionHttpSessions extensionHttpSession) {
 		super();
 		this.extension = extensionHttpSession;
+		sessionsModel.addHttpSession(new HttpSession("Test 1"));
+		HttpSession ses = new HttpSession("Test X");
+		ses.setActive(true);
+		ses.setTokenValue("cookie", "value");
+		sessionsModel.addHttpSession(ses);
+		sessionsModel.addHttpSession(new HttpSession("Test 4"));
+		sessionsModel.addHttpSession(new HttpSession("Test 2"));
 		initialize();
 	}
 
@@ -84,8 +90,8 @@ public class HttpSessionPanel extends AbstractPanel {
 	private void initialize() {
 		this.setLayout(new CardLayout());
 		this.setSize(474, 251);
-		this.setName(Constant.messages.getString("httpsession.panel.title"));
-		this.setIcon(new ImageIcon(HttpSessionPanel.class.getResource("/resource/icon/16/session.png")));
+		this.setName(Constant.messages.getString("httpsessions.panel.title"));
+		this.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/session.png")));
 		this.add(getPanelCommand());
 	}
 
@@ -98,7 +104,7 @@ public class HttpSessionPanel extends AbstractPanel {
 		if (panelCommand == null) {
 			panelCommand = new javax.swing.JPanel();
 			panelCommand.setLayout(new java.awt.GridBagLayout());
-			panelCommand.setName(Constant.messages.getString("httpsession.panel.title"));
+			panelCommand.setName(Constant.messages.getString("httpsessions.panel.title"));
 
 			// Add the two components: toolbar and work pane
 			GridBagConstraints toolbarGridBag = new GridBagConstraints();
@@ -126,6 +132,23 @@ public class HttpSessionPanel extends AbstractPanel {
 	}
 
 	/**
+	 * Gets the new session button.
+	 * 
+	 * @return the new session button
+	 */
+	private JButton getNewSessionButton() {
+		if (newSessionButton == null) {
+			newSessionButton = new JButton();
+			newSessionButton.setText("New Session");
+			newSessionButton.setText(Constant.messages.getString("httpsessions.toolbar.newsession.label"));
+			newSessionButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/103.png")));
+			newSessionButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.newsession.tooltip"));
+
+		}
+		return newSessionButton;
+	}
+
+	/**
 	 * Gets the panel's toolbar.
 	 * 
 	 * @return the panel toolbar
@@ -133,7 +156,7 @@ public class HttpSessionPanel extends AbstractPanel {
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
 
-			// Initialize the toolbal
+			// Initialize the toolbar
 			panelToolbar = new javax.swing.JToolBar();
 			panelToolbar.setLayout(new java.awt.GridBagLayout());
 			panelToolbar.setEnabled(true);
@@ -146,6 +169,7 @@ public class HttpSessionPanel extends AbstractPanel {
 			// Add elements
 			GridBagConstraints labelGridBag = new GridBagConstraints();
 			GridBagConstraints siteSelectGridBag = new GridBagConstraints();
+			GridBagConstraints newSessionGridBag = new GridBagConstraints();
 			GridBagConstraints emptyGridBag = new GridBagConstraints();
 
 			labelGridBag.gridx = 0;
@@ -158,18 +182,24 @@ public class HttpSessionPanel extends AbstractPanel {
 			siteSelectGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
 			siteSelectGridBag.anchor = java.awt.GridBagConstraints.WEST;
 
-			emptyGridBag.gridx = 2;
+			newSessionGridBag.gridx = 2;
+			newSessionGridBag.gridy = 0;
+			newSessionGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+			newSessionGridBag.anchor = java.awt.GridBagConstraints.WEST;
+
+			emptyGridBag.gridx = 3;
 			emptyGridBag.gridy = 0;
 			emptyGridBag.weightx = 1.0;
 			emptyGridBag.weighty = 1.0;
 			emptyGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
-			emptyGridBag.anchor = java.awt.GridBagConstraints.EAST;
+			emptyGridBag.anchor = java.awt.GridBagConstraints.WEST;
 			emptyGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-			JLabel label = new JLabel(Constant.messages.getString("httpsession.toolbar.site.label"));
+			JLabel label = new JLabel(Constant.messages.getString("httpsessions.toolbar.site.label"));
 
 			panelToolbar.add(label, labelGridBag);
 			panelToolbar.add(getSiteSelect(), siteSelectGridBag);
+			panelToolbar.add(getNewSessionButton(), newSessionGridBag);
 
 			// Add an empty JLabel to fill the space
 			panelToolbar.add(new JLabel(), emptyGridBag);
@@ -194,59 +224,42 @@ public class HttpSessionPanel extends AbstractPanel {
 
 	private void setParamsTableColumnSizes() {
 
-		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(0).setMaxWidth(200);
-		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(100); // type
+		sessionsTable.getColumnModel().getColumn(0).setMinWidth(60);
+		sessionsTable.getColumnModel().getColumn(0).setMaxWidth(80);
+		sessionsTable.getColumnModel().getColumn(0).setPreferredWidth(60); // active
 
-		paramsTable.getColumnModel().getColumn(1).setMinWidth(100);
-		paramsTable.getColumnModel().getColumn(1).setMaxWidth(400);
-		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
-
-		paramsTable.getColumnModel().getColumn(2).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(2).setMaxWidth(200);
-		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(100); // used
-
-		paramsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(3).setMaxWidth(200);
-		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(100); // numvals
-
-		paramsTable.getColumnModel().getColumn(4).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(4).setMaxWidth(200);
-		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(100); // % change
-
-		paramsTable.getColumnModel().getColumn(5).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(5).setMaxWidth(400);
-		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(200); // flags
-
+		sessionsTable.getColumnModel().getColumn(1).setMinWidth(120);
+		sessionsTable.getColumnModel().getColumn(1).setMaxWidth(400);
+		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
 	}
 
 	protected JTable getHttpSessionsTable() {
-		if (paramsTable == null) {
-			paramsTable = new JTable(paramsModel);
+		if (sessionsTable == null) {
+			sessionsTable = new JTable(sessionsModel);
 
-			paramsTable.setColumnSelectionAllowed(false);
-			paramsTable.setCellSelectionEnabled(false);
-			paramsTable.setRowSelectionAllowed(true);
-			paramsTable.setAutoCreateRowSorter(true);
+			sessionsTable.setColumnSelectionAllowed(false);
+			sessionsTable.setCellSelectionEnabled(false);
+			sessionsTable.setRowSelectionAllowed(true);
+			sessionsTable.setAutoCreateRowSorter(true);
 
 			this.setParamsTableColumnSizes();
 
-			paramsTable.setName(PANEL_NAME);
-			paramsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			paramsTable.setDoubleBuffered(true);
-			paramsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+			sessionsTable.setName(PANEL_NAME);
+			sessionsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			sessionsTable.setDoubleBuffered(true);
+			sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+			sessionsTable.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
 
 					if (SwingUtilities.isRightMouseButton(e)) {
 
 						// Select table item
-						int row = paramsTable.rowAtPoint(e.getPoint());
-						if (row < 0 || !paramsTable.getSelectionModel().isSelectedIndex(row)) {
-							paramsTable.getSelectionModel().clearSelection();
+						int row = sessionsTable.rowAtPoint(e.getPoint());
+						if (row < 0 || !sessionsTable.getSelectionModel().isSelectedIndex(row)) {
+							sessionsTable.getSelectionModel().clearSelection();
 							if (row >= 0) {
-								paramsTable.getSelectionModel().setSelectionInterval(row, row);
+								sessionsTable.getSelectionModel().setSelectionInterval(row, row);
 							}
 						}
 
@@ -255,7 +268,7 @@ public class HttpSessionPanel extends AbstractPanel {
 				}
 			});
 		}
-		return paramsTable;
+		return sessionsTable;
 	}
 
 	/**
@@ -266,7 +279,7 @@ public class HttpSessionPanel extends AbstractPanel {
 	private JComboBox getSiteSelect() {
 		if (siteSelect == null) {
 			siteSelect = new JComboBox(siteModel);
-			siteSelect.addItem(Constant.messages.getString("httpsession.toolbar.site.select"));
+			siteSelect.addItem(Constant.messages.getString("httpsessions.toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 
 			// Add the action listener for when the site is selected
@@ -285,7 +298,6 @@ public class HttpSessionPanel extends AbstractPanel {
 	}
 
 	public void addSite(String site) {
-		site = ScanPanel.cleanSiteName(site, true);
 		if (siteModel.getIndexOf(site) < 0) {
 			siteModel.addElement(site);
 			if (siteModel.getSize() == 2 && currentSite == null) {
@@ -301,7 +313,8 @@ public class HttpSessionPanel extends AbstractPanel {
 		if (!site.equals(currentSite)) {
 			siteModel.setSelectedItem(site);
 
-			// TODO: this.getParamsTable().setModel(extension.getSiteParameters(site).getModel());
+			this.getHttpSessionsTable().setModel(
+					extension.getHttpSessionsSite(site).getModel());
 
 			this.setParamsTableColumnSizes();
 
@@ -319,26 +332,28 @@ public class HttpSessionPanel extends AbstractPanel {
 		currentSite = null;
 
 		siteModel.removeAllElements();
-		siteSelect.addItem(Constant.messages.getString("httpsession.toolbar.site.select"));
+		siteSelect.addItem(Constant.messages.getString("httpsessions.toolbar.site.select"));
 		siteSelect.setSelectedIndex(0);
 
-		paramsModel.removeAllElements();
-		paramsModel.fireTableDataChanged();
+		sessionsModel.removeAllElements();
+		sessionsModel.fireTableDataChanged();
 
-		paramsTable.setModel(paramsModel);
+		sessionsTable.setModel(sessionsModel);
 
 	}
 
-	protected HtmlParameterStats getSelectedParam() {
-
-		// TODO type is localized :(
-		String type = (String) this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 0);
-		String name = (String) this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 1);
-
-		// TODO: SiteParameters sps = extension.getSiteParameters(currentSite);
-		// if (sps != null) {
-		// return sps.getParam(HtmlParameter.Type.valueOf(type.toLowerCase()), name); // TODO HACK!
-		// }
-		return null;
-	}
+	// protected HtmlParameterStats getSelectedParam() {
+	//
+	// // TODO type is localized :(
+	// String type = (String)
+	// this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 0);
+	// String name = (String)
+	// this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 1);
+	//
+	// // TODO: SiteParameters sps = extension.getSiteParameters(currentSite);
+	// // if (sps != null) {
+	// // return sps.getParam(HtmlParameter.Type.valueOf(type.toLowerCase()), name); // TODO HACK!
+	// // }
+	// return null;
+	// }
 }
