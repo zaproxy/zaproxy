@@ -128,22 +128,6 @@ public class TableWebSocket extends AbstractTable {
     	} finally {
     		rs.close();
     	}
-
-//        psSelectMessages = conn.prepareStatement("SELECT m.* "
-//        		+ "FROM websocket_message AS m "
-//        		+ "ORDER BY m.timestamp, m.channel_id, m.message_id "
-//        		+ "LIMIT ? "
-//        		+ "OFFSET ?");
-//		
-//        psCountMessages = conn.prepareStatement("SELECT COUNT(message_id) "
-//				+ "FROM websocket_message");
-//
-//        psSelectMessagesForChannel = conn.prepareStatement("SELECT m.* "
-//        		+ "FROM websocket_message AS m "
-//        		+ "WHERE m.channel_id = ?"
-//        		+ "ORDER BY m.timestamp, m.channel_id, m.message_id "
-//        		+ "LIMIT ? "
-//        		+ "OFFSET ?");
         
         psSelectChannelIds = conn.prepareStatement("SELECT c.channel_id "
         		+ "FROM websocket_channel AS c "
@@ -217,8 +201,13 @@ public class TableWebSocket extends AbstractTable {
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
         		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
 				+ "<where> ";
+		
 		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
-		return executeAndGetRowCount(stmt);
+		try {
+			return executeAndGetRowCount(stmt);
+		} finally {
+			stmt.close();
+		}
 	}
 
 	private int executeAndGetRowCount(PreparedStatement stmt) throws SQLException {
@@ -244,8 +233,12 @@ public class TableWebSocket extends AbstractTable {
 		
 		int paramsCount = stmt.getParameterMetaData().getParameterCount();
 		stmt.setInt(paramsCount, criteria.messageId);
-		
-		return executeAndGetRowCount(stmt);
+
+		try {
+			return executeAndGetRowCount(stmt);
+		} finally {
+			stmt.close();
+		}
 	}
 	
 	public synchronized WebSocketMessageDAO getMessage(int messageId, int channelId) throws SQLException {
@@ -296,13 +289,17 @@ public class TableWebSocket extends AbstractTable {
 			}
 		}
 		
-		int paramsCount = stmt.getParameterMetaData().getParameterCount();
-		stmt.setInt(paramsCount - 1, limit);
-		stmt.setInt(paramsCount, offset);
-		
-		stmt.execute();
-		
-		return buildMessageDAOs(stmt.getResultSet(), true);
+		try {
+			int paramsCount = stmt.getParameterMetaData().getParameterCount();
+			stmt.setInt(paramsCount - 1, limit);
+			stmt.setInt(paramsCount, offset);
+			
+			stmt.execute();
+			
+			return buildMessageDAOs(stmt.getResultSet(), true);
+		} finally {
+			stmt.close();
+		}
 	}
 	
 	/**
