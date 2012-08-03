@@ -98,6 +98,9 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
 		return true;
 	}
 
+	/**
+	 * Keeps track of active WebSocket proxies.
+	 */
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
 		if (proxy.isConnected()) {

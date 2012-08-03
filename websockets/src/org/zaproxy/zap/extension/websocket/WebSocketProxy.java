@@ -59,6 +59,10 @@ public abstract class WebSocketProxy {
 	
 	/**
 	 * State of this channel, start in CONNECTING state and evolve over time.
+	 * Never set value to {@link State#EXCLUDED} or {@link State#INCLUDED}.
+	 * While observers are notified of these two extra-states, the internal
+	 * state is never set to one of these values. Moreover
+	 * {@link WebSocketProxy#state} is not exposed.
 	 */
 	protected State state;
 	
@@ -376,7 +380,7 @@ public abstract class WebSocketProxy {
 	 * @return
 	 */
 	public boolean isConnected() {
-		if (state.equals(State.OPEN)) {
+		if (state != null && state.equals(State.OPEN)) {
 			return true;
 		}
 		return false;
