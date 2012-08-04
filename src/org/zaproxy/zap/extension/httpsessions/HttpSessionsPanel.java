@@ -41,29 +41,37 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.view.SiteMapListener;
 
 /**
- * 
- * To change the template for this generated type comment go to Window - Preferences - Java - Code
- * Generation - Code and Comments
+ * The HttpSessionsPanel used as a display panel for the {@link ExtensionHttpSessions}, allowing the
+ * user to view and control the http sessions.
  */
 public class HttpSessionsPanel extends AbstractPanel {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+	/** The Constant PANEL_NAME. */
 	public static final String PANEL_NAME = "httpsessions";
 
+	/** The extension. */
 	private ExtensionHttpSessions extension = null;
+
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
-
-	private String currentSite = null;
 	private JComboBox siteSelect = null;
-	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
 	private JButton newSessionButton = null;
-
 	private JTable sessionsTable = null;
+
+	/** The current site. */
+	private String currentSite = null;
+
+	/** The site model. */
+	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+
+	/** The sessions model. */
 	private HttpSessionsTableModel sessionsModel = new HttpSessionsTableModel();
 
 	/**
@@ -74,13 +82,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 	public HttpSessionsPanel(ExtensionHttpSessions extensionHttpSession) {
 		super();
 		this.extension = extensionHttpSession;
-		sessionsModel.addHttpSession(new HttpSession("Test 1"));
-		HttpSession ses = new HttpSession("Test X");
-		ses.setActive(true);
-		ses.setTokenValue("cookie", "value");
-		sessionsModel.addHttpSession(ses);
-		sessionsModel.addHttpSession(new HttpSession("Test 4"));
-		sessionsModel.addHttpSession(new HttpSession("Test 2"));
 		initialize();
 	}
 
@@ -149,7 +150,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 			newSessionButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					getCurrentHttpSessionSite().createEmptySession();
+					HttpSessionsSite site = getCurrentHttpSessionSite();
+					if (site != null)
+						site.createEmptySession();
 				}
 			});
 
@@ -231,6 +234,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 		return jScrollPane;
 	}
 
+	/**
+	 * Sets the params table column sizes.
+	 */
 	private void setParamsTableColumnSizes() {
 
 		sessionsTable.getColumnModel().getColumn(0).setMinWidth(60);
@@ -242,6 +248,11 @@ public class HttpSessionsPanel extends AbstractPanel {
 		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
 	}
 
+	/**
+	 * Gets the http sessions table.
+	 * 
+	 * @return the http sessions table
+	 */
 	private JTable getHttpSessionsTable() {
 		if (sessionsTable == null) {
 			sessionsTable = new JTable(sessionsModel);
@@ -299,6 +310,12 @@ public class HttpSessionsPanel extends AbstractPanel {
 					String item = (String) siteSelect.getSelectedItem();
 					if (item != null && siteSelect.getSelectedIndex() > 0) {
 						siteSelected(item);
+
+					} // If the user selects the first option (empty one), force the selection to
+						// the first valid site
+					else if (siteSelect.getModel().getSize() > 1) {
+						siteSelect.setSelectedIndex(1);
+						this.actionPerformed(e);
 					}
 				}
 			});
@@ -306,6 +323,11 @@ public class HttpSessionsPanel extends AbstractPanel {
 		return siteSelect;
 	}
 
+	/**
+	 * Add a new site to the {@link ExtensionHttpSessions}.
+	 * 
+	 * @param site the site
+	 */
 	public void addSite(String site) {
 		if (siteModel.getIndexOf(site) < 0) {
 			siteModel.addElement(site);
@@ -317,6 +339,11 @@ public class HttpSessionsPanel extends AbstractPanel {
 		}
 	}
 
+	/**
+	 * A new Site was selected.
+	 * 
+	 * @param site the site
+	 */
 	private void siteSelected(String site) {
 		site = ScanPanel.cleanSiteName(site, true);
 		if (!site.equals(currentSite)) {
@@ -331,12 +358,20 @@ public class HttpSessionsPanel extends AbstractPanel {
 		}
 	}
 
+	/**
+	 * Node selected.
+	 * 
+	 * @param node the node
+	 */
 	public void nodeSelected(SiteNode node) {
 		if (node != null) {
 			siteSelected(ScanPanel.cleanSiteName(node, true));
 		}
 	}
 
+	/**
+	 * Reset the panel.
+	 */
 	public void reset() {
 		currentSite = null;
 
@@ -370,19 +405,4 @@ public class HttpSessionsPanel extends AbstractPanel {
 	public HttpSession getSelectedSession() {
 		return this.sessionsModel.getHttpSessionAt(this.sessionsTable.getSelectedRow());
 	}
-
-	// protected HtmlParameterStats getSelectedParam() {
-	//
-	// // TODO type is localized :(
-	// String type = (String)
-	// this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 0);
-	// String name = (String)
-	// this.getHttpSessionsTable().getValueAt(this.getHttpSessionsTable().getSelectedRow(), 1);
-	//
-	// // TODO: SiteParameters sps = extension.getSiteParameters(currentSite);
-	// // if (sps != null) {
-	// // return sps.getParam(HtmlParameter.Type.valueOf(type.toLowerCase()), name); // TODO HACK!
-	// // }
-	// return null;
-	// }
 }

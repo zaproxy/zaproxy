@@ -25,10 +25,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 /**
- * The PopupMenuSetActiveSession is used to set the active http session for the
+ * The PopupMenuUnsetActiveSession is used to unset the active http session for the
  * {@link ExtensionHttpSessions}.
  */
-public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
+public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -37,19 +37,19 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 	private ExtensionHttpSessions extension;
 
 	/**
-	 * Instantiates a new popup menu used to set active session.
+	 * Instantiates a new popup menu used to unset active session.
 	 */
-	public PopupMenuSetActiveSession() {
+	public PopupMenuUnsetActiveSession() {
 		super();
 		initialize();
 	}
 
 	/**
-	 * Instantiates a new popup menu used to set the active http session.
+	 * Instantiates a new popup menu used to unset the active http session.
 	 * 
 	 * @param label the label
 	 */
-	public PopupMenuSetActiveSession(String label) {
+	public PopupMenuUnsetActiveSession(String label) {
 		super(label);
 	}
 
@@ -66,7 +66,7 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 	 * Initialize the popup menu.
 	 */
 	private void initialize() {
-		this.setText(Constant.messages.getString("httpsessions.popup.session.active.set"));
+		this.setText(Constant.messages.getString("httpsessions.popup.session.active.unset"));
 		this.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -76,9 +76,9 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 				if (site == null)
 					return;
 
-				// Get the selected session, mark it as active and trigger a table repaint
-				HttpSession item = panel.getSelectedSession();
-				site.setActiveSession(item);
+				// Unset the active session, no matter the current selection is, as the popup menu
+				// is always only enabled on active session
+				site.unsetActiveSession();
 				site.getModel().fireTableDataChanged();
 			}
 		});
@@ -97,9 +97,9 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 			HttpSession item = extension.getHttpSessionsPanel().getSelectedSession();
 			if (item != null) {
 				if (item.isActive())
-					return false;
-				else
 					return true;
+				else
+					return false;
 			}
 		}
 		return false;

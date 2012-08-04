@@ -82,6 +82,18 @@ public class HttpSessionsSite {
 	}
 
 	/**
+	 * Removes an existing session.
+	 * 
+	 * @param session the session
+	 */
+	public void removeHttpSession(HttpSession session) {
+		if (session == activeSession)
+			activeSession = null;
+		this.sessions.remove(session);
+		this.model.removeHttpSession(session);
+	}
+
+	/**
 	 * Gets the site.
 	 * 
 	 * @return the site
@@ -121,6 +133,19 @@ public class HttpSessionsSite {
 			this.activeSession.setActive(false);
 		this.activeSession = activeSession;
 		activeSession.setActive(true);
+	}
+
+	/**
+	 * Unset any active session for this site.
+	 */
+	public void unsetActiveSession() {
+		if (log.isInfoEnabled())
+			log.info("Setting no active session for site '" + site + "'.");
+
+		if (this.activeSession != null) {
+			this.activeSession.setActive(false);
+			this.activeSession = null;
+		}
 	}
 
 	/**
