@@ -157,4 +157,16 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		}
 		return null;
 	}
+
+	/**
+	 * Gets the http session at a particular row index.
+	 * 
+	 * @param rowIndex the row index
+	 * @return the http session at the given index, or null
+	 */
+	protected HttpSession getHttpSessionAt(int rowIndex) {
+		if (rowIndex < 0 || rowIndex >= sessions.size())
+			return null;
+		return sessions.get(rowIndex);
+	}
 }

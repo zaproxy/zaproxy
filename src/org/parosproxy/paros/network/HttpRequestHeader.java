@@ -30,11 +30,13 @@
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
+// ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.URLEncoder;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -44,6 +46,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 
 public class HttpRequestHeader extends HttpHeader {
 
@@ -618,4 +621,37 @@ public class HttpRequestHeader extends HttpHeader {
     	
     	return set;
     }
+    
+	// ZAP: Added method for working directly with HttpCookie
+	/**
+	 * Gets a list of the http cookies from this request Header.
+	 * 
+	 * @return the http cookies
+	 */
+	public List<HttpCookie> getHttpCookies() {
+		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+
+		// Process each "Cookie: " header line
+		Vector<String> cookiesS = getHeaders(HttpHeader.COOKIE);
+		if (cookiesS != null)
+			for (String cookieLine : cookiesS) {
+				String[] array = cookieLine.split(";");
+				if (array == null || array.length == 0) {
+					throw new IllegalArgumentException("Empty cookie line: " + cookieLine);
+				}
+				for (String cookieString : array) {
+					int eqOffset = cookieString.indexOf("=");
+					if (eqOffset <= 0) {
+						throw new IllegalArgumentException("No '=' in cookie line: " + cookieLine);
+					}
+					String name = cookieString.substring(0, eqOffset).trim();
+					String value = cookieString.substring(eqOffset + 1).trim();
+					HttpCookie cookie = new HttpCookie(name, value);
+					cookies.add(cookie);
+				}
+			}
+
+		return cookies;
+
+	}
 }

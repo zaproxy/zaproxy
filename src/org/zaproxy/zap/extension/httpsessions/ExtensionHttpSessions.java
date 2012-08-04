@@ -33,6 +33,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.params.PopupMenuAddSession;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, ProxyListener {
@@ -48,6 +49,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/** The http sessions manager. */
 	private HttpSessionsManager manager;
+
+	private PopupMenuSetActiveSession popupMenuSetActiveSession;
 
 	public ExtensionHttpSessions() {
 		super();
@@ -88,12 +91,20 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (getView() != null) {
 			extensionHook.getHookView().addStatusPanel(getHttpSessionsPanel());
 
-			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuParamSearch());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSetActiveSession());
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddAntiCSRF());
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveAntiCSRF());
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddSession());
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 		}
+	}
+
+	private PopupMenuSetActiveSession getPopupMenuSetActiveSession() {
+		if (popupMenuSetActiveSession == null) {
+			popupMenuSetActiveSession = new PopupMenuSetActiveSession();
+			popupMenuSetActiveSession.setExtension(this);
+		}
+		return popupMenuSetActiveSession;
 	}
 
 	//
@@ -125,7 +136,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 		return httpSessionsPanel;
 	}
-
+	
 	@Override
 	public int getProxyListenerOrder() {
 		return 20;
@@ -161,11 +172,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		this.getHttpSessionsPanel().addSite(site);
 
 		// Forward the request for proper processing
-		HttpSessionsSite session = this.getHttpSessionsSite(site);
-		boolean res = session.processHttpResponseMessage(msg);
+		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
+		boolean res = sessionsSite.processHttpResponseMessage(msg);
 		if (res == true) {
 			log.debug("Refreshing model for site: " + site);
-			this.getHttpSessionsPanel().getHttpSessionsTable().setModel(session.getModel());
+			sessionsSite.getModel().fireTableDataChanged();
 		}
 
 		return true;
