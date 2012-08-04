@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -144,6 +146,13 @@ public class HttpSessionsPanel extends AbstractPanel {
 			newSessionButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/103.png")));
 			newSessionButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.newsession.tooltip"));
 
+			newSessionButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					getCurrentHttpSessionSite().createEmptySession();
+				}
+			});
+
 		}
 		return newSessionButton;
 	}
@@ -233,7 +242,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
 	}
 
-	protected JTable getHttpSessionsTable() {
+	private JTable getHttpSessionsTable() {
 		if (sessionsTable == null) {
 			sessionsTable = new JTable(sessionsModel);
 
@@ -313,8 +322,8 @@ public class HttpSessionsPanel extends AbstractPanel {
 		if (!site.equals(currentSite)) {
 			siteModel.setSelectedItem(site);
 
-			this.getHttpSessionsTable().setModel(
-					extension.getHttpSessionsSite(site).getModel());
+			this.sessionsModel = extension.getHttpSessionsSite(site).getModel();
+			this.getHttpSessionsTable().setModel(this.sessionsModel);
 
 			this.setParamsTableColumnSizes();
 
@@ -340,6 +349,26 @@ public class HttpSessionsPanel extends AbstractPanel {
 
 		sessionsTable.setModel(sessionsModel);
 
+	}
+
+	/**
+	 * Gets the current http session site.
+	 * 
+	 * @return the current http session site, or null if no HttpSessionSite is selected
+	 */
+	public HttpSessionsSite getCurrentHttpSessionSite() {
+		if (currentSite == null)
+			return null;
+		return extension.getHttpSessionsSite(currentSite);
+	}
+
+	/**
+	 * Gets the selected http session.
+	 * 
+	 * @return the selected session, or null if nothing is selected
+	 */
+	public HttpSession getSelectedSession() {
+		return this.sessionsModel.getHttpSessionAt(this.sessionsTable.getSelectedRow());
 	}
 
 	// protected HtmlParameterStats getSelectedParam() {

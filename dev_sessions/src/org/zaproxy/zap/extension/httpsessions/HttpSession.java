@@ -17,10 +17,9 @@
  */
 package org.zaproxy.zap.extension.httpsessions;
 
+import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.parosproxy.paros.network.HtmlParameter;
 
 /**
  * The Class HttpSession defines the data that is stored regarding an existing HTTP session on a
@@ -100,14 +99,32 @@ public class HttpSession {
 	}
 
 	/**
-	 * Checks if a particular cookie has the same value as one of the token values in the HTTP
-	 * session.
+	 * Gets the token value.
 	 * 
+	 * @param tokenName the token name
+	 * @return the token value
+	 */
+	public String getTokenValue(String tokenName) {
+		return tokenValues.get(tokenName);
+	}
+
+	/**
+	 * Checks if a particular cookie has the same value as one of the token values in the HTTP
+	 * session. If the {@literal cookie} parameter is null, the session matches the token if it does
+	 * not have a value for the corresponding token.
+	 * 
+	 * @param tokenName the token name
 	 * @param cookie the cookie
 	 * @return true, if true
 	 */
-	public boolean matchesCookie(HtmlParameter cookie) {
-		String tokenValue = tokenValues.get(cookie.getName().toLowerCase());
+	public boolean matchesToken(String tokenName, HttpCookie cookie) {
+		// Check if the cookie is null
+		if (cookie == null) {
+			return tokenValues.containsKey(tokenName) ? false : true;
+		}
+
+		// Check the value of the token from the cookie
+		String tokenValue = tokenValues.get(tokenName);
 		if (tokenValue != null && tokenValue.equals(cookie.getValue()))
 			return true;
 		return false;
@@ -115,7 +132,7 @@ public class HttpSession {
 
 	@Override
 	public String toString() {
-		return "HttpSession [name=" + name + ", active=" + active + ", tokenValues=" + getTokenValuesString() + "]";
+		return "HttpSession [name=" + name + ", active=" + active + ", tokenValues='" + getTokenValuesString() + "']";
 	}
 
 	/**

@@ -22,13 +22,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.TreeSet;
 
-import org.apache.http.cookie.Cookie;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -44,13 +42,13 @@ public class HttpSessionsSite {
 	private String site;
 
 	/** The sessions. */
-	LinkedHashSet<HttpSession> sessions;
+	private LinkedHashSet<HttpSession> sessions;
 
 	/** The active session. */
-	HttpSession activeSession;
+	private HttpSession activeSession;
 
 	/** The model associated with this site. */
-	HttpSessionsTableModel model;
+	private HttpSessionsTableModel model;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(HttpSessionsSite.class);
@@ -116,9 +114,22 @@ public class HttpSessionsSite {
 	 * @param activeSession the new active session
 	 */
 	public void setActiveSession(HttpSession activeSession) {
-		this.activeSession.setActive(false);
+		if (log.isInfoEnabled())
+			log.info("Setting new active session for site '" + site + "': " + activeSession);
+
+		if (this.activeSession != null)
+			this.activeSession.setActive(false);
 		this.activeSession = activeSession;
 		activeSession.setActive(true);
+	}
+
+	/**
+	 * Creates a new empty session.
+	 */
+	public void createEmptySession() {
+		HttpSession session = new HttpSession("Session " + (lastSessionID++));
+		this.addHttpSession(session);
+		this.setActiveSession(session);
 	}
 
 	/**
@@ -138,16 +149,65 @@ public class HttpSessionsSite {
 	public void processHttpRequestMessage(HttpMessage message) {
 		// Get the session tokens for this site
 		String[] tokens = extension.getSessionTokens(getSite());
+		HashSet<String> tokensSet = extension.getSessionTokensSet(getSite());
 		// No tokens for this site, so no processing
 		if (tokens == null) {
 			log.debug("No session tokens for: " + this.getSite());
 			return;
 		}
 
-		// Get the session
-		HttpSession session = getMatchingHttpSession(message, tokens);
+		// Get the session, based on the request header
+		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
+		HttpSession session = getMatchingHttpSession(requestCookies, tokens);
 		if (log.isDebugEnabled())
 			log.debug("Matching session for request message (for site " + getSite() + "): " + session);
+
+		// If any session is active (forced), change the necessary cookies
+		if (activeSession != null && activeSession != session) {
+			// Iterate through the cookies in the request
+			Iterator<HttpCookie> it = requestCookies.iterator();
+			while (it.hasNext()) {
+				HttpCookie cookie = it.next();
+				String cookieName = cookie.getName().toLowerCase();
+
+				// If the cookie is a token
+				if (tokensSet.contains(cookieName)) {
+					String tokenValue = activeSession.getTokenValue(cookieName);
+					log.debug("Changing value of token '" + cookieName + "' to: " + tokenValue);
+
+					// Change it's value to the one in the active session, if any
+					if (tokenValue != null)
+						cookie.setValue(tokenValue);
+					// Or delete it, if the active session does not have a token value
+					else
+						it.remove();
+					// Remove the token from the token set so we know what tokens still have to be
+					// added
+					tokensSet.remove(cookieName);
+				}
+			}
+
+			// Iterate through the tokens that are not present in the request and set the proper
+			// value
+			for (String token : tokensSet) {
+				String tokenValue = activeSession.getTokenValue(token);
+				// Change it's value to the one in the active session, if any
+				if (tokenValue != null) {
+					log.debug("Adding token '" + token + " with value: " + tokenValue);
+					HttpCookie cookie = new HttpCookie(token, tokenValue);
+					requestCookies.add(cookie);
+				}
+			}
+
+			// Update the cookies in the message
+			message.getRequestHeader().setCookies(requestCookies);
+		} else {
+			if (activeSession == session)
+				log.debug("Session of request message is the same as the active session, so no request changes needed.");
+			else
+				log.debug("No active session is selected.");
+
+		}
 	}
 
 	/**
@@ -170,14 +230,15 @@ public class HttpSessionsSite {
 		HashSet<String> tokensSet = extension.getSessionTokensSet(getSite());
 
 		// Get new values for tokens, if any
-		List<HttpCookie> cookies = message.getResponseHeader().getHttpCookies();
-		for (HttpCookie cookie : cookies) {
+		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
+		for (HttpCookie cookie : cookiesToSet) {
 			if (tokensSet.contains(cookie.getName().toLowerCase()))
 				tokenValues.put(cookie.getName().toLowerCase(), cookie.getValue());
 		}
 
-		// Get the session
-		HttpSession session = getMatchingHttpSession(message, tokens);
+		// Get the session, based on the request header
+		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
+		HttpSession session = getMatchingHttpSession(requestCookies, tokens);
 		if (log.isDebugEnabled())
 			log.debug("Matching session for response message (from site " + getSite() + "): " + session);
 
@@ -188,11 +249,12 @@ public class HttpSessionsSite {
 
 			// Add all the existing tokens from the request, if they don't replace one in the
 			// response
-			TreeSet<HtmlParameter> cookiesReq = message.getRequestHeader().getCookieParams();
-			for (HtmlParameter cookie : cookiesReq)
-				if (tokensSet.contains(cookie.getName().toLowerCase()))
-					if (!tokenValues.containsKey(cookie.getName().toLowerCase()))
-						tokenValues.put(cookie.getName().toLowerCase(), cookie.getValue());
+			for (HttpCookie cookie : requestCookies) {
+				String cookieName = cookie.getName().toLowerCase();
+				if (tokensSet.contains(cookieName))
+					if (!tokenValues.containsKey(cookieName))
+						tokenValues.put(cookieName, cookie.getValue());
+			}
 		}
 
 		// Update the session
@@ -206,38 +268,42 @@ public class HttpSessionsSite {
 	}
 
 	/**
-	 * Gets the matching http session for a particular message.
+	 * Gets the matching http session for a particular message containing a list of cookies.
 	 * 
-	 * @param message the message
 	 * @param tokens the tokens
-	 * @return the matching http session
+	 * @param cookies the cookies
+	 * @return the matching http session, if any, or null if no existing session was found to match
+	 *         all the tokens
 	 */
-	private HttpSession getMatchingHttpSession(HttpMessage message, String[] tokens) {
+	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, String[] tokens) {
 
 		// Pre-checks
 		if (sessions == null || sessions.isEmpty())
 			return null;
 
-		// Get the token values from the message
-		TreeSet<HtmlParameter> cookies = message.getRequestHeader().getCookieParams();
-		LinkedHashSet<HttpSession> matchingSessions = new LinkedHashSet<HttpSession>(sessions);
+		LinkedList<HttpSession> matchingSessions = new LinkedList<HttpSession>(sessions);
 		for (String token : tokens) {
 			// Get the corresponding cookie from the cookies list
-			HtmlParameter matchingCookie = null;
-			for (HtmlParameter cookie : cookies)
+			HttpCookie matchingCookie = null;
+			for (HttpCookie cookie : cookies)
 				if (cookie.getName().equalsIgnoreCase(token)) {
 					matchingCookie = cookie;
 					break;
 				}
-			if (matchingCookie == null) {
-				log.debug("No sessions matching as no cookie is matching for site: " + getSite());
-				return null;
-			}
+
+			// TODO: Modified so that even even there is no cookie for this token, if there is a
+			// session without this token, it matches
+			// if (matchingCookie == null) {
+			// log.debug("No sessions matching as no cookie is matching for token '" + token +
+			// "' for site: "
+			// + getSite());
+			// return null;
+			// }
 
 			// Filter the sessions that do not match the cookie value
 			Iterator<HttpSession> it = matchingSessions.iterator();
 			while (it.hasNext()) {
-				if (!it.next().matchesCookie(matchingCookie))
+				if (!it.next().matchesToken(token, matchingCookie))
 					it.remove();
 			}
 		}
@@ -248,9 +314,14 @@ public class HttpSessionsSite {
 				log.warn("Multiple sessions matching the cookies from response for site: " + getSite()
 						+ ". Using first one.");
 			}
-			return matchingSessions.iterator().next();
+			return matchingSessions.getFirst();
 		}
 		return null;
 
+	}
+
+	@Override
+	public String toString() {
+		return "HttpSessionsSite [site=" + site + ", activeSession=" + activeSession + ", sessions=" + sessions + "]";
 	}
 }
