@@ -36,42 +36,61 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.params.PopupMenuAddSession;
 import org.zaproxy.zap.view.ScanPanel;
 
+/**
+ * The Class ExtensionHttpSessions.
+ */
 public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, ProxyListener {
 
+	/** The Constant NAME. */
 	private static final String NAME = "ExtensionHttpSessions";
 
+	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(ExtensionHttpSessions.class);
 
+	/** The http sessions panel. */
 	private HttpSessionsPanel httpSessionsPanel;
 
 	/** The map of sessions corresponding to each site. */
 	Map<String, HttpSessionsSite> sessions;
 
-	/** The http sessions manager. */
-	private HttpSessionsManager manager;
-
+	/** The popup menu used to set the active session. */
 	private PopupMenuSetActiveSession popupMenuSetActiveSession;
 
+	/**
+	 * Instantiates a new extension http sessions.
+	 */
 	public ExtensionHttpSessions() {
 		super();
 		initialize();
 	}
 
+	/**
+	 * Initialize.
+	 */
 	private void initialize() {
 		this.setOrder(68);
 		this.setName(NAME);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.Extension#getAuthor()
+	 */
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDescription()
+	 */
 	@Override
 	public String getDescription() {
 		return Constant.messages.getString("httpsession.desc");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getURL()
+	 */
 	@Override
 	public URL getURL() {
 		try {
@@ -81,6 +100,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook)
+	 */
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
@@ -99,6 +121,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 	}
 
+	/**
+	 * Gets the popup menu set active session.
+	 * 
+	 * @return the popup menu set active session
+	 */
 	private PopupMenuSetActiveSession getPopupMenuSetActiveSession() {
 		if (popupMenuSetActiveSession == null) {
 			popupMenuSetActiveSession = new PopupMenuSetActiveSession();
@@ -107,29 +134,33 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return popupMenuSetActiveSession;
 	}
 
-	//
-	// /**
-	// * Gets the http sessions manager.
-	// *
-	// * @return the http sessions manager
-	// */
-	// protected HttpSessionsManager getHttpSessionsManager() {
-	// if (manager == null) {
-	// manager = new HttpSessionsManager(this);
-	// }
-	// return manager;
-	// }
-
+	/**
+	 * Gets the session tokens.
+	 * 
+	 * @param site the site
+	 * @return the session tokens
+	 */
 	protected String[] getSessionTokens(String site) {
 		return new String[] { "jsessionid" };
 	}
 
+	/**
+	 * Gets the session tokens set.
+	 * 
+	 * @param site the site
+	 * @return the session tokens set
+	 */
 	protected HashSet<String> getSessionTokensSet(String site) {
 		HashSet<String> set = new LinkedHashSet<String>();
 		set.add("jsessionid");
 		return set;
 	}
 
+	/**
+	 * Gets the http sessions panel.
+	 * 
+	 * @return the http sessions panel
+	 */
 	protected HttpSessionsPanel getHttpSessionsPanel() {
 		if (httpSessionsPanel == null) {
 			httpSessionsPanel = new HttpSessionsPanel(this);
@@ -137,11 +168,17 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return httpSessionsPanel;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder()
+	 */
 	@Override
 	public int getProxyListenerOrder() {
 		return 20;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
+	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// Check if we know the site and add it otherwise
@@ -160,6 +197,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
+	 */
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Check if we know the site and add it otherwise
@@ -200,23 +240,35 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return hss;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
+	 */
 	@Override
 	public void sessionChanged(Session session) {
 		log.info("Session changed."); // TODO Auto-generated method stub
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionAboutToChange(org.parosproxy.paros.model.Session)
+	 */
 	@Override
 	public void sessionAboutToChange(Session session) {
 		log.info("Session about to change.");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionScopeChanged(org.parosproxy.paros.model.Session)
+	 */
 	@Override
 	public void sessionScopeChanged(Session session) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionModeChanged(org.parosproxy.paros.control.Control.Mode)
+	 */
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// TODO Auto-generated method stub
