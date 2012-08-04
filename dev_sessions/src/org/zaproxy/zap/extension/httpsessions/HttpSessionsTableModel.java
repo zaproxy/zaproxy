@@ -134,9 +134,11 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		// TODO: Proper implementation
-		sessions.get(rowIndex).setName((String) aValue);
-		super.setValueAt(aValue, rowIndex, columnIndex);
+		// Allow change only for the name column
+		if (columnIndex == 1) {
+			sessions.get(rowIndex).setName((String) aValue);
+			super.setValueAt(aValue, rowIndex, columnIndex);
+		}
 	}
 
 	/**
@@ -168,5 +170,15 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		if (rowIndex < 0 || rowIndex >= sessions.size())
 			return null;
 		return sessions.get(rowIndex);
+	}
+
+	/**
+	 * Removes the http session.
+	 * 
+	 * @param session the session
+	 */
+	public void removeHttpSession(HttpSession session) {
+		sessions.remove(session);
+
 	}
 }
