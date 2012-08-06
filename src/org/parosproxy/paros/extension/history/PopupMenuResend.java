@@ -21,13 +21,14 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
 import java.sql.SQLException;
 
 import javax.swing.JList;
-import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -35,7 +36,6 @@ import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
 
 
 /**
@@ -46,8 +46,6 @@ import org.parosproxy.paros.network.HttpSender;
 public class PopupMenuResend extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;
-    private JTree treeSite = null;
-    private HttpSender httpSender = null;
     
     /**
      * 
@@ -78,12 +76,10 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    ManualRequestEditorDialog dialog = extension.getResendDialog();
         	    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    HistoryReference ref = (HistoryReference) listLog.getSelectedValue();
+        	    HistoryReference ref = extension.getSelectedHistoryReference();
         	    HttpMessage msg = null;
         	    try {
-        	    	// Dont clone. ManualRequestEditor will do it.
-        	    	msg = ref.getHttpMessage();
+                    msg = ref.getHttpMessage().cloneRequest();
                     dialog.setMessage(msg);
                     dialog.setVisible(true);
                 } catch (HttpMalformedHeaderException e1) {

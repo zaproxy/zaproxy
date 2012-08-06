@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -54,13 +55,18 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 	}
 
 	@Override
-	public boolean match(Message aMessage) {
+	public boolean match(Message aMessage, boolean onlyIfInScope) {
 	    if (aMessage instanceof HttpMessage) {
 	        HttpMessage messge = (HttpMessage)aMessage;
 	        URI uri;
             try {
                 uri = (URI) messge.getRequestHeader().getURI().clone();
                 uri.setQuery(null);
+                if (onlyIfInScope) {
+                	if (! Model.getSingleton().getSession().isInScope(uri.toString())) {
+                		return false;
+                	}
+                }
                 return pattern.matcher(uri.getURI()).find();
             } catch (CloneNotSupportedException e1) {
                 e1.printStackTrace();

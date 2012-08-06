@@ -26,6 +26,11 @@
 // new map of supported message types; removed history list; removed unused
 // methods.
 // ZAP: 2012/07/16 Issue 326: Add response time and total length to manual request dialog 
+// ZAP: 2012/07/31 Removed the instance variables followRedirect,
+// useTrackingSessionState and httpSender. Removed the methods getHttpSender,
+// getButtonFollowRedirect and getButtonUseTrackingSessionState and changed the
+// methods windowClosing and setVisible.
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -36,6 +41,7 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -49,15 +55,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.manualrequest.http.impl.HttpPanelSender;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -69,8 +76,6 @@ import org.zaproxy.zap.extension.tab.Tab;
 public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
 
-	private static Logger log = Logger.getLogger(ManualRequestEditorDialog.class);
-
 	// Window
 	private JPanel panelWindow = null; // ZAP
 //	private JPanel panelHeader = null;
@@ -80,15 +85,16 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 
 //	private JComponent panelMain = null;
 //	private JPanel panelContent = null;
-
-	private JToggleButton followRedirect = null;
-	private JToggleButton useTrackingSessionState = null;
+	
+	// ZAP: Removed the instance variables "JToggleButton followRedirect". and
+	// "JToggleButton useTrackingSessionState".
+	
 	//private JComboBox comboChangeMethod = null;
 
 	private JButton btnSend = null;
-
-	// Other
-	private HttpSender httpSender = null;
+	
+	// ZAP: Removed the instance variable "HttpSender httpSender".
+	
 	private boolean isSendEnabled = true;
 
 	private Extension extension = null;
@@ -120,7 +126,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		initialize();
         
         mapMessageSenders = new HashMap<Class<? extends Message>, MessageSender>();
-        mapMessageSenders.put(HttpMessage.class, new HttpPanelSender(getHttpSender(), getResponsePanel(), getButtonFollowRedirect()));
+        mapMessageSenders.put(HttpMessage.class, new HttpPanelSender(getRequestPanel(), getResponsePanel()));
 	}
 
 	
@@ -130,15 +136,16 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		
 		requestResponsePanel.addEndButton(getBtnSend());
 		requestResponsePanel.addSeparator();
-		requestResponsePanel.addToolbarButton(getButtonUseTrackingSessionState());
-		requestResponsePanel.addToolbarButton(getButtonFollowRedirect());
 
 		requestResponsePanel.loadConfig();
 		
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent e) {
-				getHttpSender().shutdown();
+				// ZAP: Changed to call the method cleanup on the MessageSender.
+				for (Iterator<MessageSender> it = mapMessageSenders.values().iterator(); it.hasNext();) {
+                    it.next().cleanup();
+                }
 				saveConfig();
 			}
 		});
@@ -190,32 +197,19 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 
 	@Override
 	public void setVisible(boolean show) {
-		if (!show) {
-			try {
-				if (httpSender != null) {
-					httpSender.shutdown();
-					httpSender = null;
-				}
-			} catch (final Exception e) {
-				// ZAP: Log exceptions
-				log.error(e.getMessage(), e);
-			}
+		// ZAP: Changed to call the method cleanup on the MessageSender.
+		if (!show && mapMessageSenders != null) {
+            for (Iterator<MessageSender> it = mapMessageSenders.values().iterator(); it.hasNext();) {
+                it.next().cleanup();
+            }
 		}
 
 		switchToTab(0);
-
-		final boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
-		getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+		
 		super.setVisible(show);
-
 	}
 
-	private HttpSender getHttpSender() {
-		if (httpSender == null) {
-			httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), getButtonUseTrackingSessionState().isSelected());
-		}
-		return httpSender;
-	}
+	// ZAP: Removed the method "HttpSender getHttpSender()".
 
 	/* Set new HttpMessage
 	 * this means ManualRequestEditor does show another HttpMessage.
@@ -225,7 +219,6 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	
 	public void setMessage(Message aMessage) {
 		if (aMessage == null) {
-			System.out.println("Manual: set message NULL");
 			return;
 		}
 
@@ -247,25 +240,8 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		responsePanel.clearView();
 	}
 
-	
-	private JToggleButton getButtonFollowRedirect() {
-		if (followRedirect == null) {
-			followRedirect = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/16/118.png"))); // Arrow turn around left
-			followRedirect.setToolTipText(Constant.messages.getString("manReq.checkBox.followRedirect"));
-			followRedirect.setSelected(true);
-		}
-		return followRedirect;
-	}
-
-	
-	private JToggleButton getButtonUseTrackingSessionState() {
-		if (useTrackingSessionState == null) {
-			useTrackingSessionState = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/fugue/cookie.png"))); // Cookie
-			useTrackingSessionState.setToolTipText(Constant.messages.getString("manReq.checkBox.useSession"));
-		}
-		return useTrackingSessionState;
-	}
-
+	// ZAP: Removed the methods "JToggleButton getButtonFollowRedirect()" and
+	// "JToggleButton getButtonUseTrackingSessionState()".
 	
 	private JButton getBtnSend() {
 		if (btnSend == null) {
@@ -318,6 +294,19 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		requestPanel.saveData();
 
 		// Send Request, Receive Response
+		if (Control.getSingleton().getMode().equals(Mode.safe)) {
+			// Can happen if the user turns on safe mode with the dialog open
+			View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.safe.warning"));
+			btnSend.setEnabled(true);
+			return;
+		} else if (Control.getSingleton().getMode().equals(Mode.protect)) {
+			if (! requestPanel.getMessage().isInScope()) {
+				// In protected mode and not in scope, so fail
+				View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.outofscope.warning"));
+				btnSend.setEnabled(true);
+				return;
+			}
+		}
 		send(requestPanel.getMessage());
 
 		// redraw request, as it could have changed
@@ -352,10 +341,13 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 			long contentLength = msg.getResponseBody().toString().length();
 			long timeLapse =msg.getTimeElapsedMillis(); 
 			// show time lapse and content length between request and response Constant.messages.getString("manReq.label.timeLapse")
-			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")+String.valueOf(timeLapse)+" ms"); 
-			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength")+String.valueOf(contentLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
-			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength") +String.valueOf(totalLength)+" "+Constant.messages.getString("manReq.label.totalLengthBytes"));
-		}else{
+			getLabelTimeLapse().setText(
+					Constant.messages.getString("manReq.label.timeLapse") + String.valueOf(timeLapse) + " ms"); 
+			getLabelContentLength().setText(
+					Constant.messages.getString("manReq.label.contentLength") + String.valueOf(contentLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
+			getLabelTotalLength().setText(
+					Constant.messages.getString("manReq.label.totalLength") + String.valueOf(totalLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
+		} else {
 			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")); 
 			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength"));
 			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength"));

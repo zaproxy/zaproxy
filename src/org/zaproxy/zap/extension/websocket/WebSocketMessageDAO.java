@@ -147,4 +147,10 @@ public class WebSocketMessageDAO implements Message {
 		other.tempUserObj = this.tempUserObj;
 		other.timestamp = this.timestamp;
 	}
+
+	@Override
+	public boolean isInScope() {
+		// TODO Find out what to return
+		return false;
+	}
 }

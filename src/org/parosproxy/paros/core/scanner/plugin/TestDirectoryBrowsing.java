@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -53,17 +54,11 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
 	private final static Pattern patternGeneralParent	= Pattern.compile("Parent directory", PATTERN_PARAM);
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getId()
-     */
     @Override
     public int getId() {
         return 00000;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getName()
-     */
     @Override
     public String getName() {
         
@@ -72,17 +67,11 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
     
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSummary()
-     */
     @Override
     public String getDescription() {
         return "It is possible to view the directory listing.  Directory listing may reveal hidden scripts, include files , backup source files etc which be accessed to read sensitive information.";

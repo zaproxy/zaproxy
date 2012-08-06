@@ -22,10 +22,8 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 
 class LargeResponseUtil {
-    
-    private static final int DEFAULT_MIN_CONTENT_LENGTH = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
-    
-    private static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
+
+	private static int minContentLength = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
     
     public static int getMinContentLength() {
         return minContentLength;
@@ -36,7 +34,7 @@ class LargeResponseUtil {
     }
     
     public static void restoreDefaultMinContentLength() {
-        minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
+        minContentLength = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
     }
     
     public static boolean isLargeResponse(Message aMessage) {

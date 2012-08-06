@@ -42,12 +42,13 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
+	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
-		if (super.isBreakOnAllRequests(aMessage, isRequest)) {
-			return isBreakOnAllWebSocket(aMessage, isRequest);
+	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+		if (super.isBreakOnAllRequests(aMessage, isRequest, onlyIfInScope)) {
+			return isBreakOnAllWebSocket(aMessage, isRequest, onlyIfInScope);
 		}
     	return false;
 	}
@@ -57,12 +58,13 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
+	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
-		if (super.isBreakOnAllResponses(aMessage, isRequest)) {
-			return isBreakOnAllWebSocket(aMessage, isRequest);
+	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+		if (super.isBreakOnAllResponses(aMessage, isRequest, onlyIfInScope)) {
+			return isBreakOnAllWebSocket(aMessage, isRequest, onlyIfInScope);
 		}
     	return false;
 	}
@@ -72,11 +74,12 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
+	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
-		if (aMessage instanceof WebSocketMessageDAO && super.isBreakOnStepping((Message) aMessage, isRequest)) {
+	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+		if (aMessage instanceof WebSocketMessageDAO && super.isBreakOnStepping((Message) aMessage, isRequest, onlyIfInScope)) {
 			return isBreakOnOpcode(((WebSocketMessageDAO) aMessage).opcode);
 		}
 		return false;
@@ -88,9 +91,10 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
+	 * @param onlyIfInScope
 	 * @return
 	 */
-	private boolean isBreakOnAllWebSocket(Message aMessage, boolean isRequest) {
+	private boolean isBreakOnAllWebSocket(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
 		if (aMessage instanceof WebSocketMessageDAO && config.isBreakOnAll()) {
 			return isBreakOnOpcode(((WebSocketMessageDAO) aMessage).opcode);
 		}

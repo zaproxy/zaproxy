@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Changed so no ConcurrentModificationException is thrown.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/01 Issue 310 prevent infinite loop when deleting nodes
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 
 package org.parosproxy.paros.view;
 
@@ -130,7 +131,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 
             // delete reference in node
             ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
-            ext.getHistoryList().removeElement(node.getHistoryReference());
+            ext.removeFromHistoryList(node.getHistoryReference());
 
     		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 
@@ -155,7 +156,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
         				ref.getAlerts().remove(0);
         			}
 	            }
-                ext.getHistoryList().removeElement(ref);
+                ext.removeFromHistoryList(ref);
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
             }

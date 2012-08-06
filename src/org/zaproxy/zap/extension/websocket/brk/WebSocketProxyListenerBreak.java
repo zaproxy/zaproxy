@@ -59,7 +59,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
     	
         if (!message.isFinished()) {
         	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
-        	if (wsBrkMessageHandler.isBreakpoint(dao, isRequest)) {
+        	if (wsBrkMessageHandler.isBreakpoint(dao, isRequest, true)) {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
             	// (showing/saving/etc.)
@@ -72,7 +72,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         }
 
         if (dao.isOutgoing) {
-            if (wsBrkMessageHandler.handleMessageReceivedFromClient(dao)) {
+            if (wsBrkMessageHandler.handleMessageReceivedFromClient(dao, true)) {
                 // As the DAO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
@@ -80,7 +80,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
                 return true;
             }
         } else {
-            if (wsBrkMessageHandler.handleMessageReceivedFromServer(dao)) {
+            if (wsBrkMessageHandler.handleMessageReceivedFromServer(dao, true)) {
             	setPayload(message, dao.payload);
                 return true;
             }

@@ -29,6 +29,8 @@
 // ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
 // ZAP: 2012/07/23 Removed title parameter in method getSessionDialog().
 // Added @Override to getSessionDialog() as exposed in ViewDelegate interface.
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.view;
 
@@ -52,7 +54,9 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
+import org.zaproxy.zap.view.SessionExcludeFromScopePanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.SessionIncludeInScopePanel;
 
 public class View implements ViewDelegate {
 	
@@ -73,7 +77,7 @@ public class View implements ViewDelegate {
 	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
 	
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
-	
+
 	/**
 	 * @return Returns the mainFrame.
 	 */
@@ -223,6 +227,8 @@ public class View implements ViewDelegate {
         	String dialogTitle = Constant.messages.getString("session.dialog.title");
             sessionDialog = new SessionDialog(getMainFrame(), true, propertiesTitle, dialogTitle);
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionIncludeInScopePanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScopePanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);
@@ -258,7 +264,7 @@ public class View implements ViewDelegate {
     
     @Override
     public MainPopupMenu getPopupMenu() {
-        MainPopupMenu popup = new MainPopupMenu(popupList);
+        MainPopupMenu popup = new MainPopupMenu(popupList, this);
         return popup;
     }
     

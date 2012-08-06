@@ -28,6 +28,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -200,6 +201,15 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	
 	public void reset() {
 		breakToolbarFactory.reset();
+	}
+
+	public void sessionModeChanged(Mode mode) {
+		if (mode.equals(Mode.safe)) {
+			this.breakToolbarFactory.setBreakEnabled(false);
+		} else {
+			this.breakToolbarFactory.setBreakEnabled(true);
+		}
+
 	}
 
 }

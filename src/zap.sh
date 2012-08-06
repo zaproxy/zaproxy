@@ -45,5 +45,5 @@ then
 fi
 
 #Start ZAP
-java ${JMEM} -jar ${BASEDIR}/zap.jar org.zaproxy.zap.ZAP $*
+java ${JMEM} -XX:PermSize=256M -jar ${BASEDIR}/zap.jar org.zaproxy.zap.ZAP $*
 

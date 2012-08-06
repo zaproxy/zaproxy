@@ -22,6 +22,8 @@
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and 
 // removed unnecessary cast.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -117,12 +119,12 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
             // delete reference in node
             
             ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
-            ext.getHistoryList().removeElement(node.getHistoryReference());
+            ext.removeFromHistoryList(node.getHistoryReference());
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = node.getPastHistoryReference().get(0);
-                ext.getHistoryList().removeElement(ref);
+                ext.removeFromHistoryList(ref);
                 node.getPastHistoryReference().remove(0);
             }
             
