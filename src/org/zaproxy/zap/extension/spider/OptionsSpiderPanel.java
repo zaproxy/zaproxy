@@ -64,6 +64,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox useCookies = null;
 	private JCheckBox parseComments = null;
+	private JCheckBox parseRobotsTxt = null;
 
 	/**
 	 * Instantiates a new options spider panel.
@@ -112,6 +113,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints postFormGridBag = new GridBagConstraints();
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
 			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
+			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
 
 			maxDepthLabelGridBag.gridx = 0;
 			maxDepthLabelGridBag.gridy = 0;
@@ -184,6 +186,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseCommentsGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseCommentsGridBag.insets = new Insets(2, 2, 2, 2);
 
+			parseRobotsTxtGridBag.gridx = 0;
+			parseRobotsTxtGridBag.gridy = 10;
+			parseRobotsTxtGridBag.weightx = 1.0;
+			parseRobotsTxtGridBag.fill = GridBagConstraints.HORIZONTAL;
+			parseRobotsTxtGridBag.anchor = GridBagConstraints.NORTHWEST;
+			parseRobotsTxtGridBag.insets = new Insets(2, 2, 2, 2);
+
 			// Prepare the necessary labels
 			JLabel domainsLabel = new JLabel();
 			JLabel noThreadsLabel = new JLabel();
@@ -204,6 +213,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getChkPostForm(), postFormGridBag);
 			panelSpider.add(getChkUseCookies(), useCookiesGridBag);
 			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
+			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
 		}
 		return panelSpider;
 	}
@@ -221,6 +231,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkUseCookies().setSelected(param.isSendCookies());
 		getChkParseComments().setSelected(param.isParseComments());
+		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
 
 	}
 
@@ -240,6 +251,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setSendCookies(getChkUseCookies().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
+		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
 	}
 
 	/**
@@ -281,7 +293,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			sliderThreads.setSnapToTicks(true);
 			sliderThreads.setPaintTrack(true);
 
-			sliderThreads.addChangeListener(new ChangeListener () {
+			sliderThreads.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					// If the minimum is set to 1 then the ticks are at 6, 11 etc
@@ -289,8 +301,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 					if (getSliderThreads().getValue() == 0) {
 						getSliderThreads().setValue(1);
 					}
-					//setLabelThreadsPerHostValue(getSliderThreads().getValue());
-				}});
+					// setLabelThreadsPerHostValue(getSliderThreads().getValue());
+				}
+			});
 		}
 		return sliderThreads;
 	}
@@ -389,6 +402,19 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseComments.setText(Constant.messages.getString("spider.options.label.comments"));
 		}
 		return parseComments;
+	}
+
+	/**
+	 * This method initializes the Parse robots.txt checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkParseRobotsTxt() {
+		if (parseRobotsTxt == null) {
+			parseRobotsTxt = new JCheckBox();
+			parseRobotsTxt.setText(Constant.messages.getString("spider.options.label.robotstxt"));
+		}
+		return parseRobotsTxt;
 	}
 
 	/**
