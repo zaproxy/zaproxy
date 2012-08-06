@@ -82,4 +82,9 @@ public class PopupExcludeFromScanMenu extends PopupMenuSiteNode {
 	public boolean isEnableForInvoker(Invoker invoker) {
 		return true;
 	}
+	
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

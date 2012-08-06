@@ -24,6 +24,10 @@
 // Changed to use the byte[] body. Changed to use the class StringBuilder instead
 // of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/06/11 Added method boolean isWebSocketUpgrade()
+// ZAP: 2012/07/02 Implement Message interface for more flexibility.
+// ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.network;
 
@@ -40,6 +44,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
@@ -48,7 +54,7 @@ import org.zaproxy.zap.network.HttpResponseBody;
  * Representation of a HTTP message request (header and body) and response (header and body) pair.
  * 
  */
-public class HttpMessage {
+public class HttpMessage implements Message {
 
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	// Not yet supported
@@ -68,7 +74,7 @@ public class HttpMessage {
     private Vector<String> tags = new Vector<String>();
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
-    // ZAP: Added log
+    // ZAP: Added logger
     private static Logger log = Logger.getLogger(HttpMessage.class);
 
 
@@ -400,18 +406,15 @@ public class HttpMessage {
 	    TreeSet<String> set = new TreeSet<String>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
-		String value = null;
 		int pos = 0;
 		for (int i=0; i<keyValue.length; i++) {
 			key = null;
-			value = null;
 			pos = keyValue[i].indexOf('=');
 			try {
 				if (pos > 0) {
 					// param found
 
 					key = keyValue[i].substring(0,pos);
-					value = keyValue[i].substring(pos+1);
 
 					//!!! note: this means param not separated by & and = is not parsed
 				} else {
@@ -797,10 +800,37 @@ public class HttpMessage {
 	public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
 		mReqHeader.setCookieParams(cookieParams);
 	}
+
+	/**
+	 * ZAP: New method checking for connection upgrade.
+	 * 
+	 * @param msg This message will contain the {@link SocketChannel} in {@link HttpMessage#getUserObject()} if it returns true.
+	 * 
+	 * @return True if this connection should be upgraded to WebSockets.
+	 */
+	public boolean isWebSocketUpgrade() {
+		if (!getResponseHeader().isEmpty()) {
+			String connectionHeader = getResponseHeader().getHeader("connection");
+			String upgradeHeader = getResponseHeader().getHeader("upgrade");
+			
+			if (connectionHeader != null && connectionHeader.equalsIgnoreCase("upgrade")) {
+				if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 	
 	// Rewrite cookie line in the Request Header,
-	// based on values in cookieParams
+	// based on values in cookies
 	public void setCookies(List<HttpCookie> cookies) {
 		mReqHeader.setCookies(cookies);
+	}
+	
+	@Override
+	public boolean isInScope() {
+		return Model.getSingleton().getSession().isInScope(this.getRequestHeader().getURI().toString());
 	}
 }

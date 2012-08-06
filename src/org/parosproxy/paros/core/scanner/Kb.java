@@ -20,6 +20,9 @@
  */
 // ZAP: 2012/04/25 Added type arguments to generic types, removed variables, 
 // added logger and other minor changes.
+// ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
+//              as introduced with version 3.1 of HttpClient
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.TreeMap;
@@ -113,7 +116,13 @@ public class Kb {
 
 
 	public synchronized void add(URI uri, String key, Object value) {
-	    uri = (URI) uri.clone();
+    	// ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+	    try {
+			uri = (URI) uri.clone();
+		} catch (CloneNotSupportedException e1) {
+			return;
+		}
+	    
 	    // ZAP: Removed variable (TreeMap map).
 	    try {
             uri.setQuery(null);
@@ -136,7 +145,13 @@ public class Kb {
 	}
 	
 	public synchronized Vector<Object> getList(URI uri, String key) {
-	    uri = (URI) uri.clone();
+    	// ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+	    try {
+			uri = (URI) uri.clone();
+		} catch (CloneNotSupportedException e1) {
+			return null;
+		}
+	    
 	    // ZAP: Removed variable (TreeMap map).
 	    try {
             uri.setQuery(null);

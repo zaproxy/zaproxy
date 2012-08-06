@@ -20,12 +20,14 @@
 */
 // ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
 // ZAP: 2012/03/15 Removed the options of the http panels.
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control.Mode;
 
 // ZAP: Added support for selecting the locale
 
@@ -45,6 +47,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String REVEAL_OPTION = "view.reveal";
+	public static final String MODE_OPTION = "view.mode";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -57,7 +60,7 @@ public class OptionsParamView extends AbstractParam {
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
 	private boolean reveal = false;
-	
+	private String mode = Mode.standard.name();
 	
     /**
      * @param rootElementName
@@ -82,6 +85,7 @@ public class OptionsParamView extends AbstractParam {
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    reveal = getConfig().getBoolean(REVEAL_OPTION, false);
+	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
     }
 
 	/**
@@ -211,6 +215,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setReveal(boolean reveal) {
 		this.reveal = reveal;
 		getConfig().setProperty(REVEAL_OPTION, reveal);
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+		getConfig().setProperty(MODE_OPTION, mode);
 	}
 	
 }

@@ -38,6 +38,7 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
@@ -123,7 +124,11 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 	}
 	
-    private JMenuItem getMenuCompare() {
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
+	private JMenuItem getMenuCompare() {
         if (menuCompare == null) {
         	menuCompare = new JMenuItem();
         	menuCompare.setText(Constant.messages.getString("cmp.file.menu.compare"));
@@ -391,4 +396,8 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 		}
 	}
 
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
+	}
 }

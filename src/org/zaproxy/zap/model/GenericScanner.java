@@ -50,8 +50,14 @@ public interface GenericScanner extends Runnable {
 	
 	public void setStartNode(SiteNode startNode);
 	
+	public void setJustScanInScope (boolean scanInScope);
+
+	public boolean getJustScanInScope ();
+
 	public ListModel getList();
 
 	public void reset();
+	
+	public void setScanChildren (boolean scanChildren);
 
 }

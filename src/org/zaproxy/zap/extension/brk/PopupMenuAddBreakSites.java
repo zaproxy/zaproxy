@@ -28,11 +28,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
@@ -41,17 +37,13 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
     
     private ExtensionBreak extension;
     
-	/**
-     * 
-     */
+	
     public PopupMenuAddBreakSites() {
         super();
  		initialize();
     }
 
-    /**
-     * @param label
-     */
+    
     public PopupMenuAddBreakSites(String label) {
         super(label);
     }
@@ -60,11 +52,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
 		this.extension = extension;
 	}
 
-    /**
-	 * This method initialises this
-	 * 
-	 * @return void
-	 */
+    
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.add.popup"));
 
@@ -82,7 +70,8 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
                     if (! node.isLeaf()) {
                     	url += "/*";
                     }
-                    extension.showBreakAddDialog(url);
+                    // FIXME 
+                    //extension.showBreakAddDialog(url);
                 }
         	}
         });
@@ -95,7 +84,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
         treeSite = getTree(invoker);
         if (treeSite != null) {
 		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot() && extension.canAddBreakPoint()) {
+		    if (node != null && ! node.isRoot() && extension.canAddBreakpoint()) {
 		        this.setEnabled(true);
 		    } else {
 		        this.setEnabled(false);

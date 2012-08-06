@@ -35,6 +35,7 @@
 // getInstance to use it.
 // ZAP: 2012/05/03 Changed the Patterns used to detect the O.S. to be final.
 // ZAP: 2012/06/15 Issue 312 Increase the maximum number of scanning threads allowed
+// ZAP: 2012/07/13 Added variable for maximum number of threads used in scan (MAX_THREADS_PER_SCAN)
 
 package org.parosproxy.paros;
 
@@ -78,8 +79,8 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     // Note: Change this before building a release!
-    public static final String PROGRAM_VERSION = "1.4.0.1";
-    //public static final String PROGRAM_VERSION = DEV_VERSION;
+    //public static final String PROGRAM_VERSION = "1.4.0.1";
+    public static final String PROGRAM_VERSION = DEV_VERSION;
     
     private static final long VERSION_TAG = 1004001;
     
@@ -133,8 +134,8 @@ public final class Constant {
     
     private static Constant instance = null;
     
-    public static final int MAX_HOST_CONNECTION = 50;
-    public static final int MAX_THREADS_PER_SCAN = 16;
+    public static final int MAX_HOST_CONNECTION = 15;
+    public static final int MAX_THREADS_PER_SCAN = 50;
     // ZAP: Dont announce ourselves
     //public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
     public static final String USER_AGENT = "";

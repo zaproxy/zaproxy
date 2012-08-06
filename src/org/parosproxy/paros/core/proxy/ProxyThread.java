@@ -26,10 +26,14 @@
 // Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
-
+// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in
+// method processHttp().
+// ZAP: 2012/05/11 Do not close connections in final clause of run() method,
+// if boolean attribute keepSocketOpen is set to true.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -40,6 +44,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -52,7 +57,9 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
+import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 
@@ -81,6 +88,10 @@ class ProxyThread implements Runnable {
 //	private BufferedInputStream forwardIn = null;
 //	private boolean disconnect = false;
 	private Object semaphore = this;
+	
+	// ZAP: New attribute to allow for skipping disconnect
+	private boolean keepSocketOpen = false;
+	
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
     
@@ -189,7 +200,11 @@ class ProxyThread implements Runnable {
 		    log.debug("IOException: ", e);
 		} finally {
             proxyThreadList.remove(thread);
-			disconnect();
+
+            // ZAP: do only close if flag is false
+            if (!keepSocketOpen) {
+            	disconnect();
+    		}
 		}
 	}
 	
@@ -210,7 +225,7 @@ class ProxyThread implements Runnable {
         
         // reduce socket timeout after first read
         inSocket.setSoTimeout(2500);
-
+        
 		do {
 
 			if (isFirstRequest) {
@@ -298,7 +313,26 @@ class ProxyThread implements Runnable {
 			        //throw e;
 			    }
 			}	// release semaphore
+			
+			// ZAP: Add check for connection upgrade and stop if one arrived
+			if (msg.isWebSocketUpgrade()) {
+				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
+				
+				ZapGetMethod handshakeMethod = (ZapGetMethod) msg.getUserObject();
+				if (handshakeMethod != null) {
+					Socket outSocket = handshakeMethod.getUpgradedConnection();
+					InputStream outReader = handshakeMethod.getUpgradedInputStream();
+					
+					keepSocketOpen = true;
+					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
+					extWebSocket.addWebSocketsChannel(msg, inSocket, outSocket, outReader);
+				} else {
+					log.error("Was not able to retrieve upgraded outgoing channel.");
+				}
+				break;
+			}
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
+		
     }
 	
 	private boolean isConnectionClose(HttpMessage msg) {
@@ -342,7 +376,8 @@ class ProxyThread implements Runnable {
 			// ZAP: Log exceptions
 			log.warn(e.getMessage(), e);
         }
-		HttpUtil.closeSocket(inSocket);
+
+    	HttpUtil.closeSocket(inSocket);
         
 		if (httpSender != null) {
             httpSender.shutdown();

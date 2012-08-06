@@ -30,11 +30,12 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.AbstractStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
-import org.zaproxy.zap.extension.httppanel.view.models.AbstractStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
 
@@ -79,12 +80,7 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 		mainPanel.add(new JScrollPane(httpPanelTextArea), BorderLayout.CENTER);
 	}
 	
-	/**
-	 * Classes that what to extend the functionalities of a HttpPanelTextArea
-	 * should override this method and return the appropriate extended HttpPanelTextArea
-	 * 
-	 * @return a HttpPanelTextArea
-	 */
+	
 	protected abstract HttpPanelTextArea createHttpPanelTextArea();
 	
 	@Override
@@ -110,7 +106,7 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage msg) {
+	public boolean isEnabled(Message msg) {
 		return true;
 	}
 
@@ -144,7 +140,7 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
-		httpPanelTextArea.setHttpMessage(model.getHttpMessage());
+	    httpPanelTextArea.setHttpMessage((HttpMessage)model.getMessage());
 		
 		httpPanelTextArea.setText(model.getData());
 		httpPanelTextArea.setCaretPosition(0);

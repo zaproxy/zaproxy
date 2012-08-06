@@ -29,6 +29,7 @@
 //      validate the variable version instead of the variable method.
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some methods.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;

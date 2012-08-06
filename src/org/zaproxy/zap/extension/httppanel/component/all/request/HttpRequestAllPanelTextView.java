@@ -26,7 +26,7 @@ import javax.swing.text.BadLocationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.request.FuzzableHttpRequestPanelTextArea;
-import org.zaproxy.zap.extension.httppanel.view.models.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;

@@ -25,6 +25,7 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -110,17 +110,18 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	
 	@Override
 	public void validateParam(Object obj) {
-	    // no validation needed
+	    // Check for valid regexs
+		for (String regex : getModel().getLines()) {
+			if (regex.trim().length() > 0) {
+				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
+			}
+		}
 	}
 	
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
 	    session.setExcludeFromProxyRegexs(getModel().getLines());
-	    // ZAP Save session details
-	    if ( ! session.isNewState()) {
-	    	Control.getSingleton().saveSession(session.getFileName());
-	    }
 	}
 	
 	private JTable getTableIgnore() {

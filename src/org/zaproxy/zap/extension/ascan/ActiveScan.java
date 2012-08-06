@@ -31,6 +31,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private boolean isAlive = false;
 	private DefaultListModel list = new DefaultListModel();
 	private SiteNode startNode = null;
+	
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
      * the instance variable {@code list}. Used to delete the
@@ -86,15 +87,19 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		isAlive = true;
 		if (startNode == null) {
 			SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
-			SiteNode rootNode = (SiteNode) siteTree.getRoot();
-			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = rootNode.children();
-			while (en.hasMoreElements()) {
-				SiteNode sn = en.nextElement();
-				String nodeName = ScanPanel.cleanSiteName(sn.getNodeName(), true);
-				if (this.site.equals(nodeName)) {
-					startNode = sn;
-					break;
+			if (this.getJustScanInScope()) {
+				startNode = (SiteNode) siteTree.getRoot();
+			} else {
+				SiteNode rootNode = (SiteNode) siteTree.getRoot();
+				@SuppressWarnings("unchecked")
+				Enumeration<SiteNode> en = rootNode.children();
+				while (en.hasMoreElements()) {
+					SiteNode sn = en.nextElement();
+					String nodeName = ScanPanel.cleanSiteName(sn.getNodeName(), true);
+					if (this.site.equals(nodeName)) {
+						startNode = sn;
+						break;
+					}
 				}
 			}
 		}
@@ -151,7 +156,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		return list;
 	}
 	
-	
 	@Override
 	public void notifyNewMessage(final HttpMessage msg) {
 	    synchronized (list) {
@@ -191,4 +195,15 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
         this.list = new DefaultListModel();
         this.historyReferencesToDelete = new ArrayList<Integer>();
 	}
+
+	@Override
+	public void setJustScanInScope(boolean scanInScope) {
+		super.setJustScanInScope(scanInScope);
+	}
+
+	@Override
+	public boolean getJustScanInScope() {
+		return super.getJustScanInScope();
+	}
+
 }

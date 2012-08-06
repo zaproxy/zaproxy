@@ -28,6 +28,9 @@
 // are saved in the method Control.shutdown(boolean).
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 // ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
+// ZAP: 2012/07/09 Added hookWebSocketObserver() method.
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension;
 
@@ -42,6 +45,7 @@ import javax.swing.JMenuItem;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
@@ -52,6 +56,8 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
+import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
@@ -147,6 +153,26 @@ public class ExtensionLoader {
         }
     }
     
+    // ZAP: Added support for WebSocket listeners
+    public void hookWebSocketObserver(ExtensionWebSocket extWebSocket) {
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<WebSocketObserver> listenerList = hook.getWebSocketObserverList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                	WebSocketObserver listener = listenerList.get(j);
+                    if (listener != null) {
+                    	extWebSocket.addAllChannelObserver(listener);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
+    }
+    
     public void optionsChangedAllPlugin(OptionsParam options) {
     	Iterator<ExtensionHook> iter = hookList.iterator();
     	while (iter.hasNext()) {
@@ -221,6 +247,46 @@ public class ExtensionLoader {
         }
     }
     
+    public void sessionScopeChangedAllPlugin(Session session) {
+    	logger.debug("sessionScopeChangedAllPlugin");
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<SessionChangedListener> listenerList = hook.getSessionListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    SessionChangedListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        listener.sessionScopeChanged(session);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    public void sessionModeChangedAllPlugin(Mode mode) {
+    	logger.debug("sessionModeChangedAllPlugin");
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<SessionChangedListener> listenerList = hook.getSessionListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    SessionChangedListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        listener.sessionModeChanged(mode);
+                    }
+                } catch (Exception e) {
+                	// ZAP: Log the exception
+                	logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
 
     public void startAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {

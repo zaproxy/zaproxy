@@ -26,6 +26,9 @@
 // the configuration and disable the response panel.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
+// ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.view;
 
@@ -49,7 +52,9 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
+import org.zaproxy.zap.view.SessionExcludeFromScopePanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.SessionIncludeInScopePanel;
 
 public class View implements ViewDelegate {
 	
@@ -70,7 +75,7 @@ public class View implements ViewDelegate {
 	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
 	
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
-	
+
 	/**
 	 * @return Returns the mainFrame.
 	 */
@@ -187,7 +192,8 @@ public class View implements ViewDelegate {
     @Override
     public HttpPanelRequest getRequestPanel() {
         if (requestPanel == null) {
-            requestPanel = new HttpPanelRequest(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
+        	// ZAP: constructor changed
+            requestPanel = new HttpPanelRequest(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
@@ -199,7 +205,8 @@ public class View implements ViewDelegate {
     @Override
     public HttpPanelResponse getResponsePanel() {
         if (responsePanel == null) {
-            responsePanel = new HttpPanelResponse(false, null, OptionsParamView.BASE_VIEW_KEY + ".main.");
+        	// ZAP: constructor changed
+            responsePanel = new HttpPanelResponse(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
     		// ZAP: Added 'left arrow' icon
             responsePanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/106.png")));
             responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
@@ -215,6 +222,8 @@ public class View implements ViewDelegate {
             sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
             sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionIncludeInScopePanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScopePanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);
@@ -250,7 +259,7 @@ public class View implements ViewDelegate {
     
     @Override
     public MainPopupMenu getPopupMenu() {
-        MainPopupMenu popup = new MainPopupMenu(popupList);
+        MainPopupMenu popup = new MainPopupMenu(popupList, this);
         return popup;
     }
     
@@ -277,5 +286,4 @@ public class View implements ViewDelegate {
 	public void addMainToolbarButton(JToggleButton button) {
     	this.getMainFrame().getMainToolbarPanel().addButton(button);
 	}
-
 }

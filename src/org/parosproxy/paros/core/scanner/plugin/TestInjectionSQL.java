@@ -23,6 +23,7 @@
 // the class StringBuilder instead of StringBuffer.
 // ZAP: 2012/04/25 Changed to use Boolean.TRUE and added @Override annotation
 // to all appropriate methods.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 
 
 package org.parosproxy.paros.core.scanner.plugin;
@@ -111,34 +112,22 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
 
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getId()
-     */
     @Override
     public int getId() {
         return 40005;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getName()
-     */
     @Override
     public String getName() {
         return "SQL Injection";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         
         return dependency;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
         String msg = "SQL injection is possible.  User parameters submitted will be formulated into a SQL query for database processing.  "
@@ -150,17 +139,11 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
         String msg = "Do not trust client side input even if there is client side validation.  In general, "
@@ -176,9 +159,6 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
@@ -189,9 +169,6 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
             
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 
@@ -207,9 +184,6 @@ public class TestInjectionSQL extends AbstractAppParamPlugin {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractAppParamTest#scan(org.parosproxy.paros.network.HttpMessage, java.lang.String, java.lang.String)
-     */
     public void scanSQL(HttpMessage baseMsg, String param, String value) throws HttpException, IOException {
 
         //protected void check(boolean isBody, String paramKey, String paramValue, String query, int insertPos) throws IOException {

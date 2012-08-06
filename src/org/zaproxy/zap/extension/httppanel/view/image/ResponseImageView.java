@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
@@ -83,8 +84,8 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
 	}
 
 	@Override
-	public boolean isEnabled(HttpMessage httpMessage) {
-		return isImage(httpMessage);
+	public boolean isEnabled(Message aMessage) {
+		return isImage(aMessage);
 	}
 
 	@Override
@@ -104,14 +105,6 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
 
 	@Override
 	public void setEditable(boolean editable) {
-	}
-
-	private boolean isImage(final HttpMessage httpMessage) {
-		if (httpMessage == null || httpMessage.getResponseBody() == null) {
-			return false;
-		}
-		
-		return httpMessage.getResponseHeader().isImage();
 	}
 	
 	@Override
@@ -133,7 +126,8 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
-		HttpMessage httpMessage = model.getHttpMessage();
+        // FIXME(This view should ask for a specific model based on HttpMessage)
+		HttpMessage httpMessage = (HttpMessage) model.getMessage();
 		
 		if (isImage(httpMessage)) {
 			imageLabel.setIcon(new ImageIcon(httpMessage.getResponseBody().getBytes()));
@@ -141,4 +135,18 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
 			imageLabel.setIcon(null);
 		}
 	}
+
+    static boolean isImage(final Message aMessage) {
+        if (aMessage instanceof HttpMessage) {
+            HttpMessage httpMessage = (HttpMessage) aMessage;
+
+            if (httpMessage.getResponseBody() == null) {
+                return false;
+            }
+            
+            return httpMessage.getResponseHeader().isImage();
+        }
+        
+        return false;
+    }
 }

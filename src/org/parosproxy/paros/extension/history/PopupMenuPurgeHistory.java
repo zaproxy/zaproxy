@@ -23,13 +23,15 @@
 // ZAP: 2012/03/15 Changed the method purgeHistory to clear the displayQueue of
 // the LogPanel.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
+import java.util.List;
 
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JTree;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -51,7 +53,6 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;
-    private JTree treeSite = null;
     
     /**
      * 
@@ -80,19 +81,16 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    Object[] obj = listLog.getSelectedValues();
-        	    if (obj.length > 1) {
+        	    List<HistoryReference> hrefs = extension.getSelectedHistoryReferences();
+        	    if (hrefs.size() > 1) {
         	        int result = extension.getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
         	        if (result != JOptionPane.YES_OPTION) {
         	            return;
         	        }
         	    }
-        	    synchronized(extension.getHistoryList()) {
-        	        
-        	        for (int i=0; i<obj.length; i++) {
-        	            HistoryReference ref = (HistoryReference) obj[i];
-        	            purgeHistory(ref);
+        	    synchronized(extension) {
+            		for (HistoryReference href : hrefs) {
+        	            purgeHistory(href);
         	        }
         	    }
         	}
@@ -129,8 +127,8 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
         if (ref == null) {
             return;
         }
-        extension.getHistoryList().removeElement(ref);
-        extension.getLogPanel().clearDisplayQueue();
+        extension.removeFromHistoryList(ref);
+        extension.clearLogPanelDisplayQueue();
         
 		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 

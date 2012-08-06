@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -52,6 +53,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     private JMenuItem menuPrev = null;
     
     private SearchThread searchThread = null;
+    private boolean searchJustInScope = false;
 
 	/**
      * 
@@ -154,7 +156,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 					}
 	    		}
 	    	}
-    		searchThread = new SearchThread(filter, reqType, searchPanel, inverse);
+    		searchThread = new SearchThread(filter, reqType, searchPanel, inverse, searchJustInScope);
 	    	searchThread.start();
 	    	
 	    }
@@ -213,6 +215,11 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -230,5 +237,14 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+
+	public void setSearchJustInScope(boolean searchJustInScope) {
+		this.searchJustInScope = searchJustInScope;
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

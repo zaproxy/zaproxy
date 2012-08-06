@@ -25,28 +25,20 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 
     private ExtensionBreak extension;
 
-	/**
-     * 
-     */
+	
     public PopupMenuEditBreak() {
         super();
  		initialize();
     }
 
-    /**
-     * @param label
-     */
+    
     public PopupMenuEditBreak(String label) {
         super(label);
     }
@@ -55,28 +47,22 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 		this.extension = extension;
 	}
 
-    /**
-	 * This method initialises this
-	 * 
-	 * @return void
-	 */
+    
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.edit.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
-        		extension.showBreakEditDialog();
+        	public void actionPerformed(java.awt.event.ActionEvent e) {
+        		extension.editUiSelectedBreakpoint();
         	}
         });
-
-			
 	}
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals(BreakPointsPanel.PANEL_NAME)) {
-            if (extension.canEditBreakPoint()) {
+        if (invoker.getName() != null && invoker.getName().equals(BreakpointsPanel.PANEL_NAME)) {
+            if (extension.canEditBreakpoint()) {
                 this.setEnabled(true);
             } else {
                 this.setEnabled(false);

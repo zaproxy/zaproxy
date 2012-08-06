@@ -25,7 +25,10 @@ import java.awt.Container;
 import javax.swing.JFrame;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.parosproxy.paros.model.Model;
 
 public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
@@ -74,6 +77,14 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
         	} else {
         		this.setEnabled(true);
         	}
+        	if (Control.getSingleton().getMode().equals(Mode.protect)) {
+        		// In protected mode, so disable if not in scope
+        		if (! Model.getSingleton().getSession().isInScope(
+        				fuzzableComponent.getFuzzableHttpMessage().getHttpMessage().getRequestHeader().getURI().toString())) {
+            		this.setEnabled(false);
+        		}
+        	}
+        	
             setLastInvoker(invoker);
             Container c = getLastInvoker().getParent();
             while (!(c instanceof JFrame)) {
