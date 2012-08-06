@@ -31,6 +31,7 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -38,13 +39,15 @@ import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 
 /**
- * The Class ExtensionHttpSessions.
+ * The HttpSessions Extension handles the existing http sessions on the existing site. It allows the
+ * management and usage of multiple sessions per site and also handles the session tokens for each
+ * of them.
  */
 public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, SiteMapListener,
 		ProxyListener {
 
 	/** The Constant NAME. */
-	private static final String NAME = "ExtensionHttpSessions";
+	public static final String NAME = "ExtensionHttpSessions";
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(ExtensionHttpSessions.class);
@@ -52,8 +55,17 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/** The http sessions panel. */
 	private HttpSessionsPanel httpSessionsPanel;
 
+	/** The options http sessions panel. */
+	private OptionsHttpSessionsPanel optionsHttpSessionsPanel;
+
 	/** The map of sessions corresponding to each site. */
 	Map<String, HttpSessionsSite> sessions;
+
+	/** The map of session tokens corresponding to each site. */
+	Map<String, LinkedHashSet<String>> sessionTokens;
+
+	/** The http sessions extension's parameters. */
+	HttpSessionsParam param;
 
 	/** The popup menu used to set the active session. */
 	private PopupMenuSetActiveSession popupMenuSetActiveSession;
@@ -78,6 +90,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	private void initialize() {
 		this.setOrder(68);
 		this.setName(NAME);
+		this.sessionTokens=new HashMap<String, LinkedHashSet<String>>();
 	}
 
 	/* (non-Javadoc)
@@ -110,6 +123,14 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/* (non-Javadoc)
 	 * 
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder() */
+	@Override
+	public int getProxyListenerOrder() {
+		return 20;
+	}
+
+	/* (non-Javadoc)
+	 * 
 	 * @see
 	 * org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook
 	 * ) */
@@ -123,14 +144,27 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		if (getView() != null) {
 
-			// Hook the panel
+			// Hook the panels
 			extensionHook.getHookView().addStatusPanel(getHttpSessionsPanel());
+			extensionHook.getHookView().addOptionPanel(getOptionsHttpSessionsPanel());
 
 			// Hook the popup menus
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuUnsetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 		}
+	}
+
+	/**
+	 * Gets the options panel for this extension.
+	 * 
+	 * @return the options session panel
+	 */
+	private OptionsHttpSessionsPanel getOptionsHttpSessionsPanel() {
+		if (optionsHttpSessionsPanel == null) {
+			optionsHttpSessionsPanel = new OptionsHttpSessionsPanel();
+		}
+		return optionsHttpSessionsPanel;
 	}
 
 	/**
@@ -173,25 +207,89 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
-	 * Gets the session tokens.
+	 * Gets the parameters (options) for this extension and related classes.
 	 * 
-	 * @param site the site
-	 * @return the session tokens
+	 * @return the param
 	 */
-	protected String[] getSessionTokens(String site) {
-		return new String[] { "jsessionid" };
+	public HttpSessionsParam getParam() {
+		if (param == null) {
+			param = Model.getSingleton().getOptionsParam().getHttpSessionsParam();
+		}
+		return param;
 	}
 
 	/**
-	 * Gets the session tokens set.
+	 * Checks if a particular token is part of the default session tokens set by the user using the
+	 * options panel. The default session tokens are valid for all sites. The check is being
+	 * performed in a lower-case manner, as session tokens are case-insensitive.
+	 * 
+	 * @param token the token
+	 * @return true, if it is a default session token
+	 */
+	public boolean isDefaultSessionToken(String token) {
+		if (getParam().getDefaultTokens().contains(token.toLowerCase()))
+			return true;
+		return false;
+	}
+
+	/**
+	 * Checks if a particular token is a session token name for a particular site. The check is
+	 * being performed in a lower-case manner, as session tokens are case-insensitive.
 	 * 
 	 * @param site the site
-	 * @return the session tokens set
+	 * @param token the token
+	 * @return true, if it is session token
 	 */
-	protected HashSet<String> getSessionTokensSet(String site) {
-		HashSet<String> set = new LinkedHashSet<String>();
-		set.add("jsessionid");
-		return set;
+	public boolean isSessionToken(String site, String token) {
+		HashSet<String> siteTokens = sessionTokens.get(site);
+		if (siteTokens == null)
+			return false;
+		return siteTokens.contains(token.toLowerCase());
+	}
+
+	/**
+	 * Adds a new session token for a particular site. The session tokens are case-insensitive, so
+	 * this token will be added lower cased.
+	 * 
+	 * @param site the site
+	 * @param token the token
+	 */
+	public void addSessionToken(String site, String token) {
+		LinkedHashSet<String> siteTokens = sessionTokens.get(site);
+		if (siteTokens == null) {
+			siteTokens = new LinkedHashSet<String>();
+			sessionTokens.put(site, siteTokens);
+		}
+		log.info("Added new session token for site '" + site + "': " + token);
+		siteTokens.add(token.toLowerCase());
+	}
+
+	/**
+	 * Removes a particular session token for a site.
+	 * 
+	 * @param site the site
+	 * @param token the token
+	 */
+	public void removeSessionToken(String site, String token) {
+		HashSet<String> siteTokens = sessionTokens.get(site);
+		if (siteTokens != null) {
+			siteTokens.remove(token);
+			if (siteTokens.isEmpty())
+				sessionTokens.remove(siteTokens);
+		}
+		log.info("Removed session token for site '" + site + "': " + token);
+	}
+
+	/**
+	 * Gets the set of session tokens for a particular site. The session tokens are case-insensitive
+	 * and are returned lower-cased.
+	 * 
+	 * @param site the site
+	 * @return the session tokens set, if any have been set, or null, if there are no session tokens
+	 *         for this site
+	 */
+	public LinkedHashSet<String> getHttpSessionTokens(String site) {
+		return sessionTokens.get(site);
 	}
 
 	/**
@@ -206,14 +304,27 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return httpSessionsPanel;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Gets the http sessions for a particular site.
 	 * 
-	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder() */
-	@Override
-	public int getProxyListenerOrder() {
-		return 20;
+	 * @param site the site
+	 * @return the http sessions site container
+	 */
+	protected HttpSessionsSite getHttpSessionsSite(String site) {
+		if (sessions == null) {
+			sessions = new HashMap<String, HttpSessionsSite>();
+		}
+		HttpSessionsSite hss = sessions.get(site);
+		if (hss == null) {
+			hss = new HttpSessionsSite(this, site);
+			sessions.put(site, hss);
+		}
+		return hss;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.SiteMapListener#nodeSelected(org.parosproxy.paros.model.SiteNode) */
 	@Override
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
@@ -270,24 +381,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return true;
 	}
 
-	/**
-	 * Gets the http sessions for a particular site.
-	 * 
-	 * @param site the site
-	 * @return the http sessions site container
-	 */
-	public HttpSessionsSite getHttpSessionsSite(String site) {
-		if (sessions == null) {
-			sessions = new HashMap<String, HttpSessionsSite>();
-		}
-		HttpSessionsSite hss = sessions.get(site);
-		if (hss == null) {
-			hss = new HttpSessionsSite(this, site);
-			sessions.put(site, hss);
-		}
-		return hss;
-	}
-
 	/* (non-Javadoc)
 	 * 
 	 * @see
@@ -328,7 +421,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -50,8 +50,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
-import org.zaproxy.zap.extension.session.ExtensionSession;
 import org.zaproxy.zap.view.SiteMapListener;
 
 /**
@@ -429,37 +429,48 @@ public class ExtensionParams extends ExtensionAdaptor
 		return values;
 	}
 
+	/**
+	 * Adds a new session token from the selected parameter. Also notifies the
+	 * {@link ExtensionHttpSessions} if it's active.
+	 */
 	public void addSessionToken() {
+		// Get the selected parameter
 		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
-		
-		ExtensionSession extSession = 
-			(ExtensionSession) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSession.NAME);
-
-		if (extSession != null && item != null) {
-			extSession.getParam().addToken(item.getName());
+		if (item != null) {
+			
+			// If the HttpSessions extension is active, notify it of the new session token
+			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionHttpSessions.NAME);
+			if (extSession != null && item != null) {
+				extSession.addSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
+			}
+			
+			// Flag the item accordingly
 			item.addFlag(HtmlParameter.Flags.session.name());
 			// Repaint so change shows up
 			this.getParamsPanel().getParamsTable().repaint();
-
-			// Dont think we need to do this... at least until rescan option implemented ...
-			//Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("options.session.title"));
 		}
 	}
 
+	/**
+	 * Removes the currently selected parameter as a session token. Also notifies the
+	 * {@link ExtensionHttpSessions} if it's active.
+	 */
 	public void removeSessionToken() {
 		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
-		
-		ExtensionSession extSession = 
-				(ExtensionSession) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSession.NAME);
 
-		if (extSession != null && item != null) {
-			extSession.getParam().removeToken(item.getName());
+		if (item != null) {
+			// If the HttpSessions extension is active, notify it of the removed session token
+			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionHttpSessions.NAME);
+			if (extSession != null) {
+				extSession.removeSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
+			}
+
+			// Unflag the item accordingly
 			item.removeFlag(HtmlParameter.Flags.session.name());
 			// Repaint so change shows up
 			this.getParamsPanel().getParamsTable().repaint();
-
-			// Dont think we need to do this... at least until rescan option implemented ...
-			//Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("options.session.title"));
 		}
 	}
 

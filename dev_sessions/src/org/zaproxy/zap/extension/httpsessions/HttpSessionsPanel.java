@@ -41,7 +41,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
-import org.zaproxy.zap.view.SiteMapListener;
 
 /**
  * The HttpSessionsPanel used as a display panel for the {@link ExtensionHttpSessions}, allowing the
