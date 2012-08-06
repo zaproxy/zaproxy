@@ -19,7 +19,6 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -173,17 +172,16 @@ public class HttpSessionsSite {
 	 */
 	public void processHttpRequestMessage(HttpMessage message) {
 		// Get the session tokens for this site
-		String[] tokens = extension.getSessionTokens(getSite());
-		HashSet<String> tokensSet = extension.getSessionTokensSet(getSite());
+		LinkedHashSet<String> tokensSet = extension.getHttpSessionTokens(getSite());
 		// No tokens for this site, so no processing
-		if (tokens == null) {
+		if (tokensSet == null) {
 			log.debug("No session tokens for: " + this.getSite());
 			return;
 		}
 
 		// Get the session, based on the request header
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
-		HttpSession session = getMatchingHttpSession(requestCookies, tokens);
+		HttpSession session = getMatchingHttpSession(requestCookies, tokensSet);
 		if (log.isDebugEnabled())
 			log.debug("Matching session for request message (for site " + getSite() + "): " + session);
 
@@ -244,15 +242,15 @@ public class HttpSessionsSite {
 	public boolean processHttpResponseMessage(HttpMessage message) {
 
 		// Get the session tokens for this site
-		String[] tokens = extension.getSessionTokens(getSite());
+		LinkedHashSet<String> tokensSet = extension.getHttpSessionTokens(getSite());
+
 		// No tokens for this site, so no processing
-		if (tokens == null) {
+		if (tokensSet == null) {
 			log.debug("No session tokens for: " + this.getSite());
 			return false;
 		}
 		// Create an auxiliary map of token values and insert keys for every token
 		HashMap<String, String> tokenValues = new HashMap<String, String>();
-		HashSet<String> tokensSet = extension.getSessionTokensSet(getSite());
 
 		// Get new values for tokens, if any
 		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
@@ -263,7 +261,7 @@ public class HttpSessionsSite {
 
 		// Get the session, based on the request header
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
-		HttpSession session = getMatchingHttpSession(requestCookies, tokens);
+		HttpSession session = getMatchingHttpSession(requestCookies, tokensSet);
 		if (log.isDebugEnabled())
 			log.debug("Matching session for response message (from site " + getSite() + "): " + session);
 
@@ -280,6 +278,7 @@ public class HttpSessionsSite {
 					if (!tokenValues.containsKey(cookieName))
 						tokenValues.put(cookieName, cookie.getValue());
 			}
+			log.info("Created a new session as no match was found: " + session);
 		}
 
 		// Update the session
@@ -300,7 +299,7 @@ public class HttpSessionsSite {
 	 * @return the matching http session, if any, or null if no existing session was found to match
 	 *         all the tokens
 	 */
-	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, String[] tokens) {
+	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, LinkedHashSet<String> tokens) {
 
 		// Pre-checks
 		if (sessions == null || sessions.isEmpty())
@@ -334,7 +333,7 @@ public class HttpSessionsSite {
 		}
 
 		// Return the matching session
-		if (matchingSessions.size() == 1) {
+		if (matchingSessions.size() >= 1) {
 			if (matchingSessions.size() > 1) {
 				log.warn("Multiple sessions matching the cookies from response for site: " + getSite()
 						+ ". Using first one.");
