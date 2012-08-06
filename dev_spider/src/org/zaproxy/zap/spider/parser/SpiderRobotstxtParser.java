@@ -46,14 +46,14 @@ public class SpiderRobotstxtParser extends SpiderParser {
 	 * 
 	 * @param params the params
 	 */
-	private SpiderRobotstxtParser(SpiderParam params) {
+	public SpiderRobotstxtParser(SpiderParam params) {
 		super();
 		this.params = params;
 	}
 
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
-		if (message == null)
+		if (message == null || params.isParseRobotsTxt() == false)
 			return;
 
 		// Get the response content
@@ -63,6 +63,8 @@ public class SpiderRobotstxtParser extends SpiderParser {
 		String baseURL;
 		baseURL = message.getRequestHeader().getURI().toString();
 
+		@SuppressWarnings("unused")
+		// for now...
 		boolean inMatchingUserAgent = false;
 
 		// Parse each line in the Spider.txt file
@@ -90,19 +92,19 @@ public class SpiderRobotstxtParser extends SpiderParser {
 			if (line.matches(PATTERNS_USERAGENT)) {
 				String ua = line.substring(PATTERNS_USERAGENT_LENGTH).trim().toLowerCase();
 				if (ua.equals("*") || ua.contains(Constant.USER_AGENT)) {
-					log.debug("Start section applying to spider.");
+					log.debug("Parsing robots.txt file. Starting section applying to spider.");
 					inMatchingUserAgent = true;
 				} else {
-					log.debug("Start section not applying to spider.");
+					log.debug("Parsing robots.txt file. Start section not applying to spider.");
 					inMatchingUserAgent = false;
 				}
 				// If the line is for defining a DISALLOW pattern
 			} else if (line.matches(PATTERNS_DISALLOW)) {
+				// The spider should explore URIs no matter who the pattern applies to
 				// if (!inMatchingUserAgent) {
 				// continue;
 				// }
 				String path = line.substring(PATTERNS_DISALLOW_LENGTH).trim();
-				log.debug("Disallow path: " + path);
 
 				// Clean the path
 				if (path.endsWith("*")) {
@@ -114,17 +116,15 @@ public class SpiderRobotstxtParser extends SpiderParser {
 				if (path.length() > 0) {
 					processURL(message, depth, path, baseURL);
 				}
-
-			} else if (line.matches(PATTERNS_ALLOW)) {
 				// If the line is for defining an ALLOW pattern
-
+			} else if (line.matches(PATTERNS_ALLOW)) {
+				// The spider should explore URIs no matter who the pattern applies to
 				// if (!inMatchingUserAgent) {
 				// continue;
 				// }
 
 				// Get the cleaned path
 				String path = line.substring(PATTERNS_ALLOW_LENGTH).trim();
-				log.debug("Allow path: " + path);
 				if (path.endsWith("*")) {
 					path = path.substring(0, path.length() - 1);
 				}

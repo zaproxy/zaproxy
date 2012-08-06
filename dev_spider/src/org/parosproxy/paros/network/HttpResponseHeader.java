@@ -24,6 +24,7 @@
 // ZAP: 2012/06/20 Added new method of setting cookies in the response header.
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 // ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
+// ZAP: 2012/08/06 Modified isText() to also consider javascript as text 
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -176,6 +177,8 @@ public class HttpResponseHeader extends HttpHeader {
 			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_TEXT) > -1) {
 				return true;
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
+				return true;
+			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
 				return true;
 			}
 		}

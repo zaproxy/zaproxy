@@ -109,7 +109,7 @@ public class SpiderTask implements Runnable {
 		// persist it in the database using HistoryReference
 		try {
 			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
-			if (cookies != null)
+			if (cookies != null) 
 				msg.setCookies(cookies);
 			if (requestBody != null) {
 				msg.getRequestHeader().setContentLength(requestBody.length());

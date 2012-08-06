@@ -159,16 +159,7 @@ public class Spider {
 	 */
 	public void addSeed(HttpMessage msg) {
 		URI uri = msg.getRequestHeader().getURI();
-		// Update the scope of the spidering process
-		try {
-			defaultFetchFilter.addScopeDomain(uri.getHost());
-		} catch (URIException e) {
-			log.error("There was an error while adding seed value: " + uri, e);
-			return;
-		}
-		// Add the seed to the list -- it will be added to the task list only when the spider is
-		// started
-		this.seedList.add(uri);
+		addSeed(uri);
 	}
 
 	/**
@@ -178,8 +169,10 @@ public class Spider {
 	 */
 	public void addSeed(URI uri) {
 		// Update the scope of the spidering process
+		String host = null;
 		try {
-			defaultFetchFilter.addScopeDomain(uri.getHost());
+			host = uri.getHost();
+			defaultFetchFilter.addScopeDomain(host);
 		} catch (URIException e) {
 			log.error("There was an error while adding seed value: " + uri, e);
 			return;
@@ -187,6 +180,16 @@ public class Spider {
 		// Add the seed to the list -- it will be added to the task list only when the spider is
 		// started
 		this.seedList.add(uri);
+		// Add the appropriate 'robots.txt' as a seed
+		if (getSpiderParam().isParseRobotsTxt()) {
+			try {
+				URI robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
+				this.seedList.add(robotsUri);
+			} catch (Exception e) {
+				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
+			}
+		}
+
 	}
 
 	/**
