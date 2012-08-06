@@ -302,13 +302,12 @@ public class HttpSender {
     }
     
 	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
-	    int status = -1;
 		HttpMethod method = null;
 		// no more retry
 		modifyUserAgent(msg);
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
         method.setFollowRedirects(isFollowRedirect);
-        status = this.executeMethod(method);
+        executeMethod(method);
         if (allowState) {
             if (param.isHttpStateEnabled()) {
                 HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);

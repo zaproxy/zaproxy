@@ -70,8 +70,7 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
-        	    JList listLog = extension.getLogPanel().getListLog();
-        	    HistoryReference ref = (HistoryReference) listLog.getSelectedValue();
+        	    HistoryReference ref = extension.getSelectedHistoryReference();
         	    HttpMessage msg = null;
         	    try {
                     msg = ref.getHttpMessage();
@@ -81,10 +80,6 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
-                
-        	    
-        	    
-        	    
         	}
         });
 

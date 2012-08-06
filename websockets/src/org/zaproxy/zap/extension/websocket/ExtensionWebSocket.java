@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
@@ -512,6 +513,16 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	@Override
 	public void sessionAboutToChange(Session session) {
 		// do nothing
+	}
+
+	@Override
+	public void sessionScopeChanged(Session session) {
+		// TODO: Find out what to do!
+	}
+
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// TODO: Find out what to do!
 	}
 	
 	/**

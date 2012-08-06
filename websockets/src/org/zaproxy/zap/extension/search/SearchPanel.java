@@ -32,11 +32,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -58,6 +60,7 @@ public class SearchPanel extends AbstractPanel {
 	private javax.swing.JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
 
+	private JToggleButton scopeButton = null;
 	private ZapTextField regEx = null;
 	private JButton btnSearch = null;
 	private JComboBox searchType = null;
@@ -206,7 +209,7 @@ public class SearchPanel extends AbstractPanel {
 			panelToolbar.setName("Search Toolbar");
 			
 			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
-			gridBagConstraintsX.gridx = 6;
+			gridBagConstraintsX.gridx = 20;
 			gridBagConstraintsX.gridy = 0;
 			gridBagConstraintsX.weightx = 1.0;
 			gridBagConstraintsX.weighty = 1.0;
@@ -218,17 +221,43 @@ public class SearchPanel extends AbstractPanel {
 			JLabel inverseTooltip = new JLabel(Constant.messages.getString("search.toolbar.label.inverse"));
 			inverseTooltip.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.inverse"));
 
-			panelToolbar.add(getRegExField(), newGBC(0));
-			panelToolbar.add(getSearchType(), newGBC(1));
-			panelToolbar.add(inverseTooltip, newGBC(2));
-			panelToolbar.add(getChkInverse(), newGBC(3));
-			panelToolbar.add(getBtnSearch(), newGBC(4));
-			panelToolbar.add(getBtnNext(), newGBC(5));
-			panelToolbar.add(getBtnPrev(), newGBC(6));
+			panelToolbar.add(getScopeButton(), newGBC(0));
+			panelToolbar.add(getRegExField(), newGBC(1));
+			panelToolbar.add(getSearchType(), newGBC(2));
+			panelToolbar.add(inverseTooltip, newGBC(3));
+			panelToolbar.add(getChkInverse(), newGBC(4));
+			panelToolbar.add(getBtnSearch(), newGBC(5));
+			panelToolbar.add(getBtnNext(), newGBC(6));
+			panelToolbar.add(getBtnPrev(), newGBC(7));
 			panelToolbar.add(t1, gridBagConstraintsX);
 		}
 		return panelToolbar;
 	}
+	
+	private JToggleButton getScopeButton() {
+		if (scopeButton == null) {
+			scopeButton = new JToggleButton();
+			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
+
+			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					extension.setSearchJustInScope(scopeButton.isSelected());
+					if (scopeButton.isSelected()) {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
+					} else {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
+					}
+				}
+			});
+		}
+		return scopeButton;
+	}
+
 	
 	private JCheckBox getChkInverse () {
 		if (chkInverse == null) {

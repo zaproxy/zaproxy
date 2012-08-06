@@ -66,7 +66,8 @@ public class HistoryReference {
    public static final int TYPE_FUZZER = 8;
    // ZAP: Added TYPE_SPIDER_TASK for use in spider tasks
    public static final int TYPE_SPIDER_TASK = 9;
-   
+   // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
+   public static final int TYPE_SPIDER_AJAX = 10;
    // -ve means unsaved message;
    public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;
 
@@ -82,6 +83,10 @@ public class HistoryReference {
 	private SiteNode siteNode = null;
     private String display = null;
     private long sessionId = 0;
+    
+    //ZAP: Support for specific icons
+	private ArrayList<String> icons = null;
+	private ArrayList<Boolean> clearIfManual = null;
 	
 	// ZAP: Support for linking Alerts to Hrefs
 	private List<Alert> alerts;
@@ -94,8 +99,9 @@ public class HistoryReference {
     }
 
     public HistoryReference(int historyId) throws HttpMalformedHeaderException, SQLException {
-		RecordHistory history = null;		
-
+		RecordHistory history = null;
+		this.icons =  new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
 		history = staticTableHistory.read(historyId);
 		if (history == null) {
 			throw new HttpMalformedHeaderException();
@@ -112,7 +118,9 @@ public class HistoryReference {
 	
 	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
 		
-		RecordHistory history = null;		
+		RecordHistory history = null;	
+		this.icons =  new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
 		history = staticTableHistory.write(session.getSessionId(), historyType, msg);		
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
@@ -127,7 +135,37 @@ public class HistoryReference {
 			this.addAlert(new Alert(alert, this));
 		}
 	}
-
+	
+	
+	/**
+	 * 
+	 * @return whether the icon has to be cleaned when being manually visited or not.
+	 */
+	public ArrayList<Boolean> getClearIfManual() {
+		return this.clearIfManual;
+	}
+	
+	
+	/**
+	 * 
+	 * @return The icon's string path (i.e. /resource/icon/16/xx.png)
+	 */
+	public ArrayList<String> getCustomIcons(){
+		return this.icons;
+	}
+	
+	/**
+	 * 
+	 * @param i the icon's URL (i.e. /resource/icon/16/xx.png)
+	 * @param c if the icon has to be cleaned when the node is manually visited
+	 */
+	public void setCustomIcon(String i, boolean c){
+		this.icons.add(i);
+		this.clearIfManual.add(c);
+	}
+	
+	
+	
 	private void build(long sessionId, int historyId, int historyType, HttpMessage msg) {
 	    this.sessionId = sessionId;
 	    this.historyId = historyId;

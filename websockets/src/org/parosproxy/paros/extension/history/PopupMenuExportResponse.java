@@ -21,17 +21,19 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JTree;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -47,7 +49,9 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
 
-    // ZAP: Added logger
+	private static final long serialVersionUID = 1L;
+
+	// ZAP: Added logger
     private static Logger log = Logger.getLogger(PopupMenuExportResponse.class);
 
     private ExtensionHistory extension = null;
@@ -80,22 +84,20 @@ public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
-                JList listLog = extension.getLogPanel().getListLog();
-        	    Object[] obj = listLog.getSelectedValues();
-        	    if (obj.length == 0) {
+        		List<HistoryReference> hrefs = extension.getSelectedHistoryReferences();
+        	    if (hrefs.size() == 0) {
                     extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.select.warning"));        	        	// ZAP: i18n
                     return;
         	    }
 
-                if (obj.length > 1) {
+                if (hrefs.size() > 1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.single.warning"));	// ZAP: i18n
                     return;
                 }
 
-                HistoryReference ref = (HistoryReference) obj[0];
                 HttpMessage msg = null;
                 try {
-                    msg = ref.getHttpMessage();
+                    msg = hrefs.get(0).getHttpMessage();
                 } catch (Exception e1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.read.warning"));	// ZAP: i18n
                     return;
@@ -124,9 +126,7 @@ public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
         	    BufferedOutputStream bos = null;
                 try {
                     bos = new BufferedOutputStream(new FileOutputStream(file, isAppend));
-            	    for (int i=0; i<obj.length; i++) {
-            	        exportHistory(msg, bos);
-            	    }
+           	        exportHistory(msg, bos);
 
                 } catch (Exception e1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
@@ -167,17 +167,6 @@ public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
         return false;
     }
 
-    private JTree getTree(Component invoker) {
-        if (invoker instanceof JTree) {
-            JTree tree = (JTree) invoker;
-            if (tree.getName().equals("treeSite")) {
-                return tree;
-            }
-        }
-
-        return null;
-    }
-    
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }

@@ -54,8 +54,7 @@ public class PopupMenuResendMessage extends PopupMenuHttpMessage {
 	public void performAction(HttpMessage msg) throws Exception {
 	    ManualRequestEditorDialog dialog = getExtensionHistory().getResendDialog();
 	    
-    	// Dont clone. ManualRequestEditor will do it.
-        dialog.setMessage(msg);
+        dialog.setMessage(msg.cloneRequest());
         dialog.setVisible(true);
 	}
 

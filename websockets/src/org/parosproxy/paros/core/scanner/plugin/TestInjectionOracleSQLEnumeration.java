@@ -24,6 +24,7 @@
 // checkDBTableName to use the class StringBuilder instead of StringBuffer.
 // ZAP: 2012/04/25 Changed to use Boolean.TRUE and added @Override annotation
 // to all appropriate methods.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -74,60 +75,39 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
 
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getId()
-     */
     @Override
     public int getId() {
         return 40007;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getName()
-     */
     @Override
     public String getName() {
         return "Oracle SQL Injection Enumeration";
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         
         return dependency;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
         String msg = "The DB user name can be obtained.";
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
         String msg = "Refer SQL injection.";
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
         String msg = "Refer SQL injection.";
@@ -135,9 +115,6 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
             
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 
@@ -161,9 +138,6 @@ public class TestInjectionOracleSQLEnumeration extends AbstractAppParamPlugin {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractAppParamTest#scan(org.parosproxy.paros.network.HttpMessage, java.lang.String, java.lang.String)
-     */
     public void scanSQL(HttpMessage baseMsg, String param, String value) throws HttpException, IOException {
 
         //protected void check(boolean isBody, String paramKey, String paramValue, String query, int insertPos) throws IOException {

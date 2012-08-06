@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added type arguments to generic types, removed unnecessary
 // casts, removed unused variable and added @Override annotation to all
 // appropriate methods.
+// ZAP: 2012/07/29 Corrected init method and log errors
 
 package org.parosproxy.paros.extension.filter;
 
@@ -35,7 +36,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
@@ -55,6 +58,8 @@ public class FilterLogGetQuery extends FilterAdaptor {
     private BufferedWriter writer = null;
     private long lastWriteTime = System.currentTimeMillis();
     
+    private static final Logger logger = Logger.getLogger(FilterLogGetQuery.class);
+    
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
      */
@@ -71,10 +76,10 @@ public class FilterLogGetQuery extends FilterAdaptor {
         return Constant.messages.getString("filter.loggets.name") + getLogFileName();
         
     }
-
-    public void init() {
+    
+    @Override
+    public void init(Model model) {
      	outFile = new File(getLogFileName());
-     	
     }
 
     protected String getLogFileName() {
@@ -112,13 +117,10 @@ public class FilterLogGetQuery extends FilterAdaptor {
                         writeLogFile(firstline,null);				
                     }
                     
-                    
-                    
-                }catch(Exception aa){
-                    aa.printStackTrace();
+                } catch (Exception aa){
+                	logger.error(aa.getMessage(), aa);
                 }
             }
-            
         }
         
     }
@@ -155,7 +157,8 @@ public class FilterLogGetQuery extends FilterAdaptor {
 
             lastWriteTime = System.currentTimeMillis();
             
-        }catch(IOException ae){
+        } catch(IOException e){
+        	logger.error(e.getMessage(), e);
         }
         
     }
@@ -172,9 +175,8 @@ public class FilterLogGetQuery extends FilterAdaptor {
                 table.put(matcher2.group(1), matcher2.group(2));
                 
             }
-        }
-        catch(Exception e){
-            System.out.println("Error: " + e.getMessage());
+        } catch(Exception e){
+        	logger.error(e.getMessage(), e);
         }
         return table;
         
@@ -188,6 +190,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
                 writer.close();
                 writer = null;
             } catch (IOException e) {
+            	logger.error(e.getMessage(), e);
             }            
         }
     }

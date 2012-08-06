@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -239,6 +240,7 @@ public class ExtensionSpider extends ExtensionAdaptor
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+	
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -256,5 +258,15 @@ public class ExtensionSpider extends ExtensionAdaptor
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void sessionScopeChanged(Session session) {
+		this.getSpiderPanel().sessionScopeChanged(session);
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		this.getSpiderPanel().sessionModeChanged(mode);
 	}
 }

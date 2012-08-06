@@ -22,12 +22,15 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -65,6 +68,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     
     private Map<Class<? extends Message>, BreakpointsUiManagerInterface> mapMessageUiManager;
     
+	private Mode mode = Control.getSingleton().getMode();
 	
     public ExtensionBreak() {
         super();
@@ -294,6 +298,10 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
+	@Override
 	public void destroy() {
 		if (breakPanel != null) {
 			breakPanel.savePanels();
@@ -301,11 +309,17 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	public boolean messageReceivedFromClient(Message aMessage) {
-	    return breakpointMessageHandler.handleMessageReceivedFromClient(aMessage);
+		if (mode.equals(Mode.safe)) {
+			return true;
+		}
+	    return breakpointMessageHandler.handleMessageReceivedFromClient(aMessage, mode.equals(Mode.protect));
 	}
 	
 	public boolean messageReceivedFromServer(Message aMessage) {
-	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage);
+		if (mode.equals(Mode.safe)) {
+			return true;
+		}
+	    return breakpointMessageHandler.handleMessageReceivedFromServer(aMessage, mode.equals(Mode.protect));
 	}
 
 	/**
@@ -314,6 +328,15 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	 * @return
 	 */
 	public List<BreakpointMessageInterface> getBreakpointsEnabledList() {
+		if (mode.equals(Mode.safe)) {
+			return new ArrayList<BreakpointMessageInterface>();
+		}
 		return getBreakpointsModel().getBreakpointsEnabledList();
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		this.mode = mode;
+		this.getBreakPanel().sessionModeChanged(mode);
 	}
 }

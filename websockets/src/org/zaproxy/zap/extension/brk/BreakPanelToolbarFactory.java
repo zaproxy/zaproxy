@@ -268,6 +268,26 @@ public class BreakPanelToolbarFactory {
 	public boolean isContinue() {
 		return cont;
 	}
+	
+	public void setBreakEnabled(boolean enabled) {
+		if (!enabled) {
+			this.isBreakRequest = false;
+			this.isBreakResponse = false;
+			this.setContinue(true);
+		}
+		for(JToggleButton btnBreakRequest: btnBreakRequestList) {
+			btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
+			btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
+			btnBreakRequest.setSelected(false);
+			btnBreakRequest.setEnabled(enabled);
+		}
+		for(JToggleButton btnBreakResponse: btnBreakResponseList) {
+			btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
+			btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
+			btnBreakResponse.setSelected(false);
+			btnBreakResponse.setEnabled(enabled);
+		}
+	}
 
 	
 	private void setContinue(boolean isContinue) {

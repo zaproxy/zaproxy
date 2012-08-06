@@ -71,7 +71,7 @@ public class SiteParameters {
 		case form: params = formParams; break;
 		}
 		
-		if (params.containsKey(param.getName())) {
+		if (params != null && params.containsKey(param.getName())) {
 			p = params.get(param.getName());
 			p.incTimesUsed();
 			p.addValue(param.getValue());
@@ -88,7 +88,6 @@ public class SiteParameters {
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
 		}
-		p.addHttpMessage(msg);
 		return p;
 	}
 
@@ -118,9 +117,10 @@ public class SiteParameters {
 		// These should all be new
 		HtmlParameterStats p = new HtmlParameterStats(param.getParamId(), site, param.getName(), param.getType(), param.getUsed(), 
 									stringToSet(param.getValues()), stringToSet(param.getFlags()));
-		params.put(param.getName(), p);
-		model.addHtmlParameterStats(p);
-		
+		if (params != null) {
+			params.put(param.getName(), p);
+			model.addHtmlParameterStats(p);
+		}
 	}
 
 	public JSONArray toJSON() {

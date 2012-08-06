@@ -24,6 +24,7 @@
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Added @Deprecated annotation to the class.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner.plugin;
 
@@ -72,17 +73,11 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDescription()
-     */
     @Override
     public String getDescription() {
         String msg = "Cross-site scripting or HTML injection is possible within javascript <SCRIPT> and </SCRIPT> section.\r\n"
@@ -96,17 +91,11 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getCategory()
-     */
     @Override
     public int getCategory() {
         return Category.INJECTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSolution()
-     */
     @Override
     public String getSolution() {
         String msg = "You should check manually if this is exactly cross-site script in this case."
@@ -117,9 +106,6 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getReference()
-     */
     @Override
     public String getReference() {
         String msg = "<ul><li>The OWASP guide at http://www.owasp.org/documentation/guide</li>"
@@ -131,9 +117,6 @@ public class TestCrossSiteScriptInScriptSection extends AbstractAppParamPlugin {
         return msg;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.AbstractTest#init()
-     */
     @Override
     public void init() {
 

@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Added @Deprecated annotation to the class.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin;
@@ -40,17 +41,11 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
 		return true;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getId()
-     */
     @Override
     public int getId() {
         return 20004;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getName()
-     */
     @Override
     public String getName() {
         
@@ -59,17 +54,11 @@ public class TestDefaultFileTomcat extends AbstractDefaultFilePlugin {
     
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getDependency()
-     */
     @Override
     public String[] getDependency() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSummary()
-     */
     @Override
     public String getDescription() {
         return "Tomcat source file disclosed.";

@@ -99,7 +99,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (base.getAttributeValue("href") != null)
 				baseURL = base.getAttributeValue("href");
 		}
-		
+
 		// Go through the forms
 		List<Element> forms = source.getAllElements(HTMLElementName.FORM);
 
@@ -111,8 +111,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			// If no action, skip the form
 			if (action == null) {
-				log.info("Skipping form with no 'action' defined at: " + form.getDebugInfo());
-				continue;
+				log.info("No form 'action' defined. Using base URL: " + baseURL);
+				action = baseURL;
 			}
 
 			// If POSTing forms is not enabled, skip processing of forms with POST method

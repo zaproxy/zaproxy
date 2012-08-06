@@ -26,6 +26,7 @@
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/06/06 Issue 323: Added isDummyItem to support dynamic menus
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.view;
 
@@ -38,6 +39,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
@@ -50,23 +54,27 @@ public class MainPopupMenu extends JPopupMenu {
 	private PopupPurgeMenu popupPurgeMenu = null;
 	// ZAP: Added support for submenus
     Map<String, JMenuItem> superMenus = new HashMap<String, JMenuItem>();
+    View view = null;
+    private static Logger log = Logger.getLogger(MainPopupMenu.class);
     /**
      * 
      */
-    public MainPopupMenu() {
+    public MainPopupMenu(View view) {
         super();
  		initialize();
+        this.view = view;
    }
 
     /**
      * @param arg0
      */
-    public MainPopupMenu(String arg0) {
+    public MainPopupMenu(String arg0, View view) {
         super(arg0);
+        this.view = view;
     }
     
-    public MainPopupMenu(List<JMenuItem> itemList) {
-        this();
+    public MainPopupMenu(List<JMenuItem> itemList, View view) {
+        this(view);
         this.itemList = itemList;
     }
     
@@ -96,9 +104,14 @@ public class MainPopupMenu extends JPopupMenu {
 	                menuItem = (ExtensionPopupMenuItem) getComponent(i);
 	                // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
 	                menuItem.setVisible(menuItem.isEnableForComponent(invoker));
+	                
+	                if (Control.getSingleton().getMode().equals(Mode.safe) && ! menuItem.isSafe()) {
+                		// Safe mode, disable all nor safe menu items
+	                	menuItem.setEnabled(false);
+	                }
 	            }
 	        } catch (Exception e) {
-	            e.printStackTrace();
+	        	log.error(e.getMessage(), e);
 	        }
 	    }
 	    
@@ -148,8 +161,13 @@ public class MainPopupMenu extends JPopupMenu {
 	            	}
 	            }
             }
+            if (Control.getSingleton().getMode().equals(Mode.safe) && ! menuItem.isSafe()) {
+        		// Safe mode, disable all nor safe menu items
+            	menuItem.setEnabled(false);
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+        	log.error(e.getMessage(), e);
         }
 	}
 	
@@ -177,7 +195,7 @@ public class MainPopupMenu extends JPopupMenu {
             	}
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	log.error(e.getMessage(), e);
         }
 	}
 	

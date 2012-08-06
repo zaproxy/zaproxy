@@ -24,12 +24,21 @@ import java.awt.Container;
 
 import javax.swing.JFrame;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
 
 public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger(PopupFuzzMenu.class);
 	private Component lastInvoker = null;
     private JFrame parentFrame = null;
     private ExtensionFuzz extension;
@@ -74,6 +83,23 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
         	} else {
         		this.setEnabled(true);
         	}
+        	if (Control.getSingleton().getMode().equals(Mode.protect)) {
+        		// In protected mode, so disable if not in scope
+        		Message aMessage = fuzzableComponent.getFuzzableMessage().getMessage();
+        		Session session = Model.getSingleton().getSession();
+        		if (aMessage instanceof HttpMessage) {
+        			HttpMessage httpMessage = (HttpMessage) aMessage;
+        			if (!session.isInScope(httpMessage.getRequestHeader().getURI().toString())) {
+                		this.setEnabled(false);
+            		}
+        		} else if (aMessage instanceof WebSocketMessageDAO) {
+//        			WebSocketMessageDAO wsMessage = (WebSocketMessageDAO) aMessage;
+        			// TODO: Find out if ws is in scope!
+        		} else {
+        			logger.error("Unknown message instance");
+        		}
+        	}
+        	
             setLastInvoker(invoker);
             Container c = getLastInvoker().getParent();
             while (!(c instanceof JFrame)) {

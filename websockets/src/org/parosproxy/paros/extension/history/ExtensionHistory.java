@@ -36,11 +36,14 @@
 // ZAP: 2012/04/28 Added log of exception.
 // ZAP: 2012/05/31 Issue 308 NPE in sessionChangedEventHandler in daemon mode
 // ZAP: 2012/07/02 Added the method showAlertAddDialog(HttpMessage, int).
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event and removed access to some UI elements
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -49,6 +52,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -57,6 +61,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryList;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -65,7 +70,6 @@ import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
-import org.zaproxy.zap.extension.history.PopupMenuAlert;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
@@ -82,9 +86,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private LogPanel logPanel = null;  //  @jve:decl-index=0:visual-constraint="161,134"
 	private ProxyListenerLog proxyListener = null;
 	private HistoryList historyList = null;
-    private String filter = "";
     
-	private HistoryFilterDialog filterDialog = null;
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
 	
@@ -92,9 +94,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
 	private ManualRequestEditorDialog resendDialog = null;
 	
-	private PopupMenuExportMessage popupMenuExportMessage = null;
 	private PopupMenuExportMessage popupMenuExportMessage2 = null;
-    private PopupMenuExportResponse popupMenuExportResponse = null;
     private PopupMenuExportResponse popupMenuExportResponse2 = null;
     private PopupMenuTag popupMenuTag = null;
     // ZAP: Added Export URLs
@@ -104,7 +104,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private NotesAddDialog dialogNotesAdd = null;
 	private AlertAddDialog dialogAlertAdd = null;
 	private ManageTagsDialog manageTags = null;
-    private PopupMenuAlert popupMenuAlert = null;
+	
+	private boolean showJustInScope = false;
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
@@ -142,7 +143,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.LogPanel	
 	 */    
-	public LogPanel getLogPanel() {
+	private LogPanel getLogPanel() {
 		if (logPanel == null) {
 			logPanel = new LogPanel();
 			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
@@ -153,6 +154,24 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return logPanel;
 	}
+	
+	protected void clearLogPanelDisplayQueue() {
+		this.getLogPanel().clearDisplayQueue();
+	}
+	
+	public HistoryReference getSelectedHistoryReference () {
+		return (HistoryReference) getLogPanel().getListLog().getSelectedValue();
+	}
+	
+	public List<HistoryReference> getSelectedHistoryReferences () {
+		List<HistoryReference> hrefs = new ArrayList<HistoryReference>();
+		Object [] values = getLogPanel().getListLog().getSelectedValues();
+		for (Object val : values) {
+			hrefs.add((HistoryReference) val);
+		}
+		return hrefs;
+	}
+	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -209,8 +228,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            logger.error(e.getMessage(), e);
 	        }
 	    }
-
-	    
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
@@ -239,32 +256,80 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	private ProxyListenerLog getProxyListenerLog() {
         if (proxyListener == null) {
-            proxyListener = new ProxyListenerLog(getModel(), getView(), getHistoryList());
+            proxyListener = new ProxyListenerLog(getModel(), getView(), this);
         }
         return proxyListener;
 	}
 	
-	public HistoryList getHistoryList() {
+	private HistoryList getHistoryList() {
 	    if (historyList == null) {
 	        historyList = new HistoryList();
 	    }
 	    return historyList;
 	}
 	
-	private void searchHistory(String filter, boolean isRequest) {
-	    Session session = getModel().getSession();
-        
-	    synchronized (historyList) {
-	        try {
-	            // ZAP: Added type argument.
-	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL, filter, isRequest);
-	            
-	            buildHistory(getHistoryList(), list);
-	        } catch (SQLException e) {
-				logger.error(e.getMessage(), e);
-	        }
-	    }
+	public void removeFromHistoryList(HistoryReference href) {
+		this.getHistoryList().removeElement(href);
 	}
+	
+	public void notifyHistoryItemChanged(HistoryReference href) {
+		this.getHistoryList().notifyItemChanged(href);
+	}
+	
+	public HistoryReference getHistoryReference (int historyId) {
+		return getHistoryList().getHistoryReference(historyId);
+	}
+	
+    public void addHistory (HttpMessage msg, int type) {
+        try {
+			this.addHistory(new HistoryReference(Model.getSingleton().getSession(), type, msg));
+        } catch (final Exception e) {
+            logger.error(e.getMessage(), e);
+		}
+    }
+    
+    public void addHistory (HistoryReference historyRef) {
+        try {
+            synchronized (getHistoryList()) {
+                if (historyRef.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
+	            			historyRef.getHttpMessage().getRequestHeader().getURI().toString())) {
+	            		// Not in scope
+	            		return;
+	            	}
+	        		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
+	        		HistoryFilter historyFilter = dialog.getFilter();
+                    if (historyFilter != null && !historyFilter.matches(historyRef)) {
+	            		// Not in filter
+	            		return;
+                    }
+
+                	addHistoryInEventQueue(historyRef);
+                    historyList.notifyItemChanged(historyRef);
+                }
+            }
+        } catch (final Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void addHistoryInEventQueue(final HistoryReference ref) {
+        if (EventQueue.isDispatchThread()) {
+            historyList.addElement(ref);
+        } else {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        historyList.addElement(ref);
+                    }
+                });
+            } catch (final Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
 	
 	private void searchHistory(HistoryFilter historyFilter) {
 	    Session session = getModel().getSession();
@@ -281,35 +346,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    }
 	}
 	
-	// ZAP: Added type argument.
 	private void buildHistory(HistoryList historyList, List<Integer> dbList) {
-
-	    HistoryReference historyRef = null;
-	    synchronized (historyList) {
-	        historyList.clear();
-	        
-	        for (int i=0; i<dbList.size(); i++) {
-	            // ZAP: Removed unnecessary cast.
-	            int historyId = dbList.get(i).intValue();
-
-	            try {
-	            	SiteNode sn = getModel().getSession().getSiteTree().getSiteNode(historyId);
-	            	if (sn != null && sn.getHistoryReference() != null && 
-	            			sn.getHistoryReference().getHistoryId() == historyId) {
-	            		historyRef = sn.getHistoryReference();
-	            	} else {
-	                    historyRef = new HistoryReference(historyId);
-	                    historyRef.setSiteNode(sn);
-	            	}
-                    historyRef.loadAlerts();
-                    historyList.addElement(historyRef);
-	                    
-	            } catch (Exception e) {
-	    			logger.error(e.getMessage(), e);
-	            }
-	        }
-	    }
-   }
+		buildHistory(historyList, dbList, null);
+	}
 	
 	private void buildHistory(HistoryList historyList, List<Integer> dbList,
 			HistoryFilter historyFilter) {
@@ -321,11 +360,26 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            int historyId = (dbList.get(i)).intValue();
 
 	            try {
-                    historyRef = new HistoryReference(historyId);
-                    historyRef.loadAlerts();
-                    if (historyFilter.matches(historyRef)) {
-                    	historyList.addElement(historyRef);
+	            	SiteNode sn = getModel().getSession().getSiteTree().getSiteNode(historyId);
+	            	if (sn != null && sn.getHistoryReference() != null && 
+	            			sn.getHistoryReference().getHistoryId() == historyId) {
+	            		historyRef = sn.getHistoryReference();
+	            	} else {
+	                    historyRef = new HistoryReference(historyId);
+	                    historyRef.setSiteNode(sn);
+	            	}
+	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
+	            			historyRef.getHttpMessage().getRequestHeader().getURI().toString())) {
+	            		// Not in scope
+	            		continue;
+	            	}
+                    if (historyFilter != null && !historyFilter.matches(historyRef)) {
+	            		// Not in filter
+	            		continue;
                     }
+                    historyRef.loadAlerts();
+                    historyList.addElement(historyRef);
+                    
 	            } catch (Exception e) {
 	    			logger.error(e.getMessage(), e);
 	            }
@@ -333,17 +387,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    }
 	}
 
-	/**
-	 * This method initializes filterDialog	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.SearchDialog	
-	 */    
-	private HistoryFilterDialog getFilterDialog() {
-		if (filterDialog == null) {
-			filterDialog = new HistoryFilterDialog(getView().getMainFrame(), true);
-		}
-		return filterDialog;
-	}
 	private HistoryFilterPlusDialog getFilterPlusDialog() {
 		if (filterPlusDialog == null) {
 			filterPlusDialog = 
@@ -352,27 +395,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return filterPlusDialog;
 	}
 
-	private int showFilterDialog(boolean isRequest) {
-		HistoryFilterDialog dialog = getFilterDialog();
-		dialog.setModal(true);
-		int exit = dialog.showDialog();
-		int result = 0;		// cancel, state unchanged
-		if (exit == JOptionPane.OK_OPTION) {
-		    filter = dialog.getPattern();
-		    getProxyListenerLog().setFilter(filter);
-		    searchHistory(filter, isRequest);
-		    result = 1;		// applied
-		    
-		} else if (exit == JOptionPane.NO_OPTION) {
-		    filter = "";
-		    getProxyListenerLog().setFilter(filter);
-		    searchHistory(filter, isRequest);
-		    result = -1;	// reset
-		}
-		
-		return result;
-	}
-	
 	protected int showFilterPlusDialog() {
 		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
 		dialog.setModal(true);
@@ -386,13 +408,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		int result = 0;		// cancel, state unchanged
 		HistoryFilter historyFilter = dialog.getFilter();
 		if (exit == JOptionPane.OK_OPTION) {
-		    getProxyListenerLog().setHistoryFilter(historyFilter);
 		    searchHistory(historyFilter);
 		    logPanel.setFilterStatus(historyFilter);
 		    result = 1;		// applied
 		    
 		} else if (exit == JOptionPane.NO_OPTION) {
-		    getProxyListenerLog().setHistoryFilter(historyFilter);
 		    searchHistory(historyFilter);
 		    logPanel.setFilterStatus(historyFilter);
 		    result = -1;	// reset
@@ -442,19 +462,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	/**
-	 * This method initializes popupMenuExport	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.PopupMenuExport	
-	 */    
-	private PopupMenuExportMessage getPopupMenuExportMessage() {
-		if (popupMenuExportMessage == null) {
-			popupMenuExportMessage = new PopupMenuExportMessage();
-			popupMenuExportMessage.setExtension(this);
-
-		}
-		return popupMenuExportMessage;
-	}
-	/**
 	 * This method initializes popupMenuExport1	
 	 * 	
 	 * @return org.parosproxy.paros.extension.history.PopupMenuExport	
@@ -466,19 +473,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
 		return popupMenuExportMessage2;
 	}
-
-    /**
-     * This method initializes popupMenuExportResponse	
-     * 	
-     * @return org.parosproxy.paros.extension.history.PopupMenuExportResponse	
-     */
-    private PopupMenuExportResponse getPopupMenuExportResponse() {
-        if (popupMenuExportResponse == null) {
-            popupMenuExportResponse = new PopupMenuExportResponse();
-            popupMenuExportResponse.setExtension(this);
-        }
-        return popupMenuExportResponse;
-    }
 
     /**
      * This method initializes popupMenuExportResponse2	
@@ -633,5 +627,25 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
+	}
+
+	public boolean isShowJustInScope() {
+		return showJustInScope;
+	}
+
+	public void setShowJustInScope(boolean showJustInScope) {
+		this.showJustInScope = showJustInScope;
+		// Refresh with the next option
+	    searchHistory(getFilterPlusDialog().getFilter());
+	}
+
+	@Override
+	public void sessionScopeChanged(Session session) {
+	    searchHistory(getFilterPlusDialog().getFilter());
+	}
+
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

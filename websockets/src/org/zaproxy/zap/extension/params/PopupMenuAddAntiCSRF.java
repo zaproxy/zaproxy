@@ -93,4 +93,9 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
         }
         return false;
     }
+
+    @Override
+    public boolean isSafe() {
+    	return true;
+    }
 }

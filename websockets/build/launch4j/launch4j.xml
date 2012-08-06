@@ -24,6 +24,7 @@
     <jdkPreference>preferJdk</jdkPreference>
     <maxHeapSize>512</maxHeapSize>
     <maxHeapPercent>25</maxHeapPercent>
+    <opt>-XX:PermSize=256M</opt>
   </jre>
   <versionInfo>
     <fileVersion>1.4.0.1</fileVersion>
