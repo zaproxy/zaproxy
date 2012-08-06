@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Added @Deprecated annotation to the class.
+// ZAP: 2012/08/01 Removed the "(non-Javadoc)" comments.
 package org.parosproxy.paros.core.scanner.plugin;
 
 import org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin;
@@ -40,17 +41,11 @@ public class TestDefaultFileIIS extends AbstractDefaultFilePlugin {
 		return true;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getId()
-     */
     @Override
     public int getId() {
         return 20002;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getName()
-     */
     @Override
     public String getName() {
         
@@ -62,9 +57,6 @@ public class TestDefaultFileIIS extends AbstractDefaultFilePlugin {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Test#getSummary()
-     */
     @Override
     public String getDescription() {
         return "Microsoft IIS 4.0, 5.0 or 6.0 default files are found.";

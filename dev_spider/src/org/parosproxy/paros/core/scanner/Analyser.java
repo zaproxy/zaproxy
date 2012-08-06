@@ -21,6 +21,10 @@
 // ZAP: 2012/03/15 Changed the method getPathRegex to use the class StringBuilder 
 // instead of StringBuffer.
 // ZAP: 2012/04/25 Removed unnecessary casts.
+// ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
+// 		as introduced with version 3.1 of HttpClient
+// ZAP: 2012/07/30 Issue 43: Added support for Scope
+
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -97,6 +101,10 @@ public class Analyser {
 		// move to host part
 		if (node.getHistoryReference() == null) {
 		    return;
+		}
+		
+		if (! parent.nodeInScope(node)) {
+			return;
 		}
 		
 		// ZAP: Removed unnecessary cast.
@@ -221,7 +229,13 @@ public class Analyser {
 	}
 	
 	private String getPathRegex(URI uri) throws URIException {
-	    URI newUri = (URI) uri.clone();
+	    URI newUri;
+	    // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+		try {
+			newUri = (URI) uri.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new URIException(e.getMessage());
+		}
 	    String query = newUri.getQuery();
 	    StringBuilder sb = new StringBuilder(100);
 		
@@ -307,16 +321,23 @@ public class Analyser {
             return false;
         }
 
-        URI uri = (URI) msg.getRequestHeader().getURI().clone();
-        try {
-            // strip off last part of path - use folder only
+	    // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
+        URI uri = null;
+        String sUri = null;
+		try {
+			uri = (URI) msg.getRequestHeader().getURI().clone();
+			
+			// strip off last part of path - use folder only
             uri.setQuery(null);
             String path = uri.getPath();
             path = path.replaceAll("/[^/]*$","");
             uri.setPath(path);
-        } catch (Exception e1) {}
-    
-        String sUri = uri.toString();        
+		} catch (Exception e) {
+		} finally {
+			if (uri != null) {
+				sUri = uri.toString();
+			}
+        } 
         
 		// get sample with same relative path position when possible.
 		// if not exist, use the host only	

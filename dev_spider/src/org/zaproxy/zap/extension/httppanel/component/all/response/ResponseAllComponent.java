@@ -17,7 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.component.all.response;
 
-import org.zaproxy.zap.extension.httppanel.view.models.response.ResponseStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
 
 public class ResponseAllComponent extends RequestAllComponent {

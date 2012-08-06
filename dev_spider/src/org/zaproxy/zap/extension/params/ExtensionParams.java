@@ -36,6 +36,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -469,6 +470,11 @@ public class ExtensionParams extends ExtensionAdaptor
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
+
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -486,5 +492,10 @@ public class ExtensionParams extends ExtensionAdaptor
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
 	}
 }

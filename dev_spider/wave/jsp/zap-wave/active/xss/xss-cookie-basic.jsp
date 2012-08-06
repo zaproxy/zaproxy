@@ -17,6 +17,7 @@
     See the License for the specific language governing permissions and 
     limitations under the License. 
 -->
+<%@page import="org.apache.commons.httpclient.Cookie"%>
 <%@ page import="java.util.*" %>
 <head>
 <title>OWASP ZAP WAVE - XSS Form basic</title>

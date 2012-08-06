@@ -27,6 +27,7 @@
 // ZAP: 2012/03/15 Changed the method toString to use the class StringBuilder 
 //      and reworked the method toString and getIcons. Renamed the method 
 //      getIcons to appendIcons.
+// ZAP: 2012/07/29 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.model;
 
@@ -53,15 +54,28 @@ public class SiteNode extends DefaultMutableTreeNode {
     private SiteMap siteMap = null;
 	private ArrayList<Alert> alerts = new ArrayList<Alert>();
 	private boolean justSpidered = false;
+	//private boolean justAJAXSpidered = false;
+	private ArrayList<String> icons = null;
+	private ArrayList<Boolean> clearIfManual = null;
+
     private static Logger log = Logger.getLogger(SiteNode.class);
+    private boolean isIncludedInScope = false;
+    private boolean isExcludedFromScope = false;
 	
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
-        this.nodeName = nodeName;
-        if (type == HistoryReference.TYPE_SPIDER) {
-        	this.justSpidered = true;
-        }
+		this.nodeName = nodeName;
+		this.icons = new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
+		if (type == HistoryReference.TYPE_SPIDER) {
+			this.justSpidered = true;
+		}
+	}
+    
+    public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
+    	this.icons = i;
+    	this.clearIfManual = c;
     }
     
     private void appendIcons(StringBuilder sb) {
@@ -82,6 +96,13 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append("&nbsp;<img src=\"");
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
+    	}
+    	if (!this.icons.isEmpty()) {
+    		for(String icon : this.icons) {
+    			sb.append("&nbsp;<img src=\"");
+    			sb.append(Constant.class.getResource(icon));
+    			sb.append("\">&nbsp;");
+    		}
     	}
     }
     
@@ -127,6 +148,11 @@ public class SiteNode extends DefaultMutableTreeNode {
     			// Strip the param summary off
     			nodeName = nodeName.substring(0, bracketIndex);
     		}
+    		int quesIndex = nodeName.indexOf("?");
+    		if (quesIndex > 0) {
+    			// Strip the parameters off
+    			nodeName = nodeName.substring(0, quesIndex);
+    		}
     	}
     	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
     }
@@ -155,6 +181,16 @@ public class SiteNode extends DefaultMutableTreeNode {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
+			// we remove the icons of the node that has to be cleaned when manually visiting them
+			if (!this.icons.isEmpty() && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+				for (int i = 0; i < this.clearIfManual.size(); ++i) {
+					if (this.clearIfManual.get(i) == true && this.icons.size() > i) {
+						this.icons.remove(i);
+						this.clearIfManual.remove(i);
+					}
+				}
+        		this.nodeChanged();
+    		}
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {
                 getPastHistoryReference().add(getHistoryReference());
@@ -246,17 +282,19 @@ public class SiteNode extends DefaultMutableTreeNode {
     	// is present in another child node
     	boolean removed = true;
     	alerts.remove(alert);
-    	SiteNode c = (SiteNode) this.getFirstChild();
-    	while (c != null) {
-    		if (! c.equals(child)) {
-    			if (c.hasAlert(alert)) {
-    				alerts.add(alert);
-    				removed = false;
-    				break;
-    			}
-    		}
-    		c = (SiteNode) this.getChildAfter(c);
-    	}
+		if (this.getChildCount() > 0) {
+	    	SiteNode c = (SiteNode) this.getFirstChild();
+	    	while (c != null) {
+	    		if (! c.equals(child)) {
+	    			if (c.hasAlert(alert)) {
+	    				alerts.add(alert);
+	    				removed = false;
+	    				break;
+	    			}
+	    		}
+	    		c = (SiteNode) this.getChildAfter(c);
+	    	}
+		}
 	 	if (removed && this.getParent() != null && 
 	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
@@ -302,6 +340,43 @@ public class SiteNode extends DefaultMutableTreeNode {
 			}
 		}
 		return true;
+	}
+
+	public boolean isIncludedInScope() {
+		return isIncludedInScope;
+	}
+
+	public void setIncludedInScope(boolean isIncludedInScope, boolean applyToChildNodes) {
+		this.isIncludedInScope = isIncludedInScope;
+		this.nodeChanged();
+		// Recurse down
+		if (this.getChildCount() > 0 && applyToChildNodes) {
+			SiteNode c = (SiteNode) this.getFirstChild();
+    		while (c != null) {
+    			c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
+    			c = (SiteNode) this.getChildAfter(c);
+    		}
+		}
+	}
+
+	public boolean isExcludedFromScope() {
+		return isExcludedFromScope;
+	}
+
+	public void setExcludedFromScope(boolean isExcludedFromScope, boolean applyToChildNodes) {
+		this.isExcludedFromScope = isExcludedFromScope;
+		if (isExcludedFromScope) {
+			this.isIncludedInScope = false;
+		}
+		this.nodeChanged();
+		// Recurse down
+		if (this.getChildCount() > 0 && applyToChildNodes) {
+	    	SiteNode c = (SiteNode) this.getFirstChild();
+	    	while (c != null) {
+	    		c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);
+	    		c = (SiteNode) this.getChildAfter(c);
+	    	}
+		}
 	}
 	
 }

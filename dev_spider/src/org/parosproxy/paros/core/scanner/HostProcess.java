@@ -28,6 +28,7 @@
 // the methods processPlugin and pluginCompleted to use Long.valueOf instead of
 // creating a new Long.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/07/30 Issue 43: Added support for Scope
 
 package org.parosproxy.paros.core.scanner;
 
@@ -170,25 +171,29 @@ public class HostProcess implements Runnable {
         		}
         	}
         }
-
-		for (SiteNode pNode : parentNodes) {
-	        for (int i=0; i<pNode.getChildCount() && !isStop(); i++) {
-	            // ZAP: Implement pause and resume
-	            while (parentScanner.isPaused() && ! this.isStop()) {
-	            	Util.sleep(500);
-	            }
-	
-	            try {
-	                traverse(plugin, (SiteNode) pNode.getChildAt(i));
-	            } catch (Exception e) {
-	                log.error(e.getMessage(), e);
-	            }
-	        }
-		}
-
-
+        
+        if (parentScanner.scanChildren()) {
+			for (SiteNode pNode : parentNodes) {
+		        for (int i=0; i<pNode.getChildCount() && !isStop(); i++) {
+		            // ZAP: Implement pause and resume
+		            while (parentScanner.isPaused() && ! this.isStop()) {
+		            	Util.sleep(500);
+		            }
+		
+		            try {
+		                traverse(plugin, (SiteNode) pNode.getChildAt(i));
+		            } catch (Exception e) {
+		                log.error(e.getMessage(), e);
+		            }
+		        }
+			}
+        }
     }
-
+    
+	protected boolean nodeInScope(SiteNode node) {
+    	return parentScanner.urlInScope(node.getHierarchicNodeName());
+	}
+    
     /**
      * Create new plugin instance and run against a node
      * @param plugin
@@ -206,14 +211,14 @@ public class HostProcess implements Runnable {
             if (node == null || node.getHistoryReference() == null) {
                 return;
             }
+            if (! nodeInScope(node)) {
+				return;
+            }
             msg = node.getHistoryReference().getHttpMessage();
             
             if (msg == null) {
             	// Likely to be a temporary node
             	return;
-            }
-            if (parentScanner.excludeUrl(msg.getRequestHeader().getURI())) {
-				return;
             }
 
             test = plugin.getClass().newInstance();
@@ -321,4 +326,5 @@ public class HostProcess implements Runnable {
 	protected ScannerParam getScannerParam() {
 		return scannerParam;
 	}
+
 }

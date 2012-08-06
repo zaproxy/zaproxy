@@ -170,7 +170,7 @@ public class NotesAddDialog extends AbstractDialog {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
                     historyRef.setNote(getTxtDisplay().getText());
                     getTxtDisplay().discardAllEdits();
-                    extension.getHistoryList().notifyItemChanged(historyRef);
+                    extension.notifyHistoryItemChanged(historyRef);
 				    extension.hideNotesAddDialog();
 				}
 			});

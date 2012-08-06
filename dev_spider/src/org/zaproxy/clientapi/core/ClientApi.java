@@ -82,6 +82,13 @@ public class ClientApi {
 		accessUrlViaProxy(proxy, url);
 	}
 
+	public void newSession () throws Exception {
+		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newsession/?name=").toString();
+		if ( ! result.equals("[[\"OK\"]]")) {
+			throw new Exception("Unexpected result: " + result);
+		}
+	}
+
 	public void newSession (String name) throws Exception {
 		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newsession/?name=" + name).toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
@@ -134,6 +141,8 @@ public class ClientApi {
 								System.out.println("Found alert " + foundAlert);
 							}
 							requireAlerts.remove(requireAlert);
+							// Remove it from the not-ignored list as well
+							reportAlerts.remove(foundAlert);
 							break;
 						}
 					}

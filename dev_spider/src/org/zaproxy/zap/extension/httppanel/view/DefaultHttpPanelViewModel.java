@@ -21,34 +21,34 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 
 public class DefaultHttpPanelViewModel implements HttpPanelViewModel {
 	
-	protected HttpMessage httpMessage;
+	protected Message message;
 	
 	protected List<HttpPanelViewModelListener> listeners;
 	
 	public DefaultHttpPanelViewModel() {
 		listeners = new ArrayList<HttpPanelViewModelListener>(2);
-		httpMessage = null;
+		message = null;
 	}
 	
 	@Override
-	public void setHttpMessage(HttpMessage httpMessage) {
-		this.httpMessage = httpMessage;
+	public void setMessage(Message aMessage) {
+		this.message = aMessage;
 		
 		fireDataChanged();
 	}
 	
 	@Override
-	public HttpMessage getHttpMessage() {
-		return httpMessage;
+	public Message getMessage() {
+		return message;
 	}
 	
 	@Override
 	public void clear() {
-		httpMessage = null;
+		message = null;
 		
 		fireDataChanged();
 	}

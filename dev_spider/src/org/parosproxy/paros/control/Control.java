@@ -27,6 +27,13 @@
 // ZAP: 2012/04/23 Changed the method shutdown(boolean) to save the configurations
 // of the main http panels and save the configuration file.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/05/16 Added new initialization method plus ctor for testing purposes.
+// ZAP: 2012/06/25 Moved call of init() from ctor to singleton methods to
+// initialize singleton variable first. Allows to retrieve the singleton while
+// not fully initialized (e.g.: to get another extension in the hook() method of
+// and extension).
+// ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
+// ZAP: 2012/08/01 Issue 332: added support for Modes
 
 package org.parosproxy.paros.control;
 
@@ -49,21 +56,28 @@ import org.zaproxy.zap.control.ExtensionFactory;
  */
 public class Control extends AbstractControl implements SessionListener {
 
+	public enum Mode {safe, protect, standard};
+	
     private static Logger log = Logger.getLogger(Control.class);
 
     private static Control control = null;
     private Proxy proxy = null;
     private MenuFileControl menuFileControl = null;
     private MenuToolsControl menuToolsControl = null;
-    
     private SessionListener lastCallback = null;
+	private Mode mode = null;
     
     private Control(Model model, View view) {
         super(model, view);
-        init();
+        // ZAP: moved call of init() to singleton methods
     }
     
-    private void init() {
+    // ZAP: Added constructor that will be used by initSingletonForTesting()
+    private Control() {
+		super(null, null);
+	}
+
+	private void init() {
         
         PluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
         		
@@ -140,11 +154,20 @@ public class Control extends AbstractControl implements SessionListener {
 
     public static void initSingletonWithView() {
         control = new Control(Model.getSingleton(), View.getSingleton());
+        control.init();
+        // Initialise the mode
+        control.setMode(control.getMode());
     }
     
     public static void initSingletonWithoutView() {
         control = new Control(Model.getSingleton(), null);
+        control.init();
     }
+
+    // ZAP: Added method to allow for testing
+	public static void initSingletonForTesting() {
+        control = new Control();
+	}
 
     
     public void runCommandLineNewSession(String fileName) throws Exception {
@@ -237,5 +260,21 @@ public class Control extends AbstractControl implements SessionListener {
 			lastCallback.sessionSaved(e);
 			lastCallback = null;
 		}
+	}
+	
+	public void sessionScopeChanged() {
+		getExtensionLoader().sessionScopeChangedAllPlugin(model.getSession());
+	}
+	
+	public Mode getMode() {
+		if (mode == null) {
+			mode = Mode.valueOf(model.getOptionsParam().getViewParam().getMode());
+		}
+		return mode;
+	}
+	public void setMode(Mode mode) {
+		this.mode = mode;
+		getExtensionLoader().sessionModeChangedAllPlugin(mode);
+		model.getOptionsParam().getViewParam().setMode(mode.name());
 	}
 }

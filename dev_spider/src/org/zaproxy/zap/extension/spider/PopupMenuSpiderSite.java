@@ -68,7 +68,7 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-	    	extension.spiderSite(node, false);
+	    	extension.spiderSite(node, true);
 	    }
 	}
 

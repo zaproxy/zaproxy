@@ -38,6 +38,7 @@ import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -381,4 +382,13 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
     @Override
     public void sessionChanged(Session session) {
     }
+    
+	@Override
+	public void sessionScopeChanged(Session session) {
+	}
+
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Ignore
+	}
 }

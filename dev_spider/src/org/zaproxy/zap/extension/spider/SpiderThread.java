@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.spider;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 
@@ -33,13 +34,12 @@ import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.utils.SortedListModel;
 
 public class SpiderThread extends ScanThread implements ScanListenner, SpiderListener {
 
-	private String site;
+	private String site = "";
 	private SortedListModel list;
 	private boolean stopScan = false;
 	private boolean isPaused = false;
@@ -50,14 +50,14 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	private Spider spider = null;
 	private SiteNode startNode = null;
 
-	LinkedList<SpiderListener> pendingSpiderListeners;
+	private List<SpiderListener> pendingSpiderListeners;
 
 	private int spiderDone = 0;
 	private int spiderTodo = 100; // Will get updated ;)
 
-	private static Logger log = Logger.getLogger(SpiderThread.class);
+	private static final Logger log = Logger.getLogger(SpiderThread.class);
 
-	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner, SpiderParam portScanParam) {
+	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
 		super(site, listenner);
 		this.extension = extension;
 		this.site = site;
@@ -310,6 +310,7 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.startNode = startNode;
 	}
 
+	@Override
 	public void reset() {
 		this.list = new SortedListModel();
 	}
@@ -323,6 +324,22 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.pendingSpiderListeners.add(listener);
 		if (spider != null)
 			this.spider.addSpiderListener(listener);
+	}
+
+	@Override
+	public void setJustScanInScope(boolean scanInScope) {
+		// TODO Implement
+	}
+
+	@Override
+	public boolean getJustScanInScope() {
+		// TODO Implement
+		return false;
+	}
+
+	@Override
+	public void setScanChildren(boolean scanChildren) {
+		// TODO Implement
 	}
 
 }

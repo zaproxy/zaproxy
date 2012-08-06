@@ -21,61 +21,82 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import org.apache.commons.configuration.FileConfiguration;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 
+
 public interface HttpPanelComponentInterface {
 	
-	/**
-	 * 
-	 * @return 
-	 */
 	// Name of the component for internal reference.
-	public String getName();
+	String getName();
+	
+	int getPosition();
 	
 	// Component has to provide the button which is displayed in the HttpPanel to select this view
-	public JToggleButton getButton();
+	
+	JToggleButton getButton();
 	
 	// Component needs to provide a panel with main content which is displayed in HttpPanel
-	public JPanel getMainPanel();
+	
+	JPanel getMainPanel();
 	
 	// Component can provide an additional panel which is displayed in the HttpPanel header when this view is selected
-	public JPanel getOptionsPanel();
 	
-	// Set a new HttpMessage for this Component
+	JPanel getOptionsPanel();
+	
+    JPanel getMoreOptionsPanel();
+	
+	// Set a new Message for this Component
 	// For example, the user selects a new message in the history tab. 
 	// The component should update it's models accordingly.
-	public void setHttpMessage(HttpMessage httpMessage);
 	
-	// The component is requested to save data from the UI into the current HttpMessage.
+	void setMessage(Message aMessage);
+	
+	// The component is requested to save data from the UI into the current Message.
 	// For example, the user selects a new message in the history tab. Or in break mode, want to send the modified message. 
-	public void save();
 	
-	public void addView(HttpPanelView view, Object options, FileConfiguration fileConfiguration);
+	void save();
 	
-	public void removeView(String viewName, Object options);
 	
-	public void clearView();
+	void addView(HttpPanelView view, Object options, FileConfiguration fileConfiguration);
 	
-	public void clearView(boolean enableViewSelect);
 	
-	public void setEnableViewSelect(boolean enableViewSelect);
+	void removeView(String viewName, Object options);
 	
-	public void addDefaultViewSelector(HttpPanelDefaultViewSelector defaultViewSelector, Object options);
 	
-	public void removeDefaultViewSelector(String defaultViewSelectorName, Object options);
+	void clearView();
 	
-	public void setParentConfigurationKey(String configurationKey);
 	
-	public void loadConfig(FileConfiguration fileConfiguration);
+	void clearView(boolean enableViewSelect);
 	
-	public void saveConfig(FileConfiguration fileConfiguration);
 	
-	public void setEditable(boolean editable);
+	void setEnableViewSelect(boolean enableViewSelect);
+	
+	
+	void addDefaultViewSelector(HttpPanelDefaultViewSelector defaultViewSelector, Object options);
+	
+	
+	void removeDefaultViewSelector(String defaultViewSelectorName, Object options);
+	
+	
+	void setParentConfigurationKey(String configurationKey);
+	
+	
+	void loadConfig(FileConfiguration fileConfiguration);
+	
+	
+	void saveConfig(FileConfiguration fileConfiguration);
+	
+	
+	void setEditable(boolean editable);
 	
 	// Used to inform the view if it was selected/unselected
-	public void setSelected(boolean selected);
+	
+	void setSelected(boolean selected);
+	
+	
+    boolean isEnabled(Message aMessage);
 
 
 }
