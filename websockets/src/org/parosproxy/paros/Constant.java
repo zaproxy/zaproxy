@@ -390,7 +390,7 @@ public final class Constant {
         	System.out.println("Failed to initialise locale " + e);
         }
         
-	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
+	    messages = ResourceBundle.getBundle("lang." + MESSAGES_PREFIX, locale);
     }
     
     private void copyProperty(XMLConfiguration fromConfig, XMLConfiguration toConfig, String key) {
@@ -428,7 +428,7 @@ public final class Constant {
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         locale = new Locale(langArray[0], langArray[1]);
-	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
+	    messages = ResourceBundle.getBundle("lang." + MESSAGES_PREFIX, locale);
     }
 	
 	public static Locale getLocale () {

@@ -48,7 +48,9 @@ import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyServer;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.security.SslCertificateServiceImpl;
@@ -80,8 +82,14 @@ public abstract class BaseZapProxyTest {
 		initializeProxySettings();
 		initializeLocalSecurity();
 		initializeRootCertificate();
+		initializeLocale();
 	}
 	
+	private static void initializeLocale() throws Exception {
+		Constant.setLocale("de_DE");
+		Model.getSingleton().init();
+	}
+
 	/**
 	 * Set up logging levels, to ease debugging of tests.
 	 * @throws IOException 
@@ -98,7 +106,7 @@ public abstract class BaseZapProxyTest {
 			httpClientLogger.setLevel(Level.DEBUG);
 
 			Logger httpWireLogger = rootLogger.getLoggerRepository().getLogger("org.apache.commons.wire");
-//			httpWireLogger.addAppender(new FileAppender(new PatternLayout("%5p [%c] %m%n"), "wire.log"));
+//			httpWireLogger.addAppender(new org.apache.log4j.FileAppender(new PatternLayout("%5p [%c] %m%n"), "wire.log"));
 			httpWireLogger.setLevel(Level.DEBUG);
 		}
 	}
