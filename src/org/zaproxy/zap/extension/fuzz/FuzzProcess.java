@@ -76,7 +76,7 @@ public class FuzzProcess  implements Runnable {
 			// To support wizards etc need to loop back up the messages for previous tokens
 			try {
 				HttpMessage tokenMsg = this.acsrfToken.getMsg().cloneAll();
-				HttpSender httpSender = new HttpSender(connectionParam, true);
+				HttpSender httpSender = new HttpSender(connectionParam, true, HttpSender.FUZZER_INITIATOR);
 
 				httpSender.sendAndReceive(tokenMsg);
 
@@ -113,7 +113,7 @@ public class FuzzProcess  implements Runnable {
 			// Correct the content length for the above changes
 	        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 			
-			HttpSender httpSender = new HttpSender(connectionParam, true);
+			HttpSender httpSender = new HttpSender(connectionParam, true, HttpSender.FUZZER_INITIATOR);
 			if (followRedirects) {
 				httpSender.setFollowRedirect(true);
 			}

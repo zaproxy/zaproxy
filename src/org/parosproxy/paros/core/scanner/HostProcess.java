@@ -29,6 +29,7 @@
 // creating a new Long.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
+// ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,7 +74,7 @@ public class HostProcess implements Runnable {
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
-        httpSender = new HttpSender(connectionParam, true);
+        httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         if (scannerParam.getHandleAntiCSRFTokens()) {
         	// Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
         	threadPool = new ThreadPool(1);

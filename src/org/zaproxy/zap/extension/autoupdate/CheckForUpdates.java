@@ -160,7 +160,7 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 
     private HttpSender getHttpSender() {
         if (httpSender == null) {
-            httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true);
+            httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true, HttpSender.CHECK_FOR_UPDATES_INITIATOR);
         }
         return httpSender;
     }

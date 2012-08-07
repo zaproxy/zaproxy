@@ -30,6 +30,8 @@
 // method processHttp().
 // ZAP: 2012/05/11 Do not close connections in final clause of run() method,
 // if boolean attribute keepSocketOpen is set to true.
+// ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
+
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -620,7 +622,7 @@ class ProxyThread implements Runnable {
 	protected HttpSender getHttpSender() {
 
 	    if (httpSender == null) {
-		    httpSender = new HttpSender(connectionParam, true);
+		    httpSender = new HttpSender(connectionParam, true, HttpSender.PROXY_INITIATOR);
 		}
 
 	    return httpSender;
