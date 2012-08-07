@@ -64,12 +64,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	/** The spider panel. */
 	private SpiderPanel spiderPanel = null;
 
-	/** The popup menu spider. */
-	private PopupMenuSpider popupMenuSpider = null;
-
-	/** The popup menu spider site. */
-	private PopupMenuSpiderSite popupMenuSpiderSite = null;
-
 	/** The options spider panel. */
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 
@@ -122,7 +116,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			ExtensionHookView pv = extensionHook.getHookView();
 			pv.addStatusPanel(getSpiderPanel());
 			pv.addOptionPanel(getOptionsSpiderPanel());
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite());
 			ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 		}
 
@@ -219,33 +212,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void nodeSelected(SiteNode node) {
 		this.getSpiderPanel().nodeSelected(node, true);
-	}
-
-	/**
-	 * Gets the popup menu spider.
-	 * 
-	 * @return the popup menu spider
-	 */
-	@SuppressWarnings("unused")
-	private PopupMenuSpider getPopupMenuSpider() {
-		if (popupMenuSpider == null) {
-			popupMenuSpider = new PopupMenuSpider();
-			popupMenuSpider.setExtension(this);
-		}
-		return popupMenuSpider;
-	}
-
-	/**
-	 * Gets the popup menu spider site.
-	 * 
-	 * @return the popup menu spider site
-	 */
-	private PopupMenuSpiderSite getPopupMenuSpiderSite() {
-		if (popupMenuSpiderSite == null) {
-			popupMenuSpiderSite = new PopupMenuSpiderSite(Constant.messages.getString("spider.site.popup"));
-			// popupMenuSpider.setExtensionSite(this);
-		}
-		return popupMenuSpiderSite;
 	}
 
 	/**
@@ -354,5 +320,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		this.getSpiderPanel().sessionModeChanged(mode);
+	}
+
+	public void startScanNode(SiteNode node) {
+		this.getSpiderPanel().scanNode(node, true);		
+	}
+
+	public void startScanAllInScope() {
+		this.getSpiderPanel().scanAllInScope();
+	}
+
+	public void startScan(SiteNode startNode) {
+		this.getSpiderPanel().scanSite(startNode, true);
 	}
 }

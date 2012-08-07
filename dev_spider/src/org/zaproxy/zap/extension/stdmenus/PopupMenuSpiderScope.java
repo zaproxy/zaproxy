@@ -22,11 +22,12 @@ import javax.swing.ImageIcon;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
 
-public class PopupMenuSpiderSite extends PopupMenuSiteNode {
+public class PopupMenuSpiderScope extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 1L;
     private ExtensionSpider extension = null;
@@ -34,9 +35,9 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
     /**
      * @param label
      */
-    public PopupMenuSpiderSite(String label) {
+    public PopupMenuSpiderScope(String label) {
         super(label);
-        this.setIcon(new ImageIcon(PopupMenuSpiderSite.class.getResource("/resource/icon/16/spider.png")));
+        this.setIcon(new ImageIcon(PopupMenuSpiderScope.class.getResource("/resource/icon/16/spider.png")));
     }
     
     private ExtensionSpider getExtensionSpider() {
@@ -63,13 +64,7 @@ public class PopupMenuSpiderSite extends PopupMenuSiteNode {
 
 	@Override
 	public void performAction(SiteNode node) throws Exception {
-	    if (node != null) {
-	    	// Loop up to get the top parent
-			while (node.getParent() != null && node.getParent().getParent() != null) {
-				node = (SiteNode) node.getParent();
-			}
-	    	getExtensionSpider().startScan(node);
-	    }
+		extension.startScanAllInScope();
 	}
 
 	@Override
