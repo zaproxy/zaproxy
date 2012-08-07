@@ -30,6 +30,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
+// ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
@@ -103,7 +104,7 @@ public class HostProcess implements Runnable {
             plugin = getPluginFactory().nextPlugin();
             if (plugin != null) {
             	plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-            	plugin.setDefaultLevel(this.scannerParam.getLevel());
+            	plugin.setDefaultAlertThreshold(this.scannerParam.getLevel());
                 processPlugin(plugin);
             } else {
                 // waiting for dependency - no test ready yet
@@ -117,7 +118,7 @@ public class HostProcess implements Runnable {
     }
     
     private void processPlugin(Plugin plugin) {
-        log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + " level " + plugin.getLevel());
+        log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + " level " + plugin.getAlertThreshold());
         mapPluginStartTime.put(Long.valueOf(plugin.getId()), Long.valueOf(System.currentTimeMillis()));
         if (plugin instanceof AbstractHostPlugin) {
             scanSingleNode(plugin, startNode);
@@ -225,7 +226,7 @@ public class HostProcess implements Runnable {
             test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
             test.setDelayInMs(plugin.getDelayInMs());
-        	test.setDefaultLevel(plugin.getLevel());
+        	test.setDefaultAlertThreshold(plugin.getAlertThreshold());
             test.init(msg, this);
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 

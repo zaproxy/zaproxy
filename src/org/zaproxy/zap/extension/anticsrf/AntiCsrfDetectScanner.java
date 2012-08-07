@@ -27,7 +27,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Plugin.Level;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
@@ -121,13 +121,13 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 	}
 
 	@Override
-	public Level getLevel() {
+	public AlertThreshold getLevel() {
 		// Always this level
-		return Level.MEDIUM;
+		return AlertThreshold.MEDIUM;
 	}
 
 	@Override
-	public void setLevel(Level level) {
+	public void setLevel(AlertThreshold level) {
 		// Ignore
 	}
 
