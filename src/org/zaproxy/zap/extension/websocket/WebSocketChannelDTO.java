@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.websocket;
 import java.sql.SQLException;
 
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
 public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
@@ -105,6 +106,10 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		} catch (SQLException e) {
 			return null;
 		}
+	}
+
+	public boolean isInScope() {
+		return Model.getSingleton().getSession().isInScope(this.url);
 	}
 
 	public String toString() {

@@ -87,9 +87,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	public static final ImageIcon disconnectIcon;
 	public static final ImageIcon connectIcon;
 	
+	public static final ImageIcon disconnectTargetIcon;
+	public static final ImageIcon connectTargetIcon;
+	
 	static {
 		disconnectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-disconnect.png"));
 		connectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-connect.png"));
+		
+		disconnectTargetIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-disconnect-target.png"));
+		connectTargetIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-connect-target.png"));
 	};
 
 	private JToolBar panelToolbar = null;
