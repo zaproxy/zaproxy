@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -45,12 +44,14 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	private List<SpiderScanResult> scanResults;
 
 	/** The Constant inScopeIcon. */
-	private static final ImageIcon inScopeIcon;
-	private static final ImageIcon outOfScopeIcon;
+	private static final ImageIcon skippedIcon;
+
+	/** The Constant outOfScopeIcon. */
+	private static final ImageIcon notSkippedIcon;
 
 	static {
-		inScopeIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/102.png"));
-		outOfScopeIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/146.png"));
+		skippedIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/149.png"));
+		notSkippedIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/152.png"));
 	}
 
 	/**
@@ -60,11 +61,11 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		super();
 		columnNames = new Vector<String>(COLUMN_COUNT);
 		columnNames.add(Constant.messages.getString("spider.table.header.inScope"));
-		columnNames.add(Constant.messages.getString("spider.table.header.uri"));
 		columnNames.add(Constant.messages.getString("spider.table.header.method"));
+		columnNames.add(Constant.messages.getString("spider.table.header.uri"));
 		columnNames.add(Constant.messages.getString("spider.table.header.flags"));
 
-		scanResults = Collections.synchronizedList(new ArrayList<SpiderScanResult>());
+		scanResults = new ArrayList<SpiderScanResult>();
 	}
 
 	@Override
@@ -82,14 +83,14 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		SpiderScanResult result = scanResults.get(row);
 		switch (col) {
 		case 0:
-			if (result.inScope)
-				return inScopeIcon;
+			if (result.skipped)
+				return skippedIcon;
 			else
-				return outOfScopeIcon;
+				return notSkippedIcon;
 		case 1:
-			return result.uri;
-		case 2:
 			return result.method;
+		case 2:
+			return result.uri;
 		case 3:
 			return result.flags;
 		default:
@@ -103,14 +104,17 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Removes all the elements.
+	 * Removes all the elements. Method is synchronized internally.
 	 */
 	public void removeAllElements() {
-		scanResults.clear();
+		synchronized (scanResults) {
+			scanResults.clear();
+			fireTableDataChanged();
+		}
 	}
 
 	/**
-	 * Adds a new spider scan result.
+	 * Adds a new spider scan result. Method is synchronized internally.
 	 * 
 	 * @param uri the uri
 	 * @param method the method
@@ -119,8 +123,27 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 */
 	public void addScanResult(String uri, String method, String flags, boolean inScope) {
 		SpiderScanResult result = new SpiderScanResult(uri, method, flags, inScope);
-		scanResults.add(result);
-		fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
+		synchronized (scanResults) {
+			scanResults.add(result);
+			fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
+		}
+	}
+
+	/**
+	 * Removes the scan result for a particular uri and method. Method is synchronized internally.
+	 * 
+	 * @param uri the uri
+	 * @param method the method
+	 */
+	public void removesScanResult(String uri, String method) {
+		SpiderScanResult toRemove = new SpiderScanResult(uri, method);
+		synchronized (scanResults) {
+			int index = scanResults.indexOf(toRemove);
+			if (index >= 0) {
+				scanResults.remove(index);
+				fireTableRowsDeleted(index, index);
+			}
+		}
 	}
 
 	/**
@@ -145,18 +168,6 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * Removes the scan result for a particular uri and method.
-	 * 
-	 * @param uri the uri
-	 * @param method the method
-	 */
-	public void removesScanResult(String uri, String method) {
-
-		scanResults.remove(new SpiderScanResult(uri, method));
-
-	}
-
-	/**
 	 * The Class SpiderScanResult that stores an entry in the table (a result for the spidering
 	 * process).
 	 */
@@ -172,7 +183,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		protected String flags;
 
 		/** The in scope. */
-		protected boolean inScope;
+		protected boolean skipped;
 
 		/**
 		 * Instantiates a new spider scan result.
@@ -192,21 +203,20 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		 * @param uri the uri
 		 * @param method the method
 		 * @param flags the flags
-		 * @param inScope the in scope
+		 * @param skipped the in scope
 		 */
-		protected SpiderScanResult(String uri, String method, String flags, boolean inScope) {
+		protected SpiderScanResult(String uri, String method, String flags, boolean skipped) {
 			super();
 			this.uri = uri;
 			this.method = method;
 			this.flags = flags;
-			this.inScope = inScope;
+			this.skipped = skipped;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + getOuterType().hashCode();
 			result = prime * result + ((method == null) ? 0 : method.hashCode());
 			result = prime * result + ((uri == null) ? 0 : uri.hashCode());
 			return result;
@@ -218,11 +228,8 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 				return true;
 			if (obj == null)
 				return false;
-			if (getClass() != obj.getClass())
-				return false;
+			// Removed some irrelevant checks, to speed up the method.
 			SpiderScanResult other = (SpiderScanResult) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
 			if (method == null) {
 				if (other.method != null)
 					return false;
@@ -235,15 +242,5 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 				return false;
 			return true;
 		}
-
-		/**
-		 * Gets the outer type.
-		 * 
-		 * @return the outer type
-		 */
-		private SpiderPanelTableModel getOuterType() {
-			return SpiderPanelTableModel.this;
-		}
 	}
-
 }

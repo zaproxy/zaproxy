@@ -109,13 +109,14 @@ public class SpiderTask implements Runnable {
 		// persist it in the database using HistoryReference
 		try {
 			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
-			if (cookies != null) 
+			if (cookies != null)
 				msg.setCookies(cookies);
 			if (requestBody != null) {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
 			}
-			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER_SEED,
+					msg);
 		} catch (HttpMalformedHeaderException e) {
 			log.error("Error while building HttpMessage for uri: " + uri, e);
 		} catch (SQLException e) {

@@ -24,10 +24,10 @@ import org.parosproxy.paros.model.SiteNode;
 
 public abstract class ScanThread extends Thread implements GenericScanner {
 
-	private String site;
-	private ScanListenner listenner;
-	private int progress = 0;
-	private SiteNode startNode = null;
+	protected String site;
+	protected ScanListenner listenner;
+	protected int progress = 0;
+	protected SiteNode startNode = null;
 	
 	public ScanThread (String site, ScanListenner listenner) {
 		this.site = site;

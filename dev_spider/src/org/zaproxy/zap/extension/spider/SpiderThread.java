@@ -31,59 +31,86 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-import org.zaproxy.zap.utils.SortedListModel;
 
-public class SpiderThread extends ScanThread implements ScanListenner, SpiderListener {
+/**
+ * The Class SpiderThread that controls the spidering process on a particular site. Being a
+ * ScanThread, it also handles the update of the graphical UI and any other "extension-level"
+ * required actions.
+ */
+public class SpiderThread extends ScanThread implements SpiderListener {
 
-	private String site = "";
-	private SortedListModel list;
+	/** Whether the scanning process is stopped. */
 	private boolean stopScan = false;
+
+	/** Whether the scanning process is paused. */
 	private boolean isPaused = false;
-	private ScanListenner listenner;
-	private int progress = 0;
+
+	/** The related extension. */
 	private ExtensionSpider extension;
 
+	/** The spider. */
 	private Spider spider = null;
-	private SiteNode startNode = null;
 
+	/** The pending spider listeners which will be added to the Spider as soon at is initialized. */
 	private List<SpiderListener> pendingSpiderListeners;
 
+	/** The spider done. */
 	private int spiderDone = 0;
+
+	/** The spider todo. */
 	private int spiderTodo = 100; // Will get updated ;)
 
+	/** The Constant log used for logging. */
 	private static final Logger log = Logger.getLogger(SpiderThread.class);
 
+	/** The just scan in scope. */
+	private boolean justScanInScope = false;
+
+	/** The scan children. */
+	private boolean scanChildren = false;
+
+	/**
+	 * Instantiates a new spider thread.
+	 * 
+	 * @param extension the extension
+	 * @param site the site
+	 * @param listenner the scan listener
+	 */
 	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
 		super(site, listenner);
 		this.extension = extension;
 		this.site = site;
-		this.listenner = listenner;
 		this.pendingSpiderListeners = new LinkedList<SpiderListener>();
-
-		this.list = new SortedListModel();
-		log.debug("Spider : " + site);
+		log.debug("Initializing spider thread for site: " + site);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see java.lang.Thread#run() */
 	@Override
 	public void run() {
 		runScan();
 	}
 
+	/**
+	 * Runs the scan.
+	 */
 	private void runScan() {
 		// Do the scan
 		spiderDone = 0;
 		Date start = new Date();
-		log.debug("Starting scan on " + site + " at " + start);
-		list.clear();
+		log.info("Starting spidering scan on " + site + " at " + start);
 		startSpider();
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#stopScan() */
 	@Override
 	public void stopScan() {
 		if (spider != null) {
@@ -93,39 +120,26 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.listenner.scanFinshed(site);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#isStopped() */
 	@Override
 	public boolean isStopped() {
 		return stopScan;
 	}
 
-	@Override
-	public String getSite() {
-		return site;
-	}
-
-	@Override
-	public int getProgress() {
-		return this.spiderDone;
-	}
-
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#getList() */
 	@Override
 	public DefaultListModel getList() {
-		return list;
+		// Not used, as the SpiderPanel is relying on a TableModel
+		return null;
 	}
 
-	@Override
-	public void scanFinshed(String host) {
-		// Ignore
-	}
-
-	@Override
-	public void scanProgress(String host, int progress, int maximum) {
-		if (progress > this.progress) {
-			this.progress = progress;
-			this.listenner.scanProgress(site, progress, maximum);
-		}
-	}
-
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#pauseScan() */
 	@Override
 	public void pauseScan() {
 		if (spider != null) {
@@ -134,6 +148,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.isPaused = true;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#resumeScan() */
 	@Override
 	public void resumeScan() {
 		if (spider != null) {
@@ -142,16 +159,25 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.isPaused = false;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#isPaused() */
 	@Override
 	public boolean isPaused() {
 		return this.isPaused;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#getMaximum() */
 	@Override
 	public int getMaximum() {
 		return this.spiderDone + this.spiderTodo;
 	}
 
+	/**
+	 * Start spider.
+	 */
 	public void startSpider() {
 		if (startNode == null) {
 			log.error("Spider: No start node set for site " + site);
@@ -166,12 +192,6 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 						.getTableHistory()
 						.deleteHistoryType(extension.getModel().getSession().getSessionId(),
 								HistoryReference.TYPE_SPIDER_SEED);
-				extension
-						.getModel()
-						.getDb()
-						.getTableHistory()
-						.deleteHistoryType(extension.getModel().getSession().getSessionId(),
-								HistoryReference.TYPE_SPIDER_VISITED);
 
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
@@ -209,6 +229,12 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 	}
 
+	/**
+	 * In order seed.
+	 * 
+	 * @param spider the spider
+	 * @param node the node
+	 */
 	private void inOrderSeed(Spider spider, SiteNode node) {
 
 		try {
@@ -235,6 +261,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.spider.SpiderListener#spiderComplete(boolean) */
 	@Override
 	public void spiderComplete(boolean successful) {
 		try {
@@ -244,12 +273,6 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 					.getTableHistory()
 					.deleteHistoryType(extension.getModel().getSession().getSessionId(),
 							HistoryReference.TYPE_SPIDER_SEED);
-			extension
-					.getModel()
-					.getDb()
-					.getTableHistory()
-					.deleteHistoryType(extension.getModel().getSession().getSessionId(),
-							HistoryReference.TYPE_SPIDER_VISITED);
 
 		} catch (SQLException e) {
 			log.warn(e.getMessage(), e);
@@ -260,17 +283,24 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.spider.SpiderListener#foundURI(java.lang.String,
+	 * org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus) */
 	@Override
 	public void foundURI(String uri, FetchStatus status) {
 		if (extension.getView() != null) {
 			if (status == FetchStatus.VALID) {
-				extension.getSpiderPanel().addNewSpiderScanResult(uri, HttpRequestHeader.GET, null, true);
+				extension.getSpiderPanel().addSpiderScanResult(uri, HttpRequestHeader.GET, null, false);
 			} else {
-				extension.getSpiderPanel().addNewSpiderScanResult(uri, HttpRequestHeader.GET, status.toString(), false);
+				extension.getSpiderPanel().addSpiderScanResult(uri, HttpRequestHeader.GET, status.toString(), true);
 			}
 		}
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.spider.SpiderListener#readURI(org.parosproxy.paros.network.HttpMessage) */
 	@Override
 	public void readURI(HttpMessage msg) {
 
@@ -285,10 +315,9 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		}
 	}
 
-	public Spider getSpider() {
-		return spider;
-	}
-
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.spider.SpiderListener#spiderProgress(int, int, int) */
 	@Override
 	public void spiderProgress(final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
 		this.spiderDone = numberCrawled;
@@ -296,25 +325,29 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 		this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);
 	}
 
-	/**
-	 * @return Returns the startNode.
+
+	/* (non-Javadoc)
+	 * @see org.zaproxy.zap.model.ScanThread#getStartNode()
 	 */
 	@Override
 	public SiteNode getStartNode() {
 		return startNode;
 	}
 
-	/**
-	 * @param startNode The startNode to set.
+
+	/* (non-Javadoc)
+	 * @see org.zaproxy.zap.model.ScanThread#setStartNode(org.parosproxy.paros.model.SiteNode)
 	 */
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#reset() */
 	@Override
 	public void reset() {
-		this.list = new SortedListModel();
 	}
 
 	/**
@@ -323,25 +356,42 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	 * @param listener the listener
 	 */
 	public void addSpiderListener(SpiderListener listener) {
-		this.pendingSpiderListeners.add(listener);
 		if (spider != null)
 			this.spider.addSpiderListener(listener);
+		else
+			this.pendingSpiderListeners.add(listener);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#setJustScanInScope(boolean) */
 	@Override
 	public void setJustScanInScope(boolean scanInScope) {
-		// TODO Implement
+		this.justScanInScope = scanInScope;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#getJustScanInScope() */
 	@Override
 	public boolean getJustScanInScope() {
-		// TODO Implement
-		return false;
+		return justScanInScope;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#setScanChildren(boolean) */
 	@Override
 	public void setScanChildren(boolean scanChildren) {
-		// TODO Implement
+		this.scanChildren = scanChildren;
+	}
+
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#getProgress() */
+	@Override
+	public int getProgress() {
+		return this.progress;
 	}
 
 }
