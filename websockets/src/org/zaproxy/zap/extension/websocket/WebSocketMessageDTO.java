@@ -165,6 +165,6 @@ public class WebSocketMessageDTO implements Message {
 	
 	@Override
 	public boolean isInScope() {
-		return Model.getSingleton().getSession().isInScope(channel.url);
+		return channel.isInScope();
 	}
 }

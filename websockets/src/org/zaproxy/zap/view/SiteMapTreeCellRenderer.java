@@ -21,7 +21,6 @@ package org.zaproxy.zap.view;
 
 import java.awt.Component;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -65,9 +64,17 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			// WebSocket icon
 			ExtensionWebSocket extWebSocket = getExtWebSocket();
 			if (extWebSocket != null && extWebSocket.isConnected(getHttpMessageFromNode(value))) {
-				setIcon(getWebSocketConnectIcon());
+				if (node.isIncludedInScope()) {
+					setIcon(WebSocketPanel.connectTargetIcon);
+				} else {
+					setIcon(WebSocketPanel.connectIcon);
+				}
 			} else {
-				setIcon(getWebSocketDisconnectIcon());
+				if (node.isIncludedInScope()) {
+					setIcon(WebSocketPanel.disconnectTargetIcon);
+				} else {
+					setIcon(WebSocketPanel.disconnectIcon);
+				}
 			}
 		} else if (node != null) {
 			// folder / file icons with scope 'target' if relevant
@@ -137,7 +144,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	
 			if (node.getHistoryReference() != null) {
 				try {
-					// TODO: When a new session is created, a HttpMalformedHeaderException is received here.
+					// TODO: When a new session is created, a HttpMalformedHeaderException is received here, but why?
 					HttpMessage msg = node.getHistoryReference().getHttpMessage();
 	
 					return msg;
@@ -147,23 +154,5 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Initializes and returns the WebSockets icon for connected WebSockets.
-	 * 
-	 * @return
-	 */
-	private Icon getWebSocketConnectIcon() {
-		return WebSocketPanel.connectIcon;
-	}
-
-	/**
-	 * Initializes and returns the WebSockets icon for connected WebSockets.
-	 * 
-	 * @return
-	 */
-	private Icon getWebSocketDisconnectIcon() {
-		return WebSocketPanel.disconnectIcon;
 	}
 }

@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -153,11 +154,21 @@ public class WebSocketComponent implements HttpPanelComponentInterface, Searchab
 		if (message.tempUserObj instanceof Boolean) {
 			Boolean isConnected = (Boolean) message.tempUserObj;
 			
+			ImageIcon icon;
 			if (isConnected) {
-				buttonShowView.setIcon(WebSocketPanel.connectIcon);
+				if (aMessage.isInScope()) {
+					icon = WebSocketPanel.connectTargetIcon;
+				} else {
+					icon = WebSocketPanel.connectIcon;
+				}
 			} else {
-				buttonShowView.setIcon(WebSocketPanel.disconnectIcon);
+				if (aMessage.isInScope()) {
+					icon = WebSocketPanel.disconnectTargetIcon;
+				} else {
+					icon = WebSocketPanel.disconnectIcon;
+				}
 			}
+			buttonShowView.setIcon(icon);
 		}
 	}
 	

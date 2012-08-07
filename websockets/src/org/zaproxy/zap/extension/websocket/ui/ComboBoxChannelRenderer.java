@@ -49,9 +49,17 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer 
 			if (channel.id != null) {
 				Boolean isConnected = channel.isConnected();
 				if (isConnected != null && isConnected) {
-					setIcon(WebSocketPanel.connectIcon);
+					if (channel.isInScope()) {
+						setIcon(WebSocketPanel.connectTargetIcon);
+					} else {
+						setIcon(WebSocketPanel.connectIcon);
+					}
 				} else {
-					setIcon(WebSocketPanel.disconnectIcon);
+					if (channel.isInScope()) {
+						setIcon(WebSocketPanel.disconnectTargetIcon);
+					} else {
+						setIcon(WebSocketPanel.disconnectIcon);
+					}
 				}
 			} else {
 				// unset icon
