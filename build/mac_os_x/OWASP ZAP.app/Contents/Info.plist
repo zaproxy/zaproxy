@@ -42,7 +42,7 @@
 			<string>true</string>
 		</dict>
 		<key>VMOptions</key>
-		<string>-Xms256m -Xmx512m</string>
+		<string>-Xms256m -Xmx512m -XX:PermSize=256M</string>
 		<key>WorkingDirectory</key>
 		<string>$APP_PACKAGE/Contents/Resources/Java</string>
 	</dict>
