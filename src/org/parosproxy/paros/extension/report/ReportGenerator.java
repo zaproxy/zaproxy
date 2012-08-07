@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2011/11/04 Correct entityEncode
 // ZAP: 2011/12/19 Escape invalid XML characters
+// ZAP: 2012/08/07 synchronize calls on staticDateFormat
 
 package org.parosproxy.paros.extension.report;
 
@@ -222,7 +223,10 @@ public class ReportGenerator {
 	}
 
 	public static String getDateTimeString(Date dateTime) {
-	    return staticDateFormat.format(dateTime);
+		// ZAP: fix unsafe call to DateFormats
+		synchronized (staticDateFormat) {
+		    return staticDateFormat.format(dateTime);
+		}
 	}
 	
 }

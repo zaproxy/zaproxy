@@ -31,6 +31,7 @@
 // Added @Override to getSessionDialog() as exposed in ViewDelegate interface.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/08/07 Removed the unused method changeDisplayOption(int)
 
 package org.parosproxy.paros.view;
 
@@ -102,10 +103,7 @@ public class View implements ViewDelegate {
 		View.displayOption = displayOption;
 	}
 	
-	public void changeDisplayOption(int displayOption) {
-		View.displayOption = displayOption;
-		mainFrame.changeDisplayOption(displayOption);
-	}
+//  ZAP: Removed method changeDisplayOption(int)
 	
 	public void init() {
 		mainFrame = new MainFrame(displayOption);
