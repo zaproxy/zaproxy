@@ -26,7 +26,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
 import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
@@ -48,7 +48,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	/**
 	 * This list holds all erroneous messages for this view model.
 	 */
-	private List<WebSocketMessageDAO> erroneousMessages = new ArrayList<WebSocketMessageDAO>();
+	private List<WebSocketMessageDTO> erroneousMessages = new ArrayList<WebSocketMessageDTO>();
 
 	private Integer currentFuzzId = -1;
 
@@ -96,13 +96,13 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	 * Return values of new columns.
 	 */
 	@Override
-	public Object getWebSocketValueAt(WebSocketMessageDAO dao, int columnIndex) {
-		if (dao instanceof WebSocketFuzzMessageDAO) {
-			WebSocketFuzzMessageDAO fuzzDao = (WebSocketFuzzMessageDAO) dao;
+	public Object getWebSocketValueAt(WebSocketMessageDTO message, int columnIndex) {
+		if (message instanceof WebSocketFuzzMessageDTO) {
+			WebSocketFuzzMessageDTO fuzzMessage = (WebSocketFuzzMessageDTO) message;
 			switch (columnIndex) {
 			case 6:
 		        String state = "";
-		        switch (fuzzDao.state) {
+		        switch (fuzzMessage.state) {
 		        case SUCCESSFUL:
 		            state = msgSuccess;
 		            break;
@@ -113,10 +113,10 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		        return state;
 		        
 		    case 7:
-		        return fuzzDao.fuzz;
+		        return fuzzMessage.fuzz;
 			}
 		}
-		return super.getWebSocketValueAt(dao, columnIndex);
+		return super.getWebSocketValueAt(message, columnIndex);
 	}
 
 	/**
@@ -139,10 +139,10 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	 * Row count is determined by size of messages list.
 	 */
 	@Override
-	protected WebSocketMessageDAO getCriterionDao() {
-		WebSocketFuzzMessageDAO dao = new WebSocketFuzzMessageDAO();
-		dao.fuzzId = currentFuzzId;
-		return dao;
+	protected WebSocketMessageDTO getCriterionMessage() {
+		WebSocketFuzzMessageDTO fuzzMessage = new WebSocketFuzzMessageDTO();
+		fuzzMessage.fuzzId = currentFuzzId;
+		return fuzzMessage;
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	 * 
 	 * @param message
 	 */
-	public void addErroneousWebSocketMessage(WebSocketFuzzMessageDAO message) {
+	public void addErroneousWebSocketMessage(WebSocketFuzzMessageDTO message) {
 		if (currentFuzzId != null && currentFuzzId.equals(getFuzzId(message))) {
 			erroneousMessages.add(message);
 			
@@ -165,11 +165,11 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 	
 	@Override
-	public void fireMessageArrived(WebSocketMessageDAO message) {
+	public void fireMessageArrived(WebSocketMessageDTO message) {
 		Integer fuzzId = getFuzzId(message);
 		if (fuzzId != null) {
 			if (currentFuzzId .equals(fuzzId)) {
-				logger.info("new fuzzed message sent #" + message.channelId + "." + message.messageId);
+				logger.info("new fuzzed message sent #" + message.channel.id + "." + message.id);
 				super.fireMessageArrived(message);
 			} else {
 				currentFuzzId = fuzzId;
@@ -179,9 +179,9 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		}
 	}
 
-	private Integer getFuzzId(WebSocketMessageDAO message) {
-		if (message instanceof WebSocketFuzzMessageDAO) {
-			return ((WebSocketFuzzMessageDAO) message).fuzzId;
+	private Integer getFuzzId(WebSocketMessageDTO message) {
+		if (message instanceof WebSocketFuzzMessageDTO) {
+			return ((WebSocketFuzzMessageDTO) message).fuzzId;
 		}
 		return null;
 	}
@@ -198,7 +198,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 	
 	@Override
-	protected List<WebSocketMessageDAO> loadPage(int offset, int length) {
+	protected List<WebSocketMessageDTO> loadPage(int offset, int length) {
 		// erroneous messages are put onto the end of list
 		int sqlRowCount = super.getRowCount();
 		synchronized (erroneousMessages) {
@@ -206,10 +206,10 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		
 			if ((offset + 1) >= sqlRowCount) {
 				offset = offset - (sqlRowCount - 1);
-				return new ArrayList<WebSocketMessageDAO>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
+				return new ArrayList<WebSocketMessageDTO>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
 			} else if (offset + length >= sqlRowCount) {
 				int sqlLength = sqlRowCount - offset;
-				List<WebSocketMessageDAO> page = super.loadPage(offset, sqlLength);
+				List<WebSocketMessageDTO> page = super.loadPage(offset, sqlLength);
 				page.addAll(erroneousMessages.subList(0, Math.min(erroneousRowCount, length - sqlLength)));
 				return page;
 			} else {

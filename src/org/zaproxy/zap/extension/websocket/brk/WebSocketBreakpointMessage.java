@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
@@ -44,7 +44,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	
 	/**
 	 * Break on specified pattern that has to match on the
-	 * {@link WebSocketMessageDAO#payload} or arbitrary payload if null.
+	 * {@link WebSocketMessageDTO#payload} or arbitrary payload if null.
 	 */
 	private Pattern payloadPattern;
 
@@ -118,9 +118,9 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
 	@Override
 	public boolean match(Message aMessage, boolean onlyIfInScope) {
-	    if (aMessage instanceof WebSocketMessageDAO) {
+	    if (aMessage instanceof WebSocketMessageDTO) {
 	    	// TODO: Add query for only if in scope!
-	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
+	        WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
 	        
 	        if (opcode != null) {
 		        if (!msg.readableOpcode.equals(opcode)) {
@@ -129,7 +129,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        }
 	        
 	        if (channelId != null) {
-	        	if (!channelId.equals(msg.channelId)) {
+	        	if (!channelId.equals(msg.channel.id)) {
 		        	return false;
 		        }
 	        }

@@ -31,7 +31,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 
 public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
@@ -70,7 +70,7 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
 
 	    @Override
 	    public Class<? extends Message> getMessageClass() {
-	        return WebSocketMessageDAO.class;
+	        return WebSocketMessageDTO.class;
 	    }
 	    
 	    @Override
@@ -81,10 +81,10 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
 	            return false;
 	        }
 	        
-	        WebSocketMessageDAO message = (WebSocketMessageDAO) getMessage();
+	        WebSocketMessageDTO message = (WebSocketMessageDTO) getMessage();
 	        
 	        // do not allow to fuzz if there is no active connection
-	        if (!extWebSocket.isConnected(message.channelId)) {
+	        if (!extWebSocket.isConnected(message.channel.id)) {
 	        	return false;
 	        }
 	        
@@ -103,7 +103,7 @@ public class WebSocketSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTe
 
         @Override
         public FuzzableMessage getFuzzableMessage() {
-            return new WebSocketFuzzableTextMessage((WebSocketMessageDAO)getMessage(), getSelectionStart(), getSelectionEnd());
+            return new WebSocketFuzzableTextMessage((WebSocketMessageDTO)getMessage(), getSelectionStart(), getSelectionEnd());
         }
 
         @Override

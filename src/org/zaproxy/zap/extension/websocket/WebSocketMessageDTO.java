@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
@@ -29,17 +30,18 @@ import org.zaproxy.zap.extension.httppanel.Message;
  * decouple user interface representation from version specific
  * {@link WebSocketMessage}.
  */
-public class WebSocketMessageDAO implements Message {
+public class WebSocketMessageDTO implements Message {
+	
+	/**
+	 * Each message is sent on a specific connection. Ensure that it is not
+	 * <code>null</code>!
+	 */
+	public WebSocketChannelDTO channel;
 
 	/**
-	 * WebSocket channel id
+	 * Consecutive number for each message unique for one given channel.
 	 */
-	public Integer channelId;
-
-	/**
-	 * consecutive number
-	 */
-	public Integer messageId;
+	public Integer id;
 
 	/**
 	 * Used for sorting, containing time of arrival in milliseconds.
@@ -58,7 +60,7 @@ public class WebSocketMessageDAO implements Message {
 	public Integer opcode;
 
 	/**
-	 * Textual representation of {@link WebSocketMessageDAO#opcode}.
+	 * Textual representation of {@link WebSocketMessageDTO#opcode}.
 	 */
 	public String readableOpcode;
 
@@ -103,10 +105,23 @@ public class WebSocketMessageDAO implements Message {
 				SimpleDateFormat.SHORT, SimpleDateFormat.MEDIUM,
 				Constant.getLocale());
 	}
+	
+	/**
+	 * 
+	 * @param channel
+	 */
+	public WebSocketMessageDTO(WebSocketChannelDTO channel) {
+		this.channel = channel; 
+	}
+
+	
+	public WebSocketMessageDTO() {
+		this(new WebSocketChannelDTO());
+	}
 
 	/**
-	 * Helper to set {@link WebSocketMessageDAO#timestamp} and
-	 * {@link WebSocketMessageDAO#dateTime}.
+	 * Helper to set {@link WebSocketMessageDTO#timestamp} and
+	 * {@link WebSocketMessageDTO#dateTime}.
 	 * 
 	 * @param ts
 	 */
@@ -126,7 +141,7 @@ public class WebSocketMessageDAO implements Message {
 	}
 
 	public String toString() {
-		return "#" + channelId + "." + messageId;
+		return "#" + channel.id + "." + id;
 	}
 
 	/**
@@ -134,12 +149,12 @@ public class WebSocketMessageDAO implements Message {
 	 * 
 	 * @param other
 	 */
-	public void copyInto(WebSocketMessageDAO other) {
-		other.channelId = this.channelId;
+	public void copyInto(WebSocketMessageDTO other) {
+		other.channel = this.channel;
 		other.closeCode = this.closeCode;
 		other.dateTime = this.dateTime;
 		other.isOutgoing = this.isOutgoing;
-		other.messageId = this.messageId;
+		other.id = this.id;
 		other.opcode = this.opcode;
 		other.payload = this.payload;
 		other.payloadLength = this.payloadLength;
@@ -147,10 +162,9 @@ public class WebSocketMessageDAO implements Message {
 		other.tempUserObj = this.tempUserObj;
 		other.timestamp = this.timestamp;
 	}
-
+	
 	@Override
 	public boolean isInScope() {
-		// TODO Find out what to return
-		return false;
+		return Model.getSingleton().getSession().isInScope(channel.url);
 	}
 }

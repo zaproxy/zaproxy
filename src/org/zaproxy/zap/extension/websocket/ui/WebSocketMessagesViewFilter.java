@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
@@ -78,7 +78,7 @@ public class WebSocketMessagesViewFilter {
 	 * @param message
 	 * @return True if the given entry is filtered out, false if valid.
 	 */
-	public boolean isBlacklisted(WebSocketMessageDAO message) {
+	public boolean isBlacklisted(WebSocketMessageDTO message) {
 		if (opcodeList != null) {
 			if (!opcodeList.contains(message.opcode)) {
 				return true;

@@ -26,7 +26,7 @@ import javax.swing.ComboBoxModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 
 public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 
@@ -90,8 +90,8 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 	 * 
 	 * @param aMessage
 	 */
-    public void setMessage(WebSocketMessageDAO aMessage) {
+    public void setMessage(WebSocketMessageDTO aMessage) {
     	resetDialogValues();
-    	setDialogValues(aMessage.readableOpcode, aMessage.channelId, null, aMessage.isOutgoing);
+    	setDialogValues(aMessage.readableOpcode, aMessage.channel.id, null, aMessage.isOutgoing);
     }
 }

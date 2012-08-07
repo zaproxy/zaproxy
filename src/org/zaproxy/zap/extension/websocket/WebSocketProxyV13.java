@@ -60,12 +60,12 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	 */
 	@Override
 	protected WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException {
-		return new WebSocketMessageV13(in, frameHeader);
+		return new WebSocketMessageV13(this, in, frameHeader);
 	}
 
 	@Override
-	protected WebSocketMessage createWebSocketMessage(WebSocketMessageDAO dao) throws WebSocketException {
-		return new WebSocketMessageV13(dao);
+	protected WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException {
+		return new WebSocketMessageV13(this, message);
 	}
 
 	/**
@@ -288,12 +288,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		/**
 		 * Creates a message with the first byte already read.
 		 * 
+		 * @param proxy
 		 * @param in
 		 * @param frameHeader
 		 * @throws IOException 
 		 */
-		public WebSocketMessageV13(InputStream in, byte frameHeader) throws IOException {
-			super(getIncrementedMessageCount());
+		public WebSocketMessageV13(WebSocketProxy proxy, InputStream in, byte frameHeader) throws IOException {
+			super(proxy, getIncrementedMessageCount());
 			
 			// 4 least significant bits are opcode
 			opcode = (frameHeader & 0x0F);
@@ -309,28 +310,29 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		/**
 		 * Use this constructor to create a custom message from given data.
 		 * 
-		 * @param dao
+		 * @param proxy
+		 * @param message
 		 * @throws WebSocketException 
 		 */
-		public WebSocketMessageV13(WebSocketMessageDAO dao) throws WebSocketException {
+		public WebSocketMessageV13(WebSocketProxy proxy, WebSocketMessageDTO message) throws WebSocketException {
 			// TODO: Shouldn't I add the message count later when I send the message?
-			super(getIncrementedMessageCount(), dao);
-			dao.messageId = getMessageId();
+			super(proxy, getIncrementedMessageCount(), message);
+			message.id = getMessageId();
 			
 			Calendar calendar = Calendar.getInstance();
 			timestamp = new Timestamp(calendar.getTimeInMillis());
-			dao.setTime(timestamp);
+			message.setTime(timestamp);
 			
 			isFinished = true;
-			opcode = dao.opcode;
-			closeCode = (dao.closeCode == null) ? -1 : dao.closeCode;
-			direction = dao.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
+			opcode = message.opcode;
+			closeCode = (message.closeCode == null) ? -1 : message.closeCode;
+			direction = message.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
 			
 			payload = ByteBuffer.allocate(0);
-			if (dao.opcode == WebSocketMessage.OPCODE_BINARY) {
-				setPayload((byte[])dao.payload);
+			if (message.opcode == WebSocketMessage.OPCODE_BINARY) {
+				setPayload((byte[])message.payload);
 			} else {
-				setReadablePayload((String)dao.payload);
+				setReadablePayload((String)message.payload);
 			}
 		}
 
@@ -372,7 +374,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private void readFrame(InputStream in, byte frameHeader) throws IOException {
 			// TODO: could gain performance in case WebSocketProxy#isForwardOnly is set.
 			// in that case we won't have to dissect each frame, just storing its bytes would suffice
-			// Then I'd have to throw WebSocketExceptions in case a DAO is retrieved.
+			// Then I'd have to throw WebSocketExceptions in case a DTO is retrieved.
 			
 			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
@@ -698,13 +700,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		}
 		
 		@Override
-		public WebSocketMessageDAO getDAO() {
-			WebSocketMessageDAO dao = super.getDAO();
+		public WebSocketMessageDTO getDTO() {
+			WebSocketMessageDTO message = super.getDTO();
 			
-			dao.channelId = getChannelId();
-			dao.messageId = getMessageId();
+			message.channel.id = getChannelId();
+			message.id = getMessageId();
 			
-			return dao;
+			return message;
 		}
 	}
 }

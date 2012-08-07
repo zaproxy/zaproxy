@@ -21,12 +21,12 @@ import org.zaproxy.zap.extension.brk.BreakPanel;
 import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 
 /**
  * Wraps WebSocket specific options to determine if breakpoint should be applied
- * on given {@link WebSocketMessageDAO}.
+ * on given {@link WebSocketMessageDTO}.
  */
 public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler {
 
@@ -42,13 +42,12 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-		if (super.isBreakOnAllRequests(aMessage, isRequest, onlyIfInScope)) {
-			return isBreakOnAllWebSocket(aMessage, isRequest, onlyIfInScope);
+	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
+		if (super.isBreakOnAllRequests(aMessage, isRequest)) {
+			return isBreakOnAllWebSocket(aMessage, isRequest);
 		}
     	return false;
 	}
@@ -58,13 +57,12 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-		if (super.isBreakOnAllResponses(aMessage, isRequest, onlyIfInScope)) {
-			return isBreakOnAllWebSocket(aMessage, isRequest, onlyIfInScope);
+	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
+		if (super.isBreakOnAllResponses(aMessage, isRequest)) {
+			return isBreakOnAllWebSocket(aMessage, isRequest);
 		}
     	return false;
 	}
@@ -74,36 +72,34 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @param onlyIfInScope
 	 * @return
 	 */
 	@Override
-	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-		if (aMessage instanceof WebSocketMessageDAO && super.isBreakOnStepping((Message) aMessage, isRequest, onlyIfInScope)) {
-			return isBreakOnOpcode(((WebSocketMessageDAO) aMessage).opcode);
+	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
+		if (aMessage instanceof WebSocketMessageDTO && super.isBreakOnStepping((Message) aMessage, isRequest)) {
+			return isBreakOnOpcode(((WebSocketMessageDTO) aMessage).opcode);
 		}
 		return false;
 	}
 	
 	/**
 	 * Helper that determines if breakpoint should be applied for 'All
-	 * Requests/Responses' on this {@link WebSocketMessageDAO}.
+	 * Requests/Responses' on this {@link WebSocketMessageDTO}.
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @param onlyIfInScope
 	 * @return
 	 */
-	private boolean isBreakOnAllWebSocket(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-		if (aMessage instanceof WebSocketMessageDAO && config.isBreakOnAll()) {
-			return isBreakOnOpcode(((WebSocketMessageDAO) aMessage).opcode);
+	private boolean isBreakOnAllWebSocket(Message aMessage, boolean isRequest) {
+		if (aMessage instanceof WebSocketMessageDTO && config.isBreakOnAll()) {
+			return isBreakOnOpcode(((WebSocketMessageDTO) aMessage).opcode);
 		}
 		return false;
 	}
 
 	/**
 	 * Check out if breakpoint should be applied on given
-	 * {@link WebSocketMessageDAO#opcode}.
+	 * {@link WebSocketMessageDTO#opcode}.
 	 * 
 	 * @param opcode
 	 * @return

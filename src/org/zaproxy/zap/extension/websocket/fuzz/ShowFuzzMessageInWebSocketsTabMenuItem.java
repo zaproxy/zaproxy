@@ -51,7 +51,7 @@ public class ShowFuzzMessageInWebSocketsTabMenuItem extends WebSocketMessagesPop
 	protected void performAction() {
 		logger.info("Fuzzed message selected to view in WebSocketsTab");
 		try {
-			wsTab.showMessage(getSelectedMessageDAO());
+			wsTab.showMessage(getSelectedMessageDTO());
 		} catch (WebSocketException e) {
 			View.getSingleton().showWarningDialog("Unable to show fuzz message in WebSockets tab!");
 		}

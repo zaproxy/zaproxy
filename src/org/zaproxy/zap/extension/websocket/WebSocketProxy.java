@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
 /**
  * This class represents two WebSocket channels. Code is inspired by the Monsoon
@@ -468,13 +470,13 @@ public abstract class WebSocketProxy {
 
 	/**
 	 * Returns a version specific WebSockets message, that is build upon given
-	 * {@link WebSocketMessageDAO}.
+	 * {@link WebSocketMessageDTO}.
 	 * 
-	 * @param dao Contains content to be used to create {@link WebSocketMessage}.
+	 * @param message Contains content to be used to create {@link WebSocketMessage}.
 	 * @return
 	 * @throws WebSocketException
 	 */
-	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDAO dao) throws WebSocketException;
+	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException;
 
 	/**
 	 * Returns the opposed socket.
@@ -631,18 +633,32 @@ public abstract class WebSocketProxy {
 		this.handshakeReference = handshakeReference;
 	}
 
-	public WebSocketChannelDAO getDAO() {
-		WebSocketChannelDAO dao = new WebSocketChannelDAO();
-		dao.channelId = getChannelId();
-		dao.host = host;
-		dao.port = port;
-		dao.startTimestamp = (start != null) ? start.getTime() : null;
-		dao.endTimestamp = (end != null) ? end.getTime() : null;
+	public WebSocketChannelDTO getDTO() {
+		WebSocketChannelDTO dto = new WebSocketChannelDTO();
+		dto.id = getChannelId();
+		dto.host = host;
+		dto.port = port;
+		dto.startTimestamp = (start != null) ? start.getTime() : null;
+		dto.endTimestamp = (end != null) ? end.getTime() : null;
 		
 		HistoryReference handshakeRef = getHandshakeReference();
-		dao.historyId = (handshakeRef != null) ? handshakeRef.getHistoryId() : null;
+		if (handshakeRef != null) {
+			try {
+				dto.url = handshakeRef.getHttpMessage().getRequestHeader().getURI().toString();
+			} catch (HttpMalformedHeaderException e) {
+				dto.url = "";
+				logger.error("HttpMessage for WebSockets-handshake not found!", e);
+			} catch (SQLException e) {
+				dto.url = "";
+				logger.error("HttpMessage for WebSockets-handshake not found!", e);
+			}
+			dto.historyId = handshakeRef.getHistoryId();
+		} else {
+			dto.url = "";
+			dto.historyId = null;
+		}
 		
-		return dao;
+		return dto;
 	}
 	
 	public String toString() {
@@ -656,7 +672,7 @@ public abstract class WebSocketProxy {
 	 * @param msg
 	 * @throws IOException
 	 */
-	public void sendAndNotify(WebSocketMessageDAO msg) throws IOException {
+	public void sendAndNotify(WebSocketMessageDTO msg) throws IOException {
 		logger.info("send custom message");
 		WebSocketMessage message = createWebSocketMessage(msg);
 		

@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
 
 public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
@@ -64,8 +64,8 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
                 
                 try {
                     WebSocketMessagesViewModel model = (WebSocketMessagesViewModel)tableWebSocket.getModel();
-                    WebSocketMessageDAO dao = model.getDAO(rows[0]);
-                    extension.addUiBreakpoint(dao);
+                    WebSocketMessageDTO message = model.getDTO(rows[0]);
+                    extension.addUiBreakpoint(message);
                     
                 } catch (Exception e) {
                     extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));

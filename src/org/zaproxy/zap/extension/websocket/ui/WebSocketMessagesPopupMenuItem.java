@@ -25,7 +25,7 @@ import javax.swing.JTable;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
 
 /**
@@ -87,15 +87,15 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 		return true;
 	}
 
-	protected WebSocketMessageDAO getSelectedMessageDAO() {
+	protected WebSocketMessageDTO getSelectedMessageDTO() {
 		int index = getSelectedRow();
 		if (index == -1) {
 			return null;
 		}
 		
 		WebSocketMessagesViewModel model = (WebSocketMessagesViewModel) messagesView.getModel();
-        WebSocketMessageDAO dao = model.getDAO(index);
-        return dao;
+        WebSocketMessageDTO message = model.getDTO(index);
+        return message;
 	}
 
 	private int getSelectedRow() {

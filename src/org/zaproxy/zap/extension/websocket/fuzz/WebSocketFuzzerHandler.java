@@ -94,7 +94,7 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
 	@Override
 	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
 		// update table
-		viewModel.fireMessageArrived(message.getDAO());
+		viewModel.fireMessageArrived(message.getDTO());
 		return true;
 	}
 

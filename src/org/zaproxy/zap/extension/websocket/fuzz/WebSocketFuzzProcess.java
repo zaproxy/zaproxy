@@ -45,7 +45,7 @@ public class WebSocketFuzzProcess extends AbstractFuzzProcess {
         WebSocketFuzzResult fuzzResult = new WebSocketFuzzResult();
         fuzzResult.setFuzz(fuzz);
         
-        WebSocketFuzzMessageDAO msg;
+        WebSocketFuzzMessageDTO msg;
         
         try {
             // inject the payload
@@ -64,13 +64,13 @@ public class WebSocketFuzzProcess extends AbstractFuzzProcess {
         
         try {
         	// send the payload
-        	if (!wsProxies.containsKey(msg.channelId)) {
-        		msg.messageId = null;
+        	if (!wsProxies.containsKey(msg.channel.id)) {
+        		msg.id = null;
         		fuzzResult.setAbort(true);
-        		throw new WebSocketChannelClosedException("Channel #" + msg.channelId + " does not exist!");
+        		throw new WebSocketChannelClosedException("Channel #" + msg.channel.id + " does not exist!");
         	}
         	
-        	WebSocketProxy wsProxy = wsProxies.get(msg.channelId);
+        	WebSocketProxy wsProxy = wsProxies.get(msg.channel.id);
         	
         	// send message and notify all observers
         	// retrieve message from result to get state & fuzz set

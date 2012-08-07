@@ -50,10 +50,10 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
@@ -249,15 +249,15 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 				@Override
 				public void actionPerformed(ActionEvent e) {    
 
-				    WebSocketChannelDAO item = (WebSocketChannelDAO) channelSelect.getSelectedItem();
-				    if (item != null && item.channelId != null) {
+				    WebSocketChannelDTO channel = (WebSocketChannelDTO) channelSelect.getSelectedItem();
+				    if (channel != null && channel.id != null) {
 				    	// has valid element selected + a valid reference
-				        useModel(item.channelId);
+				        useModel(channel.id);
 				    } else {
 				        useJoinedModel();
 				    }
 			        
-			        if (item != null && item.historyId != null) {
+			        if (channel != null && channel.historyId != null) {
 			        	getShowHandshakeButton().setEnabled(true);
 			        } else {
 				        getShowHandshakeButton().setEnabled(false);
@@ -325,8 +325,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 
 				@Override
 				public void actionPerformed(ActionEvent evt) {
-					WebSocketChannelDAO item = (WebSocketChannelDAO) channelSelect.getSelectedItem();
-					HistoryReference handshakeRef = item.getHandshakeReference();
+					WebSocketChannelDTO channel = (WebSocketChannelDTO) channelSelect.getSelectedItem();
+					HistoryReference handshakeRef = channel.getHandshakeReference();
 					if (handshakeRef != null) {
 						HttpMessage msg;
 						try {
@@ -370,7 +370,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					brkManager.handleAddBreakpoint(new WebSocketMessageDAO());
+					brkManager.handleAddBreakpoint(new WebSocketMessageDTO());
 				}
 			});
 		}
@@ -428,51 +428,51 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	@Override
 	public synchronized boolean onMessageFrame(final int channelId, WebSocketMessage message) {
 		if (message.isFinished()) {
-			messagesModel.fireMessageArrived(message.getDAO());
+			messagesModel.fireMessageArrived(message.getDTO());
 		}
 		return true;
 	}
 
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
-		WebSocketChannelDAO dao = proxy.getDAO();
+		WebSocketChannelDTO channel = proxy.getDTO();
 		
 		int connectedChannelsCount = 0;
 		boolean isNewChannel = false;
 		
 		synchronized (connectedChannelIds) {
-			boolean isConnectedChannel = connectedChannelIds.contains(dao.channelId);
+			boolean isConnectedChannel = connectedChannelIds.contains(channel.id);
 	
 			switch (state){
 			case CLOSED:
-				if (isConnectedChannel && dao.endTimestamp != null) {
-					connectedChannelIds.remove(dao.channelId);
+				if (isConnectedChannel && channel.endTimestamp != null) {
+					connectedChannelIds.remove(channel.id);
 						
 					// updates icon
-					channelSelectModel.updateElement(dao);
+					channelSelectModel.updateElement(channel);
 				}
 				break;
 				
 			case EXCLUDED:
 				// remove from UI
-				connectedChannelIds.remove(dao.channelId);
-				channelSelectModel.removeElement(dao);
+				connectedChannelIds.remove(channel.id);
+				channelSelectModel.removeElement(channel);
 				
 				messagesModel.fireTableDataChanged();
 	            break;
 				
 			case OPEN:
-				if (!isConnectedChannel && dao.endTimestamp == null) {
-					connectedChannelIds.add(dao.channelId);
-					channelSelectModel.addElement(dao);
+				if (!isConnectedChannel && channel.endTimestamp == null) {
+					connectedChannelIds.add(channel.id);
+					channelSelectModel.addElement(channel);
 					isNewChannel = true;
 				}
 				break;
 	            
 			case INCLUDED:
 				// add to UI (probably again)
-				connectedChannelIds.add(dao.channelId);
-				channelSelectModel.addElement(dao);
+				connectedChannelIds.add(channel.id);
+				channelSelectModel.addElement(channel);
 				
 				messagesModel.fireTableDataChanged();
 				isNewChannel = true;
@@ -650,8 +650,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 			channelSelectModel.reset();
 			
 			try {
-				for (WebSocketChannelDAO item : table.getChannelItems()) {
-					channelSelectModel.addElement(item);
+				for (WebSocketChannelDTO channel : table.getChannelItems()) {
+					channelSelectModel.addElement(channel);
 				}
 	
 				int index = channelSelectModel.getIndexOf(selectedItem);
@@ -681,14 +681,14 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		getFilterDialog().getFilter().reset();
 	}
 
-	public void showMessage(WebSocketMessageDAO message) throws WebSocketException {
+	public void showMessage(WebSocketMessageDTO message) throws WebSocketException {
 		setTabFocus();
 
 		// show channel if not already active
 		Integer activeChannelId = messagesModel.getActiveChannelId();
-		if (message.channelId != null && !message.channelId.equals(activeChannelId)) {
-			messagesModel.setActiveChannel(message.channelId);
-			channelSelectModel.setSelectedChannelId(message.channelId);
+		if (message.channel.id != null && !message.channel.id.equals(activeChannelId)) {
+			messagesModel.setActiveChannel(message.channel.id);
+			channelSelectModel.setSelectedChannelId(message.channel.id);
 		}
 		
 		// check if message is filtered out

@@ -21,7 +21,7 @@ import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
@@ -41,8 +41,8 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     }
     
     @Override
-    public Class<WebSocketMessageDAO> getMessageClass() {
-        return WebSocketMessageDAO.class;
+    public Class<WebSocketMessageDTO> getMessageClass() {
+        return WebSocketMessageDTO.class;
     }
     
     @Override
@@ -85,7 +85,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     }
     
     private void populateAddDialogAndSetVisible(Message aMessage) {
-        addDialog.setMessage((WebSocketMessageDAO)aMessage);
+        addDialog.setMessage((WebSocketMessageDTO)aMessage);
         addDialog.setVisible(true);
     }
     

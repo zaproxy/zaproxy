@@ -45,13 +45,13 @@ public class WebSocketFuzzResult extends FuzzResult {
 	}
     
     @Override
-    public WebSocketFuzzMessageDAO getMessage() {
-    	WebSocketFuzzMessageDAO dao = (WebSocketFuzzMessageDAO) super.getMessage();
-    	if (dao != null) {
-    		dao.state = convertState(getState());
-    		dao.fuzz = getFuzz();
+    public WebSocketFuzzMessageDTO getMessage() {
+    	WebSocketFuzzMessageDTO fuzzMessage = (WebSocketFuzzMessageDTO) super.getMessage();
+    	if (fuzzMessage != null) {
+    		fuzzMessage.state = convertState(getState());
+    		fuzzMessage.fuzz = getFuzz();
     	}
-        return dao;
+        return fuzzMessage;
     }
     
     /**
@@ -60,16 +60,16 @@ public class WebSocketFuzzResult extends FuzzResult {
      * @param fuzzState
      * @return
      */
-	private WebSocketFuzzMessageDAO.State convertState(State fuzzState) {
-		WebSocketFuzzMessageDAO.State state;
+	private WebSocketFuzzMessageDTO.State convertState(State fuzzState) {
+		WebSocketFuzzMessageDTO.State state;
 		switch (fuzzState) {
 		case ERROR:
-			state = WebSocketFuzzMessageDAO.State.ERROR;
+			state = WebSocketFuzzMessageDTO.State.ERROR;
 			break;
 
 		case SUCCESSFUL:
 		default:
-			state = WebSocketFuzzMessageDAO.State.SUCCESSFUL;
+			state = WebSocketFuzzMessageDTO.State.SUCCESSFUL;
 			break;
 		}
 		return state;

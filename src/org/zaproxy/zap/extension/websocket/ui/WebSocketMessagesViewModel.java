@@ -29,7 +29,7 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
 import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
@@ -39,7 +39,7 @@ import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
  * entries from database. Moreover it shows only those entries that are not
  * blacklisted by given {@link WebSocketMessagesViewFilter}.
  */
-public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessageDAO> {
+public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessageDTO> {
 	
 	private static final long serialVersionUID = -5047686640383236512L;
 
@@ -144,7 +144,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		try {
 			synchronized (cachedRowCountSemaphore) {
 				if (cachedRowCount == null) {
-					cachedRowCount = table.getMessageCount(getCriterionDao(), getCriterionOpcodes());
+					cachedRowCount = table.getMessageCount(getCriterionMessage(), getCriterionOpcodes());
 				}
 				return cachedRowCount;
 			}
@@ -154,18 +154,18 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		}
 	}
 
-	protected WebSocketMessageDAO getCriterionDao() {
-		WebSocketMessageDAO dao = new WebSocketMessageDAO();
+	protected WebSocketMessageDTO getCriterionMessage() {
+		WebSocketMessageDTO message = new WebSocketMessageDTO();
 		
 		if (activeChannelId != null) {
-			dao.channelId = activeChannelId;
+			message.channel.id = activeChannelId;
 		}
 		
 		if (filter.getDirection() != null) {
-			dao.isOutgoing = filter.getDirection().equals(Direction.OUTGOING) ? true : false;
+			message.isOutgoing = filter.getDirection().equals(Direction.OUTGOING) ? true : false;
 		}
 		
-		return dao;
+		return message;
 	}
 
 	protected List<Integer> getCriterionOpcodes() {
@@ -173,36 +173,36 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 	
 	@Override
-	public Object getWebSocketValueAt(WebSocketMessageDAO dao, int columnIndex) {
+	public Object getWebSocketValueAt(WebSocketMessageDTO message, int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return new WebSocketMessagePrimaryKey(dao.channelId, dao.messageId);
+			return new WebSocketMessagePrimaryKey(message.channel.id, message.id);
 
 		case 1:
 			// had problems with ASCII arrows => use icons
-			if (dao.isOutgoing) {
+			if (message.isOutgoing) {
 				return outgoingDirection; //"→";
 			} else {
 				return incomingDirection; //"←";
 			}
 
 		case 2:
-			return dao.dateTime;
+			return message.dateTime;
 
 		case 3:
-			return dao.opcode + "=" + dao.readableOpcode;
+			return message.opcode + "=" + message.readableOpcode;
 
 		case 4:
-			return dao.payloadLength;
+			return message.payloadLength;
 
 		case 5:
-			if (dao.payload instanceof String) {
-				if (((String) dao.payload).length() > PAYLOAD_PREVIEW_LENGTH) {
-					return ((String) dao.payload).substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
+			if (message.payload instanceof String) {
+				if (((String) message.payload).length() > PAYLOAD_PREVIEW_LENGTH) {
+					return ((String) message.payload).substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
 				} else {
-					return (String) dao.payload;
+					return (String) message.payload;
 				}
-			} else if (dao.payload instanceof byte[]) {
+			} else if (message.payload instanceof byte[]) {
 				return "<binary data>";
 			}
 		}
@@ -219,12 +219,12 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	@Override
-	protected List<WebSocketMessageDAO> loadPage(int offset, int length) {
+	protected List<WebSocketMessageDTO> loadPage(int offset, int length) {
 		try {
-			return table.getMessages(getCriterionDao(), getCriterionOpcodes(), offset, length, PAYLOAD_PREVIEW_LENGTH);
+			return table.getMessages(getCriterionMessage(), getCriterionOpcodes(), offset, length, PAYLOAD_PREVIEW_LENGTH);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			return new ArrayList<WebSocketMessageDAO>();
+			return new ArrayList<WebSocketMessageDTO>();
 		}
 	}
 
@@ -285,31 +285,31 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	/**
 	 * Might return null. Always check!
 	 * <p>
-	 * Retrieves {@link WebSocketMessageDAO} from database with full payload.
+	 * Retrieves {@link WebSocketMessageDTO} from database with full payload.
 	 * </p>
 	 * 
 	 * @param rowIndex
 	 * @return
 	 */
-	public WebSocketMessageDAO getDAO(int rowIndex) {
-		WebSocketMessageDAO dao = getRowObject(rowIndex);
+	public WebSocketMessageDTO getDTO(int rowIndex) {
+		WebSocketMessageDTO message = getRowObject(rowIndex);
 		
-		if (dao == null) {
+		if (message == null) {
 			return null;
 		}
 		
-		String pk = dao.toString();
+		String pk = message.toString();
 		if (fullMessagesCache.containsKey(pk)) {
-			return (WebSocketMessageDAO) fullMessagesCache.get(pk);
+			return (WebSocketMessageDTO) fullMessagesCache.get(pk);
 		} else {
 			try {
-				WebSocketMessageDAO fullDao = table.getMessage(dao.messageId, dao.channelId);
-				fullMessagesCache.put(pk, fullDao);
+				WebSocketMessageDTO fullMessage = table.getMessage(message.id, message.channel.id);
+				fullMessagesCache.put(pk, fullMessage);
 				
-				return fullDao;
+				return fullMessage;
 			} catch (SQLException e) {
 				logger.error("Error retrieving full message!",e);
-				return dao;
+				return message;
 			}
 		}
 	}
@@ -337,11 +337,11 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	 * A new message has arrived. Find out if we need to
 	 * {@link AbstractTableModel#fireTableDataChanged()}.
 	 * 
-	 * @param dao
+	 * @param message
 	 */
-	public void fireMessageArrived(WebSocketMessageDAO dao) {
-		boolean isWhitelistedChannel = (activeChannelId == null) || dao.channelId.equals(activeChannelId);
-		if ((filter != null && filter.isBlacklisted(dao)) || !isWhitelistedChannel) {
+	public void fireMessageArrived(WebSocketMessageDTO message) {
+		boolean isWhitelistedChannel = (activeChannelId == null) || message.channel.id.equals(activeChannelId);
+		if ((filter != null && filter.isBlacklisted(message)) || !isWhitelistedChannel) {
 			// no need to fire update, as it isn't active now
 		} else {
 			// find out where it is inserted and update precisely
@@ -360,21 +360,21 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		}
 	}
 
-	public Integer getModelRowIndexOf(WebSocketMessageDAO dao) {
-		if (dao.messageId == null) {
+	public Integer getModelRowIndexOf(WebSocketMessageDTO message) {
+		if (message.id == null) {
 			return null;
 		}
 		
-		WebSocketMessageDAO criteria = getCriterionDao();
-		criteria.channelId = dao.channelId;
-		criteria.messageId = dao.messageId;
+		WebSocketMessageDTO criteria = getCriterionMessage();
+		criteria.channel.id = message.channel.id;
+		criteria.id = message.id;
 		
 		try {
 			return table.getIndexOf(criteria, null);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			// maybe I'm right with this guess - try
-			return dao.messageId - 1;
+			return message.id - 1;
 		}
 	}
 }
