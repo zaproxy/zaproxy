@@ -85,6 +85,9 @@ public class SiteParameters {
 				p.addFlag("session");
 			}
 			
+			if (params == null) {
+				params = new HashMap<String, HtmlParameterStats>();
+			}
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
 		}

@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-public class AntiCsrfToken {
+public class AntiCsrfToken implements Cloneable {
 
 	private HttpMessage msg; 
 	private String name;

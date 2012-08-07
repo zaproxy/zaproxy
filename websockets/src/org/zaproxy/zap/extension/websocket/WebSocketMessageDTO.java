@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
