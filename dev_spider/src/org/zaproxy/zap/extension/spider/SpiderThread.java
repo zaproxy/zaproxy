@@ -30,6 +30,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
@@ -182,18 +184,18 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 			for (SpiderListener l : pendingSpiderListeners)
 				spider.addSpiderListener(l);
 
-
 			inOrderSeed(spider, startNode);
 			// TODO: Debugging purpose
-//			try {
-//				spider.addSeed(new URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest8NonHTMLFiles/", true));
-//			} catch (URIException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (NullPointerException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			// try {
+			// spider.addSeed(new
+			// URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest8NonHTMLFiles/", true));
+			// } catch (URIException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// } catch (NullPointerException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 		}
 
 		extension.getSpiderPanel().setTabFocus();
@@ -261,10 +263,10 @@ public class SpiderThread extends ScanThread implements ScanListenner, SpiderLis
 	@Override
 	public void foundURI(String uri, FetchStatus status) {
 		if (extension.getView() != null) {
-			if (status != FetchStatus.VALID) {
-				extension.getSpiderPanel().appendURLFoundButSkipped(uri + " - " + status + "\n");
+			if (status == FetchStatus.VALID) {
+				extension.getSpiderPanel().addNewSpiderScanResult(uri, HttpRequestHeader.GET, null, true);
 			} else {
-				extension.getSpiderPanel().appendURLFound(uri + "\n");
+				extension.getSpiderPanel().addNewSpiderScanResult(uri, HttpRequestHeader.GET, status.toString(), false);
 			}
 		}
 	}
