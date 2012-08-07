@@ -94,7 +94,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		this.setSize(474, 251);
 		this.setName(Constant.messages.getString("httpsessions.panel.title"));
 		this.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/session.png")));
-		this.add(getPanelCommand());
+		this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 
 	/**
