@@ -17,14 +17,13 @@
  */
 package org.zaproxy.zap.extension.websocket.fuzz;
 
-import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 
 /**
- * The {@link ExtensionFuzz} for WebSockets shows more information than this
- * parent.
+ * Contains more information about fuzzing process.
  */
-public class WebSocketFuzzMessageDAO extends WebSocketMessageDAO {
+public class WebSocketFuzzMessageDTO extends WebSocketMessageDTO {
 
     public enum State {
     	PENDING,
@@ -48,7 +47,11 @@ public class WebSocketFuzzMessageDAO extends WebSocketMessageDAO {
     public String fuzz;
 	
     
-	public WebSocketFuzzMessageDAO() {
+	public WebSocketFuzzMessageDTO(WebSocketChannelDTO channelDto) {
+		super(channelDto);
+	}
+	
+	public WebSocketFuzzMessageDTO() {
 		super();
 	}
 }

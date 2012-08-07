@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 
 /**
  * Encapsulates a {@link JTable} that is used to display WebSocket
@@ -51,14 +51,14 @@ public class WebSocketMessagesView implements Runnable {
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
-    private Vector<WebSocketMessageDAO> displayQueue;
+    private Vector<WebSocketMessageDTO> displayQueue;
     
     private Thread thread = null;
 	
 	public WebSocketMessagesView(WebSocketMessagesViewModel model) {
 		this.model = model;
 		
-		displayQueue = new Vector<WebSocketMessageDAO>();
+		displayQueue = new Vector<WebSocketMessageDTO>();
 	}
 	
 	/**
@@ -140,7 +140,7 @@ public class WebSocketMessagesView implements Runnable {
 				    // as we use a JTable here, that can be sorted, we have to
 				    // transform the row index to the appropriate model row
                     int modelRow = view.convertRowIndexToModel(rowIndex);
-					final WebSocketMessageDAO message = model.getDAO(modelRow);
+					final WebSocketMessageDTO message = model.getDTO(modelRow);
                     readAndDisplay(message);
 				}
 			}
@@ -194,7 +194,7 @@ public class WebSocketMessagesView implements Runnable {
     
     @Override
     public void run() {
-        WebSocketMessageDAO message = null;
+        WebSocketMessageDTO message = null;
         int count = 0;
         
         do {
@@ -209,7 +209,7 @@ public class WebSocketMessagesView implements Runnable {
             }
             
             try {
-                final WebSocketMessageDAO msg = message;
+                final WebSocketMessageDTO msg = message;
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
@@ -244,7 +244,7 @@ public class WebSocketMessagesView implements Runnable {
         this.responsePanel = responsePanel;
     }
     
-    private void readAndDisplay(final WebSocketMessageDAO message) {
+    private void readAndDisplay(final WebSocketMessageDTO message) {
     	if (message == null) {
     		return;
     	}
@@ -254,7 +254,7 @@ public class WebSocketMessagesView implements Runnable {
                 displayQueue.clear();
             }
 
-            message.tempUserObj = WebSocketPanel.connectedChannelIds.contains(message.channelId);
+            message.tempUserObj = WebSocketPanel.connectedChannelIds.contains(message.channel.id);
             displayQueue.add(message);
         }
         
@@ -271,8 +271,8 @@ public class WebSocketMessagesView implements Runnable {
 		view.revalidate();
 	}
 	
-	public void selectAndShowItem(WebSocketMessageDAO dao) throws WebSocketException {
-		Integer modelRowIndex = model.getModelRowIndexOf(dao);
+	public void selectAndShowItem(WebSocketMessageDTO message) throws WebSocketException {
+		Integer modelRowIndex = model.getModelRowIndexOf(message);
 		
 		if (modelRowIndex == null) {
 			throw new WebSocketException("Element not found");

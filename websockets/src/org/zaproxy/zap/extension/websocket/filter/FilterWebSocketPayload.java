@@ -26,8 +26,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.filter.FilterAbstractReplace;
 import org.parosproxy.paros.extension.filter.FilterReplaceDialog;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
@@ -42,9 +44,11 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	private List<String> applicableOpcodes;
 	private List<Integer> applicableChannelIds;
 	private ComboBoxModel channelComboBoxModel;
+	private ExtensionWebSocket extension;
 
-	public FilterWebSocketPayload(ComboBoxModel channelComboBoxModel) {
+	public FilterWebSocketPayload(ExtensionWebSocket extension, ComboBoxModel channelComboBoxModel) {
 		super();
+		this.extension = extension;
 		this.channelComboBoxModel = channelComboBoxModel;
 	}
 
@@ -75,23 +79,28 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	 * @throws WebSocketException 
 	 */
 	@Override
-	public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
-		boolean isApplicableMessage = (message.isFinished() && message.getPayloadLength() > 0);
+	public void onWebSocketPayload(WebSocketMessage wsMessage) throws WebSocketException {
+		WebSocketMessageDTO message = wsMessage.getDTO();
+		if (!extension.isSafe(message)) {
+			return;
+		}
+		
+		boolean isApplicableMessage = (wsMessage.isFinished() && wsMessage.getPayloadLength() > 0);
 		boolean hasPattern = (getPattern() != null);
 		
 		if (isApplicableMessage && hasPattern) {
-			if (isApplicableDirection(message.getDirection()) &&
-					isApplicableOpcode(message.getOpcodeString()) &&
-					isApplicableChannelId(message.getDAO().channelId)) {
+			if (isApplicableDirection(wsMessage.getDirection()) &&
+					isApplicableOpcode(message.readableOpcode) &&
+					isApplicableChannelId(message.channel.id)) {
 
-				String from = message.getReadablePayload();
+				String from = wsMessage.getReadablePayload();
 
 				Matcher matcher = getPattern().matcher(from);
 
 				String to = matcher.replaceAll(getReplaceText());
 
 				if (!from.equals(to)) {
-					message.setReadablePayload(to);
+					wsMessage.setReadablePayload(to);
 				}
 			}
 		}

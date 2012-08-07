@@ -1,7 +1,7 @@
 package org.zaproxy.zap.extension.websocket.ui;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 public class ComboBoxChannelModel extends SortedComboBoxModel {
@@ -17,7 +17,7 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	 */
 	private void init() {
 		String text = Constant.messages.getString("websocket.dialog.channel.select_all");
-		WebSocketChannelDAO allChannelsItem = new WebSocketChannelDAO(text);
+		WebSocketChannelDTO allChannelsItem = new WebSocketChannelDTO(text);
 		addElement(allChannelsItem);
 	}
 
@@ -34,21 +34,21 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	/**
 	 * Removes and re-adds element. Does not loose selected item.
 	 * 
-	 * @param dao
+	 * @param channel
 	 */
-	public void updateElement(WebSocketChannelDAO dao) {
+	public void updateElement(WebSocketChannelDTO channel) {
 		synchronized (this) {
 			boolean isSelected = false;
 			Object selectedItem = getSelectedItem();
-			if (selectedItem != null && selectedItem.equals(dao)) {
+			if (selectedItem != null && selectedItem.equals(channel)) {
 				isSelected = true;
 			}
 			
-			removeElement(dao);
-			addElement(dao);
+			removeElement(channel);
+			addElement(channel);
 			
 			if (isSelected) {
-				setSelectedItem(dao);
+				setSelectedItem(channel);
 			}
 		}
 	}
@@ -60,9 +60,9 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 		}
 		
 		for (int i = 0; i < getSize(); i++) {
-			WebSocketChannelDAO dao = (WebSocketChannelDAO) getElementAt(i);
-			if (dao.channelId != null && dao.channelId.equals(channelId)) {
-				setSelectedItem(dao);
+			WebSocketChannelDTO channel = (WebSocketChannelDTO) getElementAt(i);
+			if (channel.id != null && channel.id.equals(channelId)) {
+				setSelectedItem(channel);
 				return;
 			}
 		}

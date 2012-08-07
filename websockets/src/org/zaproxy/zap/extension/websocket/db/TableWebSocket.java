@@ -29,15 +29,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.hsqldb.jdbc.jdbcBlob;
 import org.hsqldb.jdbc.jdbcClob;
 import org.parosproxy.paros.db.AbstractTable;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
-import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
 
 /**
  * Manages writing and reading WebSocket messages to the database.
@@ -46,6 +47,7 @@ public class TableWebSocket extends AbstractTable {
 	private static Logger logger = Logger.getLogger(TableWebSocket.class);
 	
 	private Set<Integer> channelIds;
+	private LRUMap channelCache;
     
     private PreparedStatement psInsertMessage;
     
@@ -64,8 +66,6 @@ public class TableWebSocket extends AbstractTable {
 	
 	private PreparedStatement psSelectMessage;
 
-//	private PreparedStatement psMergeChannel;
-
     /**
      * Create tables if not already available
      */
@@ -80,6 +80,7 @@ public class TableWebSocket extends AbstractTable {
 								+ "channel_id BIGINT PRIMARY KEY,"
 								+ "host VARCHAR(255) NOT NULL,"
 								+ "port INTEGER NOT NULL,"
+								+ "url VARCHAR(255) NOT NULL,"
 								+ "start_timestamp TIMESTAMP NOT NULL,"
 								+ "end_timestamp TIMESTAMP NULL,"
 								+ "history_id INTEGER NULL,"
@@ -128,7 +129,10 @@ public class TableWebSocket extends AbstractTable {
     	} finally {
     		rs.close();
     	}
+    	
+		channelCache = new LRUMap(20);
         
+		// CHANNEL
         psSelectChannelIds = conn.prepareStatement("SELECT c.channel_id "
         		+ "FROM websocket_channel AS c "
         		+ "ORDER BY c.channel_id");
@@ -136,39 +140,30 @@ public class TableWebSocket extends AbstractTable {
         psSelectChannels = conn.prepareStatement("SELECT c.* "
         		+ "FROM websocket_channel AS c "
         		+ "ORDER BY c.channel_id");
-        
-        psSelectMessage = conn.prepareStatement("SELECT m.*, f.fuzz_id, f.state, f.fuzz "
-        		+ "FROM websocket_message AS m "
-				+ "LEFT OUTER JOIN websocket_message_fuzz f "
-        		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
-        		+ "WHERE m.message_id = ? AND m.channel_id = ?");
 
         // id goes last to be consistent with update query
 		psInsertChannel = conn.prepareStatement("INSERT INTO "
-				+ "websocket_channel (host, port, start_timestamp, end_timestamp, history_id, channel_id) "
-				+ "VALUES (?,?,?,?,?,?)");
-		
-		psDeleteChannel = conn.prepareStatement("DELETE FROM websocket_channel "
-				+ "WHERE channel_id = ?");
-		
-		psDeleteMessagesByChannelId = conn.prepareStatement("DELETE FROM websocket_message "
-				+ "WHERE channel_id = ?");
+				+ "websocket_channel (host, port, url, start_timestamp, end_timestamp, history_id, channel_id) "
+				+ "VALUES (?,?,?,?,?,?,?)");
 
 		psUpdateChannel = conn.prepareStatement("UPDATE websocket_channel SET "
-				+ "host = ?, port = ?, start_timestamp = ?, end_timestamp = ?, history_id = ? "
+				+ "host = ?, port = ?, url = ?, start_timestamp = ?, end_timestamp = ?, history_id = ? "
 				+ "WHERE channel_id = ?");
 		
 		psUpdateHistoryFk = conn.prepareStatement("UPDATE websocket_channel SET "
 				+ "history_id = ? "
 				+ "WHERE channel_id = ?");
 		
-//		psMergeChannel = conn.prepareStatement("MERGE INTO websocket_channel AS old "
-//				+ "USING (VALUES(?,?,?,?,?,?)) "
-//				+ "AS new (channel_id, host, port, start_timestamp, end_timestamp, history_id) "
-//				+ "ON old.channel_id = new.channel_id "
-//				+ "WHEN MATCHED THEN UPDATE SET old.host = new.host, old.port = new.port, old.start_timestamp = new.start_timestamp, old.end_timestamp = new.end_timestamp, old.history_id = new.history_id " 
-//			    + "WHEN NOT MATCHED THEN INSERT VALUES (new.channel_id, new.host, new.port, new.start_timestamp, new.end_timestamp, new.history_id)");
-
+		psDeleteChannel = conn.prepareStatement("DELETE FROM websocket_channel "
+				+ "WHERE channel_id = ?");
+        
+		// MESSAGE
+        psSelectMessage = conn.prepareStatement("SELECT m.*, f.fuzz_id, f.state, f.fuzz "
+        		+ "FROM websocket_message AS m "
+				+ "LEFT OUTER JOIN websocket_message_fuzz f "
+        		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
+        		+ "WHERE m.message_id = ? AND m.channel_id = ?");
+		
 		psInsertMessage = conn.prepareStatement("INSERT INTO "
 				+ "websocket_message (message_id, channel_id, timestamp, opcode, payload_utf8, payload_bytes, payload_length, is_outgoing) "
 				+ "VALUES (?,?,?,?,?,?,?,?)");
@@ -176,6 +171,9 @@ public class TableWebSocket extends AbstractTable {
 		psInsertFuzz = conn.prepareStatement("INSERT INTO "
 				+ "websocket_message_fuzz (fuzz_id, message_id, channel_id, state, fuzz) "
 				+ "VALUES (?,?,?,?,?)");
+		
+		psDeleteMessagesByChannelId = conn.prepareStatement("DELETE FROM websocket_message "
+				+ "WHERE channel_id = ?");
 		
 		if (channelIds == null) {
 			channelIds = new HashSet<Integer>();
@@ -196,7 +194,7 @@ public class TableWebSocket extends AbstractTable {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized int getMessageCount(WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
+	public synchronized int getMessageCount(WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
 		String query = "SELECT COUNT(m.message_id) FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
         		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
@@ -223,7 +221,7 @@ public class TableWebSocket extends AbstractTable {
 		}
 	}
 
-	public synchronized int getIndexOf(WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
+	public synchronized int getIndexOf(WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
 		String query = "SELECT COUNT(m.message_id) "
         		+ "FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
@@ -232,7 +230,7 @@ public class TableWebSocket extends AbstractTable {
 		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		
 		int paramsCount = stmt.getParameterMetaData().getParameterCount();
-		stmt.setInt(paramsCount, criteria.messageId);
+		stmt.setInt(paramsCount, criteria.id);
 
 		try {
 			return executeAndGetRowCount(stmt);
@@ -241,20 +239,20 @@ public class TableWebSocket extends AbstractTable {
 		}
 	}
 	
-	public synchronized WebSocketMessageDAO getMessage(int messageId, int channelId) throws SQLException {
+	public synchronized WebSocketMessageDTO getMessage(int messageId, int channelId) throws SQLException {
 		psSelectMessage.setInt(1, messageId);
 		psSelectMessage.setInt(2, channelId);
 		psSelectMessage.execute();
 		
-		List<WebSocketMessageDAO> list = buildMessageDAOs(psSelectMessage.getResultSet(), false);
-		if (list.size() != 1) {
+		List<WebSocketMessageDTO> messages = buildMessageDTOs(psSelectMessage.getResultSet(), false);
+		if (messages.size() != 1) {
 			throw new SQLException("Message not found!");
 		}
-		return list.get(0);
+		return messages.get(0);
 	}
 
 	/**
-	 * Retrieves list of {@link WebSocketMessageDAO}, but loads only parts of the payload.
+	 * Retrieves list of {@link WebSocketMessageDTO}, but loads only parts of the payload.
 	 * 
 	 * @param criteria
 	 * @param opcodes
@@ -264,7 +262,7 @@ public class TableWebSocket extends AbstractTable {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized List<WebSocketMessageDAO> getMessages(WebSocketMessageDAO criteria, List<Integer> opcodes, int offset, int limit, int payloadPreviewLength) throws SQLException {
+	public synchronized List<WebSocketMessageDTO> getMessages(WebSocketMessageDTO criteria, List<Integer> opcodes, int offset, int limit, int payloadPreviewLength) throws SQLException {
 		// SUBSTRING returns byte values
 		payloadPreviewLength *= 2;
 		String query = "SELECT m.message_id, m.channel_id, m.timestamp, m.opcode, m.payload_length, m.is_outgoing, "
@@ -283,7 +281,7 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketMessageDAO>();
+				return new ArrayList<WebSocketMessageDTO>();
 			} else {
 				throw e;
 			}
@@ -296,7 +294,7 @@ public class TableWebSocket extends AbstractTable {
 			
 			stmt.execute();
 			
-			return buildMessageDAOs(stmt.getResultSet(), true);
+			return buildMessageDTOs(stmt.getResultSet(), true);
 		} finally {
 			stmt.close();
 		}
@@ -310,46 +308,47 @@ public class TableWebSocket extends AbstractTable {
 	 * @throws HttpMalformedHeaderException
 	 * @throws SQLException
 	 */
-	private List<WebSocketMessageDAO> buildMessageDAOs(ResultSet rs, boolean interpretLiteralBytes) throws SQLException {
-		List<WebSocketMessageDAO> messages = new ArrayList<WebSocketMessageDAO>();
+	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes) throws SQLException {
+		List<WebSocketMessageDTO> messages = new ArrayList<WebSocketMessageDTO>();
 		try {
 			while (rs.next()) {
-				WebSocketMessageDAO dao;
+				WebSocketMessageDTO message;
 				
+				int channelId = rs.getInt("channel_id");
+				WebSocketChannelDTO channel = getChannel(channelId);
 				if (rs.getInt("fuzz_id") != 0) {
-					WebSocketFuzzMessageDAO fuzzDao = new WebSocketFuzzMessageDAO();
-					fuzzDao.fuzzId = rs.getInt("fuzz_id");
-					fuzzDao.state = WebSocketFuzzMessageDAO.State.valueOf(rs.getString("state"));
-					fuzzDao.fuzz = rs.getString("fuzz");
+					WebSocketFuzzMessageDTO fuzzMessage = new WebSocketFuzzMessageDTO(channel);
+					fuzzMessage.fuzzId = rs.getInt("fuzz_id");
+					fuzzMessage.state = WebSocketFuzzMessageDTO.State.valueOf(rs.getString("state"));
+					fuzzMessage.fuzz = rs.getString("fuzz");
 					
-					dao = fuzzDao;
+					message = fuzzMessage;
 				} else {
-					dao = new WebSocketMessageDAO();
+					message = new WebSocketMessageDTO(channel);
 				}
 				
-				dao.channelId = rs.getInt("channel_id");
-				dao.messageId = rs.getInt("message_id");
-				dao.setTime(rs.getTimestamp("timestamp"));
-				dao.opcode = rs.getInt("opcode");
-				dao.readableOpcode = WebSocketMessage.opcode2string(dao.opcode);
+				message.id = rs.getInt("message_id");
+				message.setTime(rs.getTimestamp("timestamp"));
+				message.opcode = rs.getInt("opcode");
+				message.readableOpcode = WebSocketMessage.opcode2string(message.opcode);
 				
 				// read payload
-				if (dao.opcode == WebSocketMessage.OPCODE_BINARY) {
-					dao.payload = rs.getBytes("payload_bytes");
-					if (dao.payload == null) {
-						dao.payload = new byte[0];
+				if (message.opcode == WebSocketMessage.OPCODE_BINARY) {
+					message.payload = rs.getBytes("payload_bytes");
+					if (message.payload == null) {
+						message.payload = new byte[0];
 					}
 				} else {
-					dao.payload = rs.getString("payload_utf8");
-					if (dao.payload == null) {
-						dao.payload = "";
+					message.payload = rs.getString("payload_utf8");
+					if (message.payload == null) {
+						message.payload = "";
 					}
 				}
 				
-				dao.isOutgoing = rs.getBoolean("is_outgoing");
-				dao.payloadLength = rs.getInt("payload_length");
+				message.isOutgoing = rs.getBoolean("is_outgoing");
+				message.payloadLength = rs.getInt("payload_length");
 				
-				messages.add(dao);
+				messages.add(message);
 			}
 		} finally {
 			rs.close();
@@ -358,13 +357,27 @@ public class TableWebSocket extends AbstractTable {
 		return messages;
 	}
 
-	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDAO criteria, List<Integer> opcodes) throws SQLException {
+	private WebSocketChannelDTO getChannel(int channelId) throws SQLException {
+		if (!channelCache.containsKey(channelId)) {
+			WebSocketChannelDTO criteria = new WebSocketChannelDTO();
+			criteria.id = channelId;
+			List<WebSocketChannelDTO> channels = getChannels(criteria);
+			if (channels.size() == 1) {
+				channelCache.put(channelId, channels.get(0));
+			} else {
+				throw new SQLException("Channel '" + channelId + "' not found!");
+			}
+		}
+		return (WebSocketChannelDTO) channelCache.get(channelId);
+	}
+
+	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
 		List<String> where = new ArrayList<String>();
 		List<Object> params = new ArrayList<Object>();
 
-		if (criteria.channelId != null) {
+		if (criteria.channel.id != null) {
 			where.add("m.channel_id = ?");
-			params.add(criteria.channelId);
+			params.add(criteria.channel.id);
 		}
 		
 		if (criteria.isOutgoing != null) {
@@ -389,8 +402,8 @@ public class TableWebSocket extends AbstractTable {
 			where.add(opcodeExpr.toString());
 		}
 
-		if (criteria instanceof WebSocketFuzzMessageDAO) {
-			WebSocketFuzzMessageDAO fuzzCriteria = (WebSocketFuzzMessageDAO) criteria;
+		if (criteria instanceof WebSocketFuzzMessageDTO) {
+			WebSocketFuzzMessageDTO fuzzCriteria = (WebSocketFuzzMessageDTO) criteria;
 			if (fuzzCriteria.fuzzId != null) {
 				params.add(fuzzCriteria.fuzzId);
 				where.add("f.fuzz_id = ?");
@@ -400,33 +413,34 @@ public class TableWebSocket extends AbstractTable {
 		return buildCriteriaStatementHelper(query, where, params);
 	}
 
-	public WebSocketMessagePrimaryKey getMessagePrimaryKey(WebSocketMessageDAO dao) {
-		return new WebSocketMessagePrimaryKey(dao.channelId, dao.messageId);
+	public WebSocketMessagePrimaryKey getMessagePrimaryKey(WebSocketMessageDTO message) {
+		return new WebSocketMessagePrimaryKey(message.channel.id, message.id);
 	}
 
-	public List<WebSocketChannelDAO> getChannelItems() throws SQLException {
+	public List<WebSocketChannelDTO> getChannelItems() throws SQLException {
 		psSelectChannels.execute();
 		ResultSet rs = psSelectChannels.getResultSet();
 		
-		return buildChannelDAOs(rs);
+		return buildChannelDTOs(rs);
 	}
 
-	private List<WebSocketChannelDAO> buildChannelDAOs(ResultSet rs) throws SQLException {
-		List<WebSocketChannelDAO> channels = new ArrayList<WebSocketChannelDAO>();
+	private List<WebSocketChannelDTO> buildChannelDTOs(ResultSet rs) throws SQLException {
+		List<WebSocketChannelDTO> channels = new ArrayList<WebSocketChannelDTO>();
 		try {
 			while (rs.next()) {
-				WebSocketChannelDAO dao = new WebSocketChannelDAO();
-				dao.channelId = rs.getInt("channel_id");
-				dao.host = rs.getString("host");
-				dao.port = rs.getInt("port");
-				dao.startTimestamp = rs.getTimestamp("start_timestamp").getTime();
+				WebSocketChannelDTO channel = new WebSocketChannelDTO();
+				channel.id = rs.getInt("channel_id");
+				channel.host = rs.getString("host");
+				channel.port = rs.getInt("port");
+				channel.url = rs.getString("url");
+				channel.startTimestamp = rs.getTimestamp("start_timestamp").getTime();
 				
 				Time endTs = rs.getTime("end_timestamp");
-				dao.endTimestamp = (endTs != null) ? endTs.getTime() : null;
+				channel.endTimestamp = (endTs != null) ? endTs.getTime() : null;
 				
-				dao.historyId = rs.getInt("history_id");
+				channel.historyId = rs.getInt("history_id");
 				
-				channels.add(dao);
+				channels.add(channel);
 			}
 		} finally {
 			rs.close();
@@ -435,41 +449,42 @@ public class TableWebSocket extends AbstractTable {
 		return channels;
 	}
 	
-	public void insertOrUpdateChannel(WebSocketChannelDAO dao) throws SQLException {
+	public void insertOrUpdateChannel(WebSocketChannelDTO channel) throws SQLException {
 		synchronized (this) {
 			PreparedStatement stmt;
 			boolean addIdOnSuccess = false;
 			
 			// first, find out if already inserted
-			if (channelIds.contains(dao.channelId)) {
+			if (channelIds.contains(channel.id)) {
 				// proceed with update
 				stmt = psUpdateChannel;
 			} else {
 				// proceed with insert
 				stmt = psInsertChannel;
 				addIdOnSuccess = true;
-				logger.info("insert channel: " + dao.toString());
+				logger.info("insert channel: " + channel.toString());
 			}
 	
-			stmt.setString(1, dao.host);
-			stmt.setInt(2, dao.port);
-			stmt.setTimestamp(3, (dao.startTimestamp != null) ? new Timestamp(dao.startTimestamp) : null);
-			stmt.setTimestamp(4, (dao.endTimestamp != null) ? new Timestamp(dao.endTimestamp) : null);
-			stmt.setNull(5, Types.INTEGER);
-			stmt.setInt(6, dao.channelId);
+			stmt.setString(1, channel.host);
+			stmt.setInt(2, channel.port);
+			stmt.setString(3, channel.url);
+			stmt.setTimestamp(4, (channel.startTimestamp != null) ? new Timestamp(channel.startTimestamp) : null);
+			stmt.setTimestamp(5, (channel.endTimestamp != null) ? new Timestamp(channel.endTimestamp) : null);
+			stmt.setNull(6, Types.INTEGER);
+			stmt.setInt(7, channel.id);
 			
 			try {
 				stmt.execute();
 				if (addIdOnSuccess) {
-					channelIds.add(dao.channelId);
+					channelIds.add(channel.id);
 				}
 			} catch (SQLException e) {
 				throw e;
 			}
 			
-			if (dao.historyId != null) {
-				psUpdateHistoryFk.setInt(1, dao.historyId);
-				psUpdateHistoryFk.setInt(2, dao.channelId);
+			if (channel.historyId != null) {
+				psUpdateHistoryFk.setInt(1, channel.historyId);
+				psUpdateHistoryFk.setInt(2, channel.id);
 				try {
 					psUpdateHistoryFk.execute();
 				} catch (SQLException e) {
@@ -478,55 +493,46 @@ public class TableWebSocket extends AbstractTable {
 					// WebSocket channels are closed and updated
 				}
 			}
-			
-			// with newer version of HSQLDB I could have used the MERGE command
-	//		psMergeChannel.setInt(1, dao.channelId);
-	//		psMergeChannel.setString(2, dao.host);
-	//		psMergeChannel.setInt(3, dao.port);
-	//		psMergeChannel.setTimestamp(4, new Timestamp(dao.startTimestamp));
-	//		psMergeChannel.setTimestamp(5, new Timestamp(dao.endTimestamp));
-	//		psMergeChannel.setInt(6, dao.historyId);
-	//		psMergeChannel.execute();	
 		}
 	}
 
-	public void insertMessage(WebSocketMessageDAO dao) throws SQLException {
+	public void insertMessage(WebSocketMessageDTO message) throws SQLException {
 
 		// synchronize on whole object to avoid race conditions with insertOrUpdateChannel()
 		synchronized (this) {
-			if (!channelIds.contains(dao.channelId)) {
-				throw new SQLException("channel not inserted: " + dao.channelId);
+			if (!channelIds.contains(message.channel.id)) {
+				throw new SQLException("channel not inserted: " + message.channel.id);
 			}
 			
-			logger.info("insert message: " + dao.toString());
+			logger.info("insert message: " + message.toString());
 			try {
-				psInsertMessage.setInt(1, dao.messageId);
-				psInsertMessage.setInt(2, dao.channelId);
-				psInsertMessage.setTimestamp(3, new Timestamp(dao.timestamp));
-				psInsertMessage.setInt(4, dao.opcode);
+				psInsertMessage.setInt(1, message.id);
+				psInsertMessage.setInt(2, message.channel.id);
+				psInsertMessage.setTimestamp(3, new Timestamp(message.timestamp));
+				psInsertMessage.setInt(4, message.opcode);
 
 				// write payload
-				if (dao.payload instanceof String) {
-					psInsertMessage.setClob(5, new jdbcClob((String) dao.payload));
+				if (message.payload instanceof String) {
+					psInsertMessage.setClob(5, new jdbcClob((String) message.payload));
 					psInsertMessage.setNull(6, Types.BLOB);
-				} else if (dao.payload instanceof byte[]) {
+				} else if (message.payload instanceof byte[]) {
 					psInsertMessage.setNull(5, Types.CLOB);
-					psInsertMessage.setBlob(6, new jdbcBlob((byte[]) dao.payload));
+					psInsertMessage.setBlob(6, new jdbcBlob((byte[]) message.payload));
 				} else {
-					throw new SQLException("Attribute 'payload' of class WebSocketMessageDAO has got wrong type!");
+					throw new SQLException("Attribute 'payload' of class WebSocketMessageDTO has got wrong type!");
 				}
 				
-				psInsertMessage.setInt(7, dao.payloadLength);
-				psInsertMessage.setBoolean(8, dao.isOutgoing);
+				psInsertMessage.setInt(7, message.payloadLength);
+				psInsertMessage.setBoolean(8, message.isOutgoing);
 				psInsertMessage.execute();
 				
-				if (dao instanceof WebSocketFuzzMessageDAO) {
-					WebSocketFuzzMessageDAO fuzzDao = (WebSocketFuzzMessageDAO) dao;
-					psInsertFuzz.setInt(1, fuzzDao.fuzzId);
-					psInsertFuzz.setInt(2, fuzzDao.messageId);
-					psInsertFuzz.setInt(3, fuzzDao.channelId);
-					psInsertFuzz.setString(4, fuzzDao.state.toString());
-					psInsertFuzz.setString(5, fuzzDao.fuzz);
+				if (message instanceof WebSocketFuzzMessageDTO) {
+					WebSocketFuzzMessageDTO fuzzMessage = (WebSocketFuzzMessageDTO) message;
+					psInsertFuzz.setInt(1, fuzzMessage.fuzzId);
+					psInsertFuzz.setInt(2, fuzzMessage.id);
+					psInsertFuzz.setInt(3, fuzzMessage.channel.id);
+					psInsertFuzz.setString(4, fuzzMessage.state.toString());
+					psInsertFuzz.setString(5, fuzzMessage.fuzz);
 					psInsertFuzz.execute();
 				}
 			} catch (SQLException e) {
@@ -535,7 +541,7 @@ public class TableWebSocket extends AbstractTable {
 		}
 	}
 
-	public List<WebSocketChannelDAO> getChannels(WebSocketChannelDAO criteria) throws SQLException {
+	public List<WebSocketChannelDTO> getChannels(WebSocketChannelDTO criteria) throws SQLException {
 		String query = "SELECT c.* "
         		+ "FROM websocket_channel AS c "
         		+ "<where> "
@@ -546,7 +552,7 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketChannelDAO>();
+				return new ArrayList<WebSocketChannelDTO>();
 			} else {
 				throw e;
 			}
@@ -554,16 +560,16 @@ public class TableWebSocket extends AbstractTable {
 		
 		stmt.execute();
 		
-		return buildChannelDAOs(stmt.getResultSet());
+		return buildChannelDTOs(stmt.getResultSet());
 	}
 	
-	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketChannelDAO criteria) throws SQLException {
+	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketChannelDTO criteria) throws SQLException {
 		List<String> where = new ArrayList<String>();
 		List<Object> params = new ArrayList<Object>();
 	
-		if (criteria.channelId != null) {
+		if (criteria.id != null) {
 			where.add("c.channel_id = ?");
-			params.add(criteria.channelId);
+			params.add(criteria.id);
 		}
 		
 		return buildCriteriaStatementHelper(query, where, params);

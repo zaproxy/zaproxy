@@ -20,19 +20,19 @@ package org.zaproxy.zap.extension.websocket.ui.httppanel.views;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
-import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
 
 /**
  * Is called for example from the Request/Response tab, when fuzzing is chosen.
- * It takes a {@link WebSocketMessageDAO} and is able to fuzz it with given
- * strings. Finally a {@link WebSocketFuzzMessageDAO} is returned.
+ * It takes a {@link WebSocketMessageDTO} and is able to fuzz it with given
+ * strings. Finally a {@link WebSocketFuzzMessageDTO} is returned.
  */
 public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 
 	public enum Location {HEADER, BODY};
 	
-	private final WebSocketMessageDAO message;
+	private final WebSocketMessageDTO message;
 	private final int start;
 	private final int end;
 	
@@ -43,7 +43,7 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 		fuzzIdGenerator = new AtomicInteger(0);
 	}
 	
-	public WebSocketFuzzableTextMessage(WebSocketMessageDAO message, int start, int end) {
+	public WebSocketFuzzableTextMessage(WebSocketMessageDTO message, int start, int end) {
 		this.message = message;
 		
 		this.start = start;
@@ -53,13 +53,13 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 	}
 	
 	@Override
-	public WebSocketMessageDAO getMessage() {
+	public WebSocketMessageDTO getMessage() {
 		return message;
 	}
 
 	@Override
-	public WebSocketFuzzMessageDAO fuzz(String fuzzString) throws Exception {
-		WebSocketFuzzMessageDAO fuzzedMessage = copyMessage(message);
+	public WebSocketFuzzMessageDTO fuzz(String fuzzString) throws Exception {
+		WebSocketFuzzMessageDTO fuzzedMessage = copyMessage(message);
 	    
 		if (!(fuzzedMessage.payload instanceof String)) {
 			throw new IllegalArgumentException("You cannot fuzz binary messages!");
@@ -86,11 +86,11 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 	 * @param msg
 	 * @return
 	 */
-	private WebSocketFuzzMessageDAO copyMessage(WebSocketMessageDAO msg) {
-		WebSocketFuzzMessageDAO fuzzDao = new WebSocketFuzzMessageDAO();
+	private WebSocketFuzzMessageDTO copyMessage(WebSocketMessageDTO msg) {
+		WebSocketFuzzMessageDTO fuzzMessage = new WebSocketFuzzMessageDTO();
 		
-		msg.copyInto(fuzzDao);
+		msg.copyInto(fuzzMessage);
         
-        return fuzzDao;
+        return fuzzMessage;
 	}
 }

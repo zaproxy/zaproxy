@@ -25,8 +25,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 
 /**
@@ -79,42 +79,47 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
 	}
 
 	protected String buildRegexForSelectedChannel() {
-		WebSocketChannelDAO dao = getSelectedChannelDAO();
-        if (dao == null) {
+		WebSocketChannelDTO channel = getSelectedChannelDTO();
+        if (channel == null) {
         	return null;
         }
         
     	StringBuilder regex = new StringBuilder();
     	regex.append("\\Q");
-    	if (dao.host.matches("[^:]/")) {
-    		regex.append(dao.host.replaceFirst("([^:])/", "$1:" + dao.port + "/"));
+    	if (channel.host.matches("[^:]/")) {
+    		regex.append(channel.host.replaceFirst("([^:])/", "$1:" + channel.port + "/"));
     	} else {
-    		regex.append(dao.host);
+    		regex.append(channel.host);
     		regex.append(":");
-    		regex.append(dao.port);
+    		regex.append(channel.port);
     	}
     	regex.append("\\E");
     	
     	return regex.toString();
 	}
 
-	private WebSocketChannelDAO getSelectedChannelDAO() {
-		WebSocketMessageDAO msgDao = getSelectedMessageDAO();
-		if (msgDao == null) {
+	private WebSocketChannelDTO getSelectedChannelDTO() {
+		WebSocketMessageDTO message = getSelectedMessageDTO();
+		if (message == null) {
 			return null;
 		}
-		WebSocketChannelDAO channelDao = new WebSocketChannelDAO();
-		channelDao.channelId = msgDao.channelId;
+		WebSocketChannelDTO channel = new WebSocketChannelDTO();
+		channel.id = message.channel.id;
 		
 		try {
-			List<WebSocketChannelDAO> resultDAOs = table.getChannels(channelDao);
-			if (resultDAOs.size() == 1) {
-				return resultDAOs.get(0);
+			List<WebSocketChannelDTO> channels = table.getChannels(channel);
+			if (channels.size() == 1) {
+				return channels.get(0);
 			}
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public boolean isSafe() {
+		return true;
 	}
 }

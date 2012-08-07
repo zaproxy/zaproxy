@@ -137,6 +137,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Different options in config.xml can change this extension's behavior.
 	 */
 	private OptionsParamWebSocket config;
+
+	/**
+	 * Current mode of ZAP. Determines if "unsafe" actions are allowed.
+	 */
+	private Mode mode;
 	
 	/**
 	 * Constructor initializes this class.
@@ -461,10 +466,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			return true;
 		}
 		
-		WebSocketChannelDAO dao = wsProxy.getDAO();
+		WebSocketChannelDTO channel = wsProxy.getDTO();
 		for (Pair<String, Integer> regex : storageBlacklist) {
-			if (regex.x == null || dao.host.matches(regex.x)) {
-				if (regex.y == null || dao.port.equals(regex.y)) {
+			if (regex.x == null || channel.host.matches(regex.x)) {
+				if (regex.y == null || channel.port.equals(regex.y)) {
 					// match found => should go onto storage blacklist
 					return true;
 				}
@@ -517,12 +522,31 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionScopeChanged(Session session) {
-		// TODO: Find out what to do!
+		// do nothing
 	}
 
 	@Override
 	public void sessionModeChanged(Mode mode) {
-		// TODO: Find out what to do!
+		this.mode = mode;
+	}
+
+	/**
+	 * Returns false when either in {@link Mode#safe} or in {@link Mode#protect}
+	 * and the message is not in scope. Call it if you want to do "unsafe"
+	 * actions like changing payloads, catch breakpoints, send custom messages,
+	 * etc.
+	 * 
+	 * @param message
+	 * @return
+	 */
+	public boolean isSafe(WebSocketMessageDTO message) {
+		if (mode.equals(Mode.safe)) {
+			return false;
+		} else if (mode.equals(Mode.protect)) {
+			return message.isInScope();
+		} else {
+			return true;
+		}
 	}
 	
 	/**
@@ -578,7 +602,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			    wsBrkMessageHandler.setEnabledBreakpoints(extBreak.getBreakpointsEnabledList());
 			    
 				// listen on new messages such that breakpoints can apply
-				addAllChannelObserver(new WebSocketProxyListenerBreak(wsBrkMessageHandler));
+				addAllChannelObserver(new WebSocketProxyListenerBreak(this, wsBrkMessageHandler));
 
 				// pop up to add the breakpoint
 				hookMenu.addPopupMenuItem(new PopupMenuAddBreakWebSocket(extBreak));
@@ -588,7 +612,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         	// setup replace payload filter
         	ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
         	if (extFilter != null) {
-        		payloadFilter = new FilterWebSocketPayload(wsPanel.getChannelComboBoxModel());
+        		payloadFilter = new FilterWebSocketPayload(this, wsPanel.getChannelComboBoxModel());
         		payloadFilter.initView(getView());
         		extFilter.addFilter(payloadFilter);
         	}
@@ -599,7 +623,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
             	hookMenu.addPopupMenuItem(new ShowFuzzMessageInWebSocketsTabMenuItem(getWebSocketPanel()));
             	
             	WebSocketFuzzerHandler fuzzHandler = new WebSocketFuzzerHandler(storage.getTable());
-                extFuzz.addFuzzerHandler(WebSocketMessageDAO.class, fuzzHandler);
+                extFuzz.addFuzzerHandler(WebSocketMessageDTO.class, fuzzHandler);
                 addAllChannelObserver(fuzzHandler);
             }
 			
@@ -730,8 +754,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         
         @Override
         public boolean matchToDefaultView(Message aMessage) {
-            if (aMessage instanceof WebSocketMessageDAO) {
-                WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
+            if (aMessage instanceof WebSocketMessageDTO) {
+                WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
                 
                 return (msg.opcode == WebSocketMessage.OPCODE_BINARY);
             }

@@ -36,6 +36,11 @@ public abstract class WebSocketMessage {
 	public enum Direction {
 		INCOMING, OUTGOING
 	}
+
+	/**
+	 * A message belongs to one connection.
+	 */
+	private WebSocketProxy proxy;
 	
 	/**
 	 * Consecutive number identifying a {@link WebSocketMessage}. Unique within
@@ -157,10 +162,10 @@ public abstract class WebSocketMessage {
 	protected int closeCode = -1;
 
 	/**
-	 * One Data Access Object is created per {@link WebSocketMessage} instance.
+	 * One Data Transfer Object is created per {@link WebSocketMessage} instance.
 	 * Might be also some subtype.
 	 */
-	private final WebSocketMessageDAO dao;
+	private final WebSocketMessageDTO dto;
 	
 	/**
 	 * Used for en- & decoding from bytes to String and vice versa.
@@ -175,13 +180,14 @@ public abstract class WebSocketMessage {
 		UTF8_CHARSET = Charset.forName("UTF-8");
 	}
 	
-	public WebSocketMessage(int messageId) {
-		this(messageId, new WebSocketMessageDAO());
+	public WebSocketMessage(WebSocketProxy proxy, int messageId) {
+		this(proxy, messageId, new WebSocketMessageDTO());
 	}
 
-	protected WebSocketMessage(int messageId, WebSocketMessageDAO dao) {
+	protected WebSocketMessage(WebSocketProxy proxy, int messageId, WebSocketMessageDTO baseDto) {
+		this.proxy = proxy;
 		this.messageId = messageId;
-		this.dao = dao;
+		this.dto = baseDto;
 	}
 
 	/**
@@ -489,33 +495,34 @@ public abstract class WebSocketMessage {
 	 * 
 	 * @return
 	 */
-	public WebSocketMessageDAO getDAO() {
+	public WebSocketMessageDTO getDTO() {
+		dto.channel = proxy.getDTO();
 		Timestamp ts = getTimestamp();
-		dao.setTime(ts);
+		dto.setTime(ts);
 		
-		dao.opcode = getOpcode();
-		dao.readableOpcode = getOpcodeString();
+		dto.opcode = getOpcode();
+		dto.readableOpcode = getOpcodeString();
 
 		if (isBinary()) {
-			dao.payload = getPayload();
+			dto.payload = getPayload();
 		} else {
 			if (isText()) {
-				dao.payload = getReadablePayload();
+				dto.payload = getReadablePayload();
 			} else  {
-				dao.payload = getReadablePayload();
+				dto.payload = getReadablePayload();
 			}
 			
-			if (dao.payload == null) {
+			if (dto.payload == null) {
 				// prevents NullPointerException
-				dao.payload = "";
+				dto.payload = "";
 			}
 		}
 		
-		dao.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;
+		dto.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;
 		
-		dao.payloadLength = getPayloadLength();
+		dto.payloadLength = getPayloadLength();
 		
-		return dao;
+		return dto;
 	}
 	
 	public String toString() {

@@ -17,7 +17,7 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -28,7 +28,7 @@ public class WebSocketUiHelper {
 	private JComboBox opcodeComboBox;
 	private JList opcodeList;
 	
-	private JList channelsList;
+	private JList channels;
 	
 	private JComboBox channelsComboBox;
 	private ComboBoxModel channelComboBoxModel;
@@ -216,7 +216,7 @@ public class WebSocketUiHelper {
             channelsComboBox.setRenderer(new ComboBoxChannelRenderer());
             
             // fixes width of JComboBox
-            channelsComboBox.setPrototypeDisplayValue(new WebSocketChannelDAO("XXXXXXXXXXXXXXXXXX"));
+            channelsComboBox.setPrototypeDisplayValue(new WebSocketChannelDTO("XXXXXXXXXXXXXXXXXX"));
 
         }
         return channelsComboBox;
@@ -231,16 +231,16 @@ public class WebSocketUiHelper {
 		if (getChannelSingleSelect().getSelectedIndex() == 0) {
 			return null;
 		}
-		WebSocketChannelDAO item = (WebSocketChannelDAO) getChannelSingleSelect().getSelectedItem();
-		return item.channelId;
+		WebSocketChannelDTO channel = (WebSocketChannelDTO) getChannelSingleSelect().getSelectedItem();
+		return channel.id;
 	}
 	
 	public void setSelectedChannelId(Integer channelId) {
 		if (channelId != null) {
 			for (int i = 0; i < channelComboBoxModel.getSize(); i++) {
-				WebSocketChannelDAO item = (WebSocketChannelDAO) channelComboBoxModel.getElementAt(i);
-				if (channelId.equals(item.channelId)) {
-					channelComboBoxModel.setSelectedItem(item);
+				WebSocketChannelDTO channel = (WebSocketChannelDTO) channelComboBoxModel.getElementAt(i);
+				if (channelId.equals(channel.id)) {
+					channelComboBoxModel.setSelectedItem(channel);
 					return;
 				}
 			}
@@ -255,22 +255,22 @@ public class WebSocketUiHelper {
 	}
 	
 	private JList getChannelsList() {
-		if (channelsList == null) {
+		if (channels == null) {
 			int itemsCount = 4;
 			
-			channelsList = new JList(channelComboBoxModel);
-			channelsList.setCellRenderer(new ComboBoxChannelRenderer());
-			channelsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			channelsList.setSelectedIndex(0);
-			channelsList.setLayoutOrientation(JList.VERTICAL);
-			channelsList.setVisibleRowCount(itemsCount);
+			channels = new JList(channelComboBoxModel);
+			channels.setCellRenderer(new ComboBoxChannelRenderer());
+			channels.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			channels.setSelectedIndex(0);
+			channels.setLayoutOrientation(JList.VERTICAL);
+			channels.setVisibleRowCount(itemsCount);
             
             // fixes width of JList
-			channelsList.setPrototypeCellValue(new WebSocketChannelDAO("XXXXXXXXXXXXXXXXXX"));
+			channels.setPrototypeCellValue(new WebSocketChannelDTO("XXXXXXXXXXXXXXXXXX"));
 			
-			new JScrollPane(channelsList);
+			new JScrollPane(channels);
 		}
-		return channelsList;
+		return channels;
 	}
 
 	/**
@@ -282,8 +282,8 @@ public class WebSocketUiHelper {
 		boolean isSelectAll = false;
 		ArrayList<Integer> values = new ArrayList<Integer>();
 		
-		for (Object value : channelsList.getSelectedValues()) {
-			Integer channelId = ((WebSocketChannelDAO) value).channelId;
+		for (Object value : channels.getSelectedValues()) {
+			Integer channelId = ((WebSocketChannelDTO) value).id;
 			if (channelId == null) {
 				isSelectAll = true;
 				break;
@@ -307,8 +307,8 @@ public class WebSocketUiHelper {
 			int[] selectedIndices = new int[channelIds.size()];
 			ComboBoxChannelModel model = (ComboBoxChannelModel) channelsList.getModel();
 			for (int i = 0; i < model.getSize(); i++) {
-				WebSocketChannelDAO item = (WebSocketChannelDAO) model.getElementAt(i);
-				if (channelIds.contains(item.channelId)) {
+				WebSocketChannelDTO channel = (WebSocketChannelDTO) model.getElementAt(i);
+				if (channelIds.contains(channel.id)) {
 					selectedIndices[j++] = i;
 				}
 			}

@@ -34,7 +34,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketPanelTextView;
@@ -53,7 +53,7 @@ public class WebSocketComponent implements HttpPanelComponentInterface, Searchab
 
 	private JLabel informationLabel;
  	
-	protected WebSocketMessageDAO message;
+	protected WebSocketMessageDTO message;
 	
 	protected HttpPanelComponentViewsManager views;
 
@@ -120,7 +120,7 @@ public class WebSocketComponent implements HttpPanelComponentInterface, Searchab
 
     @Override
     public boolean isEnabled(Message aMessage) {
-        return (aMessage instanceof WebSocketMessageDAO);
+        return (aMessage instanceof WebSocketMessageDTO);
     }
 	
 	protected void initViews() {
@@ -139,7 +139,7 @@ public class WebSocketComponent implements HttpPanelComponentInterface, Searchab
 	
 	@Override
 	public void setMessage(Message aMessage) {
-		this.message = (WebSocketMessageDAO) aMessage;
+		this.message = (WebSocketMessageDTO) aMessage;
 		
 		StringBuilder sb = new StringBuilder();
 		

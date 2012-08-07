@@ -22,19 +22,49 @@ import java.sql.SQLException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
-public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
-	public Integer channelId;
+public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
+	
+	/**
+	 * ChannelId.
+	 */
+	public Integer id;
+	
+	/**
+	 * Hostname, isn't necessarily the same as the
+	 * {@link WebSocketChannelDTO#url}.
+	 */
 	public String host;
+	
+	/**
+	 * Port where this channel is connected at. Usually 80 or 443.
+	 */
 	public Integer port;
+	
+	/**
+	 * URL used in HTTP handshake.
+	 */
+	public String url;
+	
+	/**
+	 * Timestamp taken, when connection was established successfuly.
+	 */
 	public Long startTimestamp;
+	
+	/**
+	 * Timestamp of close, otherwise <code>null</code>.
+	 */
 	public Long endTimestamp;
+	
+	/**
+	 * Id of handshake message.
+	 */
 	public Integer historyId;
 
-	public WebSocketChannelDAO() {
+	public WebSocketChannelDTO() {
 		
 	}
 	
-	public WebSocketChannelDAO(String host) {
+	public WebSocketChannelDTO(String host) {
 		this.host = host;
 	}
 
@@ -50,13 +80,13 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
 	 * the channel number is used to determine order.
 	 */
 	@Override
-	public int compareTo(WebSocketChannelDAO other) {
+	public int compareTo(WebSocketChannelDTO other) {
 		int result = host.compareTo(other.host);
 
 		if (result == 0) {
 			result = port.compareTo(other.port);
 			if (result == 0) {
-				return channelId.compareTo(other.channelId);
+				return id.compareTo(other.id);
 			}
 		}
 
@@ -78,8 +108,8 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
 	}
 
 	public String toString() {
-		if (port != null && channelId != null) {
-			return host + ":" + port + " (#" + channelId + ")";
+		if (port != null && id != null) {
+			return host + ":" + port + " (#" + id + ")";
 		}
 		return host;
 	}
@@ -87,14 +117,14 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
     @Override
     public boolean equals(Object other) {
         boolean result = false;
-        if (other instanceof WebSocketChannelDAO) {
-        	WebSocketChannelDAO that = (WebSocketChannelDAO) other;
+        if (other instanceof WebSocketChannelDTO) {
+        	WebSocketChannelDTO that = (WebSocketChannelDTO) other;
         	
         	if (that.canEqual(this)) {
-        		if (channelId == null) {
-        			result = (that.channelId == null);
+        		if (id == null) {
+        			result = (that.id == null);
         		} else {
-        			result = channelId.equals(that.channelId);
+        			result = id.equals(that.id);
         		}
         	}
         }
@@ -103,10 +133,10 @@ public class WebSocketChannelDAO implements Comparable<WebSocketChannelDAO> {
 
     @Override
     public int hashCode() {
-        return (41 * super.hashCode() + channelId.hashCode());
+        return (41 * super.hashCode() + id.hashCode());
     }
 
     private boolean canEqual(Object other) {
-        return (other instanceof WebSocketChannelDAO);
+        return (other instanceof WebSocketChannelDTO);
     }
 }

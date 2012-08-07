@@ -19,14 +19,15 @@ package org.zaproxy.zap.extension.websocket.brk;
 
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
-import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDAO;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
@@ -34,10 +35,13 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 	private static final Logger logger = Logger.getLogger(WebSocketProxyListenerBreak.class);
 
 	private BreakpointMessageHandler wsBrkMessageHandler;
+
+	private ExtensionWebSocket extension;
 	
 	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketPanel.WEBSOCKET_OBSERVING_ORDER - 5;
 
-	public WebSocketProxyListenerBreak(BreakpointMessageHandler messageHandler) {
+	public WebSocketProxyListenerBreak(ExtensionWebSocket extension, BreakpointMessageHandler messageHandler) {
+	    this.extension = extension;
 	    this.wsBrkMessageHandler = messageHandler;
 	}
 	
@@ -49,17 +53,26 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
     }
 
     @Override
-    public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-        WebSocketMessageDAO dao = message.getDAO();
+    public boolean onMessageFrame(int channelId, WebSocketMessage wsMessage) {
+        WebSocketMessageDTO message = wsMessage.getDTO();
+
+		if (!extension.isSafe(message)) {
+			// not safe => do not catch
+			return true;
+		} else {
+			// message is safe => no need to set onlyIfInScope parameter to true
+		}
         
-        if (dao instanceof WebSocketFuzzMessageDAO) {
+        if (message instanceof WebSocketFuzzMessageDTO) {
         	// as this message was sent by some fuzzer, do not catch it
         	return true;
         }
     	
-        if (!message.isFinished()) {
-        	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
-        	if (wsBrkMessageHandler.isBreakpoint(dao, isRequest, true)) {
+        if (!wsMessage.isFinished()) {
+        	boolean isRequest = (wsMessage.getDirection().equals(Direction.OUTGOING));
+
+        	// already safe => onlyIfInScope can be false
+        	if (wsBrkMessageHandler.isBreakpoint(message, isRequest, false)) {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
             	// (showing/saving/etc.)
@@ -71,17 +84,19 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         	}
         }
 
-        if (dao.isOutgoing) {
-            if (wsBrkMessageHandler.handleMessageReceivedFromClient(dao, true)) {
-                // As the DAO that is shown and modified in the
+        if (message.isOutgoing) {
+        	// already safe => onlyIfInScope can be false
+            if (wsBrkMessageHandler.handleMessageReceivedFromClient(message, false)) {
+                // As the DTO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
-            	setPayload(message, dao.payload);
+            	setPayload(wsMessage, message.payload);
                 return true;
             }
         } else {
-            if (wsBrkMessageHandler.handleMessageReceivedFromServer(dao, true)) {
-            	setPayload(message, dao.payload);
+        	// already safe => onlyIfInScope can be false
+            if (wsBrkMessageHandler.handleMessageReceivedFromServer(message, false)) {
+            	setPayload(wsMessage, message.payload);
                 return true;
             }
         }

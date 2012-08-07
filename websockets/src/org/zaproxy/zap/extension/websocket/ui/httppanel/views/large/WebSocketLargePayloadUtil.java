@@ -2,7 +2,7 @@ package org.zaproxy.zap.extension.websocket.ui.httppanel.views.large;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.ExtensionHttpPanelLargeResponseView;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 
 public class WebSocketLargePayloadUtil {
     
@@ -25,12 +25,12 @@ public class WebSocketLargePayloadUtil {
 	}
 
 	public static boolean isLargePayload(Message aMessage) {
-		if (aMessage instanceof WebSocketMessageDAO) {
-			WebSocketMessageDAO dao = (WebSocketMessageDAO) aMessage;
-			if (dao.payloadLength == null) {
+		if (aMessage instanceof WebSocketMessageDTO) {
+			WebSocketMessageDTO message = (WebSocketMessageDTO) aMessage;
+			if (message.payloadLength == null) {
 				return false;
 			}
-			return dao.payloadLength > minContentLength;
+			return message.payloadLength > minContentLength;
 		}
 
 		return false;
