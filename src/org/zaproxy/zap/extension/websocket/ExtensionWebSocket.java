@@ -63,6 +63,8 @@ import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromScopeMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.IncludeInScopeMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
@@ -506,6 +508,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			wsProxies.clear();	
 		}
 		
+		synchronized (storageBlacklist) {
+			storageBlacklist.clear();
+		}
+		
 		// reset WebSocket panel
 		getWebSocketPanel().reset();
 		
@@ -626,6 +632,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
                 extFuzz.addFuzzerHandler(WebSocketMessageDTO.class, fuzzHandler);
                 addAllChannelObserver(fuzzHandler);
             }
+            
+            // add exclude/include scope
+			hookMenu.addPopupMenuItem(new ExcludeFromScopeMenuItem());
+			hookMenu.addPopupMenuItem(new IncludeInScopeMenuItem());
 			
 			// setup Workpanel (window containing Request, Response & Break tab)
         	initializeWebSocketsForWorkPanel();

@@ -323,6 +323,14 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 	
 	@Override
+	public void fireTableDataChanged() {
+		synchronized (cachedRowCountSemaphore) {
+			cachedRowCount = null;
+		}
+		super.fireTableDataChanged();
+	}
+	
+	@Override
 	protected void clear() {
 		super.clear();
 		

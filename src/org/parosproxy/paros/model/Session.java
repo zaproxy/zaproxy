@@ -724,6 +724,11 @@ public class Session extends FileXML {
 		return excludeFromWebSocketRegexs;
 	}
 
+	public void addExcludeFromWebSocketRegex(String ignoredRegex) throws SQLException {
+		excludeFromWebSocketRegexs.add(ignoredRegex);
+		setExcludeFromWebSocketRegexs(excludeFromWebSocketRegexs);
+	}
+
 	// ZAP: Added method
 	public void setExcludeFromWebSocketRegexs(List<String> ignoredRegexs) throws SQLException {
 		this.excludeFromWebSocketRegexs = stripEmptyLines(ignoredRegexs);

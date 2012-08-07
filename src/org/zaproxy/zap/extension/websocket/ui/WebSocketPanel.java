@@ -648,7 +648,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
     public void update() {
     	// reset table contents
 		messagesModel.fireTableDataChanged();
-
+		
 		synchronized (channelSelectModel) {
 			// reset channel selector's model
 			Object selectedItem = channelSelectModel.getSelectedItem();
