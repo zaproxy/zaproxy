@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
 import org.zaproxy.zap.spider.filters.DefaultParseFilter;
@@ -292,6 +293,15 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+
+		// Check if seeds are available, otherwise the Spider will start, but will not have any
+		// seeds and will not stop.
+		if (seedList == null || seedList.isEmpty()) {
+			log.warn("No seeds available for the Spider. Cancelling scan...");
+			notifyListenersSpiderComplete(false);
+			return;
+		}
+
 		this.stopped = false;
 		this.paused = false;
 		this.initialized = false;
@@ -309,7 +319,7 @@ public class Spider {
 		for (URI uri : seedList) {
 			if (log.isInfoEnabled())
 				log.info("Adding seed for spider: " + uri);
-			controller.addSeed(uri);
+			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
 		// Mark the process as completely initialized
 		initialized = true;
@@ -486,12 +496,13 @@ public class Spider {
 	 * Notifies the listeners regarding a found uri.
 	 * 
 	 * @param uri the uri
+	 * @param method the method used for fetching the resource
 	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
 	 *            stating the reason of the filtering
 	 */
-	protected synchronized void notifyListenersFoundURI(String uri, FetchStatus status) {
+	protected synchronized void notifyListenersFoundURI(String uri, String method, FetchStatus status) {
 		for (SpiderListener l : listeners)
-			l.foundURI(uri, status);
+			l.foundURI(uri, method, status);
 	}
 
 	/**

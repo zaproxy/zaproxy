@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.spider;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import javax.swing.DefaultListModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -36,6 +38,7 @@ import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.view.ScanPanel;
 
 /**
  * The Class SpiderThread that controls the spidering process on a particular site. Being a
@@ -179,64 +182,67 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * Start spider.
 	 */
 	public void startSpider() {
-		if (startNode == null) {
-			log.error("Spider: No start node set for site " + site);
+		if (startNode == null && !getJustScanInScope()) {
+			log.error("Spider cannot start - No start node set for site " + site);
 			return;
 		}
 
+		// If the spider hasn't been initialized, do it now
 		if (spider == null) {
-			try {
-				extension
-						.getModel()
-						.getDb()
-						.getTableHistory()
-						.deleteHistoryType(extension.getModel().getSession().getSessionId(),
-								HistoryReference.TYPE_SPIDER_SEED);
-
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
-
 			spider = new Spider(extension.getSpiderParam(),
 					extension.getModel().getOptionsParam().getConnectionParam(), extension.getModel());
+
+			// Register this thread as a Spider Listener, so it gets notified of events and is able
+			// to manipulate the UI accordingly
 			spider.addSpiderListener(this);
+
 			// Add the pending listeners
 			for (SpiderListener l : pendingSpiderListeners)
 				spider.addSpiderListener(l);
 
-			inOrderSeed(spider, startNode);
-			// TODO: Debugging purpose
-			// try {
-			// spider.addSeed(new
-			// URI("http://localhost:8080/Wavsep/spider/SpiderMediumTest8NonHTMLFiles/", true));
-			// } catch (URIException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// } catch (NullPointerException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
+			// Add the list of excluded uris (added through the Exclude from Spider Popup Menu)
+			spider.setExcludeList(extension.getExcludeList());
+
+			// Add seeds accordingly
+			addSeeds(spider, startNode);
 		}
 
+		// Set the Spider Panel as the focused one
 		extension.getSpiderPanel().setTabFocus();
-		spider.setExcludeList(extension.getExcludeList());
 
-		try {
-			spider.start();
-
-		} catch (NullPointerException e1) {
-			log.error(e1.getMessage(), e1);
-		}
+		// Start the spider
+		spider.start();
 	}
 
 	/**
-	 * In order seed.
+	 * Adds the seeds.
 	 * 
 	 * @param spider the spider
 	 * @param node the node
 	 */
-	private void inOrderSeed(Spider spider, SiteNode node) {
+	private void addSeeds(Spider spider, SiteNode node) {
 
+		// If the scan is of type "Scan all in scope"
+		if (justScanInScope) {
+			log.debug("Adding seed for Scan of all in scope.");
+			List<SiteNode> nodesInScope = Model.getSingleton().getSession().getNodesInScopeFromSiteTree();
+			try {
+				for (SiteNode nodeInScope : nodesInScope)
+					if (!nodeInScope.isRoot() && nodeInScope.getHistoryReference() != null) {
+						HttpMessage msg = nodeInScope.getHistoryReference().getHttpMessage();
+						if (msg != null) {
+							if (!msg.getResponseHeader().isImage()) {
+								spider.addSeed(msg);
+							}
+						}
+					}
+			} catch (Exception e) {
+				log.error("Error while adding seeds for Spider scan: " + e.getMessage(), e);
+			}
+			return;
+		}
+
+		// Add the current node
 		try {
 			if (!node.isRoot() && node.getHistoryReference() != null) {
 				HttpMessage msg = node.getHistoryReference().getHttpMessage();
@@ -247,16 +253,16 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 				}
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.error("Error while adding seeds for Spider scan: " + e.getMessage(), e);
 		}
 
-		if (!node.isLeaf()) {
-			for (int i = 0; i < node.getChildCount(); i++) {
-				try {
-					inOrderSeed(spider, (SiteNode) node.getChildAt(i));
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
+		// If the "scanChildren" option is enabled, add them
+		if (scanChildren) {
+			@SuppressWarnings("unchecked")
+			Enumeration<SiteNode> en = node.children();
+			while (en.hasMoreElements()) {
+				SiteNode sn = en.nextElement();
+				addSeeds(spider, sn);
 			}
 		}
 	}
@@ -266,17 +272,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @see org.zaproxy.zap.spider.SpiderListener#spiderComplete(boolean) */
 	@Override
 	public void spiderComplete(boolean successful) {
-		try {
-			extension
-					.getModel()
-					.getDb()
-					.getTableHistory()
-					.deleteHistoryType(extension.getModel().getSession().getSessionId(),
-							HistoryReference.TYPE_SPIDER_SEED);
-
-		} catch (SQLException e) {
-			log.warn(e.getMessage(), e);
-		}
 		log.warn("Spider scanning complete: " + successful);
 		stopScan = true;
 		this.listenner.scanFinshed(site);
@@ -288,12 +283,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @see org.zaproxy.zap.spider.SpiderListener#foundURI(java.lang.String,
 	 * org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus) */
 	@Override
-	public void foundURI(String uri, FetchStatus status) {
+	public void foundURI(String uri, String method, FetchStatus status) {
 		if (extension.getView() != null) {
 			if (status == FetchStatus.VALID) {
-				extension.getSpiderPanel().addSpiderScanResult(uri, HttpRequestHeader.GET, null, false);
+				extension.getSpiderPanel().addSpiderScanResult(uri, method, null, false);
 			} else {
-				extension.getSpiderPanel().addSpiderScanResult(uri, HttpRequestHeader.GET, status.toString(), true);
+				extension.getSpiderPanel().addSpiderScanResult(uri, method, status.toString(), true);
 			}
 		}
 	}
@@ -303,9 +298,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @see org.zaproxy.zap.spider.SpiderListener#readURI(org.parosproxy.paros.network.HttpMessage) */
 	@Override
 	public void readURI(HttpMessage msg) {
-
+		// Add the read message to the Site Tree
 		SiteMap siteTree = extension.getModel().getSession().getSiteTree();
-
 		HistoryReference historyRef = null;
 		try {
 			historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
@@ -325,19 +319,17 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);
 	}
 
-
 	/* (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#getStartNode()
-	 */
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#getStartNode() */
 	@Override
 	public SiteNode getStartNode() {
 		return startNode;
 	}
 
-
 	/* (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#setStartNode(org.parosproxy.paros.model.SiteNode)
-	 */
+	 * 
+	 * @see org.zaproxy.zap.model.ScanThread#setStartNode(org.parosproxy.paros.model.SiteNode) */
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;

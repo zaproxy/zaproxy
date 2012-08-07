@@ -31,6 +31,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuActiveScanScope popupMenuActiveScanScope = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanSubtree = null;
 	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
+	private PopupMenuSpiderURL		popupMenuSpiderURL = null;
+	private PopupMenuSpiderScope	popupMenuSpiderScope = null;
+	private PopupMenuSpiderSite		popupMenuSpiderSite = null;
+	private PopupMenuSpiderSubtree	popupMenuSpiderSubtree = null;
 	private PopupIncludeInScopeMenu popupIncludeInScopeMenu = null;
 	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromScopeMenu popupExcludeFromScopeMenu = null;
@@ -64,6 +68,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(1));
 	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(1));
 	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(1));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(1));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScopeMenu(2));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(2));
             extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(2));
@@ -76,6 +84,34 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	    	//extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
 	    }
+	}
+	
+	private PopupMenuSpiderURL getPopupMenuSpiderURL(int menuIndex) {
+		if (popupMenuSpiderURL == null) {
+			popupMenuSpiderURL = new PopupMenuSpiderURL(Constant.messages.getString("spider.url.popup"));
+		}
+		return popupMenuSpiderURL;
+	}
+	
+	private PopupMenuSpiderSite getPopupMenuSpiderSite(int menuIndex) {
+		if (popupMenuSpiderSite == null) {
+			popupMenuSpiderSite = new PopupMenuSpiderSite(Constant.messages.getString("spider.site.popup"));
+		}
+		return popupMenuSpiderSite;
+	}
+	
+	private PopupMenuSpiderScope getPopupMenuSpiderScope(int menuIndex) {
+		if (popupMenuSpiderScope == null) {
+			popupMenuSpiderScope = new PopupMenuSpiderScope(Constant.messages.getString("spider.scope.popup"));
+		}
+		return popupMenuSpiderScope;
+	}
+	
+	private PopupMenuSpiderSubtree getPopupMenuSpiderSubtree(int menuIndex) {
+		if (popupMenuSpiderSubtree == null) {
+			popupMenuSpiderSubtree = new PopupMenuSpiderSubtree(Constant.messages.getString("spider.subtree.popup"));
+		}
+		return popupMenuSpiderSubtree;
 	}
 
 	private PopupMenuActiveScanScope getPopupMenuActiveScanScope(int menuIndex) {

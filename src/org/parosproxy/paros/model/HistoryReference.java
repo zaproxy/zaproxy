@@ -25,6 +25,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/28 Added some JavaDoc
 // ZAP: 2012/06/13 Optimized alerts related code
+// ZAP: 2012/08/07 Deleted some not used Spider Related constants
 
 package org.parosproxy.paros.model;
 
@@ -58,8 +59,6 @@ public class HistoryReference {
    public static final int TYPE_MANUAL = 1;
    public static final int TYPE_SPIDER = 2;
    public static final int TYPE_SCANNER = 3;
-   public static final int TYPE_SPIDER_SEED = 4;
-   public static final int TYPE_SPIDER_VISITED = 5;
    public static final int TYPE_HIDDEN = 6;
    // ZAP: Added TYPE_BRUTE_FORCE
    public static final int TYPE_BRUTE_FORCE = 7;
@@ -68,9 +67,6 @@ public class HistoryReference {
    public static final int TYPE_SPIDER_TASK = 9;
    // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
    public static final int TYPE_SPIDER_AJAX = 10;
-
-   // -ve means unsaved message;
-   public static final int TYPE_SPIDER_UNSAVE = -TYPE_SPIDER;
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;

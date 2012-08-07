@@ -134,9 +134,9 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * Sets the spider results table column sizes.
 	 */
 	private void setScanResultsTableColumnSizes() {
-		resultsTable.getColumnModel().getColumn(0).setMinWidth(70);
-		resultsTable.getColumnModel().getColumn(0).setMaxWidth(80);
-		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(75); // inScope
+		resultsTable.getColumnModel().getColumn(0).setMinWidth(80);
+		resultsTable.getColumnModel().getColumn(0).setMaxWidth(90);
+		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(90); // processed
 
 		resultsTable.getColumnModel().getColumn(1).setMinWidth(60);
 		resultsTable.getColumnModel().getColumn(1).setMaxWidth(80);
