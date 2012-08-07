@@ -53,7 +53,11 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 
         	@Override
         	public void actionPerformed(ActionEvent evt) {
-        		item.performAction();
+        		try {
+					item.performAction();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
         	}
         });
 	}
@@ -67,8 +71,9 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 
     /**
      * What happens if choosen?
+     * @throws Exception 
      */
-	abstract protected void performAction();
+	abstract protected void performAction() throws Exception;
 
 	/**
 	 * Which panel is allowed to show this popup item?
@@ -107,7 +112,7 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	}
 	
     @Override
-    public boolean isEnableForComponent(Component invoker) {        
+    public final boolean isEnableForComponent(Component invoker) {        
         if (invoker.getName() != null && invoker.getName().equals(getInvokerName())) {
             try {
                 messagesView = (JTable) invoker;
