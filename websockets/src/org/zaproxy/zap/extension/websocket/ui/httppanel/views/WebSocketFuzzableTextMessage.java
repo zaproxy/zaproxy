@@ -62,6 +62,7 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 		WebSocketFuzzMessageDTO fuzzedMessage = copyMessage(message);
 	    
 		if (!(fuzzedMessage.payload instanceof String)) {
+			// TODO: Exclude popup menu or support fuzzing binary payloads - why not?
 			throw new IllegalArgumentException("You cannot fuzz binary messages!");
 		}
 		String orig = (String) fuzzedMessage.payload;

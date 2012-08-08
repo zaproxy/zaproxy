@@ -17,6 +17,10 @@
  */
 package org.zaproxy.zap.extension.websocket.ui.httppanel.models;
 
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
+import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
+
 public class StringWebSocketPanelViewModel extends AbstractWebSocketStringPanelViewModel {
 	
     @Override
@@ -25,13 +29,15 @@ public class StringWebSocketPanelViewModel extends AbstractWebSocketStringPanelV
             return "";
         }
         
-        if (webSocketMessage.payload instanceof String) {
-        	return (String) webSocketMessage.payload;
-        } else if (webSocketMessage.payload instanceof byte[]) {
-        	return "<binary data>";
-        }
-        
-        return "";
+        try {
+			return webSocketMessage.getReadablePayload();
+		} catch (InvalidUtf8Exception e) {
+			if (webSocketMessage.opcode.equals(WebSocketMessage.OPCODE_BINARY)) {
+				return Constant.messages.getString("websocket.payload.unreadable_binary");
+			} else {
+				return Constant.messages.getString("websocket.payload.invalid_utf8");
+			}
+		}
     }
 
     @Override
@@ -42,5 +48,4 @@ public class StringWebSocketPanelViewModel extends AbstractWebSocketStringPanelV
         	webSocketMessage.payload = data.getBytes();
         }
     }
-
 }

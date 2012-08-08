@@ -36,4 +36,8 @@ public class WebSocketException extends IOException {
 	public WebSocketException(Exception e) {
 		super(e);
 	}
+
+	public WebSocketException(String msg, Exception e) {
+		super(msg, e);
+	}
 }

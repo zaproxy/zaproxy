@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.sql.Timestamp;
-
-import org.zaproxy.zap.extension.websocket.utility.Utf8StringBuilder;
 
 /**
  * Represents a single WebSocket message, consisting out of at least one frame.
@@ -166,19 +163,6 @@ public abstract class WebSocketMessage {
 	 * Might be also some subtype.
 	 */
 	private final WebSocketMessageDTO dto;
-	
-	/**
-	 * Used for en- & decoding from bytes to String and vice versa.
-	 */
-	protected static final Charset UTF8_CHARSET;
-	
-	/**
-	 * Use the static initializer for setting up one date formatter for all
-	 * instances.
-	 */
-	static {		
-		UTF8_CHARSET = Charset.forName("UTF-8");
-	}
 	
 	public WebSocketMessage(WebSocketProxy proxy, int messageId) {
 		this(proxy, messageId, new WebSocketMessageDTO());
@@ -332,60 +316,6 @@ public abstract class WebSocketMessage {
 			return "UNKNOWN";
 		}
 	}
-
-	/**
-	 * Helper method to encode payload into UTF-8 string.
-	 * 
-	 * @param utf8bytes 
-	 * @return
-	 * @throws WebSocketException 
-	 */
-	protected String encodePayloadToUtf8(byte[] utf8bytes) throws WebSocketException {
-		return encodePayloadToUtf8(utf8bytes, 0, utf8bytes.length);
-	}
-	
-	/**
-	 * Helper method to encode payload into UTF-8 string.
-	 * 
-	 * @param utf8bytes
-	 * @param offset
-	 * @param length
-	 * @return
-	 * @throws WebSocketException 
-	 */
-	protected String encodePayloadToUtf8(byte[] utf8bytes, int offset, int length) throws WebSocketException {
-		try {
-			Utf8StringBuilder builder = new Utf8StringBuilder(length);
-			builder.append(utf8bytes, offset, length);
-
-			return builder.toString();
-		} catch (IllegalArgumentException e) {
-			if (e.getMessage().equals("!utf8")) {
-				throw new WebSocketException("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
-			}
-		} catch (IllegalStateException e) {
-			if (e.getMessage().equals("!utf8")) {
-				throw new WebSocketException("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
-			}
-		}
-	}
-	
-	/**
-	 * Helper method that takes an UTF-8 string and returns its byte
-	 * representation.
-	 * 
-	 * @param utf8string
-	 * @return
-	 */
-	protected byte[] decodePayloadFromUtf8(String utf8string) {
-		synchronized (UTF8_CHARSET) {
-			return utf8string.getBytes(UTF8_CHARSET);
-		}
-	}
 	
 	/**
 	 * Use this helper for concatenating payloads of different WebSocket frames.
@@ -496,7 +426,10 @@ public abstract class WebSocketMessage {
 	 * @return
 	 */
 	public WebSocketMessageDTO getDTO() {
+		// build upon base dto attribute set in constructor,
+		// such that existing instances are updated with changed values.
 		dto.channel = proxy.getDTO();
+		
 		Timestamp ts = getTimestamp();
 		dto.setTime(ts);
 		
@@ -506,11 +439,7 @@ public abstract class WebSocketMessage {
 		if (isBinary()) {
 			dto.payload = getPayload();
 		} else {
-			if (isText()) {
-				dto.payload = getReadablePayload();
-			} else  {
-				dto.payload = getReadablePayload();
-			}
+			dto.payload = getReadablePayload();
 			
 			if (dto.payload == null) {
 				// prevents NullPointerException

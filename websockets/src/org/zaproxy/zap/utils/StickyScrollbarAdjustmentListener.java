@@ -21,8 +21,6 @@ import java.awt.Adjustable;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 
-import javax.swing.JScrollBar;
-
 /**
  * Returns a new instance of an {@link AdjustmentListener} that can be
  * applied to {@link JScrollBar#addAdjustmentListener(AdjustmentListener)}.

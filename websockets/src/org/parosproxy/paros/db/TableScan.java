@@ -20,15 +20,19 @@
 */
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 
 package org.parosproxy.paros.db;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TableScan extends AbstractTable { 
+public class TableScan extends AbstractTable {
+    
+    private static final String TABLE_NAME = "SCAN";
     
     private static final String SCANID	= "SCANID";
     private static final String SESSIONID	= "SESSIONID";
@@ -36,8 +40,8 @@ public class TableScan extends AbstractTable {
     private static final String SCANTIME = "SCANTIME";
     
     private PreparedStatement psRead = null;
-    private PreparedStatement psInsert1 = null;
-    private CallableStatement psInsert2 = null;
+    private PreparedStatement psInsert = null;
+    private CallableStatement psGetIdLastInsert = null;
 
     //private PreparedStatement psUpdate = null;
     
@@ -47,10 +51,9 @@ public class TableScan extends AbstractTable {
         
     @Override
     protected void reconnect(Connection conn) throws SQLException {
-        psRead	= conn.prepareStatement("SELECT * FROM SCAN WHERE SCANID = ?");
-        psInsert1 = conn.prepareStatement("INSERT INTO SCAN ("
-                + SESSIONID + ","+ SCANNAME + ") VALUES (?, ?)");
-        psInsert2 = conn.prepareCall("CALL IDENTITY();");
+        psRead  = conn.prepareStatement("SELECT * FROM " + TABLE_NAME +" WHERE " + SCANID + " = ?");
+        psInsert = conn.prepareStatement("INSERT INTO SCAN (" + SESSIONID + ","+ SCANNAME + ") VALUES (?, ?)");
+        psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
        
     }
     
@@ -75,11 +78,11 @@ public class TableScan extends AbstractTable {
 	}
 	
     public synchronized RecordScan insert(long sessionId, String scanName) throws SQLException {
-        psInsert1.setLong(1, sessionId);
-        psInsert1.setString(2, scanName);
-        psInsert1.executeUpdate();
+        psInsert.setLong(1, sessionId);
+        psInsert.setString(2, scanName);
+        psInsert.executeUpdate();
         
-		ResultSet rs = psInsert2.executeQuery();
+		ResultSet rs = psGetIdLastInsert.executeQuery();
 		rs.next();
 		int id = rs.getInt(1);
 		rs.close();
