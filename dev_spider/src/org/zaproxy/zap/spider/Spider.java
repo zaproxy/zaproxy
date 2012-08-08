@@ -171,6 +171,7 @@ public class Spider {
 	public void addSeed(URI uri) {
 		// Update the scope of the spidering process
 		String host = null;
+
 		try {
 			host = uri.getHost();
 			defaultFetchFilter.addScopeDomain(host);
@@ -184,7 +185,13 @@ public class Spider {
 		// Add the appropriate 'robots.txt' as a seed
 		if (getSpiderParam().isParseRobotsTxt()) {
 			try {
-				URI robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
+				// Build the URI of the robots.txt file
+				URI robotsUri;
+				// If the port is not 80 or 443, add it to the URI
+				if (uri.getPort() == 80 || uri.getPort() == 443)
+					robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
+				else
+					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt", true);
 				this.seedList.add(robotsUri);
 			} catch (Exception e) {
 				log.warn("Error while creating URI for robots.txt file for site " + uri, e);

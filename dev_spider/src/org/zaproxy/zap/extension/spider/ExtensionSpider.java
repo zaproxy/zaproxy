@@ -323,14 +323,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	public void startScanNode(SiteNode node) {
-		this.getSpiderPanel().scanNode(node, true);		
+		this.getSpiderPanel().clear();
+		this.getSpiderPanel().scanNode(node, true);
 	}
 
 	public void startScanAllInScope() {
+		this.getSpiderPanel().clear();
 		this.getSpiderPanel().scanAllInScope();
 	}
 
 	public void startScan(SiteNode startNode) {
+		this.getSpiderPanel().clear();
 		this.getSpiderPanel().scanSite(startNode, true);
 	}
 }

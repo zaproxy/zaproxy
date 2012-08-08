@@ -110,6 +110,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		synchronized (scanResults) {
 			scanResults.clear();
 			fireTableDataChanged();
+			System.out.println("Cleanup");
 		}
 	}
 
