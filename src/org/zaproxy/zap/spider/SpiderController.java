@@ -35,6 +35,7 @@ import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
+import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
 import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
@@ -105,17 +106,20 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	/**
-	 * Adds a new seed.
+	 * Adds a new seed, if it wasn't already processed.
 	 * 
 	 * @param uri the uri
+	 * @param method the http method used for fetching the resource
 	 */
-	protected void addSeed(URI uri) {
-		// Create and submit the new task
-		SpiderTask task = new SpiderTask(spider, uri, 0, HttpRequestHeader.GET);
-		spider.submitTask(task);
-		// Add the uri to the found list
-		visitedGet.add(uri.toString());
-		spider.notifyListenersFoundURI(uri.toString(), FetchStatus.VALID);
+	protected void addSeed(URI uri, String method) {
+		if (!visitedGet.contains(uri.toString())) {
+			// Create and submit the new task
+			SpiderTask task = new SpiderTask(spider, uri, 0, method);
+			spider.submitTask(task);
+			// Add the uri to the found list
+			visitedGet.add(uri.toString());
+			spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.VALID);
+		}
 	}
 
 	/**
@@ -189,7 +193,7 @@ public class SpiderController implements SpiderParserListener {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
 				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
-				spider.notifyListenersFoundURI(uri, s);
+				spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, s);
 				return;
 			}
 		}
@@ -197,11 +201,11 @@ public class SpiderController implements SpiderParserListener {
 		// Check if should be ignored and not fetched
 		if (shouldIgnore) {
 			log.info("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
-			spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
+			spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 			return;
 		}
 
-		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
+		spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 
 		// Submit the task
 		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.GET);
@@ -224,6 +228,27 @@ public class SpiderController implements SpiderParserListener {
 	 * @return the parser
 	 */
 	public List<SpiderParser> getParsers(HttpMessage message) {
+
+		// If parsing of robots.txt is enabled, try to see if it's necessary
+		if (spider.getSpiderParam().isParseRobotsTxt()) {
+			// Get the path of the file
+			String path = null;
+			try {
+				path = message.getRequestHeader().getURI().getPath();
+				log.debug("Getting parsers for " + path);
+			} catch (URIException e) {
+			}
+			// If it's a robots.txt file
+			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
+				log.info("Parsing a robots.txt resource...");
+				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
+				parser.addSpiderParserListener(this);
+				LinkedList<SpiderParser> robotsParsers = new LinkedList<SpiderParser>();
+				robotsParsers.add(parser);
+				return robotsParsers;
+			}
+		}
+
 		// If it reached this point, it is definitely text
 		if (message.getResponseHeader().isHtml())
 			return htmlParsers;
@@ -257,12 +282,12 @@ public class SpiderController implements SpiderParserListener {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
 				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
-				spider.notifyListenersFoundURI(uri, s);
+				spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, s);
 				return;
 			}
 		}
 
-		spider.notifyListenersFoundURI(uri, FetchStatus.VALID);
+		spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, FetchStatus.VALID);
 
 		// Submit the task
 		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.POST, requestBody);

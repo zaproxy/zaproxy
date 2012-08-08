@@ -45,7 +45,6 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 
 	/** The Constant PREFIX defining the name/prefix of the api. */
 	private static final String PREFIX = "spider";
-
 	/** The Constant ACTION_START_SCAN that defines the action of starting a new scan. */
 	private static final String ACTION_START_SCAN = "scan";
 
@@ -133,9 +132,9 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		result.add("OK");
 		return result;
 	}
-	
-	private boolean scanInProgress () {
-		return spiderThread != null && ! spiderThread.isStopped();
+
+	private boolean scanInProgress() {
+		return spiderThread != null && !spiderThread.isStopped();
 	}
 
 	/**
@@ -155,8 +154,8 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		try {
 			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true));
 			if (startNode == null) {
-			     throw new ApiException(ApiException.Type.URL_NOT_FOUND);
-			} 
+				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			}
 		} catch (URIException e) {
 			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 		}
@@ -164,7 +163,6 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		// Start the scan
 		this.foundURIs.clear();
 		this.progress = 0;
-
 
 		spiderThread = new SpiderThread(extension, "API", this);
 		spiderThread.setStartNode(startNode);
@@ -225,7 +223,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	}
 
 	@Override
-	public void foundURI(String uri, FetchStatus status) {
+	public void foundURI(String uri, String method, FetchStatus status) {
 		if (status.equals(FetchStatus.VALID))
 			foundURIs.add(uri);
 	}
