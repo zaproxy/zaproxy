@@ -291,6 +291,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		if (extension.getView() != null) {
 			if (status == FetchStatus.VALID) {
 				extension.getSpiderPanel().addSpiderScanResult(uri, method, null, false);
+			} else if (status == FetchStatus.SEED) {
+				extension.getSpiderPanel().addSpiderScanResult(uri, method, "SEED", false);
 			} else {
 				extension.getSpiderPanel().addSpiderScanResult(uri, method, status.toString(), true);
 			}

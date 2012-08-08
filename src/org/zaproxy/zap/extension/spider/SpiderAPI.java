@@ -224,7 +224,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
-		if (status.equals(FetchStatus.VALID))
+		if (status.equals(FetchStatus.VALID) || status.equals(FetchStatus.SEED))
 			foundURIs.add(uri);
 	}
 

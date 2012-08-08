@@ -118,7 +118,7 @@ public class SpiderController implements SpiderParserListener {
 			spider.submitTask(task);
 			// Add the uri to the found list
 			visitedGet.add(uri.toString());
-			spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.VALID);
+			spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.SEED);
 		}
 	}
 
