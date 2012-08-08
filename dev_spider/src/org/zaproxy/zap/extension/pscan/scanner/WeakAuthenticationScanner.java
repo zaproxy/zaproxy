@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Source;
 
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -51,7 +52,7 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner {
 	/**
 	 * for logging.
 	 */
-	private static Logger log = Logger.getLogger(WeakAuthenticationScanner.class);
+	private static final Logger log = Logger.getLogger(WeakAuthenticationScanner.class);
 
 	/**
 	 * determines if we should output Debug level logging
@@ -92,33 +93,35 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner {
 
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
-
-		String uri = null, method = null;
-		String extraInfo = null;  //value depends on which method is being used.
-		String digestInfo = null;
-
-		//DEBUG only
-		//log.setLevel(org.apache.log4j.Level.DEBUG);
-		//this.debugEnabled = true;
-
 		if (msg.getRequestHeader().getSecure()) {
 			// If SSL is used then the use of 'weak' authentication methods isn't really an issue
 			return;
 		}
 
-		//get the URI
-		try {
-			uri = msg.getRequestHeader().getURI().getURI().toString();
-			method = msg.getRequestHeader().getMethod();
-		}
-		catch (Exception e) {
-			log.error("Error getting URI from message ["+msg+"]");
-			return;
-		}
+		//DEBUG only
+		//log.setLevel(org.apache.log4j.Level.DEBUG);
+		//this.debugEnabled = true;
 
 		//get the authorisation headers from the request, and process them
 		Vector<String> headers = msg.getRequestHeader().getHeaders(HttpHeader.AUTHORIZATION);
 		if (headers != null) {	
+
+	        String uri = null;
+	        
+	        //get the URI
+	        try {
+	            uri = msg.getRequestHeader().getURI().getURI();
+	        } catch (URIException e) {
+	            log.error("Error getting URI from message ["+msg+"]"); // The class HttpMessage doesn't have the method toString defined, 
+	                                                                   // this will print something like: 
+	                                                                   // Error getting URI from message [org.parosproxy.paros.network.HttpMessage@158e4ee]
+	            return;
+	        }
+	        
+            String method = msg.getRequestHeader().getMethod();
+            String extraInfo = null;  //value depends on which method is being used.
+            String digestInfo = null;
+	        
 			for (Iterator<String> i = headers.iterator(); i.hasNext();) {
 				String authHeaderValue = i.next();
 				String authMechanism = null;
@@ -146,18 +149,23 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner {
 								String [] usernamePassword = decoded.split(":", 2);
 								if (usernamePassword.length > 1) {
 									username=usernamePassword[0];
-									password=usernamePassword[1];												
-								} else {
-									//no password to be had.. use the entire decoded string as the username
+									password=usernamePassword[1];
+								} else { 
+								    //in this case, the Basic Auth header was malformed, but *some* Basic Auth related data was captured
+									//so report it, and let the user decide if it's important or not.
+									//flag it as Medium priority, rather than high, since it's unlikely to contain a password
 									username=decoded;
 								}
-								if ( password != null) {
+								if ( password != null) { 
+									//depending on whether we captured a password or not, change the level of risk reported
 									alertRisk=Alert.RISK_HIGH;
 								}
-							} 
-							catch (IOException e) {
+							} catch (IllegalArgumentException e) {
+                                log.error("Invalid Base64 value for "+authMechanism+" Authentication: "+ authValues[1]);
+							} catch (IOException e) {
 								log.error("Invalid Base64 value for "+authMechanism+" Authentication: "+ authValues[1]);
 							}
+                            // If an exception occurs while decoding the base64 shouldn't the scanner skip to the next header? as this one is invalid.
 						}
 						else {
 							//malformed Basic Auth header?? warn, but ignore
@@ -166,7 +174,7 @@ public class WeakAuthenticationScanner extends PluginPassiveScanner {
 						}
 						extraInfo = getString("authenticationcredentialscaptured.alert.basicauth.extrainfo", 
 								method, uri, authMechanism, username, password);
-					}
+					} else // Added "else", if it's "Basic" it's not "Digest". 
 
 					//Handle Digest Auth
 					if ( authMechanism.toLowerCase(Locale.ENGLISH).equals ("digest") ) {

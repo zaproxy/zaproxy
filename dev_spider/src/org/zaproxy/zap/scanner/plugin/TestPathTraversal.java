@@ -40,74 +40,64 @@ import org.zaproxy.zap.model.Vulnerability;
 public class TestPathTraversal extends AbstractAppPlugin {
 
 	/**
-	 * the various prefixes to try, for each of the local file targets below
+	 * the various (prioritised) prefixes to try, for each of the local file targets below
 	 */
 	private static final String [] LOCAL_FILE_TARGET_PREFIXES = {
+		"/",
+		"\\",
+		"/../../",
+		"../../../../../../../../../../../../../../../..",
 		"",
+		"/../../../../../../../../../../../../../../../../../",
+		"\\..\\..\\",
+		"..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..",
+		"\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\",
+		"./",
 		"../",
 		"../../",
 		"/..",
 		"/../",
 		"/../..",
-		"/../../",		
+		"/./",
+		"\\",
+		".\\",
+		"..\\",
+		"..\\..\\",
+		"\\..",
+		"\\..\\",
+		"\\..\\..",
+		"\\.\\",
 		"file://",
 		"fiLe://",
 		"file:",
 		"fiLe:",
 		"FILE:",
-		"FILE://",
-		".",
-		"./",
-		"/",
-		"/./",
-		"\\.", 
-		"\\.\\"	,
-		"\\",
-		"\\\\",
-		"\\.",
-		"\\..",
-		"\\..\\",
-		"\\..\\..\\"
+		"FILE://"
 	};
 	
 	/**
-	 * the various local file targets to look for (prefixed by the prefixes above)
+	 * the various (prioritised) local file targets to look for (prefixed by the prefixes above)
 	 */
 	private static final String [] LOCAL_FILE_TARGETS = {
-		// Linux specific
-		"/etc/passwd",
-		"../../../../../../../../../../../../../../../../etc/passwd",
-		"..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
-		"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f" + 
-				"%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
-		"\\etc\\passwd", //expands to \etc\password  
-		// Windows specific
-		"%5cWindows%5csystem.ini",
-		"..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5cWindows%5csystem.ini",
-		"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c" +
-				"%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cWindows%5csystem.ini",				
-		//Web App
-		"WEB-INF\\web.xml",
-		"WEB-INF\\\\web.xml",
-		"WEB-INF/web.xml"
+		"etc/passwd",
+		"etc\\passwd",
+		"Windows/system.ini",
+		"Windows\\system.ini",
+		"WEB-INF/web.xml",
+		"WEB-INF\\web.xml"
 	};
 	
 	/**
 	 * the patterns to look for, associated with the equivalent local file targets above
 	 */
 	private static final String [] LOCAL_FILE_PATTERNS = {
-		// Linux
+		// Linux / Unix
 		"root:.:0:0",		// Dot used to match 'x' or '!' (used in AIX)
-		"root:.:0:0",
-		"root:.:0:0",
-		"root:.:0:0",
 		"root:.:0:0",
 		// Windows
 		"\\[drivers\\]",
 		"\\[drivers\\]",
-		"\\[drivers\\]",
 		//Web App
-		"</web-app>",
 		"</web-app>",
 		"</web-app>"
 	};
@@ -117,7 +107,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 	 * the various prefixes to try, for each of the remote file targets below
 	 */
 	private static final String [] REMOTE_FILE_TARGET_PREFIXES = {
-		"http://", "https://", "", "HTTP://", "HTTPS://", "HtTp://", "HtTpS://"
+		"http://", "", "HTTP://", "https://", "HTTPS://", "HtTp://", "HtTpS://"
 	};
 	
 	/**
@@ -220,10 +210,49 @@ public class TestPathTraversal extends AbstractAppPlugin {
 
     /**
      * scans all GET and POST parameters for Path Traversal vulnerabilities
+     * TODO: consider looking in header fields and cookies as well
      */
     public void scan () {
     
     	try {
+    		//figure out how aggressively we should test
+    		//this will be measured in the number of requests we send for each parameter
+    		//we will send approx 5 requests per parameter at AttackStrength.LOW
+    		//we will send approx 10 requests per parameter at AttackStrength.MEDIUM
+    		//we will send approx 20 requests per parameter at AttackStrength.HIGH
+    		//we will send loads (a finite number though) of requests per parameter at AttackStrength.INSANE
+    		int prefixCountLFI = 0;
+    		int prefixCountRFI = 0;
+    		int prefixCountOurUrl = 0;
+    		
+    		//DEBUG only
+    		//this.setAttackStrength(AttackStrength.INSANE);
+    		
+    		if (log.isDebugEnabled()) log.debug("Attacking at Attack Strength: "+ this.getAttackStrength());
+    		
+    		if ( this.getAttackStrength() == AttackStrength.LOW) {
+    			//Low => (5*1) + (5*0) + (5*0) = 5 requests
+    			prefixCountLFI = 1;  //check for 1 prefix on the local file names
+    			prefixCountRFI = 0;  //do not check for remote file includes
+    			prefixCountOurUrl = 0;  //do not check for our url filename as a file to be included
+    		} else if ( this.getAttackStrength() == AttackStrength.MEDIUM) {
+    			//Medium => (5*1) + (5*1) + (5*0) = 10 requests
+    			prefixCountLFI = 1;  //check for 1 prefix on the local file names
+    			prefixCountRFI = 1;  //check for 1 prefix on the remote file names
+    			prefixCountOurUrl = 0;  //do not check for our url filename as a file to be included    			
+    		} else if ( this.getAttackStrength() == AttackStrength.HIGH) {
+    			//High => (5*2) + (5*1) + (5*1) = 20 requests
+    			prefixCountLFI = 2;  //check for 2 prefixes on the local file names
+    			prefixCountRFI = 1;  //check for 1 prefix on the remote file names
+    			prefixCountOurUrl = 1;  //check for 1 prefix on our url filename as a file to be included
+    			
+    		} else if ( this.getAttackStrength() == AttackStrength.INSANE) {
+    			//Insane  => as many requests as we want.. yee-haa!
+    			prefixCountLFI = LOCAL_FILE_TARGET_PREFIXES.length;  //check for all prefixes on the local file names
+    			prefixCountRFI = REMOTE_FILE_TARGET_PREFIXES.length;  //check for all prefixes on the remote file names
+    			prefixCountOurUrl = LOCAL_FILE_TARGET_PREFIXES.length;  //check for all prefixes on our url filename as a file to be included
+    		}
+    		
 	    	//find all params set in the request (GET/POST)
 	    	TreeSet<HtmlParameter> htmlParams = new TreeSet<HtmlParameter> ();
 	    	htmlParams.addAll(getBaseMsg().getUrlParams()); //add in the GET params
@@ -238,9 +267,12 @@ public class TestPathTraversal extends AbstractAppPlugin {
 				if (log.isDebugEnabled()) log.debug("Checking ["+getBaseMsg().getRequestHeader().getMethod() + "] [" + getBaseMsg().getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for Path Traversal to local files");
 			    
 				//for each local prefix in turn
-		        for (int h=0; h < LOCAL_FILE_TARGET_PREFIXES.length; h++) {
+				//note that depending on the AttackLevel, the number of prefixes that we will try changes.
+		        for (int h=0; h < prefixCountLFI; h++) {
 		        	String prefix=LOCAL_FILE_TARGET_PREFIXES[h];
 		        	//for each target in turn
+		        	//note: regardless of the specified Attack Strength, we want to try all files name here 
+		        	//(just for a limited number of prefixes)
 					for (int i=0; i < LOCAL_FILE_TARGETS.length; i++) {
 						String target=LOCAL_FILE_TARGETS[i];
 						
@@ -272,7 +304,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 			            //if the output matches, and we get a 200
 			            if (matcher.find() && msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
 			            	log.info("Path Traversal (local file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefix+target+"]");
-			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , getBaseMsg());
+			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , msg);
 			                return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact) 
 			            }
 					}
@@ -314,7 +346,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 	            	String urlfilename = msg.getRequestHeader().getURI().getName();
 	            	
 	            	//for the url filename, try each of the prefixes in turn
-	            	for (int h=0; h < LOCAL_FILE_TARGET_PREFIXES.length; h++) {
+	            	for (int h=0; h < prefixCountOurUrl; h++) {
 	            		String prefixedUrlfilename = LOCAL_FILE_TARGET_PREFIXES[h]+urlfilename;
 	            		msg = getNewMsg();
 						//setParameter(msg, param, prefixedUrlfilename);
@@ -347,7 +379,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 							//if it returns OK, and the random string above did NOT return ok, then raise an alert
 				            //since the filename has likely been picked up and used as a file name from the parameter
 			            	log.info("Path Traversal (local file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefixedUrlfilename+"]");
-				            bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefixedUrlfilename , getBaseMsg());
+				            bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefixedUrlfilename , msg);
 				            return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact)
 			            }
 	            	}
@@ -355,7 +387,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 	            
 	            
 	            //Check 3 for local file names
-	            //TODO: make this check 1, for performance reasons
+	            //TODO: consider making this check 1, for performance reasons
 		        //TODO: if the original query was http://www.example.com/a/b/c/d.jsp?param=paramvalue
 		        //then check if the following gives comparable results to the original query
 		        //http://www.example.com/a/b/c/d.jsp?param=../c/paramvalue
@@ -369,7 +401,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 				if (log.isDebugEnabled()) log.debug("Checking ["+getBaseMsg().getRequestHeader().getMethod() + "] [" + getBaseMsg().getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] for Path Traversal to remote files");
 			    
 				//for each prefix in turn
-		        for (int h=0; h < REMOTE_FILE_TARGET_PREFIXES.length; h++) {
+		        for (int h=0; h < prefixCountRFI; h++) {
 		        	String prefix=REMOTE_FILE_TARGET_PREFIXES[h];
 		        	//for each target in turn
 					for (int i=0; i < REMOTE_FILE_TARGETS.length; i++) {
@@ -403,7 +435,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
 			            //if the output matches, and we get a 200
 			            if (matcher.find() && msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
 			            	log.info("Path Traversal (remote file) on ["+msg.getRequestHeader().getMethod() + "] [" + msg.getRequestHeader().getURI() +"], ["+ currentHtmlParameter.getType()+"] parameter ["+ currentHtmlParameter.getName() + "] with value ["+ prefix+target+"]");
-			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , getBaseMsg());
+			                bingo(Alert.RISK_HIGH, Alert.WARNING, "", "["+currentHtmlParameter.getType() + "] "+ currentHtmlParameter.getName(), msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI(), prefix+target , msg);
 			                return;  //all done. No need to look for vulnerabilities on subsequent parameters on the same request (to reduce performance impact) 
 			            }
 					}

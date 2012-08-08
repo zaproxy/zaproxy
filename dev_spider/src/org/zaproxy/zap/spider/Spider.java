@@ -317,7 +317,7 @@ public class Spider {
 		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
 
 		// Initialize the HTTP sender
-		httpSender = new HttpSender(connectionParam, true);
+		httpSender = new HttpSender(connectionParam, true, HttpSender.SPIDER_INITIATOR);
 		// Do not follow redirections because the request is not updated, the redirections will be
 		// handled manually.
 		httpSender.setFollowRedirect(false);

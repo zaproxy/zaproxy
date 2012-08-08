@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault) 
+// ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
@@ -34,7 +35,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface Plugin extends Runnable {
     
-	public enum Level {OFF, DEFAULT, LOW, MEDIUM, HIGH};
+	public enum AlertThreshold {OFF, DEFAULT, LOW, MEDIUM, HIGH};
+	public enum AttackStrength {DEFAULT, LOW, MEDIUM, HIGH, INSANE};
 	
     /**
      * Unique Paros ID of this plugin.
@@ -127,11 +129,66 @@ public interface Plugin extends Runnable {
 	
 	public void setDelayInMs(int delay);
 	
-	public Level getLevel(boolean incDefault);
+	/**
+	 * The alert threshold for this plugin, ie the level of certainty required to report an alert
+	 * @param incDefault if the DEFAULT level should be returned as DEFAULT as opposed to the value of the default level
+	 * @return The alert threshold currently set for this plugin
+	 */
+	public AlertThreshold getAlertThreshold(boolean incDefault);
 	
-	public Level getLevel();
+	/**
+	 * The alert threshold for this plugin, ie the level of certainty required to report an alert.
+	 * The DEFAULT level will not be returned, instead the value of the default level will be returned, if relevant.
+	 * @return The alert threshold for this plugin
+	 */
+	public AlertThreshold getAlertThreshold();
 	
-	public void setLevel(Level level);
+	/**
+	 * Set the alert threshold for this plugin, ie the level of certainty required to report an alert
+	 * @param level The alert threshold to set for this plugin
+	 */
+	public void setAlertThreshold(AlertThreshold level);
 
-	public void setDefaultLevel(Level level);
+	/**
+	 * Set the default alert threshold for this plugin, ie the level of certainty required to report an alert
+	 * @param level The alert threshold to set for this plugin
+	 */
+	public void setDefaultAlertThreshold(AlertThreshold level);
+	
+	/**
+	 * Returns an array of the AlertThresholds supported. It must include MEDIUM and may include LOW and HIGH
+	 * OFF and DEFAULT are assumed and should not be returned.
+	 * @return
+	 */
+	public AlertThreshold[] getAlertThresholdsSupported();
+
+	/**
+	 * Returns the AttackStrength, which is an indication of the relative number of requests the plugin will make
+	 * against a given target
+	 * @param incDefault if the DEFAULT level should be returned as DEFAULT as opposed to the value of the default level
+	 * @return The AttackStrength currently set for this plugin
+	 */
+	public AttackStrength getAttackStrength(boolean incDefault);
+	
+	/**
+	 * Returns the AttackStrength, which is an indication of the relative number of requests the plugin will make
+	 * against a given target.
+	 * The DEFAULT level will not be returned, instead the value of the default level will be returned, if relevant.
+	 * @return The AttackStrength currently set for this plugin
+	 */
+	public AttackStrength getAttackStrength();
+	
+	/**
+	 * Set the attack strength for this plugin, ie the relative number of requests the plugin will make
+	 * against a given target.
+	 * @param level The alert threshold to set for this plugin
+	 */
+	public void setAttackStrength (AttackStrength level);
+	
+	/**
+	 * Returns an array of the AttackStrengths supported. It must include MEDIUM and may include LOW, HIGH and INSANE
+	 * DEFAULT is assumed and should not be returned.
+	 * @return
+	 */
+	public AttackStrength[] getAttackStrengthsSupported();
 }
