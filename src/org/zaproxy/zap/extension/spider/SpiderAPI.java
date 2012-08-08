@@ -114,7 +114,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		if (ACTION_START_SCAN.equals(name)) {
 			String url = params.getString(ACTION_SCANSITE_PARAM_URL);
 
-			// Check for requred parameter
+			// Check for required parameter
 			if (url == null || url.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_SCANSITE_PARAM_URL);
 			}

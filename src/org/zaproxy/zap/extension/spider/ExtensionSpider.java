@@ -99,8 +99,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	private void initialize() {
 		this.setOrder(30);
 		this.setName(NAME);
-
-		API.getInstance().registerApiImplementor(new SpiderAPI(this));
 	}
 
 	@Override
@@ -121,6 +119,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 		// Register the params
 		extensionHook.addOptionsParamSet(getSpiderParam());
+
+		// Register as an API implementor
+		API.getInstance().registerApiImplementor(new SpiderAPI(this));
 	}
 
 	/**
@@ -172,7 +173,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 */
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
-		this.getSpiderPanel().clear();
 		this.getSpiderPanel().reset();
 		if (session == null) {
 			// Closedown
@@ -323,17 +323,14 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	public void startScanNode(SiteNode node) {
-		this.getSpiderPanel().clear();
 		this.getSpiderPanel().scanNode(node, true);
 	}
 
 	public void startScanAllInScope() {
-		this.getSpiderPanel().clear();
 		this.getSpiderPanel().scanAllInScope();
 	}
 
 	public void startScan(SiteNode startNode) {
-		this.getSpiderPanel().clear();
 		this.getSpiderPanel().scanSite(startNode, true);
 	}
 }

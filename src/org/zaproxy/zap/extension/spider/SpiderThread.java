@@ -44,11 +44,14 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
  */
 public class SpiderThread extends ScanThread implements SpiderListener {
 
-	/** Whether the scanning process is stopped. */
+	/** Whether the scanning process has stopped (either completed, either by user request). */
 	private boolean stopScan = false;
 
 	/** Whether the scanning process is paused. */
 	private boolean isPaused = false;
+
+	/** Whether the scanning process is running. */
+	private boolean isAlive = false;
 
 	/** The related extension. */
 	private ExtensionSpider extension;
@@ -74,6 +77,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	/** The scan children. */
 	private boolean scanChildren = false;
 
+	/** The results model. */
+	private SpiderPanelTableModel resultsModel;
+
 	/**
 	 * Instantiates a new spider thread.
 	 * 
@@ -83,10 +89,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 */
 	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
 		super(site, listenner);
+		log.debug("Initializing spider thread for site: " + site);
 		this.extension = extension;
 		this.site = site;
 		this.pendingSpiderListeners = new LinkedList<SpiderListener>();
-		log.debug("Initializing spider thread for site: " + site);
+		this.resultsModel = new SpiderPanelTableModel();
+
 	}
 
 	/* (non-Javadoc)
@@ -106,6 +114,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		Date start = new Date();
 		log.info("Starting spidering scan on " + site + " at " + start);
 		startSpider();
+		this.isAlive = true;
 	}
 
 	/* (non-Javadoc)
@@ -117,6 +126,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.stop();
 		}
 		stopScan = true;
+		isAlive = false;
 		this.listenner.scanFinshed(site);
 	}
 
@@ -126,6 +136,14 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public boolean isStopped() {
 		return stopScan;
+	}
+
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.model.GenericScanner#isRunning() */
+	@Override
+	public boolean isRunning() {
+		return isAlive;
 	}
 
 	/* (non-Javadoc)
@@ -178,7 +196,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	/**
 	 * Start spider.
 	 */
-	public void startSpider() {
+	private void startSpider() {
 
 		// If the start node was not selected, try to find it in the Site Tree
 		if (startNode == null && !getJustScanInScope()) {
@@ -278,8 +296,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	public void spiderComplete(boolean successful) {
 		log.warn("Spider scanning complete: " + successful);
 		stopScan = true;
+		this.isAlive = false;
 		this.listenner.scanFinshed(site);
-
 	}
 
 	/* (non-Javadoc)
@@ -290,11 +308,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	public void foundURI(String uri, String method, FetchStatus status) {
 		if (extension.getView() != null) {
 			if (status == FetchStatus.VALID) {
-				extension.getSpiderPanel().addSpiderScanResult(uri, method, null, false);
+				resultsModel.addScanResult(uri, method, null, false);
 			} else if (status == FetchStatus.SEED) {
-				extension.getSpiderPanel().addSpiderScanResult(uri, method, "SEED", false);
+				resultsModel.addScanResult(uri, method, "SEED", false);
 			} else {
-				extension.getSpiderPanel().addSpiderScanResult(uri, method, status.toString(), true);
+				resultsModel.addScanResult(uri, method, status.toString(), true);
 			}
 		}
 	}
@@ -390,6 +408,15 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public int getProgress() {
 		return this.progress;
+	}
+
+	/**
+	 * Gets the results table model.
+	 * 
+	 * @return the results table model
+	 */
+	public SpiderPanelTableModel getResultsTableModel() {
+		return this.resultsModel;
 	}
 
 }

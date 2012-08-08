@@ -54,7 +54,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private JScrollPane workPane;
 
 	/** The results model. */
-	private SpiderPanelTableModel resultsModel;
+	private SpiderPanelTableModel currentResultsModel;
 
 	/**
 	 * Instantiates a new spider panel.
@@ -67,56 +67,31 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 				spiderScanParam);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#newScanThread(java.lang.String,
+	 * org.parosproxy.paros.common.AbstractParam) */
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
 		return st;
 	}
-	
+
 	/* (non-Javadoc)
-	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String)
-	 */
-	protected SiteNode getSiteNode(String site){
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String) */
+	protected SiteNode getSiteNode(String site) {
 		return super.getSiteNode(site);
 	}
 
-	@Override
-	protected void startScan() {
-		this.clear();
-		// Only allow one spider at a time, due to the way it uses the database
-		// TODO: Add support for multiple scans
-		this.getSiteSelect().setEnabled(false);
-		log.info("Starting Spider scan by user request on panel on site: " + getSiteSelect().getSelectedItem());
-		super.startScan();
-	}
-
-	@Override
-	protected void siteSelected(String site) {
-		// Only allow one spider at a time, due to the way it uses the database
-		// TODO: Add support for multiple scans
-		if (this.getSiteSelect().isEnabled()) {
-			super.siteSelected(site);
-		}
-	}
-
-	@Override
-	public void scanFinshed(String host) {
-		super.scanFinshed(host);
-		// Only allow one spider at a time, due to the way it uses the db
-		// TODO: Add support for multiple scans
-		this.getSiteSelect().setEnabled(true);
-	}
-
-	@Override
-	public boolean isScanning(SiteNode node, boolean incPort) {
-		// Only allow one spider at a time, due to the way it uses the db
-		// TODO: Add support for multiple scans
-		return !this.getSiteSelect().isEnabled();
-	}
-
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#switchView(java.lang.String) */
 	@Override
 	protected void switchView(String site) {
-		// Can't switch views in this version
+		this.updateCurrentScanResultsModel(site);
+		this.getScanResultsTable().setModel(this.currentResultsModel);
+		this.setScanResultsTableColumnSizes();
 	}
 
 	/**
@@ -151,19 +126,18 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		resultsTable.getColumnModel().getColumn(2).setMinWidth(300); // name
 
 		resultsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		resultsTable.getColumnModel().getColumn(3).setMaxWidth(500);
+		resultsTable.getColumnModel().getColumn(3).setMaxWidth(600);
 		resultsTable.getColumnModel().getColumn(3).setPreferredWidth(250); // flags
 	}
 
 	/**
-	 * Gets the scan results model.
+	 * Updates the current scan results model to the proper one.
 	 * 
-	 * @return the scan results model
+	 * @param site the site
 	 */
-	private SpiderPanelTableModel getScanResultsModel() {
-		if (resultsModel == null)
-			resultsModel = new SpiderPanelTableModel();
-		return resultsModel;
+	private void updateCurrentScanResultsModel(String site) {
+		SpiderThread st = (SpiderThread) this.getScanThread(site);
+		this.currentResultsModel = st.getResultsTableModel();
 	}
 
 	/**
@@ -173,7 +147,8 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 */
 	private JTable getScanResultsTable() {
 		if (resultsTable == null) {
-			resultsTable = new JTable(getScanResultsModel());
+			// Create the table with a default, empty TableModel and the proper settings
+			resultsTable = new JTable(new SpiderPanelTableModel());
 			resultsTable.setColumnSelectionAllowed(false);
 			resultsTable.setCellSelectionEnabled(false);
 			resultsTable.setRowSelectionAllowed(true);
@@ -205,24 +180,4 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		}
 		return resultsTable;
 	}
-
-	/**
-	 * Add a new Spider Scan Result.
-	 * 
-	 * @param uri the uri
-	 * @param method the method
-	 * @param flags the flags
-	 * @param skipped if the scan result was skipped from fetching
-	 */
-	public void addSpiderScanResult(final String uri, final String method, final String flags, final boolean skipped) {
-		resultsModel.addScanResult(uri, method, flags, skipped);
-	}
-
-	/**
-	 * Clear the Panel.
-	 */
-	void clear() {
-		getScanResultsModel().removeAllElements();
-	}
-
 }
