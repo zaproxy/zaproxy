@@ -22,11 +22,12 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/06/07 Added targetParam options
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
+// ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.core.scanner.Plugin.Level;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 
 public class ScannerParam extends AbstractParam {
 
@@ -46,7 +47,7 @@ public class ScannerParam extends AbstractParam {
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
 	private boolean handleAntiCSRFTokens = false;
-	private Plugin.Level level = Level.MEDIUM; 
+	private Plugin.AlertThreshold level = AlertThreshold.MEDIUM; 
 	/* Work in progress
 	private boolean targetParamsUrl = true;
 	private boolean targetParamsForm = true;
@@ -78,7 +79,7 @@ public class ScannerParam extends AbstractParam {
 			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 		} catch (Exception e) {}
 		try {
-			this.level = Level.valueOf(getConfig().getString(LEVEL, Level.MEDIUM.name()));
+			this.level = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
 		} catch (Exception e) {}
 		/* Work in progress
 		try {
@@ -137,17 +138,17 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
 	}
 	
-    public Plugin.Level getLevel() {
+    public Plugin.AlertThreshold getLevel() {
 		return level;
 	}
 
-    public void setLevel(Plugin.Level level) {
+    public void setAlertThreshold(Plugin.AlertThreshold level) {
 		this.level = level;
 		getConfig().setProperty(LEVEL, level.name());
 	}
 
-    public void setLevel(String level) {
-		this.setLevel(Level.valueOf(level));
+    public void setAlertThreshold(String level) {
+		this.setAlertThreshold(AlertThreshold.valueOf(level));
 	}
 
 	/* Work in progress
