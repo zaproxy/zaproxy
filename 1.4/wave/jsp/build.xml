@@ -1,0 +1,11 @@
+<project name="zap-wave" default="dist" basedir=".">
+	<description>Build ZAP WAVE.</description>
+
+	<target name="dist" depends="" description="generate the war file" >
+		<!-- Create the war file -->
+		<war destfile="zap-wave.war" needxmlfile='false'>
+			<fileset dir="zap-wave"/>
+		</war>
+	</target>
+
+</project>
