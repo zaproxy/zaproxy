@@ -70,8 +70,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
-		st.setStartNode(this.getSiteNode(site));
 		return st;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String)
+	 */
+	protected SiteNode getSiteNode(String site){
+		return super.getSiteNode(site);
 	}
 
 	@Override

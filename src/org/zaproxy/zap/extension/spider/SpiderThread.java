@@ -18,7 +18,6 @@
  */
 package org.zaproxy.zap.extension.spider;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -32,13 +31,11 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-import org.zaproxy.zap.view.ScanPanel;
 
 /**
  * The Class SpiderThread that controls the spidering process on a particular site. Being a
@@ -182,9 +179,16 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * Start spider.
 	 */
 	public void startSpider() {
+
+		// If the start node was not selected, try to find it in the Site Tree
 		if (startNode == null && !getJustScanInScope()) {
-			log.error("Spider cannot start - No start node set for site " + site);
-			return;
+			startNode = extension.getSpiderPanel().getSiteNode(site);
+			// If the site was not found, don't start
+			if (startNode == null) {
+				log.error("Spider cannot start - No start node set for site " + site);
+				return;
+			}
+			log.debug("Start node automatically found for site: " + site);
 		}
 
 		// If the spider hasn't been initialized, do it now
