@@ -26,12 +26,15 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
+import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
 import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
 
 /**
@@ -196,18 +199,29 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 			return message.payloadLength;
 
 		case 5:
-			if (message.payload instanceof String) {
-				if (((String) message.payload).length() > PAYLOAD_PREVIEW_LENGTH) {
-					return ((String) message.payload).substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
+			String preview;
+			try {
+				preview = message.getReadablePayload();
+			} catch (InvalidUtf8Exception e) {
+				if (message.opcode.equals(WebSocketMessage.OPCODE_BINARY)) {
+					return emphasize(Constant.messages.getString("websocket.payload.unreadable_binary"));
 				} else {
-					return (String) message.payload;
+					return emphasize(Constant.messages.getString("websocket.payload.invalid_utf8"));
 				}
-			} else if (message.payload instanceof byte[]) {
-				return "<binary data>";
+			}
+			
+			if (preview.length() > PAYLOAD_PREVIEW_LENGTH) {
+				return preview.substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
+			} else {
+				return preview;
 			}
 		}
 
 		return null;
+	}
+
+	private String emphasize(String message) {
+		return "<html><i>" + StringEscapeUtils.escapeXml(message) + "</i></html>";
 	}
 
 	@Override
@@ -301,6 +315,8 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		String pk = message.toString();
 		if (fullMessagesCache.containsKey(pk)) {
 			return (WebSocketMessageDTO) fullMessagesCache.get(pk);
+		} else if (message.id == null) {
+			return message;
 		} else {
 			try {
 				WebSocketMessageDTO fullMessage = table.getMessage(message.id, message.channel.id);

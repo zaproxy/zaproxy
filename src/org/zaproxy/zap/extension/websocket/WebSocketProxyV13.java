@@ -30,6 +30,8 @@ import java.util.Random;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
+import org.zaproxy.zap.extension.websocket.utility.Utf8Util;
 
 /**
  * This proxy implements the WebSocket protocol version 13 as specified in
@@ -315,7 +317,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws WebSocketException 
 		 */
 		public WebSocketMessageV13(WebSocketProxy proxy, WebSocketMessageDTO message) throws WebSocketException {
-			// TODO: Shouldn't I add the message count later when I send the message?
 			super(proxy, getIncrementedMessageCount(), message);
 			message.id = getMessageId();
 			
@@ -329,7 +330,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			direction = message.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
 			
 			payload = ByteBuffer.allocate(0);
-			if (message.opcode == WebSocketMessage.OPCODE_BINARY) {
+			if (message.payload instanceof byte[]) {
 				setPayload((byte[])message.payload);
 			} else {
 				setReadablePayload((String)message.payload);
@@ -454,8 +455,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					if (payload.length > 0) {
 						// process close message
 						try {
-							logger.debug("got control-payload: " + encodePayloadToUtf8(payload));
-						} catch (WebSocketException e) {
+							logger.debug("got control-payload: " + Utf8Util.encodePayloadToUtf8(payload));
+						} catch (InvalidUtf8Exception e) {
 							// safely ignore utf8 error here
 						}
 					}
@@ -509,7 +510,14 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws NumberFormatException
 		 */
 		private ByteBuffer getTransmittableCloseFramePayload(ByteBuffer payload) throws NumberFormatException, WebSocketException {
-			int newCloseCode = Integer.parseInt(encodePayloadToUtf8(payload.array(), 0, 4));
+			String closeCodePayload;
+			try {
+				closeCodePayload = Utf8Util.encodePayloadToUtf8(payload.array(), 0, 4);
+			} catch (InvalidUtf8Exception e) {
+				throw new WebSocketException(e.getMessage(), e);
+			}
+			
+			int newCloseCode = Integer.parseInt(closeCodePayload);
 			
 			byte[] newCloseCodeByte = new byte[2];
 			newCloseCodeByte[0] = (byte) ((newCloseCode >> 8) & 0xFF);
@@ -671,8 +679,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		public String getReadablePayload() {
 			try {
 				isValidUtf8Payload = true;
-				return encodePayloadToUtf8(payload.array(), 0, payload.limit());
-			} catch (WebSocketException e) {
+				return Utf8Util.encodePayloadToUtf8(payload.array(), 0, payload.limit());
+			} catch (InvalidUtf8Exception e) {
 				isValidUtf8Payload  = false;
 				return "<invalid UTF-8>";
 			}
@@ -685,12 +693,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			String readablePayload = getReadablePayload();
+			byte[] newBytesPayload = Utf8Util.decodePayloadFromUtf8(newReadablePayload);
 			// compare readable strings (working on byte arrays did not work)
-			if (isValidUtf8Payload && !Arrays.equals(decodePayloadFromUtf8(newReadablePayload), decodePayloadFromUtf8(readablePayload))) {
+			if (isValidUtf8Payload && !Arrays.equals(newBytesPayload, Utf8Util.decodePayloadFromUtf8(readablePayload))) {
 				// mark this message as changed in order to propagate changed
 				// payload into frames or build up a big frame (see forward())
 				hasChanged = true;
-				payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
+				payload = ByteBuffer.wrap(newBytesPayload);
 			}
 		}
 

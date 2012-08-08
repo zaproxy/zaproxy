@@ -22,18 +22,16 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-import javax.swing.table.TableModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
-import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
 
 /**
- * This {@link TableModel} is not backed by the database, but uses the
- * {@link PagingTableModel} for the sake of consistency.
+ * This {@link TableModel} is also backed by the database, but has got some
+ * additional columns. Moreover, erroneous entries are stored into an extra
+ * {@link List}.
  */
 public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
     private static final long serialVersionUID = 5435325545219552543L;

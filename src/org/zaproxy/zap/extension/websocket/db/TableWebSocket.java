@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.websocket.db;
 
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,9 +33,10 @@ import java.util.Set;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
-import org.hsqldb.jdbc.jdbcBlob;
-import org.hsqldb.jdbc.jdbcClob;
+import org.hsqldb.jdbc.JDBCBlob;
+import org.hsqldb.jdbc.JDBCClob;
 import org.parosproxy.paros.db.AbstractTable;
+import org.parosproxy.paros.db.DbUtils;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
@@ -71,64 +74,59 @@ public class TableWebSocket extends AbstractTable {
      */
     @Override
     protected void reconnect(Connection conn) throws SQLException {
-    	ResultSet rs = conn.getMetaData().getTables(null, null, "WEBSOCKET_CHANNEL", null);
-    	try {
-	        if (!rs.next()) {
-				// need to create the tables
-				PreparedStatement stmt = conn
-						.prepareStatement("CREATE CACHED TABLE websocket_channel ("
-								+ "channel_id BIGINT PRIMARY KEY,"
-								+ "host VARCHAR(255) NOT NULL,"
-								+ "port INTEGER NOT NULL,"
-								+ "url VARCHAR(255) NOT NULL,"
-								+ "start_timestamp TIMESTAMP NOT NULL,"
-								+ "end_timestamp TIMESTAMP NULL,"
-								+ "history_id INTEGER NULL,"
-								+ "FOREIGN KEY (history_id) REFERENCES HISTORY(HISTORYID) ON DELETE SET NULL ON UPDATE SET NULL"
-								+ ")");
-				stmt.execute();
-				stmt.close();
-				
-				stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message ("
-								+ "message_id BIGINT NOT NULL,"
-								+ "channel_id BIGINT NOT NULL,"
-								+ "timestamp TIMESTAMP NOT NULL,"
-								+ "opcode TINYINT NOT NULL,"
-								+ "payload_utf8 LONGVARCHAR NULL,"
-								+ "payload_bytes LONGVARBINARY NULL,"
-								+ "payload_length BIGINT NOT NULL,"
-								+ "is_outgoing BOOLEAN NOT NULL,"
-								+ "PRIMARY KEY (message_id, channel_id),"
-								+ "FOREIGN KEY (channel_id) REFERENCES websocket_channel(channel_id)"
-								+ ")");
-				stmt.execute();
-				stmt.close();
-				
-				stmt = conn.prepareStatement("ALTER TABLE websocket_message "
-						+ "ADD CONSTRAINT websocket_message_payload "
-						+ "CHECK (payload_utf8 IS NOT NULL OR payload_bytes IS NOT NULL)");
-				stmt.execute();
-				stmt.close();
-				
-				stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message_fuzz ("
-								+ "fuzz_id BIGINT NOT NULL,"
-								+ "message_id BIGINT NOT NULL,"
-								+ "channel_id BIGINT NOT NULL,"
-								+ "state VARCHAR(50) NOT NULL,"
-								+ "fuzz LONGVARCHAR NOT NULL,"
-								+ "PRIMARY KEY (fuzz_id, message_id, channel_id),"
-								+ "FOREIGN KEY (message_id, channel_id) REFERENCES websocket_message(message_id, channel_id) ON DELETE CASCADE"
-								+ ")");
-				stmt.execute();
-				stmt.close();
-				
-				channelIds = new HashSet<Integer>();
-			} else {
-				channelIds = null;
-			}
-    	} finally {
-    		rs.close();
-    	}
+    	if (!DbUtils.hasTable(conn, "WEBSOCKET_CHANNEL")) {
+			// need to create the tables
+			PreparedStatement stmt = conn
+					.prepareStatement("CREATE CACHED TABLE websocket_channel ("
+							+ "channel_id BIGINT PRIMARY KEY,"
+							+ "host VARCHAR(255) NOT NULL,"
+							+ "port INTEGER NOT NULL,"
+							+ "url VARCHAR(255) NOT NULL,"
+							+ "start_timestamp TIMESTAMP NOT NULL,"
+							+ "end_timestamp TIMESTAMP NULL,"
+							+ "history_id INTEGER NULL,"
+							+ "FOREIGN KEY (history_id) REFERENCES HISTORY(HISTORYID) ON DELETE SET NULL ON UPDATE SET NULL"
+							+ ")");
+			stmt.execute();
+			stmt.close();
+			
+			stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message ("
+							+ "message_id BIGINT NOT NULL,"
+							+ "channel_id BIGINT NOT NULL,"
+							+ "timestamp TIMESTAMP NOT NULL,"
+							+ "opcode TINYINT NOT NULL,"
+							+ "payload_utf8 CLOB NULL,"
+							+ "payload_bytes BLOB NULL,"
+							+ "payload_length BIGINT NOT NULL,"
+							+ "is_outgoing BOOLEAN NOT NULL,"
+							+ "PRIMARY KEY (message_id, channel_id),"
+							+ "FOREIGN KEY (channel_id) REFERENCES websocket_channel(channel_id)"
+							+ ")");
+			stmt.execute();
+			stmt.close();
+			
+			stmt = conn.prepareStatement("ALTER TABLE websocket_message "
+					+ "ADD CONSTRAINT websocket_message_payload "
+					+ "CHECK (payload_utf8 IS NOT NULL OR payload_bytes IS NOT NULL)");
+			stmt.execute();
+			stmt.close();
+			
+			stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message_fuzz ("
+							+ "fuzz_id BIGINT NOT NULL,"
+							+ "message_id BIGINT NOT NULL,"
+							+ "channel_id BIGINT NOT NULL,"
+							+ "state VARCHAR(50) NOT NULL,"
+							+ "fuzz LONGVARCHAR NOT NULL,"
+							+ "PRIMARY KEY (fuzz_id, message_id, channel_id),"
+							+ "FOREIGN KEY (message_id, channel_id) REFERENCES websocket_message(message_id, channel_id) ON DELETE CASCADE"
+							+ ")");
+			stmt.execute();
+			stmt.close();
+			
+			channelIds = new HashSet<Integer>();
+		} else {
+			channelIds = null;
+		}
     	
 		channelCache = new LRUMap(20);
         
@@ -179,7 +177,7 @@ public class TableWebSocket extends AbstractTable {
 			channelIds = new HashSet<Integer>();
 			psSelectChannelIds.execute();
 			
-			rs = psSelectChannelIds.getResultSet();
+			ResultSet rs = psSelectChannelIds.getResultSet();
 			while (rs.next()) {
 				channelIds.add(rs.getInt(1));
 			}
@@ -263,10 +261,8 @@ public class TableWebSocket extends AbstractTable {
 	 * @throws SQLException
 	 */
 	public synchronized List<WebSocketMessageDTO> getMessages(WebSocketMessageDTO criteria, List<Integer> opcodes, int offset, int limit, int payloadPreviewLength) throws SQLException {
-		// SUBSTRING returns byte values
-		payloadPreviewLength *= 2;
 		String query = "SELECT m.message_id, m.channel_id, m.timestamp, m.opcode, m.payload_length, m.is_outgoing, "
-				+ "SUBSTRING(m.payload_utf8 FROM 0 FOR " + payloadPreviewLength + ") AS payload_utf8, '' AS payload_bytes, "
+				+ "m.payload_utf8, m.payload_bytes, "
 				+ "f.fuzz_id, f.state, f.fuzz "
         		+ "FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
@@ -294,21 +290,25 @@ public class TableWebSocket extends AbstractTable {
 			
 			stmt.execute();
 			
-			return buildMessageDTOs(stmt.getResultSet(), true);
+			return buildMessageDTOs(stmt.getResultSet(), true, payloadPreviewLength);
 		} finally {
 			stmt.close();
 		}
 	}
 	
+	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes) throws SQLException {
+		return buildMessageDTOs(rs, interpretLiteralBytes, -1);
+	}
 	/**
 	 * 
 	 * @param rs
 	 * @param interpretLiteralBytes
+	 * @param payloadLength 
 	 * @return
 	 * @throws HttpMalformedHeaderException
 	 * @throws SQLException
 	 */
-	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes) throws SQLException {
+	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes, int payloadLength) throws SQLException {
 		List<WebSocketMessageDTO> messages = new ArrayList<WebSocketMessageDTO>();
 		try {
 			while (rs.next()) {
@@ -334,12 +334,30 @@ public class TableWebSocket extends AbstractTable {
 				
 				// read payload
 				if (message.opcode == WebSocketMessage.OPCODE_BINARY) {
-					message.payload = rs.getBytes("payload_bytes");
+					if (payloadLength == -1) {
+						// load all bytes
+						message.payload = rs.getBytes("payload_bytes");
+					} else {
+						Blob blob = rs.getBlob("payload_bytes");
+						int length = Math.min(payloadLength, (int) blob.length());
+						message.payload = blob.getBytes(1, length);
+						blob.free();
+					}
+					
 					if (message.payload == null) {
 						message.payload = new byte[0];
 					}
 				} else {
-					message.payload = rs.getString("payload_utf8");
+					if (payloadLength == -1) {
+						// load all characters
+						message.payload = rs.getString("payload_utf8");
+					} else {
+						Clob clob = rs.getClob("payload_utf8");
+						int length = Math.min(payloadLength, (int) clob.length());
+						message.payload = clob.getSubString(1, length);
+						clob.free();
+					}
+					
 					if (message.payload == null) {
 						message.payload = "";
 					}
@@ -513,11 +531,11 @@ public class TableWebSocket extends AbstractTable {
 
 				// write payload
 				if (message.payload instanceof String) {
-					psInsertMessage.setClob(5, new jdbcClob((String) message.payload));
+					psInsertMessage.setClob(5, new JDBCClob((String) message.payload));
 					psInsertMessage.setNull(6, Types.BLOB);
 				} else if (message.payload instanceof byte[]) {
 					psInsertMessage.setNull(5, Types.CLOB);
-					psInsertMessage.setBlob(6, new jdbcBlob((byte[]) message.payload));
+					psInsertMessage.setBlob(6, new JDBCBlob((byte[]) message.payload));
 				} else {
 					throw new SQLException("Attribute 'payload' of class WebSocketMessageDTO has got wrong type!");
 				}

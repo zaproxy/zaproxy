@@ -16,7 +16,7 @@ package org.zaproxy.zap.extension.websocket.utility;
  * The UTF-8 code was inspired by http://javolution.org
  * 
  */
-public class Utf8StringBuilder 
+class Utf8StringBuilder 
 {
     StringBuilder _buffer;
     int _more;

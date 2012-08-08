@@ -647,10 +647,10 @@ public abstract class WebSocketProxy {
 				dto.url = handshakeRef.getHttpMessage().getRequestHeader().getURI().toString();
 			} catch (HttpMalformedHeaderException e) {
 				dto.url = "";
-				logger.error("HttpMessage for WebSockets-handshake not found!", e);
+				logger.error("HttpMessage for WebSockets-handshake not found!");
 			} catch (SQLException e) {
 				dto.url = "";
-				logger.error("HttpMessage for WebSockets-handshake not found!", e);
+				logger.error("HttpMessage for WebSockets-handshake not found!");
 			}
 			dto.historyId = handshakeRef.getHistoryId();
 		} else {

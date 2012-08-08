@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
+import org.zaproxy.zap.extension.websocket.utility.Utf8Util;
 
 /**
  * Data Access Object used for displaying WebSockets communication. Intended to
@@ -66,6 +68,9 @@ public class WebSocketMessageDTO implements Message {
 	/**
 	 * Might be either a string (readable representation for TEXT frames) OR
 	 * byte[].
+	 * <p>
+	 * If it is a byte[] then it might be readable though.
+	 * </p>
 	 */
 	public Object payload;
 
@@ -165,5 +170,21 @@ public class WebSocketMessageDTO implements Message {
 	@Override
 	public boolean isInScope() {
 		return channel.isInScope();
+	}
+
+	/**
+	 * Returns content of {@link WebSocketMessageDTO#payload} directly if it is
+	 * of type {@link String}. Otherwise it tries to convert it.
+	 * @return 
+	 * @throws InvalidUtf8Exception 
+	 */
+	public String getReadablePayload() throws InvalidUtf8Exception {
+		if (payload instanceof String) {
+			return (String) payload;
+		} else if (payload instanceof byte[]){
+			return Utf8Util.encodePayloadToUtf8((byte[]) payload);
+		} else {
+			return "";
+		}
 	}
 }
