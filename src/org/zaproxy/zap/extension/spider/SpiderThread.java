@@ -364,6 +364,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @see org.zaproxy.zap.model.GenericScanner#reset() */
 	@Override
 	public void reset() {
+		this.resultsModel.removeAllElements();
 	}
 
 	/**
