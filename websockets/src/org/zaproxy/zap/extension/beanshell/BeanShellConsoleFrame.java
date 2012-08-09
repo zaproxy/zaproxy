@@ -340,7 +340,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 			gbc.fill = java.awt.GridBagConstraints.BOTH;
 			gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			
-			HttpSender sender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true);
+			HttpSender sender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true, HttpSender.BEAN_SHELL_INITIATOR);
 			try {
 				getInterpreter().set("model", Model.getSingleton());
 				getInterpreter().set("sites", Model.getSingleton().getSession().getSiteTree());

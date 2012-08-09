@@ -20,14 +20,14 @@
 package org.zaproxy.zap.extension.pscan;
 
 import org.apache.commons.configuration.Configuration;
-import org.parosproxy.paros.core.scanner.Plugin.Level;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 
 
 public abstract class PluginPassiveScanner implements PassiveScanner {
 
 	private boolean enabled = true;
-	private Level level = Level.DEFAULT;
-	private Level defaultLevel = Level.MEDIUM;
+	private AlertThreshold level = AlertThreshold.DEFAULT;
+	private AlertThreshold defaultLevel = AlertThreshold.MEDIUM;
 	private Configuration config = null;
 
 	@Override
@@ -54,23 +54,23 @@ public abstract class PluginPassiveScanner implements PassiveScanner {
 	}
 
 	@Override
-	public Level getLevel() {
-		if (Level.DEFAULT.equals(level)) {
+	public AlertThreshold getLevel() {
+		if (AlertThreshold.DEFAULT.equals(level)) {
 			return defaultLevel;
 		}
 		return level;
 	}
 	
-	public Level getLevel(boolean incDefault) {
+	public AlertThreshold getLevel(boolean incDefault) {
 		return level;
 	}
 	
 	@Override
-	public void setLevel(Level level) {
+	public void setLevel(AlertThreshold level) {
 		this.level = level;
 	}
 
-	public void setDefaultLevel(Level level) {
+	public void setDefaultLevel(AlertThreshold level) {
 		this.defaultLevel = level;
 	}
 }

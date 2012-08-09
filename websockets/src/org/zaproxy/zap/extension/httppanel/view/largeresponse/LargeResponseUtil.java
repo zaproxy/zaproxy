@@ -21,9 +21,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 
-class LargeResponseUtil {
-
-	private static int minContentLength = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
+public class LargeResponseUtil {
+    
+    private static final int DEFAULT_MIN_CONTENT_LENGTH = 100000;
+    
+    protected static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
     
     public static int getMinContentLength() {
         return minContentLength;
@@ -34,7 +36,7 @@ class LargeResponseUtil {
     }
     
     public static void restoreDefaultMinContentLength() {
-        minContentLength = ExtensionHttpPanelLargeResponseView.MIN_CONTENT_LENGTH;
+        minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
     }
     
     public static boolean isLargeResponse(Message aMessage) {

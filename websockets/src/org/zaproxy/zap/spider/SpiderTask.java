@@ -116,7 +116,8 @@ public class SpiderTask implements Runnable {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
 			}
-			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER_TASK,
+					msg);
 		} catch (HttpMalformedHeaderException e) {
 			log.error("Error while building HttpMessage for uri: " + uri, e);
 		} catch (SQLException e) {
@@ -249,6 +250,9 @@ public class SpiderTask implements Runnable {
 		msg = reference.getHttpMessage();
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+
+		// Remove the history reference from the database, as it's not used anymore
+		reference.delete();
 
 		// Check if there is a custom user agent
 		if (parent.getSpiderParam().getUserAgent() != null)

@@ -22,13 +22,16 @@
 // ZAP: 2012/04/23 Removed unnecessary cast.
 // ZAP: 2012/05/08 Use custom http client on "Connection: Upgrade" in executeMethod().
 //                 Retrieve upgraded socket and save for later use in send() method.
+// ZAP: 2012/08/07 Issue 342Support the HttpSenderListener
 
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.httpclient.Header;
@@ -46,8 +49,18 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
+import org.zaproxy.zap.network.HttpSenderListener;
 
 public class HttpSender {
+	public static final int PROXY_INITIATOR = 1;
+	public static final int ACTIVE_SCANNER_INITIATOR = 2;
+	public static final int SPIDER_INITIATOR = 3;
+	public static final int FUZZER_INITIATOR = 4;
+	public static final int AUTHENTICATION_INITIATOR = 5;
+	public static final int MANUAL_REQUEST_INITIATOR = 6;
+	public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
+	public static final int BEAN_SHELL_INITIATOR = 8;
+	
 
     private static Logger log = Logger.getLogger(HttpSender.class);
     
@@ -57,6 +70,9 @@ public class HttpSender {
     // Issue 90
     private static boolean allowUnsafeSSLRenegotiation = false;
     
+    private static List<HttpSenderListener> listeners = new ArrayList<HttpSenderListener>();
+    private static Comparator<HttpSenderListener> listenersComparator = null;;
+
     static {        
 	    try {
 	        protocol = Protocol.getProtocol("https");
@@ -78,10 +94,18 @@ public class HttpSender {
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private boolean followRedirect = false;
     private boolean allowState = false;
+    private int initiator = -1; 
     
+    /*
     public HttpSender(ConnectionParam connectionParam, boolean allowState) {
+    	this (connectionParam, allowState, -1);
+    }
+    */
+    
+    public HttpSender(ConnectionParam connectionParam, boolean allowState, int initiator) {
         this.param = connectionParam;
         this.allowState = allowState;
+        this.initiator = initiator;
 
         client = createHttpClient();
         clientViaProxy = createHttpClientViaProxy();
@@ -213,16 +237,20 @@ public class HttpSender {
      * Do not use this unless sure what is doing.  This method works but proxy may skip the pipe without
      * properly handle the filter.
      * 
+     * Made this method private as it doesnt appear to be used anywhere...
+     * 
      * @param msg
      * @param pipe
      * @param buf
      * @throws HttpException
      * @throws IOException
      */
-    public void sendAndReceive(HttpMessage msg, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
+    /*
+	private void sendAndReceive(HttpMessage msg, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
         sendAndReceive(msg, followRedirect, pipe, buf);
         
     }
+    */
     
     /**
      * Send and receive a HttpMessage.  
@@ -237,10 +265,17 @@ public class HttpSender {
         msg.setTimeSentMillis(System.currentTimeMillis());
 
         try {
+        	// Notify listeners
+        	for (HttpSenderListener listener : listeners) {
+        		try {
+            		listener.onHttpRequestSend(msg, initiator);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+        	}
             if (!isFollowRedirect || !
                     (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)
-                            || msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.PUT))
-            ) {
+                            || msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.PUT))) {
                 send(msg, isFollowRedirect);
                 return;
             } else {
@@ -270,6 +305,15 @@ public class HttpSender {
         } finally {
             msg.setTimeElapsedMillis((int) (System.currentTimeMillis()-msg.getTimeSentMillis()));
         	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " + msg.getTimeElapsedMillis());
+        	
+        	// Notify listeners
+        	for (HttpSenderListener listener : listeners) {
+        		try {
+					listener.onHttpResponseReceive(msg, initiator);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+        	}
         }
     }
     
@@ -307,7 +351,7 @@ public class HttpSender {
 		modifyUserAgent(msg);
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
         method.setFollowRedirects(isFollowRedirect);
-        executeMethod(method);
+        this.executeMethod(method);
         if (allowState) {
             if (param.isHttpStateEnabled()) {
                 HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
@@ -386,7 +430,8 @@ public class HttpSender {
      * @throws HttpException
      * @throws IOException
      */
-    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
+    /*
+    private void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
     	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " start");
         msg.setTimeSentMillis(System.currentTimeMillis());
 
@@ -426,6 +471,7 @@ public class HttpSender {
         	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " + msg.getTimeElapsedMillis());
         }
     }
+    */
     
     /**
      * Do not use this unless sure what is doing.  This method works but proxy may skip the pipe without
@@ -438,6 +484,7 @@ public class HttpSender {
      * @throws HttpException
      * @throws IOException
      */
+    /*
     private void send(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe, byte[] buf) throws HttpException, IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
@@ -481,8 +528,40 @@ public class HttpSender {
 	            method.releaseConnection();
 	        }
         }
-
-        
     }   
+    */
     
+    public static void addListener(HttpSenderListener listener) {
+    	listeners.add(listener);
+		Collections.sort(listeners, getListenersComparator());
+    }
+    
+	private static Comparator<HttpSenderListener> getListenersComparator() {
+		if(listenersComparator == null) {
+			createListenersComparator();
+		}
+		
+		return listenersComparator;
+	}
+	
+	synchronized private static void createListenersComparator() {
+		if (listenersComparator == null) {
+			listenersComparator = new Comparator<HttpSenderListener>() {
+				
+				@Override
+				public int compare(HttpSenderListener o1, HttpSenderListener o2) {
+					int order1 = o1.getListenerOrder();
+					int order2 = o2.getListenerOrder();
+					
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					}
+					
+					return 0;
+				}
+			};
+		}
+	}
 }

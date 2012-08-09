@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
 import org.zaproxy.zap.spider.filters.DefaultParseFilter;
@@ -142,7 +143,7 @@ public class Spider {
 		this.addFetchFilter(defaultFetchFilter);
 		// Add domains always in scope
 		String scope = spiderParam.getScope();
-		if (scope!=null && !scope.trim().isEmpty()) {
+		if (scope != null && !scope.trim().isEmpty()) {
 			defaultFetchFilter.addScopeRegex(scope);
 		}
 		// Add a default parse filter
@@ -157,16 +158,7 @@ public class Spider {
 	 */
 	public void addSeed(HttpMessage msg) {
 		URI uri = msg.getRequestHeader().getURI();
-		// Update the scope of the spidering process
-		try {
-			defaultFetchFilter.addScopeRegex(uri.getHost());
-		} catch (URIException e) {
-			log.error("There was an error while adding seed value: " + uri, e);
-			return;
-		}
-		// Add the seed to the list -- it will be added to the task list only when the spider is
-		// started
-		this.seedList.add(uri);
+		addSeed(uri);
 	}
 
 	/**
@@ -176,8 +168,11 @@ public class Spider {
 	 */
 	public void addSeed(URI uri) {
 		// Update the scope of the spidering process
+		String host = null;
+
 		try {
-			defaultFetchFilter.addScopeRegex(uri.getHost());
+			host = uri.getHost();
+			defaultFetchFilter.addScopeRegex(host);
 		} catch (URIException e) {
 			log.error("There was an error while adding seed value: " + uri, e);
 			return;
@@ -185,6 +180,22 @@ public class Spider {
 		// Add the seed to the list -- it will be added to the task list only when the spider is
 		// started
 		this.seedList.add(uri);
+		// Add the appropriate 'robots.txt' as a seed
+		if (getSpiderParam().isParseRobotsTxt()) {
+			try {
+				// Build the URI of the robots.txt file
+				URI robotsUri;
+				// If the port is not 80 or 443, add it to the URI
+				if (uri.getPort() == 80 || uri.getPort() == 443)
+					robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
+				else
+					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt", true);
+				this.seedList.add(robotsUri);
+			} catch (Exception e) {
+				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
+			}
+		}
+
 	}
 
 	/**
@@ -287,6 +298,15 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+
+		// Check if seeds are available, otherwise the Spider will start, but will not have any
+		// seeds and will not stop.
+		if (seedList == null || seedList.isEmpty()) {
+			log.warn("No seeds available for the Spider. Cancelling scan...");
+			notifyListenersSpiderComplete(false);
+			return;
+		}
+
 		this.controller.reset();
 		this.stopped = false;
 		this.paused = false;
@@ -296,7 +316,7 @@ public class Spider {
 		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
 
 		// Initialize the HTTP sender
-		httpSender = new HttpSender(connectionParam, true);
+		httpSender = new HttpSender(connectionParam, true, HttpSender.SPIDER_INITIATOR);
 		// Do not follow redirections because the request is not updated, the redirections will be
 		// handled manually.
 		httpSender.setFollowRedirect(false);
@@ -305,7 +325,7 @@ public class Spider {
 		for (URI uri : seedList) {
 			if (log.isInfoEnabled())
 				log.info("Adding seed for spider: " + uri);
-			controller.addSeed(uri);
+			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
 		// Mark the process as completely initialized
 		initialized = true;
@@ -485,12 +505,13 @@ public class Spider {
 	 * Notifies the listeners regarding a found uri.
 	 * 
 	 * @param uri the uri
+	 * @param method the method used for fetching the resource
 	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
 	 *            stating the reason of the filtering
 	 */
-	protected synchronized void notifyListenersFoundURI(String uri, FetchStatus status) {
+	protected synchronized void notifyListenersFoundURI(String uri, String method, FetchStatus status) {
 		for (SpiderListener l : listeners)
-			l.foundURI(uri, status);
+			l.foundURI(uri, method, status);
 	}
 
 	/**
