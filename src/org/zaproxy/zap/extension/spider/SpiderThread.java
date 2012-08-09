@@ -65,8 +65,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	/** The spider done. */
 	private int spiderDone = 0;
 
-	/** The spider todo. */
-	private int spiderTodo = 100; // Will get updated ;)
+	/** The spider todo. It will be updated by the "spiderProgress()" method. */
+	private int spiderTodo = 1;
 
 	/** The Constant log used for logging. */
 	private static final Logger log = Logger.getLogger(SpiderThread.class);
