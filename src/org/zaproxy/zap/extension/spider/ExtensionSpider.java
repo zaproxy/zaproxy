@@ -77,7 +77,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	private List<String> excludeList = null;
 
 	/**
-	 * Instantiates a new spider extension
+	 * Instantiates a new spider extension.
 	 */
 	public ExtensionSpider() {
 		super();
@@ -101,6 +101,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.setName(NAME);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook)
+	 */
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
@@ -147,7 +150,19 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 		return spiderPanel;
 	}
+	
+	/* (non-Javadoc)
+	 * 
+	 * @see
+	 * org.parosproxy.paros.extension.SessionChangedListener#sessionAboutToChange(org.parosproxy
+	 * .paros.model.Session) */
+	@Override
+	public void sessionAboutToChange(Session session) {
+	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
+	 */
 	@Override
 	public void sessionChanged(final Session session) {
 		if (EventQueue.isDispatchThread()) {
@@ -187,11 +202,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder()
+	 */
 	@Override
 	public int getProxyListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
+	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
@@ -203,12 +224,18 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
+	 */
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Do nothing
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.zaproxy.zap.view.SiteMapListener#nodeSelected(org.parosproxy.paros.model.SiteNode)
+	 */
 	@Override
 	public void nodeSelected(SiteNode node) {
 		this.getSpiderPanel().nodeSelected(node, true);
@@ -265,14 +292,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		return excludeList;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionAboutToChange(org.parosproxy
-	 * .paros.model.Session) */
-	@Override
-	public void sessionAboutToChange(Session session) {
-	}
 
 	/* (non-Javadoc)
 	 * 
@@ -322,14 +341,27 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.getSpiderPanel().sessionModeChanged(mode);
 	}
 
+	/**
+	 * Start scan node.
+	 * 
+	 * @param node the node
+	 */
 	public void startScanNode(SiteNode node) {
 		this.getSpiderPanel().scanNode(node, true);
 	}
 
+	/**
+	 * Start scan all in scope.
+	 */
 	public void startScanAllInScope() {
 		this.getSpiderPanel().scanAllInScope();
 	}
 
+	/**
+	 * Start scan.
+	 * 
+	 * @param startNode the start node
+	 */
 	public void startScan(SiteNode startNode) {
 		this.getSpiderPanel().scanSite(startNode, true);
 	}
