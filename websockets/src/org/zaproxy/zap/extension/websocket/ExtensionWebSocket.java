@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.websocket;
 import java.awt.EventQueue;
 import java.io.InputStream;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
+import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
@@ -518,6 +520,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		// reset replace payload filter
 		if (payloadFilter != null) {
 			payloadFilter.reset();
+		}
+		
+		try {
+			WebSocketProxy.setChannelCounter(storage.getTable().getMaxChannelId());
+		} catch (SQLException e) {
+			logger.error("Unable to retrieve current channelId value!", e);
 		}
 	}
 
