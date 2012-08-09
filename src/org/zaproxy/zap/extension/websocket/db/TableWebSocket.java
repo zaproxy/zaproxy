@@ -68,6 +68,8 @@ public class TableWebSocket extends AbstractTable {
 	private PreparedStatement psInsertFuzz;
 	
 	private PreparedStatement psSelectMessage;
+	
+	private PreparedStatement psSelectMaxChannelId;
 
     /**
      * Create tables if not already available
@@ -135,6 +137,9 @@ public class TableWebSocket extends AbstractTable {
         		+ "FROM websocket_channel AS c "
         		+ "ORDER BY c.channel_id");
         
+        psSelectMaxChannelId = conn.prepareStatement("SELECT MAX(c.channel_id) as channel_id "
+        		+ "FROM websocket_channel AS c");
+        
         psSelectChannels = conn.prepareStatement("SELECT c.* "
         		+ "FROM websocket_channel AS c "
         		+ "ORDER BY c.channel_id");
@@ -200,13 +205,13 @@ public class TableWebSocket extends AbstractTable {
 		
 		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		try {
-			return executeAndGetRowCount(stmt);
+			return executeAndGetSingleIntValue(stmt);
 		} finally {
 			stmt.close();
 		}
 	}
 
-	private int executeAndGetRowCount(PreparedStatement stmt) throws SQLException {
+	private int executeAndGetSingleIntValue(PreparedStatement stmt) throws SQLException {
 		stmt.execute();
 		ResultSet rs = stmt.getResultSet();
 		try {
@@ -231,7 +236,7 @@ public class TableWebSocket extends AbstractTable {
 		stmt.setInt(paramsCount, criteria.id);
 
 		try {
-			return executeAndGetRowCount(stmt);
+			return executeAndGetSingleIntValue(stmt);
 		} finally {
 			stmt.close();
 		}
@@ -639,6 +644,18 @@ public class TableWebSocket extends AbstractTable {
 				
 				channelIds.remove(channelId);
 			}
+		}
+	}
+
+	/**
+	 * Returns the current maximum value for the channel column.
+	 * 
+	 * @return
+	 * @throws SQLException 
+	 */
+	public int getMaxChannelId() throws SQLException {
+		synchronized (this) {
+			return executeAndGetSingleIntValue(psSelectMaxChannelId);
 		}
 	}
 }

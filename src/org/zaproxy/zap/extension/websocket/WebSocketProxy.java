@@ -151,6 +151,15 @@ public abstract class WebSocketProxy {
 	static {
 		channelCounter = new AtomicInteger(0);
 	}
+	
+	/**
+	 * After loading another session, the channelCount should be initialized.
+	 * 
+	 * @param currentChannelCount
+	 */
+	public static void setChannelCounter(int currentChannelCount) {
+		channelCounter.set(currentChannelCount);
+	}
 
 	/**
 	 * Factory method to create appropriate version.
