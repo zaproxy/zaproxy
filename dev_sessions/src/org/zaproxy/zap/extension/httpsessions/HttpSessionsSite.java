@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -90,6 +91,7 @@ public class HttpSessionsSite {
 			activeSession = null;
 		this.sessions.remove(session);
 		this.model.removeHttpSession(session);
+		session.invalidate();
 	}
 
 	/**
@@ -185,8 +187,15 @@ public class HttpSessionsSite {
 		if (log.isDebugEnabled())
 			log.debug("Matching session for request message (for site " + getSite() + "): " + session);
 
+		// Store the session in the HttpMessage for caching purpose
+		message.setHttpSession(session);
+
 		// If any session is active (forced), change the necessary cookies
 		if (activeSession != null && activeSession != session) {
+
+			// Make a copy of the session tokens set, as they will be modified
+			tokensSet = new LinkedHashSet<String>(tokensSet);
+
 			// Iterate through the cookies in the request
 			Iterator<HttpCookie> it = requestCookies.iterator();
 			while (it.hasNext()) {
@@ -221,6 +230,8 @@ public class HttpSessionsSite {
 					requestCookies.add(cookie);
 				}
 			}
+			// Update the session in the HttpMessage
+			message.setHttpSession(activeSession);
 
 			// Update the cookies in the message
 			message.getRequestHeader().setCookies(requestCookies);
@@ -259,11 +270,19 @@ public class HttpSessionsSite {
 				tokenValues.put(cookie.getName().toLowerCase(), cookie.getValue());
 		}
 
-		// Get the session, based on the request header
+		// Get the cookies present in the request
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
-		HttpSession session = getMatchingHttpSession(requestCookies, tokensSet);
-		if (log.isDebugEnabled())
-			log.debug("Matching session for response message (from site " + getSite() + "): " + session);
+
+		// Get the session, based on the request header
+		HttpSession session = message.getHttpSession();
+		if (session == null || !session.isValid()) {
+			session = getMatchingHttpSession(requestCookies, tokensSet);
+			if (log.isDebugEnabled())
+				log.debug("Matching session for response message (from site " + getSite() + "): " + session);
+		} else {
+			if (log.isDebugEnabled())
+				log.debug("Matching cached session for response message (from site " + getSite() + "): " + session);
+		}
 
 		// If the session didn't exist, create it now
 		if (session == null) {
@@ -315,15 +334,6 @@ public class HttpSessionsSite {
 					break;
 				}
 
-			// TODO: Modified so that even even there is no cookie for this token, if there is a
-			// session without this token, it matches
-			// if (matchingCookie == null) {
-			// log.debug("No sessions matching as no cookie is matching for token '" + token +
-			// "' for site: "
-			// + getSite());
-			// return null;
-			// }
-
 			// Filter the sessions that do not match the cookie value
 			Iterator<HttpSession> it = matchingSessions.iterator();
 			while (it.hasNext()) {
@@ -347,5 +357,33 @@ public class HttpSessionsSite {
 	@Override
 	public String toString() {
 		return "HttpSessionsSite [site=" + site + ", activeSession=" + activeSession + ", sessions=" + sessions + "]";
+	}
+
+	/**
+	 * Cleans up the sessions, eliminating the given session token.
+	 * 
+	 * @param token the session token
+	 */
+	protected void cleanupSessionToken(String token) {
+		// If there are no more session tokens, delete all sessions
+		HashSet<String> siteTokens = extension.getHttpSessionTokens(site);
+		if (siteTokens == null) {
+			// Invalidate all sessions
+			for (HttpSession session : this.sessions)
+				session.invalidate();
+
+			// Remove all sessions
+			sessions.clear();
+			activeSession = null;
+			this.model.removeAllElements();
+			return;
+		}
+
+		// Iterate through all the sessions and eliminate the given token
+		for (HttpSession session : this.sessions)
+			session.removeToken(token);
+
+		// Update the model
+		this.model.fireTableDataChanged();
 	}
 }

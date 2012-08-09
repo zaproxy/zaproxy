@@ -442,7 +442,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
 					.getExtension(ExtensionHttpSessions.NAME);
 			if (extSession != null && item != null) {
-				extSession.addSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
+				extSession.addHttpSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
 			}
 			
 			// Flag the item accordingly
@@ -464,7 +464,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
 					.getExtension(ExtensionHttpSessions.NAME);
 			if (extSession != null) {
-				extSession.removeSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
+				extSession.removeHttpSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
 			}
 
 			// Unflag the item accordingly

@@ -91,7 +91,7 @@ public class SiteParameters {
 					// Only Cookies can be session params
 					// TODO: Add support for URL tokens
 					p.addFlag(HtmlParameter.Flags.session.name());
-					extSession.addSessionToken(site, p.getName());
+					extSession.addHttpSessionToken(site, p.getName());
 				}
 			}
 			

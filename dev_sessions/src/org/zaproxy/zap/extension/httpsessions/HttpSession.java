@@ -24,6 +24,9 @@ import java.util.Map;
 /**
  * The Class HttpSession defines the data that is stored regarding an existing HTTP session on a
  * particular site.
+ * <p>
+ * The session can be invalidated and should only be used while it is valid.
+ * </p>
  */
 public class HttpSession {
 
@@ -36,6 +39,9 @@ public class HttpSession {
 	/** The session tokens' values for this session. */
 	private HashMap<String, String> tokenValues;
 
+	/** Whether this session is valid. */
+	private boolean valid;
+
 	/**
 	 * Instantiates a new http session.
 	 * 
@@ -45,6 +51,7 @@ public class HttpSession {
 		super();
 		this.name = name;
 		this.active = false;
+		this.valid = true;
 		this.tokenValues = new HashMap<String, String>(1);
 	}
 
@@ -130,6 +137,18 @@ public class HttpSession {
 		return false;
 	}
 
+	/**
+	 * Removes a given token.
+	 * 
+	 * @param tokenName the token name
+	 */
+	public void removeToken(String tokenName) {
+		tokenValues.remove(tokenName);
+	}
+
+	/* (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString() */
 	@Override
 	public String toString() {
 		return "HttpSession [name=" + name + ", active=" + active + ", tokenValues='" + getTokenValuesString() + "']";
@@ -153,6 +172,9 @@ public class HttpSession {
 
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode() */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -161,6 +183,9 @@ public class HttpSession {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object) */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -176,6 +201,22 @@ public class HttpSession {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+
+	/**
+	 * Checks if the session is still valid.
+	 * 
+	 * @return true, if is valid
+	 */
+	public boolean isValid() {
+		return valid;
+	}
+
+	/**
+	 * Invalidates the session
+	 */
+	public void invalidate() {
+		this.valid = false;
 	}
 
 }
