@@ -52,7 +52,7 @@ public class HttpFuzzProcessFactory implements FuzzProcessFactory {
         this.showTokenRequests = showTokenRequests;
         extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
         
-        httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true);
+        httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true, HttpSender.FUZZER_INITIATOR);
         httpSender.setFollowRedirect(followRedirects);
     }
     

@@ -29,6 +29,7 @@
 // Load also on open() from DB.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/08/07 Added method for getting all Nodes in Scope
 
 package org.parosproxy.paros.model;
 
@@ -37,6 +38,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -568,6 +571,37 @@ public class Session extends FileXML {
 		return ! this.isExcludedFromScope(url);
 	}
 
+	/**
+	 * Gets the nodes from the site tree which are "In Scope". Searches recursively starting from
+	 * the root node. Should be used with care, as it is time-consuming, querying the database for
+	 * every node in the Site Tree.
+	 * 
+	 * @return the nodes in scope from site tree
+	 */
+	public List<SiteNode> getNodesInScopeFromSiteTree() {
+		List<SiteNode> nodes = new LinkedList<SiteNode>();
+		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		fillNodesInScope(rootNode, nodes);
+		return nodes;
+	}
+	
+	/**
+	 * Fills a given list with nodes in scope, searching recursively.
+	 * 
+	 * @param rootNode the root node
+	 * @param nodesList the nodes list
+	 */
+	private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isInScope(sn))
+				nodesList.add(sn);
+			fillNodesInScope(sn, nodesList);
+		}
+	}
+	
 	public List<String> getIncludeInScopeRegexs() {
 		return includeInScopeRegexs;
 	}

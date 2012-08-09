@@ -103,7 +103,7 @@ public class TestCrossSiteScriptV2 extends AbstractAppParamPlugin {
 		}
 
         HtmlContextAnalyser hca = new HtmlContextAnalyser(msg2);
-        if (Plugin.Level.HIGH.equals(this.getLevel())) {
+        if (Plugin.AlertThreshold.HIGH.equals(this.getAlertThreshold())) {
         	// High level, so check all results are in the expected context
         	return hca.getHtmlContexts(attack, targetContext, ignoreFlags);
         }

@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -17,28 +15,21 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+
 package org.zaproxy.zap.extension.spider;
 
-import java.awt.EventQueue;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.InputEvent;
-
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.ScanPanel;
 
 /**
@@ -47,319 +38,146 @@ import org.zaproxy.zap.view.ScanPanel;
  */
 public class SpiderPanel extends ScanPanel implements ScanListenner {
 
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
+
+	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderPanel.class);
 
-	public static final String PANEL_NAME = "spider";
+	/** The Constant defining the PANEL's NAME. */
+	public static final String PANEL_NAME = "SpiderPanel";
 
-	private JSplitPane splitPane = null;
-	private JPanel topPanel = null;
-	private JPanel bottomPanel = null;
-	private static ZapTextArea txtURIFound = null;
-	private JScrollPane topScrollPane = null;
-	private static ZapTextArea txtURISkip = null;
-	private JScrollPane bottomScrollPane = null;
+	/** The results table. */
+	private JTable resultsTable;
+
+	/** The results pane. */
+	private JScrollPane workPane;
+
+	/** The results model. */
+	private SpiderPanelTableModel currentResultsModel;
 
 	/**
 	 * Instantiates a new spider panel.
 	 * 
 	 * @param extension the extension
-	 * @param spiderScanParam the spider scan param
+	 * @param spiderScanParam the spider scan parameters
 	 */
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
 		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
 				spiderScanParam);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#newScanThread(java.lang.String,
+	 * org.parosproxy.paros.common.AbstractParam) */
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
-		st.setStartNode(this.getSiteNode(site));
 		return st;
 	}
 
-	@Override
-	protected void startScan() {
-		this.clear();
-		// Only allow one spider at a time, due to the way it uses the db
-		this.getSiteSelect().setEnabled(false);
-		super.startScan();
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String) */
+	protected SiteNode getSiteNode(String site) {
+		return super.getSiteNode(site);
 	}
 
-	@Override
-	protected void siteSelected(String site) {
-		// Only allow one spider at a time, due to the way it uses the db
-		if (this.getSiteSelect().isEnabled()) {
-			super.siteSelected(site);
-		}
-	}
-
-	@Override
-	public void scanFinshed(String host) {
-		super.scanFinshed(host);
-		// Only allow one spider at a time, due to the way it uses the db
-		this.getSiteSelect().setEnabled(true);
-	}
-
-	@Override
-	public boolean isScanning(SiteNode node, boolean incPort) {
-		// Only allow one spider at a time, due to the way it uses the db
-		return !this.getSiteSelect().isEnabled();
-	}
-
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#switchView(java.lang.String) */
 	@Override
 	protected void switchView(String site) {
-		// Cant switch views in this version
+		this.updateCurrentScanResultsModel(site);
+		this.getScanResultsTable().setModel(this.currentResultsModel);
+		this.setScanResultsTableColumnSizes();
 	}
 
 	/**
-	 * This method initializes the working SplitPane
+	 * This method initializes the working Panel.
 	 * 
-	 * @return javax.swing.JSplitPane
+	 * @return javax.swing.JScrollPane
 	 */
 	@Override
-	protected JSplitPane getWorkPanel() {
-		if (splitPane == null) {
-			splitPane = new JSplitPane();
-			splitPane.setName("SpiderSplitPane");
-			splitPane.setDividerSize(3);
-			splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-			splitPane.setTopComponent(getTopPanel());
-			splitPane.setBottomComponent(getBottomPanel());
-			splitPane.setResizeWeight(0.5D);
+	protected JScrollPane getWorkPanel() {
+		if (workPane == null) {
+			workPane = new JScrollPane();
+			workPane.setName("SpiderResultsPane");
+			workPane.setViewportView(getScanResultsTable());
+			workPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			workPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
-		return splitPane;
+		return workPane;
 	}
 
 	/**
-	 * This method initializes the topPanel.
-	 * 
-	 * @return the top panel
+	 * Sets the spider results table column sizes.
 	 */
-	private JPanel getTopPanel() {
-		if (topPanel == null) {
-			topPanel = new JPanel();
-			topPanel.setLayout(new GridBagLayout());
+	private void setScanResultsTableColumnSizes() {
+		resultsTable.getColumnModel().getColumn(0).setMinWidth(80);
+		resultsTable.getColumnModel().getColumn(0).setMaxWidth(90);
+		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(90); // processed
 
-			GridBagConstraints topLabelGridBag = new GridBagConstraints();
-			GridBagConstraints topScrollPaneGridBag = new GridBagConstraints();
+		resultsTable.getColumnModel().getColumn(1).setMinWidth(60);
+		resultsTable.getColumnModel().getColumn(1).setMaxWidth(80);
+		resultsTable.getColumnModel().getColumn(1).setPreferredWidth(70); // method
 
-			topLabelGridBag.gridx = 0;
-			topLabelGridBag.gridy = 0;
-			topLabelGridBag.weightx = 1.0D;
-			topLabelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			topLabelGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			topLabelGridBag.insets = new java.awt.Insets(2, 2, 2, 2);
+		resultsTable.getColumnModel().getColumn(2).setMinWidth(300); // name
 
-			topScrollPaneGridBag.gridx = 0;
-			topScrollPaneGridBag.gridy = 1;
-			topScrollPaneGridBag.ipady = 24;
-			topScrollPaneGridBag.weightx = 1.0;
-			topScrollPaneGridBag.weighty = 1.0;
-			topScrollPaneGridBag.fill = java.awt.GridBagConstraints.BOTH;
-			topScrollPaneGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			topScrollPaneGridBag.insets = new java.awt.Insets(0, 2, 0, 2);
-
-			JLabel topLabel = new JLabel();
-			topLabel.setText(Constant.messages.getString("spider.label.inScope"));
-
-			topPanel.add(topLabel, topLabelGridBag);
-			topPanel.add(getTopScrollPane(), topScrollPaneGridBag);
-		}
-		return topPanel;
+		resultsTable.getColumnModel().getColumn(3).setMinWidth(50);
+		resultsTable.getColumnModel().getColumn(3).setMaxWidth(600);
+		resultsTable.getColumnModel().getColumn(3).setPreferredWidth(250); // flags
 	}
 
 	/**
-	 * This method initializes the bottom panel.
+	 * Updates the current scan results model to the proper one.
 	 * 
-	 * @return the bottom panel
+	 * @param site the site
 	 */
-	private JPanel getBottomPanel() {
-		if (bottomPanel == null) {
-			bottomPanel = new JPanel();
-			bottomPanel.setLayout(new GridBagLayout());
-
-			GridBagConstraints bottomLabelGridBag = new GridBagConstraints();
-			GridBagConstraints bottomPanelGridBag = new GridBagConstraints();
-
-			bottomLabelGridBag.gridx = 0;
-			bottomLabelGridBag.gridy = 0;
-			bottomLabelGridBag.weightx = 1.0D;
-			bottomLabelGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			bottomLabelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			bottomLabelGridBag.insets = new java.awt.Insets(2, 2, 2, 2);
-
-			bottomPanelGridBag.gridx = 0;
-			bottomPanelGridBag.gridy = 1;
-			bottomPanelGridBag.ipady = 24;
-			bottomPanelGridBag.weightx = 1.0;
-			bottomPanelGridBag.weighty = 1.0;
-			bottomPanelGridBag.fill = java.awt.GridBagConstraints.BOTH;
-			bottomPanelGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			bottomPanelGridBag.insets = new java.awt.Insets(0, 2, 0, 2);
-
-			JLabel bottomLabel = new JLabel();
-			bottomLabel.setText(Constant.messages.getString("spider.label.outOfScope"));
-
-			bottomPanel.add(bottomLabel, bottomLabelGridBag);
-			bottomPanel.add(getBottomScrollPane(), bottomPanelGridBag);
-		}
-		return bottomPanel;
+	private void updateCurrentScanResultsModel(String site) {
+		SpiderThread st = (SpiderThread) this.getScanThread(site);
+		this.currentResultsModel = st.getResultsTableModel();
 	}
 
 	/**
-	 * This method initializes txtURISkip
+	 * Gets the scan results table.
 	 * 
-	 * @return org.zaproxy.zap.utils.ZapTextArea
+	 * @return the scan results table
 	 */
-	protected ZapTextArea getTxtURIFound() {
-		if (txtURIFound == null) {
-			txtURIFound = new ZapTextArea();
-			txtURIFound.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			txtURIFound.setText(Constant.messages.getString("spider.panel.emptyView"));
-			txtURIFound.setEditable(false);
-			txtURIFound.setLineWrap(true);
-			//TODO: To fix this when moving to JList:
-			txtURIFound.addMouseListener(new java.awt.event.MouseAdapter() {
+	private JTable getScanResultsTable() {
+		if (resultsTable == null) {
+			// Create the table with a default, empty TableModel and the proper settings
+			resultsTable = new JTable(new SpiderPanelTableModel());
+			resultsTable.setColumnSelectionAllowed(false);
+			resultsTable.setCellSelectionEnabled(false);
+			resultsTable.setRowSelectionAllowed(true);
+			resultsTable.setAutoCreateRowSorter(true);
+
+			this.setScanResultsTableColumnSizes();
+
+			resultsTable.setName(PANEL_NAME);
+			resultsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			resultsTable.setDoubleBuffered(true);
+			resultsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+			// Add hack to force row selection on right click
+			resultsTable.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
-				}
-
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
-				}
-
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right
-																									// mouse
-																									// button
-						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-					}
-				}
-
-			});
-		}
-		return txtURIFound;
-	}
-
-	/**
-	 * This method initializes jScrollPane
-	 * 
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getTopScrollPane() {
-		if (topScrollPane == null) {
-			topScrollPane = new JScrollPane();
-			topScrollPane.setViewportView(getTxtURIFound());
-			topScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			topScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		}
-		return topScrollPane;
-	}
-
-	/**
-	 * This method initializes txtURISkip
-	 * 
-	 * @return org.zaproxy.zap.utils.ZapTextArea
-	 */
-	protected ZapTextArea getTxtURISkip() {
-		if (txtURISkip == null) {
-			txtURISkip = new ZapTextArea();
-			txtURISkip.setEditable(false);
-			txtURISkip.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			txtURISkip.setLineWrap(true);
-			//TODO: To fix this when moving to JList:
-			txtURISkip.addMouseListener(new java.awt.event.MouseAdapter() {
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
-				}
-
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
-				}
-
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { // right
-																									// mouse
-																									// button
+					if (SwingUtilities.isRightMouseButton(e)) {
+						// Select table item
+						int row = resultsTable.rowAtPoint(e.getPoint());
+						if (row < 0 || !resultsTable.getSelectionModel().isSelectedIndex(row)) {
+							resultsTable.getSelectionModel().clearSelection();
+							if (row >= 0) {
+								resultsTable.getSelectionModel().setSelectionInterval(row, row);
+							}
+						}
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 					}
 				}
 			});
 		}
-		return txtURISkip;
+		return resultsTable;
 	}
-
-	/**
-	 * This method initializes jScrollPane1
-	 * 
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getBottomScrollPane() {
-		if (bottomScrollPane == null) {
-			bottomScrollPane = new JScrollPane();
-			bottomScrollPane.setViewportView(getTxtURISkip());
-			bottomScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		}
-		return bottomScrollPane;
-	}
-
-	/**
-	 * Appends a new url found to the list of URLs found (top Pane). Can be called from other
-	 * threads, in which case it will do the change on the EDT thread.
-	 * 
-	 * @param url the url
-	 */
-	void appendURLFound(final String url) {
-		if (EventQueue.isDispatchThread()) {
-			getTxtURIFound().append(url);
-			return;
-		}
-		try {
-			EventQueue.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					getTxtURIFound().append(url);
-				}
-			});
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-
-	}
-
-	/**
-	 * Appends a new url found to the list of URLs found, but skipped (lower Pane). Can be called
-	 * from other threads, in which case it will do the change on the EDT thread.
-	 * 
-	 * @param url the url
-	 */
-	void appendURLFoundButSkipped(final String url) {
-		if (EventQueue.isDispatchThread()) {
-			getTxtURISkip().append(url);
-			return;
-		}
-		try {
-			EventQueue.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-						getTxtURISkip().append(url);
-				}
-			});
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-	}
-
-	void clear() {
-		getTxtURIFound().setText("");
-		getTxtURISkip().setText("");
-	}
-
 }

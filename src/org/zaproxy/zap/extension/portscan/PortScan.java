@@ -231,6 +231,10 @@ public class PortScan extends ScanThread implements ScanListenner {
 	public boolean isStopped() {
 		return stopScan;
 	}
+	
+	public boolean isRunning() {
+		return this.isAlive();
+	}
 
 	@Override
 	public String getSite() {

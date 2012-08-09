@@ -33,6 +33,8 @@ public abstract class FetchFilter {
 	public enum FetchStatus {
 		/** The uri is VALID. */
 		VALID,
+		/** The uri is VALID and is a seed. **/
+		SEED,
 		/** The uri is out of scope. */
 		OUT_OF_SCOPE,
 		/** The uri has an illegal protocol. */

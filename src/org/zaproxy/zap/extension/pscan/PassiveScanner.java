@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.pscan;
 
 import net.htmlparser.jericho.Source;
 
-import org.parosproxy.paros.core.scanner.Plugin.Level;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface PassiveScanner {
@@ -38,7 +38,7 @@ public interface PassiveScanner {
 	
 	public boolean isEnabled();
 	
-	public Level getLevel();
+	public AlertThreshold getLevel();
 	
-	public void setLevel (Level level);
+	public void setLevel (AlertThreshold level);
 }

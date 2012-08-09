@@ -110,12 +110,12 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 					if ((match.substring(0, offset).indexOf(">") > 0) ||
 							(match.substring(offset).indexOf("<") > 0)) {
 						// Possible false positive, need to enhance the check to catch edge cases
-						if (this.getLevel().equals(Level.HIGH)) {
+						if (this.getAlertThreshold().equals(AlertThreshold.HIGH)) {
 							// Report anyway
 							bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, null, param, XSS_ATTACKS[i], null, msg);
 						}
 					} else {
-						if (this.getLevel().equals(Level.LOW)) {
+						if (this.getAlertThreshold().equals(AlertThreshold.LOW)) {
 							// Perform extra checks to reduce false positives, even if we miss some real issues
 							if (stringInQuotes (match, XSS_ATTACKS[i], QUOTES[i])) {
 								continue;

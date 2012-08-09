@@ -68,7 +68,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	@Override
-	public boolean isAlive() {
+	public boolean isRunning() {
 		return isAlive;
 	}
 
