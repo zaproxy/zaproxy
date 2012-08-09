@@ -423,7 +423,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 				level = this.defaultAttackStrength;
 			}
 			//log.debug("getAttackStrength default: " + level.name());
-		} else if (level.equals(AlertThreshold.DEFAULT)) {
+		} else if (level.equals(AttackStrength.DEFAULT)) {
 			if (incDefault) {
 				level = AttackStrength.DEFAULT;
 			} else {
