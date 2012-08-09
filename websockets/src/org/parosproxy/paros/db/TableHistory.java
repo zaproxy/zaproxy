@@ -142,6 +142,12 @@ public class TableHistory extends AbstractTable {
         
         if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY) != Types.SQL_VARBINARY) {
             bodiesAsBytes = false;
+        } else {
+        	// Databases created with ZAP<1.4.0.1 used VARCHAR for the REQBODY/RESBODY
+        	// HSQLDB 1.8.x converted from VARCHAR to bytes without problems
+        	// (through the method ResultSet.getBytes)
+        	// but the new version doesn't, it throws the following exception:
+        	// incompatible data type in conversion: from SQL type VARCHAR
         }
     }
     
