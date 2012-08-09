@@ -315,7 +315,8 @@ public class ParamsPanel extends AbstractPanel{
 		if (! site.equals(currentSite)) {
 			siteModel.setSelectedItem(site);
 			
-			this.getParamsTable().setModel(extension.getSiteParameters(site).getModel());
+			paramsModel=extension.getSiteParameters(site).getModel();
+			this.getParamsTable().setModel(paramsModel);
 			
 			this.setParamsTableColumnSizes();
 

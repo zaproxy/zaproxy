@@ -24,6 +24,8 @@
 // ZAP: 2102/03/15 Changed the type of the parameter "sb" of the method matchBodyPattern to 
 // StringBuilder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
+
 
 package org.parosproxy.paros.core.scanner;
 
@@ -66,7 +68,10 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     private int delayInMs;
     private ExtensionAntiCSRF extAntiCSRF = null;
 	private Encoder encoder = new Encoder();
-	private Level defaultLevel = Level.MEDIUM;
+	private AlertThreshold defaultAttackThreshold = AlertThreshold.MEDIUM;
+	private static final AlertThreshold[] alertThresholdsSupported = new AlertThreshold[] { AlertThreshold.MEDIUM };
+	private AttackStrength defaultAttackStrength = AttackStrength.MEDIUM;
+	private static final AttackStrength[] attackStrengthsSupported = new AttackStrength[] { AttackStrength.MEDIUM };
     
     public AbstractPlugin() {
     }
@@ -348,51 +353,106 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
     
 	@Override
-	public Level getLevel() {
-		return this.getLevel(false);
+	public AlertThreshold getAlertThreshold() {
+		return this.getAlertThreshold(false);
 	}
 	
 	@Override
-	public Level getLevel(boolean incDefault) {
-		Level level = null;
+	public AlertThreshold getAlertThreshold(boolean incDefault) {
+		AlertThreshold level = null;
 		try {
-			level = Level.valueOf(getProperty("level"));
-			log.debug("getLevel from configs: " + level.name());
+			level = AlertThreshold.valueOf(getProperty("level"));
+			//log.debug("getAlertThreshold from configs: " + level.name());
 		} catch (Exception e) {
 			// Ignore
 		}
 		if (level == null) {
 			if (this.isEnabled()) {
 				if (incDefault) {
-					level = Level.DEFAULT;
+					level = AlertThreshold.DEFAULT;
 				} else {
-					level = defaultLevel;
+					level = defaultAttackThreshold;
 				}
-				log.debug("getLevel default: " + level.name());
+				//log.debug("getAlertThreshold default: " + level.name());
 			} else {
-				level = Level.OFF;
-				log.debug("getLevel not enabled: " + level.name());
+				level = AlertThreshold.OFF;
+				//log.debug("getAlertThreshold not enabled: " + level.name());
 			}
-		} else if (level.equals(Level.DEFAULT)) {
+		} else if (level.equals(AlertThreshold.DEFAULT)) {
 			if (incDefault) {
-				level = Level.DEFAULT;
+				level = AlertThreshold.DEFAULT;
 			} else {
-				level = defaultLevel;
+				level = defaultAttackThreshold;
 			}
-			log.debug("getLevel default: " + level.name());
+			//log.debug("getAlertThreshold default: " + level.name());
 		}
 		return level;
 	}
 	
 	@Override
-	public void setLevel(Level level) {
+	public void setAlertThreshold(AlertThreshold level) {
 		setProperty("level", level.name());
 	}
 
 	@Override
-	public void setDefaultLevel(Level level) {
-		this.defaultLevel = level;
+	public void setDefaultAlertThreshold(AlertThreshold level) {
+		this.defaultAttackThreshold = level;
 	}
+	
+	/**
+	 * Override this if you plugin supports other levels.
+	 */
+	@Override
+	public AlertThreshold[] getAlertThresholdsSupported() {
+		return alertThresholdsSupported;
+	}
+
+	@Override
+	public AttackStrength getAttackStrength(boolean incDefault) {
+		AttackStrength level = null;
+		try {
+			level = AttackStrength.valueOf(getProperty("strength"));
+			//log.debug("getAttackStrength from configs: " + level.name());
+		} catch (Exception e) {
+			// Ignore
+		}
+		if (level == null) {
+			if (incDefault) {
+				level = AttackStrength.DEFAULT;
+			} else {
+				level = this.defaultAttackStrength;
+			}
+			//log.debug("getAttackStrength default: " + level.name());
+		} else if (level.equals(AttackStrength.DEFAULT)) {
+			if (incDefault) {
+				level = AttackStrength.DEFAULT;
+			} else {
+				level = this.defaultAttackStrength;
+			}
+			//log.debug("getAttackStrength default: " + level.name());
+		}
+		return level;
+	
+	}
+
+	@Override
+	public AttackStrength getAttackStrength() {
+		return this.getAttackStrength(false);
+	}
+	
+	@Override
+	public void setAttackStrength (AttackStrength level) {
+		setProperty("strength", level.name());
+	}
+	
+	/**
+	 * Override this if you plugin supports other levels.
+	 */
+	@Override
+	public AttackStrength[] getAttackStrengthsSupported() {
+		return attackStrengthsSupported;
+	}
+
 
     /**
      * Compare if 2 plugin is the same.

@@ -42,14 +42,15 @@ public interface SpiderListener {
 	public void spiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl);
 
 	/**
-	 * Event triggered when a new uri was found. The <code>isSkipped</code> parameter says if the
-	 * URI was skipped according to any skip rule or it was processed.
+	 * Event triggered when a new uri was found. The <code>status</code> parameter says if the URI
+	 * was skipped according to any skip rule or it was processed.
 	 * 
 	 * @param uri the uri
+	 * @param method the method used for accessing the uri
 	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
 	 *            stating the reason of the filtering
 	 */
-	public void foundURI(String uri, FetchStatus status);
+	public void foundURI(String uri, String method, FetchStatus status);
 
 	/**
 	 * Event triggered when a new uri was read.
