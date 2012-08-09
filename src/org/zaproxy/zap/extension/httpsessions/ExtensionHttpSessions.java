@@ -90,7 +90,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	private void initialize() {
 		this.setOrder(68);
 		this.setName(NAME);
-		this.sessionTokens=new HashMap<String, LinkedHashSet<String>>();
+		this.sessionTokens = new HashMap<String, LinkedHashSet<String>>();
 	}
 
 	/* (non-Javadoc)
@@ -254,7 +254,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @param site the site
 	 * @param token the token
 	 */
-	public void addSessionToken(String site, String token) {
+	public void addHttpSessionToken(String site, String token) {
 		LinkedHashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null) {
 			siteTokens = new LinkedHashSet<String>();
@@ -270,12 +270,16 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @param site the site
 	 * @param token the token
 	 */
-	public void removeSessionToken(String site, String token) {
+	public void removeHttpSessionToken(String site, String token) {
+		token = token.toLowerCase();
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens != null) {
+			// Remove the tokens from the tokens associated with the site
 			siteTokens.remove(token);
 			if (siteTokens.isEmpty())
-				sessionTokens.remove(siteTokens);
+				sessionTokens.remove(site);
+			// Cleanup the existing sessions
+			this.getHttpSessionsSite(site).cleanupSessionToken(token);
 		}
 		log.info("Removed session token for site '" + site + "': " + token);
 	}
@@ -283,12 +287,16 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/**
 	 * Gets the set of session tokens for a particular site. The session tokens are case-insensitive
 	 * and are returned lower-cased.
+	 * <p>
+	 * The internal set of session tokens is returned, so no modifications should be done on the
+	 * Session Tokens.
+	 * </p>
 	 * 
 	 * @param site the site
 	 * @return the session tokens set, if any have been set, or null, if there are no session tokens
 	 *         for this site
 	 */
-	public LinkedHashSet<String> getHttpSessionTokens(String site) {
+	public final LinkedHashSet<String> getHttpSessionTokens(String site) {
 		return sessionTokens.get(site);
 	}
 
@@ -305,7 +313,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
-	 * Gets the http sessions for a particular site.
+	 * Gets the http sessions for a particular site. If it doesn't exist, it is created.
 	 * 
 	 * @param site the site
 	 * @return the http sessions site container
