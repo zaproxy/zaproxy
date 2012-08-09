@@ -37,7 +37,7 @@ import javax.swing.event.ChangeListener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.core.scanner.Plugin.Level;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -205,15 +205,15 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    param.setDelayInMs(getDelayInMs());
 	    param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
 	    
-	    Plugin.Level level = null;
+	    Plugin.AlertThreshold level = null;
 	    if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
-	    	level = Level.LOW;
+	    	level = AlertThreshold.LOW;
 	    } else if (comboLevel.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
-	    	level = Level.MEDIUM;
+	    	level = AlertThreshold.MEDIUM;
 	    } else {
-	    	level = Level.HIGH;
+	    	level = AlertThreshold.HIGH;
 	    }
-	    param.setLevel(level);
+	    param.setAlertThreshold(level);
 	    // Not enabled yet
 	    //param.setTargetParamsUrl(getChkTargetParamsUrl().isSelected());
 	    //param.setTargetParamsForm(getChkTargetParamsForm().isSelected());

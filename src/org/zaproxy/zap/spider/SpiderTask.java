@@ -116,7 +116,8 @@ public class SpiderTask implements Runnable {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
 			}
-			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			this.reference = new HistoryReference(parent.getModel().getSession(), HistoryReference.TYPE_SPIDER_TASK,
+					msg);
 		} catch (HttpMalformedHeaderException e) {
 			log.error("Error while building HttpMessage for uri: " + uri, e);
 		} catch (SQLException e) {
@@ -181,6 +182,14 @@ public class SpiderTask implements Runnable {
 			return;
 		}
 
+		// Check if the should stop
+		if (parent.isStopped()) {
+			log.debug("Spider process is stopped. Skipping crawling task...");
+			return;
+		}
+		// Check if the crawling process is paused
+		parent.checkPauseAndWait();
+
 		// Notify the SpiderListeners that a resource was read
 		parent.notifyListenersReadURI(msg);
 
@@ -194,6 +203,14 @@ public class SpiderTask implements Runnable {
 				isFiltered = true;
 				break;
 			}
+
+		// Check if the should stop
+		if (parent.isStopped()) {
+			log.debug("Spider process is stopped. Skipping crawling task...");
+			return;
+		}
+		// Check if the crawling process is paused
+		parent.checkPauseAndWait();
 
 		// Process resource, if this is not the maximum depth
 		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth())
@@ -249,6 +266,9 @@ public class SpiderTask implements Runnable {
 		msg = reference.getHttpMessage();
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+
+		// Remove the history reference from the database, as it's not used anymore
+		reference.delete();
 
 		// Check if there is a custom user agent
 		if (parent.getSpiderParam().getUserAgent() != null)

@@ -37,6 +37,7 @@ public class SpiderParam extends AbstractParam {
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
 	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
 	private static final String SPIDER_PARSE_COMMENTS = "spider.parseComments";
+	private static final String SPIDER_PARSE_ROBOTS_TXT = "spider.parseRobotsTxt";
 
 	/** The max depth of the crawling. */
 	private int maxDepth = 5;
@@ -44,6 +45,8 @@ public class SpiderParam extends AbstractParam {
 	private int threadCount = 2;
 	/** Whether comments should be parsed for URIs. */
 	private boolean parseComments = true;
+	/** Whether robots.txt file should be parsed for URIs. */
+	private boolean parseRobotsTxt = false;
 	/** Whether the forms are processed and submitted at all. */
 	private boolean processForm = true;
 	/**
@@ -59,7 +62,7 @@ public class SpiderParam extends AbstractParam {
 	private Pattern patternSkipURL = null;
 	/** The regex for the scope. */
 	private String scopeRegex = null;
-	/** The user agent string, if diferent than the default one. */
+	/** The user agent string, if different than the default one. */
 	private String userAgent = null;
 	/** Whether the spider sends back the cookies received from the server. */
 	private boolean sendCookies = false;
@@ -71,7 +74,7 @@ public class SpiderParam extends AbstractParam {
 	private String simpleScopeText;
 
 	/** The log. */
-	Logger log = Logger.getLogger(SpiderParam.class);
+	private static final Logger log = Logger.getLogger(SpiderParam.class);
 
 	/**
 	 * Instantiates a new spider param.
@@ -126,6 +129,12 @@ public class SpiderParam extends AbstractParam {
 		try {
 			this.parseComments = getConfig().getBoolean(SPIDER_PARSE_COMMENTS, true);
 		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			this.parseRobotsTxt = getConfig().getBoolean(SPIDER_PARSE_ROBOTS_TXT, false);
+		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
@@ -198,12 +207,17 @@ public class SpiderParam extends AbstractParam {
 	 */
 	private void parseScope(String scope) {
 
-		if (scope == null || scope.equals("")) {
+		if (scope == null) {
 			return;
 		}
-
-		scopeRegex = scope.replaceAll("\\.", "\\\\.");
+		// Remove any non used regex special characters
+		scopeRegex = scope.replaceAll("(\\\\+)|(\\[+)|(\\^+)|(\\|+)|(\\?+)|(\\(+)|(\\)+)|(\\$+)", "");
+		// Escape any URL-valid regex special characters
+		scopeRegex = scopeRegex.replaceAll("\\.", "\\\\.");
+		scopeRegex = scopeRegex.replaceAll("\\+", "\\\\+");
+		// Translate '*' to 'any character' and remove any starting or trailing ';'
 		scopeRegex = scopeRegex.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
+		// Add the required '|' characters instead of ; and prepare final regex
 		scopeRegex = "(" + scopeRegex.replaceAll(";+", "|") + ")$";
 
 	}
@@ -394,6 +408,27 @@ public class SpiderParam extends AbstractParam {
 	public void setParseComments(boolean parseComments) {
 		this.parseComments = parseComments;
 		getConfig().setProperty(SPIDER_PARSE_COMMENTS, Boolean.toString(parseComments));
+	}
+
+	/**
+	 * Checks if the spider should parse the robots.txt for uris (not related to following the
+	 * directions).
+	 * 
+	 * @return true, if it parses the file
+	 */
+	public boolean isParseRobotsTxt() {
+		return parseRobotsTxt;
+	}
+
+	/**
+	 * Sets the whether the spider parses the robots.txt for uris (not related to following the
+	 * directions).
+	 * 
+	 * @param parseRobotsTxt the new value for parseRobotsTxt
+	 */
+	public void setParseRobotsTxt(boolean parseRobotsTxt) {
+		this.parseRobotsTxt = parseRobotsTxt;
+		getConfig().setProperty(SPIDER_PARSE_ROBOTS_TXT, Boolean.toString(parseRobotsTxt));
 	}
 
 }

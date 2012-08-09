@@ -32,7 +32,6 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 	
 	public static final String NAME = "ExtensionHttpPanelLargeResponseView";
-	public static final int MIN_CONTENT_LENGTH = 100000;
 	
 	public ExtensionHttpPanelLargeResponseView() {
 		super(NAME);

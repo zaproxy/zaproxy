@@ -55,9 +55,8 @@ public class SiteNode extends DefaultMutableTreeNode {
 	private ArrayList<Alert> alerts = new ArrayList<Alert>();
 	private boolean justSpidered = false;
 	//private boolean justAJAXSpidered = false;
-	private boolean specificIcon = false;
-	private String iconURL = null;
-	private boolean clearIfManual = false;
+	private ArrayList<String> icons = null;
+	private ArrayList<Boolean> clearIfManual = null;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
@@ -66,25 +65,18 @@ public class SiteNode extends DefaultMutableTreeNode {
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
-        this.specificIcon= false;
 		this.nodeName = nodeName;
+		this.icons = new ArrayList<String>();
+		this.clearIfManual = new ArrayList<Boolean>();
 		if (type == HistoryReference.TYPE_SPIDER) {
 			this.justSpidered = true;
 		}
 	}
-    public SiteNode(SiteMap siteMap, int type, String nodeName, String icon, boolean clear) {
-        super();
-        if (type == HistoryReference.TYPE_SPEC_ICON) {
-        	this.specificIcon = true;
-        	this.iconURL = icon;
-        }
-        this.siteMap = siteMap;
-		this.nodeName = nodeName;
-		this.clearIfManual = clear;
-		if (type == HistoryReference.TYPE_SPIDER) {
-			this.justSpidered = true;
-		}
-	}
+    
+    public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
+    	this.icons = i;
+    	this.clearIfManual = c;
+    }
     
     private void appendIcons(StringBuilder sb) {
     	int highestRisk = -1;
@@ -105,10 +97,12 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
-    	if (this.specificIcon) {
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(Constant.class.getResource(this.iconURL));
-    		sb.append("\">&nbsp;");
+    	if (!this.icons.isEmpty()) {
+    		for(String icon : this.icons) {
+    			sb.append("&nbsp;<img src=\"");
+    			sb.append(Constant.class.getResource(icon));
+    			sb.append("\">&nbsp;");
+    		}
     	}
     }
     
@@ -187,9 +181,15 @@ public class SiteNode extends DefaultMutableTreeNode {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
-        	if (this.specificIcon && this.clearIfManual && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
-    			this.specificIcon = false;
-    			this.nodeChanged();
+			// we remove the icons of the node that has to be cleaned when manually visiting them
+			if (!this.icons.isEmpty() && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+				for (int i = 0; i < this.clearIfManual.size(); ++i) {
+					if (this.clearIfManual.get(i) == true && this.icons.size() > i) {
+						this.icons.remove(i);
+						this.clearIfManual.remove(i);
+					}
+				}
+        		this.nodeChanged();
     		}
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {

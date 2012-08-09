@@ -386,7 +386,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (site != null) {
 			GenericScanner scanThread = scanMap.get(site);
 			if (scanThread != null) {
-				return scanThread.isAlive();
+				return scanThread.isRunning();
 			}
 		}
 		return false;
@@ -472,7 +472,7 @@ public abstract class ScanPanel extends AbstractPanel {
 				scanMap.put(site, scanThread);
 				
 			}
-			if (scanThread.isAlive()) {
+			if (scanThread.isRunning()) {
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
 				getPauseScanButton().setEnabled(true);
@@ -792,6 +792,15 @@ public abstract class ScanPanel extends AbstractPanel {
 			getSiteSelect().setSelectedIndex(0);
 			getSiteSelect().setEnabled(false);
 		}
+	}
+	
+	/**
+	 * Gets the current site selected on this panel.
+	 * 
+	 * @return the current site
+	 */
+	protected String getCurrentSite(){
+		return this.currentSite;
 	}
 
     protected abstract Component getWorkPanel();
