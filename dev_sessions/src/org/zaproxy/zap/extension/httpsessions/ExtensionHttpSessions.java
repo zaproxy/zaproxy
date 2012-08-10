@@ -390,7 +390,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		this.getHttpSessionsPanel().addSite(site);
 
 		// Check if it's enabled for proxy only
-		if (param.isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
+		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
 			return;
 
 		// Forward the request for proper processing
@@ -410,7 +410,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		this.getHttpSessionsPanel().addSite(site);
 
 		// Check if it's enabled for proxy only
-		if (param.isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
+		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
 			return;
 
 		// Forward the request for proper processing
