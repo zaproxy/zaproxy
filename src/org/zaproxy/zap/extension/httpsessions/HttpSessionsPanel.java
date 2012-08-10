@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
@@ -63,6 +64,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JComboBox siteSelect = null;
 	private JButton newSessionButton = null;
 	private JTable sessionsTable = null;
+	private JButton optionsButton = null;
 
 	/** The current site. */
 	private String currentSite = null;
@@ -134,6 +136,27 @@ public class HttpSessionsPanel extends AbstractPanel {
 	}
 
 	/**
+	 * Gets the options button.
+	 * 
+	 * @return the options button
+	 */
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.options.button"));
+			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton().getMenuToolsControl()
+							.options(Constant.messages.getString("httpsessions.options.title"));
+				}
+			});
+		}
+		return optionsButton;
+	}
+
+	/**
 	 * Gets the new session button.
 	 * 
 	 * @return the new session button
@@ -182,6 +205,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			GridBagConstraints siteSelectGridBag = new GridBagConstraints();
 			GridBagConstraints newSessionGridBag = new GridBagConstraints();
 			GridBagConstraints emptyGridBag = new GridBagConstraints();
+			GridBagConstraints optionsGridBag = new GridBagConstraints();
 
 			labelGridBag.gridx = 0;
 			labelGridBag.gridy = 0;
@@ -206,11 +230,17 @@ public class HttpSessionsPanel extends AbstractPanel {
 			emptyGridBag.anchor = java.awt.GridBagConstraints.WEST;
 			emptyGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
+			optionsGridBag.gridx = 4;
+			optionsGridBag.gridy = 0;
+			optionsGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+			optionsGridBag.anchor = java.awt.GridBagConstraints.EAST;
+
 			JLabel label = new JLabel(Constant.messages.getString("httpsessions.toolbar.site.label"));
 
 			panelToolbar.add(label, labelGridBag);
 			panelToolbar.add(getSiteSelect(), siteSelectGridBag);
 			panelToolbar.add(getNewSessionButton(), newSessionGridBag);
+			panelToolbar.add(getOptionsButton(), optionsGridBag);
 
 			// Add an empty JLabel to fill the space
 			panelToolbar.add(new JLabel(), emptyGridBag);
@@ -245,7 +275,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		sessionsTable.getColumnModel().getColumn(1).setMinWidth(120);
 		sessionsTable.getColumnModel().getColumn(1).setMaxWidth(400);
 		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
-		
+
 		sessionsTable.getColumnModel().getColumn(3).setMinWidth(100);
 		sessionsTable.getColumnModel().getColumn(3).setMaxWidth(200);
 		sessionsTable.getColumnModel().getColumn(3).setPreferredWidth(150); // matched

@@ -22,12 +22,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -36,6 +37,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.params.ExtensionParams;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -387,6 +389,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		site = ScanPanel.cleanSiteName(site, true);
 		this.getHttpSessionsPanel().addSite(site);
 
+		// Check if it's enabled for proxy only
+		if (param.isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
+			return;
+
 		// Forward the request for proper processing
 		HttpSessionsSite session = this.getHttpSessionsSite(site);
 		session.processHttpRequestMessage(msg);
@@ -403,9 +409,21 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		site = ScanPanel.cleanSiteName(site, true);
 		this.getHttpSessionsPanel().addSite(site);
 
+		// Check if it's enabled for proxy only
+		if (param.isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
+			return;
+
 		// Forward the request for proper processing
 		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
 		sessionsSite.processHttpResponseMessage(msg);
+	}
+
+	@Override
+	public List<Class<?>> getDependencies() {
+		// Add the ExtensionParams as a dependency
+		List<Class<?>> dependencies = new LinkedList<Class<?>>();
+		dependencies.add(ExtensionParams.class);
+		return dependencies;
 	}
 
 }
