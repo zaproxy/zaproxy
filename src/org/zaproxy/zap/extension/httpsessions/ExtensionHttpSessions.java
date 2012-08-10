@@ -35,6 +35,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -44,7 +46,7 @@ import org.zaproxy.zap.view.SiteMapListener;
  * of them.
  */
 public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, SiteMapListener,
-		ProxyListener {
+		HttpSenderListener {
 
 	/** The Constant NAME. */
 	public static final String NAME = "ExtensionHttpSessions";
@@ -123,14 +125,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/* (non-Javadoc)
 	 * 
-	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder() */
-	@Override
-	public int getProxyListenerOrder() {
-		return 20;
-	}
-
-	/* (non-Javadoc)
-	 * 
 	 * @see
 	 * org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook
 	 * ) */
@@ -139,8 +133,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		super.hook(extensionHook);
 
 		extensionHook.addSessionListener(this);
-		extensionHook.addProxyListener(this);
 		extensionHook.addSiteMapListner(this);
+		HttpSender.addListener(this);
 
 		if (getView() != null) {
 
@@ -342,58 +336,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/* (non-Javadoc)
 	 * 
 	 * @see
-	 * org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network
-	 * .HttpMessage) */
-	@Override
-	public boolean onHttpRequestSend(HttpMessage msg) {
-		// Check if we know the site and add it otherwise
-		String site = msg.getRequestHeader().getHostName();
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
-		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSite(site);
-
-		// Forward the request for proper processing
-		HttpSessionsSite session = this.getHttpSessionsSite(site);
-		session.processHttpRequestMessage(msg);
-
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros
-	 * .network.HttpMessage) */
-	@Override
-	public boolean onHttpResponseReceive(HttpMessage msg) {
-		// Check if we know the site and add it otherwise
-		String site = msg.getRequestHeader().getHostName();
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
-		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSite(site);
-
-		// Forward the request for proper processing
-		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
-		sessionsSite.processHttpResponseMessage(msg);
-		
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see
 	 * org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros
 	 * .model.Session) */
 	@Override
 	public void sessionChanged(Session session) {
-		log.info("Session changed."); // TODO Auto-generated method stub
-
+		log.info("Session changed.");
 	}
 
 	/* (non-Javadoc)
@@ -413,8 +360,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * .paros.model.Session) */
 	@Override
 	public void sessionScopeChanged(Session session) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -424,7 +369,43 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * paros.control.Control.Mode) */
 	@Override
 	public void sessionModeChanged(Mode mode) {
-		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public int getListenerOrder() {
+		return 1;
+	}
+
+	@Override
+	public void onHttpRequestSend(HttpMessage msg, int initiator) {
+		// Check if we know the site and add it otherwise
+		String site = msg.getRequestHeader().getHostName();
+		int port = msg.getRequestHeader().getHostPort();
+		if (port > 0) {
+			site = site + ":" + port;
+		}
+		site = ScanPanel.cleanSiteName(site, true);
+		this.getHttpSessionsPanel().addSite(site);
+
+		// Forward the request for proper processing
+		HttpSessionsSite session = this.getHttpSessionsSite(site);
+		session.processHttpRequestMessage(msg);
+	}
+
+	@Override
+	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
+		// Check if we know the site and add it otherwise
+		String site = msg.getRequestHeader().getHostName();
+		int port = msg.getRequestHeader().getHostPort();
+		if (port > 0) {
+			site = site + ":" + port;
+		}
+		site = ScanPanel.cleanSiteName(site, true);
+		this.getHttpSessionsPanel().addSite(site);
+
+		// Forward the request for proper processing
+		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
+		sessionsSite.processHttpResponseMessage(msg);
 	}
 
 }
