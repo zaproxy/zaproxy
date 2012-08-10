@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.configuration.ConversionException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -35,12 +36,21 @@ public class HttpSessionsParam extends AbstractParam {
 	/** The Constant defining the key for the default session tokens used in the application. */
 	private static final String DEFAULT_TOKENS_KEY = "httpsessions.token";
 
+	/** The Constant PROXY_ONLY_KEY defining the key for the enabledProxyOnly option. */
+	private static final String PROXY_ONLY_KEY = "httpsessions.proxyOnly";
+
 	/** The default tokens used when there are no saved tokens in the file.. */
 	private static final String[] DEFAULT_TOKENS = { "asp.net_sessionid", "aspsessionid", "siteserver", "cfid",
 			"cftoken", "jsessionid", "phpsessid", "sessid", "sid", "viewstate", "zenid" };
 
+	/** The Constant log. */
+	private static final Logger log = Logger.getLogger(HttpSessionsParam.class);
+
 	/** The default tokens. */
 	private List<String> defaultTokens = null;
+
+	/** Whether the HttpSessions extension is enabled for the proxy only. */
+	private boolean enabledProxyOnly = false;
 
 	/**
 	 * Instantiates a new http sessions param.
@@ -59,9 +69,16 @@ public class HttpSessionsParam extends AbstractParam {
 			this.defaultTokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(DEFAULT_TOKENS_KEY)));
 		} catch (ConversionException e) {
 			this.defaultTokens = new ArrayList<String>(DEFAULT_TOKENS.length);
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 		if (this.defaultTokens.size() == 0) {
 			this.defaultTokens.addAll(Arrays.asList(DEFAULT_TOKENS));
+		}
+
+		try {
+			this.enabledProxyOnly = getConfig().getBoolean(PROXY_ONLY_KEY, false);
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 	}
 
@@ -82,5 +99,24 @@ public class HttpSessionsParam extends AbstractParam {
 	public void setDefaultTokens(final List<String> tokens) {
 		this.defaultTokens = tokens;
 		getConfig().setProperty(DEFAULT_TOKENS_KEY, tokens);
+	}
+
+	/**
+	 * Checks if the extension is only processing Proxy messages.
+	 * 
+	 * @return true, if is enabled for proxy only
+	 */
+	public boolean isEnabledProxyOnly() {
+		return enabledProxyOnly;
+	}
+
+	/**
+	 * Sets if the extension is only processing Proxy messages.
+	 * 
+	 * @param enabledProxyOnly the new enabled proxy only status
+	 */
+	public void setEnabledProxyOnly(boolean enabledProxyOnly) {
+		this.enabledProxyOnly = enabledProxyOnly;
+		getConfig().setProperty(PROXY_ONLY_KEY, Boolean.toString(enabledProxyOnly));
 	}
 }

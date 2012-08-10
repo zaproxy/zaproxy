@@ -36,7 +36,7 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 
 	/** The Constant defining the table column names. */
-	private static final String[] columnNames = { Constant.messages.getString("options.session.table.token") };
+	private static final String[] columnNames = { Constant.messages.getString("httpsessions.options.table.token") };
 
 	/** The token names. */
 	private List<String> tokenNames = new ArrayList<String>();

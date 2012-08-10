@@ -21,7 +21,9 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -42,8 +44,11 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	/** The table default tokens. */
 	private JTable tableDefaultTokens = null;
 
-	/** The scroll pane for efault tokens. */
+	/** The scroll pane for default tokens. */
 	private JScrollPane scrollPaneDefaultTokens = null;
+
+	/** The proxy only checkbox. */
+	private JCheckBox proxyOnlyCheckbox = null;
 
 	/** The default session tokens model. */
 	private OptionsHttpSessionsTableModel defaultTokensModel = null;
@@ -62,15 +67,16 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	private void initialize() {
 		this.setLayout(new GridBagLayout());
 		this.setSize(409, 268);
-		this.setName(Constant.messages.getString("options.session.title"));
+		this.setName(Constant.messages.getString("httpsessions.options.title"));
 
 		JLabel tokenNamesLabel = new JLabel();
-		tokenNamesLabel.setText(Constant.messages.getString("options.session.label.tokens"));
+		tokenNamesLabel.setText(Constant.messages.getString("httpsessions.options.label.tokens"));
 		tokenNamesLabel.setPreferredSize(new java.awt.Dimension(494, 25));
 		tokenNamesLabel.setMinimumSize(new java.awt.Dimension(494, 25));
 
 		GridBagConstraints tokenNamesScrollGridBag = new GridBagConstraints();
 		GridBagConstraints tokenNamesLableGridBag = new GridBagConstraints();
+		GridBagConstraints proxyOnlyGridBag = new GridBagConstraints();
 
 		tokenNamesLableGridBag.gridx = 0;
 		tokenNamesLableGridBag.gridy = 0;
@@ -88,8 +94,16 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		tokenNamesScrollGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		tokenNamesScrollGridBag.fill = java.awt.GridBagConstraints.BOTH;
 
+		proxyOnlyGridBag.gridx = 0;
+		proxyOnlyGridBag.gridy = 2;
+		proxyOnlyGridBag.weightx = 1.0;
+		proxyOnlyGridBag.fill = GridBagConstraints.HORIZONTAL;
+		proxyOnlyGridBag.anchor = GridBagConstraints.NORTHWEST;
+		proxyOnlyGridBag.insets = new Insets(10, 2, 2, 2);
+
 		this.add(tokenNamesLabel, tokenNamesLableGridBag);
 		this.add(getDefaultTokensScrollPane(), tokenNamesScrollGridBag);
+		this.add(getChkProxyOnly(), proxyOnlyGridBag);
 	}
 
 	/* (non-Javadoc)
@@ -101,6 +115,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		OptionsParam optionsParam = (OptionsParam) obj;
 		HttpSessionsParam param = optionsParam.getHttpSessionsParam();
 		getDefaultTokensModel().setTokens(param.getDefaultTokens());
+		getChkProxyOnly().setSelected(param.isEnabledProxyOnly());
 	}
 
 	/* (non-Javadoc)
@@ -118,6 +133,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		OptionsParam optionsParam = (OptionsParam) obj;
 		HttpSessionsParam sessionParam = optionsParam.getHttpSessionsParam();
 		sessionParam.setDefaultTokens(getDefaultTokensModel().getTokens());
+		sessionParam.setEnabledProxyOnly(getChkProxyOnly().isSelected());
 	}
 
 	/**
@@ -161,11 +177,24 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		return defaultTokensModel;
 	}
 
+	/**
+	 * Gets the chk proxy only.
+	 * 
+	 * @return the chk proxy only
+	 */
+	private JCheckBox getChkProxyOnly() {
+		if (proxyOnlyCheckbox == null) {
+			proxyOnlyCheckbox = new JCheckBox();
+			proxyOnlyCheckbox.setText(Constant.messages.getString("httpsessions.options.label.proxyOnly"));
+		}
+		return proxyOnlyCheckbox;
+	}
+
 	/* (non-Javadoc)
 	 * 
 	 * @see org.parosproxy.paros.view.AbstractParamPanel#getHelpIndex() */
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.session";
+		return "ui.dialogs.options.httpsessions";
 	}
 }
