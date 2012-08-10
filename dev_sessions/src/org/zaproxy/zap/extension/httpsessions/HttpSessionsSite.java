@@ -130,10 +130,20 @@ public class HttpSessionsSite {
 		if (log.isInfoEnabled())
 			log.info("Setting new active session for site '" + site + "': " + activeSession);
 
-		if (this.activeSession != null)
+		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
+			// If the active session was one with no tokens, delete it, at it will probably not
+			// match anything from this point forward
+			if (this.activeSession.getTokenValuesCount() == 0)
+				this.removeHttpSession(this.activeSession);
+			else
+				// Notify the model that the session is updated
+				model.fireHttpSessionUpdated(activeSession);
+		}
 		this.activeSession = activeSession;
 		activeSession.setActive(true);
+		// Notify the model that the session is updated
+		model.fireHttpSessionUpdated(activeSession);
 	}
 
 	/**
@@ -145,6 +155,14 @@ public class HttpSessionsSite {
 
 		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
+			// If the active session was one with no tokens, delete it, at it will probably not
+			// match anything from this point forward
+			if (this.activeSession.getTokenValuesCount() == 0)
+				this.removeHttpSession(this.activeSession);
+			else
+				// Notify the model that the session is updated
+				model.fireHttpSessionUpdated(this.activeSession);
+
 			this.activeSession = null;
 		}
 	}
@@ -248,9 +266,8 @@ public class HttpSessionsSite {
 	 * Process the http response message received after a request.
 	 * 
 	 * @param message the message
-	 * @return true, if anything has been modified in any of the sessions
 	 */
-	public boolean processHttpResponseMessage(HttpMessage message) {
+	public void processHttpResponseMessage(HttpMessage message) {
 
 		// Get the session tokens for this site
 		LinkedHashSet<String> tokensSet = extension.getHttpSessionTokens(getSite());
@@ -258,7 +275,7 @@ public class HttpSessionsSite {
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {
 			log.debug("No session tokens for: " + this.getSite());
-			return false;
+			return;
 		}
 		// Create an auxiliary map of token values and insert keys for every token
 		HashMap<String, String> tokenValues = new HashMap<String, String>();
@@ -305,16 +322,19 @@ public class HttpSessionsSite {
 			for (Entry<String, String> tv : tokenValues.entrySet()) {
 				session.setTokenValue(tv.getKey(), tv.getValue());
 			}
-			return true;
 		}
-		return false;
+
+		// Update the count of messaged matched
+		session.setMessagesMatched(session.getMessagesMatched() + 1);
+
+		this.model.fireHttpSessionUpdated(session);
 	}
 
 	/**
 	 * Gets the matching http session for a particular message containing a list of cookies.
 	 * 
 	 * @param tokens the tokens
-	 * @param cookies the cookies
+	 * @param cookies the cookies present in the request header of the message
 	 * @return the matching http session, if any, or null if no existing session was found to match
 	 *         all the tokens
 	 */
@@ -365,25 +385,67 @@ public class HttpSessionsSite {
 	 * @param token the session token
 	 */
 	protected void cleanupSessionToken(String token) {
+		// Empty check
+		if (sessions == null || sessions.isEmpty())
+			return;
+
+		if (log.isDebugEnabled())
+			log.debug("Removing duplicates and cleaning up sessions for site - token: " + site + " - " + token);
+
 		// If there are no more session tokens, delete all sessions
 		HashSet<String> siteTokens = extension.getHttpSessionTokens(site);
 		if (siteTokens == null) {
+			log.info("No more session tokens. Removing all sessions...");
 			// Invalidate all sessions
 			for (HttpSession session : this.sessions)
 				session.invalidate();
 
 			// Remove all sessions
-			sessions.clear();
-			activeSession = null;
+			this.sessions.clear();
+			this.activeSession = null;
 			this.model.removeAllElements();
 			return;
 		}
 
-		// Iterate through all the sessions and eliminate the given token
-		for (HttpSession session : this.sessions)
+		// Iterate through all the sessions, eliminate the given token and eliminate any duplicates
+		HashMap<String, HttpSession> uniqueSession = new HashMap<String, HttpSession>(sessions.size());
+		LinkedList<HttpSession> toDelete = new LinkedList<HttpSession>();
+		for (HttpSession session : this.sessions) {
+			// Eliminate the token
 			session.removeToken(token);
+			if (session.getTokenValuesCount() == 0 && !session.isActive()) {
+				toDelete.add(session);
+				continue;
+			} else
+				model.fireHttpSessionUpdated(session);
 
-		// Update the model
-		this.model.fireTableDataChanged();
+			// If there is already a session with these tokens, mark one of them for deletion
+			if (uniqueSession.containsKey(session.getTokenValuesString())) {
+				HttpSession prevSession = uniqueSession.get(session.getTokenValuesString());
+				// If the latter session is active, put it into the map and delete the other
+				if (session.isActive()) {
+					toDelete.add(uniqueSession.get(session.getTokenValuesString()));
+					session.setMessagesMatched(session.getMessagesMatched() + prevSession.getMessagesMatched());
+				} else {
+					toDelete.add(session);
+					prevSession.setMessagesMatched(session.getMessagesMatched() + prevSession.getMessagesMatched());
+				}
+			}
+			// If it's the first one with these token values, keep it
+			else {
+				uniqueSession.put(session.getTokenValuesString(), session);
+			}
+		}
+
+		// Delete the duplicate sessions
+		if (log.isInfoEnabled())
+			log.info("Removing duplicate or empty sessions: " + toDelete);
+		Iterator<HttpSession> it = toDelete.iterator();
+		while (it.hasNext()) {
+			HttpSession ses = it.next();
+			ses.invalidate();
+			sessions.remove(ses);
+			model.removeHttpSession(ses);
+		}
 	}
 }

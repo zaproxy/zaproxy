@@ -35,7 +35,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = -6380136823410869457L;
 
 	/** The Constant defining the COLUMN COUNT. */
-	private static final int COLUMN_COUNT = 3;
+	private static final int COLUMN_COUNT = 4;
 
 	/** The column names. */
 	private final Vector<String> columnNames;
@@ -43,8 +43,8 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	/** The http sessions. */
 	private List<HttpSession> sessions;
 
+	/** The Constant activeIcon defining the image used for marking the active session. */
 	private static final ImageIcon activeIcon;
-
 	static {
 		activeIcon = new ImageIcon(HttpSessionsTableModel.class.getResource("/resource/icon/16/102.png"));
 	}
@@ -58,6 +58,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		columnNames.add(Constant.messages.getString("httpsessions.table.header.active"));
 		columnNames.add(Constant.messages.getString("httpsessions.table.header.name"));
 		columnNames.add(Constant.messages.getString("httpsessions.table.header.tokens"));
+		columnNames.add(Constant.messages.getString("httpsessions.table.header.matched"));
 
 		sessions = Collections.synchronizedList(new ArrayList<HttpSession>());
 	}
@@ -90,6 +91,8 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 			return session.getName();
 		case 2:
 			return session.getTokenValuesString();
+		case 3:
+			return session.getMessagesMatched();
 		default:
 			return null;
 		}
@@ -105,6 +108,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 */
 	public void removeAllElements() {
 		sessions.clear();
+		fireTableDataChanged();
 	}
 
 	/**
@@ -156,6 +160,8 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 			return String.class;
 		case 2:
 			return String.class;
+		case 3:
+			return Integer.class;
 		}
 		return null;
 	}
@@ -178,7 +184,18 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * @param session the session
 	 */
 	public void removeHttpSession(HttpSession session) {
-		sessions.remove(session);
+		int index = sessions.indexOf(session);
+		sessions.remove(index);
+		fireTableRowsDeleted(index, index);
+	}
 
+	/**
+	 * Notifies the model that a http session has been updated.
+	 * 
+	 * @param session the session
+	 */
+	public void fireHttpSessionUpdated(HttpSession session) {
+		int index = sessions.indexOf(session);
+		fireTableRowsUpdated(index, index);
 	}
 }

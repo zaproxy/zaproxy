@@ -79,7 +79,6 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 				// Get the selected session, mark it as active and trigger a table repaint
 				HttpSession item = panel.getSelectedSession();
 				site.setActiveSession(item);
-				site.getModel().fireTableDataChanged();
 			}
 		});
 

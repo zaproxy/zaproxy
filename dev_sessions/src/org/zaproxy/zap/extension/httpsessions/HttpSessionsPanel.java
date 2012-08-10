@@ -245,6 +245,10 @@ public class HttpSessionsPanel extends AbstractPanel {
 		sessionsTable.getColumnModel().getColumn(1).setMinWidth(120);
 		sessionsTable.getColumnModel().getColumn(1).setMaxWidth(400);
 		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
+		
+		sessionsTable.getColumnModel().getColumn(3).setMinWidth(100);
+		sessionsTable.getColumnModel().getColumn(3).setMaxWidth(200);
+		sessionsTable.getColumnModel().getColumn(3).setPreferredWidth(150); // matched
 	}
 
 	/**
