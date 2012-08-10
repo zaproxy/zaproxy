@@ -138,7 +138,7 @@ public class HttpSessionsSite {
 				this.removeHttpSession(this.activeSession);
 			else
 				// Notify the model that the session is updated
-				model.fireHttpSessionUpdated(activeSession);
+				model.fireHttpSessionUpdated(this.activeSession);
 		}
 		this.activeSession = activeSession;
 		activeSession.setActive(true);
