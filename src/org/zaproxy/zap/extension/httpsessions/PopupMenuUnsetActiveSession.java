@@ -79,7 +79,6 @@ public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 				// Unset the active session, no matter the current selection is, as the popup menu
 				// is always only enabled on active session
 				site.unsetActiveSession();
-				site.getModel().fireTableDataChanged();
 			}
 		});
 

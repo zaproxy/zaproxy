@@ -79,7 +79,6 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 				// Get the selected session, delete it and trigger a table repaint
 				HttpSession item = panel.getSelectedSession();
 				site.removeHttpSession(item);
-				site.getModel().fireTableDataChanged();
 			}
 		});
 

@@ -380,12 +380,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		// Forward the request for proper processing
 		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
-		boolean res = sessionsSite.processHttpResponseMessage(msg);
-		if (res == true) {
-			log.debug("Refreshing model for site: " + site);
-			sessionsSite.getModel().fireTableDataChanged();
-		}
-
+		sessionsSite.processHttpResponseMessage(msg);
+		
 		return true;
 	}
 

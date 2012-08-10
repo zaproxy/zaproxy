@@ -42,6 +42,9 @@ public class HttpSession {
 	/** Whether this session is valid. */
 	private boolean valid;
 
+	/** The number of http messages that matched this session. */
+	private int messagesMatched;
+
 	/**
 	 * Instantiates a new http session.
 	 * 
@@ -52,6 +55,7 @@ public class HttpSession {
 		this.name = name;
 		this.active = false;
 		this.valid = true;
+		this.messagesMatched = 0;
 		this.tokenValues = new HashMap<String, String>(1);
 	}
 
@@ -213,10 +217,37 @@ public class HttpSession {
 	}
 
 	/**
-	 * Invalidates the session
+	 * Invalidates the session.
 	 */
 	public void invalidate() {
 		this.valid = false;
+	}
+
+	/**
+	 * Gets the token values count.
+	 * 
+	 * @return the token values count
+	 */
+	public int getTokenValuesCount() {
+		return this.tokenValues.size();
+	}
+
+	/**
+	 * Gets the number of http messages that matched this session.
+	 * 
+	 * @return the messages matched
+	 */
+	public int getMessagesMatched() {
+		return messagesMatched;
+	}
+
+	/**
+	 * Sets the number of http messages that matched this session.
+	 * 
+	 * @param messagesMatched the new messages matched count
+	 */
+	public void setMessagesMatched(int messagesMatched) {
+		this.messagesMatched = messagesMatched;
 	}
 
 }
