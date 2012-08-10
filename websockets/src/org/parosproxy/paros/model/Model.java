@@ -248,6 +248,13 @@ public class Model {
             copier.copy(fileIn4, fileOut4);
         }
 
+        // ZAP: Handle the "lobs" file.
+        File lobsFile = new File(currentFile + ".lobs");
+        if (lobsFile.exists()) {
+            File newLobsFile = new File(destFile + ".lobs");
+            copier.copy(lobsFile, newLobsFile);
+        }
+
         getDb().open(destFile);
         
     }
@@ -321,6 +328,14 @@ public class Model {
 		    	logger.error("Failed to delete file " + fileIn.getAbsolutePath());
 		    }
 	    }
+        
+	    // ZAP: Handle the "lobs" file.
+        fileIn = new File(currentDBNameUntitled + ".lobs");
+        if (fileIn.exists()) {
+            if (! fileIn.delete()) {
+                logger.error("Failed to delete file " + fileIn.getAbsolutePath());
+            }
+        }
 	    
 	    getDb().open(currentDBNameUntitled);
 	    DBNAME_COPY++;
