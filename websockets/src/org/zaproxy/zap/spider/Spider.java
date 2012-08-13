@@ -59,10 +59,10 @@ public class Spider {
 	private LinkedList<SpiderListener> listeners;
 
 	/** If the spider is currently paused. */
-	private boolean paused;
+	private volatile boolean paused;
 
 	/** The the spider is currently stopped. */
-	private boolean stopped;
+	private volatile boolean stopped;
 
 	/** The pause lock, used for locking access to the "paused" variable. */
 	private ReentrantLock pauseLock = new ReentrantLock();
@@ -414,6 +414,14 @@ public class Spider {
 	 * condition for the process to be resumed. Called from the SpiderTask.
 	 */
 	protected void preTaskExecution() {
+		checkPauseAndWait();
+	}
+
+	/**
+	 * This method is run by Threads in the ThreadPool and checks if the scan is paused and, if it
+	 * is, waits until it's unpaused.
+	 */
+	protected void checkPauseAndWait() {
 		pauseLock.lock();
 		try {
 			while (paused)

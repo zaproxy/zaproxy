@@ -42,6 +42,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private static final long serialVersionUID = 1L;
 
 	/** The Constant log. */
+	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(SpiderPanel.class);
 
 	/** The Constant defining the PANEL's NAME. */

@@ -31,6 +31,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.ToolTipManager;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.Constant;
@@ -134,6 +135,12 @@ public class MainToolbarPanel extends JPanel {
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.safe.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.protect.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.standard.select"));
+			
+			modeSelect.setToolTipText(Constant.messages.getString("view.toolbar.mode.tooltip"));
+			// Increase the time the tooltip is displayed, to give people a chance to read it!
+			ToolTipManager.sharedInstance().setDismissDelay(12000);
+			ToolTipManager.sharedInstance().registerComponent(modeSelect);
+			
 			// Control wont have finished initialising yet, so get from the params
 			Mode mode = Mode.valueOf(Model.getSingleton().getOptionsParam().getViewParam().getMode());
 			switch (mode) {

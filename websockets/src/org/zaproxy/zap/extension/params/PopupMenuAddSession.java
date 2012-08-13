@@ -80,10 +80,10 @@ public class PopupMenuAddSession extends ExtensionPopupMenuItem {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
         	
         	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
-        	// Note that only url and cookie params are currently supported
+        	// Note that only cookie params are currently supported
+			// TODO: Add support for URL tokens
         	if (item != null) {
-        		if (HtmlParameter.Type.cookie.equals(item.getType()) ||
-        				HtmlParameter.Type.url.equals(item.getType())) {
+        		if (HtmlParameter.Type.cookie.equals(item.getType())) {
         			if (! item.getFlags().contains(HtmlParameter.Flags.session.name())) {
                 		this.setEnabled(true);
                 		return true;

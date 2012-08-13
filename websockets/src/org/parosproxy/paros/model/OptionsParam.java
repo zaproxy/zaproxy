@@ -25,10 +25,11 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Added type argument to generic type.
 // ZAP: 2012/05/03 Changed the type of one variable in the method getParamSet.
-// ZAP: 2012/06/29 Added OptionsWebSocketParam.
+// ZAP: 2012/06/29 Added OptionsParamWebSocket.
 // ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
 // getDatabaseParam() and changed the method parse() to also load the database
 // configurations.
+// ZAP: 2012/08/06 Changed the SessionParam to HttpSessionsParam and some other related refactorings 
 
 package org.parosproxy.paros.model;
 
@@ -45,9 +46,9 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
+import org.zaproxy.zap.extension.httpsessions.HttpSessionsParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.session.SessionParam;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -72,13 +73,15 @@ public class OptionsParam extends AbstractParam {
 	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
-	// ZAP: Added OptionsWebSocketParam
+	// ZAP: Added OptionsParamWebSocket
 	private OptionsParamWebSocket websocketParam = new OptionsParamWebSocket();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
-	private SessionParam sessionParam = new SessionParam();
+	// ZAP: Added parameters for Http Sessions
+	private HttpSessionsParam sessionParam = new HttpSessionsParam();
+	
     /**
      * The database configurations.
      */
@@ -199,7 +202,9 @@ public class OptionsParam extends AbstractParam {
 		getApiParam().load(getConfig());
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
-		getSessionParam().load(getConfig());
+		getHttpSessionsParam().load(getConfig());
+        // ZAP: Added the statement.
+        getWebSocketParam().load(getConfig());
         // ZAP: Added the statement.
         getWebSocketParam().load(getConfig());
 		// ZAP: Added the statement.
@@ -278,7 +283,7 @@ public class OptionsParam extends AbstractParam {
 		return experimentalFeatuesParam;
 	}
 
-	public SessionParam getSessionParam() {
+	public HttpSessionsParam getHttpSessionsParam() {
 		return sessionParam;
 	}
 	

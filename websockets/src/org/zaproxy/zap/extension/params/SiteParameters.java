@@ -27,10 +27,12 @@ import java.util.Set;
 
 import net.sf.json.JSONArray;
 
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HtmlParameter.Type;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 
 public class SiteParameters {
 	private ExtensionParams extension;
@@ -76,13 +78,21 @@ public class SiteParameters {
 			p.incTimesUsed();
 			p.addValue(param.getValue());
 		} else {
-			// Its a new one
+			// Its a new parameter
 			p = new HtmlParameterStats(site, param.getName(), param.getType(), param.getValue(), param.getFlags());
-			// Flag standard session ids
-			if ( ! param.getType().equals(Type.form) && 
-					this.extension.getStdSessionParamNames().contains(param.getName().toLowerCase())) {
-				// Cookies and URL params can be session params
-				p.addFlag("session");
+			
+			// If the HttpSessions extension is active, flag the standard session tokens and notify
+			// the extension that for this site, a new default token has appeared for the first time
+			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionHttpSessions.NAME);
+			if (extSession != null) {
+				if (param.getType().equals(Type.cookie)
+						&& extSession.isDefaultSessionToken(param.getName())) {
+					// Only Cookies can be session params
+					// TODO: Add support for URL tokens
+					p.addFlag(HtmlParameter.Flags.session.name());
+					extSession.addHttpSessionToken(site, p.getName());
+				}
 			}
 			
 			if (params == null) {

@@ -28,6 +28,7 @@
 // ZAP: 2012/07/02 Implement Message interface for more flexibility.
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/08/09 Added HttpSession field 
 
 package org.parosproxy.paros.network;
 
@@ -46,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
@@ -76,6 +78,8 @@ public class HttpMessage implements Message {
     private HistoryReference historyRef = null;
     // ZAP: Added logger
     private static Logger log = Logger.getLogger(HttpMessage.class);
+    // ZAP: Added HttpSession
+	private HttpSession httpSession = null;
 
 
     public HistoryReference getHistoryRef() {
@@ -84,6 +88,24 @@ public class HttpMessage implements Message {
 
 	public void setHistoryRef(HistoryReference historyRef) {
 		this.historyRef = historyRef;
+	}
+	
+	/**
+	 * Gets the http session associated with this message.
+	 * 
+	 * @return the http session
+	 */
+	public HttpSession getHttpSession(){
+		return this.httpSession;
+	}
+	
+	/**
+	 * Sets the http session associated with this message.
+	 * 
+	 * @param session the new http session
+	 */
+	public void setHttpSession(HttpSession session) {
+		this.httpSession = session;
 	}
 
 	/**
