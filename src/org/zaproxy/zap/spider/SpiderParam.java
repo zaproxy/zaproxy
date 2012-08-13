@@ -62,7 +62,7 @@ public class SpiderParam extends AbstractParam {
 	private Pattern patternSkipURL = null;
 	/** The regex for the scope. */
 	private String scopeRegex = null;
-	/** The user agent string, if diferent than the default one. */
+	/** The user agent string, if different than the default one. */
 	private String userAgent = null;
 	/** Whether the spider sends back the cookies received from the server. */
 	private boolean sendCookies = false;
@@ -74,7 +74,7 @@ public class SpiderParam extends AbstractParam {
 	private String simpleScopeText;
 
 	/** The log. */
-	Logger log = Logger.getLogger(SpiderParam.class);
+	private static final Logger log = Logger.getLogger(SpiderParam.class);
 
 	/**
 	 * Instantiates a new spider param.
@@ -207,12 +207,17 @@ public class SpiderParam extends AbstractParam {
 	 */
 	private void parseScope(String scope) {
 
-		if (scope == null || scope.equals("")) {
+		if (scope == null) {
 			return;
 		}
-
-		scopeRegex = scope.replaceAll("\\.", "\\\\.");
+		// Remove any non used regex special characters
+		scopeRegex = scope.replaceAll("(\\\\+)|(\\[+)|(\\^+)|(\\|+)|(\\?+)|(\\(+)|(\\)+)|(\\$+)", "");
+		// Escape any URL-valid regex special characters
+		scopeRegex = scopeRegex.replaceAll("\\.", "\\\\.");
+		scopeRegex = scopeRegex.replaceAll("\\+", "\\\\+");
+		// Translate '*' to 'any character' and remove any starting or trailing ';'
 		scopeRegex = scopeRegex.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
+		// Add the required '|' characters instead of ; and prepare final regex
 		scopeRegex = "(" + scopeRegex.replaceAll(";+", "|") + ")$";
 
 	}

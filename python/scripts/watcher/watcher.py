@@ -38,23 +38,27 @@ import datetime
 zapUrl = 'http://127.0.0.1:8090'
 
 # Dictionary of abbreviation to keep the output a bit shorter
-abbrev = {'Cross Site Scripting' : 'XSS',\
-		'SQL Injection Fingerprinting' : 'SQLfp',\
+abbrev = {
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
-		'Cross Site Request Forgery' : 'CSRF',\
-		'Information disclosure - database error messages' : 'InfoDb',\
-		'SQL Injection' : 'SQLi',\
-		'Password Autocomplete in browser' : 'Auto',\
-		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
-		'X-Content-Type-Options header missing' : 'XContent',\
-		'X-Frame-Options header not set' : 'XFrame',\
+		'Cookie set without secure flag' : 'InsecureCookie',\
 		'Content-Type header missing' : 'NoContentHeader',\
-		'Weak HTTP authentication over an unsecured connection' : 'WeakAuth',\
-		'IE8\'s XSS protection filter not disabled' : 'IE8XSSfilter',\
-		'Information disclosure - debug error messages' : 'InfoDebug',\
+		'Cross Site Request Forgery' : 'CSRF',\
+		'Cross Site Scripting' : 'XSS',\
 		'Cross-domain JavaScript source file inclusion' : 'CrossJS',\
+		'HTTP Parameter Override' : 'HttpOverride',\
+		'IE8\'s XSS protection filter not disabled' : 'IE8XSSfilter',\
 		'Incomplete or no cache-control and pragma HTTPHeader set' : 'CacheControl',\
-		'Cookie set without secure flag' : 'InsecureCookie'}
+		'Information disclosure - database error messages' : 'InfoDb',\
+		'Information disclosure - debug error messages' : 'InfoDebug',\
+		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
+		'Information disclosure - suspicious comments' : 'InfoComments',\
+		'Password Autocomplete in browser' : 'Auto',\
+		'SQL Injection' : 'SQLi',\
+		'SQL Injection Fingerprinting' : 'SQLfp',\
+		'Weak HTTP authentication over an unsecured connection' : 'WeakAuth',\
+		'Weak Authentication Method' : 'WeakAuth',\
+		'X-Content-Type-Options header missing' : 'XContent',\
+		'X-Frame-Options header not set' : 'XFrame'}
 		
 # The rules to apply:
 # Column 1:	String to match against an alert URL
@@ -71,6 +75,7 @@ rules = [ \
 		['Check.Pasv.Header.CacheControl.php', 'CacheControl', 'pass'], \
 		['Check.Pasv.Header.MimeSniff.php', 'NoContentHeader', 'pass'],\
 		['Check.Pasv.Header.WeakAuth.php', 'WeakAuth', 'pass'], \
+		['Check.Pasv.InformationDisclosure.Comments.php', 'InfoComments', 'pass'], \
 		['Check.Pasv.InformationDisclosure.DatabaseErrors.php', 'InfoDb', 'pass'], \
 		['Check.Pasv.InformationDisclosure.DebugErrors.php', 'InfoDebug', 'pass'], \
 		['Check.Pasv.InformationDisclosure.InUrl.php', 'InfoUrl', 'pass'], \
@@ -97,6 +102,9 @@ for alert in alerts:
 			continue
 		urlSummary = urlEl[4]
 		short = abbrev.get(alert.get('alert'))
+		if (short is None):
+			print 'No abreviation for: ' + alert.get('alert')  
+			short = alert.get('alert')
 		aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
 		added = False
 		for rule in rules:
@@ -202,5 +210,4 @@ reportFile.close()
 print ''	
 print 'Got ' + str(len(alerts)) + ' alerts'
 print 'Got ' + str(len(uniqueUrls)) + ' unique urls'
-
 

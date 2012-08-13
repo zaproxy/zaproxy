@@ -344,6 +344,15 @@ public class ParamsPanel extends AbstractPanel{
 
 	}
 	
+	/**
+	 * Gets the current selected site.
+	 * 
+	 * @return the current site
+	 */
+	public String getCurrentSite(){
+		return currentSite;
+	}
+	
 	protected HtmlParameterStats getSelectedParam() {
 
 		// TODO type is localized :(
