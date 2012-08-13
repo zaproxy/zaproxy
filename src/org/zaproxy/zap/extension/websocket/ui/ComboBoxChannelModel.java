@@ -1,7 +1,7 @@
 package org.zaproxy.zap.extension.websocket.ui;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.websocket.WebSocketChannelDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 public class ComboBoxChannelModel extends SortedComboBoxModel {
@@ -16,8 +16,8 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	 * Adds first element that is used as a wildcard entry.
 	 */
 	private void init() {
-		String text = Constant.messages.getString("websocket.toolbar.channel.select");
-		WebSocketChannelDAO allChannelsItem = new WebSocketChannelDAO(text);
+		String text = Constant.messages.getString("websocket.dialog.channel.select_all");
+		WebSocketChannelDTO allChannelsItem = new WebSocketChannelDTO(text);
 		addElement(allChannelsItem);
 	}
 
@@ -34,20 +34,36 @@ public class ComboBoxChannelModel extends SortedComboBoxModel {
 	/**
 	 * Removes and re-adds element. Does not loose selected item.
 	 * 
-	 * @param dao
+	 * @param channel
 	 */
-	public void updateElement(WebSocketChannelDAO dao) {
+	public void updateElement(WebSocketChannelDTO channel) {
 		synchronized (this) {
 			boolean isSelected = false;
-			if (getSelectedItem().equals(dao)) {
+			Object selectedItem = getSelectedItem();
+			if (selectedItem != null && selectedItem.equals(channel)) {
 				isSelected = true;
 			}
 			
-			removeElement(dao);
-			addElement(dao);
+			removeElement(channel);
+			addElement(channel);
 			
 			if (isSelected) {
-				setSelectedItem(dao);
+				setSelectedItem(channel);
+			}
+		}
+	}
+	
+	public void setSelectedChannelId(Integer channelId) {
+		if (channelId == null) {
+			setSelectedItem(getElementAt(0));
+			return;
+		}
+		
+		for (int i = 0; i < getSize(); i++) {
+			WebSocketChannelDTO channel = (WebSocketChannelDTO) getElementAt(i);
+			if (channel.id != null && channel.id.equals(channelId)) {
+				setSelectedItem(channel);
+				return;
 			}
 		}
 	}

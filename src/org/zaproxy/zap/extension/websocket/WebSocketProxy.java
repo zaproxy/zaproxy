@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
 /**
  * This class represents two WebSocket channels. Code is inspired by the Monsoon
@@ -52,12 +54,17 @@ public abstract class WebSocketProxy {
 	
 	private static final Logger logger = Logger.getLogger(WebSocketProxy.class);
 
-	public enum State { // ready state
-		CONNECTING, OPEN, CLOSING, CLOSED;
+	public enum State {  
+		CONNECTING, OPEN, CLOSING, CLOSED, // ready state
+		EXCLUDED, INCLUDED; // no WebSocket state, used for new black- or whitelisted channels
 	}
 	
 	/**
 	 * State of this channel, start in CONNECTING state and evolve over time.
+	 * Never set value to {@link State#EXCLUDED} or {@link State#INCLUDED}.
+	 * While observers are notified of these two extra-states, the internal
+	 * state is never set to one of these values. Moreover
+	 * {@link WebSocketProxy#state} is not exposed.
 	 */
 	protected State state;
 	
@@ -74,7 +81,7 @@ public abstract class WebSocketProxy {
 	/**
 	 * Non-finished messages.
 	 */
-	protected HashMap<InputStream, WebSocketMessage> currentMessages = new HashMap<InputStream, WebSocketMessage>();
+	protected HashMap<InputStream, WebSocketMessage> currentMessages;
 
 	/**
 	 * Socket for connection: Browser <-> ZAP
@@ -85,11 +92,6 @@ public abstract class WebSocketProxy {
 	 * Socket for connection: ZAP <-> Server
 	 */
 	protected final Socket remoteSocket;
-
-	/**
-	 * To ease identification of different WebSocket connections.
-	 */
-	private static AtomicInteger channelCounter = new AtomicInteger(0);
 
 	/**
 	 * Listens for messages from the server.
@@ -104,7 +106,7 @@ public abstract class WebSocketProxy {
 	/**
 	 * List of observers, that are informed of in- or outgoing messages.
 	 */
-	private Vector<WebSocketObserver> observerList = new Vector<WebSocketObserver>();
+	private Vector<WebSocketObserver> observerList;
 
 	/**
 	 * Contains link to handshake message.
@@ -125,6 +127,11 @@ public abstract class WebSocketProxy {
 	 * Just a consecutive number, identifying one channel within a session.
 	 */
 	private final int channelId;
+
+	/**
+	 * To ease identification of different WebSocket connections.
+	 */
+	private static AtomicInteger channelCounter;
 	
 	/**
 	 * Add a unique id to each message of one view model.
@@ -132,9 +139,27 @@ public abstract class WebSocketProxy {
 	private AtomicInteger messageCounter;
 
 	/**
+	 * When true, no observer is called and each frame is forwarded instantly.
+	 */
+	private boolean isForwardOnly;
+
+	/**
 	 * Used to determine how to call WebSocketListener.
 	 */
 	public static Comparator<WebSocketObserver> observersComparator;
+	
+	static {
+		channelCounter = new AtomicInteger(0);
+	}
+	
+	/**
+	 * After loading another session, the channelCount should be initialized.
+	 * 
+	 * @param currentChannelCount
+	 */
+	public static void setChannelCounter(int currentChannelCount) {
+		channelCounter.set(currentChannelCount);
+	}
 
 	/**
 	 * Factory method to create appropriate version.
@@ -171,24 +196,36 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Create a WebSocket on a channel.
+	 * Create a WebSocket on a channel. You need to call
+	 * {@link WebSocketProxy#startListeners(ExecutorService, InputStream)} to
+	 * turn on this proxy.
 	 * 
-	 * @param selector This selector is used outside for reading several channels.
 	 * @param localSocket Channel from local machine to ZAP.
 	 * @param remoteSocket Channel from ZAP to remote machine.
-	 * @throws WebSocketException 
+	 * @throws WebSocketException
 	 */
 	public WebSocketProxy(Socket localSocket, Socket remoteSocket) throws WebSocketException {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
-
+		
+		currentMessages = new HashMap<InputStream, WebSocketMessage>();
+		observerList = new Vector<WebSocketObserver>();
+		
 		// create unique identifier for this WebSocket connection
 		channelId = channelCounter.incrementAndGet();
 		messageCounter = new AtomicInteger(0);
 		host = remoteSocket.getInetAddress().getHostName();
 		port = remoteSocket.getPort();
+		
+		isForwardOnly = false;
 	}
 	
+	/**
+	 * {@link State#EXCLUDED} and {@link State#INCLUDED} are never set as status,
+	 * but are used to inform observers.
+	 *  
+	 * @param newState
+	 */
 	protected void setState(State newState) {
 		if (state == newState) {
 			return;
@@ -205,10 +242,8 @@ public abstract class WebSocketProxy {
 		
 		state = newState;
 		
-		synchronized (observerList) {
-			for (WebSocketObserver observer : observerList) {
-				observer.onStateChange(state, this);
-			}
+		if (!isForwardOnly) {
+			notifyStateObservers(state);
 		}
 	}
 
@@ -356,7 +391,7 @@ public abstract class WebSocketProxy {
 	 * @return
 	 */
 	public boolean isConnected() {
-		if (state.equals(State.OPEN)) {
+		if (state != null && state.equals(State.OPEN)) {
 			return true;
 		}
 		return false;
@@ -401,11 +436,13 @@ public abstract class WebSocketProxy {
 					// no message here that can be continued
 					// => forward in any case, as the endpoint has to close
 					// the connection immediately
-					logger.debug("Got continuation frame, but there is no message to continue - forward frame in any case!");
+					logger.warn("Got continuation frame, but there is no message to continue - forward frame in any case!");
 					
 					message = createWebSocketMessage(in, frameHeader);
-					if (!notifyObservers(message)) {
-						logger.debug("Ignore observer's wish to skip forwarding as we have received an invalid frame!");
+					if (!isForwardOnly) {
+						if (!notifyMessageObservers(message)) {
+							logger.warn("Ignore observer's wish to skip forwarding as we have received an invalid frame!");
+						}
 					}
 					message.forward(out);
 					
@@ -424,7 +461,7 @@ public abstract class WebSocketProxy {
 		
 		// do not buffer frames until message is finished,
 		// as messages might have several MegaBytes!
-		if (notifyObservers(message)) {
+		if (isForwardOnly || notifyMessageObservers(message)) {
 			// skip forwarding only if observer told us to skip this message (frame)
 			message.forward(out);
 		}	
@@ -441,6 +478,16 @@ public abstract class WebSocketProxy {
 	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
+	 * Returns a version specific WebSockets message, that is build upon given
+	 * {@link WebSocketMessageDTO}.
+	 * 
+	 * @param message Contains content to be used to create {@link WebSocketMessage}.
+	 * @return
+	 * @throws WebSocketException
+	 */
+	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException;
+
+	/**
 	 * Returns the opposed socket.
 	 * 
 	 * @param socket
@@ -453,15 +500,54 @@ public abstract class WebSocketProxy {
 			return localSocket;
 		}
 	}
+
+	/**
+	 * If true, then no observer is called, resulting in immediate forwarding.
+	 * 
+	 * @return
+	 */
+	public boolean isForwardOnly() {
+		return isForwardOnly;
+	}
+
+	/**
+	 * If true, then no observer is called, resulting in immediate forwarding.
+	 * 
+	 * @param shouldBeForwardOnly
+	 */
+	public void setForwardOnly(boolean shouldBeForwardOnly) {
+		if (isForwardOnly == shouldBeForwardOnly) {
+			// nothing changed
+			return;
+		}
+		
+		if (isForwardOnly && !shouldBeForwardOnly) {
+			// formerly channel was ignored - maybe the whole time
+			// be sure that observers got to know this channel
+			logger.info(toString() + " is re-included in storage & UI!");
+			
+			isForwardOnly = false;
+			notifyStateObservers(State.INCLUDED);
+		} else if (!isForwardOnly && shouldBeForwardOnly) {
+			// current channel is not tracked in future
+			logger.info(toString() + " is excluded from storage & UI!");
+
+			isForwardOnly = true;
+			notifyStateObservers(State.EXCLUDED);
+		}
+	}
 	
 	/**
 	 * Call each observer. If one observer has told us to drop the message, then
 	 * they skip further notifications and return false.
+	 * <p>
+	 * Call this helper only when {@link WebSocketProxy#isForwardOnly} is set to
+	 * false.
 	 * 
 	 * @param message
 	 * @return
 	 */
-	protected boolean notifyObservers(WebSocketMessage message) {
+	protected boolean notifyMessageObservers(WebSocketMessage message) {		
 		synchronized (observerList) {
 			for (WebSocketObserver observer : observerList) {
 				try {
@@ -474,6 +560,19 @@ public abstract class WebSocketProxy {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Helper to inform about new {@link WebSocketProxy#state}. Also called when
+	 * a former {@link WebSocketProxy#isForwardOnly} channel is no longer
+	 * blacklisted.
+	 */
+	protected void notifyStateObservers(State state) {
+		synchronized (observerList) {
+			for (WebSocketObserver observer : observerList) {
+				observer.onStateChange(state, this);
+			}
+		}
 	}
 	
 	/**
@@ -543,22 +642,60 @@ public abstract class WebSocketProxy {
 		this.handshakeReference = handshakeReference;
 	}
 
-	public WebSocketChannelDAO getDAO() {
-		WebSocketChannelDAO dao = new WebSocketChannelDAO();
-		dao.channelId = getChannelId();
-		dao.host = host;
-		dao.port = port;
-		dao.startTimestamp = (start != null) ? start.getTime() : null;
-		dao.endTimestamp = (end != null) ? end.getTime() : null;
+	public WebSocketChannelDTO getDTO() {
+		WebSocketChannelDTO dto = new WebSocketChannelDTO();
+		dto.id = getChannelId();
+		dto.host = host;
+		dto.port = port;
+		dto.startTimestamp = (start != null) ? start.getTime() : null;
+		dto.endTimestamp = (end != null) ? end.getTime() : null;
 		
 		HistoryReference handshakeRef = getHandshakeReference();
-		dao.historyId = (handshakeRef != null) ? handshakeRef.getHistoryId() : null;
+		if (handshakeRef != null) {
+			try {
+				dto.url = handshakeRef.getHttpMessage().getRequestHeader().getURI().toString();
+			} catch (HttpMalformedHeaderException e) {
+				dto.url = "";
+				logger.error("HttpMessage for WebSockets-handshake not found!");
+			} catch (SQLException e) {
+				dto.url = "";
+				logger.error("HttpMessage for WebSockets-handshake not found!");
+			}
+			dto.historyId = handshakeRef.getHistoryId();
+		} else {
+			dto.url = "";
+			dto.historyId = null;
+		}
 		
-		return dao;
+		return dto;
 	}
 	
-	@Override
 	public String toString() {
 		return host + ":" + port + " (#" + channelId + ")";
+	}
+
+	/**
+	 * Sends a custom message and informs {@link WebSocketObserver} instances of
+	 * this new message.
+	 * 
+	 * @param msg
+	 * @throws IOException
+	 */
+	public void sendAndNotify(WebSocketMessageDTO msg) throws IOException {
+		logger.info("send custom message");
+		WebSocketMessage message = createWebSocketMessage(msg);
+		
+		OutputStream out;
+		if (msg.isOutgoing) {
+			// an outgoing message is caught by the local listener
+			// and forwarded to its output stream
+			out = localListener.getOutputStream();
+		} else {
+			// an incoming message is caught by the remote listener
+			out = remoteListener.getOutputStream();
+		}
+		message.forward(out);
+		
+		notifyMessageObservers(message);
 	}
 }

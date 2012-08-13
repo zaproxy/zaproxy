@@ -29,7 +29,6 @@ import javax.swing.JScrollPane;
 import org.apache.commons.configuration.FileConfiguration;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.AbstractStringHttpPanelViewModel;
@@ -90,7 +89,6 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 		mainPanel.add(scrollPane, BorderLayout.CENTER);
 	}
 	
-	
 	protected abstract HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea();
 	
 	@Override
@@ -147,7 +145,7 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
-        httpPanelTextArea.setHttpMessage((HttpMessage)model.getMessage());
+		httpPanelTextArea.setMessage(model.getMessage());
 		
 		final boolean isEditable = httpPanelTextArea.isEditable();
 		final boolean empty = model.getData().isEmpty();

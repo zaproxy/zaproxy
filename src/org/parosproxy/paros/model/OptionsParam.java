@@ -25,7 +25,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Added type argument to generic type.
 // ZAP: 2012/05/03 Changed the type of one variable in the method getParamSet.
-// ZAP: 2012/06/29 Added OptionsWebSocketParam.
+// ZAP: 2012/06/29 Added OptionsParamWebSocket.
 // ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
 // getDatabaseParam() and changed the method parse() to also load the database
 // configurations.
@@ -49,8 +49,7 @@ import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketParam;
-import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketParam;
+import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
@@ -74,8 +73,8 @@ public class OptionsParam extends AbstractParam {
 	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
-	// ZAP: Added OptionsWebSocketParam
-	private OptionsWebSocketParam websocketParam = new OptionsWebSocketParam();
+	// ZAP: Added OptionsParamWebSocket
+	private OptionsParamWebSocket websocketParam = new OptionsParamWebSocket();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private BruteForceParam bruteForceParam = new BruteForceParam();
@@ -268,7 +267,7 @@ public class OptionsParam extends AbstractParam {
 		return invokeParam;
 	}
 
-	public OptionsWebSocketParam getWebSocketParam() {
+	public OptionsParamWebSocket getWebSocketParam() {
 		return websocketParam;
 	}
 

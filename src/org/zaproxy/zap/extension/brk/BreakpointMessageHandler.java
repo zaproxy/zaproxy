@@ -24,19 +24,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 
-class BreakpointMessageHandler {
+public class BreakpointMessageHandler {
 
     private static final Logger logger = Logger.getLogger(BreakpointMessageHandler.class);
     
-    private static final java.lang.Object semaphore = new java.lang.Object();
+    protected static final java.lang.Object semaphore = new java.lang.Object();
     
-    private final BreakPanel breakPanel;
+    protected final BreakPanel breakPanel;
     
-    private List<BreakpointMessageInterface> enabledBreakpoints;
+    protected List<BreakpointMessageInterface> enabledBreakpoints;
     
     public BreakpointMessageHandler(BreakPanel aBreakPanel) {
         this.breakPanel = aBreakPanel;
@@ -46,6 +47,13 @@ class BreakpointMessageHandler {
         this.enabledBreakpoints = breakpoints;
     }
     
+    /**
+     * Do not call if in {@link Mode#safe}.
+     * 
+     * @param aMessage
+     * @param onlyIfInScope
+     * @return
+     */
     public boolean handleMessageReceivedFromClient(Message aMessage, boolean onlyIfInScope) {
         if ( ! isBreakpoint(aMessage, true, onlyIfInScope)) {
             return true;
@@ -64,6 +72,13 @@ class BreakpointMessageHandler {
         return ! breakPanel.isToBeDropped();
     }
     
+    /**
+     * Do not call if in {@link Mode#safe}.
+     * 
+     * @param aMessage
+     * @param onlyIfInScope
+     * @return
+     */
     public boolean handleMessageReceivedFromServer(Message aMessage, boolean onlyIfInScope) {
         if (! isBreakpoint(aMessage, false, onlyIfInScope)) {
             return true;
@@ -137,22 +152,47 @@ class BreakpointMessageHandler {
         }
     }
 
-    public boolean isBreakpoint(Message aMessage, boolean request, boolean onlyIfInScope) {
+    /**
+     * You have to handle {@link Mode#safe} outside.
+     * 
+     * @param aMessage
+     * @param isRequest
+     * @param onlyIfInScope
+     * @return
+     */
+    public boolean isBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
     	if (onlyIfInScope && ! aMessage.isInScope()) {
     		return false;
     	}
-        if (request && breakPanel.isBreakRequest()) {
+    	
+        if (isBreakOnAllRequests(aMessage, isRequest)) {
             // Break on all requests
             return true;
-        } else if ( ! request && breakPanel.isBreakResponse()) {
+        } else if (isBreakOnAllResponses(aMessage, isRequest)) {
             // Break on all responses
             return true;
-        } else if (breakPanel.isStepping()) {
+        } else if (isBreakOnStepping(aMessage, isRequest)) {
             // Stopping through all requests and responses
             return true;
         }
         
-        if (enabledBreakpoints.isEmpty()) {
+        return isBreakOnEnabledBreakpoint(aMessage, isRequest, onlyIfInScope);
+    }
+
+	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
+    	return isRequest && breakPanel.isBreakRequest();
+	}
+    
+	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
+    	return !isRequest && breakPanel.isBreakResponse();
+	}
+
+	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
+		return breakPanel.isStepping();
+	}
+
+    protected boolean isBreakOnEnabledBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+		if (enabledBreakpoints.isEmpty()) {
             // No break points
             return false;
         }
@@ -171,9 +211,9 @@ class BreakpointMessageHandler {
         }
 
         return false;
-    }
+	}
     
-    private void clearAndDisableRequest() {
+	private void clearAndDisableRequest() {
         if (EventQueue.isDispatchThread()) {
             breakPanel.clearAndDisableRequest();
         } else {

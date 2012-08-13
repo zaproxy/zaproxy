@@ -18,6 +18,8 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
+// ZAP: 2012/05/31 Changed to log the exceptions and one message in the method
+// getNewConnection().
 
 package org.parosproxy.paros.db;
 
@@ -26,6 +28,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 
 
@@ -37,6 +40,9 @@ import org.hsqldb.Server;
 public class DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
+    
+    // ZAP: Added the class variable.
+    private static final Logger logger = Logger.getLogger(DatabaseServer.class);
     
 	//  change the url to reflect your preferred db location and name
 	//  String url = "jdbc:hsqldb:hsql://localhost/yourtest";
@@ -100,17 +106,23 @@ public class DatabaseServer {
 				conn = DriverManager.getConnection(mUrl, mUser, mPassword);
 				return conn;
 			} catch (SQLException e) {
-				e.printStackTrace();
+				// ZAP: Changed to log the exception.
+			    logger.warn(e.getMessage(), e);
 				if (i==4) {
 					throw e;
 				}
-				System.out.println("Recovering " + i + " times.");
+				// ZAP: Changed to log the message.
+				logger.warn("Recovering " + i + " times.");
 			}
 			
 			try {
 				Thread.sleep(500);
-			} catch (Exception e) {
-				
+				// ZAP: Changed to catch the InterruptedException.
+			} catch (InterruptedException e) {
+				// ZAP: Added the log.
+				if (logger.isDebugEnabled()) {
+					logger.debug(e.getMessage(), e);
+				}
 			}
 		}
 		return conn;

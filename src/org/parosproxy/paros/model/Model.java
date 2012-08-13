@@ -24,6 +24,7 @@
 // getSingleton to use it.
 // ZAP: 2012/06/11 Changed the method copySessionDb to call the method
 // Database.close(boolean, boolean).
+// ZAP: 2012/08/08 Check if file exist.
 
 package org.parosproxy.paros.model;
 
@@ -222,22 +223,36 @@ public class Model {
         // copy session related files to the path specified
         FileCopier copier = new FileCopier();        
         
+        // ZAP: Check if files exist.
         File fileIn1 = new File(currentFile + ".data");
-        File fileOut1 = new File(destFile + ".data");
-        copier.copy(fileIn1, fileOut1);
+        if (fileIn1.exists()) {
+            File fileOut1 = new File(destFile + ".data");
+            copier.copy(fileIn1, fileOut1);
+        }
         
         File fileIn2 = new File(currentFile + ".script");
-        File fileOut2 = new File(destFile + ".script");
-        copier.copy(fileIn2, fileOut2);
+        if (fileIn2.exists()) {
+            File fileOut2 = new File(destFile + ".script");
+            copier.copy(fileIn2, fileOut2);
+        }
         
         File fileIn3 = new File(currentFile + ".properties");
-        File fileOut3 = new File(destFile + ".properties");
-        copier.copy(fileIn3, fileOut3);
+        if (fileIn3.exists()) {
+            File fileOut3 = new File(destFile + ".properties");
+            copier.copy(fileIn3, fileOut3);
+        }
 
         File fileIn4 = new File(currentFile + ".backup");
         if (fileIn4.exists()) {
             File fileOut4 = new File(destFile + ".backup");
             copier.copy(fileIn4, fileOut4);
+        }
+
+        // ZAP: Handle the "lobs" file.
+        File lobsFile = new File(currentFile + ".lobs");
+        if (lobsFile.exists()) {
+            File newLobsFile = new File(destFile + ".lobs");
+            copier.copy(lobsFile, newLobsFile);
         }
 
         getDb().open(destFile);
@@ -269,35 +284,42 @@ public class Model {
             }
         }
         
+        // ZAP: Check if files exist.
         // copy and create new template db
         currentDBNameUntitled = DBNAME_UNTITLED + DBNAME_COPY;
         FileCopier copier = new FileCopier();
-	    File fileIn = new File(DBNAME_TEMPLATE + ".data");
-	    File fileOut = new File(currentDBNameUntitled + ".data");
-	    if (fileOut.exists() && ! fileOut.delete()) {
-        	// ZAP: Log failure to delete file
-	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
-	    }
-	    
-	    copier.copy(fileIn, fileOut);
+        File fileIn = new File(DBNAME_TEMPLATE + ".data");
+        if (fileIn.exists()) {
+            File fileOut = new File(currentDBNameUntitled + ".data");
+    	    if (fileOut.exists() && ! fileOut.delete()) {
+            	// ZAP: Log failure to delete file
+    	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+    	    }
+    	    
+    	    copier.copy(fileIn, fileOut);
+        }
 
 	    fileIn = new File(DBNAME_TEMPLATE + ".properties");
-	    fileOut = new File(currentDBNameUntitled  + ".properties"); 
-	    if (fileOut.exists() && !fileOut.delete()) {
-        	// ZAP: Log failure to delete file
-	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+	    if (fileIn.exists()) {
+    	    File fileOut = new File(currentDBNameUntitled  + ".properties"); 
+    	    if (fileOut.exists() && !fileOut.delete()) {
+            	// ZAP: Log failure to delete file
+    	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+    	    }
+    
+    	    copier.copy(fileIn, fileOut);
 	    }
-
-	    copier.copy(fileIn, fileOut);
 	    
 	    fileIn = new File(DBNAME_TEMPLATE + ".script");
-	    fileOut = new File(currentDBNameUntitled + ".script"); 
-	    if (fileOut.exists() && ! fileOut.delete()) {
-        	// ZAP: Log failure to delete file
-	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+	    if (fileIn.exists()) {
+	        File fileOut = new File(currentDBNameUntitled + ".script"); 
+    	    if (fileOut.exists() && ! fileOut.delete()) {
+            	// ZAP: Log failure to delete file
+    	    	logger.error("Failed to delete file " + fileOut.getAbsolutePath());
+    	    }
+    
+    	    copier.copy(fileIn, fileOut);
 	    }
-
-	    copier.copy(fileIn, fileOut);
 	    
 	    fileIn = new File(currentDBNameUntitled + ".backup");
 	    if (fileIn.exists()) {
@@ -306,6 +328,14 @@ public class Model {
 		    	logger.error("Failed to delete file " + fileIn.getAbsolutePath());
 		    }
 	    }
+        
+	    // ZAP: Handle the "lobs" file.
+        fileIn = new File(currentDBNameUntitled + ".lobs");
+        if (fileIn.exists()) {
+            if (! fileIn.delete()) {
+                logger.error("Failed to delete file " + fileIn.getAbsolutePath());
+            }
+        }
 	    
 	    getDb().open(currentDBNameUntitled);
 	    DBNAME_COPY++;

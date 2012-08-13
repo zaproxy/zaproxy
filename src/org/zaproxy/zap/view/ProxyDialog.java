@@ -27,10 +27,12 @@ import java.awt.HeadlessException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -39,6 +41,8 @@ import org.parosproxy.paros.model.OptionsParam;
 public class ProxyDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger logger = Logger.getLogger(ProxyDialog.class);
+	
 	private JPanel jPanel = null;
 	private OptionsConnectionPanel connPanel = null;
 	private OptionsParam options = null;
@@ -131,9 +135,8 @@ public class ProxyDialog extends AbstractDialog {
 	public void saveAndClose() {
 		try {
 			connPanel.saveParam(options);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 		
 	    ProxyDialog.this.dispose();

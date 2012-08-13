@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
@@ -50,12 +50,12 @@ public class WebSocketStorage implements WebSocketObserver {
 	}
 
 	@Override
-	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-		if (message.isFinished()) {
-			WebSocketMessageDAO dao = message.getDAO();
+	public boolean onMessageFrame(int channelId, WebSocketMessage wsMessage) {
+		if (wsMessage.isFinished()) {
+			WebSocketMessageDTO message = wsMessage.getDTO();
 
 			try {
-				table.insertMessage(dao);
+				table.insertMessage(message);
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -71,9 +71,17 @@ public class WebSocketStorage implements WebSocketObserver {
 
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
-		if (state.equals(State.OPEN) || state.equals(State.CLOSED)) {
+		if (state.equals(State.OPEN) || state.equals(State.CLOSED) || state.equals(State.INCLUDED)) {
 			try {
-				table.insertOrUpdateChannel(proxy.getDAO());
+				table.insertOrUpdateChannel(proxy.getDTO());
+			} catch (SQLException e) {
+				logger.error(e.getMessage(), e);
+			}
+		} else if (state.equals(State.EXCLUDED)) {
+			// when proxy is excluded from ZAP, then messages are forwarded
+			// but not stored - all existing communication is deleted
+            try {
+				table.purgeChannel(proxy.getChannelId());
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}

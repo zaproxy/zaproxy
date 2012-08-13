@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -322,19 +323,15 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
 	/**
-	 * Expose functionality from
-	 * {@link BreakpointMessageHandler#isBreakpoint(Message, boolean)}.
+	 * Exposes list of enabled breakpoints.
 	 * 
-	 * @param message
-	 * @param isRequest
 	 * @return
 	 */
-	public boolean isBreakpointSet(Message message, boolean isRequest) {
+	public List<BreakpointMessageInterface> getBreakpointsEnabledList() {
 		if (mode.equals(Mode.safe)) {
-			return false;
+			return new ArrayList<BreakpointMessageInterface>();
 		}
-		
-		return breakpointMessageHandler.isBreakpoint(message, isRequest, mode.equals(Mode.protect));
+		return getBreakpointsModel().getBreakpointsEnabledList();
 	}
 	
 	@Override

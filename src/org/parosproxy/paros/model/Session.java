@@ -25,6 +25,8 @@
 // removed unnecessary casts.
 // ZAP: 2012/05/15 Changed the method parse() to get the session description.
 // ZAP: 2012/06/11 Changed the JavaDoc of the method isNewState().
+// ZAP: 2012/07/23 Added excludeFromWebSocketRegexs list, getter and setter.
+// Load also on open() from DB.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/07 Added method for getting all Nodes in Scope
@@ -51,6 +53,7 @@ import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 
 
 public class Session extends FileXML {
@@ -79,6 +82,8 @@ public class Session extends FileXML {
 	private List<String> excludeFromScanRegexs = new ArrayList<String>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
 
+	private List<String> excludeFromWebSocketRegexs = new ArrayList<String>();
+    
     private List<Pattern> includeInScopePatterns = new ArrayList<Pattern>();
     private List<Pattern> excludeFromScopePatterns = new ArrayList<Pattern>();
 
@@ -216,7 +221,10 @@ public class Session extends FileXML {
 
 	    this.setExcludeFromSpiderRegexs(
 	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER)));
-
+	    		
+	    this.setExcludeFromWebSocketRegexs(
+				sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET)));
+	    
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
 			int historyId = list.get(i).intValue();
@@ -271,7 +279,6 @@ public class Session extends FileXML {
 		}
 
 		System.gc();
-		
 	}
 	
 	private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
@@ -427,6 +434,7 @@ public class Session extends FileXML {
 	public List<String> getExcludeFromProxyRegexs() {
 		return excludeFromProxyRegexs;
 	}
+	
 	
 	private List<String> stripEmptyLines(List<String> list) {
 		List<String> slist = new ArrayList<String>();
@@ -743,5 +751,26 @@ public class Session extends FileXML {
 			extSpider.setExcludeList(this.excludeFromSpiderRegexs);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
+	}
+
+	// ZAP: Added method
+	public List<String> getExcludeFromWebSocketRegexs() {
+		return excludeFromWebSocketRegexs;
+	}
+
+	public void addExcludeFromWebSocketRegex(String ignoredRegex) throws SQLException {
+		excludeFromWebSocketRegexs.add(ignoredRegex);
+		setExcludeFromWebSocketRegexs(excludeFromWebSocketRegexs);
+	}
+
+	// ZAP: Added method
+	public void setExcludeFromWebSocketRegexs(List<String> ignoredRegexs) throws SQLException {
+		this.excludeFromWebSocketRegexs = stripEmptyLines(ignoredRegexs);
+		ExtensionWebSocket extWebSocket = 
+			(ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
+		if (extWebSocket != null) {
+			extWebSocket.setStorageBlacklist(ignoredRegexs);
+		}
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET, this.excludeFromWebSocketRegexs);
 	}
 }

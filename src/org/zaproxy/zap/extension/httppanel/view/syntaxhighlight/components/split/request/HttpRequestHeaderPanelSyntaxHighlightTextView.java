@@ -24,12 +24,14 @@ import java.util.regex.Pattern;
 import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
-import org.zaproxy.zap.extension.fuzz.FuzzableHttpMessage;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
+import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
@@ -61,6 +63,11 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
 			//setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER);
 		}
 		
+        @Override
+        public Class<? extends Message> getMessageClass() {
+            return HttpMessage.class;
+        }
+		
 		@Override
 		public boolean canFuzz() {
 			//Currently do not allow to fuzz if the text area is editable, because the HttpMessage used is not updated with the changes.
@@ -82,14 +89,14 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
 		}
 		
 		@Override
-		public FuzzableHttpMessage getFuzzableHttpMessage() {
+		public FuzzableMessage getFuzzableMessage() {
 			int start = getSelectionStart();
 			try {
 				start += getLineOfOffset(start);
 			} catch (BadLocationException e) {
 				//Shouldn't happen, but in case it does log it and return.
 				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
 			}
 
 			int end = getSelectionEnd();
@@ -98,10 +105,10 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
 			} catch (BadLocationException e) {
 				//Shouldn't happen, but in case it does log it and return.
 				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
 			}
 			
-			return new FuzzableTextHttpMessage(getHttpMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
+			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
 		}
 		
 		@Override

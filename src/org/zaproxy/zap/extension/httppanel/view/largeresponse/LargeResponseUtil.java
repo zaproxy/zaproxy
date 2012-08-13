@@ -21,11 +21,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 
-class LargeResponseUtil {
+public class LargeResponseUtil {
     
     private static final int DEFAULT_MIN_CONTENT_LENGTH = 100000;
     
-    private static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
+    protected static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
     
     public static int getMinContentLength() {
         return minContentLength;

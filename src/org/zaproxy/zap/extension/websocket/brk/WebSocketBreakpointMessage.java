@@ -25,7 +25,7 @@ import java.util.regex.PatternSyntaxException;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
@@ -44,7 +44,7 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	
 	/**
 	 * Break on specified pattern that has to match on the
-	 * {@link WebSocketMessageDAO#payload} or arbitrary payload if null.
+	 * {@link WebSocketMessageDTO#payload} or arbitrary payload if null.
 	 */
 	private Pattern payloadPattern;
 
@@ -118,9 +118,8 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
 	@Override
 	public boolean match(Message aMessage, boolean onlyIfInScope) {
-		// TODO implement onlyIfInScope
-	    if (aMessage instanceof WebSocketMessageDAO) {			
-	        WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
+	    if (aMessage instanceof WebSocketMessageDTO) {
+	        WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
 	        
 	        if (opcode != null) {
 		        if (!msg.readableOpcode.equals(opcode)) {
@@ -129,17 +128,22 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 	        }
 	        
 	        if (channelId != null) {
-	        	if (!channelId.equals(msg.channelId)) {
+	        	if (!channelId.equals(msg.channel.id)) {
 		        	return false;
 		        }
 	        }
 	        
 	        if (payloadPattern != null) {
-	        	Matcher m = payloadPattern.matcher(msg.payload);
-	        	if (!m.find()) {
-	        		// when m.matches() is used, the whole string has to match
-		        	return false;
-		        }
+	        	if (msg.payload instanceof String) {
+		        	Matcher m = payloadPattern.matcher((String) msg.payload);
+		        	if (!m.find()) {
+		        		// when m.matches() is used, the whole string has to match
+			        	return false;
+			        }
+	        	} else {
+	        		// binary messages are not affected by pattern
+	        		return false;
+	        	}
 	        }
 	        
 	        if (direction != null) {

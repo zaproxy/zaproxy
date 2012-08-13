@@ -19,18 +19,16 @@ package org.zaproxy.zap.extension.websocket;
 
 import java.awt.EventQueue;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.ComboBoxModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -38,29 +36,49 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionHookMenu;
+import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
+
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
+
 import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
+import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
+import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromScopeMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.IncludeInScopeMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
+import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
-import org.zaproxy.zap.extension.websocket.ui.httppanel.component.incoming.WebSocketIncomingComponent;
-import org.zaproxy.zap.extension.websocket.ui.httppanel.component.outgoing.WebSocketOutgoingComponent;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.component.WebSocketComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.StringWebSocketPanelViewModel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketSyntaxHighlightTextView;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadUtil;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadView;
+import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargetPayloadViewModel;
+import org.zaproxy.zap.extension.websocket.utility.Pair;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
@@ -87,25 +105,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	private ExecutorService listenerThreadPool;
 
 	/**
-	 * Displayed in the bottom area beside the History, Spider, etc. tabs.
-	 */
-	private WebSocketPanel panel;
-
-	/**
 	 * List of observers where each element is informed on all channel's
 	 * messages.
 	 */
 	private Vector<WebSocketObserver> allChannelObservers;
-
-	/**
-	 * Will be added to the hook view. 
-	 */
-//	private OptionsWebSocketPanel optionsPanel;
-
-	/**
-	 * Allows to set custom breakpoints, e.g.: for specific opcodes only.
-	 */
-	private WebSocketBreakpointsUiManagerInterface brkManager;
 
 	/**
 	 * Used for setting up all channel observers.
@@ -115,7 +118,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	/**
 	 * Contains all proxies with their corresponding handshake message.
 	 */
-	private Map<HistoryReference, WebSocketProxy> wsProxies;
+	private Map<Integer, WebSocketProxy> wsProxies;
 
 	/**
 	 * Interface to database.
@@ -126,6 +129,22 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Replace payload in background.
 	 */
 	private FilterWebSocketPayload payloadFilter;
+
+	/**
+	 * Messages for those {@link WebSocketProxy} on this list are just
+	 * forwarded, but not stored nor shown in UI.
+	 */
+	private ArrayList<Pair<String, Integer>> storageBlacklist;
+
+	/**
+	 * Different options in config.xml can change this extension's behavior.
+	 */
+	private OptionsParamWebSocket config;
+
+	/**
+	 * Current mode of ZAP. Determines if "unsafe" actions are allowed.
+	 */
+	private Mode mode;
 	
 	/**
 	 * Constructor initializes this class.
@@ -134,18 +153,27 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		super();
 		allChannelObservers = new Vector<WebSocketObserver>();
 		hasHookedAllObserver = false;
-		wsProxies = new HashMap<HistoryReference, WebSocketProxy>();
+		wsProxies = new HashMap<Integer, WebSocketProxy>();
+		storageBlacklist = new ArrayList<Pair<String, Integer>>();
+		config = new OptionsParamWebSocket();
 		
 		initialize();
 	}
 	
 	private void initialize() {
 		setName(NAME);
+		
+		// should be initialized after ExtensionBreak (24) & ExtensionFilter (8)
 		setOrder(150);
 		
-		// TODO: Do not observe blacklisted channels from Options Dialog.
-		storage = new WebSocketStorage(Model.getSingleton().getDb().getTableWebSocket());
-		allChannelObservers.add(storage);
+		Model model = Model.getSingleton();
+		
+		// setup database
+		storage = new WebSocketStorage(model.getDb().getTableWebSocket());
+		addAllChannelObserver(storage);
+		
+		// setup configuration        
+    	config.load(model.getOptionsParam().getConfig());
 	}
 
 	@Override
@@ -155,78 +183,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("websockets.desc");
+		return Constant.messages.getString("websocket.desc");
 	}
 	
 	@Override
 	public void init() {
 		super.init();
-
-    	ExtensionFilter extFilter = (ExtensionFilter) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFilter.NAME);
-    	if (extFilter != null) {
-    		payloadFilter = new FilterWebSocketPayload(getChannelComboBoxModel());
-    		// filter is not disabled, otherwise ignore it
-    		extFilter.addFilter(payloadFilter);
-    	}
 	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-        extensionHook.addSessionListener(this);
-        if (getView() != null) {
-        	panel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-	        
-        	extensionHook.getHookView().addStatusPanel(panel);	
-	        //TODO: Help
-//	    	ExtensionHelp.enableHelpKey(getWebSocketPanel(), "ui.tabs.websocket");
-        	
-        	// TODO: Add options panel again
-//        	extensionHook.getHookView().addOptionPanel(getOptionsPanel());
-
-			// Add "HttpPanel" components and views.
-			HttpPanelManager manager = HttpPanelManager.getInstance();
-
-			// Component for outgoing and incoming messages (the component
-			// contains the normal text view (without syntax highlight))
-			// Probably is needed only one component, it depends if all the
-			// views are equal to both the outgoing and incoming messages.
-			manager.addRequestComponent(new WebSocketOutgoingComponentFactory());
-			manager.addResponseComponent(new WebSocketIncomingComponentFactory());
-
-			// Hex views to outgoing and incoming messages.
-			// Can use the same view factory as the view use the same model
-			// because the payload is accessed the same way.
-			HttpPanelViewFactory viewFactory = new WebSocketHexViewFactory();
-			manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
-			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
-			
-			// Add the default Hex view for binary-opcode messages.
-			// Can use the same default view selector.
-			HttpPanelDefaultViewSelectorFactory viewSelectorFactory = new HexDefaultViewSelectorFactory();
-			manager.addResponseDefaultView(WebSocketOutgoingComponent.NAME, viewSelectorFactory);
-			manager.addResponseDefaultView(WebSocketIncomingComponent.NAME, viewSelectorFactory);
-
-			// Replace the normal text views with the ones that use syntax
-			// highlight (use the same type of view).
-			viewFactory = new SyntaxHighlightTextViewFactory();
-			manager.addRequestView(WebSocketOutgoingComponent.NAME, viewFactory);
-			manager.addResponseView(WebSocketIncomingComponent.NAME, viewFactory);
-			
-			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
-			if (extBreak != null) {
-				// Listen on the new messages so the breakpoints can apply.
-				addAllChannelObserver(new WebSocketProxyListenerBreak(extBreak));
-
-				// Pop up to add the breakpoint
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakWebSocket(extBreak));
-				extBreak.addBreakpointsUiManager(getBrkManager());
-			}
-			
-			// TODO: add daemon mode
-			allChannelObservers.add(getWebSocketPanel());
-        }
-    }
 
 	/**
 	 * Add an observer that is attached to every channel connected in future.
@@ -236,19 +199,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public void addAllChannelObserver(WebSocketObserver listener) {
 		allChannelObservers.add(listener);
 	}
-
-	/**
-	 * Lazy initialize options panel.
-	 * 
-	 * @return
-	 */
-//	private AbstractParamPanel getOptionsPanel() {
-//		if (optionsPanel == null) {
-//			optionsPanel = new OptionsWebSocketPanel(this);
-//		}
-//		
-//		return optionsPanel;
-//	}
 
 	/**
 	 * Add an open channel to this extension after
@@ -295,7 +245,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				}
 			}
 			wsProxy.setHandshakeReference(msg.getHistoryRef());
-			
+			wsProxy.setForwardOnly(isStorageBlacklisted(wsProxy));
 			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
 			
 			try {
@@ -307,35 +257,13 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				logger.error(e);
 			}
 			
-			wsProxies.put(msg.getHistoryRef(), wsProxy);
+			synchronized (wsProxies) {
+				wsProxies.put(wsProxy.getChannelId(), wsProxy);
+			}
 		} catch (WebSocketException e) {
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
 		}
-	}
-
-	/**
-	 * Small helper to create a hash from an HTTP messages request and response
-	 * header.
-	 * 
-	 * @param msg
-	 * @return
-	 */
-	public static String createHandshakeHash(HttpMessage msg)  {
-		try {
-			String base = msg.getRequestHeader().toString() + msg.getResponseHeader().toString();
-			
-			MessageDigest m = MessageDigest.getInstance("MD5");
-	        m.update(base.getBytes("UTF-8"), 0, base.length());
-
-	        return new BigInteger(1, m.digest()).toString(16);
-		} catch (NoSuchAlgorithmException e) {
-			logger.warn(e);
-		} catch (UnsupportedEncodingException e) {
-			logger.warn(e);
-		}
-		
-		return null;
 	}
 
 	/**
@@ -446,30 +374,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		if (listenerThreadPool == null) {
 			listenerThreadPool = Executors.newCachedThreadPool();
 		}
-		
 		return listenerThreadPool;
-	}
-
-	private WebSocketBreakpointsUiManagerInterface getBrkManager() {
-		if (brkManager == null) {
-			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
-			if (extBreak != null) {
-				brkManager = new WebSocketBreakpointsUiManagerInterface(extBreak, this);
-			}
-		}
-			
-		return brkManager;
-	}
-
-	public ComboBoxModel getChannelComboBoxModel() {
-		return getWebSocketPanel().getChannelComboBoxModel();
-	}
-
-	private WebSocketPanel getWebSocketPanel() {
-		if (panel == null) {
-			panel = new WebSocketPanel(storage.getTable(), getBrkManager());
-		}
-		return panel;
 	}
 
 	/**
@@ -480,10 +385,100 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * @return
 	 */
 	public boolean isConnected(HttpMessage handshakeMessage) {
-		HistoryReference ref = handshakeMessage.getHistoryRef();
-		if (wsProxies.containsKey(ref)) {
-			return wsProxies.get(ref).isConnected();
+		int historyId = handshakeMessage.getHistoryRef().getHistoryId();
+		synchronized (wsProxies) {
+			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
+				WebSocketProxy proxy = entry.getValue();
+				if (historyId == proxy.getHandshakeReference().getHistoryId()) {
+					return proxy.isConnected();
+				}
+			}
 		}
+		return false;
+	}
+
+	/**
+	 * Returns true if given channel id is connected.
+	 * 
+	 * @param channelId
+	 * @return
+	 */
+	public boolean isConnected(Integer channelId) {
+		synchronized (wsProxies) {
+			if (wsProxies.containsKey(channelId)) {
+				return wsProxies.get(channelId).isConnected();
+			}
+		}
+		return false;
+	}
+
+    /**
+	 * Submitted list of strings will be interpreted as regular expression on
+	 * WebSocket channel URLs.
+	 * <p>
+	 * While connections to those excluded URLs will be established and messages
+	 * will be forwarded, nothing is stored nor can you view the communication
+	 * in the UI.
+	 * 
+	 * @param ignoredStrings
+	 */
+	public void setStorageBlacklist(List<String> ignoredStrings) {
+		synchronized (storageBlacklist) {
+			storageBlacklist.clear();
+			for (String regex : ignoredStrings) {
+				Integer port = null;
+				try {
+					port = Integer.parseInt(regex.replaceAll("^.*:([0-9]+).*$", "$1"));
+				} catch (NumberFormatException e) {
+					// safely ignore, null is used as wildcard
+				}
+				
+				String host = regex.replaceAll("^(.*):[0-9]+(.*)$", "$1$2");
+				if (host.isEmpty()) {
+					// special case if ":80" is entered
+					host = null;
+				}
+				
+				storageBlacklist.add(new Pair<String, Integer>(host, port));
+			}
+		}
+
+		synchronized (wsProxies) {
+			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
+				WebSocketProxy wsProxy = entry.getValue();
+				
+				if (isStorageBlacklisted(wsProxy)) {
+					wsProxy.setForwardOnly(true);
+				} else {
+					wsProxy.setForwardOnly(false);
+				}
+			}
+		}
+	}
+
+	/**
+	 * If given channel is blacklisted, then nothing should be stored. Moreover
+	 * it should not appear in user interface, but messages should be forwarded.
+	 * 
+	 * @param wsProxy
+	 * @return
+	 */
+	private boolean isStorageBlacklisted(WebSocketProxy wsProxy) {
+		if (config.isForwardAll()) {
+			// all channels are blacklisted
+			return true;
+		}
+		
+		WebSocketChannelDTO channel = wsProxy.getDTO();
+		for (Pair<String, Integer> regex : storageBlacklist) {
+			if (regex.x == null || channel.host.matches(regex.x)) {
+				if (regex.y == null || channel.port.equals(regex.y)) {
+					// match found => should go onto storage blacklist
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 
@@ -507,17 +502,29 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	
 	private void sessionChangedEventHandler(Session session) {
 		// close existing connections
-		for (WebSocketProxy wsProxy : wsProxies.values()) {
-			wsProxy.shutdown();
+		synchronized (wsProxies) {
+			for (WebSocketProxy wsProxy : wsProxies.values()) {
+				wsProxy.shutdown();
+			}
+			wsProxies.clear();	
 		}
-		wsProxies.clear();
+		
+		synchronized (storageBlacklist) {
+			storageBlacklist.clear();
+		}
 		
 		// reset WebSocket panel
-		panel.reset();
+		getWebSocketPanel().reset();
 		
 		// reset replace payload filter
 		if (payloadFilter != null) {
 			payloadFilter.reset();
+		}
+		
+		try {
+			WebSocketProxy.setChannelCounter(storage.getTable().getMaxChannelId());
+		} catch (SQLException e) {
+			logger.error("Unable to retrieve current channelId value!", e);
 		}
 	}
 
@@ -528,41 +535,217 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+		// do nothing
 	}
 
-	private PopupMenuAddBreakWebSocket popupMenuAddBreakWebSocket;
-	
-    private PopupMenuAddBreakWebSocket getPopupMenuAddBreakWebSocket(ExtensionBreak extensionBreak) {
-        if (popupMenuAddBreakWebSocket == null) {
-            popupMenuAddBreakWebSocket = new PopupMenuAddBreakWebSocket();
-            popupMenuAddBreakWebSocket.setExtension(extensionBreak);
-        }
-        return popupMenuAddBreakWebSocket;
-    }
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		this.mode = mode;
+	}
 
-    private static final class WebSocketOutgoingComponentFactory implements HttpPanelComponentFactory {
+	/**
+	 * Returns false when either in {@link Mode#safe} or in {@link Mode#protect}
+	 * and the message is not in scope. Call it if you want to do "unsafe"
+	 * actions like changing payloads, catch breakpoints, send custom messages,
+	 * etc.
+	 * 
+	 * @param message
+	 * @return
+	 */
+	public boolean isSafe(WebSocketMessageDTO message) {
+		if (mode.equals(Mode.safe)) {
+			return false;
+		} else if (mode.equals(Mode.protect)) {
+			return message.isInScope();
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * This method interweaves the WebSocket extension with the rest of ZAP.
+	 * <p>
+	 * It does the following things:
+	 * <ul>
+	 * <li>installs itself as session listener in order to react on session
+	 * changes</li>
+	 * <li>adds WebSocket tab to the status panel (information window containing
+	 * e.g.: the History tab)</li>
+	 * <li>adds a WebSocket specific options panel</li>
+	 * <li>adds 'Exclude From WebSockets' to Session Properties</li>
+	 * <li>sets up context menu for WebSockets panel with 'Break' & 'Exclude'</li>
+	 * </ul>
+	 * </p>
+	 */
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
+	    
+        extensionHook.addSessionListener(this);
+
+		// TODO: ensure that it is working in headless mode
+        if (getView() != null) {
+        	ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+        	ExtensionHookView hookView = extensionHook.getHookView();
+        	ExtensionHookMenu hookMenu = extensionHook.getHookMenu();
+        	
+        	// setup WebSocket tab
+        	WebSocketPanel wsPanel = getWebSocketPanel();
+        	wsPanel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+        	
+			addAllChannelObserver(wsPanel);
+	    	ExtensionHelp.enableHelpKey(wsPanel, "ui.tabs.websocket");
+	        
+        	hookView.addStatusPanel(getWebSocketPanel());
+        	
+        	// setup Options Panel
+        	hookView.addOptionPanel(getOptionsPanel());
+        	
+        	// add 'Exclude from WebSockets' menu item to WebSocket tab context menu
+			hookMenu.addPopupMenuItem(new ExcludeFromWebSocketsMenuItem(storage.getTable()));
+
+			// setup Session Properties
+			getView().getSessionDialog().addParamPanel(new String[]{}, new ExcludeFromWebSocketSessionPanel(), false);
+			
+			// setup Breakpoints
+			ExtensionBreak extBreak = (ExtensionBreak) extLoader.getExtension(ExtensionBreak.NAME);
+			if (extBreak != null) {
+				// setup custom breakpoint handler
+				BreakpointMessageHandler wsBrkMessageHandler = new WebSocketBreakpointMessageHandler(extBreak.getBreakPanel(), config);
+			    wsBrkMessageHandler.setEnabledBreakpoints(extBreak.getBreakpointsEnabledList());
+			    
+				// listen on new messages such that breakpoints can apply
+				addAllChannelObserver(new WebSocketProxyListenerBreak(this, wsBrkMessageHandler));
+
+				// pop up to add the breakpoint
+				hookMenu.addPopupMenuItem(new PopupMenuAddBreakWebSocket(extBreak));
+				extBreak.addBreakpointsUiManager(getBrkManager());
+			}
+        	
+        	// setup replace payload filter
+        	ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
+        	if (extFilter != null) {
+        		payloadFilter = new FilterWebSocketPayload(this, wsPanel.getChannelComboBoxModel());
+        		payloadFilter.initView(getView());
+        		extFilter.addFilter(payloadFilter);
+        	}
+            
+        	// setup fuzzable extension
+            ExtensionFuzz extFuzz = (ExtensionFuzz) extLoader.getExtension(ExtensionFuzz.NAME);
+            if (extFuzz != null) {
+            	hookMenu.addPopupMenuItem(new ShowFuzzMessageInWebSocketsTabMenuItem(getWebSocketPanel()));
+            	
+            	WebSocketFuzzerHandler fuzzHandler = new WebSocketFuzzerHandler(storage.getTable());
+                extFuzz.addFuzzerHandler(WebSocketMessageDTO.class, fuzzHandler);
+                addAllChannelObserver(fuzzHandler);
+            }
+            
+            // add exclude/include scope
+			hookMenu.addPopupMenuItem(new ExcludeFromScopeMenuItem());
+			hookMenu.addPopupMenuItem(new IncludeInScopeMenuItem());
+			
+			// setup Workpanel (window containing Request, Response & Break tab)
+        	initializeWebSocketsForWorkPanel();
+        }
+    }
+	
+	/*
+	 * ************************************************************************
+	 * GUI specific code follows here now. It is accessed only by methods hook()
+	 * and sessionChangedEventHandler() (latter calls only getWebSocketPanel()).
+	 * All of this UI-related code is private and should not be accessible from
+	 * outside.
+	 */
+
+	/**
+	 * Displayed in the bottom area beside the History, Spider, etc. tabs.
+	 */
+	private WebSocketPanel panel;
+
+	/**
+	 * Will be added to the hook view. 
+	 */
+	private OptionsWebSocketPanel optionsPanel;
+
+	/**
+	 * Allows to set custom breakpoints, e.g.: for specific opcodes only.
+	 */
+	private WebSocketBreakpointsUiManagerInterface brkManager;
+
+	private WebSocketPanel getWebSocketPanel() {
+		if (panel == null) {
+			panel = new WebSocketPanel(storage.getTable(), getBrkManager());
+		}
+		return panel;
+	}
+
+	private WebSocketBreakpointsUiManagerInterface getBrkManager() {
+		if (brkManager == null) {
+			ExtensionBreak extBreak = (ExtensionBreak) Control.getSingleton().getExtensionLoader().getExtension(ExtensionBreak.NAME);
+			if (extBreak != null) {
+				brkManager = new WebSocketBreakpointsUiManagerInterface(extBreak);
+			}
+		}
+		return brkManager;
+	}
+	
+	private AbstractParamPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new OptionsWebSocketPanel(config);
+		}
+		return optionsPanel;
+	}
+
+
+	private void initializeWebSocketsForWorkPanel() {
+		// Add "HttpPanel" components and views.
+		HttpPanelManager manager = HttpPanelManager.getInstance();
+
+		// component factory for outgoing and incoming messages with Text view
+		HttpPanelComponentFactory componentFactory = new WebSocketComponentFactory();
+		manager.addRequestComponent(componentFactory);
+		manager.addResponseComponent(componentFactory);
+
+		// use same factory for request & response,
+		// as Hex payloads are accessed the same way
+		HttpPanelViewFactory viewFactory = new WebSocketHexViewFactory();
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
+		
+		// add the default Hex view for binary-opcode messages
+		HttpPanelDefaultViewSelectorFactory viewSelectorFactory = new HexDefaultViewSelectorFactory();
+		manager.addRequestDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+		manager.addResponseDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+
+		// replace the normal Text views with the ones that use syntax highlighting
+		viewFactory = new SyntaxHighlightTextViewFactory();
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
+
+		// support large payloads on incoming and outgoing messages
+		viewFactory = new WebSocketLargePayloadViewFactory();
+		manager.addRequestView(WebSocketComponent.NAME, viewFactory);
+		manager.addResponseView(WebSocketComponent.NAME, viewFactory);
+		
+		viewSelectorFactory = new WebSocketLargePayloadDefaultViewSelectorFactory();
+		manager.addRequestDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+		manager.addResponseDefaultView(WebSocketComponent.NAME, viewSelectorFactory);
+	}
+
+	/**
+	 * The component returned by this factory contain the normal text view
+	 * (without syntax highlighting).
+	 */
+    private static final class WebSocketComponentFactory implements HttpPanelComponentFactory {
         
         @Override
         public HttpPanelComponentInterface getNewComponent() {
-            return new WebSocketOutgoingComponent();
+            return new WebSocketComponent();
         }
 
         @Override
         public String getComponentName() {
-            return WebSocketOutgoingComponent.NAME;
-        }
-    }
-	
-    private static final class WebSocketIncomingComponentFactory implements HttpPanelComponentFactory {
-        
-        @Override
-        public HttpPanelComponentInterface getNewComponent() {
-            return new WebSocketIncomingComponent();
-        }
-
-        @Override
-        public String getComponentName() {
-            return WebSocketIncomingComponent.NAME;
+            return WebSocketComponent.NAME;
         }
     }
 	
@@ -588,8 +771,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         
         @Override
         public boolean matchToDefaultView(Message aMessage) {
-            if (aMessage instanceof WebSocketMessageDAO) {
-                WebSocketMessageDAO msg = (WebSocketMessageDAO)aMessage;
+            if (aMessage instanceof WebSocketMessageDTO) {
+                WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
                 
                 return (msg.opcode == WebSocketMessage.OPCODE_BINARY);
             }
@@ -647,9 +830,69 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
             return null;
         }
     }
-    
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		// Ignore
+	
+	private static final class WebSocketLargePayloadViewFactory implements HttpPanelViewFactory {
+		
+		@Override
+		public HttpPanelView getNewView() {
+			return new WebSocketLargePayloadView(new WebSocketLargetPayloadViewModel());
+		}
+
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+	}
+	
+	private static final class WebSocketLargePayloadDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+		
+		private static HttpPanelDefaultViewSelector defaultViewSelector = null;
+		
+		private HttpPanelDefaultViewSelector getDefaultViewSelector() {
+			if (defaultViewSelector == null) {
+				createViewSelector();
+			}
+			return defaultViewSelector;
+		}
+		
+		private synchronized void createViewSelector() {
+			if (defaultViewSelector == null) {
+				defaultViewSelector = new WebSocketLargePayloadDefaultViewSelector();
+			}
+		}
+		
+		@Override
+		public HttpPanelDefaultViewSelector getNewDefaultViewSelector() {
+			return getDefaultViewSelector();
+		}
+		
+		@Override
+		public Object getOptions() {
+			return null;
+		}
+	}
+
+	private static final class WebSocketLargePayloadDefaultViewSelector implements HttpPanelDefaultViewSelector {
+
+		@Override
+		public String getName() {
+			return "WebSocketLargePayloadDefaultViewSelector";
+		}
+		
+		@Override
+		public boolean matchToDefaultView(Message aMessage) {
+		    return WebSocketLargePayloadUtil.isLargePayload(aMessage);
+		}
+
+		@Override
+		public String getViewName() {
+			return WebSocketLargePayloadView.CONFIG_NAME;
+		}
+        
+        @Override
+        public int getOrder() {
+        	// has to come before HexDefaultViewSelector
+            return 15;
+        }
 	}
 }

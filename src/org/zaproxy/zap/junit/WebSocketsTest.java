@@ -22,9 +22,12 @@ package org.zaproxy.zap.junit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -40,8 +43,6 @@ import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 /**
  * This test uses the Echo Server from websockets.org
  * for testing a valid WebSockets connection.
- * TODO: Always get a: java.util.MissingResourceException: Can't find bundle for base name Messages.
- * Why? - Don't know.
  */
 public class WebSocketsTest extends BaseZapProxyTest {
 
@@ -112,7 +113,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		properlyCloseWebSocket(socket);
 	}
 
-//	@Test
+	@Test
 	public void getAutobahnCaseCount() throws HttpException {
 		// use HTTP-client with custom connection manager
 		// that allows us to expose the SocketChannel
@@ -120,7 +121,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		HttpConnectionManagerParams connectionParams = new HttpConnectionManagerParams();
 		connectionParams.setTcpNoDelay(true);
 		connectionParams.setStaleCheckingEnabled(false);
-		connectionParams.setSoTimeout(0);
+		connectionParams.setSoTimeout(500);
 		
 		ZapHttpConnectionManager connectionManager = new ZapHttpConnectionManager();
 		connectionManager.setParams(connectionParams);
@@ -163,7 +164,7 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		try {
 			readBytes = remoteInput.read(closeFrame);
 		} catch (IOException e) {
-			assertTrue("reading websocket frame failed", false);
+			assertTrue("reading websocket frame failed: " + e.getMessage(), false);
 		}
 		
 		assertEquals("Expected some bytes in the second frame.", 2, readBytes);
@@ -173,8 +174,8 @@ public class WebSocketsTest extends BaseZapProxyTest {
 		// now I would send back a close frame and close the physical socket connection
 	}
 // requires Autobahn to be running via "wstest -m fuzzingserver"
-//	@Test
-	public void doAutobahnTest() throws HttpException {
+	@Test
+	public void doAutobahnTest() throws HttpException, SocketException {
 		// use HTTP-client with custom connection manager
 		// that allows us to expose the SocketChannel
 		HttpClient client = new HttpClient(new ZapHttpConnectionManager());
@@ -198,12 +199,14 @@ public class WebSocketsTest extends BaseZapProxyTest {
 				101, method.getStatusCode());
 
 		Socket socket = method.getUpgradedConnection();
+		socket.setTcpNoDelay(true);
+		socket.setSoTimeout(500);
 
 		byte[] dst = new byte[20];
 		try {
 			socket.getInputStream().read(dst);
 		} catch (IOException e) {
-			assertTrue("reading websocket frame failed", false);
+			assertTrue("reading websocket frame failed: " + e.getMessage(), false);
 		}
 	}
 
@@ -262,16 +265,22 @@ public class WebSocketsTest extends BaseZapProxyTest {
 	 * @throws IOException
 	 */
 	private void assertWorkingWebSocket(Socket socket) throws IOException {
+		socket.setSoTimeout(500);
 		socket.setTcpNoDelay(true);
+		socket.setKeepAlive(true);
 		assertTrue("Retrieved SocketChannel should not be null.", socket != null);
 		
 		byte[] maskedHelloMessage = {(byte) 0x81, (byte) 0x85, 0x37, (byte) 0xfa, 0x21, 0x3d, 0x7f, (byte) 0x9f, 0x4d, 0x51, 0x58};
 		byte[] unmaskedHelloMessage = {(byte) 0x81, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 		
-		socket.getOutputStream().write(maskedHelloMessage);
+		InputStream inpStream = new BufferedInputStream(socket.getInputStream());
+		
+		OutputStream out = socket.getOutputStream();
+		out.write(maskedHelloMessage);
+		out.flush();
 		
 		byte[] dst = new byte[7];
-		socket.getInputStream().read(dst);
+		inpStream.read(dst);
 		
 		// use Arrays class to compare two byte arrays
 		// returns true if it contains the same elements in same order

@@ -64,7 +64,8 @@ public class RequestUtils {
 						sb.append('=');
 					}
 				}
-				body = sb.toString();
+				// fixed: dead store to variable body by commenting the following line
+				// body = sb.toString();
 				uri.setQuery(null);
 				hrh.setURI(uri);
 			}

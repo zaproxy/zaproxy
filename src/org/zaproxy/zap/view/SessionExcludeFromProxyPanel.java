@@ -49,8 +49,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
     public SessionExcludeFromProxyPanel() {
         super();
  		initialize();
-   }
-
+	}
     
 	/**
 	 * This method initializes this
@@ -62,6 +61,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
         this.setName(PANEL_NAME);
         this.add(getPanelSession(), getPanelSession().getName());
 	}
+	
 	/**
 	 * This method initializes panelSession	
 	 * 	
@@ -132,6 +132,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 		}
 		return tableIgnore;
 	}
+	
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -150,6 +151,6 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.sessprop";
+		return "ui.dialogs.sessprop";
 	}
 }

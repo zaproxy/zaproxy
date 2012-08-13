@@ -27,8 +27,11 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 // ZAP: 2012/07/02 HttpPanelRequest and -Response constructor changed.
+// ZAP: 2012/07/23 Removed title parameter in method getSessionDialog().
+// Added @Override to getSessionDialog() as exposed in ViewDelegate interface.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/08/07 Removed the unused method changeDisplayOption(int)
 
 package org.parosproxy.paros.view;
 
@@ -100,10 +103,7 @@ public class View implements ViewDelegate {
 		View.displayOption = displayOption;
 	}
 	
-	public void changeDisplayOption(int displayOption) {
-		View.displayOption = displayOption;
-		mainFrame.changeDisplayOption(displayOption);
-	}
+//  ZAP: Removed method changeDisplayOption(int)
 	
 	public void init() {
 		mainFrame = new MainFrame(displayOption);
@@ -215,12 +215,15 @@ public class View implements ViewDelegate {
         }
         return responsePanel;
     }
-    
-    public SessionDialog getSessionDialog(String title) {
+
+	@Override    
+    public SessionDialog getSessionDialog() {
         String[] ROOT = {};
         if (sessionDialog == null) {
-            sessionDialog = new SessionDialog(getMainFrame(), true, title, Constant.messages.getString("session.dialog.title"));	// ZAP: i18n
-            sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
+        	// ZAP: i18n, plus in-lined title parameter
+        	String propertiesTitle = Constant.messages.getString("session.properties.title");
+        	String dialogTitle = Constant.messages.getString("session.dialog.title");
+            sessionDialog = new SessionDialog(getMainFrame(), true, propertiesTitle, dialogTitle);
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionIncludeInScopePanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScopePanel(), false);

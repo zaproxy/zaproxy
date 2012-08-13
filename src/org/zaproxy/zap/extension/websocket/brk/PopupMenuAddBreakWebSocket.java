@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketTableModel;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
+import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
 
 public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
 
@@ -37,8 +37,11 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
     private JTable tableWebSocket = null;
     private static Logger log = Logger.getLogger(PopupMenuAddBreakWebSocket.class);
     
-    public PopupMenuAddBreakWebSocket() {
+    public PopupMenuAddBreakWebSocket(ExtensionBreak extension) {
         super();
+        
+        this.extension = extension;
+        
  		initialize();
     }
 
@@ -60,9 +63,9 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
                 }
                 
                 try {
-                    WebSocketTableModel model = (WebSocketTableModel)tableWebSocket.getModel();
-                    WebSocketMessageDAO dao = model.getDAO(rows[0]);
-                    extension.addUiBreakpoint(dao);
+                    WebSocketMessagesViewModel model = (WebSocketMessagesViewModel)tableWebSocket.getModel();
+                    WebSocketMessageDTO message = model.getDTO(rows[0]);
+                    extension.addUiBreakpoint(message);
                     
                 } catch (Exception e) {
                     extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
@@ -91,10 +94,5 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
             
         }
         return false;
-    }
-
-        
-    public void setExtension(ExtensionBreak extension) {
-        this.extension = extension;
     }
 }

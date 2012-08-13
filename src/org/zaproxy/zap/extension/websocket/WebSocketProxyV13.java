@@ -30,6 +30,8 @@ import java.util.Random;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
+import org.zaproxy.zap.extension.websocket.utility.Utf8Util;
 
 /**
  * This proxy implements the WebSocket protocol version 13 as specified in
@@ -60,7 +62,12 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	 */
 	@Override
 	protected WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException {
-		return new WebSocketMessageV13(in, frameHeader);
+		return new WebSocketMessageV13(this, in, frameHeader);
+	}
+
+	@Override
+	protected WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException {
+		return new WebSocketMessageV13(this, message);
 	}
 
 	/**
@@ -231,9 +238,9 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				this.rsv  = rsv;
 			}
 
-			public int getRsv() {
-				return rsv;
-			}
+//			public int getRsv() {
+//				return rsv;
+//			}
 		}
 		
 		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
@@ -261,6 +268,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private boolean isValidUtf8Payload;
 
 		/**
+		 * Determined after first frame is processed.
+		 */
+		private Direction direction;
+
+		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
 		 * length can not be shown with 7 bits, the payload length is set to
 		 * 126. Then the next 16 bits interpreted as unsigned integer is the
@@ -278,12 +290,13 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		/**
 		 * Creates a message with the first byte already read.
 		 * 
+		 * @param proxy
 		 * @param in
 		 * @param frameHeader
 		 * @throws IOException 
 		 */
-		public WebSocketMessageV13(InputStream in, byte frameHeader) throws IOException {
-			super(getIncrementedMessageCount());
+		public WebSocketMessageV13(WebSocketProxy proxy, InputStream in, byte frameHeader) throws IOException {
+			super(proxy, getIncrementedMessageCount());
 			
 			// 4 least significant bits are opcode
 			opcode = (frameHeader & 0x0F);
@@ -293,6 +306,35 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			timestamp = new Timestamp(calendar.getTimeInMillis());
 			
 			readFrame(in, frameHeader);
+			direction = receivedFrames.get(0).isMasked() ? Direction.OUTGOING : Direction.INCOMING;
+		}
+
+		/**
+		 * Use this constructor to create a custom message from given data.
+		 * 
+		 * @param proxy
+		 * @param message
+		 * @throws WebSocketException 
+		 */
+		public WebSocketMessageV13(WebSocketProxy proxy, WebSocketMessageDTO message) throws WebSocketException {
+			super(proxy, getIncrementedMessageCount(), message);
+			message.id = getMessageId();
+			
+			Calendar calendar = Calendar.getInstance();
+			timestamp = new Timestamp(calendar.getTimeInMillis());
+			message.setTime(timestamp);
+			
+			isFinished = true;
+			opcode = message.opcode;
+			closeCode = (message.closeCode == null) ? -1 : message.closeCode;
+			direction = message.isOutgoing ? Direction.OUTGOING : Direction.INCOMING;
+			
+			payload = ByteBuffer.allocate(0);
+			if (message.payload instanceof byte[]) {
+				setPayload((byte[])message.payload);
+			} else {
+				setReadablePayload((String)message.payload);
+			}
 		}
 
 		/**
@@ -317,7 +359,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private String getByteAsBitString(byte word) {
 	      StringBuffer buf = new StringBuffer();
 	      for (int i = 0; i < 8; i++) {
-	         buf.append(word >> (8 - (i+1)) & 0x0001);
+	         buf.append((int)(word >> (8 - (i+1)) & 0x0001));
 	      }
 	      return buf.toString();
 	   }
@@ -331,6 +373,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws IOException
 		 */
 		private void readFrame(InputStream in, byte frameHeader) throws IOException {
+			// TODO: could gain performance in case WebSocketProxy#isForwardOnly is set.
+			// in that case we won't have to dissect each frame, just storing its bytes would suffice
+			// Then I'd have to throw WebSocketExceptions in case a DTO is retrieved.
+			
 			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
@@ -409,8 +455,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					if (payload.length > 0) {
 						// process close message
 						try {
-							logger.debug("got control-payload: " + encodePayloadToUtf8(payload));
-						} catch (WebSocketException e) {
+							logger.debug("got control-payload: " + Utf8Util.encodePayloadToUtf8(payload));
+						} catch (InvalidUtf8Exception e) {
 							// safely ignore utf8 error here
 						}
 					}
@@ -464,7 +510,14 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws NumberFormatException
 		 */
 		private ByteBuffer getTransmittableCloseFramePayload(ByteBuffer payload) throws NumberFormatException, WebSocketException {
-			int newCloseCode = Integer.parseInt(encodePayloadToUtf8(payload.array(), 0, 4));
+			String closeCodePayload;
+			try {
+				closeCodePayload = Utf8Util.encodePayloadToUtf8(payload.array(), 0, 4);
+			} catch (InvalidUtf8Exception e) {
+				throw new WebSocketException(e.getMessage(), e);
+			}
+			
+			int newCloseCode = Integer.parseInt(closeCodePayload);
 			
 			byte[] newCloseCodeByte = new byte[2];
 			newCloseCodeByte[0] = (byte) ((newCloseCode >> 8) & 0xFF);
@@ -577,18 +630,36 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @param frame
 		 * @param out
 		 */
-		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {			
-			out.write(frame.getBuffer());
-			out.flush();
+		private void forwardFrame(WebSocketFrameV13 frame, OutputStream out) throws IOException {
+			synchronized (out) {
+				out.write(frame.getBuffer());
+				out.flush();
+			}
 			
 			frame.setForwarded(true);
 		}
 		
 		@Override
 		public byte[] getPayload() {
+			if (!isFinished) {
+				return new byte[0];
+			}
+			payload.rewind();
 			byte[] bytes = new byte[payload.limit()];
 			payload.get(bytes);
 			return bytes;
+		}
+
+		@Override
+		public void setPayload(byte[] newPayload) throws WebSocketException {
+			if (!isFinished()) {
+				throw new WebSocketException("Only allowed to set payload of finished message!");
+			}
+			
+			if (!Arrays.equals(newPayload, getPayload())) {
+				hasChanged = true;
+				payload = ByteBuffer.wrap(newPayload);
+			}
 		}
 
 		@Override
@@ -608,8 +679,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		public String getReadablePayload() {
 			try {
 				isValidUtf8Payload = true;
-				return encodePayloadToUtf8(payload.array(), 0, payload.limit());
-			} catch (WebSocketException e) {
+				return Utf8Util.encodePayloadToUtf8(payload.array(), 0, payload.limit());
+			} catch (InvalidUtf8Exception e) {
 				isValidUtf8Payload  = false;
 				return "<invalid UTF-8>";
 			}
@@ -622,28 +693,29 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			}
 			
 			String readablePayload = getReadablePayload();
+			byte[] newBytesPayload = Utf8Util.decodePayloadFromUtf8(newReadablePayload);
 			// compare readable strings (working on byte arrays did not work)
-			if (isValidUtf8Payload && !Arrays.equals(decodePayloadFromUtf8(newReadablePayload), decodePayloadFromUtf8(readablePayload))) {
-				// mark this messages as changed in order to propagate changed
+			if (isValidUtf8Payload && !Arrays.equals(newBytesPayload, Utf8Util.decodePayloadFromUtf8(readablePayload))) {
+				// mark this message as changed in order to propagate changed
 				// payload into frames or build up a big frame (see forward())
 				hasChanged = true;
-				payload = ByteBuffer.wrap(decodePayloadFromUtf8(newReadablePayload));
+				payload = ByteBuffer.wrap(newBytesPayload);
 			}
 		}
 
 		@Override
 		public Direction getDirection() {
-			return receivedFrames.get(0).isMasked() ? Direction.OUTGOING : Direction.INCOMING;
+			return direction;
 		}
 		
 		@Override
-		public WebSocketMessageDAO getDAO() {
-			WebSocketMessageDAO dao = super.getDAO();
+		public WebSocketMessageDTO getDTO() {
+			WebSocketMessageDTO message = super.getDTO();
 			
-			dao.channelId = getChannelId();
-			dao.messageId = getMessageId();
+			message.channel.id = getChannelId();
+			message.id = getMessageId();
 			
-			return dao;
+			return message;
 		}
 	}
 }

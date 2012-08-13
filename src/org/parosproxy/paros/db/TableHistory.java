@@ -24,9 +24,11 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 // ZAP: 2012/06/11 Added method delete(List<Integer>).
+// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (Added updateTable() and refactored names)
 
 package org.parosproxy.paros.db;
 
+import java.nio.charset.Charset;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,20 +42,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.hsqldb.types.Types;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class TableHistory extends AbstractTable {
 
-	private static final String	HISTORYID	= "HISTORYID";
+    private static final String TABLE_NAME = "HISTORY";
+    
+    private static final String HISTORYID	= "HISTORYID";
 	private static final String SESSIONID	= "SESSIONID";
 	private static final String HISTTYPE	= "HISTTYPE";
 	private static final String METHOD 		= "METHOD";
@@ -70,26 +69,36 @@ public class TableHistory extends AbstractTable {
     private static final String NOTE        = "NOTE";
 
     private PreparedStatement psRead = null;
-    private PreparedStatement psWrite1 = null;
-    private CallableStatement psWrite2 = null;
+    private PreparedStatement psInsert = null;
+    private CallableStatement psGetIdLastInsert = null;
     private PreparedStatement psDelete = null;
     private PreparedStatement psDeleteTemp = null;
     private PreparedStatement psContainsURI = null;
     //private PreparedStatement psAlterTable = null;
-    private PreparedStatement psUpdateTag = null;
+//    private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
-    private PreparedStatement psLastIndex = null;
+    
+    private int lastInsertedIndex;
     
     private static boolean isExistStatusCode = false;
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(TableHistory.class);
+    private static final Logger log = Logger.getLogger(TableHistory.class);
+
+    private boolean bodiesAsBytes; 
 
     public TableHistory() {
     }
     
     @Override
     protected void reconnect(Connection conn) throws SQLException {
+        lastInsertedIndex = 0;
+        bodiesAsBytes = true;
+
+        updateTable(conn);
+        
+        isExistStatusCode = DbUtils.hasColumn(conn, TABLE_NAME, STATUSCODE);
+        
         psRead = conn.prepareStatement("SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
         // updatable recordset does not work in hsqldb jdbc impelementation!
         //psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -97,52 +106,50 @@ public class TableHistory extends AbstractTable {
         psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = " + HistoryReference.TYPE_TEMPORARY);
         psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
 
-        isExistStatusCode = false;
-        ResultSet rs = conn.getMetaData().getColumns(null, null, "HISTORY", "STATUSCODE");
-        if (rs.next()) {
-            isExistStatusCode = true;
-        }
-        rs.close();
+        
         // ZAP: Added support for the tag when creating a history record
         if (isExistStatusCode) {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+            psInsert = conn.prepareStatement("INSERT INTO HISTORY ("
                     + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
                     TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?)");
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?)");
         } else {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+            psInsert = conn.prepareStatement("INSERT INTO HISTORY ("
                     + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
                     TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?)");
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?)");
             
         }
-        psWrite2 = conn.prepareCall("CALL IDENTITY();");
-
-        rs = conn.getMetaData().getColumns(null, null, "HISTORY", "TAG");
-        if (!rs.next()) {
-            PreparedStatement stmt = conn.prepareStatement("ALTER TABLE HISTORY ADD COLUMN TAG VARCHAR DEFAULT ''");
-            stmt.execute();
-            stmt.close();
-        }
-        rs.close();
+        psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
         
-        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
-
-        // ZAP: Add the NOTE column to the db if necessary
-        rs = conn.getMetaData().getColumns(null, null, "HISTORY", "NOTE");
-        if (!rs.next()) {
-            PreparedStatement stmt = conn.prepareStatement("ALTER TABLE HISTORY ADD COLUMN NOTE VARCHAR DEFAULT ''");
-            stmt.execute();
-            stmt.close();
-        }
-        rs.close();
+//        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
-       	psLastIndex = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
     }
     
+    // ZAP: Added the method.
+    private void updateTable(Connection connection) throws SQLException {
+        if (!DbUtils.hasColumn(connection, TABLE_NAME, TAG)) {
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+TAG+" VARCHAR(32768) DEFAULT ''"));
+        }
+
+        // Add the NOTE column to the db if necessary
+        if (!DbUtils.hasColumn(connection, TABLE_NAME, NOTE)) {
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+NOTE+" VARCHAR(32768) DEFAULT ''"));
+        }
+        
+        if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY) != Types.SQL_VARBINARY) {
+            bodiesAsBytes = false;
+        } else {
+        	// Databases created with ZAP<1.4.0.1 used VARCHAR for the REQBODY/RESBODY
+        	// HSQLDB 1.8.x converted from VARCHAR to bytes without problems
+        	// (through the method ResultSet.getBytes)
+        	// but the new version doesn't, it throws the following exception:
+        	// incompatible data type in conversion: from SQL type VARCHAR
+        }
+    }
     
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, SQLException {
 	    psRead.setInt(1, historyId);
@@ -167,6 +174,7 @@ public class TableHistory extends AbstractTable {
 	    String method = "";
 	    String uri = "";
         int statusCode = 0;
+        String note = msg.getNote();
 	    
 	    if (!msg.getRequestHeader().isEmpty()) {
 	        reqHeader = msg.getRequestHeader().toString();
@@ -182,30 +190,42 @@ public class TableHistory extends AbstractTable {
 	    }
 	    
 	    //return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, msg.getTag());
-	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null);
+	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null, note);
 	    
 	}
 	
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
-	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag) throws HttpMalformedHeaderException, SQLException {
+	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException, SQLException {
 
-		psWrite1.setLong(1, sessionId);
-		psWrite1.setInt(2, histType);
-		psWrite1.setLong(3, timeSentMillis);
-		psWrite1.setInt(4, timeElapsedMillis);
-		psWrite1.setString(5, method);
-		psWrite1.setString(6, uri);        
-		psWrite1.setString(7, reqHeader);
-		psWrite1.setBytes(8, reqBody);
-		psWrite1.setString(9, resHeader);
-		psWrite1.setBytes(10, resBody);
-		psWrite1.setString(11, tag);
+	    psInsert.setLong(1, sessionId);
+	    psInsert.setInt(2, histType);
+	    psInsert.setLong(3, timeSentMillis);
+	    psInsert.setInt(4, timeElapsedMillis);
+	    psInsert.setString(5, method);
+	    psInsert.setString(6, uri);        
+	    psInsert.setString(7, reqHeader);
+        if (bodiesAsBytes) {
+            psInsert.setBytes(8, reqBody);
+        } else {
+            psInsert.setString(8, new String(reqBody, Charset.forName("US-ASCII")));
+        }
+        psInsert.setString(9, resHeader);
+        if (bodiesAsBytes) {
+            psInsert.setBytes(10, resBody);
+        } else {
+            psInsert.setString(10, new String(resBody, Charset.forName("US-ASCII")));
+        }
+	    psInsert.setString(11, tag);
 
         if (isExistStatusCode) {
-            psWrite1.setInt(12, statusCode);
+            psInsert.setInt(12, statusCode);
         }
-		psWrite1.executeUpdate();
+        
+        // ZAP: Added the statement.
+        psInsert.setString(13, note);
+        
+        psInsert.executeUpdate();
 				
 		/*
         String sql = "INSERT INTO HISTORY ("
@@ -216,10 +236,11 @@ public class TableHistory extends AbstractTable {
 		ResultSet rs = stmt.getResultSet();
 		*/
 		
-		ResultSet rs = psWrite2.executeQuery();
+		ResultSet rs = psGetIdLastInsert.executeQuery();
 		try {
 			rs.next();
 			int id = rs.getInt(1);
+            lastInsertedIndex = id;
 			return read(id);
 		} finally {
 			rs.close();
@@ -230,6 +251,17 @@ public class TableHistory extends AbstractTable {
 		RecordHistory history = null;
 		try {
 			if (rs.next()) {
+                byte[] reqBody;
+                byte[] resBody;
+                
+                if (bodiesAsBytes) {
+                    reqBody = rs.getBytes(REQBODY);
+                    resBody = rs.getBytes(RESBODY);
+                } else {
+                    reqBody = rs.getString(REQBODY).getBytes();
+                    resBody = rs.getString(RESBODY).getBytes();
+                }
+                
 				history = new RecordHistory(
 						rs.getInt(HISTORYID),
 						rs.getInt(HISTTYPE),
@@ -237,9 +269,9 @@ public class TableHistory extends AbstractTable {
 						rs.getLong(TIMESENTMILLIS),
 						rs.getInt(TIMEELAPSEDMILLIS),
 						rs.getString(REQHEADER),
-						rs.getBytes(REQBODY),
+						reqBody,
 						rs.getString(RESHEADER),
-						rs.getBytes(RESBODY),
+						resBody,
 	                    rs.getString(TAG),
 	                    rs.getString(NOTE)			// ZAP: Added note
 				);
@@ -413,7 +445,13 @@ public class TableHistory extends AbstractTable {
 	public boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body) throws SQLException {
 	    psContainsURI.setString(1, uri);
         psContainsURI.setString(2, method);
-	    psContainsURI.setBytes(3, body);
+        
+        if (bodiesAsBytes) {
+            psContainsURI.setBytes(3, body);
+        } else {
+            psContainsURI.setString(3, new String(body));
+        }
+        
 	    psContainsURI.setLong(4, sessionId);
 	    psContainsURI.setInt(5, historyType);
 	    ResultSet rs = psContainsURI.executeQuery();
@@ -449,7 +487,12 @@ public class TableHistory extends AbstractTable {
         }
         psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
         psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
-        psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
+        
+        if (bodiesAsBytes) {
+            psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
+        } else {
+            psReadCache.setString(3, new String(reqMsg.getRequestBody().getBytes()));
+        }
 
         psReadCache.setInt(4, ref.getHistoryId());        
         psReadCache.setInt(5, ref.getHistoryId()+200);
@@ -494,7 +537,13 @@ public class TableHistory extends AbstractTable {
         }
         psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
         psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
-        psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
+        
+        if (bodiesAsBytes) {
+            psReadCache.setBytes(3, reqMsg.getRequestBody().getBytes());
+        } else {
+            psReadCache.setString(3, new String(reqMsg.getRequestBody().getBytes()));
+        }
+        
         psReadCache.setLong(4, ref.getSessionId());
         
         rs = psReadCache.executeQuery();
@@ -528,18 +577,9 @@ public class TableHistory extends AbstractTable {
         psUpdateNote.setInt(2, historyId);
         psUpdateNote.execute();
     }
-    
-    public int lastIndex () throws SQLException {
-    	int lastIndex = -1;
-		ResultSet rs = psLastIndex.executeQuery();
-		try {
-		    if (rs.next()) {
-		        lastIndex = rs.getInt(HISTORYID);
-		    }
-		} finally {
-	    	rs.close();
-		}
-	    return lastIndex;
+
+    public int lastIndex () {
+        return lastInsertedIndex;
     }
 
 }

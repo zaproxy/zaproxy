@@ -31,25 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.swing.JFrame;
-
 import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
-import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerHandler;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchResult;
 
-public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, SessionChangedListener {
+public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedListener {
 
 	public final static String NAME = "ExtensionFuzz";
 	public final static String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
@@ -64,6 +61,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
 	private List <String> fuzzerCategories = new ArrayList<String>();
 	private Map<String, DirCategory> catMap = new HashMap<String, DirCategory>();
     
+	FuzzerHandler fuzzableMessageHandler;
+    private Map<Class<? extends Message>, FuzzerHandler> fuzzableMessageHandlers;
+	
 	/**
      * 
      */
@@ -100,42 +100,36 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
 	    if (getView() != null) {
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuFuzz());
 	        extensionHook.getHookView().addStatusPanel(getFuzzerPanel());
-	        this.getFuzzerPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsFuzzerPanel());
 
 	        extensionHook.addSessionListener(this);
 	        
 	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
+	    	
+	    	fuzzableMessageHandlers = new HashMap<Class<? extends Message>, FuzzerHandler>();
+	    	fuzzableMessageHandlers.put(HttpMessage.class, new HttpFuzzerHandler());
 	    }
         extensionHook.addOptionsParamSet(getFuzzerParam());
 
 	}
+    
+    public void addFuzzerHandler(Class<? extends Message> clazz, FuzzerHandler handler) {
+        fuzzableMessageHandlers.put(clazz, handler);
+    }
 
 	private FuzzerPanel getFuzzerPanel() {
 		if (fuzzerPanel == null) {
-			fuzzerPanel = new FuzzerPanel(this, this.getFuzzerParam());
+			fuzzerPanel = new FuzzerPanel(this);
 		}
 		return fuzzerPanel;
 	}
 
-	protected void addFuzzResult(HttpMessage msg) {
-		this.getFuzzerPanel().addFuzzResult(msg);
-	}
-	
-	public void scanProgress(int done, int todo) {
-		this.getFuzzerPanel().scanProgress(done, todo);
-	}
-
-
-	public void startFuzzers (FuzzableHttpMessage fuzzableHttpMessage, Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, AntiCsrfToken acsrfToken, 
-			boolean showTokenRequests, boolean followRedirects, boolean urlEncode) {
-		this.getFuzzerPanel().scanStarted();
-
-		fuzzerThread = new FuzzerThread(this, getFuzzerParam(), getModel().getOptionsParam().getConnectionParam());
-		fuzzerThread.setTarget(fuzzableHttpMessage, fuzzers, customFuzzers, acsrfToken, showTokenRequests, followRedirects, urlEncode);
-		fuzzerThread.addFuzzerListener(this);
+	public void startFuzzers (Fuzzer[] fuzzers, FileFuzzer[] customFuzzers, FuzzProcessFactory fuzzProcessFactory) {
+		fuzzerThread = new FuzzerThread(getFuzzerParam());
+		fuzzerThread.setTarget(fuzzers, customFuzzers, fuzzProcessFactory);
+        fuzzerThread.addFuzzerListener(new LocalFuzzerListener());
+		fuzzerThread.addFuzzerListener(getFuzzerPanel());
 		fuzzerThread.start();
-
 	}
 	
 	public void stopFuzzers() {
@@ -153,43 +147,29 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
 	}
 	
 	public List<SearchResult> searchFuzzResults(Pattern pattern, boolean inverse) {
-		return this.getFuzzerPanel().searchResults(pattern, inverse);
+	    if (fuzzableMessageHandler != null) {
+	        return fuzzableMessageHandler.searchResults(pattern, inverse);
+	    }
+		return Collections.emptyList();
 	}
 
     protected void showFuzzDialog(Component invoker) {
-        showFuzzDialog(getView().getMainFrame(), invoker);
-    }
-
-    private void showFuzzDialog(JFrame frame, Component invoker) {
-    	if (!(invoker instanceof FuzzableComponent)) {
-    		return;
-    	}
-    	
-    	FuzzableComponent fuzzableComponent = (FuzzableComponent)invoker;
-		FuzzableHttpMessage fuzzableHttpMessage = fuzzableComponent.getFuzzableHttpMessage();
-		
-		ExtensionAntiCSRF extAntiCSRF = 
-			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
-
-		List<AntiCsrfToken> tokens = null;
-		if (extAntiCSRF != null) {
-			tokens = extAntiCSRF.getTokens(fuzzableHttpMessage.getHttpMessage());
-		}
-		
-		FuzzDialog fuzzDialog;
-		
-		if (tokens == null || tokens.size() == 0) {
-			fuzzDialog = new FuzzDialog(this, frame, false, false);
-		} else {
-			fuzzDialog = new FuzzDialog(this, frame, false, true);
-			fuzzDialog.setAntiCsrfTokens(tokens);
-		}
-		fuzzDialog.setDefaultCategory(this.getFuzzerParam().getDefaultCategory());
-		fuzzDialog.setSelection(fuzzableComponent);
-		fuzzDialog.setVisible(true);
+        if (!(invoker instanceof FuzzableComponent)) {
+            return;
+        }
         
+        FuzzableComponent fuzzableComponent = (FuzzableComponent)invoker;
+        
+        fuzzableMessageHandler = getFuzzableMessageHandler(fuzzableComponent.getMessageClass());
+        if (fuzzableMessageHandler != null) {
+            fuzzableMessageHandler.showFuzzDialog(fuzzableComponent);
+        }
     }
-    
+
+    private FuzzerHandler getFuzzableMessageHandler(Class<? extends Message> messageClass) {
+        return fuzzableMessageHandlers.get(messageClass);
+    }
+
     private PopupFuzzMenu getPopupMenuFuzz() {
         if (popupFuzzMenu== null) {
             popupFuzzMenu = new PopupFuzzMenu(this);
@@ -215,36 +195,15 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
 		return fuzzerParam;
 	}
 
+    public Object getDefaultCategory() {
+        return getFuzzerParam().getDefaultCategory();
+    }
+
 	private OptionsFuzzerPanel getOptionsFuzzerPanel() {
 		if (optionsFuzzerPanel == null) {
 			optionsFuzzerPanel = new OptionsFuzzerPanel(this);
 		}
 		return optionsFuzzerPanel;
-	}
-
-	@Override
-	public void notifyFuzzProcessComplete(FuzzProcess fp) {
-		if (fp.isShowTokenRequests()) {
-			for (HttpMessage tokenMsg : fp.getTokenRequests()) {
-				addFuzzResult(tokenMsg);
-			}
-		}
-		
-		// Record the fuzz payload in the note		
-		fp.getHttpMessage().setNote(fp.getFuzz());
-		
-		addFuzzResult(fp.getHttpMessage());
-	}
-
-	@Override
-	public void notifyFuzzProcessStarted(FuzzProcess fp) {
-		this.fuzzing = true;
-	}
-
-	@Override
-	public void notifyFuzzerComplete() {
-		this.getFuzzerPanel().scanFinshed();
-		this.fuzzing = false;
 	}
 
 	public boolean isFuzzing() {
@@ -391,4 +350,27 @@ public class ExtensionFuzz extends ExtensionAdaptor implements FuzzerListener, S
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+    
+    private final class LocalFuzzerListener implements FuzzerListener {
+        
+        @Override
+        public void notifyFuzzerStarted(int total) {
+            fuzzing = true;
+            getFuzzerPanel().setContentPanel(fuzzableMessageHandler.getFuzzerContentPanel());
+        }
+        
+        @Override
+        public void notifyFuzzProcessStarted(FuzzProcess fp) {
+        }
+
+        @Override
+        public void notifyFuzzProcessComplete(FuzzResult fp) {
+        }
+
+        @Override
+        public void notifyFuzzerComplete() {
+            fuzzing = false;
+        }
+        
+    }
 }

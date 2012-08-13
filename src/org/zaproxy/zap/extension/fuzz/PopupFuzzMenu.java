@@ -28,7 +28,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.httppanel.Message;
 
 public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
@@ -79,9 +79,10 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
         	}
         	if (Control.getSingleton().getMode().equals(Mode.protect)) {
         		// In protected mode, so disable if not in scope
-        		if (! Model.getSingleton().getSession().isInScope(
-        				fuzzableComponent.getFuzzableHttpMessage().getHttpMessage().getRequestHeader().getURI().toString())) {
-            		this.setEnabled(false);
+        		Message aMessage = fuzzableComponent.getFuzzableMessage().getMessage();
+        		
+        		if (!aMessage.isInScope()) {
+        			this.setEnabled(false);
         		}
         	}
         	

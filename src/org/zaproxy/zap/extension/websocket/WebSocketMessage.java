@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.sql.Timestamp;
 
 /**
@@ -34,6 +33,11 @@ public abstract class WebSocketMessage {
 	public enum Direction {
 		INCOMING, OUTGOING
 	}
+
+	/**
+	 * A message belongs to one connection.
+	 */
+	private WebSocketProxy proxy;
 	
 	/**
 	 * Consecutive number identifying a {@link WebSocketMessage}. Unique within
@@ -153,22 +157,21 @@ public abstract class WebSocketMessage {
 	 * Initially it is set to -1, meaning that its close code is unknown.
 	 */
 	protected int closeCode = -1;
-	
+
 	/**
-	 * Used for en- & decoding from bytes to String and vice versa.
+	 * One Data Transfer Object is created per {@link WebSocketMessage} instance.
+	 * Might be also some subtype.
 	 */
-	protected static final Charset UTF8_CHARSET;
+	private final WebSocketMessageDTO dto;
 	
-	/**
-	 * Use the static initializer for setting up one date formatter for all
-	 * instances.
-	 */
-	static {		
-		UTF8_CHARSET = Charset.forName("UTF-8");
+	public WebSocketMessage(WebSocketProxy proxy, int messageId) {
+		this(proxy, messageId, new WebSocketMessageDTO());
 	}
-	
-	public WebSocketMessage(int messageId) {
+
+	protected WebSocketMessage(WebSocketProxy proxy, int messageId, WebSocketMessageDTO baseDto) {
+		this.proxy = proxy;
 		this.messageId = messageId;
+		this.dto = baseDto;
 	}
 
 	/**
@@ -181,8 +184,7 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Write all frames of this message to given channel if and only if message
-	 * is finished.
+	 * Write all frames of this message to given stream.
 	 * 
 	 * @param out
 	 * @throws IOException
@@ -314,74 +316,27 @@ public abstract class WebSocketMessage {
 			return "UNKNOWN";
 		}
 	}
-
-	/**
-	 * Helper method to encode payload into UTF-8 string.
-	 * 
-	 * @param utf8bytes 
-	 * @return
-	 * @throws WebSocketException 
-	 */
-	protected String encodePayloadToUtf8(byte[] utf8bytes) throws WebSocketException {
-		return encodePayloadToUtf8(utf8bytes, 0, utf8bytes.length);
-	}
-	
-	/**
-	 * Helper method to encode payload into UTF-8 string.
-	 * 
-	 * @param utf8bytes
-	 * @param offset
-	 * @param length
-	 * @return
-	 * @throws WebSocketException 
-	 */
-	protected String encodePayloadToUtf8(byte[] utf8bytes, int offset, int length) throws WebSocketException {
-		try {
-			Utf8StringBuilder builder = new Utf8StringBuilder(length);
-			builder.append(utf8bytes, offset, length);
-
-			return builder.toString();
-		} catch (IllegalArgumentException e) {
-			if (e.getMessage().equals("!utf8")) {
-				throw new WebSocketException("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
-			}
-		} catch (IllegalStateException e) {
-			if (e.getMessage().equals("!utf8")) {
-				throw new WebSocketException("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
-			}
-		}
-	}
-	
-	/**
-	 * Helper method that takes an UTF-8 string and returns its byte
-	 * representation.
-	 * 
-	 * @param utf8string
-	 * @return
-	 */
-	protected byte[] decodePayloadFromUtf8(String utf8string) {
-		synchronized (UTF8_CHARSET) {
-			return utf8string.getBytes(UTF8_CHARSET);
-		}
-	}
 	
 	/**
 	 * Use this helper for concatenating payloads of different WebSocket frames.
+	 * Flips the {@link WebSocketMessage#payload} buffer as soon as this message
+	 * is finished.
 	 * 
 	 * @param bytes
 	 */
-	protected void appendPayload(byte[] bytes) {
+	protected void appendPayload(byte[] bytes) {		
 		if (payload == null) {
 			// initialize first
-			payload = ByteBuffer.wrap(bytes);
+			payload = ByteBuffer.allocate(bytes.length);
+			payload.put(bytes);
 		} else {
 			// increase buffer
 			payload = reallocate(payload, payload.capacity() + bytes.length);
 			payload.put(bytes);
+		}
+		
+		if (isFinished) {
+			payload.flip();
 		}
 	}
 	
@@ -422,11 +377,23 @@ public abstract class WebSocketMessage {
 	public abstract Integer getPayloadLength();
 	
 	/**
-	 * Returns the 'original' payload as found in the WebSocket frame.
+	 * Returns the 'original' payload as found in the WebSocket frame. Returned
+	 * bytes array does not back the messages payload buffer (i.e. it is a
+	 * copy).
 	 * 
 	 * @return
 	 */
 	public abstract byte[] getPayload();
+
+	/**
+	 * Modifies the payload to given byte array. Use
+	 * {@link WebSocketMessage#setReadablePayload(String)} for setting payloads
+	 * of non-binary messages.
+	 * 
+	 * @param payload
+	 * @throws WebSocketException
+	 */
+	public abstract void setPayload(byte[] newPayload) throws WebSocketException;
 
 	/**
 	 * Returns the payload from {@link WebSocketMessage#getPayload()} as
@@ -458,38 +425,35 @@ public abstract class WebSocketMessage {
 	 * 
 	 * @return
 	 */
-	public WebSocketMessageDAO getDAO() {
-		WebSocketMessageDAO dao = new WebSocketMessageDAO();
+	public WebSocketMessageDTO getDTO() {
+		// build upon base dto attribute set in constructor,
+		// such that existing instances are updated with changed values.
+		dto.channel = proxy.getDTO();
 		
 		Timestamp ts = getTimestamp();
-		dao.setTime(ts);
+		dto.setTime(ts);
 		
-		dao.opcode = getOpcode();
-		dao.readableOpcode = getOpcodeString();
+		dto.opcode = getOpcode();
+		dto.readableOpcode = getOpcodeString();
 
-		if (isText()) {
-			dao.payload = getReadablePayload();
-		} else if (isBinary()) {
-			// TODO: find binary websocket demo and set appropriate representation
-			dao.payload = getReadablePayload();
-//			dao.payload = byteArrayToHexString(getPayload());
+		if (isBinary()) {
+			dto.payload = getPayload();
 		} else {
-			dao.payload = getReadablePayload();
+			dto.payload = getReadablePayload();
+			
+			if (dto.payload == null) {
+				// prevents NullPointerException
+				dto.payload = "";
+			}
 		}
 		
-		if (dao.payload == null) {
-			// prevents NullPointerException
-			dao.payload = "";
-		}
+		dto.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;
 		
-		dao.isOutgoing = (getDirection() == Direction.OUTGOING) ? true : false;
+		dto.payloadLength = getPayloadLength();
 		
-		dao.payloadLength = getPayloadLength();
-		
-		return dao;
+		return dto;
 	}
 	
-	@Override
 	public String toString() {
 		return "WebSocketMessage#" + getMessageId();
 	}

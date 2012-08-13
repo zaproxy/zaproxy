@@ -31,8 +31,13 @@ public class WebSocketMessagePrimaryKey implements Comparable<WebSocketMessagePr
 		return channelId;
 	}
 	
-	@Override
 	public String toString() {
-		return "#" + channelId + "." + messageId;
+		String str = "#" + channelId + ".";
+		if (messageId != null) {
+			str += messageId;
+		} else {
+			str += "-";
+		}
+		return str;
 	}
 }

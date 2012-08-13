@@ -18,26 +18,31 @@
 package org.zaproxy.zap.extension.websocket.brk;
 
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessageDAO;
+import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
+import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
 	private static final Logger logger = Logger.getLogger(WebSocketProxyListenerBreak.class);
 
-	private ExtensionBreak extension = null;
+	private BreakpointMessageHandler wsBrkMessageHandler;
+
+	private ExtensionWebSocket extension;
 	
 	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketPanel.WEBSOCKET_OBSERVING_ORDER - 5;
 
-	public WebSocketProxyListenerBreak(ExtensionBreak extension) {
+	public WebSocketProxyListenerBreak(ExtensionWebSocket extension, BreakpointMessageHandler messageHandler) {
 	    this.extension = extension;
+	    this.wsBrkMessageHandler = messageHandler;
 	}
 	
     @Override
@@ -48,13 +53,26 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
     }
 
     @Override
-    public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-        WebSocketMessageDAO dao = message.getDAO();
-    	boolean isRequest = (message.getDirection().equals(Direction.OUTGOING));
+    public boolean onMessageFrame(int channelId, WebSocketMessage wsMessage) {
+        WebSocketMessageDTO message = wsMessage.getDTO();
+
+		if (!extension.isSafe(message)) {
+			// not safe => do not catch
+			return true;
+		} else {
+			// message is safe => no need to set onlyIfInScope parameter to true
+		}
+        
+        if (message instanceof WebSocketFuzzMessageDTO) {
+        	// as this message was sent by some fuzzer, do not catch it
+        	return true;
+        }
     	
-        if (!message.isFinished()) {
-        	
-        	if (extension.isBreakpointSet(dao, isRequest)) {
+        if (!wsMessage.isFinished()) {
+        	boolean isRequest = (wsMessage.getDirection().equals(Direction.OUTGOING));
+
+        	// already safe => onlyIfInScope can be false
+        	if (wsBrkMessageHandler.isBreakpoint(message, isRequest, false)) {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
             	// (showing/saving/etc.)
@@ -66,25 +84,19 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
         	}
         }
 
-        if (dao.isOutgoing) {
-            if (extension.messageReceivedFromClient(dao)) {
-                // As the DAO that is shown and modified in the
+        if (message.isOutgoing) {
+        	// already safe => onlyIfInScope can be false
+            if (wsBrkMessageHandler.handleMessageReceivedFromClient(message, false)) {
+                // As the DTO that is shown and modified in the
                 // Request/Response panels we must set the content to message
                 // here.
-                try {
-					message.setReadablePayload(dao.payload);
-				} catch (WebSocketException e) {
-					logger.error(e);
-				}
+            	setPayload(wsMessage, message.payload);
                 return true;
             }
         } else {
-            if (extension.messageReceivedFromServer(dao)) {
-            	try {
-	                message.setReadablePayload(dao.payload);
-				} catch (WebSocketException e) {
-					logger.error(e);
-				}
+        	// already safe => onlyIfInScope can be false
+            if (wsBrkMessageHandler.handleMessageReceivedFromServer(message, false)) {
+            	setPayload(wsMessage, message.payload);
                 return true;
             }
         }
@@ -95,5 +107,17 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
 		// no need to do something on state change
+	}
+
+	private void setPayload(WebSocketMessage message, Object payload) {
+		try {
+			if (payload instanceof String) {
+				message.setReadablePayload((String) payload);
+			} else if (payload instanceof byte[]) {
+				message.setPayload((byte[]) payload);
+			}
+		} catch (WebSocketException e) {
+			logger.error(e);
+		}
 	}
 }
