@@ -104,13 +104,13 @@ public class LangImporter {
 			
 		} catch (IOException e) {
 			message = MSG_FILE_NOT_FOUND;
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (zipFile != null) {
 				try {
 					zipFile.close();
 				} catch (IOException e) {
-					logger.error(e.getMessage());
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
