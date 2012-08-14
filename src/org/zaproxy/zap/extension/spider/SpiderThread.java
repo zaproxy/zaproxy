@@ -307,6 +307,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
 		if (extension.getView() != null) {
+
+			// Add the new result
 			if (status == FetchStatus.VALID) {
 				resultsModel.addScanResult(uri, method, null, false);
 			} else if (status == FetchStatus.SEED) {
@@ -314,6 +316,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			} else {
 				resultsModel.addScanResult(uri, method, status.toString(), true);
 			}
+
+			// Update the count of found URIs
+			extension.getSpiderPanel().updateFoundCount();
+
 		}
 	}
 

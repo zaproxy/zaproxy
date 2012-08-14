@@ -112,14 +112,22 @@ public class SpiderController implements SpiderParserListener {
 	 * @param method the http method used for fetching the resource
 	 */
 	protected void addSeed(URI uri, String method) {
-		if (!visitedGet.contains(uri.toString())) {
-			// Create and submit the new task
-			SpiderTask task = new SpiderTask(spider, uri, 0, method);
-			spider.submitTask(task);
-			// Add the uri to the found list
-			visitedGet.add(uri.toString());
-			spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.SEED);
+		String uriS=uri.toString();
+		
+		// Check if the uri was processed already
+		synchronized (visitedGet) {
+			if (visitedGet.contains(uriS)) {
+				log.debug("URI already visited: " + uriS);
+				return;
+			} else {
+				visitedGet.add(uriS);
+			}
 		}
+		// Create and submit the new task
+		SpiderTask task = new SpiderTask(spider, uri, 0, method);
+		spider.submitTask(task);
+		// Add the uri to the found list
+		spider.notifyListenersFoundURI(uriS, method, FetchStatus.SEED);
 	}
 
 	/**
@@ -166,6 +174,42 @@ public class SpiderController implements SpiderParserListener {
 		visitedPost.clear();
 	}
 
+	/**
+	 * Gets the instances for the parsers.
+	 * 
+	 * @return the parser
+	 */
+	public List<SpiderParser> getParsers(HttpMessage message) {
+
+		// If parsing of robots.txt is enabled, try to see if it's necessary
+		if (spider.getSpiderParam().isParseRobotsTxt()) {
+			// Get the path of the file
+			String path = null;
+			try {
+				path = message.getRequestHeader().getURI().getPath();
+				log.debug("Getting parsers for " + path);
+			} catch (URIException e) {
+			}
+			// If it's a robots.txt file
+			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
+				log.info("Parsing a robots.txt resource...");
+				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
+				parser.addSpiderParserListener(this);
+				LinkedList<SpiderParser> robotsParsers = new LinkedList<SpiderParser>();
+				robotsParsers.add(parser);
+				return robotsParsers;
+			}
+		}
+
+		// If it reached this point, it is definitely text
+		if (message.getResponseHeader().isHtml())
+			return htmlParsers;
+		else {
+			// Parsing non-HTML text resource.
+			return txtParsers;
+		}
+	}
+
 	@Override
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.debug("New resource found: " + uri);
@@ -174,11 +218,11 @@ public class SpiderController implements SpiderParserListener {
 			return;
 
 		// Check if the uri was processed already
-		if (visitedGet.contains(uri)) {
-			log.debug("URI already visited: " + uri);
-			return;
-		} else {
-			synchronized (visitedGet) {
+		synchronized (visitedGet) {
+			if (visitedGet.contains(uri)) {
+				log.debug("URI already visited: " + uri);
+				return;
+			} else {
 				visitedGet.add(uri);
 			}
 		}
@@ -222,52 +266,16 @@ public class SpiderController implements SpiderParserListener {
 		resourceURIFound(responseMessage, depth, uri, false);
 	}
 
-	/**
-	 * Gets the instances for the parsers.
-	 * 
-	 * @return the parser
-	 */
-	public List<SpiderParser> getParsers(HttpMessage message) {
-
-		// If parsing of robots.txt is enabled, try to see if it's necessary
-		if (spider.getSpiderParam().isParseRobotsTxt()) {
-			// Get the path of the file
-			String path = null;
-			try {
-				path = message.getRequestHeader().getURI().getPath();
-				log.debug("Getting parsers for " + path);
-			} catch (URIException e) {
-			}
-			// If it's a robots.txt file
-			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
-				log.info("Parsing a robots.txt resource...");
-				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
-				parser.addSpiderParserListener(this);
-				LinkedList<SpiderParser> robotsParsers = new LinkedList<SpiderParser>();
-				robotsParsers.add(parser);
-				return robotsParsers;
-			}
-		}
-
-		// If it reached this point, it is definitely text
-		if (message.getResponseHeader().isHtml())
-			return htmlParsers;
-		else {
-			// Parsing non-HTML text resource.
-			return txtParsers;
-		}
-	}
-
 	@Override
 	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
 		log.debug("New POST resource found: " + uri);
 
 		// Check if the uri was processed already
-		if (visitedPost.contains(uri)) {
-			log.debug("URI already visited: " + uri);
-			return;
-		} else {
-			synchronized (visitedPost) {
+		synchronized (visitedPost) {
+			if (visitedPost.contains(uri)) {
+				log.debug("URI already visited: " + uri);
+				return;
+			} else {
 				visitedPost.add(uri);
 			}
 		}

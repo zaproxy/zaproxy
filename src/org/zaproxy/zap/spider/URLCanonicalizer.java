@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 /**
@@ -132,10 +131,10 @@ public class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (MalformedURLException ex) {
-			log.error("Error while Processing URL in the spidering process (on base "+baseURL+"): " + ex.getMessage());
+			log.warn("Error while Processing URL in the spidering process (on base "+baseURL+"): " + ex.getMessage());
 			return null;
 		} catch (URISyntaxException ex) {
-			log.error("Error while Processing URI in the spidering process (on base "+baseURL+"): " + ex.getMessage());
+			log.warn("Error while Processing URI in the spidering process (on base "+baseURL+"): " + ex.getMessage());
 			return null;
 		}
 	}

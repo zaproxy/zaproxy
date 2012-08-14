@@ -69,8 +69,8 @@ public abstract class ScanPanel extends AbstractPanel {
 	private ExtensionAdaptor extension = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
-	private JLabel activeScansNameLabel = null;
-	private JLabel activeScansValueLabel = null;
+	private JLabel scannedCountNameLabel = null;
+	private JLabel foundCountNameLabel = null;
 	private List<String> activeScans = new ArrayList<String>();;
 
 	private String currentSite = null;
@@ -165,10 +165,10 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	protected GridBagConstraints getGBC(int gridx, int gridy) {
-		return this.getGBC(gridx, gridy, 0.0, new Insets(0,0,0,0));
+		return this.getGBC(gridx, gridy, 0.0, new Insets(0, 2, 0, 0));
 	}
 
-	private GridBagConstraints getGBC(int gridx, int gridy, double weightx, Insets insets) {
+	protected GridBagConstraints getGBC(int gridx, int gridy, double weightx, Insets insets) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = gridx;
 		gbc.gridy = gridy;
@@ -222,29 +222,45 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	/**
-	 * @param panelToolbar2
-	 * @param loc
-	 * @param x
+	 * Adds elements to the toolbar. The method is called while initializing the ScanPanel, at the
+	 * points specified by the {@link Location} enumeration. Should be overridden by all subclasses
+	 * that want to add new elements to the ScanPanel's toolbar.
+	 * 
+	 * <p>
+	 * The toolbar is initialized with a GridLayout, so elements have to be added with a
+	 * GridBagLayout. For this, the getGBC() methods can be used. The {@literal gridX} parameter
+	 * specifies the cell (as used in GridLayoutBag.gridx) of the current row where the elements can
+	 * be added.
+	 * </p>
+	 * <p>
+	 * The method returns the new coordinates of the current cell, after the elements have been
+	 * added. Typically, it's value is {@literal code} + {@code number_of_elements_added}.
+	 * </p>
+	 * 
+	 * @param panelToolbar2 the toolbar
+	 * @param loc the current location where elements can be added
+	 * @param gridX the x coordinates of the current cell in the GridBagLayout
+	 * @return the new coordinates of the current cell, after the elements have been added.
 	 */
-	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int x) {
+	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int gridX) {
 		// Override to add elements into the toolbar
-		return x;
+		return gridX;
 	}
 
 	private JLabel getActiveScansNameLabel() {
-		if (activeScansNameLabel == null) {
-			activeScansNameLabel = new javax.swing.JLabel();
-			activeScansNameLabel.setText(Constant.messages.getString(prefix + ".toolbar.ascans.label"));
+		if (scannedCountNameLabel == null) {
+			scannedCountNameLabel = new javax.swing.JLabel();
+			scannedCountNameLabel.setText(Constant.messages.getString(prefix + ".toolbar.ascans.label"));
 		}
-		return activeScansNameLabel;
+		return scannedCountNameLabel;
 	}
 	
 	private JLabel getActiveScansValueLabel() {
-		if (activeScansValueLabel == null) {
-			activeScansValueLabel = new javax.swing.JLabel();
-			activeScansValueLabel.setText(""+activeScans.size());
+		if (foundCountNameLabel == null) {
+			foundCountNameLabel = new javax.swing.JLabel();
+			foundCountNameLabel.setText(""+activeScans.size());
 		}
-		return activeScansValueLabel;
+		return foundCountNameLabel;
 	}
 	
 	private void setActiveScanLabels() {

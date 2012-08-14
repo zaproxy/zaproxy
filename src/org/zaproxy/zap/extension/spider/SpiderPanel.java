@@ -18,12 +18,17 @@
 
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Insets;
+
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
@@ -56,6 +61,12 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	/** The results model. */
 	private SpiderPanelTableModel currentResultsModel;
+
+	/** The found count name label. */
+	private JLabel foundCountNameLabel;
+
+	/** The found count value label. */
+	private JLabel foundCountValueLabel;
 
 	/**
 	 * Instantiates a new spider panel.
@@ -93,6 +104,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		this.updateCurrentScanResultsModel(site);
 		this.getScanResultsTable().setModel(this.currentResultsModel);
 		this.setScanResultsTableColumnSizes();
+		this.updateFoundCount();
 	}
 
 	/**
@@ -180,5 +192,51 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			});
 		}
 		return resultsTable;
+	}
+
+	/**
+	 * Gets the label storing the name of the count of found URIs.
+	 * 
+	 * @return the found count name label
+	 */
+	private JLabel getFoundCountNameLabel() {
+		if (foundCountNameLabel == null) {
+			foundCountNameLabel = new javax.swing.JLabel();
+			foundCountNameLabel.setText(Constant.messages.getString("spider.toolbar.found.label"));
+		}
+		return foundCountNameLabel;
+	}
+
+	/**
+	 * Gets the label storing the value for count of found URIs.
+	 * 
+	 * @return the found count value label
+	 */
+	private JLabel getFoundCountValueLabel() {
+		if (foundCountValueLabel == null) {
+			foundCountValueLabel = new javax.swing.JLabel();
+			foundCountValueLabel.setText("0");
+		}
+		return foundCountValueLabel;
+	}
+
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.view.ScanPanel#addToolBarElements(javax.swing.JToolBar,
+	 * org.zaproxy.zap.view.ScanPanel.Location, int) */
+	@Override
+	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int x) {
+		panelToolbar2.add(getFoundCountNameLabel(), getGBC(x++, 0, 0, new Insets(0, 5, 0, 0)));
+		panelToolbar2.add(getFoundCountValueLabel(), getGBC(x++, 0));
+		return x + 2;
+	}
+
+	/**
+	 * Update the count of found URIs.
+	 * 
+	 * @param foundCount the found count
+	 */
+	protected void updateFoundCount() {
+		this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
 	}
 }
