@@ -12,7 +12,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
  * Displays a connected or disconnected plug beside channel name.
  */
 public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1749702362670451484L;
 
 	public ComboBoxChannelRenderer() {
 		setOpaque(true);

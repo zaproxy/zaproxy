@@ -5,8 +5,8 @@ import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 public class ComboBoxChannelModel extends SortedComboBoxModel {
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = -853298365775911972L;
+
 	public ComboBoxChannelModel() {
 		super();
 		init();

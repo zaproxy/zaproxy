@@ -14,9 +14,9 @@ import javax.swing.event.ListDataListener;
  * ://tutiez.com/how-make-jcombobox-drop-down-width-as-wide-as-needed.html}.
  */
 public class WiderDropdownJComboBox extends JComboBox {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -5796470611592964798L;
 	
-    private boolean layingOut = false;
+	private boolean layingOut = false;
     private int widestLengh = 0;
     private boolean wide = false;
 

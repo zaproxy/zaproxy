@@ -34,9 +34,9 @@ import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
  * with right mouse button.
  */
 public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuItem {
-	private static final long serialVersionUID = 1L;
-	
-    private static final Logger logger = Logger.getLogger(ExcludeFromWebSocketsMenuItem.class);
+	private static final long serialVersionUID = 2208451830578743381L;
+
+	private static final Logger logger = Logger.getLogger(ExcludeFromWebSocketsMenuItem.class);
     
     private final TableWebSocket table;
     

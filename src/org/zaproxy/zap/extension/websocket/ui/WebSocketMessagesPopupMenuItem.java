@@ -32,8 +32,9 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
  * Menu Item for a right click menu on the {@link WebSocketMessagesView}.
  */
 abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuItem {
-    private static final Logger logger = Logger.getLogger(WebSocketMessagesPopupMenuItem.class);
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 4774753835401981588L;
+
+	private static final Logger logger = Logger.getLogger(WebSocketMessagesPopupMenuItem.class);
 	
 	/**
 	 * Will be set by

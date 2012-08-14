@@ -41,9 +41,8 @@ import org.parosproxy.paros.extension.AbstractDialog;
  * Filter WebSocket messages in {@link WebSocketPanel}. Show only specific ones.
  */
 public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
+	private static final long serialVersionUID = 4750602961870366348L;
 
-	private static final long serialVersionUID = 1L;
-	
 	/**
 	 * Description of the dialog.
 	 */
