@@ -49,6 +49,11 @@ public abstract class WebSocketMessage {
 	 * This buffer will contain the whole payload, unmasked
 	 */
 	protected ByteBuffer payload;
+
+	/**
+	 * Determined after first frame is processed.
+	 */
+	protected Direction direction;
 	
 	/**
 	 * Indicates if this message already contains all of its frames.

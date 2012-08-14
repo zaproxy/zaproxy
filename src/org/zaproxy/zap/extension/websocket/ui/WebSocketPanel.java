@@ -75,7 +75,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	/**
 	 * Observe messages after storage handler was called.
 	 */
-    public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketStorage.WEBSOCKET_OBSERVING_ORDER + 1;
+    public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketStorage.WEBSOCKET_OBSERVING_ORDER + 5;
 
     /**
 	 * Depending on its count, the tab uses either a connected or disconnected

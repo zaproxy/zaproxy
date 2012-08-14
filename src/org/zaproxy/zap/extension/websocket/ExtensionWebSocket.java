@@ -522,7 +522,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		}
 		
 		try {
-			WebSocketProxy.setChannelCounter(storage.getTable().getMaxChannelId());
+			WebSocketProxy.setChannelIdGenerator(storage.getTable().getMaxChannelId());
 		} catch (SQLException e) {
 			logger.error("Unable to retrieve current channelId value!", e);
 		}

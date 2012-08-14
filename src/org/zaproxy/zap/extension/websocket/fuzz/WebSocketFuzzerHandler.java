@@ -88,7 +88,7 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
 
 	@Override
 	public int getObservingOrder() {
-		return WebSocketPanel.WEBSOCKET_OBSERVING_ORDER + 1;
+		return WebSocketPanel.WEBSOCKET_OBSERVING_ORDER + 5;
 	}
 
 	@Override

@@ -81,7 +81,7 @@ public abstract class WebSocketProxy {
 	/**
 	 * Non-finished messages.
 	 */
-	protected HashMap<InputStream, WebSocketMessage> currentMessages;
+	protected HashMap<InputStream, WebSocketMessage> unfinishedMessages;
 
 	/**
 	 * Socket for connection: Browser <-> ZAP
@@ -131,12 +131,12 @@ public abstract class WebSocketProxy {
 	/**
 	 * To ease identification of different WebSocket connections.
 	 */
-	private static AtomicInteger channelCounter;
+	private static AtomicInteger channelIdGenerator;
 	
 	/**
 	 * Add a unique id to each message of one view model.
 	 */
-	private AtomicInteger messageCounter;
+	private AtomicInteger messageIdGenerator;
 
 	/**
 	 * When true, no observer is called and each frame is forwarded instantly.
@@ -149,7 +149,7 @@ public abstract class WebSocketProxy {
 	public static Comparator<WebSocketObserver> observersComparator;
 	
 	static {
-		channelCounter = new AtomicInteger(0);
+		channelIdGenerator = new AtomicInteger(0);
 	}
 	
 	/**
@@ -157,8 +157,8 @@ public abstract class WebSocketProxy {
 	 * 
 	 * @param currentChannelCount
 	 */
-	public static void setChannelCounter(int currentChannelCount) {
-		channelCounter.set(currentChannelCount);
+	static void setChannelIdGenerator(int currentChannelCount) {
+		channelIdGenerator.set(currentChannelCount);
 	}
 
 	/**
@@ -208,12 +208,12 @@ public abstract class WebSocketProxy {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
 		
-		currentMessages = new HashMap<InputStream, WebSocketMessage>();
+		unfinishedMessages = new HashMap<InputStream, WebSocketMessage>();
 		observerList = new Vector<WebSocketObserver>();
 		
 		// create unique identifier for this WebSocket connection
-		channelId = channelCounter.incrementAndGet();
-		messageCounter = new AtomicInteger(0);
+		channelId = channelIdGenerator.incrementAndGet();
+		messageIdGenerator = new AtomicInteger(0);
 		host = remoteSocket.getInetAddress().getHostName();
 		port = remoteSocket.getPort();
 		
@@ -426,11 +426,11 @@ public abstract class WebSocketProxy {
 
 			// assume that there is only one message to be continued
 			
-			boolean shouldContinueMessage = currentMessages.containsKey(in);
+			boolean shouldContinueMessage = unfinishedMessages.containsKey(in);
 			if (opcode == WebSocketMessage.OPCODE_CONTINUATION) {
 				if (shouldContinueMessage) {
 					// continue temporarily buffered message
-					message = currentMessages.remove(in);
+					message = unfinishedMessages.remove(in);
 					message.readContinuation(in, frameHeader);
 				} else {
 					// no message here that can be continued
@@ -455,7 +455,7 @@ public abstract class WebSocketProxy {
 			
 			if (!message.isFinished()) {
 				// temporarily buffer unfinished message
-				currentMessages.put(in, message);
+				unfinishedMessages.put(in, message);
 			}
 		}
 		
@@ -631,7 +631,7 @@ public abstract class WebSocketProxy {
 	}
 	
 	public int getIncrementedMessageCount() {
-		return messageCounter.incrementAndGet();
+		return messageIdGenerator.incrementAndGet();
 	}
 	
 	public HistoryReference getHandshakeReference() {

@@ -27,6 +27,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketObserver;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
+import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
@@ -38,7 +39,7 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
 	private ExtensionWebSocket extension;
 	
-	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketPanel.WEBSOCKET_OBSERVING_ORDER - 5;
+	public static final int WEBSOCKET_OBSERVING_ORDER = WebSocketStorage.WEBSOCKET_OBSERVING_ORDER - 5;
 
 	public WebSocketProxyListenerBreak(ExtensionWebSocket extension, BreakpointMessageHandler messageHandler) {
 	    this.extension = extension;

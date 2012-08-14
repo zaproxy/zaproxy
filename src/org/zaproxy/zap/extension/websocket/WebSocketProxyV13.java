@@ -268,11 +268,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		private boolean isValidUtf8Payload;
 
 		/**
-		 * Determined after first frame is processed.
-		 */
-		private Direction direction;
-
-		/**
 		 * By default, there are 7 bits to indicate the payload length. If the
 		 * length can not be shown with 7 bits, the payload length is set to
 		 * 126. Then the next 16 bits interpreted as unsigned integer is the
