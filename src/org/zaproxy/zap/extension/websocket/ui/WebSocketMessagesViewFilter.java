@@ -25,8 +25,8 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 
 /**
- * Used as filter for the {@link WebSocketPanel}, which is applied in the
- * {@link WebSocketPanelCellRenderer}.
+ * Used as filter for the {@link WebSocketPanel} restricting types of messages
+ * shown in WebSockets tab.
  */
 public class WebSocketMessagesViewFilter {
 
@@ -42,9 +42,7 @@ public class WebSocketMessagesViewFilter {
 	}
 	
 	/**
-	 * Returns null if all opcodes are allowed.
-	 * 
-	 * @return
+	 * @return Null if all opcodes are allowed
 	 */
 	public List<Integer> getOpcodes() {
 		return opcodeList;
@@ -55,9 +53,7 @@ public class WebSocketMessagesViewFilter {
 	}
 
 	/**
-	 * Returns null if both directions should be shown.
-	 * 
-	 * @return
+	 * @return Null if both directions should be shown
 	 */
 	public Direction getDirection() {
 		return direction;
@@ -97,28 +93,22 @@ public class WebSocketMessagesViewFilter {
 	}
 
 	/**
-	 * Returns short description of applied filter.
-	 * 
-	 * @return
+	 * @return short description of applied filter
 	 */
 	public String toShortString() {
 		return toString(false);
 	}
 	
 	/**
-	 * Returns description of applied filter.
-	 * 
-	 * @return
+	 * @return description of applied filter
 	 */
 	public String toLongString() {
 		return toString(true);
 	}
 	
 	/**
-	 * Helper method that renders a description of the applied filters.
-	 * 
 	 * @param shouldIncludeValues
-	 * @return
+	 * @return description of the applied filters
 	 */
 	private String toString(boolean shouldIncludeValues) {
 		StringBuilder sb = new StringBuilder();

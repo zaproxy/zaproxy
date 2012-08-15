@@ -62,9 +62,6 @@ public class OptionsParamView extends AbstractParam {
 	private boolean reveal = false;
 	private String mode = Mode.standard.name();
 	
-    /**
-     * @param rootElementName
-     */
     public OptionsParamView() {
     }
 
@@ -122,7 +119,7 @@ public class OptionsParamView extends AbstractParam {
 	 * @return the locale, which should be used. 
 	 *         It will return a default value, if nothing was configured yet. 
 	 *         Never null
-	 * @see {@link #getConfigLocale()}
+	 * @see #getConfigLocale()
 	 */
 	public String getLocale() {
 		return locale;
@@ -148,7 +145,7 @@ public class OptionsParamView extends AbstractParam {
 
 	/**
 	 * @return The really configured locale, can be null
-	 * @see {@link #getLocale()}
+	 * @see #getLocale()
 	 */
 	public String getConfigLocale() {
 		return configLocale;

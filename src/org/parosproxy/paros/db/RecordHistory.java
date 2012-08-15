@@ -80,7 +80,7 @@ public class RecordHistory {
 		return httpMessage;
 	}
 	/**
-	 * @param id The id to set.
+	 * @param historyId The id to set.
 	 */
 	public void setHistoryId(int historyId) {
 		this.historyId = historyId;

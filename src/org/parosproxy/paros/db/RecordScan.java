@@ -35,9 +35,9 @@ public class RecordScan {
 
     
     /**
-     * @param sessionId
-     * @param sessionName
-     * @param lastAccess
+     * @param scanId
+     * @param scanName
+     * @param scanTime
      */
     public RecordScan(int scanId, String scanName, java.sql.Date scanTime) {
         super();

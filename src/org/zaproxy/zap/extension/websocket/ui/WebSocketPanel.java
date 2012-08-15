@@ -63,8 +63,7 @@ import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 
 /**
  * Represents the WebSockets tab. It listens to all WebSocket channels and
- * displays messages accordingly. For now it uses a {@link JTable} for this
- * task.
+ * displays messages accordingly.
  */
 public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 
@@ -516,7 +515,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	/**
 	 * Lazy initializes the filter dialog.
 	 * 
-	 * @return
+	 * @return filter dialog
 	 */
 	public WebSocketMessagesViewFilterDialog getFilterDialog() {
 		if (filterDialog == null) {
@@ -584,7 +583,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	 * Exposes a cloned model from channel select box.
 	 * Can be used at other dialogs.
 	 * 
-	 * @return
+	 * @return Readonly representation of select model
 	 */
 	public ComboBoxModel getChannelComboBoxModel() {
 		return new ClonedComboBoxModel(channelSelectModel);
@@ -641,8 +640,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
     }
     
     /**
-	 * Updates {@link JTable} that contains all messages and the
-	 * {@link JComboBox} that is used to filter channels.
+	 * Updates the messages view and the combo box that is used to filter
+	 * channels.
 	 */
     public void update() {
     	// reset table contents

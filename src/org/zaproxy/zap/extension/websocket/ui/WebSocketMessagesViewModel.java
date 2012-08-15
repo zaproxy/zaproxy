@@ -138,9 +138,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	/**
-	 * Returns the size of currently visible messages.
-	 * 
-	 * @return
+	 * @return size of currently visible messages
 	 */
 	@Override
 	public int getRowCount() {
@@ -243,9 +241,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	/**
-	 * Returns the number of columns.
-	 * 
-	 * @return
+	 * @return number of columns
 	 */
 	@Override
 	public int getColumnCount() {
@@ -253,9 +249,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	/**
-	 * Returns the name of the given column index.
-	 * 
-	 * @return
+	 * @return name of the given column index
 	 */
 	@Override
 	public String getColumnName(int columnIndex) {
@@ -265,7 +259,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	/**
 	 * Cells are not editable.
 	 * 
-	 * @return
+	 * @return false
 	 */
 	@Override
 	public boolean isCellEditable(int row, int col) {
@@ -273,9 +267,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	/**
-	 * Returns the type of column for given column index.
-	 * 
-	 * @return
+	 * @return type of column for given column index
 	 */
 	@Override
 	public Class<? extends Object> getColumnClass(int columnIndex) {
@@ -303,7 +295,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	 * </p>
 	 * 
 	 * @param rowIndex
-	 * @return
+	 * @return data transfer object
 	 */
 	public WebSocketMessageDTO getDTO(int rowIndex) {
 		WebSocketMessageDTO message = getRowObject(rowIndex);
@@ -358,8 +350,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 
 	/**
-	 * A new message has arrived. Find out if we need to
-	 * {@link AbstractTableModel#fireTableDataChanged()}.
+	 * A new message has arrived.
 	 * 
 	 * @param message
 	 */

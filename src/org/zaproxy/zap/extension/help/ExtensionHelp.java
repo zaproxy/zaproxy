@@ -130,7 +130,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	*/
 
 	/**
-	 * @see {@link #showHelp(String))} using key "zap.intro"
+	 * @see #showHelp(String)
 	 */
 	public static void showHelp() {
 		showHelp("zap.intro");

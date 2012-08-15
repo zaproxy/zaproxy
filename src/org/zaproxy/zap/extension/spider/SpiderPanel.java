@@ -233,8 +233,6 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	/**
 	 * Update the count of found URIs.
-	 * 
-	 * @param foundCount the found count
 	 */
 	protected void updateFoundCount() {
 		this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));

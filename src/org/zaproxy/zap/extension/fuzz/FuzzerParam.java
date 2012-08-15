@@ -36,9 +36,6 @@ public class FuzzerParam extends AbstractParam {
 	private int threadPerScan = 5;
 	private int delayInMs = 0;
 	
-    /**
-     * @param rootElementName
-     */
     public FuzzerParam() {
     }
 

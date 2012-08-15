@@ -124,7 +124,7 @@ public class HttpInputStream extends BufferedInputStream {
 
 	/**
 	 * Read Http body from input stream as a string basing on the content length on the method.
-	 * @param method
+	 * @param httpHeader
 	 * @return Http body
 	 */
 	public synchronized HttpRequestBody readRequestBody(HttpHeader httpHeader) {
@@ -140,7 +140,7 @@ public class HttpInputStream extends BufferedInputStream {
 
 	/**
 	 * Read Http body from input stream as a string basing on the content length on the method.
-	 * @param method
+	 * @param httpHeader
 	 * @return Http body
 	 */
 	public synchronized HttpResponseBody readResponseBody(HttpHeader httpHeader) {

@@ -106,8 +106,8 @@ abstract public class FileXML {
 
 	/**
 	 * Get all elements under a base element matching a tag name
-	 * @param parent
-	 * @param childTagName
+	 * @param base
+	 * @param childTag
 	 * @return
 	 */
 	protected Element[] getElements(Element base, String childTag) {

@@ -78,8 +78,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
 
     /**
-     * @param portScanParam 
-     * 
+     * @param extension
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon

@@ -23,6 +23,11 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
+/**
+ * Data Transfer Object used for displaying WebSocket connection channels.
+ * Intended to decouple user interface representation from version specific
+ * {@link WebSocketProxy}.
+ */
 public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 	
 	/**

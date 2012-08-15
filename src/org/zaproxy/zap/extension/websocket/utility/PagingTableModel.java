@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  * base my code for ZAP on his PagingTableModel that I found here:
  * http://www.coderanch.com/t/345383/GUI/java/JTable-Paging
  * <p>
- * This {@link TableModel} has got only MAX_PAGE_SIZE rows paged in at a time,
+ * This model has got only MAX_PAGE_SIZE rows paged in at a time,
  * but shows the scrollbar for all entries.
  * <p>
  * Removed simulation code, added type parameter and abstract methods.
@@ -51,7 +51,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	/**
 	 * Return number of all items. Scrollbar will appear accordingly. 
 	 * 
-	 * @return
+	 * @return number of items
 	 */
 	@Override
 	public abstract int getRowCount();
@@ -62,23 +62,22 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * 
 	 * @param rowObject
 	 * @param columnIndex
-	 * @return
+	 * @return value from requested column
 	 */
 	protected abstract Object getWebSocketValueAt(T rowObject, int columnIndex);
 
 	/**
-	 * Value returned is used to display while loading entry.
-	 * 
 	 * @param columnIndex
-	 * @return
+	 * @return Value is used to display while loading entry
 	 */
 	protected abstract Object getPlaceholderValueAt(int columnIndex);
 
 	/**
-	 * Called by {@link PagingTableModel#load(int, int)} 
+	 * Called by {@link PagingTableModel#load(int, int)}
+	 * 
 	 * @param offset
 	 * @param length
-	 * @return 
+	 * @return Excerpt of whole list
 	 */
 	protected abstract List<T> loadPage(int offset, int length);
 
@@ -97,10 +96,8 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	}
 
 	/**
-	 * Returns null if object is not in current page.
-	 * 
 	 * @param rowIndex
-	 * @return
+	 * @return Null if object is not in current page
 	 */
 	protected T getRowObject(int rowIndex) {
 		int pageIndex = rowIndex - dataOffset;

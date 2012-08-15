@@ -250,7 +250,7 @@ public class OptionsParam extends AbstractParam {
     }
 
     /**
-     * @param currentFolder The currentFolder to set.
+     * @param currentDirectory The currentFolder to set.
      */
     public void setUserDirectory(File currentDirectory) {
         this.userDirectory = currentDirectory;

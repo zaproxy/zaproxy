@@ -229,7 +229,7 @@ public class HttpMethodHelper {
 	}
 	
 	
-	/**
+	/*
 	 * Build a HttpMethod (eg GET, POST) from raw string.  All headers will be set accordingly as in
 	 * the raw string.
 	 * @param request	raw request string with header and body.

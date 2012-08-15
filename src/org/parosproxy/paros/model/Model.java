@@ -83,7 +83,7 @@ public class Model {
 	}
 	
 	/**
-	 * @param optionsParam The optionsParam to set.
+	 * @param param The optionsParam to set.
 	 */
 	public void setOptionsParam(OptionsParam param) {
 		optionsParam = param;

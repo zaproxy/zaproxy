@@ -423,7 +423,7 @@ public class HttpSender {
 
     }
     
-    /**
+    /*
      * Send and receive a HttpMessage.  
      * @param msg
      * @param isFollowRedirect
@@ -473,7 +473,7 @@ public class HttpSender {
     }
     */
     
-    /**
+    /*
      * Do not use this unless sure what is doing.  This method works but proxy may skip the pipe without
      * properly handle the filter.
      * 

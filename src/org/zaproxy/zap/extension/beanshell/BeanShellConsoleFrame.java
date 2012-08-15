@@ -81,8 +81,9 @@ public class BeanShellConsoleFrame extends AbstractFrame {
    }
 
    /**
-    * @param arg0
-    * @param arg1
+    * @param parent
+    * @param modal
+    * @param extension
     * @throws HeadlessException
     */
    public BeanShellConsoleFrame(Frame parent, boolean modal, Extension extension) throws HeadlessException {
@@ -95,8 +96,6 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 	    getBeanShellPanel().getPanelOption().add(getPanelCommand(), "");

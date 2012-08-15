@@ -33,9 +33,6 @@ public class OptionsParamMisc extends AbstractParam {
 
 	private String saveDirectory = "";
 	
-    /**
-     * @param rootElementName
-     */
     public OptionsParamMisc() {
     }
 
@@ -59,14 +56,10 @@ public class OptionsParamMisc extends AbstractParam {
 	}
 	
 	/**
-	 * @param processImages 0 = not to process.  Other = process images
-	 * 
+	 * @param saveDirectory processImages 0 = not to process.  Other = process images
 	 */
 	public void setSaveDirectory(String saveDirectory) {
 		this.saveDirectory = saveDirectory;
 		getConfig().setProperty(SAVE_DIR, saveDirectory);
 	}
-	
-
-	
 }

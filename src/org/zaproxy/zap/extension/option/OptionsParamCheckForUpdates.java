@@ -36,10 +36,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	private String dayLastChecked = null; 
 	private boolean unset = true;
     private static Logger log = Logger.getLogger(OptionsParamCheckForUpdates.class);
-
-    /**
-     * @param rootElementName
-     */
+    
     public OptionsParamCheckForUpdates() {
     }
 
@@ -68,8 +65,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 	
 	/**
-	 * @param processImages 0 = not to process.  Other = process images
-	 * 
+	 * @param checkOnStart processImages 0 = not to process. Other = process images
 	 */
 	public void setChckOnStart(int checkOnStart) {
 		this.checkOnStart = checkOnStart;

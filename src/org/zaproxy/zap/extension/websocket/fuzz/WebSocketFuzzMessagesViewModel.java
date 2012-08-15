@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
+import javax.swing.table.TableModel;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
@@ -81,9 +83,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 
 	/**
-	 * Returns the number of columns.
-	 * 
-	 * @return
+	 * @return number of columns
 	 */
 	@Override
 	public int getColumnCount() {
@@ -118,9 +118,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 
 	/**
-	 * Returns the type of column for given column index.
-	 * 
-	 * @return
+	 * @return type of column for given column index
 	 */
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {

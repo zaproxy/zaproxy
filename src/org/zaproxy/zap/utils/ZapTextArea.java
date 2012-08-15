@@ -38,8 +38,8 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  * </p>
  * 
  * @see #discardAllEdits()
+ * @see #setUndoManagerPolicy
  * @see #setEditsLimit(int)
- * @see #setUndoManagerPolicy(UndoManagerPolicy)
  * @see ZapTextComponentUndoManager
  */
 public class ZapTextArea extends JTextArea {

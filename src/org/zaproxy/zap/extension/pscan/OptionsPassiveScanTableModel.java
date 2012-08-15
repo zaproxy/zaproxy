@@ -97,7 +97,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
     }
     
     /**
-     * @param listAuth The listAuth to set.
+     * @param defns
      */
     public void setScanDefns(List <RegexAutoTagScanner> defns) {
         this.defns = new ArrayList<RegexAutoTagScanner>(defns);

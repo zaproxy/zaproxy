@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -39,8 +40,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
 /**
- * This class represents two WebSocket channels. Code is inspired by the Monsoon
- * project (http://code.google.com/p/monsoon/).
+ * Intercepts WebSocket communication and forwards frames. Code is inspired by
+ * the Monsoon project (http://code.google.com/p/monsoon/).
  * 
  * It is not based on Java's NIO features as with Monsoon, as the underlying
  * Paros Proxy is based on Sockets and I got huge problems when adding SSL
@@ -54,6 +55,9 @@ public abstract class WebSocketProxy {
 	
 	private static final Logger logger = Logger.getLogger(WebSocketProxy.class);
 
+	/**
+	 * WebSocket communication state.
+	 */
 	public enum State {  
 		CONNECTING, OPEN, CLOSING, CLOSED, // ready state
 		EXCLUDED, INCLUDED; // no WebSocket state, used for new black- or whitelisted channels
@@ -386,9 +390,7 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Returns true if this proxies' state is {@link State#OPEN}.
-	 * 
-	 * @return
+	 * @return True if this proxies' state is {@link State#OPEN}
 	 */
 	public boolean isConnected() {
 		if (state != null && state.equals(State.OPEN)) {
@@ -468,30 +470,23 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Returns a version specific WebSockets message.
-	 * 
 	 * @param in {@link InputStream} to read bytes from.
 	 * @param frameHeader First byte of frame, containing FIN flag and opcode.
-	 * @return
+	 * @return version specific WebSockets message
 	 * @throws IOException 
 	 */
 	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
-	 * Returns a version specific WebSockets message, that is build upon given
-	 * {@link WebSocketMessageDTO}.
-	 * 
 	 * @param message Contains content to be used to create {@link WebSocketMessage}.
-	 * @return
+	 * @return version specific WebSockets message, that is build upon given {@link WebSocketMessageDTO}
 	 * @throws WebSocketException
 	 */
 	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException;
 
 	/**
-	 * Returns the opposed socket.
-	 * 
 	 * @param socket
-	 * @return
+	 * @return opposed socket
 	 */
 	protected Socket getOppositeSocket(Socket socket) {
 		if (socket == localSocket) {
@@ -504,7 +499,7 @@ public abstract class WebSocketProxy {
 	/**
 	 * If true, then no observer is called, resulting in immediate forwarding.
 	 * 
-	 * @return
+	 * @return Nothing will be stored if true.
 	 */
 	public boolean isForwardOnly() {
 		return isForwardOnly;
@@ -545,7 +540,7 @@ public abstract class WebSocketProxy {
 	 * false.
 	 * 
 	 * @param message
-	 * @return
+	 * @return True if message should be dropped.
 	 */
 	protected boolean notifyMessageObservers(WebSocketMessage message) {		
 		synchronized (observerList) {

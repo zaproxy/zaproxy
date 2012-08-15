@@ -46,7 +46,7 @@ public class OptionsParamWebSocket extends AbstractParam {
 	 * If true, then all WebSocket communication is forwarded, but not stored in
 	 * database, nor shown in user interface.
 	 * 
-	 * @return
+	 * @return True if all traffic should only be forwarded.
 	 */
 	public boolean isForwardAll() {
 		return isForwardAll;
@@ -69,7 +69,7 @@ public class OptionsParamWebSocket extends AbstractParam {
 	 * <li>stepping through to next request/response</li>
 	 * </ul>
 	 * 
-	 * @return
+	 * @return True if it should break also on ping & pong messages.
 	 */
 	public boolean isBreakOnPingPong() {
 		return isBreakOnPingPong;
@@ -90,7 +90,7 @@ public class OptionsParamWebSocket extends AbstractParam {
 	 * requests/responses</i> is active. Otherwise WebSocket communication is
 	 * skipped.
 	 * 
-	 * @return
+	 * @return True if it should break on all HTTP requests/responses.
 	 */
 	public boolean isBreakOnAll() {
 		return isBreakOnAll;

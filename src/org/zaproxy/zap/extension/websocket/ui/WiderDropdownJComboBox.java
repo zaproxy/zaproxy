@@ -10,8 +10,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 /**
- * Got original code snippet from {@link http
- * ://tutiez.com/how-make-jcombobox-drop-down-width-as-wide-as-needed.html}.
+ * Got original code snippet from http://tutiez.com/how-make-jcombobox-drop-down-width-as-wide-as-needed.html
  */
 public class WiderDropdownJComboBox extends JComboBox {
 	private static final long serialVersionUID = -5796470611592964798L;

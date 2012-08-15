@@ -74,8 +74,9 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 
 	/**
 	 * Change message payload if pattern applies. Ignore binary messages so far
-	 * and apply only to other opcodes. Called by
-	 * {@link ExtensionFilter#onMessageFrame(int, WebSocketMessage)}.
+	 * and apply only to other opcodes.
+	 * 
+	 * @param wsMessage
 	 * @throws WebSocketException 
 	 */
 	@Override

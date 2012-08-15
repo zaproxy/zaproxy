@@ -39,8 +39,8 @@ import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 
 /**
- * Encapsulates a {@link JTable} that is used to display WebSocket
- * messages. It expects a {@link TableModel} from the outside.
+ * Wraps a {@link JTable} that is used to display WebSocket
+ * messages.
  */
 public class WebSocketMessagesView implements Runnable {
 	private static final Logger logger = Logger.getLogger(WebSocketMessagesView.class);
@@ -61,12 +61,9 @@ public class WebSocketMessagesView implements Runnable {
 	}
 	
 	/**
-	 * Lazy initializes a {@link JList} instance, that is fed with different
-	 * models (either a joined model or one of {@link WebSocketPanel#models} to
-	 * display the WebSocket messages according to the
-	 * {@link WebSocketPanel#channelSelect} selection.
+	 * Lazy initializes the view component.
 	 * 
-	 * @return
+	 * @return messages view
 	 */
 	public JTable getViewComponent() {
 		if (view == null) {			
@@ -167,8 +164,7 @@ public class WebSocketMessagesView implements Runnable {
 	}
 	
 	/**
-	 * Helper method for setting the column widths of the
-	 * {@link WebSocketPanel#messagesLog}.
+	 * Helper method for setting the column widths of this view.
 	 * 
 	 * @param index
 	 * @param min

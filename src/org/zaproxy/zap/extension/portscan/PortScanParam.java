@@ -43,9 +43,6 @@ public class PortScanParam extends AbstractParam {
 	private int timeoutInMs = DEFAULT_TIMEOUT_IN_MS;
 	private boolean useProxy = DEFAULT_USE_PROXY;
 	
-    /**
-     * @param rootElementName
-     */
     public PortScanParam() {
     }
 
@@ -86,7 +83,7 @@ public class PortScanParam extends AbstractParam {
         return maxPort;
     }
     /**
-     * @param thread The thread to set.
+     * @param maxPort
      */
     public void setMaxPort(int maxPort) {
         this.maxPort = maxPort;

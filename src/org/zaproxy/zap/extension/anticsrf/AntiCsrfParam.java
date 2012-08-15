@@ -42,9 +42,6 @@ public class AntiCsrfParam extends AbstractParam {
 	
 	private List<String> tokens = null;
 	
-    /**
-     * @param rootElementName
-     */
     public AntiCsrfParam() {
     }
 

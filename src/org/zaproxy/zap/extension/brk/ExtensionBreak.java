@@ -325,7 +325,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	/**
 	 * Exposes list of enabled breakpoints.
 	 * 
-	 * @return
+	 * @return list of enabled breakpoints
 	 */
 	public List<BreakpointMessageInterface> getBreakpointsEnabledList() {
 		if (mode.equals(Mode.safe)) {

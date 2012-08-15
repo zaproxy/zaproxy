@@ -86,15 +86,15 @@ public class View implements ViewDelegate {
 	public MainFrame getMainFrame() {
 		return mainFrame;
 	}
-	/**
-	 * @return Returns the requestPanel.
-	 */
+	///**
+	// * @return Returns the requestPanel.
+	// */
 	//public HttpPanel getRequestPanel() {
 	//	return requestPanel;
 	//}
-	/**
-	 * @return Returns the responsePanel.
-	 */
+	///**
+	// * @return Returns the responsePanel.
+	// */
 	//public HttpPanel getResponsePanel() {
 	//	return responsePanel;
 	//}

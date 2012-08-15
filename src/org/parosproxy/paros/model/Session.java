@@ -94,7 +94,7 @@ public class Session extends FileXML {
 	
 	/**
 	 * Constructor for the current session.  The current system time will be used as the session ID.
-	 * @param sessionId
+	 * @param model
 	 */
 	protected Session(Model model) {
 		super(ROOT);

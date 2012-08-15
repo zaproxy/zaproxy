@@ -84,8 +84,6 @@ public class FilterReplaceDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	protected void initialize() {
 		// ZAP: Changed visibility from private to protected.

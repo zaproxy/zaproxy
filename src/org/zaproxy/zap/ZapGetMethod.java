@@ -61,7 +61,7 @@ public class ZapGetMethod extends GetMethod {
 	/**
 	 * Constructor.
 	 * 
-	 * @param uriSocketChannel
+	 * @param uri
 	 */
 	public ZapGetMethod(String uri) {
 		super(uri);

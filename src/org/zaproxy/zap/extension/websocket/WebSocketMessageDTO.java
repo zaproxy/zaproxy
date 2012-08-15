@@ -27,7 +27,7 @@ import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
 import org.zaproxy.zap.extension.websocket.utility.Utf8Util;
 
 /**
- * Data Access Object used for displaying WebSockets communication. Intended to
+ * Data Transfer Object used for displaying WebSockets communication. Intended to
  * decouple user interface representation from version specific
  * {@link WebSocketMessage}.
  */
@@ -175,7 +175,7 @@ public class WebSocketMessageDTO implements Message {
 	/**
 	 * Returns content of {@link WebSocketMessageDTO#payload} directly if it is
 	 * of type {@link String}. Otherwise it tries to convert it.
-	 * @return 
+	 * @return readable representation of payload
 	 * @throws InvalidUtf8Exception 
 	 */
 	public String getReadablePayload() throws InvalidUtf8Exception {

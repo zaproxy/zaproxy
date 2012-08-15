@@ -27,8 +27,6 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
  * registered with a component using the component's
  * <code>addSpiderListener<code> method. When  the spider event occurs, that object's appropriate
  * method is invoked.
- * 
- * @see SpiderEvent
  */
 public interface SpiderListener {
 

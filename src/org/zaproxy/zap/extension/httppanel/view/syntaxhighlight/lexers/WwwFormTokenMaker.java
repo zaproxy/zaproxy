@@ -23,7 +23,7 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
 
 /**
  * A parser of HTTP request body application/x-www-form-urlencoded.
- * @see http://www.w3.org/TR/html401/interact/forms.html#form-content-type
+ * @see <a href="http://www.w3.org/TR/html401/interact/forms.html#form-content-type">Form content types</a>
  *
  * This implementation was created using
  * <a href="http://www.jflex.de/">JFlex</a> 1.4.3; however, the generated file
@@ -55,9 +55,7 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
  *       directly; rather, you should use <code>getTokenList</code> as you would
  *       with any other <code>TokenMaker</code> instance.</li>
  * </ul>
- *
  */
-
 public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
   

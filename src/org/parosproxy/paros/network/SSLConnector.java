@@ -207,9 +207,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 *            the host name/IP
 	 * @param port
 	 *            the port on the host
-	 * @param clientHost
+	 * @param localAddress
 	 *            the local host name/IP to bind the socket to
-	 * @param clientPort
+	 * @param localPort
 	 *            the port on the local machine
 	 * @param params
 	 *            {@link HttpConnectionParams Http connection parameters}
@@ -220,6 +220,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 *             if an I/O error occurs while creating the socket
 	 * @throws UnknownHostException
 	 *             if the IP address of the host cannot be determined
+	 * @throws 	ConnectTimeoutException        
 	 */
 	@Override
 	public Socket createSocket(final String host, final int port,

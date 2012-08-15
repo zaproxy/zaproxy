@@ -31,9 +31,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
-    /**
-     * @param label
-     */
+	
     public PopupMenuInvokeConfigure() {
         super();
         this.initialize();

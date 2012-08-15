@@ -132,7 +132,7 @@ public class DbUtils {
     /**
      * Executes and closes the given {@code preparedStatement}.
      * 
-     * @param stmt
+     * @param preparedStatement
      *            the statement that will be executed and immediately closed
      * @throws SQLException
      *             if error occurred while executing the given

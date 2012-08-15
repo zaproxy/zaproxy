@@ -28,7 +28,7 @@ public interface WebSocketObserver {
 	/**
 	 * The lowest ordering value will receive the message first.
 	 * 
-	 * @return
+	 * @return observing order
 	 */
 	public int getObservingOrder();
 	
@@ -40,7 +40,7 @@ public interface WebSocketObserver {
 	 * 
 	 * @param channelId
 	 * @param message
-	 * @return
+	 * @return Continue to notify and forward on True.
 	 */
 	public boolean onMessageFrame(int channelId, WebSocketMessage message);
 	

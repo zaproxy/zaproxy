@@ -42,7 +42,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @return
+	 * @return True if it breaks on all requests.
 	 */
 	@Override
 	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
@@ -57,7 +57,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @return
+	 * @return True if it breaks on all responses.
 	 */
 	@Override
 	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
@@ -72,7 +72,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @return
+	 * @return True if it breaks on stepping through action.
 	 */
 	@Override
 	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
@@ -88,7 +88,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * 
 	 * @param aMessage
 	 * @param isRequest
-	 * @return
+	 * @return True if it should break on the HTTP request/response breakpoints.
 	 */
 	private boolean isBreakOnAllWebSocket(Message aMessage, boolean isRequest) {
 		if (aMessage instanceof WebSocketMessageDTO && config.isBreakOnAll()) {
@@ -102,7 +102,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * {@link WebSocketMessageDTO#opcode}.
 	 * 
 	 * @param opcode
-	 * @return
+	 * @return True if it should break on given opcode.
 	 */
 	private boolean isBreakOnOpcode(Integer opcode) {
 		if (config.isBreakOnPingPong()) {

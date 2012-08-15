@@ -204,7 +204,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Add an open channel to this extension after
 	 * HTTP handshake has been completed.
 	 * 
-	 * @param handShakeResponse Response header of HTTP-based handshake.
+	 * @param msg HTTP-based handshake.
 	 * @param localSocket Current connection channel from the browser to ZAP.
 	 * @param remoteSocket Current connection channel from ZAP to the server.
 	 * @param remoteReader Current {@link InputStream} of remote connection.
@@ -382,7 +382,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * WebSocket handshake is already alive.
 	 * 
 	 * @param handshakeMessage
-	 * @return
+	 * @return True if connection is still alive.
 	 */
 	public boolean isConnected(HttpMessage handshakeMessage) {
 		int historyId = handshakeMessage.getHistoryRef().getHistoryId();
@@ -401,7 +401,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Returns true if given channel id is connected.
 	 * 
 	 * @param channelId
-	 * @return
+	 * @return True if connection is still alive.
 	 */
 	public boolean isConnected(Integer channelId) {
 		synchronized (wsProxies) {
@@ -550,7 +550,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * etc.
 	 * 
 	 * @param message
-	 * @return
+	 * @return True if operation on message isn't potentially dangerous.
 	 */
 	public boolean isSafe(WebSocketMessageDTO message) {
 		if (mode.equals(Mode.safe)) {

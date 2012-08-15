@@ -194,7 +194,7 @@ public class TableWebSocket extends AbstractTable {
 	 * 
 	 * @param criteria
 	 * @param opcodes Null when all opcodes should be retrieved.
-	 * @return
+	 * @return number of message that fulfill given template
 	 * @throws SQLException
 	 */
 	public synchronized int getMessageCount(WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
@@ -262,7 +262,7 @@ public class TableWebSocket extends AbstractTable {
 	 * @param offset
 	 * @param limit
 	 * @param payloadPreviewLength
-	 * @return
+	 * @return Messages that fulfill given template.
 	 * @throws SQLException
 	 */
 	public synchronized List<WebSocketMessageDTO> getMessages(WebSocketMessageDTO criteria, List<Integer> opcodes, int offset, int limit, int payloadPreviewLength) throws SQLException {
@@ -648,9 +648,7 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	/**
-	 * Returns the current maximum value for the channel column.
-	 * 
-	 * @return
+	 * @return current maximum value of the channel column
 	 * @throws SQLException 
 	 */
 	public int getMaxChannelId() throws SQLException {

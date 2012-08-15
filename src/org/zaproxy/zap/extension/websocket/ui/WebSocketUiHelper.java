@@ -88,9 +88,7 @@ public class WebSocketUiHelper {
     }
 	
 	/**
-	 * Returns null if '--All Opcodes--' is selected.
-	 * 
-	 * @return
+	 * @return Null if '--All Opcodes--' is selected
 	 */
 	public String getSelectedOpcode() {
 		if (getOpcodeSingleSelect().getSelectedIndex() == 0) {
@@ -134,9 +132,7 @@ public class WebSocketUiHelper {
 	}
 
 	/**
-	 * Returns null if '--All Opcodes--' is selected.
-	 * 
-	 * @return
+	 * @return Null if '--All Opcodes--' is selected
 	 */
 	public List<String> getSelectedOpcodes() {
 		boolean isSelectAll = false;
@@ -159,9 +155,7 @@ public class WebSocketUiHelper {
 	}
 
 	/**
-	 * Returns null if '--All Opcodes--' is selected.
-	 * 
-	 * @return
+	 * @return Null if '--All Opcodes--' is selected
 	 */
 	public List<Integer> getSelectedOpcodeIntegers() {
 		List<String> opcodes = getSelectedOpcodes();
@@ -223,9 +217,7 @@ public class WebSocketUiHelper {
 	}
 
 	/**
-	 * Returns null if '--All Channels--' is selected.
-	 * 
-	 * @return
+	 * @return Null if '--All Channels--' is selected
 	 */
 	public Integer getSelectedChannelId() {
 		if (getChannelSingleSelect().getSelectedIndex() == 0) {
@@ -274,9 +266,7 @@ public class WebSocketUiHelper {
 	}
 
 	/**
-	 * Returns null if '--All Channels--' is selected.
-	 * 
-	 * @return
+	 * @return Null if '--All Channels--' is selected.
 	 */
 	public List<Integer> getSelectedChannelIds() {
 		boolean isSelectAll = false;

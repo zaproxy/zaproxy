@@ -47,7 +47,7 @@ public class Utf8Util {
 	 * Helper method to encode payload into UTF-8 string.
 	 * 
 	 * @param utf8bytes 
-	 * @return
+	 * @return readable representation
 	 * @throws InvalidUtf8Exception 
 	 */
 	public static String encodePayloadToUtf8(byte[] utf8bytes) throws InvalidUtf8Exception {
@@ -60,7 +60,7 @@ public class Utf8Util {
 	 * @param utf8bytes
 	 * @param offset
 	 * @param length
-	 * @return
+	 * @return readable representation
 	 * @throws InvalidUtf8Exception 
 	 */
 	public static String encodePayloadToUtf8(byte[] utf8bytes, int offset, int length) throws InvalidUtf8Exception {
@@ -89,7 +89,7 @@ public class Utf8Util {
 	 * representation.
 	 * 
 	 * @param utf8string
-	 * @return
+	 * @return byte representation
 	 */
 	public static byte[] decodePayloadFromUtf8(String utf8string) {
 		synchronized (UTF8_CHARSET) {

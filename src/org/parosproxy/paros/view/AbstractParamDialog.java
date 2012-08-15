@@ -98,7 +98,10 @@ public class AbstractParamDialog extends AbstractDialog {
 	}
 	
 	/**
-	 * @param arg0
+	 * @param parent
+	 * @param modal
+	 * @param title
+	 * @param rootName
 	 * @throws HeadlessException
 	 */
 	public AbstractParamDialog(Frame parent, boolean modal, String title, String rootName) throws HeadlessException {

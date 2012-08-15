@@ -40,9 +40,6 @@ public class BruteForceParam extends AbstractParam {
 	private boolean recursive = DEFAULT_RECURSIVE;
 	private String defaultFile = null;
 	
-    /**
-     * @param rootElementName
-     */
     public BruteForceParam() {
     }
 

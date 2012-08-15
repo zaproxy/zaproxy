@@ -22,14 +22,10 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 
 /**
- * Returns a new instance of an {@link AdjustmentListener} that can be
- * applied to {@link JScrollBar#addAdjustmentListener(AdjustmentListener)}.
- * <p>
  * When the scrollbar is at the bottom, then it keeps it there also in the
  * case when new items are inserted at the bottom. As a result you can
  * always see all items. It does not affect the position of the scrollbar
  * when it is not at the bottom.
- * </p>
  */
 public class StickyScrollbarAdjustmentListener implements AdjustmentListener {
 	private int previousMaximum;

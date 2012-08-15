@@ -30,6 +30,9 @@ import java.sql.Timestamp;
  */
 public abstract class WebSocketMessage {
 
+	/**
+	 * Orientation of WebSocket message.
+	 */
 	public enum Direction {
 		INCOMING, OUTGOING
 	}
@@ -180,9 +183,7 @@ public abstract class WebSocketMessage {
 	}
 
 	/**
-	 * Returns a consecutive number unique within one WebSocket channel.
-	 * 
-	 * @return
+	 * @return consecutive number unique within one WebSocket channel
 	 */
 	public int getMessageId() {
 		return messageId;
@@ -211,7 +212,7 @@ public abstract class WebSocketMessage {
 	 * One of the possible close codes is
 	 * {@link WebSocketMessage#STATUS_CODE_OK}.
 	 * 
-	 * @return
+	 * @return close code or -1
 	 */
 	public int getCloseCode() {
 		return closeCode;
@@ -277,25 +278,22 @@ public abstract class WebSocketMessage {
 	 * Returns true if all frames for this message were already
 	 * read (i.e.: if the frame with the FIN flag was read).
 	 * 
-	 * @return
+	 * @return True if all frames were received.
 	 */
 	public boolean isFinished() {
 		return isFinished;
 	}
 
 	/**
-	 * Returns the readable representation of this messages opcode.
-	 * @return
+	 * @return readable representation of this messages opcode
 	 */
 	public String getOpcodeString() {
 		return opcode2string(opcode);
 	}
 
 	/**
-	 * Returns a readable representation of the numeric opcode.
-	 * 
 	 * @param opcode
-	 * @return
+	 * @return readable representation of the given numeric opcode
 	 */
 	public static String opcode2string(int opcode) {
 		switch (opcode) {
@@ -368,16 +366,14 @@ public abstract class WebSocketMessage {
 	 * Returns date of receiving this message. Might also indicate the timestamp
 	 * of the last frame received.
 	 * 
-	 * @return
+	 * @return timestamp of message arrival
 	 */
 	public Timestamp getTimestamp() {
 		return timestamp;
 	}
 	
 	/**
-	 * Returns the number of bytes used in the payload.
-	 * 
-	 * @return
+	 * @return number of bytes used in the payload
 	 */
 	public abstract Integer getPayloadLength();
 	
@@ -386,7 +382,7 @@ public abstract class WebSocketMessage {
 	 * bytes array does not back the messages payload buffer (i.e. it is a
 	 * copy).
 	 * 
-	 * @return
+	 * @return bytes of payload
 	 */
 	public abstract byte[] getPayload();
 
@@ -395,7 +391,7 @@ public abstract class WebSocketMessage {
 	 * {@link WebSocketMessage#setReadablePayload(String)} for setting payloads
 	 * of non-binary messages.
 	 * 
-	 * @param payload
+	 * @param newPayload
 	 * @throws WebSocketException
 	 */
 	public abstract void setPayload(byte[] newPayload) throws WebSocketException;
@@ -404,7 +400,7 @@ public abstract class WebSocketMessage {
 	 * Returns the payload from {@link WebSocketMessage#getPayload()} as
 	 * readable string (i.e.: converted to UTF-8).
 	 * 
-	 * @return
+	 * @return readable representation of payload
 	 */
 	public abstract String getReadablePayload();
 
@@ -420,7 +416,7 @@ public abstract class WebSocketMessage {
 	 * Returns either {@link Direction#INCOMING} if this message originated from
 	 * the browser, or {@link Direction#OUTGOING} if it came from server side.
 	 * 
-	 * @return
+	 * @return message flow indicator
 	 */
 	public abstract Direction getDirection();
 
@@ -428,7 +424,7 @@ public abstract class WebSocketMessage {
 	 * Returns another presentation on this message object, used to decouple the
 	 * user interface from this version specific implementation.
 	 * 
-	 * @return
+	 * @return data transfer object
 	 */
 	public WebSocketMessageDTO getDTO() {
 		// build upon base dto attribute set in constructor,

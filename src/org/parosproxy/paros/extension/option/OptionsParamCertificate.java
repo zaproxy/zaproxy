@@ -46,9 +46,6 @@ public class OptionsParamCertificate extends AbstractParam {
     private int useClientCert = 0;
     private String clientCertLocation = "";
     
-    /**
-     * @param rootElementName
-     */
     public OptionsParamCertificate() {
     }
 

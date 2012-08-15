@@ -40,7 +40,7 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  * 
  * @see #discardAllEdits()
  * @see #setEditsLimit(int)
- * @see #setUndoManagerPolicy(UndoManagerPolicy)
+ * @see #setUndoManagerPolicy
  * @see ZapTextComponentUndoManager
  */
 public class ZapTextField extends JTextField {

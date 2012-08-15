@@ -26,7 +26,7 @@ import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 /**
  * Custom {@link SimpleHttpConnectionManager} that uses
  * {@link ZapHttpConnection} for connection creation. Needed to expose the
- * underlying {@link Socket}.
+ * underlying socket.
  */
 public class ZapHttpConnectionManager extends SimpleHttpConnectionManager {
 

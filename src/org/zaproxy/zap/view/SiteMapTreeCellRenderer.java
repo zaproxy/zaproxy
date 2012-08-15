@@ -33,7 +33,7 @@ import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
- * Custom {@link TreeCellRenderer} for {@link SiteMapPanel} to set custom icons
+ * Custom renderer for {@link SiteMapPanel} to set custom icons
  * and tooltips. If you want tooltips you have to enable them via:
  * <code>ToolTipManager.sharedInstance().registerComponent(tree);</code>
  */

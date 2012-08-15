@@ -219,7 +219,7 @@ public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
 	/**
 	 * This method initializes btnReset	
 	 * 	
-	 * @return javax.swing.JButton	
+	 * @return reset button
 	 */    
 	private JButton getBtnReset() {
 		if (btnReset == null) {
@@ -241,9 +241,7 @@ public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
 	}
 	
 	/**
-	 * Returns the model holding the values set by this dialog.
-	 * 
-	 * @return
+	 * @return model holding the values set by this dialog
 	 */
 	public WebSocketMessagesViewFilter getFilter() {
 		return filter;

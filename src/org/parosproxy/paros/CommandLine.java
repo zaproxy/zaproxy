@@ -215,7 +215,7 @@ public class CommandLine {
         return GUI;
     }
     /**
-     * @param noGUI The noGUI to set.
+     * @param GUI The noGUI to set.
      */
     public void setGUI(boolean GUI) {
         this.GUI = GUI;

@@ -62,7 +62,7 @@ public interface SessionChangedListener {
      * Called when the user changes the mode.
      * sessionModeChanged may be called by non-event thread.  Should handle with care in
      * all the listener.  Use EventThread for each GUI event.
-     * @param session
+     * @param mode
      */
     public void sessionModeChanged(Mode mode);
     

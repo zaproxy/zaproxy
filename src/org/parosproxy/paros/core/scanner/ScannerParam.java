@@ -54,9 +54,6 @@ public class ScannerParam extends AbstractParam {
 	private boolean targetParamsCookie = true;
 	*/
 
-    /**
-     * @param rootElementName
-     */
     public ScannerParam() {
     }
 
@@ -112,7 +109,7 @@ public class ScannerParam extends AbstractParam {
         return hostPerScan;
     }
     /**
-     * @param thread The thread to set.
+     * @param hostPerScan The thread to set.
      */
     public void setHostPerScan(int hostPerScan) {
         this.hostPerScan = hostPerScan;

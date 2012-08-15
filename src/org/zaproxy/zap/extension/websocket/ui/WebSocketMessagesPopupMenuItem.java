@@ -79,7 +79,7 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	/**
 	 * Which panel is allowed to show this popup item?
 	 * 
-	 * @return
+	 * @return Name of caller.
 	 */
 	abstract protected String getInvokerName();
 	
@@ -87,7 +87,7 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	 * More fine-grained control about enable-status of this item. Called by
 	 * {@link WebSocketMessagesPopupMenuItem#isEnableForComponent(Component)}.
 	 * 
-	 * @return
+	 * @return True
 	 */
 	protected boolean isEnabledExtended() {
 		return true;

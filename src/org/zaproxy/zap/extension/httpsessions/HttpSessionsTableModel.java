@@ -126,7 +126,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	/**
 	 * Cells are not editable.
 	 * 
-	 * @return
+	 * @return True if editable.
 	 */
 	@Override
 	public boolean isCellEditable(int row, int col) {

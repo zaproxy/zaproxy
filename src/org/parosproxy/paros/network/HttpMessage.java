@@ -186,7 +186,7 @@ public class HttpMessage implements Message {
 
 	/**
 	 * Get the request body of this message.
-	 * @return.  Null = response header not exist yet.
+	 * @return Null = response header not exist yet.
 	 */
 	public HttpRequestBody getRequestBody() {
 		return mReqBody;
@@ -261,7 +261,7 @@ public class HttpMessage implements Message {
 	/**
 	 * Compare if 2 message is the same.  2 messages are the same if:
 	 * Host, port, path and query param and VALUEs are the same.  For POST request, the body must be the same.
-	 * @param msg
+	 * @param object
 	 * @return
 	 */
 	@Override
@@ -670,7 +670,6 @@ public class HttpMessage implements Message {
     /**
      * Get the starting time when the request is going to be sent.  This is the System.currentTimeMillis before the message is sent.
      * The value is zero if the request is not sent yet.
-     * @param timeElapsed
      */
     public long getTimeSentMillis() {
         return timeSent;
@@ -682,20 +681,18 @@ public class HttpMessage implements Message {
     public void setTimeSentMillis(long timeSent) {
         this.timeSent = timeSent;
     }
-
-    /**
-     * @return Returns the tag.
-     */
+    
     /*
+     * @return Returns the tag.
+     *
     public String getTag() {
         return tag;
     }
     */
 
-    /**
-     * @param tag The tag to set.
-     */
     /*
+     * @param tag The tag to set.
+     *
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -825,8 +822,6 @@ public class HttpMessage implements Message {
 
 	/**
 	 * ZAP: New method checking for connection upgrade.
-	 * 
-	 * @param msg This message will contain the {@link SocketChannel} in {@link HttpMessage#getUserObject()} if it returns true.
 	 * 
 	 * @return True if this connection should be upgraded to WebSockets.
 	 */

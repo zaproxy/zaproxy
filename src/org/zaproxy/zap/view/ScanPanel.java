@@ -91,8 +91,10 @@ public abstract class ScanPanel extends AbstractPanel {
 	private static Logger log = Logger.getLogger(ScanPanel.class);
     
     /**
-     * @param ScanParam 
-     * 
+     * @param prefix
+     * @param icon
+     * @param extension
+     * @param scanParam
      */
     public ScanPanel(String prefix, ImageIcon icon, ExtensionAdaptor extension, AbstractParam scanParam) {
         super();

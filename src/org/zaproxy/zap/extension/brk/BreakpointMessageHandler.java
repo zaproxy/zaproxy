@@ -52,7 +52,7 @@ public class BreakpointMessageHandler {
      * 
      * @param aMessage
      * @param onlyIfInScope
-     * @return
+     * @return False if message should be dropped.
      */
     public boolean handleMessageReceivedFromClient(Message aMessage, boolean onlyIfInScope) {
         if ( ! isBreakpoint(aMessage, true, onlyIfInScope)) {
@@ -77,7 +77,7 @@ public class BreakpointMessageHandler {
      * 
      * @param aMessage
      * @param onlyIfInScope
-     * @return
+     * @return False if message should be dropped.
      */
     public boolean handleMessageReceivedFromServer(Message aMessage, boolean onlyIfInScope) {
         if (! isBreakpoint(aMessage, false, onlyIfInScope)) {
@@ -158,7 +158,7 @@ public class BreakpointMessageHandler {
      * @param aMessage
      * @param isRequest
      * @param onlyIfInScope
-     * @return
+     * @return True if a breakpoint for given message exists.
      */
     public boolean isBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
     	if (onlyIfInScope && ! aMessage.isInScope()) {

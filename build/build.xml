@@ -202,7 +202,8 @@
 		<javadoc packagenames="org.*"
 			sourcepath="${src}"
 			destdir="${javadocs.dir}"
-			windowTitle="OWASP Zed Attack Proxy">
+			windowTitle="OWASP Zed Attack Proxy"
+			classpathref="dist.classpath">
 		</javadoc>
 	</target>
 	

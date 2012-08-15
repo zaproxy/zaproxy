@@ -54,8 +54,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.x509.examples.AttrCertExample;
 import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
-
 
 /**
  * This is a singleton class. Use {@link #getService()} method to
@@ -70,8 +70,8 @@ import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
  * At least, Firefox v3.x does.
  *
  * @author MaWoKi
- * @see {@link org.bouncycastle.x509.examples.AttrCertExample} how to manage CAs and stuff
- * @see {@link CachedSslCertifificateServiceImpl} for a cached {@link SslCertificateService}
+ * @see AttrCertExample how to manage CAs and stuff
+ * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
 
