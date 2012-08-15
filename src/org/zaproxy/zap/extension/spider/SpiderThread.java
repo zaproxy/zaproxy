@@ -26,6 +26,7 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
@@ -333,6 +334,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		HistoryReference historyRef = null;
 		try {
 			historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			// // Use custom icon for robots.txt file
+			// if (msg.getRequestHeader().getURI().getPath().equalsIgnoreCase("/robots.txt"))
+			// historyRef.setCustomIcon("/resource/icon/10/189.png", false);
+
 			siteTree.addPath(historyRef, msg);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
