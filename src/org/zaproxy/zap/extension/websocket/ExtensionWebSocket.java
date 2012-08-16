@@ -85,8 +85,8 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
  
 /**
- * This extension adapter takes over after finishing
- * the HTTP based WebSockets handshake.
+ * The WebSockets-extension takes over after the HTTP based WebSockets handshake
+ * is finished.
  * 
  * @author Robert Koch
  */
@@ -146,9 +146,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 */
 	private Mode mode;
 	
-	/**
-	 * Constructor initializes this class.
-	 */
 	public ExtensionWebSocket() {
 		super();
 		allChannelObservers = new Vector<WebSocketObserver>();
@@ -194,10 +191,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	/**
 	 * Add an observer that is attached to every channel connected in future.
 	 * 
-	 * @param listener
+	 * @param observer
 	 */
-	public void addAllChannelObserver(WebSocketObserver listener) {
-		allChannelObservers.add(listener);
+	public void addAllChannelObserver(WebSocketObserver observer) {
+		allChannelObservers.add(observer);
 	}
 
 	/**
@@ -545,12 +542,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	/**
 	 * Returns false when either in {@link Mode#safe} or in {@link Mode#protect}
-	 * and the message is not in scope. Call it if you want to do "unsafe"
-	 * actions like changing payloads, catch breakpoints, send custom messages,
-	 * etc.
+	 * and the message's channel is not in scope. Call it if you want to do
+	 * "unsafe" actions like changing payloads, catch breakpoints, send custom
+	 * messages, etc.
 	 * 
 	 * @param message
-	 * @return True if operation on message isn't potentially dangerous.
+	 * @return True if operation on message is not potentially dangerous.
 	 */
 	public boolean isSafe(WebSocketMessageDTO message) {
 		if (mode.equals(Mode.safe)) {

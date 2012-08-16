@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -41,15 +40,13 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 
 /**
  * Intercepts WebSocket communication and forwards frames. Code is inspired by
- * the Monsoon project (http://code.google.com/p/monsoon/).
- * 
+ * the <a href="http://code.google.com/p/monsoon/">Monsoon</a> project.
+ * <p>
  * It is not based on Java's NIO features as with Monsoon, as the underlying
  * Paros Proxy is based on Sockets and I got huge problems when adding SSL
- * support when switching from {@link Socket} to {@link SocketChannel} in this
- * class.
- * 
+ * support when switching from Sockets to SocketChannels in this class.
  * Therefore each instance has got two threads that listen on each side for new
- * messages (blocking reads).
+ * messages (these are blocking reads).
  */
 public abstract class WebSocketProxy {
 	
@@ -64,11 +61,10 @@ public abstract class WebSocketProxy {
 	}
 	
 	/**
-	 * State of this channel, start in CONNECTING state and evolve over time.
-	 * Never set value to {@link State#EXCLUDED} or {@link State#INCLUDED}.
-	 * While observers are notified of these two extra-states, the internal
-	 * state is never set to one of these values. Moreover
-	 * {@link WebSocketProxy#state} is not exposed.
+	 * State of this channel, start in {@link State#CONNECTING} and evolve over
+	 * time. Never set value to {@link State#EXCLUDED} or {@link State#INCLUDED}
+	 * . While observers are notified of these two extra-states, the internal
+	 * state is never set to one of these two values.
 	 */
 	protected State state;
 	
@@ -83,7 +79,8 @@ public abstract class WebSocketProxy {
 	protected Timestamp end;
 
 	/**
-	 * Non-finished messages.
+	 * Non-finished messages are temporarily buffered. WebSocket messages are
+	 * allowed to consist of an arbitrary number of frames.
 	 */
 	protected HashMap<InputStream, WebSocketMessage> unfinishedMessages;
 
@@ -148,7 +145,7 @@ public abstract class WebSocketProxy {
 	private boolean isForwardOnly;
 
 	/**
-	 * Used to determine how to call WebSocketListener.
+	 * Used to determine when to call which {@link WebSocketObserver}.
 	 */
 	public static Comparator<WebSocketObserver> observersComparator;
 	
@@ -252,8 +249,8 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Registers both channels (local & remote) with the given selector,
-	 * that fires on read.
+	 * Start listening to the WebSocket-connection using threads from the given
+	 * pool. Read also buffered bytes from incoming connection (Server -> ZAP).
 	 * 
 	 * @param listenerThreadPool Thread pool is provided by {@link ExtensionWebSocket}.
 	 * @param remoteReader This {@link InputStream} that contained the handshake response.
@@ -348,7 +345,7 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Stop & close all resources, i.e.: threads, streams & sockets
+	 * Stop listening & close all resources, i.e.: threads, streams & sockets
 	 */
 	public void shutdown() {
 		setState(State.CLOSING);
@@ -390,7 +387,7 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * @return True if this proxies' state is {@link State#OPEN}
+	 * @return True if proxy's state is {@link State#OPEN}.
 	 */
 	public boolean isConnected() {
 		if (state != null && state.equals(State.OPEN)) {
@@ -400,8 +397,8 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * Read one frame from given input stream
-	 * and forward it to given output stream.
+	 * Read one frame from given input stream and forward it to given output
+	 * stream, if forwarding is allowed by WebSocket-observers.
 	 * 
 	 * @param in Here comes the frame.
 	 * @param out There should it be forwarded.
@@ -470,16 +467,16 @@ public abstract class WebSocketProxy {
 	}
 
 	/**
-	 * @param in {@link InputStream} to read bytes from.
+	 * @param in Read bytes from here.
 	 * @param frameHeader First byte of frame, containing FIN flag and opcode.
-	 * @return version specific WebSockets message
+	 * @return version specific WebSocket message
 	 * @throws IOException 
 	 */
 	protected abstract WebSocketMessage createWebSocketMessage(InputStream in, byte frameHeader) throws IOException;
 
 	/**
 	 * @param message Contains content to be used to create {@link WebSocketMessage}.
-	 * @return version specific WebSockets message, that is build upon given {@link WebSocketMessageDTO}
+	 * @return version specific WebSocket message, that is build upon given base-DTO
 	 * @throws WebSocketException
 	 */
 	protected abstract WebSocketMessage createWebSocketMessage(WebSocketMessageDTO message) throws WebSocketException;
@@ -533,14 +530,14 @@ public abstract class WebSocketProxy {
 	}
 	
 	/**
-	 * Call each observer. If one observer has told us to drop the message, then
-	 * they skip further notifications and return false.
+	 * Call each observer as long as no observer has told us to drop the message. Then
+	 * further notifications are skipped and false is returned.
 	 * <p>
 	 * Call this helper only when {@link WebSocketProxy#isForwardOnly} is set to
 	 * false.
 	 * 
 	 * @param message
-	 * @return True if message should be dropped.
+	 * @return False if message should be dropped.
 	 */
 	protected boolean notifyMessageObservers(WebSocketMessage message) {		
 		synchronized (observerList) {
@@ -560,7 +557,7 @@ public abstract class WebSocketProxy {
 	/**
 	 * Helper to inform about new {@link WebSocketProxy#state}. Also called when
 	 * a former {@link WebSocketProxy#isForwardOnly} channel is no longer
-	 * blacklisted.
+	 * blacklisted {@link State#INCLUDED} or vice-versa {@link State#EXCLUDED}.
 	 */
 	protected void notifyStateObservers(State state) {
 		synchronized (observerList) {

@@ -36,8 +36,7 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 	public Integer id;
 	
 	/**
-	 * Hostname, isn't necessarily the same as the
-	 * {@link WebSocketChannelDTO#url}.
+	 * Is not necessarily the same as the {@link WebSocketChannelDTO#url}.
 	 */
 	public String host;
 	
@@ -52,7 +51,7 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 	public String url;
 	
 	/**
-	 * Timestamp taken, when connection was established successfuly.
+	 * Timestamp taken, when connection was established successfully.
 	 */
 	public Long startTimestamp;
 	
@@ -74,6 +73,11 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		this.host = host;
 	}
 
+	/**
+	 * Determined upon {@link #startTimestamp} and {@link #endTimestamp}.
+	 * 
+	 * @return True if connection is still alive.
+	 */
 	public boolean isConnected() {
 		if (startTimestamp != null && endTimestamp == null) {
 			return true;
@@ -99,6 +103,9 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		return result;
 	}
 	
+	/**
+	 * @return Null or HTTP message containing handshake.
+	 */
 	public HistoryReference getHandshakeReference() {
 		if (historyId == null) {
 			return null;

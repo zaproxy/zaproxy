@@ -17,16 +17,25 @@
  */
 package org.zaproxy.zap.extension.websocket;
 
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 
 /**
- * Provides a callback mechanism to get notified of WebSocket messages. You can
- * add your observer via {@link WebSocketProxy#addObserver(WebSocketObserver)}.
+ * Provides a callback mechanism to get notified of WebSocket messages.
+ * <p>
+ * You can add your observer to a specific channel via
+ * {@link WebSocketProxy#addObserver(WebSocketObserver)}. Alternatively you can
+ * set up your observer for all channels, that come into existence in the
+ * future. Call either
+ * {@link ExtensionWebSocket#addAllChannelObserver(WebSocketObserver)} direct or
+ * use {@link ExtensionHook#addWebSocketObserver(WebSocketObserver)}.
+ * </p>
  */
 public interface WebSocketObserver {
 
 	/**
-	 * The lowest ordering value will receive the message first.
+	 * The observer with the lowest ordering value will receive the message
+	 * first.
 	 * 
 	 * @return observing order
 	 */
@@ -34,13 +43,16 @@ public interface WebSocketObserver {
 	
 	/**
 	 * Called by the observed class ({@link WebSocketProxy}) when a new part of
-	 * a message arrives. Use {@link WebSocketMessage#isFinished()} to determine
-	 * if it is ready to process. If false is returned, the given message part will
-	 * not be further processed (i.e. forwarded).
+	 * a message arrives.
+	 * <p>
+	 * Use {@link WebSocketMessage#isFinished()} to determine if it is ready to
+	 * process. If false is returned, the given message part will not be further
+	 * processed (i.e. forwarded).
 	 * 
 	 * @param channelId
 	 * @param message
-	 * @return Continue to notify and forward on True.
+	 *            contains message parts received so far
+	 * @return True for continuing to notify and forwarding message
 	 */
 	public boolean onMessageFrame(int channelId, WebSocketMessage message);
 	
@@ -51,7 +63,7 @@ public interface WebSocketObserver {
 	 * This state does not only represent all possible WebSocket connection
 	 * states, but also state changes that affect how messages are processed.
 	 * 
-	 * @param state
+	 * @param state new state
 	 * @param proxy
 	 */
 	public void onStateChange(State state, WebSocketProxy proxy);

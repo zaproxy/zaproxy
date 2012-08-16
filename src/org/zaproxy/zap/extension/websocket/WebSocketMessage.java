@@ -24,9 +24,11 @@ import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 
 /**
- * Represents a single WebSocket message, consisting out of at least one frame.
- * This class was created with sight on the WebSocketMessage class of the
- * Monsoon project (http://code.google.com/p/monsoon/).
+ * Represents a single WebSocket message, consisting of at least one frame.
+ * <p>
+ * This class was created with sight on the WebSocketMessage class of the <a
+ * href="http://code.google.com/p/monsoon/">Monsoon</a> project, although it is
+ * not based on Java's NIO features.
  */
 public abstract class WebSocketMessage {
 
@@ -70,6 +72,9 @@ public abstract class WebSocketMessage {
 	
 	// WebSocket OpCodes - int's are used instead of a enum's for extensibility.
 
+	/**
+	 * Either continuation for {@link #OPCODE_TEXT} or {@link #OPCODE_BINARY}.
+	 */
 	public static final int OPCODE_CONTINUATION = 0x0;
 	public static final int OPCODE_TEXT = 0x1;
 	public static final int OPCODE_BINARY = 0x2;
@@ -234,7 +239,7 @@ public abstract class WebSocketMessage {
 
 	/**
 	 * @param opcode
-	 * @return Returns true if this message contains binary content.
+	 * @return Returns true if given opcode stands for binary content.
 	 */
 	public static final boolean isBinary(int opcode) {
 		return opcode == OPCODE_BINARY;
@@ -249,7 +254,7 @@ public abstract class WebSocketMessage {
 
 	/**
 	 * @param opcode
-	 * @return Returns true if this message contains textual content.
+	 * @return Returns true if given opcode stands for textual content.
 	 */
 	public static final boolean isText(int opcode) {
 		return opcode == OPCODE_TEXT;
@@ -264,7 +269,7 @@ public abstract class WebSocketMessage {
 
 	/**
 	 * @param opcode
-	 * @return Returns true if this message represents a control message.
+	 * @return Returns true if given opcode represents a control message.
 	 */
 	public static final boolean isControl(int opcode) {
 		if (opcode >= 0x8 && opcode <= 0xF) {
@@ -414,7 +419,7 @@ public abstract class WebSocketMessage {
 	
 	/**
 	 * Returns either {@link Direction#INCOMING} if this message originated from
-	 * the browser, or {@link Direction#OUTGOING} if it came from server side.
+	 * server side, or {@link Direction#OUTGOING} if it came from the browser.
 	 * 
 	 * @return message flow indicator
 	 */

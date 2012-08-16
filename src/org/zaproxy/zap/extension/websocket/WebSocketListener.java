@@ -66,7 +66,7 @@ public class WebSocketListener implements Runnable {
 	 * @param wsProxy When a read has to be processed, it delegates it to this object.
 	 * @param in Read from one side.
 	 * @param out Write to the other side.
-	 * @param name Name of this thread, used for logging also.
+	 * @param name Name of this thread (used for logging too).
 	 */
 	public WebSocketListener(WebSocketProxy wsProxy, InputStream in, OutputStream out, String name) {
 		this.wsProxy = wsProxy;
@@ -75,6 +75,9 @@ public class WebSocketListener implements Runnable {
 		this.name = name;
 	}
 
+	/**
+	 * Start listening and process messages as long as the Socket is open.
+	 */
 	@Override
 	public void run() {
 		Thread.currentThread().setName(name);
@@ -134,6 +137,8 @@ public class WebSocketListener implements Runnable {
 	}
 
 	/**
+	 * Has this listener already stopped working?
+	 * 
 	 * @return True if listener stopped listening.
 	 */
 	public boolean isFinished() {
@@ -141,6 +146,8 @@ public class WebSocketListener implements Runnable {
 	}
 	
 	/**
+	 * Use this stream to send custom messages.
+	 * 
 	 * @return outgoing stream
 	 */
 	public OutputStream getOutputStream() {

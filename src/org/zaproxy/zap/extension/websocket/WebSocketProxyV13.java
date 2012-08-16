@@ -34,9 +34,9 @@ import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
 import org.zaproxy.zap.extension.websocket.utility.Utf8Util;
 
 /**
- * This proxy implements the WebSocket protocol version 13 as specified in
- * RFC6455. Code was inspired by the Monsoon project
- * (http://code.google.com/p/monsoon/).
+ * This proxy implements the WebSocket protocol version 13 as specified in <a
+ * href="http://tools.ietf.org/html/rfc6455">RFC6455</a>. Code was inspired by
+ * the <a href="http://code.google.com/p/monsoon/">Monsoon</a> project.
  */
 public class WebSocketProxyV13 extends WebSocketProxy {
 

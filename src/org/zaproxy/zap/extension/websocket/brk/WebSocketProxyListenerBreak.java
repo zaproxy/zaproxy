@@ -29,8 +29,10 @@ import org.zaproxy.zap.extension.websocket.WebSocketProxy;
 import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
+/**
+ * Gets notified about WebSocket messages and checks if breakpoint applies.
+ */
 public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
 	private static final Logger logger = Logger.getLogger(WebSocketProxyListenerBreak.class);

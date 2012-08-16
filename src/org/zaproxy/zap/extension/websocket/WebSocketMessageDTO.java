@@ -50,7 +50,7 @@ public class WebSocketMessageDTO implements Message {
 	public Long timestamp;
 
 	/**
-	 * When the message was finished (it might contain of several frames).
+	 * When the message was finished (it might consist of several frames).
 	 */
 	public String dateTime;
 
