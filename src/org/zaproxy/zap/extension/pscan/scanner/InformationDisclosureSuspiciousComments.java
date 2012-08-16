@@ -97,12 +97,12 @@ public class InformationDisclosureSuspiciousComments extends PluginPassiveScanne
 				}
 			}
 			if (todoComments.length() > 0) {
-				this.raiseAlert(msg, todoComments.toString());
+				this.raiseAlert(msg, id, todoComments.toString());
 			}
 		}
 	}
 	
-	private void raiseAlert(HttpMessage msg, String detail) {
+	private void raiseAlert(HttpMessage msg, int id, String detail) {
 		Alert alert = new Alert(getId(), Alert.RISK_INFO, Alert.WARNING, 
 		    	getName());
 		    	alert.setDetail(
@@ -115,7 +115,7 @@ public class InformationDisclosureSuspiciousComments extends PluginPassiveScanne
 		            "", 
 		            msg);
 	
-    	parent.raiseAlert(getId(), alert);
+    	parent.raiseAlert(id, alert);
 	}
 	
 	private List<Pattern> getPatterns() {
