@@ -30,7 +30,9 @@
 	<condition property="isWindows">
 		<os family="windows" />
 	</condition>
-
+	
+	<!-- svn command line -->
+	<property name="svn.cmd" value="svn" />
 
 	<path id="dist.classpath">
 		<!--pathelement location="."/-->
@@ -205,6 +207,15 @@
 			windowTitle="OWASP Zed Attack Proxy"
 			classpathref="dist.classpath">
 		</javadoc>
+		<!-- set mime-type such that HTML is returned by server -->
+		<exec executable="${svn.cmd}">
+			<arg value="propset" />
+			<arg value="svn:mime-type" />
+			<arg value="text/html" />
+			<arg value="${javadocs.dir}/org" />
+			<arg value="--recursive" />
+			<arg value="--quiet" />
+		</exec>
 	</target>
 	
 
