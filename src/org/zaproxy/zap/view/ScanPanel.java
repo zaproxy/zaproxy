@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -187,7 +188,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (panelToolbar == null) {
 			
 			panelToolbar = new javax.swing.JToolBar();
-			panelToolbar.setLayout(new java.awt.GridBagLayout());
+			panelToolbar.setLayout(new GridBagLayout());
 			panelToolbar.setEnabled(true);
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
@@ -224,28 +225,31 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	/**
-	 * Adds elements to the toolbar. The method is called while initializing the ScanPanel, at the
+	 * Adds elements to the tool bar. The method is called while initializing the ScanPanel, at the
 	 * points specified by the {@link Location} enumeration. Should be overridden by all subclasses
-	 * that want to add new elements to the ScanPanel's toolbar.
+	 * that want to add new elements to the ScanPanel's tool bar.
 	 * 
 	 * <p>
-	 * The toolbar is initialized with a GridLayout, so elements have to be added with a
-	 * GridBagLayout. For this, the getGBC() methods can be used. The {@literal gridX} parameter
-	 * specifies the cell (as used in GridLayoutBag.gridx) of the current row where the elements can
+	 * The tool bar uses a {@code GridBagLayout}, so elements have to be added with a
+	 * {@code GridBagConstraints}. For this, the {@code getGBC} methods can be used. The {@code gridX} parameter
+	 * specifies the cell (as used in {@code GridBagConstraints.gridx}) of the current row where the elements can
 	 * be added.
 	 * </p>
 	 * <p>
-	 * The method returns the new coordinates of the current cell, after the elements have been
-	 * added. Typically, it's value is {@literal code} + {@code number_of_elements_added}.
+	 * The method must return the new coordinates of the current cell, after the elements have been
+	 * added.
 	 * </p>
 	 * 
-	 * @param panelToolbar2 the toolbar
-	 * @param loc the current location where elements can be added
-	 * @param gridX the x coordinates of the current cell in the GridBagLayout
+	 * @param toolBar the tool bar
+	 * @param location the current location where elements will be added
+	 * @param gridX the x coordinates of the current cell in the {@code GridBagLayout}
 	 * @return the new coordinates of the current cell, after the elements have been added.
+	 * @see #getGBC(int, int)
+	 * @see #getGBC(int, int, double, Insets)
+	 * @see GridBagConstraints
+	 * @see GridBagLayout
 	 */
-	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int gridX) {
-		// Override to add elements into the toolbar
+	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
 		return gridX;
 	}
 

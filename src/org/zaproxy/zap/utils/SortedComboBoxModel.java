@@ -44,12 +44,17 @@ public class SortedComboBoxModel extends DefaultComboBoxModel {
 
 	@Override
 	public void addElement(Object element) {
-		int index = 0;
 		int size = getSize();
 
+		if (size == 0) {
+			super.addElement(element);
+			return;
+		}
+		
 		//  Determine where to insert element to keep list in sorted order
 
-		for (index = 0; index < size; index++)
+		int index = 0;
+		for (; index < size; index++)
 		{
 			@SuppressWarnings("unchecked")
 			Comparable<Object> c = (Comparable<Object>)getElementAt( index );

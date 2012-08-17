@@ -32,7 +32,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class SpiderTextParser extends SpiderParser {
 
 	/** The Constant urlPattern defining the pattern for an url. */
-	private static final Pattern patternURL = Pattern.compile("\\W(http://[^\\x00-\\x1f\"'\\s<>#]+)");
+	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
 
 	/* (non-Javadoc)
 	 * 

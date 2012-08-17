@@ -626,6 +626,7 @@ public class HttpRequestHeader extends HttpHeader {
 	 * Gets a list of the http cookies from this request Header.
 	 * 
 	 * @return the http cookies
+	 * @throws IllegalArgumentException if a problem is encountered while processing the "Cookie: " header line.
 	 */
 	public List<HttpCookie> getHttpCookies() {
 		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
@@ -635,13 +636,11 @@ public class HttpRequestHeader extends HttpHeader {
 		if (cookiesS != null)
 			for (String cookieLine : cookiesS) {
 				String[] array = cookieLine.split(";");
-				if (array == null || array.length == 0) {
-					throw new IllegalArgumentException("Empty cookie line: " + cookieLine);
-				}
 				for (String cookieString : array) {
 					int eqOffset = cookieString.indexOf("=");
 					if (eqOffset <= 0) {
-						throw new IllegalArgumentException("No '=' in cookie line: " + cookieLine);
+						throw new IllegalArgumentException(
+								"Wrong format for cookie line. '=' not found or cookie name not found: " + cookieLine);
 					}
 					String name = cookieString.substring(0, eqOffset).trim();
 					String value = cookieString.substring(eqOffset + 1).trim();

@@ -17,6 +17,7 @@
 
 package org.zaproxy.zap.spider.parser;
 
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import net.htmlparser.jericho.Source;
@@ -90,7 +91,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
 
 			// If the line is for defining the user agent
 			if (line.matches(PATTERNS_USERAGENT)) {
-				String ua = line.substring(PATTERNS_USERAGENT_LENGTH).trim().toLowerCase();
+				String ua = line.substring(PATTERNS_USERAGENT_LENGTH).trim().toLowerCase(Locale.ENGLISH);
 				if (ua.equals("*") || ua.contains(Constant.USER_AGENT)) {
 					log.debug("Parsing robots.txt file. Starting section applying to spider.");
 					inMatchingUserAgent = true;

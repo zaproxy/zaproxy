@@ -56,7 +56,7 @@ public class SpiderController implements SpiderParserListener {
 	/** The parsers for HTML files. */
 	private List<SpiderParser> htmlParsers;
 
-	/** The text parsers. Initialized dinamically, only if needed. */
+	/** The text parsers. Initialized dynamically, only if needed. */
 	private List<SpiderParser> txtParsers;
 
 	/** The spider. */

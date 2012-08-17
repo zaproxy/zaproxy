@@ -225,10 +225,12 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * @see org.zaproxy.zap.view.ScanPanel#addToolBarElements(javax.swing.JToolBar,
 	 * org.zaproxy.zap.view.ScanPanel.Location, int) */
 	@Override
-	protected int addToolBarElements(JToolBar panelToolbar2, Location loc, int x) {
-		panelToolbar2.add(getFoundCountNameLabel(), getGBC(x++, 0, 0, new Insets(0, 5, 0, 0)));
-		panelToolbar2.add(getFoundCountValueLabel(), getGBC(x++, 0));
-		return x + 2;
+	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
+		if (ScanPanel.Location.afterProgressBar == location) {
+			toolBar.add(getFoundCountNameLabel(), getGBC(gridX++, 0, 0, new Insets(0, 5, 0, 0)));
+			toolBar.add(getFoundCountValueLabel(), getGBC(gridX++, 0));
+		}
+		return gridX;
 	}
 
 	/**

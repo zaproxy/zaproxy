@@ -85,7 +85,7 @@ public final class Constant {
     private static final long VERSION_TAG = 1004001;
     
     // Old version numbers - for upgrade
-	private static final long V_1_4_1_TAG = 1004000;
+	private static final long V_1_4_1_TAG = 1004001;
     private static final long V_1_3_1_TAG = 1003001;
 	private static final long V_1_3_0_TAG = 1003000;
     private static final long V_1_2_1_TAG = 1002001;
@@ -346,6 +346,8 @@ public final class Constant {
 	            	if (ver <= V_1_3_1_TAG) {
 	            		// Nothing to do
 	            	}
+					// TODO: If a new version is released before the release of the spider, this
+					// final version has to be updated below.
 	            	if (ver <= V_1_4_1_TAG) {
 	            		upgradeFrom1_4_1(config);
 	            	}
@@ -429,11 +431,7 @@ public final class Constant {
         copyProperty(newConfig, config, "view.showMainToolbar");
 	}
     
-    private void upgradeFrom1_4_1(XMLConfiguration config) throws ConfigurationException {
-//        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-//        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
-//        newConfig.setAutoSave(false);
-
+    private void upgradeFrom1_4_1(XMLConfiguration config) {
 		// As the POST_FORM option for the spider has been updated from int to boolean, keep
 		// compatibility for old versions
 		if (!config.getProperty("spider.postform").toString().equals("0")) {

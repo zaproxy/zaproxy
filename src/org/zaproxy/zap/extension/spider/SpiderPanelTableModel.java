@@ -19,7 +19,6 @@ package org.zaproxy.zap.extension.spider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
@@ -34,11 +33,14 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -6380136823410869457L;
 
-	/** The Constant defining the COLUMN COUNT. */
-	private static final int COLUMN_COUNT = 4;
-
 	/** The column names. */
-	private final Vector<String> columnNames;
+	private static final String[] COLUMN_NAMES = { Constant.messages.getString("spider.table.header.inScope"),
+			Constant.messages.getString("spider.table.header.method"),
+			Constant.messages.getString("spider.table.header.uri"),
+			Constant.messages.getString("spider.table.header.flags") };
+
+	/** The Constant defining the COLUMN COUNT. */
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
 	/** The Spider scan results. */
 	private List<SpiderScanResult> scanResults;
@@ -59,13 +61,13 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 */
 	public SpiderPanelTableModel() {
 		super();
-		columnNames = new Vector<String>(COLUMN_COUNT);
-		columnNames.add(Constant.messages.getString("spider.table.header.inScope"));
-		columnNames.add(Constant.messages.getString("spider.table.header.method"));
-		columnNames.add(Constant.messages.getString("spider.table.header.uri"));
-		columnNames.add(Constant.messages.getString("spider.table.header.flags"));
 
 		scanResults = new ArrayList<SpiderScanResult>();
+	}
+
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
@@ -92,15 +94,11 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		case 2:
 			return result.uri;
 		case 3:
+			// TODO: Internationalize flags
 			return result.flags;
 		default:
 			return null;
 		}
-	}
-
-	@Override
-	public String getColumnName(int column) {
-		return columnNames.get(column);
 	}
 
 	/**
@@ -153,7 +151,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 * @return the column class
 	 */
 	@Override
-	public Class<? extends Object> getColumnClass(int columnIndex) {
+	public Class<?> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
 			return ImageIcon.class;
@@ -171,7 +169,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 * The Class SpiderScanResult that stores an entry in the table (a result for the spidering
 	 * process).
 	 */
-	private class SpiderScanResult {
+	private static class SpiderScanResult {
 
 		/** The uri. */
 		protected String uri;

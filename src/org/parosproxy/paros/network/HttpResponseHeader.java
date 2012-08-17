@@ -23,8 +23,6 @@
 // Moved to this class the method getCookieParams().
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 // ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
-// ZAP: 2012/06/24 Added new method of getting cookies from the request header.
-// ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
 // ZAP: 2012/08/06 Modified isText() to also consider javascript as text 
 package org.parosproxy.paros.network;
 

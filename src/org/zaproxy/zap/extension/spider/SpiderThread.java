@@ -26,7 +26,6 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;

@@ -20,7 +20,6 @@ package org.zaproxy.zap.spider;
 import java.io.IOException;
 import java.net.CookieStore;
 import java.net.HttpCookie;
-import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
@@ -163,10 +162,12 @@ public class SpiderTask implements Runnable {
 		// Check if the should stop
 		if (parent.isStopped()) {
 			log.debug("Spider process is stopped. Skipping crawling task...");
+			parent.postTaskExecution();
 			return;
 		}
 		if (reference == null) {
 			log.warn("Null URI. Skipping crawling task: " + this);
+			parent.postTaskExecution();
 			return;
 		}
 
@@ -178,13 +179,15 @@ public class SpiderTask implements Runnable {
 		try {
 			msg = fetchResource();
 		} catch (Exception e) {
-			log.error("An error occured while fetching resoure: " + e.getMessage(), e);
+			log.error("An error occured while fetching the resource: " + e.getMessage(), e);
+			parent.postTaskExecution();
 			return;
 		}
 
 		// Check if the should stop
 		if (parent.isStopped()) {
 			log.debug("Spider process is stopped. Skipping crawling task...");
+			parent.postTaskExecution();
 			return;
 		}
 		// Check if the crawling process is paused
@@ -207,6 +210,7 @@ public class SpiderTask implements Runnable {
 		// Check if the should stop
 		if (parent.isStopped()) {
 			log.debug("Spider process is stopped. Skipping crawling task...");
+			parent.postTaskExecution();
 			return;
 		}
 		// Check if the crawling process is paused
@@ -259,16 +263,19 @@ public class SpiderTask implements Runnable {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws SQLException
 	 */
-	private HttpMessage fetchResource() throws HttpException, IOException, SQLException, SocketTimeoutException {
+	private HttpMessage fetchResource() throws HttpException, IOException, SQLException {
 
 		// Build fetch the request message from the database
 		HttpMessage msg;
-		msg = reference.getHttpMessage();
+		try {
+			msg = reference.getHttpMessage();
+		} finally {
+			// Remove the history reference from the database, as it's not used anymore
+			reference.delete();
+		}
+		
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-
-		// Remove the history reference from the database, as it's not used anymore
-		reference.delete();
 
 		// Check if there is a custom user agent
 		if (parent.getSpiderParam().getUserAgent() != null)
