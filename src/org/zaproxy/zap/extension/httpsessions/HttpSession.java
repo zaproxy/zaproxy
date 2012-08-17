@@ -169,7 +169,7 @@ public class HttpSession {
 		StringBuilder buf = new StringBuilder();
 
 		for (Map.Entry<String, String> entry : tokenValues.entrySet())
-			buf.append(entry.getKey() + "=" + entry.getValue() + ";");
+			buf.append(entry.getKey()).append('=').append(entry.getValue()).append(';');
 		buf.deleteCharAt(buf.length() - 1);
 
 		return buf.toString();

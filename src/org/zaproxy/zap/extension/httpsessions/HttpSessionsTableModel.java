@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
@@ -34,11 +33,14 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -6380136823410869457L;
 
-	/** The Constant defining the COLUMN COUNT. */
-	private static final int COLUMN_COUNT = 4;
-
 	/** The column names. */
-	private final Vector<String> columnNames;
+	private static final String[] COLUMN_NAMES = { Constant.messages.getString("httpsessions.table.header.active"),
+			Constant.messages.getString("httpsessions.table.header.name"),
+			Constant.messages.getString("httpsessions.table.header.tokens"),
+			Constant.messages.getString("httpsessions.table.header.matched") };
+
+	/** The Constant defining the COLUMN COUNT. */
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
 	/** The http sessions. */
 	private List<HttpSession> sessions;
@@ -54,18 +56,27 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 */
 	public HttpSessionsTableModel() {
 		super();
-		columnNames = new Vector<String>(COLUMN_COUNT);
-		columnNames.add(Constant.messages.getString("httpsessions.table.header.active"));
-		columnNames.add(Constant.messages.getString("httpsessions.table.header.name"));
-		columnNames.add(Constant.messages.getString("httpsessions.table.header.tokens"));
-		columnNames.add(Constant.messages.getString("httpsessions.table.header.matched"));
 
-		sessions = Collections.synchronizedList(new ArrayList<HttpSession>());
+		sessions = createEmptySessionsList();
+	}
+
+	/**
+	 * Creates a new empty sessions list.
+	 * 
+	 * @return the list
+	 */
+	private List<HttpSession> createEmptySessionsList() {
+		return Collections.synchronizedList(new ArrayList<HttpSession>(2));
 	}
 
 	@Override
 	public int getColumnCount() {
 		return COLUMN_COUNT;
+	}
+
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
@@ -98,16 +109,16 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		}
 	}
 
-	@Override
-	public String getColumnName(int column) {
-		return columnNames.get(column);
-	}
-
 	/**
 	 * Removes all the elements.
 	 */
 	public void removeAllElements() {
 		sessions.clear();
+		// When all the elements are removed a new list is created because the ArrayList doesn't
+		// shrink automatically. The method ArrayList.trimToSize() would have to be called, but as
+		// it is behind a synchronized list there is no direct access to it, so a
+		// new one is created.
+		sessions = createEmptySessionsList();
 		fireTableDataChanged();
 	}
 
@@ -120,13 +131,16 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		if (sessions.contains(session))
 			return;
 		sessions.add(session);
-		fireTableRowsInserted(sessions.size() - 1, sessions.size() - 1);
+		final int affectedRow = sessions.size() - 1;
+		fireTableRowsInserted(affectedRow, affectedRow);
 	}
 
 	/**
-	 * Cells are not editable.
+	 * All cells besides the ones in the second column ("Session name") are not editable.
 	 * 
-	 * @return True if editable.
+	 * @param row the row
+	 * @param col the column
+	 * @return true, if is cell is editable
 	 */
 	@Override
 	public boolean isCellEditable(int row, int col) {
@@ -141,7 +155,6 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		// Allow change only for the name column
 		if (columnIndex == 1) {
 			sessions.get(rowIndex).setName((String) aValue);
-			super.setValueAt(aValue, rowIndex, columnIndex);
 		}
 	}
 
@@ -152,7 +165,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * @return the column class
 	 */
 	@Override
-	public Class<? extends Object> getColumnClass(int columnIndex) {
+	public Class<?> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
 			return ImageIcon.class;

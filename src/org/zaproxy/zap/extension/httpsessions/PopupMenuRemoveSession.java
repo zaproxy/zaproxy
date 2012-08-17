@@ -40,17 +40,8 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 	 * Instantiates a new popup menu used to delete a session.
 	 */
 	public PopupMenuRemoveSession() {
-		super();
+		super(Constant.messages.getString("httpsessions.popup.session.remove"));
 		initialize();
-	}
-
-	/**
-	 * Instantiates a new popup menu used to delete a http session.
-	 * 
-	 * @param label the label
-	 */
-	public PopupMenuRemoveSession(String label) {
-		super(label);
 	}
 
 	/**
@@ -66,7 +57,6 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 	 * Initialize the popup menu.
 	 */
 	private void initialize() {
-		this.setText(Constant.messages.getString("httpsessions.popup.session.remove"));
 		this.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {

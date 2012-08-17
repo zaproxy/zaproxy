@@ -40,17 +40,8 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 	 * Instantiates a new popup menu used to set active session.
 	 */
 	public PopupMenuSetActiveSession() {
-		super();
+		super(Constant.messages.getString("httpsessions.popup.session.active.set"));
 		initialize();
-	}
-
-	/**
-	 * Instantiates a new popup menu used to set the active http session.
-	 * 
-	 * @param label the label
-	 */
-	public PopupMenuSetActiveSession(String label) {
-		super(label);
 	}
 
 	/**
@@ -66,7 +57,6 @@ public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 	 * Initialize the popup menu.
 	 */
 	private void initialize() {
-		this.setText(Constant.messages.getString("httpsessions.popup.session.active.set"));
 		this.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {

@@ -40,17 +40,8 @@ public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 	 * Instantiates a new popup menu used to unset active session.
 	 */
 	public PopupMenuUnsetActiveSession() {
-		super();
+		super(Constant.messages.getString("httpsessions.popup.session.active.unset"));
 		initialize();
-	}
-
-	/**
-	 * Instantiates a new popup menu used to unset the active http session.
-	 * 
-	 * @param label the label
-	 */
-	public PopupMenuUnsetActiveSession(String label) {
-		super(label);
 	}
 
 	/**
@@ -66,7 +57,6 @@ public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 	 * Initialize the popup menu.
 	 */
 	private void initialize() {
-		this.setText(Constant.messages.getString("httpsessions.popup.session.active.unset"));
 		this.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {

@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,6 @@ public class ExtensionParams extends ExtensionAdaptor
 
 	public static final String NAME = "ExtensionParams"; 
 	private ParamsPanel paramsPanel = null;
-	private Set<String> stdSessionParamNames = null;
 	private PopupMenuParamSearch popupMenuSearch = null;
 	private PopupMenuAddAntiCSRF popupMenuAddAntiCsrf = null;
 	private PopupMenuRemoveAntiCSRF popupMenuRemoveAntiCsrf = null;
@@ -347,16 +345,6 @@ public class ExtensionParams extends ExtensionAdaptor
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getParamsPanel().nodeSelected(node);
-	}
-	
-	public Set<String> getStdSessionParamNames() {
-		if (this.stdSessionParamNames == null) {
-			this.stdSessionParamNames = new HashSet<String>();
-			// All lowercase
-			// TODO add the rest, or read from configs?
-			this.stdSessionParamNames.add("jsessionid");
-		}
-		return stdSessionParamNames;
 	}
 	
 	protected void searchForSelectedParam() {

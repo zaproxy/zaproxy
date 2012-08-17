@@ -19,12 +19,15 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -32,7 +35,6 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -46,6 +48,19 @@ import org.zaproxy.zap.view.SiteMapListener;
  * The HttpSessions Extension handles the existing http sessions on the existing site. It allows the
  * management and usage of multiple sessions per site and also handles the session tokens for each
  * of them.
+ * 
+ * <p>
+ * Whenever referring to a particular site, the string that is identifying it is constructed from
+ * the site's URI and has to follow these rules:
+ * <ul>
+ * <li>no leading protocol (e.g. 'http'), colon (':') and double slashes ('//')</li>
+ * <li>the port is added in the end after colon</li>
+ * <li>lower-case</li>
+ * </ul>
+ * An example of a method performing these changes on an URI can be found in {@link ScanPanel},
+ * {@code cleanSiteName} method.
+ * </p>
+ * 
  */
 public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, SiteMapListener,
 		HttpSenderListener {
@@ -63,13 +78,13 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	private OptionsHttpSessionsPanel optionsHttpSessionsPanel;
 
 	/** The map of sessions corresponding to each site. */
-	Map<String, HttpSessionsSite> sessions;
+	private Map<String, HttpSessionsSite> sessions;
 
 	/** The map of session tokens corresponding to each site. */
-	Map<String, LinkedHashSet<String>> sessionTokens;
+	private Map<String, LinkedHashSet<String>> sessionTokens;
 
 	/** The http sessions extension's parameters. */
-	HttpSessionsParam param;
+	private HttpSessionsParam param;
 
 	/** The popup menu used to set the active session. */
 	private PopupMenuSetActiveSession popupMenuSetActiveSession;
@@ -84,7 +99,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Instantiates a new extension http sessions.
 	 */
 	public ExtensionHttpSessions() {
-		super();
+		super(NAME);
 		initialize();
 	}
 
@@ -93,8 +108,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 */
 	private void initialize() {
 		this.setOrder(68);
-		this.setName(NAME);
-		this.sessionTokens = new HashMap<String, LinkedHashSet<String>>();
 	}
 
 	/* (non-Javadoc)
@@ -127,12 +140,23 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/* (non-Javadoc)
 	 * 
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#init() */
+	@Override
+	public void init() {
+		super.init();
+		this.sessionTokens = new HashMap<String, LinkedHashSet<String>>();
+	}
+
+	/* (non-Javadoc)
+	 * 
 	 * @see
 	 * org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook
 	 * ) */
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
+
+		extensionHook.addOptionsParamSet(getParam());
 
 		extensionHook.addSessionListener(this);
 		extensionHook.addSiteMapListner(this);
@@ -209,7 +233,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 */
 	public HttpSessionsParam getParam() {
 		if (param == null) {
-			param = Model.getSingleton().getOptionsParam().getHttpSessionsParam();
+			param = new HttpSessionsParam();
 		}
 		return param;
 	}
@@ -223,7 +247,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @return true, if it is a default session token
 	 */
 	public boolean isDefaultSessionToken(String token) {
-		if (getParam().getDefaultTokens().contains(token.toLowerCase()))
+		if (getParam().getDefaultTokens().contains(token.toLowerCase(Locale.ENGLISH)))
 			return true;
 		return false;
 	}
@@ -232,7 +256,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Checks if a particular token is a session token name for a particular site. The check is
 	 * being performed in a lower-case manner, as session tokens are case-insensitive.
 	 * 
-	 * @param site the site
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
 	 * @param token the token
 	 * @return true, if it is session token
 	 */
@@ -240,14 +265,15 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null)
 			return false;
-		return siteTokens.contains(token.toLowerCase());
+		return siteTokens.contains(token.toLowerCase(Locale.ENGLISH));
 	}
 
 	/**
 	 * Adds a new session token for a particular site. The session tokens are case-insensitive, so
 	 * this token will be added lower cased.
 	 * 
-	 * @param site the site
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
 	 * @param token the token
 	 */
 	public void addHttpSessionToken(String site, String token) {
@@ -257,17 +283,18 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			sessionTokens.put(site, siteTokens);
 		}
 		log.info("Added new session token for site '" + site + "': " + token);
-		siteTokens.add(token.toLowerCase());
+		siteTokens.add(token.toLowerCase(Locale.ENGLISH));
 	}
 
 	/**
 	 * Removes a particular session token for a site.
 	 * 
-	 * @param site the site
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
 	 * @param token the token
 	 */
 	public void removeHttpSessionToken(String site, String token) {
-		token = token.toLowerCase();
+		token = token.toLowerCase(Locale.ENGLISH);
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens != null) {
 			// Remove the tokens from the tokens associated with the site
@@ -284,16 +311,19 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Gets the set of session tokens for a particular site. The session tokens are case-insensitive
 	 * and are returned lower-cased.
 	 * <p>
-	 * The internal set of session tokens is returned, so no modifications should be done on the
-	 * Session Tokens.
+	 * The set of session tokens returned is read-only view of the internal session tokens and any
+	 * modifications will result in {@link UnsupportedOperationException}. The current
+	 * implementation of the set is using {@link LinkedHashSet}, thus iterating through the set is
+	 * done in constant time.
 	 * </p>
 	 * 
-	 * @param site the site
-	 * @return the session tokens set, if any have been set, or null, if there are no session tokens
-	 *         for this site
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
+	 * @return the read-only session tokens set, if any have been set, or null, if there are no
+	 *         session tokens for this site
 	 */
-	public final LinkedHashSet<String> getHttpSessionTokens(String site) {
-		return sessionTokens.get(site);
+	public final Set<String> getHttpSessionTokens(String site) {
+		return Collections.unmodifiableSet(sessionTokens.get(site));
 	}
 
 	/**
@@ -311,7 +341,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/**
 	 * Gets the http sessions for a particular site. If it doesn't exist, it is created.
 	 * 
-	 * @param site the site
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
 	 * @return the http sessions site container
 	 */
 	protected HttpSessionsSite getHttpSessionsSite(String site) {
@@ -342,7 +373,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * .model.Session) */
 	@Override
 	public void sessionChanged(Session session) {
-		log.info("Session changed.");
 	}
 
 	/* (non-Javadoc)
@@ -352,7 +382,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * .paros.model.Session) */
 	@Override
 	public void sessionAboutToChange(Session session) {
-		log.info("Session about to change.");
 	}
 
 	/* (non-Javadoc)
@@ -373,11 +402,19 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	public void sessionModeChanged(Mode mode) {
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.zaproxy.zap.network.HttpSenderListener#getListenerOrder() */
 	@Override
 	public int getListenerOrder() {
 		return 1;
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see
+	 * org.zaproxy.zap.network.HttpSenderListener#onHttpRequestSend(org.parosproxy.paros.network
+	 * .HttpMessage, int) */
 	@Override
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
@@ -398,6 +435,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		session.processHttpRequestMessage(msg);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see
+	 * org.zaproxy.zap.network.HttpSenderListener#onHttpResponseReceive(org.parosproxy.paros.network
+	 * .HttpMessage, int) */
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
@@ -418,8 +460,13 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		sessionsSite.processHttpResponseMessage(msg);
 	}
 
+	/* (non-Javadoc)
+	 * 
+	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDependencies() */
 	@Override
 	public List<Class<?>> getDependencies() {
+		// TODO: The dependency can be removed if the default tokens are processed
+		// by this extension.
 		// Add the ExtensionParams as a dependency
 		List<Class<?>> dependencies = new LinkedList<Class<?>>();
 		dependencies.add(ExtensionParams.class);

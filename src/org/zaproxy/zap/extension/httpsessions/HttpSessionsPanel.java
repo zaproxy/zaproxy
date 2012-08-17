@@ -23,6 +23,8 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -39,7 +41,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -164,9 +165,8 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JButton getNewSessionButton() {
 		if (newSessionButton == null) {
 			newSessionButton = new JButton();
-			newSessionButton.setText("New Session");
 			newSessionButton.setText(Constant.messages.getString("httpsessions.toolbar.newsession.label"));
-			newSessionButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/103.png")));
+			newSessionButton.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/103.png")));
 			newSessionButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.newsession.tooltip"));
 
 			newSessionButton.addActionListener(new ActionListener() {
@@ -264,9 +264,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 	}
 
 	/**
-	 * Sets the params table column sizes.
+	 * Sets the sessions table column sizes.
 	 */
-	private void setParamsTableColumnSizes() {
+	private void setSessionsTableColumnSizes() {
 
 		sessionsTable.getColumnModel().getColumn(0).setMinWidth(60);
 		sessionsTable.getColumnModel().getColumn(0).setMaxWidth(80);
@@ -295,7 +295,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			sessionsTable.setRowSelectionAllowed(true);
 			sessionsTable.setAutoCreateRowSorter(true);
 
-			this.setParamsTableColumnSizes();
+			this.setSessionsTableColumnSizes();
 
 			sessionsTable.setName(PANEL_NAME);
 			sessionsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
@@ -335,20 +335,19 @@ public class HttpSessionsPanel extends AbstractPanel {
 			siteSelect.addItem(Constant.messages.getString("httpsessions.toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 
-			// Add the action listener for when the site is selected
-			siteSelect.addActionListener(new java.awt.event.ActionListener() {
+			// Add the item listener for when the site is selected
+			siteSelect.addItemListener(new ItemListener() {
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+				public void itemStateChanged(ItemEvent e) {
+					if (ItemEvent.SELECTED == e.getStateChange()) {
+						if (siteSelect.getSelectedIndex() > 0) {
+							siteSelected((String) e.getItem());
 
-					String item = (String) siteSelect.getSelectedItem();
-					if (item != null && siteSelect.getSelectedIndex() > 0) {
-						siteSelected(item);
-
-					} // If the user selects the first option (empty one), force the selection to
-						// the first valid site
-					else if (siteSelect.getModel().getSize() > 1) {
-						siteSelect.setSelectedIndex(1);
-						this.actionPerformed(e);
+						} // If the user selects the first option (empty one), force the selection to
+							// the first valid site
+						else if (siteModel.getSize() > 1) {
+							siteModel.setSelectedItem(siteModel.getElementAt(1));
+						}
 					}
 				}
 			});
@@ -364,10 +363,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 	public void addSite(String site) {
 		if (siteModel.getIndexOf(site) < 0) {
 			siteModel.addElement(site);
-			if (siteModel.getSize() == 2 && currentSite == null) {
+			if (currentSite == null) {
 				// First site added, automatically select it
-				this.getSiteSelect().setSelectedIndex(1);
-				siteSelected(site);
+				siteModel.setSelectedItem(site);
 			}
 		}
 	}
@@ -378,14 +376,11 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 * @param site the site
 	 */
 	private void siteSelected(String site) {
-		site = ScanPanel.cleanSiteName(site, true);
 		if (!site.equals(currentSite)) {
-			siteModel.setSelectedItem(site);
-
 			this.sessionsModel = extension.getHttpSessionsSite(site).getModel();
 			this.getHttpSessionsTable().setModel(this.sessionsModel);
 
-			this.setParamsTableColumnSizes();
+			this.setSessionsTableColumnSizes();
 
 			currentSite = site;
 		}
@@ -398,7 +393,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 */
 	public void nodeSelected(SiteNode node) {
 		if (node != null) {
-			siteSelected(ScanPanel.cleanSiteName(node, true));
+			siteModel.setSelectedItem(ScanPanel.cleanSiteName(node, true));
 		}
 	}
 
@@ -409,14 +404,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 		currentSite = null;
 
 		siteModel.removeAllElements();
-		siteSelect.addItem(Constant.messages.getString("httpsessions.toolbar.site.select"));
-		siteSelect.setSelectedIndex(0);
+		siteModel.addElement(Constant.messages.getString("httpsessions.toolbar.site.select"));
 
 		sessionsModel.removeAllElements();
-		sessionsModel.fireTableDataChanged();
-
-		sessionsTable.setModel(sessionsModel);
-
 	}
 
 	/**
@@ -436,6 +426,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 * @return the selected session, or null if nothing is selected
 	 */
 	public HttpSession getSelectedSession() {
-		return this.sessionsModel.getHttpSessionAt(this.sessionsTable.getSelectedRow());
+		final int rowIndex = sessionsTable.convertRowIndexToModel(this.sessionsTable.getSelectedRow());
+		return this.sessionsModel.getHttpSessionAt(rowIndex);
 	}
 }

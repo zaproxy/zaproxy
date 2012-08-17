@@ -29,7 +29,6 @@
 // ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
 // getDatabaseParam() and changed the method parse() to also load the database
 // configurations.
-// ZAP: 2012/08/06 Changed the SessionParam to HttpSessionsParam and some other related refactorings 
 
 package org.parosproxy.paros.model;
 
@@ -46,7 +45,6 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
-import org.zaproxy.zap.extension.httpsessions.HttpSessionsParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
@@ -79,8 +77,6 @@ public class OptionsParam extends AbstractParam {
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
-	// ZAP: Added parameters for Http Sessions
-	private HttpSessionsParam sessionParam = new HttpSessionsParam();
 	
     /**
      * The database configurations.
@@ -202,9 +198,6 @@ public class OptionsParam extends AbstractParam {
 		getApiParam().load(getConfig());
 		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
-		getHttpSessionsParam().load(getConfig());
-        // ZAP: Added the statement.
-        getWebSocketParam().load(getConfig());
         // ZAP: Added the statement.
         getWebSocketParam().load(getConfig());
 		// ZAP: Added the statement.
@@ -283,10 +276,6 @@ public class OptionsParam extends AbstractParam {
 		return experimentalFeatuesParam;
 	}
 
-	public HttpSessionsParam getHttpSessionsParam() {
-		return sessionParam;
-	}
-	
 	public BruteForceParam getBruteForceParam() {
 		return bruteForceParam;
 	}

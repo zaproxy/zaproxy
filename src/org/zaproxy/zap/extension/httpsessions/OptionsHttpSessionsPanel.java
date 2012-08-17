@@ -113,7 +113,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 		// Initialize the default token names
 		OptionsParam optionsParam = (OptionsParam) obj;
-		HttpSessionsParam param = optionsParam.getHttpSessionsParam();
+		HttpSessionsParam param = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
 		getDefaultTokensModel().setTokens(param.getDefaultTokens());
 		getChkProxyOnly().setSelected(param.isEnabledProxyOnly());
 	}
@@ -131,7 +131,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam optionsParam = (OptionsParam) obj;
-		HttpSessionsParam sessionParam = optionsParam.getHttpSessionsParam();
+		HttpSessionsParam sessionParam = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
 		sessionParam.setDefaultTokens(getDefaultTokensModel().getTokens());
 		sessionParam.setEnabledProxyOnly(getChkProxyOnly().isSelected());
 	}

@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.ConversionException;
@@ -39,7 +40,7 @@ public class HttpSessionsParam extends AbstractParam {
 	/** The Constant PROXY_ONLY_KEY defining the key for the enabledProxyOnly option. */
 	private static final String PROXY_ONLY_KEY = "httpsessions.proxyOnly";
 
-	/** The default tokens used when there are no saved tokens in the file.. */
+	/** The default tokens used when there are no saved tokens in the file. */
 	private static final String[] DEFAULT_TOKENS = { "asp.net_sessionid", "aspsessionid", "siteserver", "cfid",
 			"cftoken", "jsessionid", "phpsessid", "sessid", "sid", "viewstate", "zenid" };
 
@@ -83,12 +84,17 @@ public class HttpSessionsParam extends AbstractParam {
 	}
 
 	/**
-	 * Gets the default tokens. The returned list should not be modified.
+	 * Gets the default tokens. *
+	 * <p>
+	 * The list of default session tokens returned is read-only view of the internal default session
+	 * tokens representation and any modifications will result in
+	 * {@link UnsupportedOperationException}.
+	 * </p>
 	 * 
 	 * @return the default tokens
 	 */
 	public final List<String> getDefaultTokens() {
-		return defaultTokens;
+		return Collections.unmodifiableList(defaultTokens);
 	}
 
 	/**
@@ -117,6 +123,6 @@ public class HttpSessionsParam extends AbstractParam {
 	 */
 	public void setEnabledProxyOnly(boolean enabledProxyOnly) {
 		this.enabledProxyOnly = enabledProxyOnly;
-		getConfig().setProperty(PROXY_ONLY_KEY, Boolean.toString(enabledProxyOnly));
+		getConfig().setProperty(PROXY_ONLY_KEY, Boolean.valueOf(enabledProxyOnly));
 	}
 }

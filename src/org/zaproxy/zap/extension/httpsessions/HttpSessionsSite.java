@@ -19,14 +19,16 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -34,6 +36,12 @@ import org.parosproxy.paros.network.HttpMessage;
  * Site.
  */
 public class HttpSessionsSite {
+
+	/** The Constant log. */
+	private static final Logger log = Logger.getLogger(HttpSessionsSite.class);
+
+	/** The last session id. */
+	private static int lastGeneratedSessionID = 0;
 
 	/** The extension. */
 	private ExtensionHttpSessions extension;
@@ -49,12 +57,6 @@ public class HttpSessionsSite {
 
 	/** The model associated with this site. */
 	private HttpSessionsTableModel model;
-
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(HttpSessionsSite.class);
-
-	/** The last session id. */
-	private static int lastSessionID = 0;
 
 	/**
 	 * Instantiates a new site http sessions object.
@@ -115,7 +117,8 @@ public class HttpSessionsSite {
 	/**
 	 * Gets the active session.
 	 * 
-	 * @return the active session
+	 * @return the active session or <code>null</code>, if no session is set as active
+	 * @see #setActiveSession(HttpSession)
 	 */
 	public HttpSession getActiveSession() {
 		return activeSession;
@@ -124,15 +127,21 @@ public class HttpSessionsSite {
 	/**
 	 * Sets the active session.
 	 * 
-	 * @param activeSession the new active session
+	 * @param activeSession the new active session.
+	 * @see #getActiveSession()
+	 * @see #unsetActiveSession()
+	 * @throws IllegalArgumentException If the session provided as parameter is null.
 	 */
 	public void setActiveSession(HttpSession activeSession) {
 		if (log.isInfoEnabled())
 			log.info("Setting new active session for site '" + site + "': " + activeSession);
+		if (activeSession == null)
+			throw new IllegalArgumentException(
+					"When settting an active session, a non-null session has to be provided.");
 
 		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
-			// If the active session was one with no tokens, delete it, at it will probably not
+			// If the active session was one with no tokens, delete it, as it will probably not
 			// match anything from this point forward
 			if (this.activeSession.getTokenValuesCount() == 0)
 				this.removeHttpSession(this.activeSession);
@@ -148,6 +157,8 @@ public class HttpSessionsSite {
 
 	/**
 	 * Unset any active session for this site.
+	 * 
+	 * @see #setActiveSession(HttpSession)
 	 */
 	public void unsetActiveSession() {
 		if (log.isInfoEnabled())
@@ -171,7 +182,9 @@ public class HttpSessionsSite {
 	 * Creates a new empty session.
 	 */
 	public void createEmptySession() {
-		HttpSession session = new HttpSession("Session " + (lastSessionID++));
+		// TODO: Allow the user to specify it?
+		HttpSession session = new HttpSession(Constant.messages.getString("httpsessions.session.defaultName")
+				+ (lastGeneratedSessionID++));
 		this.addHttpSession(session);
 		this.setActiveSession(session);
 	}
@@ -192,7 +205,10 @@ public class HttpSessionsSite {
 	 */
 	public void processHttpRequestMessage(HttpMessage message) {
 		// Get the session tokens for this site
-		LinkedHashSet<String> tokensSet = extension.getHttpSessionTokens(getSite());
+		Set<String> tokensSet = extension.getHttpSessionTokens(getSite());
+
+		// TODO: Check for default tokens
+
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {
 			log.debug("No session tokens for: " + this.getSite());
@@ -205,9 +221,6 @@ public class HttpSessionsSite {
 		if (log.isDebugEnabled())
 			log.debug("Matching session for request message (for site " + getSite() + "): " + session);
 
-		// Store the session in the HttpMessage for caching purpose
-		message.setHttpSession(session);
-
 		// If any session is active (forced), change the necessary cookies
 		if (activeSession != null && activeSession != session) {
 
@@ -218,7 +231,7 @@ public class HttpSessionsSite {
 			Iterator<HttpCookie> it = requestCookies.iterator();
 			while (it.hasNext()) {
 				HttpCookie cookie = it.next();
-				String cookieName = cookie.getName().toLowerCase();
+				String cookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
 
 				// If the cookie is a token
 				if (tokensSet.contains(cookieName)) {
@@ -248,8 +261,8 @@ public class HttpSessionsSite {
 					requestCookies.add(cookie);
 				}
 			}
-			// Update the session in the HttpMessage
-			message.setHttpSession(activeSession);
+			// Store the session in the HttpMessage for caching purpose
+			message.setHttpSession(session);
 
 			// Update the cookies in the message
 			message.getRequestHeader().setCookies(requestCookies);
@@ -259,6 +272,8 @@ public class HttpSessionsSite {
 			else
 				log.debug("No active session is selected.");
 
+			// Store the session in the HttpMessage for caching purpose
+			message.setHttpSession(session);
 		}
 	}
 
@@ -270,7 +285,9 @@ public class HttpSessionsSite {
 	public void processHttpResponseMessage(HttpMessage message) {
 
 		// Get the session tokens for this site
-		LinkedHashSet<String> tokensSet = extension.getHttpSessionTokens(getSite());
+		Set<String> tokensSet = extension.getHttpSessionTokens(getSite());
+
+		// TODO: Process default tokens
 
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {
@@ -283,8 +300,9 @@ public class HttpSessionsSite {
 		// Get new values for tokens, if any
 		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
 		for (HttpCookie cookie : cookiesToSet) {
-			if (tokensSet.contains(cookie.getName().toLowerCase()))
-				tokenValues.put(cookie.getName().toLowerCase(), cookie.getValue());
+			final String lcCookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
+			if (tokensSet.contains(lcCookieName))
+				tokenValues.put(lcCookieName, cookie.getValue());
 		}
 
 		// Get the cookies present in the request
@@ -303,13 +321,13 @@ public class HttpSessionsSite {
 
 		// If the session didn't exist, create it now
 		if (session == null) {
-			session = new HttpSession("Session " + (lastSessionID++));
+			session = new HttpSession("Session " + (lastGeneratedSessionID++));
 			this.addHttpSession(session);
 
 			// Add all the existing tokens from the request, if they don't replace one in the
 			// response
 			for (HttpCookie cookie : requestCookies) {
-				String cookieName = cookie.getName().toLowerCase();
+				String cookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
 				if (tokensSet.contains(cookieName))
 					if (!tokenValues.containsKey(cookieName))
 						tokenValues.put(cookieName, cookie.getValue());
@@ -324,7 +342,7 @@ public class HttpSessionsSite {
 			}
 		}
 
-		// Update the count of messaged matched
+		// Update the count of messages matched
 		session.setMessagesMatched(session.getMessagesMatched() + 1);
 
 		this.model.fireHttpSessionUpdated(session);
@@ -338,10 +356,10 @@ public class HttpSessionsSite {
 	 * @return the matching http session, if any, or null if no existing session was found to match
 	 *         all the tokens
 	 */
-	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, LinkedHashSet<String> tokens) {
+	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final Set<String> tokens) {
 
 		// Pre-checks
-		if (sessions == null || sessions.isEmpty())
+		if (sessions.isEmpty())
 			return null;
 
 		LinkedList<HttpSession> matchingSessions = new LinkedList<HttpSession>(sessions);
@@ -386,14 +404,14 @@ public class HttpSessionsSite {
 	 */
 	protected void cleanupSessionToken(String token) {
 		// Empty check
-		if (sessions == null || sessions.isEmpty())
+		if (sessions.isEmpty())
 			return;
 
 		if (log.isDebugEnabled())
 			log.debug("Removing duplicates and cleaning up sessions for site - token: " + site + " - " + token);
 
 		// If there are no more session tokens, delete all sessions
-		HashSet<String> siteTokens = extension.getHttpSessionTokens(site);
+		Set<String> siteTokens = extension.getHttpSessionTokens(site);
 		if (siteTokens == null) {
 			log.info("No more session tokens. Removing all sessions...");
 			// Invalidate all sessions
@@ -424,7 +442,7 @@ public class HttpSessionsSite {
 				HttpSession prevSession = uniqueSession.get(session.getTokenValuesString());
 				// If the latter session is active, put it into the map and delete the other
 				if (session.isActive()) {
-					toDelete.add(uniqueSession.get(session.getTokenValuesString()));
+					toDelete.add(prevSession);
 					session.setMessagesMatched(session.getMessagesMatched() + prevSession.getMessagesMatched());
 				} else {
 					toDelete.add(session);

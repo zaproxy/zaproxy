@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -85,7 +86,7 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int) */
 	@Override
 	public void setValueAt(Object value, int row, int col) {
-		tokenNames.set(row, ((String) value).toLowerCase());
+		tokenNames.set(row, ((String) value).toLowerCase(Locale.ENGLISH));
 		checkAndAppendNewRow();
 		fireTableCellUpdated(row, col);
 	}
