@@ -373,7 +373,8 @@ public class Spider {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				threadPool.shutdownNow();
+				if (threadPool != null)
+					threadPool.shutdownNow();
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
 				controller.reset();

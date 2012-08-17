@@ -262,7 +262,7 @@ public class HttpSessionsSite {
 				}
 			}
 			// Store the session in the HttpMessage for caching purpose
-			message.setHttpSession(session);
+			message.setHttpSession(activeSession);
 
 			// Update the cookies in the message
 			message.getRequestHeader().setCookies(requestCookies);

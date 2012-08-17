@@ -323,7 +323,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 *         session tokens for this site
 	 */
 	public final Set<String> getHttpSessionTokens(String site) {
-		return Collections.unmodifiableSet(sessionTokens.get(site));
+		Set<String> internalSet = sessionTokens.get(site);
+		if (internalSet == null)
+			return null;
+		return Collections.unmodifiableSet(internalSet);
 	}
 
 	/**
