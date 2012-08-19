@@ -26,6 +26,7 @@ package org.parosproxy.paros.db;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -69,21 +70,33 @@ public class DatabaseServer {
         // hsqldb only accept '/' as path;
         dbname = dbname.replaceAll("\\\\", "/");
         
-    	// ZAP: Check if old database should be loaded
+    	// ZAP: Check if old database should be compacted
         boolean doCompact = false;
         File propsFile = new File(dbname + ".properties");
         if (propsFile.exists()) {
-	        Properties dbProps = new Properties();
-	        InputStream propsStream = new FileInputStream(propsFile);
-        	dbProps.load(propsStream);
-	        String version = (String) dbProps.get("version");
-	        if (version.charAt(0) < '2') {
-	        	// got version < 2.0.0
-	        	// => SHUTDOWN COMPACT database
-	        	// and reopen again
-	        	doCompact = true;
-	        }
-	        propsStream.close();
+            Properties dbProps = new Properties();
+            InputStream propsStream = null;
+            try {
+                propsStream = new FileInputStream(propsFile);
+                dbProps.load(propsStream);
+            } finally {
+                try {
+                    if (propsStream != null) {
+                        propsStream.close();
+                    }
+                } catch (IOException e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage(), e);
+                    }
+                }
+            }
+            String version = (String) dbProps.get("version");
+            if (version.charAt(0) < '2') {
+                // got version < 2.0.0
+                // => SHUTDOWN COMPACT database
+                // and reconnect again
+                doCompact = true;
+            }
         }
         
         mUrl         = "jdbc:hsqldb:file:" + dbname;
@@ -92,10 +105,10 @@ public class DatabaseServer {
 
         mConn = DriverManager.getConnection(mUrl, mUser, mPassword);
         
-        // ZAP: If old database is in load => shutdown & reload
+        // ZAP: If old database is in load => shutdown & reconnect
         if (doCompact) {
 	    	shutdown(true);
-	    	start(dbname);
+            mConn = DriverManager.getConnection(mUrl, mUser, mPassword);
         }
     }
     
