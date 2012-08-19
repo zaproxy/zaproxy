@@ -20,13 +20,18 @@
 */
 // ZAP: 2012/05/31 Changed to log the exceptions and one message in the method
 // getNewConnection().
+// ZAP: 2012/08/16 SHUTDOWN COMPACT old databases.
 
 package org.parosproxy.paros.db;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.hsqldb.Server;
@@ -64,14 +69,34 @@ public class DatabaseServer {
         // hsqldb only accept '/' as path;
         dbname = dbname.replaceAll("\\\\", "/");
         
+    	// ZAP: Check if old database should be loaded
+        boolean doCompact = false;
+        File propsFile = new File(dbname + ".properties");
+        if (propsFile.exists()) {
+	        Properties dbProps = new Properties();
+	        InputStream propsStream = new FileInputStream(propsFile);
+        	dbProps.load(propsStream);
+	        String version = (String) dbProps.get("version");
+	        if (version.charAt(0) < '2') {
+	        	// got version < 2.0.0
+	        	// => SHUTDOWN COMPACT database
+	        	// and reopen again
+	        	doCompact = true;
+	        }
+	        propsStream.close();
+        }
+        
         mUrl         = "jdbc:hsqldb:file:" + dbname;
         
         Class.forName("org.hsqldb.jdbcDriver");
 
         mConn = DriverManager.getConnection(mUrl, mUser, mPassword);
         
-
-        
+        // ZAP: If old database is in load => shutdown & reload
+        if (doCompact) {
+	    	shutdown(true);
+	    	start(dbname);
+        }
     }
     
     
