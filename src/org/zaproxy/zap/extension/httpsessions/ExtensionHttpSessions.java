@@ -17,13 +17,13 @@
  */
 package org.zaproxy.zap.extension.httpsessions;
 
+import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +39,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
-import org.zaproxy.zap.extension.params.ExtensionParams;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -57,8 +56,8 @@ import org.zaproxy.zap.view.SiteMapListener;
  * <li>the port is added in the end after colon</li>
  * <li>lower-case</li>
  * </ul>
- * An example of a method performing these changes on an URI can be found in {@link ScanPanel},
- * {@code cleanSiteName} method.
+ * An example of a method performing these changes on an URI is
+ * {@link ScanPanel#cleanSiteName(String, boolean)} .
  * </p>
  * 
  */
@@ -82,6 +81,12 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/** The map of session tokens corresponding to each site. */
 	private Map<String, LinkedHashSet<String>> sessionTokens;
+
+	/**
+	 * The map of default tokens that were removed by the user for some sites and should not be
+	 * detected again as session tokens.
+	 */
+	private Map<String, HashSet<String>> removedDefaultTokens;
 
 	/** The http sessions extension's parameters. */
 	private HttpSessionsParam param;
@@ -253,6 +258,58 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
+	 * Checks if a particular default session token was removed by an user as a session token for a
+	 * site. The check is being performed in a lower-case manner, as session tokens are
+	 * case-insensitive.
+	 * 
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
+	 * @param token the token
+	 * @return true, if it is a previously removed default session token
+	 */
+	public boolean isRemovedDefaultSessionToken(String site, String token) {
+		if (removedDefaultTokens == null)
+			return false;
+		HashSet<String> removed = removedDefaultTokens.get(site);
+		if (removed == null || !removed.contains(token.toLowerCase(Locale.ENGLISH)))
+			return false;
+		return true;
+	}
+
+	/**
+	 * Marks a default session token as removed for a particular site.
+	 * 
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
+	 * @param token the token
+	 */
+	public void markRemovedDefaultSessionToken(String site, String token) {
+		if (removedDefaultTokens == null)
+			removedDefaultTokens = new HashMap<String, HashSet<String>>(1);
+		HashSet<String> removedSet = removedDefaultTokens.get(site);
+		if (removedSet == null) {
+			removedSet = new HashSet<String>(1);
+			removedDefaultTokens.put(site, removedSet);
+		}
+		removedSet.add(token.toLowerCase(Locale.ENGLISH));
+	}
+
+	/**
+	 * Unmarks a default session token as removed for a particular site.
+	 * 
+	 * @param site the site. This parameter has to be formed as defined in the
+	 * @param token the token {@link ExtensionHttpSessions} class documentation.
+	 */
+	public void unmarkRemovedDefaultSessionToken(String site, String token) {
+		if (removedDefaultTokens == null)
+			return;
+		HashSet<String> removed = removedDefaultTokens.get(site);
+		if (removed == null)
+			return;
+		removed.remove(token.toLowerCase(Locale.ENGLISH));
+	}
+
+	/**
 	 * Checks if a particular token is a session token name for a particular site. The check is
 	 * being performed in a lower-case manner, as session tokens are case-insensitive.
 	 * 
@@ -284,10 +341,21 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 		log.info("Added new session token for site '" + site + "': " + token);
 		siteTokens.add(token.toLowerCase(Locale.ENGLISH));
+		// If the session token is a default token and was previously marked as remove, undo that
+		unmarkRemovedDefaultSessionToken(site, token);
 	}
 
 	/**
 	 * Removes a particular session token for a site.
+	 * <p>
+	 * All the existing sessions are cleaned up:
+	 * <ul>
+	 * <li>if there are no more session tokens, all session are deleted</li>
+	 * <li>in every existing session, the value for the deleted token is removed</li>
+	 * <li>if there is a session with no values for the remaining session tokens, it is deleted</li>
+	 * <li>if, after deletion, there are duplicate sessions, they are merged</li>
+	 * </ul>
+	 * </p>
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
 	 *            {@link ExtensionHttpSessions} class documentation.
@@ -304,6 +372,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			// Cleanup the existing sessions
 			this.getHttpSessionsSite(site).cleanupSessionToken(token);
 		}
+		// If the token is a default session token, mark it as removed for the Site, so it will not
+		// be detected again and added as a session token
+		if (isDefaultSessionToken(token))
+			markRemovedDefaultSessionToken(site, token);
 		log.info("Removed session token for site '" + site + "': " + token);
 	}
 
@@ -433,6 +505,15 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
 			return;
 
+		// Check for default tokens in request messages
+		List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();
+		for (HttpCookie cookie : requestCookies)
+			// If it's a default session token and it is not already marked as session token and was
+			// not previously removed by the user
+			if (this.isDefaultSessionToken(cookie.getName()) && !this.isSessionToken(site, cookie.getName())
+					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
+				this.addHttpSessionToken(site, cookie.getName());
+
 		// Forward the request for proper processing
 		HttpSessionsSite session = this.getHttpSessionsSite(site);
 		session.processHttpRequestMessage(msg);
@@ -458,22 +539,18 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
 			return;
 
+		// Check for default tokens set in response messages
+		List<HttpCookie> responseCookies = msg.getResponseHeader().getHttpCookies();
+		for (HttpCookie cookie : responseCookies)
+			// If it's a default session token and it is not already marked as session token and was
+			// not previously removed by the user
+			if (this.isDefaultSessionToken(cookie.getName()) && !this.isSessionToken(site, cookie.getName())
+					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
+				this.addHttpSessionToken(site, cookie.getName());
+
 		// Forward the request for proper processing
 		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
 		sessionsSite.processHttpResponseMessage(msg);
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDependencies() */
-	@Override
-	public List<Class<?>> getDependencies() {
-		// TODO: The dependency can be removed if the default tokens are processed
-		// by this extension.
-		// Add the ExtensionParams as a dependency
-		List<Class<?>> dependencies = new LinkedList<Class<?>>();
-		dependencies.add(ExtensionParams.class);
-		return dependencies;
 	}
 
 }

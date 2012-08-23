@@ -183,7 +183,7 @@ public class HttpSessionsSite {
 	 */
 	public void createEmptySession() {
 		// TODO: Allow the user to specify it?
-		HttpSession session = new HttpSession(Constant.messages.getString("httpsessions.session.defaultName")
+		HttpSession session = new HttpSession(Constant.messages.getString("httpsessions.session.defaultName") + " "
 				+ (lastGeneratedSessionID++));
 		this.addHttpSession(session);
 		this.setActiveSession(session);
@@ -195,7 +195,7 @@ public class HttpSessionsSite {
 	 * @return the model
 	 */
 	public HttpSessionsTableModel getModel() {
-		return model;
+		return model; 
 	}
 
 	/**
@@ -205,9 +205,7 @@ public class HttpSessionsSite {
 	 */
 	public void processHttpRequestMessage(HttpMessage message) {
 		// Get the session tokens for this site
-		Set<String> tokensSet = extension.getHttpSessionTokens(getSite());
-
-		// TODO: Check for default tokens
+		Set<String> tokensSet = extension.getHttpSessionTokens(getSite()); 
 
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {
@@ -215,7 +213,7 @@ public class HttpSessionsSite {
 			return;
 		}
 
-		// Get the session, based on the request header
+		// Get the matching session, based on the request header
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
 		HttpSession session = getMatchingHttpSession(requestCookies, tokensSet);
 		if (log.isDebugEnabled())
@@ -286,8 +284,6 @@ public class HttpSessionsSite {
 
 		// Get the session tokens for this site
 		Set<String> tokensSet = extension.getHttpSessionTokens(getSite());
-
-		// TODO: Process default tokens
 
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {

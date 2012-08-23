@@ -72,6 +72,8 @@ public class ExtensionParams extends ExtensionAdaptor
 	
     private Logger logger = Logger.getLogger(ExtensionParams.class);
     
+    private ExtensionHttpSessions extensionHttpSessions;
+    
 	/**
      * 
      */
@@ -186,6 +188,19 @@ public class ExtensionParams extends ExtensionAdaptor
 	    }
 	}
 	
+	/**
+	 * Gets the ExtensionHttpSessions, if it's enabled
+	 * 
+	 * @return the Http Sessions extension or null, if it's not available
+	 */
+	protected ExtensionHttpSessions getExtensionHttpSessions() {
+		if(extensionHttpSessions==null){
+			extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionHttpSessions.NAME);
+		}
+		return extensionHttpSessions;
+		
+	}
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
 		siteParamsMap = new HashMap <String, SiteParameters>();
@@ -427,8 +442,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		if (item != null) {
 			
 			// If the HttpSessions extension is active, notify it of the new session token
-			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHttpSessions.NAME);
+			ExtensionHttpSessions extSession = this.getExtensionHttpSessions();
 			if (extSession != null && item != null) {
 				extSession.addHttpSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
 			}
@@ -449,8 +463,7 @@ public class ExtensionParams extends ExtensionAdaptor
 
 		if (item != null) {
 			// If the HttpSessions extension is active, notify it of the removed session token
-			ExtensionHttpSessions extSession = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHttpSessions.NAME);
+			ExtensionHttpSessions extSession = this.getExtensionHttpSessions();
 			if (extSession != null) {
 				extSession.removeHttpSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
 			}

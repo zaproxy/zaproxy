@@ -84,7 +84,7 @@ public class HttpSessionsParam extends AbstractParam {
 	}
 
 	/**
-	 * Gets the default tokens. *
+	 * Gets the default tokens.
 	 * <p>
 	 * The list of default session tokens returned is read-only view of the internal default session
 	 * tokens representation and any modifications will result in
