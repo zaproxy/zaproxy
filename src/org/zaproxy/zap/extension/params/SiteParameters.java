@@ -27,11 +27,10 @@ import java.util.Set;
 
 import net.sf.json.JSONArray;
 
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HtmlParameter.Type;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 
 public class SiteParameters {

@@ -267,7 +267,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @param token the token
 	 * @return true, if it is a previously removed default session token
 	 */
-	public boolean isRemovedDefaultSessionToken(String site, String token) {
+	private boolean isRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
 			return false;
 		HashSet<String> removed = removedDefaultTokens.get(site);
@@ -283,7 +283,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 *            {@link ExtensionHttpSessions} class documentation.
 	 * @param token the token
 	 */
-	public void markRemovedDefaultSessionToken(String site, String token) {
+	private void markRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
 			removedDefaultTokens = new HashMap<String, HashSet<String>>(1);
 		HashSet<String> removedSet = removedDefaultTokens.get(site);
@@ -300,7 +300,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @param site the site. This parameter has to be formed as defined in the
 	 * @param token the token {@link ExtensionHttpSessions} class documentation.
 	 */
-	public void unmarkRemovedDefaultSessionToken(String site, String token) {
+	private void unmarkRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
 			return;
 		HashSet<String> removed = removedDefaultTokens.get(site);
