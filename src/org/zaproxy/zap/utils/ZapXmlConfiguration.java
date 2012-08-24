@@ -26,94 +26,88 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
 /**
- * A {@link XMLConfiguration} with character encoding always set to UTF-8
- * and delimiter parsing always disabled.
+ * A {@code XMLConfiguration} with character encoding always set to UTF-8 and
+ * delimiter parsing always disabled.
  * <p>
- * <b>Note:</b> This class should be used, <i>always</i>, to read/write from/to
- * the configurations' file used by ZAP, this way there shouldn't be any
- * problems with character encodings.
+ * <strong>Note:</strong> This class should be used, <i>always</i>, to
+ * read/write from/to the configurations' file used by ZAP, this way there
+ * shouldn't be any problems with character encodings.
  * </p>
  * 
  * @see #setDelimiterParsingDisabled(boolean)
+ * @see XMLConfiguration
  */
 public class ZapXmlConfiguration extends XMLConfiguration {
 
 	private static final long serialVersionUID = -8598525138011232529L;
 
+	/**
+	 * Creates a new instance of {@code ZapXmlConfiguration}.
+	 */
 	public ZapXmlConfiguration() {
 		super();
-		
-		super.setEncoding("UTF-8");
-		
-		// XXX Remove when commons-configuration is updated to version 1.9 or
-		// higher.
-		super.setListDelimiter('\0');
-		// Changed because setDelimiterParsingDisabled cannot be true and
-		// the list delimiter character must be defined to a character that
-		// will not clash with characters normally used (like a comma).
-		
-		// Always uses \0 to not clash with any character that the user writes.
-		// The same character used internally by AbstractConfiguration
-		// when delimiter parsing is disabled.
-		// (org.apache.commons.configuration.AbstractConfiguration#DISABLED_DELIMITER)
-		
-		
-		
-		// XXX Change to _true_ when commons-configuration is updated to version
-		// 1.9 or higher.
-		super.setDelimiterParsingDisabled(false);
-		// Needs to be false to allow the use of setProperty(propertyName, List)
-		// and have all the elements of the list added in each XML element (1).
-		// If it's true, then all list elements are added on only one XML
-		// element (2).
-		// For more informations see:
-		// https://issues.apache.org/jira/browse/CONFIGURATION-495
 
-		// (1)
-		// <anticsrf>
-		//  <tokens>anticsrf</tokens>
-		//  <tokens>CSRFToken</tokens>
-		//  <tokens>__RequestVerificationToken</tokens>
-		// </anticsrf>
-		
-		// (2)
-		// <anticsrf>
-		//  <tokens>[CSRFToken, __RequestVerificationToken, anticsrf]</tokens>
-		// </anticsrf>
+		super.setEncoding("UTF-8");
+		super.setDelimiterParsingDisabled(true);
 	}
 
+	/**
+	 * Creates a new instance of {@code ZapXmlConfiguration}. The configuration
+	 * is loaded from the file with the specified {@code fileName}.
+	 * 
+	 * @param fileName
+	 *            the name of the file to load
+	 * @throws ConfigurationException
+	 *             if loading the configuration fails
+	 */
 	public ZapXmlConfiguration(String fileName) throws ConfigurationException {
 		this();
 		setFileName(fileName);
 		load();
 	}
-	
+
+	/**
+	 * Creates a new instance of {@code ZapXmlConfiguration}. The configuration
+	 * is loaded from the specified {@code file}.
+	 * 
+	 * @param file
+	 *            the file that has the configuration
+	 * @throws ConfigurationException
+	 *             if loading the configuration fails
+	 */
 	public ZapXmlConfiguration(File file) throws ConfigurationException {
 		this();
 		setFile(file);
 		load();
 	}
-	
+
+	/**
+	 * Creates a new instance of {@code ZapXmlConfiguration}. The configuration
+	 * is loaded from the specified {@code url}.
+	 * 
+	 * @param url
+ 	 *            the URL
+	 * @throws ConfigurationException
+	 *             if loading the configuration fails
+	 */
 	public ZapXmlConfiguration(URL url) throws ConfigurationException {
 		this();
 		setURL(url);
 		load();
 	}
-	
+
 	/**
-	 * Calling this method has <b>no</b> effect. The character encoding used is
-	 * always the same, UTF-8.
-	 * 
-	 * @param encoding
+	 * Calling this method has <strong>no</strong> effect. The character
+	 * encoding used is always the same, UTF-8.
 	 */
 	@Override
 	public void setEncoding(String encoding) {
 		// Always uses UTF-8
 	}
-	
+
 	/**
-	 * Calling this method has <b>no</b> effect. Delimiter parsing is always
-	 * disabled.
+	 * Calling this method has <strong>no</strong> effect. The delimiter parsing
+	 * is always disabled.
 	 * 
 	 * @see #setDelimiterParsingDisabled(boolean)
 	 */
@@ -123,23 +117,12 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 		// setDelimiterParsingDisabled as no effect, there is no need to change
 		// the character.
 	}
-	
+
 	/**
-	 * Calling this method has <b>no</b> effect. The delimiter parsing is always
-	 * disabled.
-	 * 
-	 * <p>
-	 * <b>Note:</b> Currently the delimiter parsing is enabled because of an
-	 * issue with commons-configuration, although there should be no problem
-	 * because the list delimiter character is set to character '\0' (the
-	 * character used by commons-configuration when delimiter parsing is
-	 * disabled). The delimiter parsing will be effectively disabled when
-	 * commons-configuration is updated to version 1.9 or higher.
-	 * </p>
+	 * Calling this method has <strong>no</strong> effect. The delimiter parsing
+	 * is always disabled.
 	 */
 	@Override
-	// XXX: Remove the "Note" in the above method documentation when
-	// commons-configuration is updated to version 1.9 or higher.
 	public void setDelimiterParsingDisabled(boolean delimiterParsingDisabled) {
 		// Always disabled.
 	}
