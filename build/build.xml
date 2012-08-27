@@ -166,25 +166,33 @@
 	</target>
 	
 	<target name="generate-help-file" description="generates the help file and copies it to the right place">
+		<property name="help.dir" location="${src}/help" />
+		<property name="help.zap.dir" location="${help.dir}/zaphelp" />
+		<property name="help.jar.name" value="zaphelp" />
+		<property name="help.jar.generated" value="${help.dir}/${help.jar.name}.jar" />
+		<property name="help.jar.dist.lib" value="${dist.lib.dir}/${help.jar.name}.jar" />
+		
 		<!-- Generate the indexes -->
-		<java classname="com.sun.java.help.search.Indexer" fork="true" dir="${src}/help/zaphelp">
+		<java classname="com.sun.java.help.search.Indexer" fork="true" dir="${help.zap.dir}">
 			<arg value="zaphelp"/>
 			<classpath>
 				<pathelement location="lib/jhall.jar"/>
 			</classpath>
 		</java>
-		<!-- delete the previous one in the help directory -->
-		<delete file="${src}/help/zaphelp.jar" />
+		<!-- delete the previous jar in the help directory (if present) -->
+		<delete file="${help.jar.generated}" />
 		<!-- Jar up the help files -->
-		<jar destfile="${src}/help/zaphelp.jar"
-			basedir="${src}/help/zaphelp"
+		<jar destfile="${help.jar.generated}"
+			basedir="${help.zap.dir}"
 			includes="**"
 			excludes="**/.svn/**"
 		/>
-		<!-- Delete old file in lib directory -->
-		<delete file="lib/zaphelp.jar" />
+		<!-- Delete the indexes, generated previously, as they are no longer needed. -->
+		<delete dir="${help.zap.dir}/JavaHelpSearch" />
+		<!-- Delete the old jar in lib directory -->
+		<delete file="${help.jar.dist.lib}" />
 		<!-- Move the new one to the lib directory -->
-		<move file="${src}/help/zaphelp.jar" tofile="${dist.lib.dir}/zaphelp.jar" />
+		<move file="${help.jar.generated}" tofile="${help.jar.dist.lib}" />
 		
 	</target>
 
@@ -201,11 +209,19 @@
 	</target>
 
 	<target name="generate-javadocs" description="generates the javadocs">
+		<!-- Delete all the previous generated files and directories from the 
+		"javadocs.dir" directory before generating the new ones in case of any 
+		class or package has been renamed, deleted or moved. -->
+		<delete includeEmptyDirs="true">
+			<fileset dir="${javadocs.dir}" includes="**/*" />
+		</delete>
+		
 		<javadoc packagenames="org.*"
 			sourcepath="${src}"
 			destdir="${javadocs.dir}"
 			windowTitle="OWASP Zed Attack Proxy"
-			classpathref="dist.classpath">
+			classpathref="dist.classpath"
+			link="http://docs.oracle.com/javase/6/docs/api/">
 		</javadoc>
 		<!-- set mime-type such that HTML is returned by server -->
 		<exec executable="${svn.cmd}">
