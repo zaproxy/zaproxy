@@ -46,6 +46,7 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.parosproxy.paros.view.View;
 
 import bsh.EvalError;
 import bsh.Interpreter;
@@ -216,7 +217,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 							currentScriptFile = fc.getSelectedFile();
 						} catch (IOException ex) {
 							log.error(ex.getMessage(), ex);
-							// TODO Notify the user that an error occurred.
+							View.getSingleton().showWarningDialog(Constant.messages.getString("beanshell.error.message.loading.script"));
 						}
 						
 					}
@@ -240,7 +241,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 							getBeanShellPanel().setSaved(true);
 						} catch (IOException ex) {
 							log.error(ex.getMessage(), ex);
-							// TODO Notify the user that an error occurred.
+							View.getSingleton().showWarningDialog(Constant.messages.getString("beanshell.error.message.saving.script"));
 						}
 						
 					} else {
@@ -256,7 +257,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 								currentScriptFile = fc.getSelectedFile();
 							} catch (IOException ex) {
 								log.error(ex.getMessage(), ex);
-								// TODO Notify the user that an error occurred.
+								View.getSingleton().showWarningDialog(Constant.messages.getString("beanshell.error.message.saving.script"));
 							}
 						}
 					}
@@ -284,7 +285,7 @@ public class BeanShellConsoleFrame extends AbstractFrame {
 							currentScriptFile = fc.getSelectedFile();
 						} catch (IOException ex) {
 							log.error(ex.getMessage(), ex);
-							// TODO Notify the user that an error occurred.
+							View.getSingleton().showWarningDialog(Constant.messages.getString("beanshell.error.message.saving.script"));
 						}
 					}
 					
