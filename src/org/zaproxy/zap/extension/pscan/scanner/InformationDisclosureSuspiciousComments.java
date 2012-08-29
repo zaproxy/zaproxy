@@ -52,7 +52,7 @@ public class InformationDisclosureSuspiciousComments extends PluginPassiveScanne
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (msg.getResponseBody().length() > 0 && msg.getResponseHeader().isText()) {
-			StringBuffer todoComments = new StringBuffer();
+			StringBuilder todoComments = new StringBuilder();
 			
 			if (msg.getResponseHeader().isJavaScript()) {
 				// Just treat as text
