@@ -30,6 +30,7 @@
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/07 Added method for getting all Nodes in Scope
+// ZAP: 2012/08/29 Issue 250 Support for authentication management
 
 package org.parosproxy.paros.model;
 
@@ -70,7 +71,6 @@ public class Session extends FileXML {
 	private static final String[] PATH_SESSION_DESC = {ROOT, SESSION_DESC};	
 	private static final String[] PATH_SESSION_ID = {ROOT, SESSION_ID};
 	private static final String[] PATH_SESSION_NAME = {ROOT, SESSION_NAME};
-
 
 	// other runtime members
 	private Model model = null;
@@ -772,5 +772,25 @@ public class Session extends FileXML {
 			extWebSocket.setStorageBlacklist(ignoredRegexs);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET, this.excludeFromWebSocketRegexs);
+	}
+	
+	public void setSessionUrls(int type, List<String> urls) throws SQLException {
+		model.getDb().getTableSessionUrl().setUrls(type, urls);
+	}
+	
+	public void setSessionUrl(int type, String url) throws SQLException {
+		List<String> list = new ArrayList<String>();
+		list.add(url);
+		model.getDb().getTableSessionUrl().setUrls(type, list);
+		
+	}
+
+	public List<String> getSessionUrls(int type) throws SQLException {
+		List<RecordSessionUrl> urls = model.getDb().getTableSessionUrl().getUrlsForType(type);
+		List<String> list = new ArrayList<String>();
+		for (RecordSessionUrl url : urls) {
+			list.add(url.getUrl());
+		}
+		return list;
 	}
 }
