@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -50,13 +51,17 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		private static final long serialVersionUID = -2102275261139781996L;
 
 		private static final String X_WWW_FORM_URLENCODED = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xWwwFormUrlencoded");
-
+		private static final String JAVASCRIPT = Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
+		private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
+		
 		private static final String SYNTAX_STYLE_X_WWW_FORM = "application/x-www-form-urlencoded";
 		
 		private static RequestBodyTokenMakerFactory tokenMakerFactory = null;
 
 		public HttpRequestBodyPanelSyntaxHighlightTextArea() {
 			addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
+			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 		}
         
         @Override
@@ -142,6 +147,10 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 				String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
 				
 				putMapping(SYNTAX_STYLE_X_WWW_FORM, pkg + "WwwFormTokenMaker");
+				
+				pkg = "org.fife.ui.rsyntaxtextarea.modes.";
+				putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
+				putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
 			}
 		}
 	}
