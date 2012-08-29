@@ -28,7 +28,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.postmsg.ExtensionPostMessage;
 import org.zaproxy.zap.network.HttpSenderListener;
 
 public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener {
@@ -101,10 +100,10 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	    if (getView() != null) {	        
 		    reauthenticateButton.setSelected(reauth);
 		    if (reauth) {
-				reauthenticateButton.setIcon(new ImageIcon(ExtensionPostMessage.class.getResource(REAUTH_ON_ICON_RESOURCE)));
+				reauthenticateButton.setIcon(new ImageIcon(ExtensionAuth.class.getResource(REAUTH_ON_ICON_RESOURCE)));
 				reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.on"));
 			} else {
-				reauthenticateButton.setIcon(new ImageIcon(ExtensionPostMessage.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
+				reauthenticateButton.setIcon(new ImageIcon(ExtensionAuth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 				reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
 		    }
 	    }
@@ -113,7 +112,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	private JToggleButton getReauthenticateButton() {
 		if (reauthenticateButton == null) {
 			reauthenticateButton = new JToggleButton();
-			reauthenticateButton.setIcon(new ImageIcon(ExtensionPostMessage.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
+			reauthenticateButton.setIcon(new ImageIcon(ExtensionAuth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
 			reauthenticateButton.setEnabled(false);	// Disable until login and one indicator flagged
 			
@@ -161,12 +160,12 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	
 	private void setReauthButtonState(boolean enabled) {
 		if (enabled) {
-			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionPostMessage.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
+			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionAuth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			this.getReauthenticateButton().setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
 			this.getReauthenticateButton().setEnabled(true);
 		} else {
 			this.reauthenticate = false;
-			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionPostMessage.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
+			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionAuth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			this.getReauthenticateButton().setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
 			this.getReauthenticateButton().setSelected(false);
 			this.getReauthenticateButton().setEnabled(false);
