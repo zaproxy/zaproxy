@@ -44,6 +44,17 @@ public class ApiAction {
 		this.paramNames = paramNames;
 	}
 	
+	public ApiAction(String name, String[] paramNames) {
+		super();
+		this.name = name;
+		if (paramNames != null) {
+			this.paramNames = new ArrayList<String>(paramNames.length);
+			for (String param : paramNames) {
+				this.paramNames.add(param);
+			}
+		}
+	}
+	
 	public void setParamNames(List<String> paramNames) {
 		this.paramNames = paramNames;
 	}

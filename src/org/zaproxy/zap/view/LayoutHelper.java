@@ -23,13 +23,20 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 public class LayoutHelper {
+	
+	private static final int DEFAULT_FILL = GridBagConstraints.BOTH;
+	private static final int DEFAULT_ANCHOR = GridBagConstraints.NORTHWEST;
 
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx) {
 		return getGBC(x, y, width, weightx, 0.0);
 	}
 	
+	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, Insets insets) {
+		return getGBC(x, y, width, weightx, 0.0, DEFAULT_FILL, DEFAULT_ANCHOR, insets);
+	}
+	
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty) {
-		return getGBC(x, y, width, weightx, weighty, GridBagConstraints.BOTH, null);
+		return getGBC(x, y, width, weightx, weighty, DEFAULT_FILL, null);
 	}
 	
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty, int fill) {
@@ -38,7 +45,7 @@ public class LayoutHelper {
 	
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty, int fill, 
 			Insets insets) {
-		return getGBC(x, y, width, weightx, weighty, fill, GridBagConstraints.NORTHWEST, insets);
+		return getGBC(x, y, width, weightx, weighty, fill, DEFAULT_ANCHOR, insets);
 	}
 	
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty, int fill, int anchor, 
