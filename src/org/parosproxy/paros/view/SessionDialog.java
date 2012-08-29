@@ -18,6 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/08/29 Issue 250 Support for authentication management (enlarged window size)
+
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -57,7 +59,7 @@ public class SessionDialog extends AbstractParamDialog {
 	 */
 	private void initialize() {
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(500, 375);
+	    	this.setSize(650, 500);
 	    } else {
 	    	pack();
 	    }

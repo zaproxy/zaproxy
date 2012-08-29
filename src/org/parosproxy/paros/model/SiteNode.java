@@ -28,6 +28,7 @@
 //      and reworked the method toString and getIcons. Renamed the method 
 //      getIcons to appendIcons.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/29 Issue 250 Support for authentication management
 
 package org.parosproxy.paros.model;
 
@@ -76,6 +77,20 @@ public class SiteNode extends DefaultMutableTreeNode {
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
     	this.icons = i;
     	this.clearIfManual = c;
+    }
+    
+    public void addCustomIcon(String resourceName, boolean clearIfManual) {
+    	this.icons.add(resourceName);
+    	this.clearIfManual.add(clearIfManual);
+    	this.nodeChanged();
+    }
+    
+    public void removeCustomIcon(String resourceName) {
+    	if (this.icons.contains(resourceName)) {
+    		int i = this.icons.indexOf(resourceName);
+    		this.icons.remove(i);
+    		this.clearIfManual.remove(i);
+    	}
     }
     
     private void appendIcons(StringBuilder sb) {

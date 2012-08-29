@@ -24,6 +24,7 @@
 // ZAP: 2012/03/03 Added setters for separators
 // ZAP: 2012/07/11 Issue 323: Added support for supermenus
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/08/29 Issue 250 Support for authentication management
 
 package org.parosproxy.paros.extension;
 
@@ -38,7 +39,8 @@ public class ExtensionPopupMenuItem extends JMenuItem {
 	
 	public static final int ATTACK_MENU_INDEX = 0;
 	public static final int EXCLUDE_MENU_INDEX = 1;
-	public static final int INVOKE_MENU_INDEX = 2;
+	public static final int FLAG_MENU_INDEX = 2;
+	public static final int INVOKE_MENU_INDEX = 3;
 	
 	private int menuIndex = -1;
 	private int parentMenuIndex = -1;

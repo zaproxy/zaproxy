@@ -27,6 +27,7 @@
 //      use the class StringBuilder instead of StringBuffer 
 // ZAP: 2012/07/03 Issue 320: AScan can miss subtrees if invoked via the API
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
+// ZAP: 2012/08/29 Issue 250 Support for authentication management
 
 package org.parosproxy.paros.model;
 
@@ -208,10 +209,10 @@ public class SiteMap extends DefaultTreeModel {
     }
 
     public synchronized SiteNode findNode(URI uri) {
-    	return this.findNode(uri, "GET");
+    	return this.findNode(uri, "GET", null);
     }
     
-    public synchronized SiteNode findNode(URI uri, String method) {
+    public synchronized SiteNode findNode(URI uri, String method, String postData) {
         SiteNode resultNode = null;
         
         String scheme = null;
@@ -247,7 +248,7 @@ public class SiteMap extends DefaultTreeModel {
                 folder = tokenizer.nextToken();
                 if (folder != null && !folder.equals("")) {
                     if (tokenizer.countTokens() == 0) {
-                        String leafName = getLeafName(folder, uri, method);
+                        String leafName = getLeafName(folder, uri, method, postData);
                         resultNode = findChild(resultNode, leafName);
                     } else {
                     	resultNode = findChild(resultNode, folder);
@@ -493,7 +494,7 @@ public class SiteMap extends DefaultTreeModel {
         
     }
     
-    private String getLeafName(String nodeName, URI uri, String method) {
+    private String getLeafName(String nodeName, URI uri, String method, String postData) {
         String leafName;
         
         if (method != null) {
@@ -514,14 +515,11 @@ public class SiteMap extends DefaultTreeModel {
             query = "";
         }
         leafName = leafName + getQueryParamString(getParamNameSet(query));
-        /*
+
         // also handle POST method query in body
-        query = "";
-        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            query = msg.getRequestBody().toString();
-            leafName = leafName + getQueryParamString(getParamNameSet(query));
+        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
+            leafName = leafName + getQueryParamString(getParamNameSet(postData));
         }
-        */
         return leafName;
         
     }

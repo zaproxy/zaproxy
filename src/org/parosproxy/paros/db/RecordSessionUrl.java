@@ -33,6 +33,12 @@ public class RecordSessionUrl {
 	public static final int TYPE_EXCLUDE_FROM_SCOPE = 4;
 	public static final int TYPE_INCLUDE_IN_SCOPE = 5;
 	public static final int TYPE_EXCLUDE_FROM_WEBSOCKET = 6;
+	public static final int TYPE_AUTH_LOGIN_URL = 7;
+	public static final int TYPE_AUTH_LOGIN_POST_DATA = 8;
+	public static final int TYPE_AUTH_LOGIN_INDICATOR = 9;
+	public static final int TYPE_AUTH_LOGOUT_URL = 10;
+	public static final int TYPE_AUTH_LOGOUT_POST_DATA = 11;
+	public static final int TYPE_AUTH_LOGOUT_INDICATOR = 12;
 	
     private long urlId = 0;
     private int type = 0;
