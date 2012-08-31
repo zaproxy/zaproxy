@@ -31,6 +31,7 @@
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
+// ZAP: 2012/08/31 Enabled control of AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
@@ -104,7 +105,8 @@ public class HostProcess implements Runnable {
             plugin = getPluginFactory().nextPlugin();
             if (plugin != null) {
             	plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-            	plugin.setDefaultAlertThreshold(this.scannerParam.getLevel());
+            	plugin.setDefaultAlertThreshold(this.scannerParam.getAlertThreshold());
+            	plugin.setDefaultAttackStrength(this.scannerParam.getAttackStrength());
                 processPlugin(plugin);
             } else {
                 // waiting for dependency - no test ready yet
@@ -227,6 +229,7 @@ public class HostProcess implements Runnable {
             test.setConfig(plugin.getConfig());
             test.setDelayInMs(plugin.getDelayInMs());
         	test.setDefaultAlertThreshold(plugin.getAlertThreshold());
+        	test.setDefaultAttackStrength(plugin.getAttackStrength());
             test.init(msg, this);
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 

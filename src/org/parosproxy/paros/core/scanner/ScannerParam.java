@@ -23,11 +23,13 @@
 // ZAP: 2012/06/07 Added targetParam options
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
+// ZAP: 2012/08/31 Enabled control of AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 
 public class ScannerParam extends AbstractParam {
 
@@ -37,6 +39,7 @@ public class ScannerParam extends AbstractParam {
 	private static final String DELAY_IN_MS = "scanner.delayInMs";
 	private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
 	private static final String LEVEL = "scanner.level";
+	private static final String STRENGTH = "scanner.strength";
 	/* Work in progress
 	private static final String TARGET_PARAMS_URL = "scanner.params.url";
 	private static final String TARGET_PARAMS_FORM = "scanner.params.form";
@@ -47,7 +50,9 @@ public class ScannerParam extends AbstractParam {
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
 	private boolean handleAntiCSRFTokens = false;
-	private Plugin.AlertThreshold level = AlertThreshold.MEDIUM; 
+	private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM; 
+	private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
+	
 	/* Work in progress
 	private boolean targetParamsUrl = true;
 	private boolean targetParamsForm = true;
@@ -76,8 +81,12 @@ public class ScannerParam extends AbstractParam {
 			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 		} catch (Exception e) {}
 		try {
-			this.level = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
+			this.alertThreshold = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
 		} catch (Exception e) {}
+		try {
+			this.attackStrength = AttackStrength.valueOf(getConfig().getString(STRENGTH, AttackStrength.MEDIUM.name()));
+		} catch (Exception e) {}
+		
 		/* Work in progress
 		try {
 			this.targetParamsUrl = getConfig().getBoolean(TARGET_PARAMS_URL, true);
@@ -135,17 +144,30 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
 	}
 	
-    public Plugin.AlertThreshold getLevel() {
-		return level;
+    public Plugin.AlertThreshold getAlertThreshold() {
+		return alertThreshold;
 	}
 
     public void setAlertThreshold(Plugin.AlertThreshold level) {
-		this.level = level;
+		this.alertThreshold = level;
 		getConfig().setProperty(LEVEL, level.name());
 	}
 
     public void setAlertThreshold(String level) {
 		this.setAlertThreshold(AlertThreshold.valueOf(level));
+	}
+
+    public Plugin.AttackStrength getAttackStrength() {
+		return attackStrength;
+	}
+
+    public void setAttackStrength(Plugin.AttackStrength strength) {
+		this.attackStrength = strength;
+		getConfig().setProperty(STRENGTH, strength.name());
+	}
+
+    public void setAttackStrength(String strength) {
+		this.setAttackStrength(AttackStrength.valueOf(strength));
 	}
 
 	/* Work in progress

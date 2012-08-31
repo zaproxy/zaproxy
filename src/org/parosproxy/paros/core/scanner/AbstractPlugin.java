@@ -25,6 +25,7 @@
 // StringBuilder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
+// ZAP: 2012/08/31 Enabled control of AttackStrength
 
 
 package org.parosproxy.paros.core.scanner;
@@ -444,7 +445,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	public void setAttackStrength (AttackStrength level) {
 		setProperty("strength", level.name());
 	}
-	
+
+	@Override
+	public void setDefaultAttackStrength(AttackStrength strength) {
+		this.defaultAttackStrength = strength;
+	}
+
 	/**
 	 * Override this if you plugin supports other levels.
 	 */

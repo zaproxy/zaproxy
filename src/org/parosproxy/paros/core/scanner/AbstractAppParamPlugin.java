@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary casts.
+// ZAP: 2012/08/31 Added support for AttackStrength
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
@@ -29,15 +31,26 @@ import org.parosproxy.paros.network.HttpMessage;
 abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
 
 
-    private Vector<VariantAbstractQuery> listVariant = new Vector<VariantAbstractQuery>();
+    private Vector<Variant> listVariant = new Vector<Variant>();
     
     private Variant variant = null;
     private NameValuePair originalPair = null;
     
     @Override
     public void scan() {
-        listVariant.add(new VariantURLQuery());
-        listVariant.add(new VariantFormQuery());
+		listVariant.add(new VariantURLQuery());
+		listVariant.add(new VariantFormQuery());
+    	/* Work in progress
+    	if (this.getParent().getScannerParam().isTargetParamsUrl()) {
+    		listVariant.add(new VariantURLQuery());
+    	}
+    	if (this.getParent().getScannerParam().isTargetParamsForm()) {
+    		listVariant.add(new VariantFormQuery());
+    	}
+    	if (this.getParent().getScannerParam().isTargetParamsCookie()) {
+    		listVariant.add(new VariantCookie());
+    	}
+    	*/
         
         for (int i=0; i<listVariant.size() && !isStop(); i++) {
             HttpMessage msg = getNewMsg();

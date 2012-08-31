@@ -21,6 +21,7 @@
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault) 
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
+// ZAP: 2012/08/31 Enabled control of AttackStrength
 
 package org.parosproxy.paros.core.scanner;
 
@@ -184,6 +185,12 @@ public interface Plugin extends Runnable {
 	 * @param level The alert threshold to set for this plugin
 	 */
 	public void setAttackStrength (AttackStrength level);
+	
+	/**
+	 * Set the default attack strength for this plugin, ie the relative number of attacks that will be performed
+	 * @param strength The attack strength to set for this plugin
+	 */
+	public void setDefaultAttackStrength(AttackStrength strength);
 	
 	/**
 	 * Returns an array of the AttackStrengths supported. It must include MEDIUM and may include LOW, HIGH and INSANE
