@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies
 // instead of String.
 // ZAP: 2012/06/11 Added method delete(List<Integer>).
+// ZAP: 2012/08/31 Changed to save the note of the HttpMessage.
 
 package org.parosproxy.paros.db;
 
@@ -100,22 +101,6 @@ public class TableHistory extends AbstractTable {
             isExistStatusCode = true;
         }
         rs.close();
-        // ZAP: Added support for the tag when creating a history record
-        if (isExistStatusCode) {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
-                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
-                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?)");
-        } else {
-            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
-                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
-                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?)");
-            
-        }
-        psWrite2 = conn.prepareCall("CALL IDENTITY();");
 
         rs = conn.getMetaData().getColumns(null, null, "HISTORY", "TAG");
         if (!rs.next()) {
@@ -124,8 +109,6 @@ public class TableHistory extends AbstractTable {
             stmt.close();
         }
         rs.close();
-        
-        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
         // ZAP: Add the NOTE column to the db if necessary
         rs = conn.getMetaData().getColumns(null, null, "HISTORY", "NOTE");
@@ -135,6 +118,25 @@ public class TableHistory extends AbstractTable {
             stmt.close();
         }
         rs.close();
+        
+        // ZAP: Added support for the tag and the note when creating a history record
+        if (isExistStatusCode) {
+            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
+                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?)");
+        } else {
+            psWrite1= conn.prepareStatement("INSERT INTO HISTORY ("
+                    + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
+                    TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + "," + NOTE
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?)");
+            
+        }
+        psWrite2 = conn.prepareCall("CALL IDENTITY();");
+        
+        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
        	psLastIndex = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
@@ -164,6 +166,8 @@ public class TableHistory extends AbstractTable {
 	    String method = "";
 	    String uri = "";
         int statusCode = 0;
+        // ZAP: Added the statement.
+        String note = msg.getNote();
 	    
 	    if (!msg.getRequestHeader().isEmpty()) {
 	        reqHeader = msg.getRequestHeader().toString();
@@ -179,13 +183,13 @@ public class TableHistory extends AbstractTable {
 	    }
 	    
 	    //return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, msg.getTag());
-	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null);
+	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null, note);
 	    
 	}
 	
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
-	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag) throws HttpMalformedHeaderException, SQLException {
+	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException, SQLException {
 
 		psWrite1.setLong(1, sessionId);
 		psWrite1.setInt(2, histType);
@@ -199,9 +203,18 @@ public class TableHistory extends AbstractTable {
 		psWrite1.setBytes(10, resBody);
 		psWrite1.setString(11, tag);
 
+        // ZAP: Added the statement.
+        int noteIdx = 12;
+
         if (isExistStatusCode) {
             psWrite1.setInt(12, statusCode);
+            // ZAP: Added the statement.
+            ++noteIdx;
         }
+
+        // ZAP: Added the statement.
+        psWrite1.setString(noteIdx, note);
+
 		psWrite1.executeUpdate();
 				
 		/*
