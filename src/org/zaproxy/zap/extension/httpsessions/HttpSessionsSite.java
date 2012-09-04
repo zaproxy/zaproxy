@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -183,8 +184,9 @@ public class HttpSessionsSite {
 	 */
 	public void createEmptySession() {
 		// TODO: Allow the user to specify it?
-		HttpSession session = new HttpSession(Constant.messages.getString("httpsessions.session.defaultName") + " "
-				+ (lastGeneratedSessionID++));
+		HttpSession session = new HttpSession(MessageFormat.format(
+				Constant.messages.getString("httpsessions.session.defaultName"),
+				Integer.valueOf(lastGeneratedSessionID++)));
 		this.addHttpSession(session);
 		this.setActiveSession(session);
 	}
@@ -195,7 +197,7 @@ public class HttpSessionsSite {
 	 * @return the model
 	 */
 	public HttpSessionsTableModel getModel() {
-		return model; 
+		return model;
 	}
 
 	/**
@@ -205,7 +207,7 @@ public class HttpSessionsSite {
 	 */
 	public void processHttpRequestMessage(HttpMessage message) {
 		// Get the session tokens for this site
-		Set<String> tokensSet = extension.getHttpSessionTokens(getSite()); 
+		Set<String> tokensSet = extension.getHttpSessionTokens(getSite());
 
 		// No tokens for this site, so no processing
 		if (tokensSet == null) {
@@ -303,6 +305,10 @@ public class HttpSessionsSite {
 
 		// Get the cookies present in the request
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
+
+		// XXX When an empty HttpSession is set in the message and the response
+		// contains session cookies, the empty HttpSession is reused which
+		// causes the number of messages matched to be incorrect.
 
 		// Get the session, based on the request header
 		HttpSession session = message.getHttpSession();
