@@ -149,7 +149,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		});
 
 		this.setContentPane(getWindowPanel());
-		this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory")).getHistoryList();
+		this.historyList = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME)).getHistoryList();
 	}
 
 	private JPanel getWindowPanel() {

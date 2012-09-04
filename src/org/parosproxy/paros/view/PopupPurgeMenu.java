@@ -126,7 +126,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
             }
 
             // delete reference in node
-            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
             ext.getHistoryList().removeElement(node.getHistoryReference());
 
     		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
