@@ -35,7 +35,7 @@ public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Compar
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    try {
         			if (extHist == null) {
-        				extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+        				extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
         			}
         			if (extHist != null) {
         				extHist.showAlertAddDialog(alert);

@@ -133,7 +133,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 	
 	private void init () {
-		extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+		extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
 	}
 		
 	public void raiseAlert(int id, Alert alert) {

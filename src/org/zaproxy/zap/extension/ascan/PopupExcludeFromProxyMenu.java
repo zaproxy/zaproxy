@@ -128,7 +128,7 @@ public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 
             // delete reference in node
             
-            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
             ext.removeFromHistoryList(node.getHistoryReference());
 
             // delete past reference in node
@@ -159,7 +159,7 @@ private static void purge(SiteMap map, SiteNode node) {
            }
 
            // delete reference in node
-           ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+           ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
            ext.removeFromHistoryList(node.getHistoryReference());
 
            if (node.getHistoryReference()!= null) {

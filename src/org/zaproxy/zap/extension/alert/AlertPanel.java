@@ -284,7 +284,7 @@ public class AlertPanel extends AbstractPanel {
 					            Alert alert = (Alert) obj;
 					            
 								if (extHist == null) {
-									extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+									extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
 								}
 								if (extHist != null) {
 									extHist.showAlertAddDialog(alert);

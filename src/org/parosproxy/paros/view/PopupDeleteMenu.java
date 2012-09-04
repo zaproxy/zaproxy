@@ -118,7 +118,7 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 
             // delete reference in node
             
-            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension("ExtensionHistory");
+            ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
             ext.removeFromHistoryList(node.getHistoryReference());
 
             // delete past reference in node
