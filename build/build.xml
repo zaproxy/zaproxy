@@ -2,6 +2,7 @@
 	<description>Build ZAP.</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="../src" />
+	<property name="src.version" value="1.7" />
 	<property name="build" location="build" />
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
@@ -55,7 +56,7 @@
 		<echo message="Compiling the source..." />
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-		<javac srcdir="${src}" destdir="${build}">
+		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false">
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
