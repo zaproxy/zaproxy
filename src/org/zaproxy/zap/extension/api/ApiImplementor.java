@@ -30,12 +30,14 @@ import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.parosproxy.paros.network.HttpMessage;
 
 
 public abstract class ApiImplementor {
 
 	private List<ApiAction> apiActions = new ArrayList<ApiAction>();
 	private List<ApiView> apiViews = new ArrayList<ApiView>();
+	private List<ApiOther> apiOthers = new ArrayList<ApiOther>();
 	
 	public List<ApiView> getApiViews() {
 		return this.apiViews;
@@ -45,8 +47,16 @@ public abstract class ApiImplementor {
 		return this.apiActions;
 	}
 
+	public List<ApiOther> getApiOthers() {
+		return this.apiOthers;
+	}
+
 	public void addApiView (ApiView view) {
 		this.apiViews.add(view);
+	}
+	
+	public void addApiOthers (ApiOther other) {
+		this.apiOthers.add(other);
 	}
 	
 	public void addApiAction (ApiAction action) {
@@ -120,10 +130,49 @@ public abstract class ApiImplementor {
 		}
 	}
 
+	/**
+	 * Override if implementing one or more views
+	 * @param name
+	 * @param params
+	 * @return
+	 * @throws ApiException
+	 */
+	public JSON handleApiView(String name, JSONObject params) throws ApiException {
+		throw new ApiException(ApiException.Type.BAD_VIEW, name);
+	}
+
+	/**
+	 * Override if implementing one or more actions
+	 * @param name
+	 * @param params
+	 * @return
+	 * @throws ApiException
+	 */
+	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
+		throw new ApiException(ApiException.Type.BAD_ACTION, name);
+	}
+	
+	/**
+	 * Override if implementing one or more 'other' operations - these are operations that _dont_ return structured data
+	 * @param msg
+	 * @param name
+	 * @param params
+	 * @return
+	 * @throws ApiException
+	 */
+	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
+		throw new ApiException(ApiException.Type.BAD_OTHER, name);
+	}
+	
+	/**
+	 * Override if handling callbacks
+	 * @param msg
+	 * @return
+	 * @throws ApiException
+	 */
+	public String handleCallBack(HttpMessage msg)  throws ApiException {
+		throw new ApiException (ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
+	}
+
 	public abstract String getPrefix();
-	
-	public abstract JSON handleApiView(String name, JSONObject params) throws ApiException ;
-	
-	public abstract JSON handleApiAction(String name, JSONObject params) throws ApiException;
-	
 }

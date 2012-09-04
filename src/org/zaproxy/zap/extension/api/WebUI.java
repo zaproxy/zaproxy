@@ -56,7 +56,6 @@ public class WebUI {
 			sb.append(Constant.messages.getString("api.html.component"));
 			sb.append(component);
 			sb.append("</h2>\n");
-			// TODO handle
 			if (RequestType.action.equals(reqType) && name != null) {
 				// Action form
 				List<ApiAction> actionList = impl.getApiActions();
@@ -110,6 +109,65 @@ public class WebUI {
 				sb.append("<td>");
 				sb.append("<input id=\"submit\" type=\"submit\" value=\"");
 				sb.append(action.getName());
+				sb.append("\"></input>");
+				sb.append("</td>");
+				sb.append("</tr>\n");
+				sb.append("</table>\n");
+				sb.append("</form>\n");
+
+			} else if (RequestType.other.equals(reqType) && name != null) {
+				// Other form
+				List<ApiOther> otherList = impl.getApiOthers();
+				ApiOther other = null;
+				for (ApiOther oth : otherList) {
+					if (name.equals(oth.getName())) {
+						other = oth;
+						break;
+					}
+				}
+				if (other == null) {
+					throw new ApiException(ApiException.Type.BAD_OTHER);
+				}
+				List<String> params = other.getParamNames();
+				sb.append("<h3>");
+				sb.append(Constant.messages.getString("api.html.other"));
+				sb.append(other.getName());
+				sb.append("</h3>\n");
+				sb.append("<form action=\"");
+				
+				sb.append("http://zap/");
+				sb.append(Format.OTHER.name());
+				sb.append('/');
+				sb.append(component);
+				sb.append('/');
+				sb.append(RequestType.other.name());
+				sb.append('/');
+				sb.append(other.getName());
+				sb.append("/\">\n");
+				sb.append("<table>\n");
+				
+				if (params != null) {
+					for (String param : params) {
+						sb.append("<tr>");
+						sb.append("<td>");
+						sb.append(param);
+						sb.append("</td>");
+						sb.append("<td>");
+						sb.append("<input id=\"");
+						sb.append(param);
+						sb.append("\" name=\"");
+						sb.append(param);
+						sb.append("\"></input>");
+						sb.append("</td>");
+						sb.append("</tr>\n");
+					}
+				}
+				sb.append("<tr>");
+				sb.append("<td>");
+				sb.append("</td>");
+				sb.append("<td>");
+				sb.append("<input id=\"submit\" type=\"submit\" value=\"");
+				sb.append(other.getName());
 				sb.append("\"></input>");
 				sb.append("</td>");
 				sb.append("</tr>\n");
@@ -181,9 +239,6 @@ public class WebUI {
 							sb.append(view.getName());
 							sb.append("/\">");
 							sb.append(view.getName());
-							if (params != null) {
-								sb.append("...");
-							}
 							sb.append("</a>");
 						}
 						sb.append("</td>");
@@ -223,6 +278,40 @@ public class WebUI {
 					sb.append("</tr>\n");
 				}
 				sb.append("</table>\n");
+				
+				List<ApiOther> otherList = impl.getApiOthers();
+				sb.append("<h3>");
+				sb.append(Constant.messages.getString("api.html.others"));
+				sb.append("</h3>\n");
+				sb.append("<table>\n");
+				for (ApiOther other : otherList) {
+					List<String> params = other.getParamNames();
+					sb.append("<tr>");
+					sb.append("<td>");
+					sb.append("<a href=\"http://zap/");
+					sb.append(Format.UI.name());
+					sb.append('/');
+					sb.append(component);
+					sb.append('/');
+					sb.append(RequestType.other.name());
+					sb.append('/');
+					sb.append(other.getName());
+					sb.append("/\">");
+					sb.append(other.getName());
+					if (params != null) {
+						sb.append(" (");
+						for (String param : params) {
+							sb.append(param);
+							sb.append(' ');
+						}
+						sb.append(") ");
+					}
+					sb.append("</a>");
+					sb.append("</td>");
+					sb.append("</tr>\n");
+				}
+				sb.append("</table>\n");
+
 			}
 
 		} else {

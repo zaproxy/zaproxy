@@ -20,7 +20,7 @@ package org.zaproxy.zap.extension.api;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiView {
+public class ApiOther {
 
 	private String name = null;
 	private List<String> paramNames = new ArrayList<String>();
@@ -33,18 +33,18 @@ public class ApiView {
 		this.name = name;
 	}
 
-	public ApiView(String name) {
+	public ApiOther(String name) {
 		super();
 		this.name = name;
 	}
 
-	public ApiView(String name, List<String> paramNames) {
+	public ApiOther(String name, List<String> paramNames) {
 		super();
 		this.name = name;
 		this.paramNames = paramNames;
 	}
 	
-	public ApiView(String name, String[] paramNames) {
+	public ApiOther(String name, String[] paramNames) {
 		super();
 		this.name = name;
 		if (paramNames != null) {

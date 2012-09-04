@@ -20,6 +20,8 @@ package org.zaproxy.zap.extension.api;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import net.sf.json.JSON;
@@ -35,17 +37,20 @@ import org.parosproxy.paros.view.View;
 
 
 public class API {
-	public enum Format {XML, HTML, JSON, UI};
-	public enum RequestType {action, view};
+	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
+	public enum RequestType {action, view, other};
 	
 	public static String API_URL = "http://zap/";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
+	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
 
 	private Map<String, ApiImplementor> implementors = new HashMap<String, ApiImplementor>();
 	private static API api = null;
 	private WebUI webUI = new WebUI(this);
+	private Map<String, ApiImplementor> callBacks = new HashMap<String, ApiImplementor>();
 	
+	private Random random = new Random();
     private Logger logger = Logger.getLogger(this.getClass());
 
 	private static synchronized API newInstance() {
@@ -82,12 +87,27 @@ public class API {
 			HttpOutputStream httpOut) throws IOException {
 		String url = requestHeader.getURI().toString();
 		Format format = Format.UI;
-		if ( ! url.startsWith(API_URL)) {
+		ApiImplementor callbackImpl = null;
+		
+		// Check for callbacks
+		if (url.contains(CALL_BACK_URL)) {
+			for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
+				if (url.startsWith(callback.getKey())) {
+					callbackImpl = callback.getValue();
+					break;
+				}
+			}
+		}
+		
+		if (callbackImpl == null && ! url.startsWith(API_URL)) {
 			return false;
 		}
 		
 		HttpMessage msg = new HttpMessage();
 		msg.setRequestHeader(requestHeader);
+		String component = null;
+		ApiImplementor impl = null;
+		RequestType reqType = null;
 		String contentType = "text/plain";
 		String response = "";
 		String name = null;
@@ -97,101 +117,115 @@ public class API {
 				throw new ApiException(ApiException.Type.DISABLED);
 			}
 			
-			// Parse the query:
-			// format of url is http://zap/format/component/reqtype/name/?params
-			//                    0  1  2    3        4        5      6
-			String[] elements = url.split("/");
-			/*
-			if (elements.length < 6) {
+			if (callbackImpl != null) {
+				response = callbackImpl.handleCallBack(msg);
+			} else {
+			
+				// Parse the query:
+				// format of url is http://zap/format/component/reqtype/name/?params
+				//                    0  1  2    3        4        5      6
+				String[] elements = url.split("/");
+			
+				if (elements.length > 3) {
+					try {
+						format = Format.valueOf(elements[3].toUpperCase());
+						switch (format) {
+						case JSON: 	// Browsers will prompt for you to save application/json format, which is a pain
+									//contentType = "application/json"; 
+									contentType = "text/plain";
+									break;
+						case JSONP: contentType = "application/javascript";
+									break;
+						case XML:	contentType = "text/xml";
+									break;
+						case HTML:	contentType = "text/html";
+									break;
+						case UI:	contentType = "text/html";
+									break;
+						}
+					} catch (IllegalArgumentException e) {
+						throw new ApiException(ApiException.Type.BAD_FORMAT);
+					}
+				}
+				if (elements.length > 4) {
+					component = elements[4];
+					impl = implementors.get(component);
+					if (impl == null) {
+						throw new ApiException(ApiException.Type.NO_IMPLEMENTOR);
+					}
+				}
+				if (elements.length > 5) {
+					try {
+						reqType = RequestType.valueOf(elements[5]);
+					} catch (IllegalArgumentException e) {
+						throw new ApiException(ApiException.Type.BAD_TYPE);
+					}
+				}
+				if (elements.length > 6) {
+					name = elements[6];
+				}
 				
-			}
-			*/
-			String component = null;
-			ApiImplementor impl = null;
-			RequestType reqType = null;
-			
-			if (elements.length > 3) {
-				try {
-					format = Format.valueOf(elements[3].toUpperCase());
-					switch (format) {
-					case JSON: 	// Browsers will prompt for you to save application/json format, which is a pain
-								//contentType = "application/json"; 
-								contentType = "text/plain";
-								break;
-					case XML:	contentType = "text/xml";
-								break;
-					case HTML:	contentType = "text/html";
-								break;
-					case UI:	contentType = "text/html";
-								break;
+				if (format.equals(Format.UI)) {
+					response = webUI.handleRequest(component, impl, reqType, name);
+					contentType = "text/html";
+				} else if (name != null) {
+					JSON result;
+					JSONObject params = getParams(requestHeader.getURI().getQuery());
+					switch (reqType) {
+					case action:	
+						// TODO Handle POST requests - need to read these in and then parse params from POST body
+						/*
+						if (Model.getSingleton().getOptionsParam().getApiParam().isPostActions()) {
+							throw new ApiException(ApiException.Type.DISABLED);
+						}
+						*/
+						result = impl.handleApiAction(name, params);
+						switch (format) {
+						case JSON: 	response = result.toString();
+									break;
+						case JSONP: response = this.getJsonpWrapper(result.toString()); 
+									break;
+						case XML:	response = impl.actionResultToXML(name, result);
+									break;
+						case HTML:	response = impl.actionResultToHTML(name, result);
+									break;
+						}
+						break;
+					case view:		
+						result = impl.handleApiView(name, params);	
+						switch (format) {
+						case JSON: 	response = result.toString();
+									break;
+						case JSONP: response = this.getJsonpWrapper(result.toString()); 
+									break;
+						case XML:	response = impl.viewResultToXML(name, result);
+									break;
+						case HTML:	response = impl.viewResultToHTML(name, result);
+									break;
+						}
+						break;
+					case other:
+						msg = impl.handleApiOther(msg, name, params);
 					}
-				} catch (IllegalArgumentException e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT);
-				}
-			}
-			if (elements.length > 4) {
-				component = elements[4];
-				impl = implementors.get(component);
-				if (impl == null) {
-					throw new ApiException(ApiException.Type.NO_IMPLEMENTOR);
-				}
-			}
-			if (elements.length > 5) {
-				try {
-					reqType = RequestType.valueOf(elements[5]);
-				} catch (IllegalArgumentException e) {
-					throw new ApiException(ApiException.Type.BAD_TYPE);
-				}
-			}
-			if (elements.length > 6) {
-				name = elements[6];
-			}
-			
-			if (format.equals(Format.UI)) {
-				response = webUI.handleRequest(component, impl, reqType, name);
-				contentType = "text/html";
-			} else if (name != null) {
-				JSON result;
-				JSONObject params = getParams(requestHeader.getURI().getQuery());
-				switch (reqType) {
-				case action:	
-					// TODO Handle POST requests - need to read these in and then parse params from POST body
-					/*
-					if (Model.getSingleton().getOptionsParam().getApiParam().isPostActions()) {
-						throw new ApiException(ApiException.Type.DISABLED);
-					}
-					*/
-					result = impl.handleApiAction(name, params);
-					switch (format) {
-					case JSON: 	response = result.toString();
-								break;
-					case XML:	response = impl.actionResultToXML(name, result);
-								break;
-					case HTML:	response = impl.actionResultToHTML(name, result);
-								break;
-					}
-					break;
-				case view:		
-					result = impl.handleApiView(name, params);	
-					switch (format) {
-					case JSON: 	response = result.toString();
-								break;
-					case XML:	response = impl.viewResultToXML(name, result);
-								break;
-					case HTML:	response = impl.viewResultToHTML(name, result);
-								break;
-					}
-					break;
 				}
 			}
 			
 		} catch (ApiException e) {
 			response =  e.toString(format);
 		}
-
-    	msg.setResponseHeader("HTTP/1.1 200 OK\r\nContent-Length: " + response.length() + 
-    			"\r\nContent-Type: " + contentType + ";");
-    	msg.setResponseBody(response);
+		
+		if (format == null || ! format.equals(Format.OTHER)) {
+	    	msg.setResponseHeader(
+	    			"HTTP/1.1 200 OK\r\n" +
+	    			"Pragma: no-cache\r\n" +
+	  				"Cache-Control: no-cache\r\n" + 
+	  				"Access-Control-Allow-Origin: *\r\n" + 
+	  				"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+	  				"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+	    			"Content-Length: " + response.length() + 
+	    			"\r\nContent-Type: " + contentType + ";");
+	    	msg.setResponseBody(response);
+		}
 
     	httpOut.write(msg.getResponseHeader());
     	httpOut.write(msg.getResponseBody());
@@ -225,8 +259,18 @@ public class API {
 		}
 		return jp;
 	}
+	
+	private String getJsonpWrapper(String json) {
+		return "zapJsonpResult (" + json + " )";
+	}
 
 	protected Map<String, ApiImplementor> getImplementors() {
 		return implementors;
+	}
+	
+	public String getCallBackUrl(ApiImplementor impl, String site) {
+		String url = site + CALL_BACK_URL + random.nextLong();
+		this.callBacks.put(url, impl);
+		return url;
 	}
 }

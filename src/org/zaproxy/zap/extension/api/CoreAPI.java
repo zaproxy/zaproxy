@@ -396,4 +396,10 @@ public class CoreAPI extends ApiImplementor {
 		}
 	}
 
+	@Override
+	public HttpMessage handleApiOther(HttpMessage msg, String name,
+			JSONObject params) throws ApiException {
+		throw new ApiException(ApiException.Type.BAD_OTHER);
+	}
+
 }

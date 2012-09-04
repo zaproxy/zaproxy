@@ -26,8 +26,8 @@ public class ApiException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	
-	public enum Type {BAD_FORMAT, BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, INTERNAL_ERROR, MISSING_PARAMETER, 
-		URL_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED};
+	public enum Type {BAD_FORMAT, BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
+		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED};
 	
 	private String detail = null;
 
