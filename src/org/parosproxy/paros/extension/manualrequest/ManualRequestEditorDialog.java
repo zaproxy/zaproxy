@@ -337,8 +337,8 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private void setFooterStatus(HttpMessage msg){
 		if (msg != null) {
 			//get values
-			long totalLength = msg.getResponseBody().toString().length()+msg.getResponseHeader().getHeadersAsString().length();
-			long contentLength = msg.getResponseBody().toString().length();
+			long contentLength = msg.getResponseBody().length();
+			long totalLength = msg.getResponseHeader().toString().length() + contentLength;
 			long timeLapse =msg.getTimeElapsedMillis(); 
 			// show time lapse and content length between request and response Constant.messages.getString("manReq.label.timeLapse")
 			getLabelTimeLapse().setText(
