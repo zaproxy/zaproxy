@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2010 The ZAP Development team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,12 +21,15 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
@@ -34,17 +37,21 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.encoder.Encoder;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -55,6 +62,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	private Map<String, AntiCsrfToken> urlToToken = new HashMap<String, AntiCsrfToken>();
 	
 	private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
+	private PopupMenuGenerateForm popupMenuGenerateForm = null;
 	
 	private Encoder encoder = new Encoder();
 
@@ -78,8 +86,18 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	    if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsAntiCsrfPanel());
+	        extensionHook.getHookMenu().addPopupMenuItem(this.getPopupMenuGenerateForm());
 	    }
 
+        API.getInstance().registerApiImplementor(new AntiCsrfAPI(this));
+
+	}
+	
+	private PopupMenuGenerateForm getPopupMenuGenerateForm() {
+		if (popupMenuGenerateForm == null) {
+			this.popupMenuGenerateForm = new PopupMenuGenerateForm(Constant.messages.getString("anticsrf.genForm.popup"));
+		}
+		return popupMenuGenerateForm;
 	}
 
 	private OptionsAntiCsrfPanel getOptionsAntiCsrfPanel() {
@@ -246,5 +264,50 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
+	}
+
+	public String generateForm(int hrefId) throws Exception {
+		ExtensionHistory extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+		if (extHist != null) {
+			HistoryReference hr = extHist.getHistoryReference(hrefId);
+			if (hr == null) {
+				return null;
+			}
+			StringBuffer sb = new StringBuffer();
+			sb.append("<html>\n");
+			sb.append("<body>\n");
+			sb.append("<h3>");
+			sb.append(hr.getHttpMessage().getRequestHeader().getURI());
+			sb.append("</h3>");
+			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + hr.getHttpMessage().getRequestHeader().getURI() + "\">\n");
+			sb.append("<table>\n");
+			
+			TreeSet<HtmlParameter> params = hr.getHttpMessage().getFormParams();
+			Iterator<HtmlParameter> iter = params.iterator();
+			while (iter.hasNext()) {
+				HtmlParameter htmlParam = iter.next();
+				String name = URLDecoder.decode(htmlParam.getName(), "UTF-8");
+				String value = URLDecoder.decode(htmlParam.getValue(), "UTF-8");
+				sb.append("<tr><td>\n");
+				sb.append(name);
+				sb.append("<td>");
+				sb.append("<input name=\"");
+				sb.append(name);
+				sb.append("\" value=\"");
+				sb.append(value);
+				sb.append("\" size=\"100\">");
+				sb.append("</tr>\n");
+			}
+
+			sb.append("</table>\n");
+			sb.append("</form>\n");
+			sb.append("<button onclick=\"document.getElementById('f1').submit()\">Submit</button>\n");
+			sb.append("</body>\n");
+			sb.append("</html>\n");
+
+			return sb.toString();
+		}
+
+		return null;
 	}
 }
