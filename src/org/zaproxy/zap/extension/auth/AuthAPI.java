@@ -42,7 +42,7 @@ public class AuthAPI extends ApiImplementor {
 	private static final String VIEW_LOGOUT_DATA = "logoutData";
 	private static final String VIEW_LOGGED_OUT_INDICATOR = "loggedOutIndicator";
 	
-	private static final String ACTION_AUTHENTICATE = "authenticateo";
+	private static final String ACTION_AUTHENTICATE = "authenticate";
 	private static final String ACTION_AUTO_REAUTH_ON = "autoReauthOn";
 	private static final String ACTION_AUTO_REAUTH_OFF = "autoReauthOff";
 	private static final String ACTION_SET_LOGIN_NODE = "setLoginUrl";
