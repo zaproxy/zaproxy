@@ -222,7 +222,7 @@
 			destdir="${javadocs.dir}"
 			windowTitle="OWASP Zed Attack Proxy"
 			classpathref="dist.classpath"
-			link="http://docs.oracle.com/javase/6/docs/api/">
+			link="http://docs.oracle.com/javase/7/docs/api/">
 		</javadoc>
 		<!-- set mime-type such that HTML is returned by server -->
 		<exec executable="${svn.cmd}">
