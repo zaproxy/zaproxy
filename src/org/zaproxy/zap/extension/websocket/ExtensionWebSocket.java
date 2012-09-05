@@ -17,18 +17,21 @@
  */
 package org.zaproxy.zap.extension.websocket;
 
-import java.awt.EventQueue;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -49,13 +52,11 @@ import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.hex.HttpPanelHexView;
-
 import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
@@ -65,11 +66,11 @@ import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromScopeMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
+import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.IncludeInScopeMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
-import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
-import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.component.WebSocketComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
@@ -145,32 +146,123 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Current mode of ZAP. Determines if "unsafe" actions are allowed.
 	 */
 	private Mode mode;
+
+	/**
+	 * Link to {@link ExtensionFuzz}.
+	 */
+	private WebSocketFuzzerHandler fuzzHandler;
 	
 	public ExtensionWebSocket() {
-		super();
+		super(NAME);
+		
+		// should be initialized after ExtensionBreak (24) & ExtensionFilter (8)
+		setOrder(150);
+	}
+	
+	@Override
+	public void init() {
+		super.init();
+		
 		allChannelObservers = new Vector<WebSocketObserver>();
 		hasHookedAllObserver = false;
 		wsProxies = new HashMap<Integer, WebSocketProxy>();
 		storageBlacklist = new ArrayList<Pair<String, Integer>>();
 		config = new OptionsParamWebSocket();
 		
-		initialize();
+		// setup database
+		storage = new WebSocketStorage(Model.getSingleton().getDb().getTableWebSocket());
+		addAllChannelObserver(storage);
 	}
 	
-	private void initialize() {
-		setName(NAME);
+	/**
+	 * This method interweaves the WebSocket extension with the rest of ZAP.
+	 * <p>
+	 * It does the following things:
+	 * <ul>
+	 * <li>installs itself as session listener in order to react on session
+	 * changes</li>
+	 * <li>adds a WebSocket tab to the status panel (information window containing
+	 * e.g.: the History tab)</li>
+	 * <li>adds a WebSocket specific options panel</li>
+	 * <li>adds 'Exclude From WebSockets' to Session Properties</li>
+	 * <li>sets up context menu for WebSockets panel with 'Break' & 'Exclude'</li>
+	 * </ul>
+	 * </p>
+	 */
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+		super.hook(extensionHook);
 		
-		// should be initialized after ExtensionBreak (24) & ExtensionFilter (8)
-		setOrder(150);
+		extensionHook.addSessionListener(this);
 		
-		Model model = Model.getSingleton();
+		// setup configuration
+		extensionHook.addOptionsParamSet(config);
 		
-		// setup database
-		storage = new WebSocketStorage(model.getDb().getTableWebSocket());
-		addAllChannelObserver(storage);
-		
-		// setup configuration        
-    	config.load(model.getOptionsParam().getConfig());
+		if (getView() != null) {
+			ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+			ExtensionHookView hookView = extensionHook.getHookView();
+			ExtensionHookMenu hookMenu = extensionHook.getHookMenu();
+			
+			// setup WebSocket tab
+			WebSocketPanel wsPanel = getWebSocketPanel();
+			wsPanel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+			
+			extensionHook.addSessionListener(wsPanel.getSessionListener());
+			
+			addAllChannelObserver(wsPanel);
+			ExtensionHelp.enableHelpKey(wsPanel, "ui.tabs.websocket");
+			
+			hookView.addStatusPanel(getWebSocketPanel());
+			
+			// setup Options Panel
+			hookView.addOptionPanel(getOptionsPanel());
+			
+			// add 'Exclude from WebSockets' menu item to WebSocket tab context menu
+			hookMenu.addPopupMenuItem(new ExcludeFromWebSocketsMenuItem(storage.getTable()));
+
+			// setup Session Properties
+			getView().getSessionDialog().addParamPanel(new String[]{}, new ExcludeFromWebSocketSessionPanel(), false);
+			
+			// setup Breakpoints
+			ExtensionBreak extBreak = (ExtensionBreak) extLoader.getExtension(ExtensionBreak.NAME);
+			if (extBreak != null) {
+				// setup custom breakpoint handler
+				BreakpointMessageHandler wsBrkMessageHandler = new WebSocketBreakpointMessageHandler(extBreak.getBreakPanel(), config);
+				wsBrkMessageHandler.setEnabledBreakpoints(extBreak.getBreakpointsEnabledList());
+				
+				// listen on new messages such that breakpoints can apply
+				addAllChannelObserver(new WebSocketProxyListenerBreak(this, wsBrkMessageHandler));
+
+				// pop up to add the breakpoint
+				hookMenu.addPopupMenuItem(new PopupMenuAddBreakWebSocket(extBreak));
+				extBreak.addBreakpointsUiManager(getBrkManager());
+			}
+			
+			// setup replace payload filter
+			ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
+			if (extFilter != null) {
+				payloadFilter = new FilterWebSocketPayload(this, wsPanel.getChannelsModel());
+				payloadFilter.initView(getView());
+				extFilter.addFilter(payloadFilter);
+			}
+			
+			// setup fuzzable extension
+			ExtensionFuzz extFuzz = (ExtensionFuzz) extLoader.getExtension(ExtensionFuzz.NAME);
+			if (extFuzz != null) {
+				hookMenu.addPopupMenuItem(new ShowFuzzMessageInWebSocketsTabMenuItem(getWebSocketPanel()));
+				
+				fuzzHandler = new WebSocketFuzzerHandler(storage.getTable());
+				extFuzz.addFuzzerHandler(WebSocketMessageDTO.class, fuzzHandler);
+				addAllChannelObserver(fuzzHandler);
+			}
+			
+			// add exclude/include scope
+			hookMenu.addPopupMenuItem(new ExcludeFromScopeMenuItem());
+			hookMenu.addPopupMenuItem(new IncludeInScopeMenuItem());
+			
+			// setup Workpanel (window containing Request, Response & Break tab)
+			initializeWebSocketsForWorkPanel();
+		}
 	}
 
 	@Override
@@ -181,11 +273,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	@Override
 	public String getDescription() {
 		return Constant.messages.getString("websocket.desc");
-	}
-	
-	@Override
-	public void init() {
-		super.init();
 	}
 
 	/**
@@ -201,31 +288,33 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Add an open channel to this extension after
 	 * HTTP handshake has been completed.
 	 * 
-	 * @param msg HTTP-based handshake.
+	 * @param handshakeMessage HTTP-based handshake.
 	 * @param localSocket Current connection channel from the browser to ZAP.
 	 * @param remoteSocket Current connection channel from ZAP to the server.
 	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
-	public void addWebSocketsChannel(HttpMessage msg, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
-		if (!hasHookedAllObserver) {
-			hasHookedAllObserver = true;
-			// Cannot call this method in own hook() method, as one or another
-			// extension had no chance to add webSocketObserver!
-			Control.getSingleton().getExtensionLoader().hookWebSocketObserver(this);
-		}
-		
-		logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
-				+ " port " + localSocket.getPort() + " to "
-				+ remoteSocket.getInetAddress() + " port "
-				+ remoteSocket.getPort());
-		
-		// parse HTTP handshake
-		Map<String, String> wsExtensions = parseWebSocketExtensions(msg);
-		String wsProtocol = parseWebSocketSubProtocol(msg);
-		String wsVersion = parseWebSocketVersion(msg);
-
-		WebSocketProxy wsProxy = null;
+	public void addWebSocketsChannel(HttpMessage handshakeMessage, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
 		try {
+			if (!hasHookedAllObserver) {
+				hasHookedAllObserver = true;
+				// Cannot call this method in own hook() method, as one or another
+				// extension had no chance to add webSocketObserver!
+				Control.getSingleton().getExtensionLoader().hookWebSocketObserver(this);
+			}
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
+					+ " port " + localSocket.getPort() + " to "
+					+ remoteSocket.getInetAddress() + " port "
+					+ remoteSocket.getPort());
+			}
+			
+			// parse HTTP handshake
+			Map<String, String> wsExtensions = parseWebSocketExtensions(handshakeMessage);
+			String wsProtocol = parseWebSocketSubProtocol(handshakeMessage);
+			String wsVersion = parseWebSocketVersion(handshakeMessage);
+	
+			WebSocketProxy wsProxy = null;
 			wsProxy = WebSocketProxy.create(wsVersion, localSocket, remoteSocket, wsProtocol, wsExtensions);
 			
 			// set other observers and handshake reference, before starting listeners
@@ -234,51 +323,69 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			}
 			
 			// wait until HistoryReference is saved to database
-			while (msg.getHistoryRef() == null) {
+			while (handshakeMessage.getHistoryRef() == null) {
 				try {
 					Thread.sleep(5);
 				} catch (InterruptedException e) {
 					logger.warn(e.getMessage(), e);
 				}
 			}
-			wsProxy.setHandshakeReference(msg.getHistoryRef());
+			wsProxy.setHandshakeReference(handshakeMessage.getHistoryRef());
 			wsProxy.setForwardOnly(isStorageBlacklisted(wsProxy));
 			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
-			
-			try {
-				// Workaround: Have to wait for HistoryReference object. Immediately it is null.
-				while (msg.getHistoryRef() == null) {
-					Thread.sleep(100);
-				}
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
 			
 			synchronized (wsProxies) {
 				wsProxies.put(wsProxy.getChannelId(), wsProxy);
 			}
-		} catch (WebSocketException e) {
+		} catch (Exception e) {
+			// defensive measure to catch all possible exceptions
+			// cleanly close resources
+			if (localSocket != null && !localSocket.isClosed()) {
+				try {
+					localSocket.close();
+				} catch (IOException e1) {
+					logger.warn(e.getMessage(), e1);
+				}
+			}
+			
+			if (remoteReader != null) {
+				try {
+					remoteReader.close();
+				} catch (IOException e1) {
+					logger.warn(e.getMessage(), e1);
+				}
+			}
+			
+			if (remoteSocket != null && !remoteSocket.isClosed()) {
+				try {
+					remoteSocket.close();
+				} catch (IOException e1) {
+					logger.warn(e.getMessage(), e1);
+				}
+			}
 			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
 			return;
 		}
 	}
 
 	/**
-	 * Parses the negotiated WebSockets extensions. It splits them up into
-	 * name and params of the extension. In future we want to look up if given
-	 * extension is available as ZAP extension and then use their knowledge
-	 * to process frames.
+	 * Parses the negotiated WebSockets extensions. It splits them up into name
+	 * and params of the extension. In future we want to look up if given
+	 * extension is available as ZAP extension and then use their knowledge to
+	 * process frames.
 	 * <p>
-	 * The <em>Sec-WebSocket-Extensions</em> header is only allowed to appear
-	 * once in the HTTP response (but several times in the HTTP request).
+	 * If multiple extensions are to be used, they can all be listed in a single
+	 * {@link WebSocketProtocol#HEADER_EXTENSION} field or split between multiple
+	 * instances of the {@link WebSocketProtocol#HEADER_EXTENSION} header field.
 	 * 
 	 * @param msg
 	 * @return Map with extension name and parameter string.
 	 */
-	private Map<String, String> parseWebSocketExtensions(HttpMessage msg) {
-		String extensionHeader = msg.getResponseHeader().getHeader("sec-websocket-extensions");
+	private LinkedHashMap<String, String> parseWebSocketExtensions(HttpMessage msg) {
+		Vector<String> extensionHeaders = msg.getResponseHeader().getHeaders(
+				WebSocketProtocol.HEADER_EXTENSION);
 
-		if (extensionHeader == null) {
+		if (extensionHeaders == null) {
 			return null;
 		}
 		
@@ -302,19 +409,29 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		 * 			Sec-WebSocket-Extensions: mux; max-channels=4; flow-control, deflate-stream
 		 * 			Sec-WebSocket-Extensions: private-extension
 		 */
-		Map<String, String> wsExtensions = new HashMap<String, String>();
-		for (String extension : extensionHeader.split(",")) {
-			String key = extension.trim();
-			String params = "";
-			
-			int paramsIndex = key.indexOf(";");
-			if (paramsIndex != -1) {
-				key = extension.substring(0, paramsIndex).trim();
-				params = extension.substring(paramsIndex + 1).trim();
+		LinkedHashMap<String, String> wsExtensions = new LinkedHashMap<String, String>();
+		for (String extensionHeader : extensionHeaders) {
+			for (String extension : extensionHeader.split(",")) {
+				String key = extension.trim();
+				String params = "";
+				
+				int paramsIndex = key.indexOf(";");
+				if (paramsIndex != -1) {
+					key = extension.substring(0, paramsIndex).trim();
+					params = extension.substring(paramsIndex + 1).trim();
+				}
+				
+				wsExtensions.put(key, params);
 			}
-			
-			wsExtensions.put(key, params);
 		}
+		
+		/*
+		 * The interpretation of any extension parameters, and what constitutes
+		 * a valid response by a server to a requested set of parameters by a
+		 * client, will be defined by each such extension.
+		 * 
+		 * Note that the order of extensions is significant!
+		 */
 		
 		return wsExtensions;
 	}
@@ -322,8 +439,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	/**
 	 * Parses negotiated protocols out of the response header.
 	 * <p>
-	 * The <em>Sec-WebSocket-Protocol</em> header is only allowed to appear
-	 * once in the HTTP response (but several times in the HTTP request).
+	 * The {@link WebSocketProtocol#HEADER_PROTOCOL} header is only allowed to
+	 * appear once in the HTTP response (but several times in the HTTP request).
 	 * 
 	 * A server that speaks multiple sub-protocols has to make sure it selects
 	 * one based on the client's handshake and specifies it in its handshake.
@@ -332,28 +449,30 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * @return Name of negotiated sub-protocol or null.
 	 */
 	private String parseWebSocketSubProtocol(HttpMessage msg) {
-		String subProtocol = msg.getResponseHeader().getHeader("sec-websocket-protocol");
+		String subProtocol = msg.getResponseHeader().getHeader(
+				WebSocketProtocol.HEADER_PROTOCOL);
 		return subProtocol;
 	}
 
 	/**
-	 * The <em>Sec-WebSocket-Version</em> header might not always contain
-	 * a number. Therefore I return a string. Use the version to choose
+	 * The {@link WebSocketProtocol#HEADER_VERSION} header might not always
+	 * contain a number. Therefore I return a string. Use the version to choose
 	 * the appropriate processing class.
 	 * 
 	 * @param msg
 	 * @return Version of the WebSockets channel, defining the protocol.
 	 */
 	private String parseWebSocketVersion(HttpMessage msg) {
-		String version = msg.getResponseHeader().getHeader("sec-websocket-version");
+		String version = msg.getResponseHeader().getHeader(
+				WebSocketProtocol.HEADER_VERSION);
 		
 		if (version == null) {
 			// check for requested WebSockets version
-			version = msg.getRequestHeader().getHeader("sec-websocket-version");
+			version = msg.getRequestHeader().getHeader(WebSocketProtocol.HEADER_VERSION);
 			
 			if (version == null) {
 				// default to version 13 if non is given, for whatever reason
-				logger.debug("No Sec-Websocket-Version header was provided - try version 13");
+				logger.debug("No " + WebSocketProtocol.HEADER_VERSION + " header was provided - try version 13");
 				version = "13";
 			}
 		}
@@ -418,25 +537,30 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * in the UI.
 	 * 
 	 * @param ignoredStrings
+	 * @throws PatternSyntaxException
 	 */
-	public void setStorageBlacklist(List<String> ignoredStrings) {
+	public void setStorageBlacklist(List<String> ignoredStrings) throws PatternSyntaxException {
 		synchronized (storageBlacklist) {
 			storageBlacklist.clear();
 			for (String regex : ignoredStrings) {
-				Integer port = null;
-				try {
-					port = Integer.parseInt(regex.replaceAll("^.*:([0-9]+).*$", "$1"));
-				} catch (NumberFormatException e) {
-					// safely ignore, null is used as wildcard
+				if (regex.trim().length() > 0) {
+					Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
+					
+					Integer port = null;
+					try {
+						port = Integer.parseInt(regex.replaceAll("^.*:([0-9]+).*$", "$1"));
+					} catch (NumberFormatException e) {
+						// safely ignore, null is used as wildcard
+					}
+					
+					String host = regex.replaceAll("^(.*):[0-9]+(.*)$", "$1$2");
+					if (host.isEmpty()) {
+						// special case if ":80" is entered
+						host = null;
+					}
+					
+					storageBlacklist.add(new Pair<String, Integer>(host, port));
 				}
-				
-				String host = regex.replaceAll("^(.*):[0-9]+(.*)$", "$1$2");
-				if (host.isEmpty()) {
-					// special case if ":80" is entered
-					host = null;
-				}
-				
-				storageBlacklist.add(new Pair<String, Integer>(host, port));
 			}
 		}
 
@@ -481,53 +605,40 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionChanged(final Session session) {
-		if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
-	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
+		try {
+			WebSocketProxy.setChannelIdGenerator(storage.getTable().getMaxChannelId());
+		} catch (SQLException e) {
+			logger.error("Unable to retrieve current channelId value!", e);
+		}
+		
+		if (fuzzHandler != null) {
+			fuzzHandler.resume();
+		}
 	}
-	
-	private void sessionChangedEventHandler(Session session) {
+
+	@Override
+	public void sessionAboutToChange(Session session) {
 		// close existing connections
 		synchronized (wsProxies) {
 			for (WebSocketProxy wsProxy : wsProxies.values()) {
 				wsProxy.shutdown();
 			}
-			wsProxies.clear();	
+			wsProxies.clear();
 		}
 		
 		synchronized (storageBlacklist) {
 			storageBlacklist.clear();
+			storageBlacklist.trimToSize();
 		}
-		
-		// reset WebSocket panel
-		getWebSocketPanel().reset();
 		
 		// reset replace payload filter
 		if (payloadFilter != null) {
 			payloadFilter.reset();
 		}
 		
-		try {
-			WebSocketProxy.setChannelIdGenerator(storage.getTable().getMaxChannelId());
-		} catch (SQLException e) {
-			logger.error("Unable to retrieve current channelId value!", e);
+		if (fuzzHandler != null) {
+			fuzzHandler.pause();
 		}
-	}
-
-	@Override
-	public void sessionAboutToChange(Session session) {
-		// do nothing
 	}
 
 	@Override
@@ -559,93 +670,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		}
 	}
 	
-	/**
-	 * This method interweaves the WebSocket extension with the rest of ZAP.
-	 * <p>
-	 * It does the following things:
-	 * <ul>
-	 * <li>installs itself as session listener in order to react on session
-	 * changes</li>
-	 * <li>adds WebSocket tab to the status panel (information window containing
-	 * e.g.: the History tab)</li>
-	 * <li>adds a WebSocket specific options panel</li>
-	 * <li>adds 'Exclude From WebSockets' to Session Properties</li>
-	 * <li>sets up context menu for WebSockets panel with 'Break' & 'Exclude'</li>
-	 * </ul>
-	 * </p>
-	 */
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-	    
-        extensionHook.addSessionListener(this);
-
-		// TODO: ensure that it is working in headless mode
-        if (getView() != null) {
-        	ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
-        	ExtensionHookView hookView = extensionHook.getHookView();
-        	ExtensionHookMenu hookMenu = extensionHook.getHookMenu();
-        	
-        	// setup WebSocket tab
-        	WebSocketPanel wsPanel = getWebSocketPanel();
-        	wsPanel.setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-        	
-			addAllChannelObserver(wsPanel);
-	    	ExtensionHelp.enableHelpKey(wsPanel, "ui.tabs.websocket");
-	        
-        	hookView.addStatusPanel(getWebSocketPanel());
-        	
-        	// setup Options Panel
-        	hookView.addOptionPanel(getOptionsPanel());
-        	
-        	// add 'Exclude from WebSockets' menu item to WebSocket tab context menu
-			hookMenu.addPopupMenuItem(new ExcludeFromWebSocketsMenuItem(storage.getTable()));
-
-			// setup Session Properties
-			getView().getSessionDialog().addParamPanel(new String[]{}, new ExcludeFromWebSocketSessionPanel(), false);
-			
-			// setup Breakpoints
-			ExtensionBreak extBreak = (ExtensionBreak) extLoader.getExtension(ExtensionBreak.NAME);
-			if (extBreak != null) {
-				// setup custom breakpoint handler
-				BreakpointMessageHandler wsBrkMessageHandler = new WebSocketBreakpointMessageHandler(extBreak.getBreakPanel(), config);
-			    wsBrkMessageHandler.setEnabledBreakpoints(extBreak.getBreakpointsEnabledList());
-			    
-				// listen on new messages such that breakpoints can apply
-				addAllChannelObserver(new WebSocketProxyListenerBreak(this, wsBrkMessageHandler));
-
-				// pop up to add the breakpoint
-				hookMenu.addPopupMenuItem(new PopupMenuAddBreakWebSocket(extBreak));
-				extBreak.addBreakpointsUiManager(getBrkManager());
-			}
-        	
-        	// setup replace payload filter
-        	ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
-        	if (extFilter != null) {
-        		payloadFilter = new FilterWebSocketPayload(this, wsPanel.getChannelComboBoxModel());
-        		payloadFilter.initView(getView());
-        		extFilter.addFilter(payloadFilter);
-        	}
-            
-        	// setup fuzzable extension
-            ExtensionFuzz extFuzz = (ExtensionFuzz) extLoader.getExtension(ExtensionFuzz.NAME);
-            if (extFuzz != null) {
-            	hookMenu.addPopupMenuItem(new ShowFuzzMessageInWebSocketsTabMenuItem(getWebSocketPanel()));
-            	
-            	WebSocketFuzzerHandler fuzzHandler = new WebSocketFuzzerHandler(storage.getTable());
-                extFuzz.addFuzzerHandler(WebSocketMessageDTO.class, fuzzHandler);
-                addAllChannelObserver(fuzzHandler);
-            }
-            
-            // add exclude/include scope
-			hookMenu.addPopupMenuItem(new ExcludeFromScopeMenuItem());
-			hookMenu.addPopupMenuItem(new IncludeInScopeMenuItem());
-			
-			// setup Workpanel (window containing Request, Response & Break tab)
-        	initializeWebSocketsForWorkPanel();
-        }
-    }
-	
 	/*
 	 * ************************************************************************
 	 * GUI specific code follows here now. It is accessed only by methods hook()
@@ -653,6 +677,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * All of this UI-related code is private and should not be accessible from
 	 * outside.
 	 */
+
 
 	/**
 	 * Displayed in the bottom area beside the History, Spider, etc. tabs.

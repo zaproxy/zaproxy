@@ -65,7 +65,7 @@ public class IncludeInScopeMenuItem extends WebSocketMessagesPopupMenuItem {
 
 	@Override
 	protected String getInvokerName() {
-		return "websocket.table";
+		return WebSocketMessagesView.TABLE_NAME;
 	}
 
 	@Override

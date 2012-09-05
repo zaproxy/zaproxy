@@ -32,16 +32,7 @@ public class Utf8Util {
 	/**
 	 * Used for en- & decoding from bytes to String and vice versa.
 	 */
-	protected static final Charset UTF8_CHARSET;
-	
-	/**
-	 * Use the static initializer for setting up one date formatter for all
-	 * instances.
-	 */
-	static {		
-		UTF8_CHARSET = Charset.forName("UTF-8");
-	}
-
+	protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
 	/**
 	 * Helper method to encode payload into UTF-8 string.
@@ -72,15 +63,14 @@ public class Utf8Util {
 		} catch (IllegalArgumentException e) {
 			if (e.getMessage().equals("!utf8")) {
 				throw new InvalidUtf8Exception("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
 			}
+			throw e;
+			
 		} catch (IllegalStateException e) {
 			if (e.getMessage().equals("!utf8")) {
 				throw new InvalidUtf8Exception("Given bytes are no valid UTF-8!");
-			} else {
-				throw e;
 			}
+			throw e;
 		}
 	}
 	
@@ -92,8 +82,6 @@ public class Utf8Util {
 	 * @return byte representation
 	 */
 	public static byte[] decodePayloadFromUtf8(String utf8string) {
-		synchronized (UTF8_CHARSET) {
-			return utf8string.getBytes(UTF8_CHARSET);
-		}
+		return utf8string.getBytes(UTF8_CHARSET);
 	}
 }

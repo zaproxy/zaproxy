@@ -156,6 +156,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 		
 		// load entries in another thread
 		Runnable loadEntries = new Runnable() {
+			@Override
 			public void run() {
 				final List<T> page;
 				
@@ -169,6 +170,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 				
 				// loading finished, make available on the event dispatch thread
 				SwingUtilities.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						setData(startOffset, page);
 						pending.remove(seg);
@@ -211,6 +213,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 			return (base <= pos && pos < base + length);
 		}
 
+		@Override
 		public boolean equals(Object o) {
 			if (o != null && o instanceof Segment) {
 				Segment s = (Segment) o;
@@ -223,6 +226,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 			return false;
 		}
 
+		@Override
 		public int compareTo(Segment other) {
 			// return negative/zero/positive as this object is
 			// less-than/equal-to/greater-than other

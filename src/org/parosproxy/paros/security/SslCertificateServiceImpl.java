@@ -54,7 +54,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.x509.examples.AttrCertExample;
 import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 
 /**

@@ -59,12 +59,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	@Override
 	public void run() {
 		historyTable = Database.getSingleton().getTableHistory();
-		try {
-			// Get the last id - in case we've just opened an existing session
-			currentId = historyTable.lastIndex();
-		} catch (Exception e1) {
-			logger.error("Failed to get last index in History table", e1);
-		}
+		// Get the last id - in case we've just opened an existing session
+		currentId = historyTable.lastIndex();
 		
 		while (!shutDown) {
 			try {
@@ -205,12 +201,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		historyTable = Database.getSingleton().getTableHistory();
 		historyRecord = null;
 		lastId = -1;
-		try {
-			// Get the last id - in case we've just opened an existing session
-			currentId = historyTable.lastIndex();
-		} catch (Exception e1) {
-			logger.error("Failed to get last index in History table", e1);
-		}
+		// Get the last id - in case we've just opened an existing session
+		currentId = historyTable.lastIndex();
 	}
 	
 	@Override

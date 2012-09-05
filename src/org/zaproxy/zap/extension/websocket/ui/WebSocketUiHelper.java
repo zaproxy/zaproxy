@@ -1,12 +1,27 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -27,11 +42,13 @@ public class WebSocketUiHelper {
 	
 	private JComboBox opcodeComboBox;
 	private JList opcodeList;
+	private JScrollPane opcodeListScrollPane;
 	
 	private JList channels;
+	private JScrollPane channelsScrollPane;
 	
 	private JComboBox channelsComboBox;
-	private ComboBoxModel channelComboBoxModel;
+	private ChannelSortedListModel channelsModel;
 
 	private JCheckBox outgoingCheckbox;
 	private JCheckBox incomingCheckbox;
@@ -75,9 +92,7 @@ public class WebSocketUiHelper {
 	// ***** OPCODE
 	
 	public JLabel getOpcodeLabel() {
-		JLabel title = new JLabel();
-		title.setText(Constant.messages.getString("websocket.dialog.opcode"));
-		return title;
+		return new JLabel(Constant.messages.getString("websocket.dialog.opcode"));
 	}
 
 	public JComboBox getOpcodeSingleSelect() {
@@ -98,7 +113,10 @@ public class WebSocketUiHelper {
 	}
 
 	public JScrollPane getOpcodeMultipleSelect() {
-		return (JScrollPane) getOpcodeList().getParent().getParent();
+		if (opcodeListScrollPane == null) {
+			opcodeListScrollPane = new JScrollPane(getOpcodeList());
+		}
+		return opcodeListScrollPane;
 	}
 
 	private JList getOpcodeList() {
@@ -110,8 +128,6 @@ public class WebSocketUiHelper {
 			opcodeList.setSelectedIndex(0);
 			opcodeList.setLayoutOrientation(JList.VERTICAL);
 			opcodeList.setVisibleRowCount(itemsCount);
-			
-			new JScrollPane(opcodeList);
 		}
 		return opcodeList;
 	}
@@ -149,9 +165,9 @@ public class WebSocketUiHelper {
 		
 		if (isSelectAll) {
 			return null;
-		} else {
-			return values;
 		}
+		
+		return values;
 	}
 
 	/**
@@ -161,15 +177,15 @@ public class WebSocketUiHelper {
 		List<String> opcodes = getSelectedOpcodes();
 		if (opcodes == null) {
 			return null;
-		} else {
-			ArrayList<Integer> values = new ArrayList<Integer>();
-			for (int opcode : WebSocketMessage.OPCODES) {
-				if (opcodes.contains(WebSocketMessage.opcode2string(opcode))) {
-					values.add(opcode);
-				}
-			}
-			return values;
 		}
+		
+		ArrayList<Integer> values = new ArrayList<Integer>();
+		for (int opcode : WebSocketMessage.OPCODES) {
+			if (opcodes.contains(WebSocketMessage.opcode2string(opcode))) {
+				values.add(opcode);
+			}
+		}
+		return values;
 	}
 
 	public void setSelectedOpcodes(ArrayList<String> opcodes) {
@@ -193,20 +209,18 @@ public class WebSocketUiHelper {
 	// ************************************************************************
 	// ***** CHANNEL
 	
-	public void setChannelComboBoxModel(ComboBoxModel channelComboBoxModel) {
-		this.channelComboBoxModel = channelComboBoxModel;
+	public void setChannelsModel(ChannelSortedListModel channelsModel) {
+		this.channelsModel = channelsModel;
 	}
 	
 	public JLabel getChannelLabel() {
-		JLabel title = new JLabel();
-		title.setText(Constant.messages.getString("websocket.dialog.channel"));
-		return title;
+		return new JLabel(Constant.messages.getString("websocket.dialog.channel"));
 	}
 
 	public JComboBox getChannelSingleSelect() {
 		if (channelsComboBox == null) {
 			// dropdown can be wider than JComboBox
-            channelsComboBox = new WiderDropdownJComboBox(channelComboBoxModel, true);
+            channelsComboBox = new WiderDropdownJComboBox(new ComboBoxChannelModel(channelsModel), true);
             channelsComboBox.setRenderer(new ComboBoxChannelRenderer());
             
             // fixes width of JComboBox
@@ -229,10 +243,10 @@ public class WebSocketUiHelper {
 	
 	public void setSelectedChannelId(Integer channelId) {
 		if (channelId != null) {
-			for (int i = 0; i < channelComboBoxModel.getSize(); i++) {
-				WebSocketChannelDTO channel = (WebSocketChannelDTO) channelComboBoxModel.getElementAt(i);
+			for (int i = 0; i < channelsModel.getSize(); i++) {
+				WebSocketChannelDTO channel = (WebSocketChannelDTO) channelsModel.getElementAt(i);
 				if (channelId.equals(channel.id)) {
-					channelComboBoxModel.setSelectedItem(channel);
+					channelsComboBox.setSelectedItem(channel);
 					return;
 				}
 			}
@@ -243,14 +257,17 @@ public class WebSocketUiHelper {
 	}
 
 	public JScrollPane getChannelMultipleSelect() {
-		return (JScrollPane) getChannelsList().getParent().getParent();
+		if (channelsScrollPane == null) {
+			channelsScrollPane = new JScrollPane(getChannelsList());
+		}
+		return channelsScrollPane;
 	}
 	
 	private JList getChannelsList() {
 		if (channels == null) {
 			int itemsCount = 4;
 			
-			channels = new JList(channelComboBoxModel);
+			channels = new JList(channelsModel);
 			channels.setCellRenderer(new ComboBoxChannelRenderer());
 			channels.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			channels.setSelectedIndex(0);
@@ -259,8 +276,6 @@ public class WebSocketUiHelper {
             
             // fixes width of JList
 			channels.setPrototypeCellValue(new WebSocketChannelDTO("XXXXXXXXXXXXXXXXXX"));
-			
-			new JScrollPane(channels);
 		}
 		return channels;
 	}
@@ -283,9 +298,9 @@ public class WebSocketUiHelper {
 		
 		if (isSelectAll) {
 			return null;
-		} else {
-			return values;
 		}
+		
+		return values;
 	}
 
 	public void setSelectedChannelIds(ArrayList<Integer> channelIds) {
@@ -310,9 +325,7 @@ public class WebSocketUiHelper {
 	// ***** DIRECTION
 	
 	public JLabel getDirectionLabel() {
-		JLabel title = new JLabel();
-		title.setText(Constant.messages.getString("websocket.dialog.direction"));
-		return title;
+		return new JLabel(Constant.messages.getString("websocket.dialog.direction"));
 	}
 
 	public JPanel getDirectionPanel() {
@@ -367,10 +380,8 @@ public class WebSocketUiHelper {
 	// ************************************************************************
 	// ***** PATTERN
 
-	public Component getPatternLabel() {
-		JLabel title = new JLabel();
-		title.setText(Constant.messages.getString("websocket.dialog.pattern"));
-		return title;
+	public JLabel getPatternLabel() {
+		return new JLabel(Constant.messages.getString("websocket.dialog.pattern"));
 	}
 	
     public ZapTextField getPatternTextField() {

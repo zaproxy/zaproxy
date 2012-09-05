@@ -28,7 +28,9 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -47,14 +49,13 @@ import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzMessageDTO;
  * Manages writing and reading WebSocket messages to the database.
  */
 public class TableWebSocket extends AbstractTable {
-	private static Logger logger = Logger.getLogger(TableWebSocket.class);
+	private static final Logger logger = Logger.getLogger(TableWebSocket.class);
 	
 	private Set<Integer> channelIds;
 	private LRUMap channelCache;
     
     private PreparedStatement psInsertMessage;
     
-	private PreparedStatement psSelectChannelIds;
 	private PreparedStatement psSelectChannels;
 	
     private PreparedStatement psInsertChannel;
@@ -71,13 +72,16 @@ public class TableWebSocket extends AbstractTable {
 	
 	private PreparedStatement psSelectMaxChannelId;
 
+	private Queue<WebSocketMessageDTO> messagesBuffer = new LinkedList<WebSocketMessageDTO>();
+	private Queue<WebSocketChannelDTO> channelsBuffer = new LinkedList<WebSocketChannelDTO>();
+
     /**
      * Create tables if not already available
      */
     @Override
     protected void reconnect(Connection conn) throws SQLException {
     	if (!DbUtils.hasTable(conn, "WEBSOCKET_CHANNEL")) {
-			// need to create the tables
+			// need to create the tables			
 			PreparedStatement stmt = conn
 					.prepareStatement("CREATE CACHED TABLE websocket_channel ("
 							+ "channel_id BIGINT PRIMARY KEY,"
@@ -89,29 +93,26 @@ public class TableWebSocket extends AbstractTable {
 							+ "history_id INTEGER NULL,"
 							+ "FOREIGN KEY (history_id) REFERENCES HISTORY(HISTORYID) ON DELETE SET NULL ON UPDATE SET NULL"
 							+ ")");
-			stmt.execute();
-			stmt.close();
+			DbUtils.executeAndClose(stmt);
 			
 			stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message ("
 							+ "message_id BIGINT NOT NULL,"
 							+ "channel_id BIGINT NOT NULL,"
 							+ "timestamp TIMESTAMP NOT NULL,"
 							+ "opcode TINYINT NOT NULL,"
-							+ "payload_utf8 CLOB NULL,"
-							+ "payload_bytes BLOB NULL,"
+							+ "payload_utf8 CLOB(16M) NULL,"
+							+ "payload_bytes BLOB(16M) NULL,"
 							+ "payload_length BIGINT NOT NULL,"
 							+ "is_outgoing BOOLEAN NOT NULL,"
 							+ "PRIMARY KEY (message_id, channel_id),"
 							+ "FOREIGN KEY (channel_id) REFERENCES websocket_channel(channel_id)"
 							+ ")");
-			stmt.execute();
-			stmt.close();
+			DbUtils.executeAndClose(stmt);
 			
 			stmt = conn.prepareStatement("ALTER TABLE websocket_message "
 					+ "ADD CONSTRAINT websocket_message_payload "
 					+ "CHECK (payload_utf8 IS NOT NULL OR payload_bytes IS NOT NULL)");
-			stmt.execute();
-			stmt.close();
+			DbUtils.executeAndClose(stmt);
 			
 			stmt = conn.prepareStatement("CREATE CACHED TABLE websocket_message_fuzz ("
 							+ "fuzz_id BIGINT NOT NULL,"
@@ -122,8 +123,7 @@ public class TableWebSocket extends AbstractTable {
 							+ "PRIMARY KEY (fuzz_id, message_id, channel_id),"
 							+ "FOREIGN KEY (message_id, channel_id) REFERENCES websocket_message(message_id, channel_id) ON DELETE CASCADE"
 							+ ")");
-			stmt.execute();
-			stmt.close();
+			DbUtils.executeAndClose(stmt);
 			
 			channelIds = new HashSet<Integer>();
 		} else {
@@ -133,10 +133,6 @@ public class TableWebSocket extends AbstractTable {
 		channelCache = new LRUMap(20);
         
 		// CHANNEL
-        psSelectChannelIds = conn.prepareStatement("SELECT c.channel_id "
-        		+ "FROM websocket_channel AS c "
-        		+ "ORDER BY c.channel_id");
-        
         psSelectMaxChannelId = conn.prepareStatement("SELECT MAX(c.channel_id) as channel_id "
         		+ "FROM websocket_channel AS c");
         
@@ -180,11 +176,24 @@ public class TableWebSocket extends AbstractTable {
 		
 		if (channelIds == null) {
 			channelIds = new HashSet<Integer>();
-			psSelectChannelIds.execute();
-			
-			ResultSet rs = psSelectChannelIds.getResultSet();
-			while (rs.next()) {
-				channelIds.add(rs.getInt(1));
+			PreparedStatement psSelectChannelIds = conn.prepareStatement("SELECT c.channel_id "
+					+ "FROM websocket_channel AS c "
+					+ "ORDER BY c.channel_id");
+			try {
+				psSelectChannelIds.execute();
+				
+				ResultSet rs = psSelectChannelIds.getResultSet();
+				while (rs.next()) {
+					channelIds.add(rs.getInt(1));
+				}
+			} finally {
+				try {
+					psSelectChannelIds.close();
+				} catch (SQLException e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug(e.getMessage(), e);
+					}
+				}
 			}
 		}
     }
@@ -282,10 +291,10 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketMessageDTO>();
-			} else {
-				throw e;
+				return new ArrayList<WebSocketMessageDTO>(0);
 			}
+			
+			throw e;
 		}
 		
 		try {
@@ -314,7 +323,7 @@ public class TableWebSocket extends AbstractTable {
 	 * @throws SQLException
 	 */
 	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes, int payloadLength) throws SQLException {
-		List<WebSocketMessageDTO> messages = new ArrayList<WebSocketMessageDTO>();
+		ArrayList<WebSocketMessageDTO> messages = new ArrayList<WebSocketMessageDTO>();
 		try {
 			while (rs.next()) {
 				WebSocketMessageDTO message;
@@ -377,6 +386,8 @@ public class TableWebSocket extends AbstractTable {
 			rs.close();
 		}
 		
+		messages.trimToSize();
+		
 		return messages;
 	}
 
@@ -395,8 +406,8 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
-		List<String> where = new ArrayList<String>();
-		List<Object> params = new ArrayList<Object>();
+		ArrayList<String> where = new ArrayList<String>();
+		ArrayList<Object> params = new ArrayList<Object>();
 
 		if (criteria.channel.id != null) {
 			where.add("m.channel_id = ?");
@@ -433,6 +444,9 @@ public class TableWebSocket extends AbstractTable {
 			}
 		}
 		
+		where.trimToSize();
+		params.trimToSize();
+		
 		return buildCriteriaStatementHelper(query, where, params);
 	}
 
@@ -448,7 +462,7 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	private List<WebSocketChannelDTO> buildChannelDTOs(ResultSet rs) throws SQLException {
-		List<WebSocketChannelDTO> channels = new ArrayList<WebSocketChannelDTO>();
+		ArrayList<WebSocketChannelDTO> channels = new ArrayList<WebSocketChannelDTO>();
 		try {
 			while (rs.next()) {
 				WebSocketChannelDTO channel = new WebSocketChannelDTO();
@@ -469,71 +483,92 @@ public class TableWebSocket extends AbstractTable {
 			rs.close();
 		}
 		
+		channels.trimToSize();
+		
 		return channels;
 	}
 	
 	public void insertOrUpdateChannel(WebSocketChannelDTO channel) throws SQLException {
 		synchronized (this) {
-			PreparedStatement stmt;
-			boolean addIdOnSuccess = false;
-			
-			// first, find out if already inserted
-			if (channelIds.contains(channel.id)) {
-				// proceed with update
-				stmt = psUpdateChannel;
-			} else {
-				// proceed with insert
-				stmt = psInsertChannel;
-				addIdOnSuccess = true;
-				logger.info("insert channel: " + channel.toString());
+			if (getConnection().isClosed()) {
+				// temporarily buffer channels and insert/update later
+				channelsBuffer.offer(channel);
+				return;
 			}
-	
-			stmt.setString(1, channel.host);
-			stmt.setInt(2, channel.port);
-			stmt.setString(3, channel.url);
-			stmt.setTimestamp(4, (channel.startTimestamp != null) ? new Timestamp(channel.startTimestamp) : null);
-			stmt.setTimestamp(5, (channel.endTimestamp != null) ? new Timestamp(channel.endTimestamp) : null);
-			stmt.setNull(6, Types.INTEGER);
-			stmt.setInt(7, channel.id);
 			
-			try {
+			do {
+				PreparedStatement stmt;
+				boolean addIdOnSuccess = false;
+				
+				// first, find out if already inserted
+				if (channelIds.contains(channel.id)) {
+					// proceed with update
+					stmt = psUpdateChannel;
+				} else {
+					// proceed with insert
+					stmt = psInsertChannel;
+					addIdOnSuccess = true;
+					logger.info("insert channel: " + channel.toString());
+				}
+		
+				stmt.setString(1, channel.host);
+				stmt.setInt(2, channel.port);
+				stmt.setString(3, channel.url);
+				stmt.setTimestamp(4, (channel.startTimestamp != null) ? new Timestamp(channel.startTimestamp) : null);
+				stmt.setTimestamp(5, (channel.endTimestamp != null) ? new Timestamp(channel.endTimestamp) : null);
+				stmt.setNull(6, Types.INTEGER);
+				stmt.setInt(7, channel.id);
+				
 				stmt.execute();
 				if (addIdOnSuccess) {
 					channelIds.add(channel.id);
 				}
-			} catch (SQLException e) {
-				throw e;
-			}
-			
-			if (channel.historyId != null) {
-				psUpdateHistoryFk.setInt(1, channel.historyId);
-				psUpdateHistoryFk.setInt(2, channel.id);
-				try {
-					psUpdateHistoryFk.execute();
-				} catch (SQLException e) {
-					// safely ignore this exception
-					// on shutdown, the history table is cleaned before
-					// WebSocket channels are closed and updated
+				
+				if (channel.historyId != null) {
+					psUpdateHistoryFk.setInt(1, channel.historyId);
+					psUpdateHistoryFk.setInt(2, channel.id);
+					try {
+						psUpdateHistoryFk.execute();
+					} catch (SQLException e) {
+						// safely ignore this exception
+						// on shutdown, the history table is cleaned before
+						// WebSocket channels are closed and updated
+						if (logger.isDebugEnabled()) {
+							logger.debug(e.getMessage(), e);
+						}
+					}
 				}
-			}
+				
+				channel = channelsBuffer.poll();
+			} while (channel != null);
 		}
 	}
 
 	public void insertMessage(WebSocketMessageDTO message) throws SQLException {
-
 		// synchronize on whole object to avoid race conditions with insertOrUpdateChannel()
 		synchronized (this) {
-			if (!channelIds.contains(message.channel.id)) {
-				throw new SQLException("channel not inserted: " + message.channel.id);
+			if (getConnection().isClosed()) {
+				// temporarily buffer messages and write them the next time
+				messagesBuffer.offer(message);
+				return;
 			}
 			
-			logger.info("insert message: " + message.toString());
-			try {
+			do {
+				if (!channelIds.contains(message.channel.id)) {
+					// maybe channel is buffered
+					if (channelsBuffer.size() > 0) {
+						insertOrUpdateChannel(channelsBuffer.poll());
+					}
+					throw new SQLException("channel not inserted: " + message.channel.id);
+				}
+				
+				logger.info("insert message: " + message.toString());
+	
 				psInsertMessage.setInt(1, message.id);
 				psInsertMessage.setInt(2, message.channel.id);
 				psInsertMessage.setTimestamp(3, new Timestamp(message.timestamp));
 				psInsertMessage.setInt(4, message.opcode);
-
+	
 				// write payload
 				if (message.payload instanceof String) {
 					psInsertMessage.setClob(5, new JDBCClob((String) message.payload));
@@ -558,9 +593,9 @@ public class TableWebSocket extends AbstractTable {
 					psInsertFuzz.setString(5, fuzzMessage.fuzz);
 					psInsertFuzz.execute();
 				}
-			} catch (SQLException e) {
-				throw e;
-			}
+				
+				message = messagesBuffer.poll();
+			} while (message != null);
 		}
 	}
 
@@ -575,10 +610,10 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketChannelDTO>();
-			} else {
-				throw e;
+				return new ArrayList<WebSocketChannelDTO>(0);
 			}
+			
+			throw e;
 		}
 		
 		stmt.execute();
@@ -618,10 +653,15 @@ public class TableWebSocket extends AbstractTable {
 			query = query.replace("<where> ", "");
 		}
 
-		PreparedStatement stmt = getConnection().prepareStatement(query.toString());
-		int i = 1;
-		for (Object param : params) {
-			stmt.setObject(i++, param);
+		PreparedStatement stmt = getConnection().prepareStatement(query);
+		try {
+			int i = 1;
+			for (Object param : params) {
+				stmt.setObject(i++, param);
+			}
+		} catch (SQLException e) {
+			stmt.close();
+			throw e;
 		}
 		
 		return stmt;

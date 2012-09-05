@@ -1,70 +1,88 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.websocket.ui;
 
-import org.parosproxy.paros.Constant;
+import javax.swing.ComboBoxModel;
+import javax.swing.event.ListDataListener;
+
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
-import org.zaproxy.zap.utils.SortedComboBoxModel;
 
-public class ComboBoxChannelModel extends SortedComboBoxModel {
-	private static final long serialVersionUID = -853298365775911972L;
+public class ComboBoxChannelModel implements ComboBoxModel {
 
-	public ComboBoxChannelModel() {
-		super();
-		init();
-	}
+    private ChannelSortedListModel delegate;
 
-	/**
-	 * Adds first element that is used as a wildcard entry.
-	 */
-	private void init() {
-		String text = Constant.messages.getString("websocket.dialog.channel.select_all");
-		WebSocketChannelDTO allChannelsItem = new WebSocketChannelDTO(text);
-		addElement(allChannelsItem);
-	}
+    private Object selectedItem;
 
-	/**
-	 * Removes all elements but the first.
-	 */
-	public void reset() {
-		synchronized (this) {
-			removeAllElements();
-			init();
-		}
-	}
+    public ComboBoxChannelModel(ChannelSortedListModel model) {
+        super();
 
-	/**
-	 * Removes and re-adds element. Does not loose selected item.
-	 * 
-	 * @param channel
-	 */
-	public void updateElement(WebSocketChannelDTO channel) {
-		synchronized (this) {
-			boolean isSelected = false;
-			Object selectedItem = getSelectedItem();
-			if (selectedItem != null && selectedItem.equals(channel)) {
-				isSelected = true;
-			}
-			
-			removeElement(channel);
-			addElement(channel);
-			
-			if (isSelected) {
-				setSelectedItem(channel);
-			}
-		}
-	}
-	
-	public void setSelectedChannelId(Integer channelId) {
-		if (channelId == null) {
-			setSelectedItem(getElementAt(0));
-			return;
-		}
-		
-		for (int i = 0; i < getSize(); i++) {
-			WebSocketChannelDTO channel = (WebSocketChannelDTO) getElementAt(i);
-			if (channel.id != null && channel.id.equals(channelId)) {
-				setSelectedItem(channel);
-				return;
-			}
-		}
-	}
+        this.delegate = model;
+    }
+
+    public void setSelectedChannelId(Integer channelId) {
+        if (channelId == null) {
+            setSelectedItem(getElementAt(0));
+            return;
+        }
+
+        for (int i = 0; i < getSize(); i++) {
+            WebSocketChannelDTO channel = (WebSocketChannelDTO) getElementAt(i);
+            if (channelId.equals(channel.id)) {
+                setSelectedItem(channel);
+                return;
+            }
+        }
+    }
+
+    public int getIndexOf(Object element) {
+        return delegate.indexOf(element);
+    }
+
+    @Override
+    public void setSelectedItem(Object anItem) {
+        selectedItem = anItem;
+
+        delegate.elementChanged(-1);
+    }
+
+    @Override
+    public Object getSelectedItem() {
+        return selectedItem;
+    }
+
+    @Override
+    public int getSize() {
+        return delegate.getSize();
+    }
+
+    @Override
+    public Object getElementAt(int index) {
+        return delegate.elementAt(index);
+    }
+
+    @Override
+    public void addListDataListener(ListDataListener l) {
+        delegate.addListDataListener(l);
+    }
+
+    @Override
+    public void removeListDataListener(ListDataListener l) {
+        delegate.removeListDataListener(l);
+    }
+
 }

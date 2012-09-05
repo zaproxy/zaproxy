@@ -55,6 +55,7 @@ public class WebSocketFuzzMessagesView extends WebSocketMessagesView implements 
     	super(model);
     }
 
+	@Override
 	protected String getViewComponentName() {
 		return TABLE_NAME;
 	}

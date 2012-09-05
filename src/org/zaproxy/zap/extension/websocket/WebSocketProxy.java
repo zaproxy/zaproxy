@@ -61,6 +61,16 @@ public abstract class WebSocketProxy {
 	}
 	
 	/**
+	 * To ease identification of different WebSocket connections.
+	 */
+	private static AtomicInteger channelIdGenerator = new AtomicInteger(0);
+
+	/**
+	 * Used to determine when to call which {@link WebSocketObserver}.
+	 */
+	private static Comparator<WebSocketObserver> observersComparator;
+	
+	/**
 	 * State of this channel, start in {@link State#CONNECTING} and evolve over
 	 * time. Never set value to {@link State#EXCLUDED} or {@link State#INCLUDED}
 	 * . While observers are notified of these two extra-states, the internal
@@ -128,11 +138,6 @@ public abstract class WebSocketProxy {
 	 * Just a consecutive number, identifying one channel within a session.
 	 */
 	private final int channelId;
-
-	/**
-	 * To ease identification of different WebSocket connections.
-	 */
-	private static AtomicInteger channelIdGenerator;
 	
 	/**
 	 * Add a unique id to each message of one view model.
@@ -143,15 +148,6 @@ public abstract class WebSocketProxy {
 	 * When true, no observer is called and each frame is forwarded instantly.
 	 */
 	private boolean isForwardOnly;
-
-	/**
-	 * Used to determine when to call which {@link WebSocketObserver}.
-	 */
-	public static Comparator<WebSocketObserver> observersComparator;
-	
-	static {
-		channelIdGenerator = new AtomicInteger(0);
-	}
 	
 	/**
 	 * After loading another session, the channelCount should be initialized.
@@ -203,9 +199,8 @@ public abstract class WebSocketProxy {
 	 * 
 	 * @param localSocket Channel from local machine to ZAP.
 	 * @param remoteSocket Channel from ZAP to remote machine.
-	 * @throws WebSocketException
 	 */
-	public WebSocketProxy(Socket localSocket, Socket remoteSocket) throws WebSocketException {
+	public WebSocketProxy(Socket localSocket, Socket remoteSocket) {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
 		
@@ -239,6 +234,7 @@ public abstract class WebSocketProxy {
 		case CLOSED:
 			end = new Timestamp(Calendar.getInstance().getTimeInMillis());
 			break;
+		default:
 		}
 		
 		state = newState;
@@ -281,7 +277,9 @@ public abstract class WebSocketProxy {
 			throw new WebSocketException(e);
 		}
 		
-		logger.debug("Start listeners for channel '" + toString() + "'.");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Start listeners for channel '" + toString() + "'.");
+		}
 		
 		try {
 			// use existing InputStream for remote socket,
@@ -539,16 +537,14 @@ public abstract class WebSocketProxy {
 	 * @param message
 	 * @return False if message should be dropped.
 	 */
-	protected boolean notifyMessageObservers(WebSocketMessage message) {		
-		synchronized (observerList) {
-			for (WebSocketObserver observer : observerList) {
-				try {
-				    if (!observer.onMessageFrame(channelId, message)) {
-				    	return false;
-				    }
-				} catch (Exception e) {
-					logger.warn(e.getMessage(), e);
-				}
+	protected boolean notifyMessageObservers(WebSocketMessage message) {
+		for (WebSocketObserver observer : observerList) {
+			try {
+			    if (!observer.onMessageFrame(channelId, message)) {
+			    	return false;
+			    }
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
 			}
 		}
 		return true;
@@ -560,10 +556,8 @@ public abstract class WebSocketProxy {
 	 * blacklisted {@link State#INCLUDED} or vice-versa {@link State#EXCLUDED}.
 	 */
 	protected void notifyStateObservers(State state) {
-		synchronized (observerList) {
-			for (WebSocketObserver observer : observerList) {
-				observer.onStateChange(state, this);
-			}
+		for (WebSocketObserver observer : observerList) {
+			observer.onStateChange(state, this);
 		}
 	}
 	
@@ -573,10 +567,8 @@ public abstract class WebSocketProxy {
 	 * @param observer
 	 */
 	public void addObserver(WebSocketObserver observer) {
-		synchronized (observerList) {
-			observerList.add(observer);
-			Collections.sort(observerList, getObserversComparator());
-		}
+		observerList.add(observer);
+		Collections.sort(observerList, getObserversComparator());
 	}
 	
 	/**
@@ -585,9 +577,7 @@ public abstract class WebSocketProxy {
 	 * @param observer
 	 */
 	public void removeObserver(WebSocketObserver observer) {
-		synchronized (observerList) {
-			observerList.remove(observer);
-		}
+		observerList.remove(observer);
 	}
     
 	/**
@@ -595,8 +585,16 @@ public abstract class WebSocketProxy {
 	 * 
 	 * @return
 	 */
-	private synchronized Comparator<WebSocketObserver> getObserversComparator() {
+	private static Comparator<WebSocketObserver> getObserversComparator() {
 		if(observersComparator == null) {
+			createObserversComparator();
+		}
+		
+		return observersComparator;
+	}
+	
+	private static synchronized void createObserversComparator() {
+		if (observersComparator == null) {
 			observersComparator = new Comparator<WebSocketObserver>() {
 				
 				@Override
@@ -614,8 +612,6 @@ public abstract class WebSocketProxy {
 				}
 			};
 		}
-		
-		return observersComparator;
 	}
 
 	public int getChannelId() {
@@ -662,6 +658,7 @@ public abstract class WebSocketProxy {
 		return dto;
 	}
 	
+	@Override
 	public String toString() {
 		return host + ":" + port + " (#" + channelId + ")";
 	}

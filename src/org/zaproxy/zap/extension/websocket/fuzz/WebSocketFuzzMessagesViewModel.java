@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.websocket.fuzz;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import javax.swing.table.TableModel;
 
@@ -40,17 +39,24 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 
 	private static final Logger logger = Logger.getLogger(WebSocketFuzzMessagesViewModel.class);
 
+	/**
+	 * Names of new columns.
+	 */
+	private static final String[] COLUMN_NAMES = {
+	        Constant.messages.getString("websocket.table.header.state"),
+	        Constant.messages.getString("websocket.table.header.fuzz") };
+	
     /**
 	 * Number of columns in this table model increased.
 	 */
-	private static final int COLUMN_COUNT = 8;
+	private static final int COLUMN_COUNT = WebSocketMessagesViewModel.COLUMN_COUNT + COLUMN_NAMES.length;
 
 	/**
 	 * This list holds all erroneous messages for this view model.
 	 */
 	private List<WebSocketMessageDTO> erroneousMessages = new ArrayList<WebSocketMessageDTO>();
 
-	private Integer currentFuzzId = -1;
+	private Integer currentFuzzId = Integer.valueOf(-1);
 
 	private static final String msgSuccess;
 	private static final String msgFail;
@@ -69,25 +75,23 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 	
 	/**
-	 * New column names are added here.
-	 */
-	@Override
-	protected Vector<String> getColumnNames() {
-		Vector<String> names = super.getColumnNames();
-		
-		ResourceBundle msgs = Constant.messages;
-		names.add(msgs.getString("websocket.table.header.state"));
-		names.add(msgs.getString("websocket.table.header.fuzz"));
-		
-		return names;
-	}
-
-	/**
 	 * @return number of columns
 	 */
 	@Override
 	public int getColumnCount() {
 		return COLUMN_COUNT;
+	}
+	
+	/**
+	 * @return name of the given column index
+	 */
+	@Override
+	public String getColumnName(int columnIndex) {
+		final int totalParent = WebSocketMessagesViewModel.COLUMN_COUNT;
+		if (columnIndex < totalParent) {
+			return super.getColumnName(columnIndex);
+		}
+		return COLUMN_NAMES[columnIndex - totalParent];
 	}
 	
 	/**
@@ -147,7 +151,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	}
 
 	/**
-	 * Add new message.
+	 * Adds new message, that failed to be sent over channel.
 	 * 
 	 * @param message
 	 */
@@ -160,6 +164,12 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		}
 	}
 	
+	/**
+	 * Updates view for successful messages. For erroneous messages,
+	 * {@link #addErroneousWebSocketMessage(WebSocketFuzzMessageDTO)} is called.
+	 * 
+	 * @param message
+	 */
 	@Override
 	public void fireMessageArrived(WebSocketMessageDTO message) {
 		Integer fuzzId = getFuzzId(message);
@@ -200,7 +210,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		synchronized (erroneousMessages) {
 			int erroneousRowCount = erroneousMessages.size();
 		
-			if ((offset + 1) >= sqlRowCount) {
+			if (offset >= sqlRowCount) {
 				offset = offset - (sqlRowCount - 1);
 				return new ArrayList<WebSocketMessageDTO>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
 			} else if (offset + length >= sqlRowCount) {

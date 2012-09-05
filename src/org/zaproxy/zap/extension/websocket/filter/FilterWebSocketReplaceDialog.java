@@ -23,12 +23,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.filter.FilterReplaceDialog;
+import org.zaproxy.zap.extension.websocket.ui.ChannelSortedListModel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketUiHelper;
 
 /**
@@ -47,15 +47,16 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 	 * @param owner Pass e.g. the mainframe.
 	 * @param isModal
 	 */
-	public FilterWebSocketReplaceDialog(Frame owner, boolean isModal, ComboBoxModel channelModel) {
+	public FilterWebSocketReplaceDialog(Frame owner, boolean isModal, ChannelSortedListModel model) {
 		super(owner, isModal);
 		
 		wsUiHelper = new WebSocketUiHelper();
-		wsUiHelper.setChannelComboBoxModel(channelModel);
+		wsUiHelper.setChannelsModel(model);
 		
 		postInitialize();
 	}
 
+	@Override
 	protected void initialize() {
 		// do nothing
 	}
@@ -69,6 +70,7 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 	/**
 	 * Adds WebSocket related filter options.
 	 */
+	@Override
 	protected JPanel getJPanel() {
 		if (jPanel == null) {
 			jPanel = new JPanel();
@@ -132,7 +134,7 @@ public class FilterWebSocketReplaceDialog extends FilterReplaceDialog {
 		return wsUiHelper.getSelectedChannelIds();
 	}
 
-	public void setChannelComboBoxModel(ComboBoxModel channelComboBoxModel) {
-		wsUiHelper.setChannelComboBoxModel(channelComboBoxModel);
+	public void setChannelComboBoxModel(ChannelSortedListModel channelsModel) {
+		wsUiHelper.setChannelsModel(channelsModel);
 	}
 }

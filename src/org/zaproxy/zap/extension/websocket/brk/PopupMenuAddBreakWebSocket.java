@@ -38,19 +38,14 @@ public class PopupMenuAddBreakWebSocket extends ExtensionPopupMenuItem {
     private static Logger log = Logger.getLogger(PopupMenuAddBreakWebSocket.class);
     
     public PopupMenuAddBreakWebSocket(ExtensionBreak extension) {
-        super();
+        super(Constant.messages.getString("brk.add.popup"));
         
         this.extension = extension;
         
  		initialize();
     }
 
-    public PopupMenuAddBreakWebSocket(String label) {
-        super(label);
-    }
-
 	private void initialize() {
-        this.setText(Constant.messages.getString("brk.add.popup"));
 
         this.addActionListener(new ActionListener() {
 

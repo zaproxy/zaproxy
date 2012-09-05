@@ -56,6 +56,7 @@ public class WebSocketFuzzDialog extends FuzzDialog {
 		fuzzableMessage = (WebSocketFuzzableTextMessage) fuzzableComponent.getFuzzableMessage();
 	}
     
+    @Override
     protected int addCustomComponents(JPanel panel, int row) {
         int currentRow = row;
 

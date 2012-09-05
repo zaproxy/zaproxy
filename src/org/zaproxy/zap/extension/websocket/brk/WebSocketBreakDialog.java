@@ -25,7 +25,6 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,6 +34,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
+import org.zaproxy.zap.extension.websocket.ui.ChannelSortedListModel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketUiHelper;
 
 public abstract class WebSocketBreakDialog extends AbstractDialog {
@@ -50,13 +50,13 @@ public abstract class WebSocketBreakDialog extends AbstractDialog {
 	private JButton btnCancel = null;
 	private JScrollPane jScrollPane = null;
 
-    public WebSocketBreakDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
+    public WebSocketBreakDialog(WebSocketBreakpointsUiManagerInterface breakPointsManager, ChannelSortedListModel channelsModel) throws HeadlessException {
         super(View.getSingleton().getMainFrame(), false);
         
         this.breakPointsManager = breakPointsManager;
         
         wsUiHelper = new WebSocketUiHelper();
-        wsUiHelper.setChannelComboBoxModel(channelSelectModel);
+        wsUiHelper.setChannelsModel(channelsModel);
         
         initialize();
     }

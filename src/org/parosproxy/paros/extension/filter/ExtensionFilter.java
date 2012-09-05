@@ -164,6 +164,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 					filter.onWebSocketPayload(message);
 				}
 			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 		}
 		return true;
@@ -205,7 +206,10 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
                 if (filter.isEnabled()) {
                     filter.onHttpRequestSend(httpMessage);
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                // ZAP: Changed to log the exception.
+                log.error(e.getMessage(), e);
+            }
         }
         return true;
     }
@@ -235,7 +239,10 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 
                     filter.onHttpResponseReceive(httpMessage);
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                // ZAP: Changed to log the exception.
+                log.error(e.getMessage(), e);
+            }
         }
         return true;
     }
@@ -286,14 +293,15 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	}
 	
 	/**
-	 * ZAP: New method that allows to add another filter. The
-	 * {@link Filter#getId()} method is used to determine its position in the
-	 * list.
+	 * Allows to add a filter. The {@link Filter#getId()} method is used to 
+	 * determine its position in the list, as a TreeMap is used.
 	 * 
 	 * @param filter
 	 */
+	// ZAP: Added the method.
 	public void addFilter(Filter filter) {
 		List<Filter> filters = filterFactory.getAllFilter();
+		
 		int index = searchFilterIndex(filters, filter.getId(), 0, filters.size());
 		
 		if (index == -1) {
@@ -305,10 +313,8 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	}
 	
 	/**
-	 * ZAP: New method for doing a binary search on the filter id. Used to
-	 * determine where (index) to insert the filter to the filter's list. Basic
-	 * algorithm taken from Wikipedia:
-	 * http://en.wikipedia.org/wiki/Binary_search_algorithm#Recursive
+	 * Does a binary search for the given filter id. Used to determine where
+	 * (index) to insert the filter to the filter's list.
 	 * 
 	 * @param A
 	 * @param key
@@ -316,27 +322,29 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	 * @param imax
 	 * @return
 	 */
-	private int searchFilterIndex(List<Filter> filters, int targetId, int min, int max)
-	{
+	// ZAP: Added the method.
+	private int searchFilterIndex(List<Filter> filters, int targetId, int min, int max) {
+		// Basic algorithm taken from Wikipedia:
+		// http://en.wikipedia.org/wiki/Binary_search_algorithm#Recursive
 		if (max <= min) {
 			// set is empty, so return value showing not found
 			return max + 1;
-		} else {
-			// calculate midpoint to cut set in half
-			int mid = (min + max) / 2;
+		} 
+		
+		// calculate midpoint to cut set in half
+		int mid = (min + max) / 2;
 
-			// three-way comparison
-			int id = filters.get(mid).getId();
-			if (id > targetId) {
-				// id is in lower subset
-				return searchFilterIndex(filters, targetId, min, mid - 1);
-			} else if (id < targetId) {
-				// id is in upper subset
-				return searchFilterIndex(filters, targetId, mid + 1, max);
-			} else {
-				// index has been found
-				return mid + 1;
-			}
+		// three-way comparison
+		int id = filters.get(mid).getId();
+		if (id > targetId) {
+			// id is in lower subset
+			return searchFilterIndex(filters, targetId, min, mid - 1);
+		} else if (id < targetId) {
+			// id is in upper subset
+			return searchFilterIndex(filters, targetId, mid + 1, max);
 		}
+		
+		// index has been found
+		return mid + 1;
 	}
 }

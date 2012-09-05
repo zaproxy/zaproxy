@@ -91,7 +91,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showAddDialog(Message aMessage) {
         if (addDialog == null) {
-            addDialog = new WebSocketBreakDialogAdd(this, wsPanel.getChannelComboBoxModel());
+            addDialog = new WebSocketBreakDialogAdd(this, wsPanel.getChannelsModel());
             populateAddDialogAndSetVisible(aMessage);
         } else if (!addDialog.isVisible()) {
             populateAddDialogAndSetVisible(aMessage);
@@ -110,7 +110,7 @@ public class WebSocketBreakpointsUiManagerInterface implements BreakpointsUiMana
     
     private void showEditDialog(WebSocketBreakpointMessage breakpoint) {
         if (editDialog == null) {
-            editDialog = new WebSocketBreakDialogEdit(this, wsPanel.getChannelComboBoxModel());
+            editDialog = new WebSocketBreakDialogEdit(this, wsPanel.getChannelsModel());
             populateEditDialogAndSetVisible(breakpoint);
         } else if (!editDialog.isVisible()) {
             populateEditDialogAndSetVisible(breakpoint);

@@ -41,11 +41,12 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
  */
 public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver {
 
-    private WebSocketFuzzMessagesView fuzzerPanel;
+    private WebSocketFuzzMessagesView fuzzView;
+	private WebSocketFuzzMessagesViewModel viewModel;
+	
 	private Map<Integer, WebSocketProxy> wsProxies;
 	private WebSocketFuzzDialog fuzzDialog;
 	private TableWebSocket table;
-	private WebSocketFuzzMessagesViewModel viewModel;
     
     public WebSocketFuzzerHandler(TableWebSocket webSocketTable) {
         super();
@@ -61,13 +62,13 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
 
     @Override
     public FuzzerContentPanel getFuzzerContentPanel() {
-    	if (fuzzerPanel == null) {
-            fuzzerPanel = new WebSocketFuzzMessagesView(viewModel, table);
+    	if (fuzzView == null) {
+            fuzzView = new WebSocketFuzzMessagesView(viewModel, table);
             
             View view = View.getSingleton();
-            fuzzerPanel.setDisplayPanel(view.getRequestPanel(), view.getResponsePanel());
+            fuzzView.setDisplayPanel(view.getRequestPanel(), view.getResponsePanel());
         }
-        return fuzzerPanel;
+        return fuzzView;
     }
     
     private WebSocketFuzzDialog getDialog(FuzzableComponent fuzzableComponent) {
@@ -82,8 +83,9 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
         return fuzzDialog;
     }
     
+    @Override
     public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
-        return fuzzerPanel.searchResults(pattern, inverse);
+        return fuzzView.searchResults(pattern, inverse);
     }
 
 	@Override
@@ -108,5 +110,13 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
 		} else {
 			wsProxies.remove(proxy.getChannelId());
 		}
+	}
+	
+	public void pause() {
+		((WebSocketFuzzMessagesView) getFuzzerContentPanel()).pause();
+	}
+	
+	public void resume() {
+		((WebSocketFuzzMessagesView) getFuzzerContentPanel()).resume();
 	}
 }

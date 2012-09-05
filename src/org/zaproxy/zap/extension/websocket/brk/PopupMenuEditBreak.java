@@ -31,12 +31,8 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
     private ExtensionBreak extension;
 
     public PopupMenuEditBreak() {
-        super();
+        super(Constant.messages.getString("brk.edit.popup"));
  		initialize();
-    }
-
-    public PopupMenuEditBreak(String label) {
-        super(label);
     }
 
 	public void setExtension(ExtensionBreak extension) {
@@ -44,7 +40,6 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 	}
 
 	private void initialize() {
-        this.setText(Constant.messages.getString("brk.edit.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override

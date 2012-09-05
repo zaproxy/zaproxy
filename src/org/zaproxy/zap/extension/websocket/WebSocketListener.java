@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.websocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 
@@ -88,10 +87,8 @@ public class WebSocketListener implements Runnable {
 				// there is something to read => process in WebSockets version specific message
 				wsProxy.processRead(in, out, buffer[0]);
 			}
-		} catch (SocketException e) {
-			// no more reading possible
-			stop();
 		} catch (IOException e) {
+			// includes SocketException
 			// no more reading possible
 			stop();
 		} finally {				

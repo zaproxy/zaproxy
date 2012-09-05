@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.websocket.ui;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -93,15 +94,20 @@ public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) {
-		// no validation needed
+	public void validateParam(Object obj) throws Exception {
+		// Check for valid regexs
+		for (String regex : getModel().getLines()) {
+			if (regex.trim().length() > 0) {
+				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
+			}
+		}
 	}
 
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		Session session = (Session) obj;
 		session.setExcludeFromWebSocketRegexs(getModel().getLines());
-		// ZAP Save session details
+		// Save session details
 		if (!session.isNewState()) {
 			Control.getSingleton().saveSession(session.getFileName());
 		}

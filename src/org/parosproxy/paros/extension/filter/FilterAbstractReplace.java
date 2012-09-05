@@ -71,13 +71,15 @@ abstract public class FilterAbstractReplace extends FilterAdaptor {
 	}
 	
 	/**
-	 * ZAP: Created new method for inheritance reasons to allow for better
-	 * re-usability and extensibility. Is called when the dialog is closed
-	 * (except its exit code is {@link JOptionPane#CANCEL_OPTION}).
+	 * Is called when the dialog is closed (except its exit code is
+	 * {@link JOptionPane#CANCEL_OPTION}).
 	 * 
 	 * @param dialog
 	 */
-	protected void processFilterReplaceDialog(FilterReplaceDialog dialog) {		
+	protected void processFilterReplaceDialog(FilterReplaceDialog dialog) {
+		// ZAP: Created new method for inheritance reasons to allow for better
+		// re-usability and extensibility.
+		
 	    if (dialog.getTxtPattern().getText().equals("")) {
 	        pattern = null;
 			// disable filter when empty pattern is entered

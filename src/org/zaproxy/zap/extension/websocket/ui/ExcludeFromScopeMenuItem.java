@@ -47,9 +47,8 @@ public class ExcludeFromScopeMenuItem extends WebSocketMessagesPopupMenuItem {
 			Session session = Model.getSingleton().getSession();
 			if (session.isInScope(message.channel.url)) {
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
 		return super.isEnabledExtended();
 	}
@@ -71,7 +70,7 @@ public class ExcludeFromScopeMenuItem extends WebSocketMessagesPopupMenuItem {
 
 	@Override
 	protected String getInvokerName() {
-		return "websocket.table";
+		return WebSocketMessagesView.TABLE_NAME;
 	}
 
 	@Override

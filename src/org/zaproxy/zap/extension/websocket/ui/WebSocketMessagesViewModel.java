@@ -20,8 +20,6 @@ package org.zaproxy.zap.extension.websocket.ui;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
@@ -51,14 +49,20 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	private static final int PAYLOAD_PREVIEW_LENGTH = 150;
 	
 	/**
-	 * Number of columns in this table model
-	 */
-	private static final int COLUMN_COUNT = 6;
-	
-	/**
 	 * Names of all columns.
 	 */
-	private final Vector<String> columnNames;
+	private static final String[] COLUMN_NAMES = {
+	        Constant.messages.getString("websocket.table.header.id"),
+	        Constant.messages.getString("websocket.table.header.direction"),
+	        Constant.messages.getString("websocket.table.header.timestamp"),
+	        Constant.messages.getString("websocket.table.header.opcode"),
+	        Constant.messages.getString("websocket.table.header.payload_length"),
+	        Constant.messages.getString("websocket.table.header.payload") };
+
+	/**
+	 * Number of columns in this table model
+	 */
+	protected static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
 	/**
 	 * Used to show only specific messages.
@@ -111,20 +115,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		super();
 		
 		table = webSocketTable;
-		columnNames = getColumnNames();
 		fullMessagesCache = new LRUMap(10);
-	}
-	
-	protected Vector<String> getColumnNames() {
-		Vector<String> names = new Vector<String>(getColumnCount());
-		ResourceBundle msgs = Constant.messages;
-		names.add(msgs.getString("websocket.table.header.id"));
-		names.add(msgs.getString("websocket.table.header.direction"));
-		names.add(msgs.getString("websocket.table.header.timestamp"));
-		names.add(msgs.getString("websocket.table.header.opcode"));
-		names.add(msgs.getString("websocket.table.header.payload_length"));
-		names.add(msgs.getString("websocket.table.header.payload"));
-		return names;
 	}
 	
 	public void setActiveChannel(Integer channelId) {
@@ -253,24 +244,14 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	 */
 	@Override
 	public String getColumnName(int columnIndex) {
-		return columnNames.get(columnIndex);
+		return COLUMN_NAMES[columnIndex];
 	}
 	
-	/**
-	 * Cells are not editable.
-	 * 
-	 * @return false
-	 */
-	@Override
-	public boolean isCellEditable(int row, int col) {
-		return false;
-	}
-
 	/**
 	 * @return type of column for given column index
 	 */
 	@Override
-	public Class<? extends Object> getColumnClass(int columnIndex) {
+	public Class<?> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
 			return WebSocketMessagePrimaryKey.class;

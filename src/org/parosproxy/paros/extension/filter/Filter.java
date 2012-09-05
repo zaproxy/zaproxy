@@ -81,10 +81,11 @@ public interface Filter {
     public void editProperty();
 
     /**
-     * ZAP: Added method to be able to filter WebSocket communication.
+     * Filter WebSocket communication.
      * 
      * @param message
      * @throws WebSocketException 
      */
+    // ZAP: added method
     public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException;
 }

@@ -84,24 +84,6 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		}
 		return false;
 	}
-
-	/**
-	 * Used for sorting items. If two items have identical host names and ports,
-	 * the channel number is used to determine order.
-	 */
-	@Override
-	public int compareTo(WebSocketChannelDTO other) {
-		int result = host.compareTo(other.host);
-
-		if (result == 0) {
-			result = port.compareTo(other.port);
-			if (result == 0) {
-				return id.compareTo(other.id);
-			}
-		}
-
-		return result;
-	}
 	
 	/**
 	 * @return Null or HTTP message containing handshake.
@@ -124,6 +106,7 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		return Model.getSingleton().getSession().isInScope(this.url);
 	}
 
+	@Override
 	public String toString() {
 		if (port != null && id != null) {
 			return host + ":" + port + " (#" + id + ")";
@@ -131,29 +114,48 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 		return host;
 	}
 
-    @Override
-    public boolean equals(Object other) {
-        boolean result = false;
-        if (other instanceof WebSocketChannelDTO) {
-        	WebSocketChannelDTO that = (WebSocketChannelDTO) other;
-        	
-        	if (that.canEqual(this)) {
-        		if (id == null) {
-        			result = (that.id == null);
-        		} else {
-        			result = id.equals(that.id);
-        		}
-        	}
-        }
-        return result;
-    }
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (object == null) {
+			return false;
+		}
+		if (getClass() != object.getClass()) {
+			return false;
+		}
+		WebSocketChannelDTO other = (WebSocketChannelDTO) object;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        return (41 * super.hashCode() + id.hashCode());
-    }
+	@Override
+	public int hashCode() {
+		return 31 + ((id == null) ? 0 : id.hashCode());
+	}
 
-    private boolean canEqual(Object other) {
-        return (other instanceof WebSocketChannelDTO);
-    }
+	/**
+	 * Used for sorting items. If two items have identical host names and ports,
+	 * the channel number is used to determine order.
+	 */
+	@Override
+	public int compareTo(WebSocketChannelDTO other) {
+		int result = host.compareTo(other.host);
+
+		if (result == 0) {
+			result = port.compareTo(other.port);
+			if (result == 0) {
+				return id.compareTo(other.id);
+			}
+		}
+
+		return result;
+	}
 }

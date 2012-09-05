@@ -475,7 +475,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @return
 		 */
 		private byte[] getReadableCloseFramePayload(byte[] payload, int statusCode) {
-			byte[] closeCode = (statusCode+"").getBytes();
+			byte[] closeCode = Integer.toString(statusCode).getBytes();
 			
 			// close code might consist of illegal 5 digits (as one of the Autobahn tests)
 			byte[] newPayload = new byte[payload.length + (closeCode.length - 2)];

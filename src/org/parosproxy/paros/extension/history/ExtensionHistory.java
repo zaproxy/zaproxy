@@ -213,9 +213,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public void sessionChanged(final Session session)  {
 	    if (EventQueue.isDispatchThread()) {
 		    sessionChangedEventHandler(session);
-
 	    } else {
-	        
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
 	                @Override

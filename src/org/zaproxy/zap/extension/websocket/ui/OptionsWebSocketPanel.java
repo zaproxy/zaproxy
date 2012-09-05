@@ -39,7 +39,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
  * <li>Forward Only - allows to avoid storing WebSocket communication.</li>
  * <li>Break on All - react on breakpoints set for all requests/responses.</li>
  * <li>Break on Ping/Pong - react on Ping & Pong messages that arrive while
- * while stepping or waiting for all requests/responses.</li>
+ * stepping or waiting for all requests/responses.</li>
  * </ul>
  * </p>
  */
@@ -133,7 +133,7 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
 
     @Override
     public void validateParam(Object obj) throws Exception {
-    	// no validation needed for these checkboxes
+    	// no validation needed for these check boxes
     }
 
     @Override

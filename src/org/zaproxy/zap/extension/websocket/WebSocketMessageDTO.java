@@ -136,7 +136,7 @@ public class WebSocketMessageDTO implements Message {
 			dateTime = dateFormatter.format(ts);
 		}
 		
-		String nanos = (ts.getNanos() + "").replaceAll("0+$", "");
+		String nanos = Integer.toString(ts.getNanos()).replaceAll("0+$", "");
 		if (nanos.length() == 0) {
 			nanos = "0";
 		}
@@ -144,6 +144,7 @@ public class WebSocketMessageDTO implements Message {
 		dateTime = dateTime.replaceFirst("([0-9]+:[0-9]+:[0-9]+)", "$1." + nanos);
 	}
 
+	@Override
 	public String toString() {
 		return "#" + channel.id + "." + id;
 	}

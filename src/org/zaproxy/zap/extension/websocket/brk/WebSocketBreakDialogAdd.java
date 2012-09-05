@@ -22,11 +22,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.PatternSyntaxException;
 
-import javax.swing.ComboBoxModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
+import org.zaproxy.zap.extension.websocket.ui.ChannelSortedListModel;
 
 public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 
@@ -34,8 +33,8 @@ public class WebSocketBreakDialogAdd extends WebSocketBreakDialog {
 	private ActionListener actionListenerCancel;
 	private ActionListener actionListenerSubmit;
 
-	public WebSocketBreakDialogAdd(WebSocketBreakpointsUiManagerInterface breakPointsManager, ComboBoxModel channelSelectModel) throws HeadlessException {
-		super(breakPointsManager, channelSelectModel);
+	public WebSocketBreakDialogAdd(WebSocketBreakpointsUiManagerInterface breakPointsManager, ChannelSortedListModel channelsModel) throws HeadlessException {
+		super(breakPointsManager, channelsModel);
 	}
 
 	@Override

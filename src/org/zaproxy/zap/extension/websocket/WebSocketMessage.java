@@ -460,6 +460,7 @@ public abstract class WebSocketMessage {
 		return dto;
 	}
 	
+	@Override
 	public String toString() {
 		return "WebSocketMessage#" + getMessageId();
 	}

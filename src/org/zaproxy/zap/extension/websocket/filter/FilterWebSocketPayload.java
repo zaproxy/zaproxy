@@ -20,8 +20,6 @@ package org.zaproxy.zap.extension.websocket.filter;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import javax.swing.ComboBoxModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.filter.FilterAbstractReplace;
 import org.parosproxy.paros.extension.filter.FilterReplaceDialog;
@@ -31,6 +29,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
+import org.zaproxy.zap.extension.websocket.ui.ChannelSortedListModel;
 
 /**
  * Base class for filtering WebSockets traffic.
@@ -43,13 +42,13 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	private boolean shouldApplyOnOutgoing = false;
 	private List<String> applicableOpcodes;
 	private List<Integer> applicableChannelIds;
-	private ComboBoxModel channelComboBoxModel;
+	private ChannelSortedListModel channelsModel;
 	private ExtensionWebSocket extension;
 
-	public FilterWebSocketPayload(ExtensionWebSocket extension, ComboBoxModel channelComboBoxModel) {
+	public FilterWebSocketPayload(ExtensionWebSocket extension, ChannelSortedListModel model) {
 		super();
 		this.extension = extension;
-		this.channelComboBoxModel = channelComboBoxModel;
+		this.channelsModel = model;
 	}
 
 	@Override
@@ -98,10 +97,18 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 
 				Matcher matcher = getPattern().matcher(from);
 
-				String to = matcher.replaceAll(getReplaceText());
-
-				if (!from.equals(to)) {
-					wsMessage.setReadablePayload(to);
+				try {
+					String to = matcher.replaceAll(getReplaceText());
+	
+					if (!from.equals(to)) {
+						wsMessage.setReadablePayload(to);
+					}
+				} catch (IllegalArgumentException e) {
+					// e.g.: Illegal group reference when '$'-sign is used
+					throw new WebSocketException("Replacement text of WebSocket payload filter contains non-escaped characters (\\,$).", e);
+				} catch (StringIndexOutOfBoundsException e) {
+					// e.g.: String index out of range: 1 when '\' is used
+					throw new WebSocketException("Replacement text of WebSocket payload filter contains non-escaped characters (\\,$).", e);
 				}
 			}
 		}
@@ -129,7 +136,7 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	@Override
 	protected FilterReplaceDialog getFilterReplaceDialog() {
 		if (wsFilterReplaceDialog == null) {
-			wsFilterReplaceDialog = new FilterWebSocketReplaceDialog(getView().getMainFrame(), true, channelComboBoxModel);
+			wsFilterReplaceDialog = new FilterWebSocketReplaceDialog(getView().getMainFrame(), true, channelsModel);
 		}
 		return wsFilterReplaceDialog;
 	}

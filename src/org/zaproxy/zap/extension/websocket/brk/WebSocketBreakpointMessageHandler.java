@@ -76,7 +76,7 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 */
 	@Override
 	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
-		if (aMessage instanceof WebSocketMessageDTO && super.isBreakOnStepping((Message) aMessage, isRequest)) {
+		if (aMessage instanceof WebSocketMessageDTO && super.isBreakOnStepping(aMessage, isRequest)) {
 			return isBreakOnOpcode(((WebSocketMessageDTO) aMessage).opcode);
 		}
 		return false;
