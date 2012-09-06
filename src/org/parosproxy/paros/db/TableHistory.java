@@ -92,7 +92,6 @@ public class TableHistory extends AbstractTable {
     
     @Override
     protected void reconnect(Connection conn) throws SQLException {
-        lastInsertedIndex = 0;
         bodiesAsBytes = true;
 
         updateTable(conn);
@@ -127,6 +126,28 @@ public class TableHistory extends AbstractTable {
 //        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
+        
+        int currentIndex = 0;
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                currentIndex = rs.getInt(1);
+            }
+            rs.close();
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch(SQLException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+        lastInsertedIndex = currentIndex;
     }
     
     // ZAP: Added the method.
