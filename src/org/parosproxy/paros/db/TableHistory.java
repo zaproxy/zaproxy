@@ -23,6 +23,8 @@
 // instead of String.
 // ZAP: 2012/06/11 Added method delete(List<Integer>).
 // ZAP: 2012/08/31 Changed to save the note of the HttpMessage.
+// ZAP: 2012/09/06 Changed to keep the index of the last inserted
+// HistoryReference to be used in the method lastIndex().
 
 package org.parosproxy.paros.db;
 
@@ -77,9 +79,11 @@ public class TableHistory extends AbstractTable {
     //private PreparedStatement psAlterTable = null;
     private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
-    private PreparedStatement psLastIndex = null;
     
     private static boolean isExistStatusCode = false;
+
+    // ZAP: Added the instance variable.
+    private int lastInsertedIndex;
 
     // ZAP: Added logger
     private static Logger log = Logger.getLogger(TableHistory.class);
@@ -139,7 +143,28 @@ public class TableHistory extends AbstractTable {
         psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE HISTORYID = ?");
 
        	psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
-       	psLastIndex = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
+        
+        int currentIndex = 0;
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                currentIndex = rs.getInt(1);
+            }
+            rs.close();
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch(SQLException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+        lastInsertedIndex = currentIndex;
     }
     
     
@@ -230,6 +255,7 @@ public class TableHistory extends AbstractTable {
 		try {
 			rs.next();
 			int id = rs.getInt(1);
+			lastInsertedIndex = id;
 			return read(id);
 		} finally {
 			rs.close();
@@ -533,17 +559,8 @@ public class TableHistory extends AbstractTable {
         psUpdateNote.execute();
     }
     
-    public int lastIndex () throws SQLException {
-    	int lastIndex = -1;
-		ResultSet rs = psLastIndex.executeQuery();
-		try {
-		    if (rs.next()) {
-		        lastIndex = rs.getInt(HISTORYID);
-		    }
-		} finally {
-	    	rs.close();
-		}
-	    return lastIndex;
+    public int lastIndex () {
+	    return lastInsertedIndex;
     }
 
 }
