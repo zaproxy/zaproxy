@@ -23,7 +23,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -78,10 +77,6 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         gbc.gridy = 0;
         gbc.insets = new java.awt.Insets(2,2,2,2);
         gbc.anchor = GridBagConstraints.WEST;
-        panel.add(new JLabel(COMPACT_DATABASE_LABEL), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 0;
         panel.add(getCheckBoxCompactDatabase(), gbc);
         
         add(panel);
@@ -89,7 +84,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
     
     private JCheckBox getCheckBoxCompactDatabase() {
         if (checkBoxCompactDatabase == null) {
-            checkBoxCompactDatabase = new JCheckBox();
+            checkBoxCompactDatabase = new JCheckBox(COMPACT_DATABASE_LABEL);
         }
         return checkBoxCompactDatabase;
     }
@@ -116,7 +111,6 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
     
     @Override
     public String getHelpIndex() {
-        // TODO Add the help page.
-        return null; 
+        return "ui.dialogs.options.database"; 
     }
 }
