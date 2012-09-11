@@ -710,7 +710,7 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	public void scanProgress(final String host, final int progress, final int maximum) {
 	    if (EventQueue.isDispatchThread()) {
-        	scanFinshedEventHandler(host);
+	    	scanProgressEventHandler(host, progress, maximum);
 	    } else {
 	        try {
 	            EventQueue.invokeAndWait(new Runnable() {
