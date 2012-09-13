@@ -111,7 +111,15 @@ public class SpiderParam extends AbstractParam {
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
 		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
+			//conversion issue from 1.4.1: convert the field from int to boolean
+			log.info("Warning while parsing config file: " + SPIDER_POST_FORM + " was not in the expected format due to an upgrade. Converting  it!");
+			if (!getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0")) {
+				getConfig().setProperty(SPIDER_POST_FORM, "true");
+				this.postForm = true;
+			} else {
+				getConfig().setProperty(SPIDER_POST_FORM, "false");
+				this.postForm = false;
+			}			
 		}
 
 		try {
