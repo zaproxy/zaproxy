@@ -347,7 +347,11 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         viewItems.remove(view.getConfigName());
         
         if (viewName.equals(currentView.getConfigName())) {
-            switchView(enabledViews.get(0).getConfigName());
+            if (enabledViews.size() > 0) {
+                switchView(enabledViews.get(0).getConfigName());
+            } else {
+                currentView = null;
+            }
         }
     }
     
