@@ -23,7 +23,7 @@ import java.util.List;
 public class ApiAction {
 
 	private String name = null;
-	private List<String> paramNames = new ArrayList<String>();
+	private List<String> paramNames = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -48,7 +48,7 @@ public class ApiAction {
 		super();
 		this.name = name;
 		if (paramNames != null) {
-			this.paramNames = new ArrayList<String>(paramNames.length);
+			this.paramNames = new ArrayList<>(paramNames.length);
 			for (String param : paramNames) {
 				this.paramNames.add(param);
 			}

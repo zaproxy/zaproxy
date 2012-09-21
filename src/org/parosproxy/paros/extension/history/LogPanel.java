@@ -58,7 +58,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	// ZAP: Added logger.
 	private static final Logger logger = Logger.getLogger(LogPanel.class);
 	private javax.swing.JScrollPane scrollLog = null;
-	private javax.swing.JList listLog = null;
+	private javax.swing.JList<HistoryReference> listLog = null;
 	// ZAP: Added history (filter) toolbar
 	private javax.swing.JPanel historyPanel = null;
 	private javax.swing.JToolBar panelToolbar = null;
@@ -79,8 +79,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
 		this.setLayout(new BorderLayout());
@@ -250,17 +248,13 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	}
 
 	/**
-
 	 * This method initializes listLog	
-
 	 * 	
-
 	 * @return javax.swing.JList	
-
-	 */    
-	protected javax.swing.JList getListLog() {
+	 */
+	protected javax.swing.JList<HistoryReference> getListLog() {
 		if (listLog == null) {
-			listLog = new javax.swing.JList();
+			listLog = new javax.swing.JList<>();
 			listLog.setDoubleBuffered(true);
             listLog.setCellRenderer(getLogPanelCellRenderer());
 			listLog.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -317,7 +311,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					        return;
 					    }
 	                    
-						final HistoryReference historyRef = (HistoryReference) listLog.getSelectedValue();
+						final HistoryReference historyRef = listLog.getSelectedValue();
 	
 	                    readAndDisplay(historyRef);
 					}
@@ -356,7 +350,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     
 
     
-    private Vector<HistoryReference> displayQueue = new Vector<HistoryReference>();
+    private Vector<HistoryReference> displayQueue = new Vector<>();
     private Thread thread = null;
     private LogPanelCellRenderer logPanelCellRenderer = null;  //  @jve:decl-index=0:visual-constraint="10,304"
     
@@ -364,7 +358,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     	this.readAndDisplay(historyRef);
     	for (int i = 0; i < listLog.getModel().getSize(); i++) {
     		// Bit nasty, but its the only way I've found...
-    		if (((HistoryReference)listLog.getModel().getElementAt(i)).getHistoryId() == historyRef.getHistoryId()) {
+    		if (listLog.getModel().getElementAt(i).getHistoryId() == historyRef.getHistoryId()) {
     			listLog.setSelectedIndex(i);
     			listLog.ensureIndexIsVisible(i);
     			break;

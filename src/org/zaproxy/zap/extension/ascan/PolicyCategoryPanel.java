@@ -53,8 +53,6 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();

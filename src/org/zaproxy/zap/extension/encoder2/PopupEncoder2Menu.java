@@ -52,7 +52,6 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("enc2.tools.menu.encdec"));

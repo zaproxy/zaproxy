@@ -48,7 +48,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelPortScan = null;
 	private JCheckBox checkBoxRecursive = null;
-	private JComboBox defaultFileList = null;
+	private JComboBox<String> defaultFileList = null;
 	private JButton addFileButton = null;
 
 	public OptionsBruteForcePanel(ExtensionBruteForce extension) {
@@ -60,8 +60,6 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	private JSlider sliderThreadsPerScan = null;
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
@@ -193,9 +191,9 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		return panelPortScan;
 	}
 
-	private JComboBox getDefaultFileList() {
+	private JComboBox<String> getDefaultFileList() {
 		if (defaultFileList == null) {
-			defaultFileList = new JComboBox();
+			defaultFileList = new JComboBox<>();
 			refreshFileList();
 		}
 		return defaultFileList;

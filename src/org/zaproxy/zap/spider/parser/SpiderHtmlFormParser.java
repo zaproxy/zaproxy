@@ -177,7 +177,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * @return the list
 	 */
 	private List<HtmlParameter> prepareFormDataSet(FormFields form) {
-		List<HtmlParameter> formDataSet = new LinkedList<HtmlParameter>();
+		List<HtmlParameter> formDataSet = new LinkedList<>();
 
 		// Process each form field
 		Iterator<FormField> it = form.iterator();

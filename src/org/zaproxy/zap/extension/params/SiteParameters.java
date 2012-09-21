@@ -37,9 +37,9 @@ public class SiteParameters {
 	private ExtensionParams extension;
 	private String site;
 	private ParamsTableModel model = new ParamsTableModel();
-	private Map<String, HtmlParameterStats> cookieParams = new HashMap<String, HtmlParameterStats>();
-	private Map<String, HtmlParameterStats> urlParams = new HashMap<String, HtmlParameterStats>();
-	private Map<String, HtmlParameterStats> formParams = new HashMap<String, HtmlParameterStats>();
+	private Map<String, HtmlParameterStats> cookieParams = new HashMap<>();
+	private Map<String, HtmlParameterStats> urlParams = new HashMap<>();
+	private Map<String, HtmlParameterStats> formParams = new HashMap<>();
 
 	public SiteParameters(ExtensionParams extension, String site) {
 		this.extension = extension;
@@ -102,7 +102,7 @@ public class SiteParameters {
 			}
 
 			if (params == null) {
-				params = new HashMap<String, HtmlParameterStats>();
+				params = new HashMap<>();
 			}
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
@@ -115,7 +115,7 @@ public class SiteParameters {
 	}
 
 	private Set<String> stringToSet(String str) {
-		Set<String> set = new HashSet<String>();
+		Set<String> set = new HashSet<>();
 		// TODO handle encoded commas?
 		String[] array = str.split(",");
 		for (String s : array) {

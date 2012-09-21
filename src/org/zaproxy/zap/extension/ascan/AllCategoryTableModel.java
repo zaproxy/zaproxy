@@ -41,7 +41,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] columnNames = {"Category", "Enabled"};
-    private List<Plugin> allPlugins = new Vector<Plugin>();
+    private List<Plugin> allPlugins = new Vector<>();
     
     /**
      * @param allPlugins The allPlugins to set.

@@ -59,8 +59,6 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("history.tags.popup"));
@@ -90,7 +88,7 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {
-                JList list = (JList) invoker;
+                JList<?> list = (JList<?>) invoker;
                 if (list.getSelectedIndex() >= 0) {
                     this.setEnabled(true);
                 } else {

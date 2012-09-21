@@ -28,7 +28,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 /**
  * Displays a connected or disconnected plug beside channel name.
  */
-public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer {
+public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer<WebSocketChannelDTO> {
 	private static final long serialVersionUID = 1749702362670451484L;
 
 	public ComboBoxChannelRenderer() {
@@ -40,9 +40,8 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer 
 	 * and returns the label, set up to display the text and image.
 	 */
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value,
+	public Component getListCellRendererComponent(JList<? extends WebSocketChannelDTO> list, WebSocketChannelDTO channel,
 			int index, boolean isSelected, boolean cellHasFocus) {
-		WebSocketChannelDTO channel = (WebSocketChannelDTO) value;
 				
 		if (isSelected) {
             setBackground(list.getSelectionBackground());

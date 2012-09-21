@@ -44,8 +44,6 @@ public class OptionsDialog extends AbstractParamDialog {
     }
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 

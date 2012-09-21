@@ -53,7 +53,6 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("copy.copy.popup"));

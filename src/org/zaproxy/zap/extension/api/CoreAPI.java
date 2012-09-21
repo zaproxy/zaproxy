@@ -72,7 +72,7 @@ public class CoreAPI extends ApiImplementor {
 
 	public CoreAPI() {
 
-		List<String> params = new ArrayList<String>(1);
+		List<String> params = new ArrayList<>(1);
 		params.add(ACTION_SESSION_PARAM_NAME);
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
 		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, params));
@@ -347,7 +347,7 @@ public class CoreAPI extends ApiImplementor {
 	}
 
 	private List<Alert> getAlerts() throws ApiException {
-		List<Alert> alerts = new ArrayList<Alert>();
+		List<Alert> alerts = new ArrayList<>();
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb()
 					.getTableAlert();
@@ -380,7 +380,7 @@ public class CoreAPI extends ApiImplementor {
 					.getTableHistory();
 			Vector<Integer> v = tableHistory.getHistoryList(Model
 					.getSingleton().getSession().getSessionId());
-			ArrayList<HttpMessage> mgss = new ArrayList<HttpMessage>();
+			ArrayList<HttpMessage> mgss = new ArrayList<>();
 			for (int i = 0; i < v.size(); i++) {
 				int sessionId = v.get(i).intValue();
 				RecordHistory recAlert = tableHistory.read(sessionId);

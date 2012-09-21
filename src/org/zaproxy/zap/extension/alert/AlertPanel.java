@@ -60,7 +60,6 @@ public class AlertPanel extends AbstractPanel {
 	
 	private ViewDelegate view = null;
 	private JTree treeAlert = null;
-	private JTree treeAlert2 = null;
 	private TreePath rootTreePath = null;	
 	
 	private JScrollPane paneScroll = null;
@@ -84,8 +83,6 @@ public class AlertPanel extends AbstractPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());

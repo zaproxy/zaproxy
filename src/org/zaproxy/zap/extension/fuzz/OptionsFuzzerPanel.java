@@ -46,7 +46,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	private ExtensionFuzz extension = null;
 	private JPanel panelPortScan = null;
 	private JSlider sliderThreadsPerScan = null;
-	private JComboBox categoryField = null;
+	private JComboBox<String> categoryField = null;
 	private JButton addFileButton = null;
 
     public OptionsFuzzerPanel(ExtensionFuzz extension) {
@@ -57,8 +57,6 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
@@ -176,9 +174,9 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 		return panelPortScan;
 	}
 	
-	private JComboBox getDefaultCategory() {
+	private JComboBox<String> getDefaultCategory() {
 		if (categoryField == null) {
-			categoryField = new JComboBox();
+			categoryField = new JComboBox<>();
 			
 			for (String category : extension.getFileFuzzerCategories()) {
 				categoryField.addItem(category);

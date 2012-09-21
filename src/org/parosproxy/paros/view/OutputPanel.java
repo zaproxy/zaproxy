@@ -56,8 +56,6 @@ public class OutputPanel extends AbstractPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());

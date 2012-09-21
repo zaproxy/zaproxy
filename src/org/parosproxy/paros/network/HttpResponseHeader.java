@@ -222,7 +222,7 @@ public class HttpResponseHeader extends HttpHeader {
 	
 	// ZAP: Added method for working directly with HttpCookie
 	public List<HttpCookie> getHttpCookies() {
-		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+		List<HttpCookie> cookies = new LinkedList<>();
 
 		Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
 		if (cookiesS != null)
@@ -240,7 +240,7 @@ public class HttpResponseHeader extends HttpHeader {
 
 	// ZAP: Added method.
 	public TreeSet<HtmlParameter> getCookieParams() {
-		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		TreeSet<HtmlParameter> set = new TreeSet<>();
 		
 		Vector<String> cookies = getHeaders(HttpHeader.SET_COOKIE);
     	if (cookies != null) {

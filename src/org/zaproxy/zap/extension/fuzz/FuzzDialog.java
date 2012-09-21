@@ -54,10 +54,10 @@ public abstract class FuzzDialog extends AbstractDialog {
     
 	private JPanel jPanel = null;
 
-	private DefaultComboBoxModel fuzzerModel = null;
-    private JComboBox categoryField = null;
+	private DefaultComboBoxModel<String> fuzzerModel = null;
+    private JComboBox<String> categoryField = null;
 
-    private JList fuzzersField = null;
+    private JList<String> fuzzersField = null;
     
 	private JLabel selectionField = null;
 
@@ -177,9 +177,9 @@ public abstract class FuzzDialog extends AbstractDialog {
 		return ((String)getCategoryField().getSelectedItem()).startsWith(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX);
 	}
 	
-	private JComboBox getCategoryField() {
+	private JComboBox<String> getCategoryField() {
 		if (categoryField == null) {
-			categoryField = new JComboBox();
+			categoryField = new JComboBox<>();
 
 			// Add File based fuzzers (fuzzdb)
 			for (String category : extension.getFileFuzzerCategories()) {
@@ -235,18 +235,17 @@ public abstract class FuzzDialog extends AbstractDialog {
 		return selectionField;
 	}
 
-	private JList getFuzzersField() {
+	private JList<String> getFuzzersField() {
 		if (fuzzersField == null) {
-			fuzzerModel = new DefaultComboBoxModel();
+			fuzzerModel = new DefaultComboBoxModel<>();
 			
-			fuzzersField = new JList();
+			fuzzersField = new JList<>();
 			fuzzersField.setModel(fuzzerModel);
 			setFuzzerNames();
 			fuzzersField.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-			        Object [] names = fuzzersField.getSelectedValues();
-			        getStartButton().setEnabled(names != null && names.length > 0);
+		            getStartButton().setEnabled(!fuzzersField.isSelectionEmpty());
 				}});
 		}
 		return fuzzersField;
@@ -276,26 +275,27 @@ public abstract class FuzzDialog extends AbstractDialog {
         
         @Override
 	    public void actionPerformed(ActionEvent e) {
-	        Object [] names = fuzzersField.getSelectedValues();
-            if (names != null && names.length > 0) {
+            if (!fuzzersField.isSelectionEmpty()) {
+                List<String> names = fuzzersField.getSelectedValuesList();
+                int size = names.size();
                 try {
                     Fuzzer [] fuzzers = null;;
                     FileFuzzer [] fileFuzzers = null;
                     if (isCustomCategory()) {
-                        fileFuzzers = new FileFuzzer[names.length];
-                        for (int i=0; i < names.length; i++) {
-                            fileFuzzers[i] = extension.getCustomFileFuzzer(names[i].toString());
+                        fileFuzzers = new FileFuzzer[size];
+                        for (int i=0; i < size; i++) {
+                            fileFuzzers[i] = extension.getCustomFileFuzzer(names.get(i));
                         }
                     } else if (isJBroFuzzCategory()) {
-                        fuzzers = new Fuzzer[names.length];
-                        for (int i=0; i < names.length; i++) {
-                            fuzzers[i] = extension.getJBroFuzzer(names[i].toString());
+                        fuzzers = new Fuzzer[size];
+                        for (int i=0; i < size; i++) {
+                            fuzzers[i] = extension.getJBroFuzzer(names.get(i));
                         }
                     } else {
-                        fileFuzzers = new FileFuzzer[names.length];
+                        fileFuzzers = new FileFuzzer[size];
                         final String category = (String)getCategoryField().getSelectedItem();
-                        for (int i=0; i < names.length; i++) {
-                            fileFuzzers[i] = extension.getFileFuzzer(category, names[i].toString());
+                        for (int i=0; i < size; i++) {
+                            fileFuzzers[i] = extension.getFileFuzzer(category, names.get(i));
                         }
                     }
                     

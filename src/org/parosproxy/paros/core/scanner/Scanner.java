@@ -52,7 +52,7 @@ public class Scanner implements Runnable {
     private static Logger log = Logger.getLogger(Scanner.class);
 	private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
-	private Vector<ScannerListener> listenerList = new Vector<ScannerListener>();
+	private Vector<ScannerListener> listenerList = new Vector<>();
 	private ScannerParam scannerParam = null;
 	private ConnectionParam connectionParam = null;
 	//private HttpSender httpSender = null;
@@ -238,13 +238,13 @@ public class Scanner implements Runnable {
 	
 	public void setExcludeList(List<String> urls) {
 		if (urls != null) {
-		    excludeUrls = new ArrayList<Pattern>(urls.size());
+		    excludeUrls = new ArrayList<>(urls.size());
 		    for (String url : urls) {
 				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 				excludeUrls.add(p);
 		    }
 		} else {
-			excludeUrls = new ArrayList<Pattern>(0);
+			excludeUrls = new ArrayList<>(0);
 		}
 	}
 	

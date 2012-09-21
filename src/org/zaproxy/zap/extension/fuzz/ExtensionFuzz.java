@@ -58,8 +58,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
     private OptionsFuzzerPanel optionsFuzzerPanel = null;
     private boolean fuzzing = false;
     private Database jbroFuzzDB = new Database();
-	private List <String> fuzzerCategories = new ArrayList<String>();
-	private Map<String, DirCategory> catMap = new HashMap<String, DirCategory>();
+	private List <String> fuzzerCategories = new ArrayList<>();
+	private Map<String, DirCategory> catMap = new HashMap<>();
     
 	FuzzerHandler fuzzableMessageHandler;
     private Map<Class<? extends Message>, FuzzerHandler> fuzzableMessageHandlers;
@@ -81,8 +81,6 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName(NAME);
@@ -106,7 +104,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	        
 	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
 	    	
-	    	fuzzableMessageHandlers = new HashMap<Class<? extends Message>, FuzzerHandler>();
+	    	fuzzableMessageHandlers = new HashMap<>();
 	    	fuzzableMessageHandlers.put(HttpMessage.class, new HttpFuzzerHandler());
 	    }
         extensionHook.addOptionsParamSet(getFuzzerParam());
@@ -249,7 +247,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	}
 	
 	public List<String> getCustomFileList() {
-        List <String> fileList = new ArrayList<String>();
+        List <String> fileList = new ArrayList<>();
         File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
         File[] customFiles = customDir.listFiles();
         if (customFiles != null) {
@@ -269,7 +267,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	}
 
 	public List <String> getFileFuzzerNames(String category) {
-		List <String> fuzzers = new ArrayList<String>();
+		List <String> fuzzers = new ArrayList<>();
 		DirCategory dirCat = this.catMap.get(category);
 		if (dirCat != null) {
 			for (FileFuzzer ff : dirCat.getFuzzers()) {
@@ -290,7 +288,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	public List<String> getJBroFuzzCategories() {
 		String[] allCats = jbroFuzzDB.getAllCategories();
 		Arrays.sort(allCats);
-		List <String> categories = new ArrayList<String>(allCats.length);
+		List <String> categories = new ArrayList<>(allCats.length);
 		for (String category : allCats) {
 			categories.add(JBROFUZZ_CATEGORY_PREFIX + category);
 		}
@@ -301,7 +299,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 		String jbfCategory = category.substring(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX.length());
 		String [] fuzzers = jbroFuzzDB.getPrototypeNamesInCategory(jbfCategory);
 		Arrays.sort(fuzzers);
-		List <String> fuzzerNames = new ArrayList<String>(fuzzers.length);
+		List <String> fuzzerNames = new ArrayList<>(fuzzers.length);
 		for (String fuzzer : fuzzers) {
 			fuzzerNames.add(fuzzer);
 		}

@@ -36,7 +36,7 @@ public class HtmlContext {
 	private String target;
 	private int start = 0;
 	private int end = 0;
-	private List<String> parentTags = new ArrayList<String>();
+	private List<String> parentTags = new ArrayList<>();
 	private String tagAttribute = null;
 	private boolean inScriptAttribute = false;
 	private boolean inUrlAttribute = false;

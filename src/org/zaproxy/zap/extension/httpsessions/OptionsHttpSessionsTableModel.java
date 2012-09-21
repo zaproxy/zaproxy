@@ -40,7 +40,7 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 	private static final String[] columnNames = { Constant.messages.getString("httpsessions.options.table.token") };
 
 	/** The token names. */
-	private List<String> tokenNames = new ArrayList<String>();
+	private List<String> tokenNames = new ArrayList<>();
 
 	/**
 	 * Instantiates a new options http sessions table model.
@@ -108,7 +108,7 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 		}
 
 		// Make a copy of the internal list
-		List<String> newList = new ArrayList<String>(tokenNames);
+		List<String> newList = new ArrayList<>(tokenNames);
 		return newList;
 	}
 
@@ -118,7 +118,7 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 	 * @param tokens the new tokens
 	 */
 	public void setTokens(List<String> tokens) {
-		this.tokenNames = new ArrayList<String>();
+		this.tokenNames = new ArrayList<>();
 		if (tokens != null) {
 			for (String token : tokens) {
 				if (!this.tokenNames.contains(token)) {

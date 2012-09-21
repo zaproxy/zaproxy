@@ -38,7 +38,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 /**
@@ -68,8 +67,6 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionState");
@@ -83,7 +80,6 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	    
 	    // ZAP: Changed to check if there is a view.
 	    if (getView() != null) {
-		    ExtensionHookView pv = extensionHook.getHookView();
 		    extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 		    extensionHook.getHookMenu().addEditMenuItem(getMenuSessionTrackingEnable());
 		    extensionHook.getHookMenu().addEditMenuItem(getMenuResetSessionState());

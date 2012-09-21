@@ -56,12 +56,12 @@ public class ProxyServer implements Runnable {
 	protected boolean isProxyRunning = false;
 	protected ProxyParam proxyParam = new ProxyParam();
 	protected ConnectionParam connectionParam = new ConnectionParam();
-	protected Vector<ProxyListener> listenerList = new Vector<ProxyListener>();
+	protected Vector<ProxyListener> listenerList = new Vector<>();
 	// ZAP: Added listenersComparator.
     private static Comparator<ProxyListener> listenersComparator;
 	protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
-    protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<CacheProcessingItem>();
+    protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
 
     private List<Pattern> excludeUrls = null;
     private static Logger log = Logger.getLogger(ProxyServer.class);
@@ -267,7 +267,7 @@ public class ProxyServer implements Runnable {
     }
     
 	public void setExcludeList(List<String> urls) {
-		excludeUrls = new ArrayList<Pattern>(urls.size());
+		excludeUrls = new ArrayList<>(urls.size());
 	    for (String url : urls) {
 			Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 			excludeUrls.add(p);

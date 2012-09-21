@@ -51,7 +51,7 @@ public class CommandLine {
     private boolean GUI = true;
     private boolean daemon = false;
     private String[] args = null;
-    private Hashtable<String, String> keywords = new Hashtable<String, String>();
+    private Hashtable<String, String> keywords = new Hashtable<>();
     private Vector<CommandLineArgument[]> commandList = null;
     
     public CommandLine(String[] args) throws Exception {

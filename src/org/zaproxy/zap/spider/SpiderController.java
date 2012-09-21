@@ -79,13 +79,13 @@ public class SpiderController implements SpiderParserListener {
 	protected SpiderController(Spider spider) {
 		super();
 		this.spider = spider;
-		this.fetchFilters = new LinkedList<FetchFilter>();
-		this.parseFilters = new LinkedList<ParseFilter>();
-		this.visitedGet = new HashSet<String>();
-		this.visitedPost = new HashSet<String>();
+		this.fetchFilters = new LinkedList<>();
+		this.parseFilters = new LinkedList<>();
+		this.visitedGet = new HashSet<>();
+		this.visitedPost = new HashSet<>();
 
 		// Prepare the parsers for HTML
-		this.htmlParsers = new LinkedList<SpiderParser>();
+		this.htmlParsers = new LinkedList<>();
 		// Simple HTML parser
 		SpiderParser parser = new SpiderHtmlParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
@@ -98,7 +98,7 @@ public class SpiderController implements SpiderParserListener {
 		this.htmlParsers.add(parser);
 
 		// Prepare the parsers for simple non-HTML files
-		this.txtParsers = new LinkedList<SpiderParser>();
+		this.txtParsers = new LinkedList<>();
 		parser = new SpiderTextParser();
 		parser.addSpiderParserListener(this);
 		this.txtParsers.add(parser);
@@ -195,7 +195,7 @@ public class SpiderController implements SpiderParserListener {
 				log.info("Parsing a robots.txt resource...");
 				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
 				parser.addSpiderParserListener(this);
-				LinkedList<SpiderParser> robotsParsers = new LinkedList<SpiderParser>();
+				LinkedList<SpiderParser> robotsParsers = new LinkedList<>();
 				robotsParsers.add(parser);
 				return robotsParsers;
 			}

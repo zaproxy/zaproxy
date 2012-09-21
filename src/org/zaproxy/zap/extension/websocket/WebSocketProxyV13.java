@@ -243,7 +243,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 //			}
 		}
 		
-		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<WebSocketFrameV13>();
+		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<>();
 		
 		/**
 		 * Temporary buffer that will be added to

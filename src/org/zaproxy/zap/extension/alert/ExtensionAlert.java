@@ -59,7 +59,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
 
     public static final String NAME = "ExtensionAlert";
-    private List<HistoryReference> hrefs = new ArrayList<HistoryReference>();
+    private List<HistoryReference> hrefs = new ArrayList<>();
     private AlertTreeModel treeAlert = null;
     private AlertPanel alertPanel = null;
     private RecordScan recordScan = null;
@@ -86,8 +86,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     /**
      * This method initializes this
-     *
-     * @return void
      */
     private void initialize() {
         this.setName(NAME);
@@ -300,7 +298,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             tree.recalcAlertCounts();
         }
         
-        hrefs = new ArrayList<HistoryReference>();
+        hrefs = new ArrayList<>();
 
     	if (session == null) {
     		// Null session indicated we're sutting down
@@ -414,7 +412,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         synchronized (treeAlert) {
             treeAlert.deletePath(alert);
-            List<HistoryReference> toDelete = new ArrayList<HistoryReference>();
+            List<HistoryReference> toDelete = new ArrayList<>();
             for (HistoryReference href : hrefs) {
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
@@ -442,7 +440,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     public List<Alert> getAllAlerts() {
-        List<Alert> allAlerts = new ArrayList<Alert>();
+        List<Alert> allAlerts = new ArrayList<>();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;

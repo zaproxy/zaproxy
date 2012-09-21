@@ -31,7 +31,7 @@ public class FuzzerThread implements Runnable {
 
     private static final Logger log = Logger.getLogger(FuzzerThread.class);
 	
-	private List<FuzzerListener> listenerList = new ArrayList<FuzzerListener>();
+	private List<FuzzerListener> listenerList = new ArrayList<>();
 
 	private Fuzzer[] fuzzers;
 	private FileFuzzer[] customFuzzers;

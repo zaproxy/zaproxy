@@ -65,8 +65,6 @@ public class MainMenuBar extends JMenuBar {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.add(getMenuFile());

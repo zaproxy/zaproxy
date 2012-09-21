@@ -67,8 +67,6 @@ public class MainFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes this
-	 *
-	 * @return void
 	 */
 	private void initialize() {
 		this.setJMenuBar(getMainMenuBar());

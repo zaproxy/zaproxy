@@ -84,8 +84,6 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionCompare");
@@ -216,8 +214,8 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 				Database db = new Database();
 				db.open(file.getAbsolutePath());
 				
-				Map <String, String> curMap = new HashMap<String,String>();
-				Map <String, String> cmpMap = new HashMap<String,String>();
+				Map <String, String> curMap = new HashMap<>();
+				Map <String, String> cmpMap = new HashMap<>();
 				
 				// Load the 2 sessions into 2 maps
 				this.buildHistoryMap(Database.getSingleton().getTableHistory(), curMap);
@@ -228,7 +226,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 		    	if (outputFile != null) {
 		    		// Write the result to the specified file
 		    		try {
-				        TreeSet<String> sset = new TreeSet<String>();
+				        TreeSet<String> sset = new TreeSet<>();
 				        // Combine the keys for both maps
 				        sset.addAll(curMap.keySet());
 				        sset.addAll(cmpMap.keySet());

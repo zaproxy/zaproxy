@@ -62,7 +62,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
-	private JComboBox siteSelect = null;
+	private JComboBox<String> siteSelect = null;
 	private JButton newSessionButton = null;
 	private JTable sessionsTable = null;
 	private JButton optionsButton = null;
@@ -71,7 +71,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private String currentSite = null;
 
 	/** The site model. */
-	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 
 	/** The sessions model. */
 	private HttpSessionsTableModel sessionsModel = new HttpSessionsTableModel();
@@ -89,8 +89,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 
 	/**
 	 * This method initializes this panel.
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
@@ -329,9 +327,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 * 
 	 * @return the site select
 	 */
-	private JComboBox getSiteSelect() {
+	private JComboBox<String> getSiteSelect() {
 		if (siteSelect == null) {
-			siteSelect = new JComboBox(siteModel);
+			siteSelect = new JComboBox<>(siteModel);
 			siteSelect.addItem(Constant.messages.getString("httpsessions.toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 

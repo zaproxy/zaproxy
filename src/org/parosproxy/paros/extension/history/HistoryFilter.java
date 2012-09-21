@@ -17,8 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/03/15 Changed the methods toShortString and toLongString to use the class StringBuilder 
-//      instead of StringBuffer.
 
 package org.parosproxy.paros.extension.history;
 
@@ -36,46 +34,32 @@ public class HistoryFilter {
 	public static final String NOTES_ABSENT = Constant.messages.getString("history.filter.notes.absent");
 	public static final String [] NOTES_OPTIONS = {NOTES_IGNORE, NOTES_PRESENT, NOTES_ABSENT};
 	
-	private List<String> methodList = new ArrayList<String>();
-	private List<Integer> codeList = new ArrayList<Integer>();
-	private List<String> riskList = new ArrayList<String>();
-	private List<String> reliabilityList = new ArrayList<String>();
-	private List<String> tagList = new ArrayList<String>();
+	private List<String> methodList = new ArrayList<>();
+	private List<Integer> codeList = new ArrayList<>();
+	private List<String> riskList = new ArrayList<>();
+	private List<String> reliabilityList = new ArrayList<>();
+	private List<String> tagList = new ArrayList<>();
 	private String note = null;
 	
-	private List<String> convertStr(Object[] objects) {
-		List<String> list = new ArrayList<String>();
-		for (Object obj : objects) {
-			list.add(obj.toString());
-		}
-		return list;
-	}
-	private List<Integer> convertInt(Object[] objects) {
-		List<Integer> list = new ArrayList<Integer>();
-		for (Object obj : objects) {
-			list.add(Integer.parseInt(obj.toString()));
-		}
-		return list;
-	}
-	public void setMethods(Object[] methods) {
+	public void setMethods(List<String> methods) {
 		methodList.clear();
-		methodList.addAll(convertStr(methods));
+		methodList.addAll(methods);
 	}
-	public void setCodes(Object[] codes) {
+	public void setCodes(List<Integer> codes) {
 		codeList.clear();
-		codeList.addAll(convertInt(codes));
+		codeList.addAll(codes);
 	}
-	public void setTags(Object[] tags) {
+	public void setTags(List<String> tags) {
 		tagList.clear();
-		tagList.addAll(convertStr(tags));
+		tagList.addAll(tags);
 	}
-	public void setRisks(Object[] risks) {
+	public void setRisks(List<String> risks) {
 		riskList.clear();
-		riskList.addAll(convertStr(risks));
+		riskList.addAll(risks);
 	}
-	public void setReliabilities(Object[] reliabilities) {
+	public void setReliabilities(List<String> reliabilities) {
 		reliabilityList.clear();
-		reliabilityList.addAll(convertStr(reliabilities));
+		reliabilityList.addAll(reliabilities);
 	}
 	
 	public void reset () {

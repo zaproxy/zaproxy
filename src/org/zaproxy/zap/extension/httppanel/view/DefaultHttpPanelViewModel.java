@@ -30,7 +30,7 @@ public class DefaultHttpPanelViewModel implements HttpPanelViewModel {
 	protected List<HttpPanelViewModelListener> listeners;
 	
 	public DefaultHttpPanelViewModel() {
-		listeners = new ArrayList<HttpPanelViewModelListener>(2);
+		listeners = new ArrayList<>(2);
 		message = null;
 	}
 	

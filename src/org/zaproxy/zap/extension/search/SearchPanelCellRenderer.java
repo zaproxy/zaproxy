@@ -31,10 +31,9 @@ import javax.swing.ListCellRenderer;
 
 import org.parosproxy.paros.model.Model;
 
-public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer {
+public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer<SearchResult> {
 
 	private static final long serialVersionUID = 1L;
-	private SearchResult searchResult = null;
     private JLabel txtId = null;
     private JLabel method = null;
     private JLabel url = null;
@@ -51,8 +50,6 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
 
@@ -146,9 +143,7 @@ public class SearchPanelCellRenderer extends JPanel implements ListCellRenderer 
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        
-        searchResult = (SearchResult) value;
+    public Component getListCellRendererComponent(JList<? extends SearchResult> list, SearchResult searchResult, int index, boolean isSelected, boolean cellHasFocus) {
         
         if (searchResult.getMessage().getHistoryRef() != null) {
         	txtId.setText(Integer.toString(searchResult.getMessage().getHistoryRef().getHistoryId()));

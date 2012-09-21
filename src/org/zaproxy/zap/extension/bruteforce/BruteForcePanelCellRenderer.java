@@ -29,7 +29,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
-public class BruteForcePanelCellRenderer extends JPanel implements ListCellRenderer {
+public class BruteForcePanelCellRenderer extends JPanel implements ListCellRenderer<BruteForceItem> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -48,8 +48,6 @@ public class BruteForcePanelCellRenderer extends JPanel implements ListCellRende
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
         
@@ -119,10 +117,8 @@ public class BruteForcePanelCellRenderer extends JPanel implements ListCellRende
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends BruteForceItem> list, BruteForceItem item, int index, boolean isSelected, boolean cellHasFocus) {
         
-    	BruteForceItem item = (BruteForceItem)value;
-
         txtUrl.setText(item.getUrl());
         txtCode.setText(""+item.getStatusCode());
         txtReason.setText(item.getReason());

@@ -56,7 +56,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	
 	public ActiveScanAPI (ExtensionActiveScan extension) {
 		this.extension = extension;
-		List<String> scanParams = new ArrayList<String>(1);
+		List<String> scanParams = new ArrayList<>(1);
 		scanParams.add(ACTION_SCANSITE_PARAM_URL);
 		this.addApiAction(new ApiAction(ACTION_SCAN, scanParams));
 		this.addApiView(new ApiView(VIEW_STATUS));

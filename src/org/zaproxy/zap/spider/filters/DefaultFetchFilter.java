@@ -37,7 +37,7 @@ import org.apache.commons.httpclient.URIException;
 public class DefaultFetchFilter extends FetchFilter {
 
 	/** The scope. */
-	private Set<String> scopes = new LinkedHashSet<String>();
+	private Set<String> scopes = new LinkedHashSet<>();
 
 	/** The exclude list. */
 	private List<String> excludeList = null;

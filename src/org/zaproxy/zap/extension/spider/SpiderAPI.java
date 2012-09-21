@@ -88,9 +88,9 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	 */
 	public SpiderAPI(ExtensionSpider extension) {
 		this.extension = extension;
-		this.foundURIs = new ArrayList<String>();
+		this.foundURIs = new ArrayList<>();
 		// Register the actions
-		List<String> scanParams = new ArrayList<String>(1);
+		List<String> scanParams = new ArrayList<>(1);
 		scanParams.add(ACTION_SCANSITE_PARAM_URL);
 		this.addApiAction(new ApiAction(ACTION_START_SCAN, scanParams));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN));

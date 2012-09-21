@@ -90,7 +90,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	public static final ImageIcon connectTargetIcon;
 	
 	static {
-		connectedChannelIds = new HashSet<Integer>();
+		connectedChannelIds = new HashSet<>();
 		
 		disconnectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-disconnect.png"));
 		connectIcon = new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/plug-connect.png"));
@@ -101,7 +101,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 
 	private JToolBar panelToolbar = null;
 
-	private JComboBox channelSelect;
+	private JComboBox<WebSocketChannelDTO> channelSelect;
 	private ChannelSortedListModel channelsModel;
 	private ComboBoxChannelModel channelSelectModel;
 
@@ -245,9 +245,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		return panelToolbar;
 	}
 
-	protected JComboBox getChannelSelect() {
+	protected JComboBox<WebSocketChannelDTO> getChannelSelect() {
 		if (channelSelect == null) {			
-			channelSelect = new JComboBox(channelSelectModel);
+			channelSelect = new JComboBox<>(channelSelectModel);
 			channelSelect.setRenderer(new ComboBoxChannelRenderer());
 			channelSelect.setMaximumRowCount(8);
 			channelSelect.addActionListener(new ActionListener() {
@@ -326,7 +326,7 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 			handshakeButton.setIcon(new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/16/handshake.png")));
 			handshakeButton.setToolTipText(Constant.messages.getString("websocket.filter.button.handshake"));
 
-			final JComboBox channelSelect = this.channelSelect;
+			final JComboBox<WebSocketChannelDTO> channelSelect = this.channelSelect;
 			handshakeButton.addActionListener(new ActionListener() { 
 
 				@Override

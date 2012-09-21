@@ -57,8 +57,6 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionLog4j");

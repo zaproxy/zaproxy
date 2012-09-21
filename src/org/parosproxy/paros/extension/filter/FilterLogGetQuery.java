@@ -166,7 +166,7 @@ public class FilterLogGetQuery extends FilterAdaptor {
     // ZAP: Added type arguments.
     protected Hashtable<String, String> parseParameter(String param){
         // ZAP: Added type arguments.
-        Hashtable<String, String> table = new Hashtable<String, String>();
+        Hashtable<String, String> table = new Hashtable<>();
         
         try{	  
             matcher2 = pSeparator.matcher(param);

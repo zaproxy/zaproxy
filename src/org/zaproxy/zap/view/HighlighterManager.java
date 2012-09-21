@@ -24,7 +24,7 @@ public class HighlighterManager extends Observable {
 	private LinkedList<HighlightSearchEntry> highlights;
 	
 	public HighlighterManager() {
-		highlights = new LinkedList<HighlightSearchEntry>();
+		highlights = new LinkedList<>();
 	}
 	
 	public void reinitHighlights(LinkedList<HighlightSearchEntry> list) {

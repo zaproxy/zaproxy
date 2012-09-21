@@ -48,7 +48,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 	private JScrollPane jScrollPane = null;
     private PortPanelCellRenderer portPanelCellRenderer = null;
 
-	private static JList portList = null;
+	private static JList<Integer> portList = null;
     
     /**
      * @param portScanParam 
@@ -79,12 +79,12 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 	}
 
 	private void resetPortList() {
-		getPortList().setModel(new DefaultListModel());
+		getPortList().setModel(new DefaultListModel<Integer>());
 	}
 
-	protected synchronized JList getPortList() {
+	protected synchronized JList<Integer> getPortList() {
 		if (portList == null) {
-			portList = new JList();
+			portList = new JList<>();
 			portList.setDoubleBuffered(true);
 			portList.setCellRenderer(getPortPanelCellRenderer());
 			portList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -122,7 +122,7 @@ public class PortScanPanel extends ScanPanel implements ScanListenner {
 		return portList;
 	}
 
-	private ListCellRenderer getPortPanelCellRenderer() {
+	private ListCellRenderer<Integer> getPortPanelCellRenderer() {
         if (portPanelCellRenderer == null) {
             portPanelCellRenderer = new PortPanelCellRenderer();
             portPanelCellRenderer.setSize(new java.awt.Dimension(328,21));

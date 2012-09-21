@@ -120,7 +120,7 @@ public class InformationDisclosureSuspiciousComments extends PluginPassiveScanne
 	
 	private List<Pattern> getPatterns() {
 		if (patterns == null) {
-			patterns = new ArrayList<Pattern>();
+			patterns = new ArrayList<>();
 			String line = null;
 			File f = new File(databaseErrorFile);
 			BufferedReader reader = null;

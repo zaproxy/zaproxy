@@ -53,7 +53,7 @@ public class MainPopupMenu extends JPopupMenu {
 	private List<JMenuItem> itemList = null;
 	private PopupPurgeMenu popupPurgeMenu = null;
 	// ZAP: Added support for submenus
-    Map<String, JMenuItem> superMenus = new HashMap<String, JMenuItem>();
+    Map<String, JMenuItem> superMenus = new HashMap<>();
     View view = null;
     private static Logger log = Logger.getLogger(MainPopupMenu.class);
     /**
@@ -81,8 +81,6 @@ public class MainPopupMenu extends JPopupMenu {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         //this.setVisible(true);

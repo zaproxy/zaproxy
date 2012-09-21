@@ -45,7 +45,7 @@ public class CategoryTableModel extends DefaultTableModel {
 		Constant.messages.getString("ascan.policy.table.testname"), 
 		Constant.messages.getString("ascan.policy.table.enabled") };
 	
-    private Vector<Plugin> listTestCategory = new Vector<Plugin>();
+    private Vector<Plugin> listTestCategory = new Vector<>();
     
     /**
      * 
@@ -132,7 +132,7 @@ public class CategoryTableModel extends DefaultTableModel {
     
     private List<Plugin> getTestList() {
         if (listTestCategory == null) {
-            listTestCategory = new Vector<Plugin>();
+            listTestCategory = new Vector<>();
         }
         return listTestCategory;
     }

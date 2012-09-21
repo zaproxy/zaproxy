@@ -60,7 +60,7 @@ public class WebSocketMessagesView implements Runnable {
 	public WebSocketMessagesView(WebSocketMessagesViewModel model) {
 		this.model = model;
 		
-		displayQueue = new Vector<WebSocketMessageDTO>();
+		displayQueue = new Vector<>();
 	}
 	
 	/**

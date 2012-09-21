@@ -11,15 +11,17 @@ import javax.swing.event.ListDataListener;
 
 /**
  * Got original code snippet from http://tutiez.com/how-make-jcombobox-drop-down-width-as-wide-as-needed.html
+ *
+ * @param <E> the type of the elements of this combo box
  */
-public class WiderDropdownJComboBox extends JComboBox {
+public class WiderDropdownJComboBox<E> extends JComboBox<E> {
 	private static final long serialVersionUID = -5796470611592964798L;
 	
 	private boolean layingOut = false;
     private int widestLengh = 0;
     private boolean wide = false;
 
-    public WiderDropdownJComboBox(ComboBoxModel channelComboBoxModel, boolean isWide) {
+    public WiderDropdownJComboBox(ComboBoxModel<E> channelComboBoxModel, boolean isWide) {
         super(channelComboBoxModel);
         setWide(isWide);
         

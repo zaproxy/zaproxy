@@ -113,8 +113,6 @@ public class AlertAddDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setTitle(Constant.messages.getString("alert.add.title"));

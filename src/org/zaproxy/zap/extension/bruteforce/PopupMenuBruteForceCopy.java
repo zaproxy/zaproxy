@@ -25,6 +25,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -54,8 +55,6 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("bruteforce.copy.popup"));
@@ -65,14 +64,14 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 
-                Object[] objs = extension.getBruteForcePanel().getBruteForceList().getSelectedValues();
-                if (objs== null) {
+                if (extension.getBruteForcePanel().getBruteForceList().isSelectionEmpty()) {
                     return;
                 }
                 
+                List<BruteForceItem> values = extension.getBruteForcePanel().getBruteForceList().getSelectedValuesList();
+                
                 StringBuilder sb = new StringBuilder();
-                for (Object obj: objs) {
-                	BruteForceItem item = (BruteForceItem)obj;
+                for (BruteForceItem item: values) {
 
                 	sb.append(item.getUrl());
                 	sb.append('\n');
@@ -91,12 +90,10 @@ public class PopupMenuBruteForceCopy extends ExtensionPopupMenuItem implements C
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
             try {
-                Object[] obj = extension.getBruteForcePanel().getBruteForceList().getSelectedValues();
-
-                if (obj.length >= 1) {
-                    this.setEnabled(true);
-                } else {
+                if (extension.getBruteForcePanel().getBruteForceList().isSelectionEmpty()) {
                     this.setEnabled(false);
+                } else {
+                    this.setEnabled(true);
                 }
 
             } catch (Exception e) {

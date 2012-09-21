@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
+import java.util.List;
 
 import javax.swing.JList;
 
@@ -34,7 +35,7 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private ExtensionBreak extension = null;
-    private JList listLog = null;
+    private JList<HistoryReference> listLog = null;
     private static Logger log = Logger.getLogger(PopupMenuAddBreakHistory.class);
     
     
@@ -57,14 +58,13 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 
-                Object[] obj = listLog.getSelectedValues();
-                if (obj.length != 1) {
+                List<HistoryReference> values = listLog.getSelectedValuesList();
+                if (values.size() != 1) {
                     return;
                 }
                 
                 try {
-                    HistoryReference ref = (HistoryReference) obj[0];
-                    extension.addUiBreakpoint(ref.getHttpMessage());
+                    extension.addUiBreakpoint(values.get(0).getHttpMessage());
                     
                 } catch (Exception e1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
@@ -78,11 +78,13 @@ public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
         
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {
-                JList list = (JList) invoker;
+                @SuppressWarnings("unchecked")
+                JList<HistoryReference> list = (JList<HistoryReference>) invoker;
+                
                 listLog = list;
-                Object[] obj = listLog.getSelectedValues();
+                List<HistoryReference> values = listLog.getSelectedValuesList();
 
-                if (obj.length == 1 && extension.canAddBreakpoint()) {
+                if (values.size() == 1 && extension.canAddBreakpoint()) {
                     this.setEnabled(true);
                 } else {
                     this.setEnabled(false);

@@ -55,8 +55,8 @@ public class ParamsPanel extends AbstractPanel{
 	private JScrollPane jScrollPane = null;
 
 	private String currentSite = null;
-	private JComboBox siteSelect = null;
-	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+	private JComboBox<String> siteSelect = null;
+	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 	//private JButton optionsButton = null;
 
 	private JTable paramsTable = null;
@@ -75,8 +75,6 @@ public class ParamsPanel extends AbstractPanel{
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
         this.setLayout(new CardLayout());
@@ -277,9 +275,9 @@ public class ParamsPanel extends AbstractPanel{
 		return paramsTable;
 	}
 
-	private JComboBox getSiteSelect() {
+	private JComboBox<String> getSiteSelect() {
 		if (siteSelect == null) {
-			siteSelect = new JComboBox(siteModel);
+			siteSelect = new JComboBox<>(siteModel);
 			siteSelect.addItem(Constant.messages.getString("params.toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 

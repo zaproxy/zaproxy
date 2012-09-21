@@ -50,10 +50,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 
 	private String nodeName = null;
     private HistoryReference historyReference = null;
-    private Vector<HistoryReference> pastHistoryList = new Vector<HistoryReference>(10);
+    private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-	private ArrayList<Alert> alerts = new ArrayList<Alert>();
+	private ArrayList<Alert> alerts = new ArrayList<>();
 	private boolean justSpidered = false;
 	//private boolean justAJAXSpidered = false;
 	private ArrayList<String> icons = null;
@@ -67,8 +67,8 @@ public class SiteNode extends DefaultMutableTreeNode {
         super();
         this.siteMap = siteMap;
 		this.nodeName = nodeName;
-		this.icons = new ArrayList<String>();
-		this.clearIfManual = new ArrayList<Boolean>();
+		this.icons = new ArrayList<>();
+		this.clearIfManual = new ArrayList<>();
 		if (type == HistoryReference.TYPE_SPIDER) {
 			this.justSpidered = true;
 		}

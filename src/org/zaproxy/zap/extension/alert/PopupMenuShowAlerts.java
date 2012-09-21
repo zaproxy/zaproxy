@@ -34,7 +34,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReference {
 
 	private static final long serialVersionUID = 1L;
 
-    private List<PopupMenuShowAlert> subMenus = new ArrayList<PopupMenuShowAlert>();
+    private List<PopupMenuShowAlert> subMenus = new ArrayList<>();
     
     private String parentName = null;
 
@@ -81,7 +81,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReference {
 			} catch (Exception e) {
 				// Ignore
 			}
-			List<PopupMenuShowAlert> alertList = new ArrayList<PopupMenuShowAlert>(); 
+			List<PopupMenuShowAlert> alertList = new ArrayList<>(); 
 			for (Alert alert : alerts) {
 				// Just show ones for this node
 				if (alert.getMessage() != null) {

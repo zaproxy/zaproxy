@@ -49,6 +49,7 @@ public class HttpRequestHeaderPanelTextView extends HttpPanelTextView {
 
 		private static final long serialVersionUID = 985537589818833350L;
 		
+		@Override
 		public FuzzableMessage getFuzzableMessage() {
 			int start = getSelectionStart();
 			try {

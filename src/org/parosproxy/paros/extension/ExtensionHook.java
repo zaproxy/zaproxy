@@ -35,15 +35,15 @@ public class ExtensionHook {
     private ExtensionHookMenu hookMenu = new ExtensionHookMenu();
     private ExtensionHookView hookView = new ExtensionHookView();
     private Model model = null;    
-    private Vector<OptionsChangedListener> optionsListenerList = new Vector<OptionsChangedListener>();
+    private Vector<OptionsChangedListener> optionsListenerList = new Vector<>();
 
-    private Vector<ProxyListener> proxyListenerList = new Vector<ProxyListener>();
-    private Vector<SessionChangedListener> sessionListenerList = new Vector<SessionChangedListener>();
-    private Vector<AbstractParam> optionsParamSetList = new Vector<AbstractParam>();
+    private Vector<ProxyListener> proxyListenerList = new Vector<>();
+    private Vector<SessionChangedListener> sessionListenerList = new Vector<>();
+    private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
-    private Vector<SiteMapListener> siteMapListenerList = new Vector<SiteMapListener>();
+    private Vector<SiteMapListener> siteMapListenerList = new Vector<>();
     // ZAP: Added support for WebSocket observer
-    private Vector<WebSocketObserver> webSocketObserverList = new Vector<WebSocketObserver>();
+    private Vector<WebSocketObserver> webSocketObserverList = new Vector<>();
     
     private ViewDelegate view = null;
     private CommandLineArgument arg[] = new CommandLineArgument[0];

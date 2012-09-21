@@ -69,8 +69,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         GridBagConstraints gridBagConstraints1 = new GridBagConstraints();

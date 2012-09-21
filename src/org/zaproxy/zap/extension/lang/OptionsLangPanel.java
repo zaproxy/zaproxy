@@ -57,11 +57,11 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JLabel restartLabel = null;
 	private JButton selectionButton = null;
 	private JButton importButton = null;
-	private JComboBox localeSelect = null;
+	private JComboBox<String> localeSelect = null;
 	private ZapTextField fileTextField = null; 
 	private Document fileTextFieldDoc = null;
 	
-	private Map<String, String> localeMap = new HashMap<String, String>();
+	private Map<String, String> localeMap = new HashMap<>();
 	
 	
     public OptionsLangPanel() {
@@ -193,9 +193,9 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		return importButton;
 	}
 	
-	private JComboBox getLocaleSelect() {
+	private JComboBox<String> getLocaleSelect() {
 		if (localeSelect == null) {
-			localeSelect = new JComboBox();
+			localeSelect = new JComboBox<>();
 		}
 		return localeSelect;
 	}

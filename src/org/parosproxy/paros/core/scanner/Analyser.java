@@ -59,7 +59,7 @@ public class Analyser {
 	private static final String[] staticSuffixList = { ".cfm", ".jsp", ".php", ".asp", ".aspx", ".dll", ".exe", ".pl"};
 
 	private HttpSender	httpSender = null;
-	private TreeMap<String, SampleResponse>		mapVisited = new TreeMap<String, SampleResponse>();
+	private TreeMap<String, SampleResponse>		mapVisited = new TreeMap<>();
 	private boolean		isStop = false;
 	
     // ZAP Added delayInMs

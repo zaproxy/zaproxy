@@ -46,7 +46,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private String fileName;
 	private int port = 80;
 	private String directory = null;
-	private SortedListModel list;
+	private SortedListModel<BruteForceItem> list;
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
 	private boolean unpauseScan = false;
@@ -66,7 +66,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		this.threads = bruteForceParam.getThreadPerScan();
 		this.recursive = bruteForceParam.getRecursive();
 
-		this.list = new SortedListModel();
+		this.list = new SortedListModel<>();
 		log.info("BruteForce : " + site + "/" + directory + " threads: " + threads);
 
 		manager = new DirBusterManager(this);
@@ -116,7 +116,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
-			Vector<ExtToCheck> extsVector = new Vector<ExtToCheck>();
+			Vector<ExtToCheck> extsVector = new Vector<>();
 			String exts = "php";
 			String startPoint = "/";
 			if (directory != null) {
@@ -191,7 +191,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		return this.manager.getTotal();
 	}
 
-	public DefaultListModel getList() {
+	public DefaultListModel<BruteForceItem> getList() {
 		return list;
 	}
 	

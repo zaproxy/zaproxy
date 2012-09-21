@@ -74,7 +74,7 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
 	private static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce, httppanel};
 
 	private JTree treeInvoker = null;
-    private JList listInvoker = null;
+    private JList<?> listInvoker = null;
     private HttpPanel httpPanelInvoker = null;
     private Invoker lastInvoker = null;
 
@@ -283,7 +283,7 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
             }
     	} else if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
         	this.lastInvoker = Invoker.history;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
@@ -311,22 +311,22 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals("listSearch")) {
         	this.lastInvoker = Invoker.search;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.ascan;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.fuzz;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else {

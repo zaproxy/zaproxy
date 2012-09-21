@@ -52,8 +52,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkAskOnExit = null;
 	private JCheckBox chkWmUiHandling = null;
 	
-	private JComboBox brkPanelViewSelect = null;
-	private JComboBox displaySelect = null;
+	private JComboBox<String> brkPanelViewSelect = null;
+	private JComboBox<String> displaySelect = null;
 	
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
@@ -70,8 +70,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
     
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
@@ -324,18 +322,18 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return chkAskOnExit;
 	}
 	
-	private JComboBox getDisplaySelect() {
+	private JComboBox<String> getDisplaySelect() {
 		if (displaySelect == null) {
-			displaySelect = new JComboBox();
+			displaySelect = new JComboBox<>();
 			displaySelect.addItem(Constant.messages.getString("view.options.label.display.left"));
 			displaySelect.addItem(Constant.messages.getString("view.options.label.display.bottom"));
 		}
 		return displaySelect;
 	}
 	
-	private JComboBox getBrkPanelViewSelect() {
+	private JComboBox<String> getBrkPanelViewSelect() {
 		if (brkPanelViewSelect == null) {
-			brkPanelViewSelect = new JComboBox();
+			brkPanelViewSelect = new JComboBox<>();
 			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.toolbaronly"));
 			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.breakonly"));
 			brkPanelViewSelect.addItem(Constant.messages.getString("view.options.label.brkPanelView.both"));

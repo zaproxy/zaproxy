@@ -27,7 +27,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class HttpMessageList {
 
-    private Vector<HttpMessage> list = new Vector<HttpMessage>();
+    private Vector<HttpMessage> list = new Vector<>();
     public synchronized boolean add(HttpMessage msg) {
         return list.add(msg);
     }

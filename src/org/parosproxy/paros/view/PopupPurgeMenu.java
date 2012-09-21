@@ -59,8 +59,6 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("sites.purge.popup"));	// ZAP: i18n

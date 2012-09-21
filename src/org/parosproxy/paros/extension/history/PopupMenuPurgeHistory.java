@@ -71,8 +71,6 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("history.purge.popup"));	// ZAP: i18n
@@ -103,7 +101,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {
-                JList list = (JList) invoker;
+                JList<?> list = (JList<?>) invoker;
                 if (list.getSelectedIndex() >= 0) {
                     this.setEnabled(true);
                 } else {

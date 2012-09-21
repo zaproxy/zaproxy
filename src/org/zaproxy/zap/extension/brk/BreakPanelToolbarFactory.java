@@ -23,12 +23,12 @@ import org.parosproxy.paros.view.TabbedPanel;
 
 public class BreakPanelToolbarFactory {
 
-	private LinkedList<JButton> btnContinueList = new LinkedList<JButton>();
-	private LinkedList<JButton> btnStepList = new LinkedList<JButton>();
-	private LinkedList<JButton> btnDropList = new LinkedList<JButton>();
+	private LinkedList<JButton> btnContinueList = new LinkedList<>();
+	private LinkedList<JButton> btnStepList = new LinkedList<>();
+	private LinkedList<JButton> btnDropList = new LinkedList<>();
 
-	private LinkedList<JToggleButton> btnBreakRequestList = new LinkedList<JToggleButton>();
-	private LinkedList<JToggleButton> btnBreakResponseList = new LinkedList<JToggleButton>();
+	private LinkedList<JToggleButton> btnBreakRequestList = new LinkedList<>();
+	private LinkedList<JToggleButton> btnBreakResponseList = new LinkedList<>();
 
 	private boolean cont = false;
 	private boolean step = false;

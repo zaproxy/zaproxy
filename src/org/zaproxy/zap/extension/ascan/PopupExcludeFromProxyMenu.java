@@ -57,8 +57,6 @@ public class PopupExcludeFromProxyMenu extends ExtensionPopupMenuItem {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("sites.exclude.proxy.popup"));

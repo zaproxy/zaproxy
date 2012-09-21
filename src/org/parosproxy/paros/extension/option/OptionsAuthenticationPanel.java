@@ -57,8 +57,6 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();

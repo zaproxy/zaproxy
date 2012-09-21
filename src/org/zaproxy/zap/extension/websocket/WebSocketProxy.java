@@ -204,8 +204,8 @@ public abstract class WebSocketProxy {
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
 		
-		unfinishedMessages = new HashMap<InputStream, WebSocketMessage>();
-		observerList = new Vector<WebSocketObserver>();
+		unfinishedMessages = new HashMap<>();
+		observerList = new Vector<>();
 		
 		// create unique identifier for this WebSocket connection
 		channelId = channelIdGenerator.incrementAndGet();

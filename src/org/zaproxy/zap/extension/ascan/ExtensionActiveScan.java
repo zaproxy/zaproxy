@@ -74,7 +74,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private static final List<Class<?>> DEPENDENCIES;
 	
 	static {
-		List<Class<?>> dep = new ArrayList<Class<?>>();
+		List<Class<?>> dep = new ArrayList<>();
 		dep.add(ExtensionAlert.class);
 		
 		DEPENDENCIES = Collections.unmodifiableList(dep);
@@ -87,7 +87,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private ScannerParam scannerParam = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 
-	private List<AbstractParamPanel> policyPanels = new ArrayList<AbstractParamPanel>();
+	private List<AbstractParamPanel> policyPanels = new ArrayList<>();
 
     /**
      * 
@@ -106,8 +106,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName(NAME);

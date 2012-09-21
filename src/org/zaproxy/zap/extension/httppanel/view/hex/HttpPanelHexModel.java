@@ -31,7 +31,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
 	private final static int COLUMN_COUNT = 34;
 	
 	private static final long serialVersionUID = 1L;
-    private List<String[]> listRow = new ArrayList<String[]>();
+    private List<String[]> listRow = new ArrayList<>();
     private boolean editable = false;
     private boolean changed = false;
     

@@ -29,7 +29,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private ActiveScanPanel activeScanPanel;
 	private int progress = 0;
 	private boolean isAlive = false;
-	private DefaultListModel list = new DefaultListModel();
+	private DefaultListModel<HistoryReference> list = new DefaultListModel<>();
 	private SiteNode startNode = null;
 	
     /**
@@ -37,7 +37,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
      * the instance variable {@code list}. Used to delete the
      * {@code HistoryReference}s from the database when no longer needed.
      */
-    private List<Integer> historyReferencesToDelete = new ArrayList<Integer>();
+    private List<Integer> historyReferencesToDelete = new ArrayList<>();
+
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
@@ -152,7 +153,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	@Override
-	public DefaultListModel getList() {
+	public DefaultListModel<HistoryReference> getList() {
 		return list;
 	}
 	
@@ -192,8 +193,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
                 log.error(e.getMessage(), e);
             }
         }
-        this.list = new DefaultListModel();
-        this.historyReferencesToDelete = new ArrayList<Integer>();
+        this.list = new DefaultListModel<>();
+        this.historyReferencesToDelete = new ArrayList<>();
 	}
 
 	@Override

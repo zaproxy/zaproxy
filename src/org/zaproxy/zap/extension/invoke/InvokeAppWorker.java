@@ -90,7 +90,7 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 			cookie = cookies.get(0);
 		}
 
-		List<String> cmd = new ArrayList<String>();
+		List<String> cmd = new ArrayList<>();
 		cmd.add(command);
 		if (parameters != null) {
 			// Replace all of the tags 

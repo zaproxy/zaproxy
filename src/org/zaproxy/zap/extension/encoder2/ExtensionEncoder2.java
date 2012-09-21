@@ -66,8 +66,6 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionEncode2");

@@ -52,22 +52,22 @@ public class ManageTagsDialog extends AbstractDialog {
 	private static final int panelWidth = 250;
 	private static final int panelHeight = 300;
 	private JPanel jPanel = null;
-	private JComboBox txtTagAdd = null;
+	private JComboBox<String> txtTagAdd = null;
 	private JButton btnAdd = null;
 	private JButton btnDelete = null;
 	private JButton btnSave = null;
 	private JButton btnCancel = null;
-	private JList tagList = null;
-	private DefaultListModel tagListModel = null;
+	private JList<String> tagList = null;
+	private DefaultListModel<String> tagListModel = null;
 
 	private ExtensionHistory extension = null;
 	private HistoryReference historyRef;
 	
 	private JScrollPane jScrollPane = null;
-	private DefaultComboBoxModel tagAddModel = null;
+	private DefaultComboBoxModel<String> tagAddModel = null;
 	
-	private Vector<String> addedTags = new Vector<String>();
-	private Vector<String> deletedTags = new Vector<String>();
+	private Vector<String> addedTags = new Vector<>();
+	private Vector<String> deletedTags = new Vector<>();
 	
     /**
      * @throws HeadlessException
@@ -89,8 +89,6 @@ public class ManageTagsDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setTitle(Constant.messages.getString("history.managetags.title"));
@@ -191,14 +189,14 @@ public class ManageTagsDialog extends AbstractDialog {
 		return jPanel;
 	}
 	
-	private JList getTagList() {
+	private JList<String> getTagList() {
 		if (tagList == null) {
-			tagList = new JList();
+			tagList = new JList<>();
 			tagList.setLayoutOrientation(JList.VERTICAL);
 			tagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			tagList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
-			tagListModel = new DefaultListModel();
+			tagListModel = new DefaultListModel<>();
 			tagList.setModel(tagListModel);
 		}
 		return tagList;
@@ -237,8 +235,8 @@ public class ManageTagsDialog extends AbstractDialog {
 		}
 	}
 	
-	private void deleteTags (Object[] objects) {
-		for (Object tag : objects) {
+	private void deleteTags (List<String> tags) {
+		for (String tag : tags) {
 			tagListModel.removeElement(tag);
 			if (addedTags.contains(tag)) {
 				addedTags.remove(tag);
@@ -252,9 +250,9 @@ public class ManageTagsDialog extends AbstractDialog {
 	}
 	
     
-	private JComboBox getTxtTagAdd() {
+	private JComboBox<String> getTxtTagAdd() {
 		if (txtTagAdd == null) {
-			txtTagAdd = new JComboBox();
+			txtTagAdd = new JComboBox<>();
 			txtTagAdd.setEditable(true);
 			tagAddModel = getAllTagsModel(); 
 			txtTagAdd.setModel(tagAddModel);
@@ -263,9 +261,9 @@ public class ManageTagsDialog extends AbstractDialog {
 		return txtTagAdd;
 	}
 	
-	private DefaultComboBoxModel getAllTagsModel () {
+	private DefaultComboBoxModel<String> getAllTagsModel () {
 		if (tagAddModel == null) {
-			tagAddModel = new DefaultComboBoxModel();
+			tagAddModel = new DefaultComboBoxModel<>();
 		}
 		return tagAddModel;
 	}
@@ -311,7 +309,7 @@ public class ManageTagsDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					deleteTags(tagList.getSelectedValues());
+					deleteTags(tagList.getSelectedValuesList());
 				}
 			});
 

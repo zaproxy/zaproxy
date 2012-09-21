@@ -21,7 +21,7 @@ package org.zaproxy.zap.utils;
 
 import javax.swing.DefaultListModel;
 
-public class SortedListModel extends DefaultListModel {
+public class SortedListModel<E extends Comparable<E>> extends DefaultListModel<E> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,26 +30,28 @@ public class SortedListModel extends DefaultListModel {
 	}
 
 	@Override
-	public void addElement(Object element) {
-		int index = 0;
+	public void addElement(E element) {
 		int size = getSize();
+
+		if (size == 0) {
+			super.addElement(element);
+			return;
+		}
 
 		//  Determine where to insert element to keep list in sorted order
 
-		for (index = 0; index < size; index++)
-		{
-			@SuppressWarnings("unchecked")
-			Comparable<Object> c = (Comparable<Object>)getElementAt( index );
-
-			if (c.compareTo(element) > 0)
+		int index = 0;
+		for (; index < size; index++) {
+			if (getElementAt(index).compareTo(element) > 0) {
 				break;
+			}
 		}
 
 		super.insertElementAt(element, index);
 	}
 
 	@Override
-	public void insertElementAt(Object element, int index) {
+	public void insertElementAt(E element, int index) {
 		addElement( element );
 	}
 

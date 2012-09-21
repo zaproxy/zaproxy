@@ -77,8 +77,6 @@ public class EncoderDialog extends AbstractDialog {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setTitle("Encode/Hash");

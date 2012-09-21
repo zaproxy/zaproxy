@@ -65,7 +65,7 @@ public class FilterLogCookie extends FilterAdaptor {
 
     public void init() {
 		// ZAP: Added type argument.
-		cookieList = new Vector<String>();
+		cookieList = new Vector<>();
      	
     }
 

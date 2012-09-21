@@ -58,7 +58,7 @@ public class SiteMap extends DefaultTreeModel {
 	private static final long serialVersionUID = 2311091007687218751L;
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	
-	private static Map<Integer, SiteNode> hrefMap = new HashMap<Integer, SiteNode>();
+	private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 
 	private Model model = null;
 
@@ -67,7 +67,7 @@ public class SiteMap extends DefaultTreeModel {
     
     public static SiteMap createTree(Model model) {
         SiteNode root = new SiteNode(null, -1, Constant.messages.getString("tab.sites"));
-        hrefMap = new HashMap<Integer, SiteNode>();
+        hrefMap = new HashMap<>();
         return new SiteMap(root, model);        
     }
     
@@ -525,7 +525,7 @@ public class SiteMap extends DefaultTreeModel {
     }
     
 	private TreeSet<String> getParamNameSet(String params) {
-	    TreeSet<String> set = new TreeSet<String>();
+	    TreeSet<String> set = new TreeSet<>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
 		int pos = 0;

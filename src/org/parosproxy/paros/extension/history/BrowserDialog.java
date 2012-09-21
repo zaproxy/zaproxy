@@ -59,7 +59,7 @@ public class BrowserDialog extends AbstractDialog {
 	private JButton btnClose = null;
 	private String title = "";
 	// ZAP: Added type argument.
-	private Vector<URL> URLs = new Vector<URL>();
+	private Vector<URL> URLs = new Vector<>();
     private JPanel jPanel = null;
     // ZAP: Disabled the platform specific browser
     //private EmbeddedBrowser embeddedBrowser = null;
@@ -78,8 +78,6 @@ public class BrowserDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		this.setContentPane(getJContentPane());

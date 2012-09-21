@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class PassiveScannerList {
 
-	private List<PassiveScanner> passiveScanners = new ArrayList<PassiveScanner>();
-	private Set<String> scannerNames = new HashSet<String>();
+	private List<PassiveScanner> passiveScanners = new ArrayList<>();
+	private Set<String> scannerNames = new HashSet<>();
 
 	protected void add (PassiveScanner scanner) {
 		if (scannerNames.contains(scanner.getName())) {

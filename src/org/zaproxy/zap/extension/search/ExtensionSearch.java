@@ -72,8 +72,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName(NAME);

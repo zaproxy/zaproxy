@@ -52,6 +52,7 @@ import ch.csnc.extension.ui.AliasTableModel;
 import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
 import ch.csnc.extension.util.DriverConfiguration;
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -77,11 +78,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JLabel cryptoApiLabel;
 	private javax.swing.JButton deleteButton;
 	private javax.swing.JButton driverButton;
-	private javax.swing.JComboBox driverComboBox;
+	private javax.swing.JComboBox<String> driverComboBox;
 	private javax.swing.JLabel driverLabel;
 	private javax.swing.JLabel fileLabel;
 	private ZapTextField fileTextField;
-	private javax.swing.JList keyStoreList;
+	private javax.swing.JList<String> keyStoreList;
 	private javax.swing.JPanel keyStorePanel;
 	private javax.swing.JScrollPane keyStoreScrollPane;
 	private javax.swing.JLabel passwordPkcs11Label;
@@ -99,7 +100,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private javax.swing.JCheckBox enableUnsafeSSLRenegotiationCheckBox;
 
 	private SSLContextManager contextManager;
-	private DefaultListModel keyStoreListModel;
+	private DefaultListModel<String> keyStoreListModel;
 	private AliasTableModel aliasTableModel;
 	private DriverConfiguration driverConfig;
 	
@@ -109,7 +110,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	// Keep track of login attempts on PKCS11 smartcards to avoid blocking the smartcard
 	private static int login_attempts = 0;
 	
-	private final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
+	private static final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
 	
 	public OptionsCertificatePanel() {
 		super();
@@ -119,14 +120,12 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	/**
 	 * This method initializes this
-	 *
-	 * @return void
 	 */
 	private void initialize() {
 
 		contextManager = Model.getSingleton().getOptionsParam().getCertificateParam().getSSLContextManager();
 
-		keyStoreListModel = new DefaultListModel();
+		keyStoreListModel = new DefaultListModel<>();
 		aliasTableModel = new AliasTableModel(contextManager);
 
 		this.setLayout(new CardLayout());
@@ -175,7 +174,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			aliasTable = new javax.swing.JTable();
 			deleteButton = new javax.swing.JButton();
 			keyStoreScrollPane = new javax.swing.JScrollPane();
-			keyStoreList = new javax.swing.JList();
+			keyStoreList = new javax.swing.JList<>();
 			pkcs12Panel = new javax.swing.JPanel();
 			fileLabel = new javax.swing.JLabel();
 			fileTextField = new ZapTextField();
@@ -185,7 +184,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			pkcs12PasswordField = new javax.swing.JPasswordField();
 			pkcs11Panel = new javax.swing.JPanel();
 			driverLabel = new javax.swing.JLabel();
-			driverComboBox = new javax.swing.JComboBox();
+			driverComboBox = new javax.swing.JComboBox<>();
 			driverButton = new javax.swing.JButton();
 			passwordPkcs11Label = new javax.swing.JLabel();
 			cryptoApiLabel = new javax.swing.JLabel();

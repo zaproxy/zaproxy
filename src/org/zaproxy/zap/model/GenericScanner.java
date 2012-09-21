@@ -56,7 +56,7 @@ public interface GenericScanner extends Runnable {
 
 	public boolean getJustScanInScope ();
 
-	public ListModel getList();
+	public ListModel<?> getList();
 
 	public void reset();
 	

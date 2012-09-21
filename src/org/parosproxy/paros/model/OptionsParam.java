@@ -80,7 +80,7 @@ public class OptionsParam extends AbstractParam {
 	// ZAP: Added the instance variable.
     private DatabaseParam databaseParam = new DatabaseParam();
 
-	private Vector<AbstractParam> paramSetList = new Vector<AbstractParam>();
+	private Vector<AbstractParam> paramSetList = new Vector<>();
 	private boolean gui = true;
 	private File userDirectory = null;
 	

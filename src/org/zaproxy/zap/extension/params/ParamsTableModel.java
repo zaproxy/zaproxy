@@ -39,7 +39,7 @@ public class ParamsTableModel extends AbstractTableModel {
 	
 	public ParamsTableModel() {
 		super();
-		columnNames = new Vector<String>(COLUMN_COUNT);
+		columnNames = new Vector<>(COLUMN_COUNT);
 		columnNames.add(Constant.messages.getString("params.table.header.type"));
 		columnNames.add(Constant.messages.getString("params.table.header.name"));
 		columnNames.add(Constant.messages.getString("params.table.header.used"));

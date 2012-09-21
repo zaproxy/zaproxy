@@ -68,10 +68,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     private JPanel panelViews;
     
     
-    private JComboBox comboBoxSelectView;
+    private JComboBox<ViewItem> comboBoxSelectView;
     
     
-    private MutableComboBoxModel comboBoxModel;
+    private MutableComboBoxModel<ViewItem> comboBoxModel;
     
     
     private HttpPanelView currentView;
@@ -107,10 +107,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     
     
     public HttpPanelComponentViewsManager(String configurationKey) {
-        enabledViews = new ArrayList<ViewItem>();
-        viewItems = new HashMap<String, ViewItem>();
-        views = new HashMap<String, HttpPanelView>();
-        defaultViewsSelectors = new ArrayList<HttpPanelDefaultViewSelector>();
+        enabledViews = new ArrayList<>();
+        viewItems = new HashMap<>();
+        views = new HashMap<>();
+        defaultViewsSelectors = new ArrayList<>();
         
         isEditable = false;
         this.configurationKey = configurationKey;
@@ -121,8 +121,8 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         
         savedSelectedViewName = null;
 
-        comboBoxModel = new SortedComboBoxModel();
-        comboBoxSelectView = new JComboBox(comboBoxModel);
+        comboBoxModel = new SortedComboBoxModel<>();
+        comboBoxSelectView = new JComboBox<>(comboBoxModel);
         comboBoxSelectView.addItemListener(this);
 
         panelViews = new JPanel(new CardLayout());
@@ -487,7 +487,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     private static final class ViewItem implements Comparable<ViewItem> {
         
         private final String configName;
-        private final String name;
+        private String name;
         private final int position;
         
         public ViewItem(String configName, String name, int position) {
@@ -541,33 +541,38 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     }
     
     
-    private static final class CustomDelegateListCellRenderer implements ListCellRenderer {
+    private static final class CustomDelegateListCellRenderer implements ListCellRenderer<ViewItem> {
         
-        private ListCellRenderer delegateRenderer;
-        private JComboBox comboBox;
+        private ListCellRenderer<? super ViewItem> delegateRenderer;
+        private JComboBox<ViewItem> comboBox;
         private String label;
         
-        public CustomDelegateListCellRenderer(JComboBox aComboBox, String label) {
+        private ViewItem viewItem;
+        
+        public CustomDelegateListCellRenderer(JComboBox<ViewItem> aComboBox, String label) {
             this.delegateRenderer = aComboBox.getRenderer();
             this.comboBox = aComboBox;
             this.label = label;
+            
+            this.viewItem = new ViewItem("", "", -1);
             
             this.comboBox.addPropertyChangeListener("UI", new PropertyChangeListener() {
                 
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    delegateRenderer = new JComboBox().getRenderer();
+                    delegateRenderer = new JComboBox<ViewItem>().getRenderer();
                 }
             });
         }
         
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList<? extends ViewItem> list, ViewItem value, int index, boolean isSelected, boolean cellHasFocus) {
             if (index != -1) {
                 return delegateRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
             
-            return delegateRenderer.getListCellRendererComponent(list, label + value.toString(), index, isSelected, cellHasFocus);
+            viewItem.name = label + value.name;
+            return delegateRenderer.getListCellRendererComponent(list, viewItem, index, isSelected, cellHasFocus);
         }
     }
     

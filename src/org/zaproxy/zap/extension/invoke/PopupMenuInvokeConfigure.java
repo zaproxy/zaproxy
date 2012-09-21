@@ -59,8 +59,6 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
 
     /**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("invoke.config.popup"));

@@ -70,8 +70,6 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
     /**
 	 * This method initialises this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("sites.resend.popup"));	// ZAP: i18n

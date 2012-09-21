@@ -62,7 +62,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	public SpiderPanelTableModel() {
 		super();
 
-		scanResults = new ArrayList<SpiderScanResult>();
+		scanResults = new ArrayList<>();
 	}
 
 	@Override
@@ -80,6 +80,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		return scanResults.size();
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		// Get the ScanResult and the required field
 		SpiderScanResult result = scanResults.get(row);

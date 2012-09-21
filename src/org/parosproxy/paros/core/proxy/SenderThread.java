@@ -41,7 +41,7 @@ public class SenderThread implements Runnable {
         this.httpSender = httpSender;
         this.msg = msg;
         // ZAP: Changed to ArrayList and added the initial capacity.
-        listenerList = new ArrayList<SenderThreadListener>(1);
+        listenerList = new ArrayList<>(1);
         listenerList.add(listener);
     }   
     

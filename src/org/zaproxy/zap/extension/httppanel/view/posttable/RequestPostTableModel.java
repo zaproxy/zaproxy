@@ -40,7 +40,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     	Constant.messages.getString("http.panel.view.table.paramName"),
     	Constant.messages.getString("http.panel.view.table.paramValue")};	// ZAP: i18n
     private static final Pattern pSeparator	= Pattern.compile("([^=&]+)[=]([^=&]*)"); 
-    private Vector<String[]> listPair = new Vector<String[]>();
+    private Vector<String[]> listPair = new Vector<>();
     private boolean editable = true;
     private boolean isChanged = false;
     

@@ -27,14 +27,14 @@ import org.zaproxy.clientapi.core.Alert;
 
 public class AlertCheckTask extends ZapTask {
 	
-	private List<AlertTask> ignoreAlertTasks = new ArrayList<AlertTask>();
-	private List<AlertTask> requireAlertTasks = new ArrayList<AlertTask>();
+	private List<AlertTask> ignoreAlertTasks = new ArrayList<>();
+	private List<AlertTask> requireAlertTasks = new ArrayList<>();
 	
 	@Override
 	public void execute() throws BuildException {
 		try {
-			List<Alert> ignoreAlerts = new ArrayList<Alert>(ignoreAlertTasks.size());
-			List<Alert> requireAlerts = new ArrayList<Alert>(requireAlertTasks.size());
+			List<Alert> ignoreAlerts = new ArrayList<>(ignoreAlertTasks.size());
+			List<Alert> requireAlerts = new ArrayList<>(requireAlertTasks.size());
 			for (AlertTask alert: ignoreAlertTasks) {
 				ignoreAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
 			}

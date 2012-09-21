@@ -80,8 +80,6 @@ public class ExtensionPortScan extends ExtensionAdaptor
 
     /**
      * This method initializes this
-     *
-     * @return void
      */
     private void initialize() {
         this.setName("ExtensionPortScan");
@@ -239,11 +237,11 @@ public class ExtensionPortScan extends ExtensionAdaptor
         String siteName = PortScanPanel.cleanSiteName(site, false);
         PortScan scan = (PortScan) getPortScanPanel().getScanThread(siteName);
         if (scan != null) {
-            DefaultListModel portListModel = scan.getList();
+            DefaultListModel<Integer> portListModel = scan.getList();
             int size = portListModel.getSize();
-            List<Integer> ports = new ArrayList<Integer>(size);
+            List<Integer> ports = new ArrayList<>(size);
             for(int i=0; i<size; i++) {
-                ports.add((Integer)portListModel.get(i));
+                ports.add(portListModel.get(i));
             }
             return ports;
         }

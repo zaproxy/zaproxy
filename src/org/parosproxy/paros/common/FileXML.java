@@ -200,7 +200,7 @@ abstract public class FileXML {
 		// ZAP: Added variable "length".
 		final int length = nodeList.getLength();
 		// ZAP: Changed to set the initial capacity.
-		ArrayList<String> resultList = new ArrayList<String>(length);
+		ArrayList<String> resultList = new ArrayList<>(length);
 		Element element = null;
 		// ZAP: Changed to use the variable "length".
 		for (int i = 0; i < length; i++) {

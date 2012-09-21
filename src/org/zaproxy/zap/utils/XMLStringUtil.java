@@ -21,7 +21,7 @@ import java.util.HashSet;
 
 public class XMLStringUtil {
 
-	private static HashSet<Character> illegalChrSet = new HashSet<Character>();
+	private static HashSet<Character> illegalChrSet = new HashSet<>();
 	
 	static {
 		final String illegalChrs = "\u0000\u0001\u0002\u0003\u0004\u0005" +

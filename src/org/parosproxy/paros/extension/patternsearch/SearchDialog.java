@@ -89,8 +89,6 @@ public class SearchDialog extends AbstractDialog {
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
         this.setTitle("Extract Pattern in Session");

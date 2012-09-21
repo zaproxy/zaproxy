@@ -67,7 +67,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	
 	private JScrollPane jScrollPane = null;
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
-	private static JList messageList = null;
+	private static JList<HistoryReference> messageList = null;
     private List<String> excludeUrls = null;
     
 	private HttpPanel requestPanel = null;
@@ -122,12 +122,12 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	}
 
 	private void resetMessageList() {
-		getMessageList().setModel(new DefaultListModel());
+		getMessageList().setModel(new DefaultListModel<HistoryReference>());
 	}
 
-	private synchronized JList getMessageList() {
+	private synchronized JList<HistoryReference> getMessageList() {
 		if (messageList == null) {
-			messageList = new JList();
+			messageList = new JList<>();
 			messageList.setDoubleBuffered(true);
 			messageList.setCellRenderer(getActiveScanPanelCellRenderer());
 			messageList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -162,7 +162,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
 				    if (!e.getValueIsAdjusting()) {
-    	                HistoryReference hRef = (HistoryReference) messageList.getSelectedValue();
+    	                HistoryReference hRef = messageList.getSelectedValue();
     			        if (hRef == null) {
                             return;
                         }
@@ -207,7 +207,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 
 
-	private ListCellRenderer getActiveScanPanelCellRenderer() {
+	private ListCellRenderer<HistoryReference> getActiveScanPanelCellRenderer() {
         if (activeScanPanelCellRenderer == null) {
             activeScanPanelCellRenderer = new ActiveScanPanelCellRenderer();
             activeScanPanelCellRenderer.setSize(new java.awt.Dimension(328,21));

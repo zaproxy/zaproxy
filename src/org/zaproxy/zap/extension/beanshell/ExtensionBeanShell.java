@@ -29,7 +29,6 @@ import javax.swing.JMenuItem;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
 
 /**
  *
@@ -58,8 +57,6 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionBeanShell");
@@ -70,7 +67,6 @@ public class ExtensionBeanShell extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    if (getView() != null) {
-	        ExtensionHookView pv = extensionHook.getHookView();	        
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuBeanShell());
 	    }
 	}

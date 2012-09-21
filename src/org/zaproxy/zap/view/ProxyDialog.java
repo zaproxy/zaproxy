@@ -67,8 +67,6 @@ public class ProxyDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setContentPane(getJPanel());

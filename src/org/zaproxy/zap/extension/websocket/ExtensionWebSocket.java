@@ -163,10 +163,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public void init() {
 		super.init();
 		
-		allChannelObservers = new Vector<WebSocketObserver>();
+		allChannelObservers = new Vector<>();
 		hasHookedAllObserver = false;
-		wsProxies = new HashMap<Integer, WebSocketProxy>();
-		storageBlacklist = new ArrayList<Pair<String, Integer>>();
+		wsProxies = new HashMap<>();
+		storageBlacklist = new ArrayList<>();
 		config = new OptionsParamWebSocket();
 		
 		// setup database
@@ -409,7 +409,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		 * 			Sec-WebSocket-Extensions: mux; max-channels=4; flow-control, deflate-stream
 		 * 			Sec-WebSocket-Extensions: private-extension
 		 */
-		LinkedHashMap<String, String> wsExtensions = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> wsExtensions = new LinkedHashMap<>();
 		for (String extensionHeader : extensionHeaders) {
 			for (String extension : extensionHeader.split(",")) {
 				String key = extension.trim();
@@ -559,7 +559,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 						host = null;
 					}
 					
-					storageBlacklist.add(new Pair<String, Integer>(host, port));
+					storageBlacklist.add(new Pair<>(host, port));
 				}
 			}
 		}

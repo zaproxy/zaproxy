@@ -42,7 +42,7 @@ public class SearchResult {
 		this.type = type;
 		this.regEx = regEx;
 		this.stringFound = stringFound;
-		matches = new ArrayList<SearchMatch>(1);
+		matches = new ArrayList<>(1);
 		matches.add(sm);
 	}
 	
@@ -123,7 +123,7 @@ public class SearchResult {
 	}
 
 	private void enumerateMatches(HttpPanel reqPanel, HttpPanel resPanel) {
-		matches = new ArrayList<SearchMatch>();
+		matches = new ArrayList<>();
 
 		Pattern p = Pattern.compile(regEx, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		

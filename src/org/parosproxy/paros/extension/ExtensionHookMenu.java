@@ -41,16 +41,16 @@ public class ExtensionHookMenu {
     public static final JMenuItem MENU_SEPARATOR;
     public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR;
     
-    private Vector<JMenuItem> newMenuList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> fileMenuItemList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> editMenuItemList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> viewMenuItemList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> analyseMenuItemList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> toolsMenuItemList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> popupMenuList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> newMenuList = new Vector<>();
+    private Vector<JMenuItem> fileMenuItemList = new Vector<>();
+    private Vector<JMenuItem> editMenuItemList = new Vector<>();
+    private Vector<JMenuItem> viewMenuItemList = new Vector<>();
+    private Vector<JMenuItem> analyseMenuItemList = new Vector<>();
+    private Vector<JMenuItem> toolsMenuItemList = new Vector<>();
+    private Vector<JMenuItem> popupMenuList = new Vector<>();
     // ZAP: Added help and reports menu extension hook
-    private Vector<JMenuItem> helpMenuList = new Vector<JMenuItem>();
-    private Vector<JMenuItem> reportMenuList = new Vector<JMenuItem>();
+    private Vector<JMenuItem> helpMenuList = new Vector<>();
+    private Vector<JMenuItem> reportMenuList = new Vector<>();
     
     // ZAP: Added static block.
     static {

@@ -44,7 +44,7 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
 				Constant.messages.getString("options.auth.label.password"), 
 				Constant.messages.getString("options.auth.label.realm")};
     
-    private Vector<HostAuthentication> listAuth = new Vector<HostAuthentication>();
+    private Vector<HostAuthentication> listAuth = new Vector<>();
     
     /**
      * 
@@ -133,14 +133,14 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
             i++;
         }
         
-        Vector<HostAuthentication> newList = new Vector<HostAuthentication>(listAuth);
+        Vector<HostAuthentication> newList = new Vector<>(listAuth);
         return newList;
     }
     /**
      * @param listAuth The listAuth to set.
      */
     public void setListAuth(Vector<HostAuthentication> listAuth) {
-        this.listAuth = new Vector<HostAuthentication>(listAuth);
+        this.listAuth = new Vector<>(listAuth);
         checkAndAppendNewRow();
   	  	fireTableDataChanged();
     }

@@ -34,7 +34,6 @@ public class AboutWindow extends AbstractFrame {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));

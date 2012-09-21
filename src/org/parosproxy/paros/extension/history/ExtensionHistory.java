@@ -43,7 +43,6 @@ package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -127,8 +126,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName(NAME);
@@ -160,16 +157,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	public HistoryReference getSelectedHistoryReference () {
-		return (HistoryReference) getLogPanel().getListLog().getSelectedValue();
+		return getLogPanel().getListLog().getSelectedValue();
 	}
 	
 	public List<HistoryReference> getSelectedHistoryReferences () {
-		List<HistoryReference> hrefs = new ArrayList<HistoryReference>();
-		Object [] values = getLogPanel().getListLog().getSelectedValues();
-		for (Object val : values) {
-			hrefs.add((HistoryReference) val);
-		}
-		return hrefs;
+		return getLogPanel().getListLog().getSelectedValuesList();
 	}
 	
 	@Override

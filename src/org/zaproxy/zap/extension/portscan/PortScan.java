@@ -42,7 +42,7 @@ import org.zaproxy.zap.utils.SortedListModel;
 public class PortScan extends ScanThread implements ScanListenner {
 
 	private String site;
-	private SortedListModel list = new SortedListModel();
+	private SortedListModel<Integer> list = new SortedListModel<>();
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
 	private boolean unpauseScan = false;
@@ -55,7 +55,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 	private int progress = 0;
 	private int timeout = 0;
 	private boolean useProxy = true;
-	private List<PortScan> subThreads = new ArrayList<PortScan>();
+	private List<PortScan> subThreads = new ArrayList<>();
 	
     private static Logger log = Logger.getLogger(PortScan.class);
 
@@ -71,7 +71,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 		log.debug("PortScan : " + site + " threads: " + threads);
 	}
 	
-	private PortScan (String site, ScanListenner listenner, SortedListModel list, int maxPort, int threads, int threadIndex) {
+	private PortScan (String site, ScanListenner listenner, SortedListModel<Integer> list, int maxPort, int threads, int threadIndex) {
 		super(site, listenner);
 		this.site = site;
 		this.listenner = listenner;
@@ -146,7 +146,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 				Socket s = null;
 				if (useProxy && Model.getSingleton().getOptionsParam().getConnectionParam().isUseProxy(site)) {
 					
-					FutureTask<Integer> ft = new FutureTask<Integer>(new Callable<Integer>() {
+					FutureTask<Integer> ft = new FutureTask<>(new Callable<Integer>() {
 						@Override
 						public Integer call() {
 							Socket s = new Socket(proxy);
@@ -232,6 +232,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 		return stopScan;
 	}
 	
+	@Override
 	public boolean isRunning() {
 		return this.isAlive();
 	}
@@ -251,7 +252,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 	}
 
 	@Override
-	public DefaultListModel getList() {
+	public DefaultListModel<Integer> getList() {
 		return list;
 	}
 
@@ -294,7 +295,7 @@ public class PortScan extends ScanThread implements ScanListenner {
 
 	@Override
 	public void reset() {
-		this.list = new SortedListModel();
+		this.list = new SortedListModel<>();
 	}
 
 	@Override

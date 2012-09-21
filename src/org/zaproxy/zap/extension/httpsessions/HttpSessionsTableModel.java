@@ -84,6 +84,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		return sessions.size();
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		// Check if the row is valid
 		if (row >= sessions.size()) {

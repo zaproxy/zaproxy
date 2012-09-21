@@ -72,19 +72,19 @@ public abstract class ScanPanel extends AbstractPanel {
 	private JToolBar panelToolbar = null;
 	private JLabel scannedCountNameLabel = null;
 	private JLabel foundCountNameLabel = null;
-	private List<String> activeScans = new ArrayList<String>();;
+	private List<String> activeScans = new ArrayList<>();
 
 	private String currentSite = null;
-	private JComboBox siteSelect = null;
+	private JComboBox<String> siteSelect = null;
 	// The siteModel entries are all HTML, with the active ones in bold
-	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
-	private Map <String, GenericScanner> scanMap = new HashMap <String, GenericScanner>();
+	private Map <String, GenericScanner> scanMap = new HashMap<>();
 	private AbstractParam scanParam = null;
 	private ScanStatus scanStatus = null;
 	private Mode mode = Control.getSingleton().getMode();
@@ -109,7 +109,6 @@ public abstract class ScanPanel extends AbstractPanel {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private  void initialize(ImageIcon icon) {
         this.setLayout(new CardLayout());
@@ -127,15 +126,10 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	/**
-
-	 * This method initializes panelCommand	
-
-	 * 	
-
-	 * @return javax.swing.JPanel	
-
-	 */    
-	/**/
+	 * This method initializes panelCommand
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -382,9 +376,9 @@ public abstract class ScanPanel extends AbstractPanel {
 		return optionsButton;
 	}
 
-	protected JComboBox getSiteSelect() {
+	protected JComboBox<String> getSiteSelect() {
 		if (siteSelect == null) {
-			siteSelect = new JComboBox(siteModel);
+			siteSelect = new JComboBox<>(siteModel);
 			siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 

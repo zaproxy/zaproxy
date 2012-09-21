@@ -35,9 +35,9 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class ApiImplementor {
 
-	private List<ApiAction> apiActions = new ArrayList<ApiAction>();
-	private List<ApiView> apiViews = new ArrayList<ApiView>();
-	private List<ApiOther> apiOthers = new ArrayList<ApiOther>();
+	private List<ApiAction> apiActions = new ArrayList<>();
+	private List<ApiView> apiViews = new ArrayList<>();
+	private List<ApiOther> apiOthers = new ArrayList<>();
 	
 	public List<ApiView> getApiViews() {
 		return this.apiViews;

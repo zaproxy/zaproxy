@@ -45,10 +45,10 @@ public class API {
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
 
-	private Map<String, ApiImplementor> implementors = new HashMap<String, ApiImplementor>();
+	private Map<String, ApiImplementor> implementors = new HashMap<>();
 	private static API api = null;
 	private WebUI webUI = new WebUI(this);
-	private Map<String, ApiImplementor> callBacks = new HashMap<String, ApiImplementor>();
+	private Map<String, ApiImplementor> callBacks = new HashMap<>();
 	
 	private Random random = new Random();
     private Logger logger = Logger.getLogger(this.getClass());

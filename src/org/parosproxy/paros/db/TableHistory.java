@@ -239,12 +239,17 @@ public class TableHistory extends AbstractTable {
         }
 	    psInsert.setString(11, tag);
 
+	    // ZAP: Added the statement.
+	    int noteIdx = 12;
+	    
         if (isExistStatusCode) {
             psInsert.setInt(12, statusCode);
+            // ZAP: Added the statement.
+            ++noteIdx;
         }
         
         // ZAP: Added the statement.
-        psInsert.setString(13, note);
+        psInsert.setString(noteIdx, note);
         
         psInsert.executeUpdate();
 				
@@ -307,7 +312,7 @@ public class TableHistory extends AbstractTable {
 	public Vector<Integer> getHistoryList(long sessionId, int histType) throws SQLException {
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
 	    ResultSet rs = null;
-	    Vector<Integer> v = new Vector<Integer>();
+	    Vector<Integer> v = new Vector<>();
 	    try {
         
 		    psReadSession.setLong(1, sessionId);
@@ -336,7 +341,7 @@ public class TableHistory extends AbstractTable {
 	public Vector<Integer> getHistoryList(long sessionId) throws SQLException {
 	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? ORDER BY " + HISTORYID);
 	    ResultSet rs = null;
-	    Vector<Integer> v = new Vector<Integer>();
+	    Vector<Integer> v = new Vector<>();
 	    try {
 		    psReadSession.setLong(1, sessionId);
 		    rs = psReadSession.executeQuery();
@@ -363,7 +368,7 @@ public class TableHistory extends AbstractTable {
 	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {
         PreparedStatement psReadSearch = getConnection().prepareStatement("SELECT * FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
 	    ResultSet rs = null;
-		Vector<Integer> v = new Vector<Integer>();
+		Vector<Integer> v = new Vector<>();
 		try {
 
 		    Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);

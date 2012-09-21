@@ -114,8 +114,8 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakHistory());
             
-            mapBreakpointUiManager = new HashMap<Class<? extends BreakpointMessageInterface>, BreakpointsUiManagerInterface>();
-            mapMessageUiManager = new HashMap<Class<? extends Message>, BreakpointsUiManagerInterface>();
+            mapBreakpointUiManager = new HashMap<>();
+            mapMessageUiManager = new HashMap<>();
             
             addBreakpointsUiManager(new HttpBreakpointsUiManagerInterface(this));
             
@@ -329,7 +329,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	 */
 	public List<BreakpointMessageInterface> getBreakpointsEnabledList() {
 		if (mode.equals(Mode.safe)) {
-			return new ArrayList<BreakpointMessageInterface>();
+			return new ArrayList<>();
 		}
 		return getBreakpointsModel().getBreakpointsEnabledList();
 	}

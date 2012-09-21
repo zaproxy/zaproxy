@@ -19,7 +19,7 @@ import org.zaproxy.zap.ZAP;
 public class TestDaemonWave {
 
 	private List<String> openUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
-		List<String> response = new ArrayList<String>();
+		List<String> response = new ArrayList<>();
 		URL url = new URL(apiurl);
 		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 		uc.connect();

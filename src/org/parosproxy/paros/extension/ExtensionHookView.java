@@ -29,11 +29,11 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 
 public class ExtensionHookView {
 
-    private Vector<AbstractPanel> workPanelList = new Vector<AbstractPanel>();
-    private Vector<AbstractPanel> statusPanelList = new Vector<AbstractPanel>();
-    private Vector<AbstractPanel> selectPanelList = new Vector<AbstractPanel>();
-    private Vector<AbstractParamPanel> sessionPanelList = new Vector<AbstractParamPanel>();
-    private Vector<AbstractParamPanel> optionPanelList = new Vector<AbstractParamPanel>();
+    private Vector<AbstractPanel> workPanelList = new Vector<>();
+    private Vector<AbstractPanel> statusPanelList = new Vector<>();
+    private Vector<AbstractPanel> selectPanelList = new Vector<>();
+    private Vector<AbstractParamPanel> sessionPanelList = new Vector<>();
+    private Vector<AbstractParamPanel> optionPanelList = new Vector<>();
     
     public ExtensionHookView() {
     }

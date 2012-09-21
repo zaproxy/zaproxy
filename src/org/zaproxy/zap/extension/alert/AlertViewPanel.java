@@ -79,13 +79,13 @@ public class AlertViewPanel extends AbstractPanel {
 	private ZapTextArea alertSolution = null;
 	private ZapTextArea alertReference = null;
 	
-	private JComboBox alertEditName = null;
-	private JComboBox alertEditRisk = null;
-	private JComboBox alertEditReliability = null;
-	private JComboBox alertEditParam = null;
+	private JComboBox<String> alertEditName = null;
+	private JComboBox<String> alertEditRisk = null;
+	private JComboBox<String> alertEditReliability = null;
+	private JComboBox<String> alertEditParam = null;
 	private ZapTextField alertEditAttack = null;
-	private DefaultComboBoxModel nameListModel = null;
-	private DefaultComboBoxModel paramListModel = null;
+	private DefaultComboBoxModel<String> nameListModel = null;
+	private DefaultComboBoxModel<String> paramListModel = null;
 	
 	private boolean editable = false;
 	private Alert originalAlert = null;
@@ -114,8 +114,6 @@ public class AlertViewPanel extends AbstractPanel {
     
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		cardLayout = new CardLayout();
@@ -172,9 +170,9 @@ public class AlertViewPanel extends AbstractPanel {
 			// Create the labels
 			
 			if (editable) {
-				alertEditName = new JComboBox();
+				alertEditName = new JComboBox<>();
 				alertEditName.setEditable(true);
-				nameListModel = new DefaultComboBoxModel();
+				nameListModel = new DefaultComboBoxModel<>();
 				
 				List <String> allVulns = getAllVulnerabilityNames();
 				nameListModel.addElement("");	// Default to blank
@@ -211,14 +209,14 @@ public class AlertViewPanel extends AbstractPanel {
 					}
 				});
 
-				alertEditRisk = new JComboBox(Alert.MSG_RISK);
-				alertEditReliability = new JComboBox(Alert.MSG_RELIABILITY);
+				alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
+				alertEditReliability = new JComboBox<>(Alert.MSG_RELIABILITY);
 				alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[Alert.SUSPICIOUS]);
 				alertEditAttack = new ZapTextField();
 				
-				paramListModel = new DefaultComboBoxModel();
+				paramListModel = new DefaultComboBoxModel<>();
 				paramListModel.addElement("");	// Default is empty so user can type anything in
-				alertEditParam = new JComboBox();
+				alertEditParam = new JComboBox<>();
 				alertEditParam.setModel(paramListModel);
 				alertEditParam.setEditable(true);
 
@@ -583,41 +581,42 @@ public class AlertViewPanel extends AbstractPanel {
 			alert.setSolution(alertSolution.getText());
 			alert.setReference(alertReference.getText());
 			alert.setHistoryRef(historyRef);
-			return alert;
-		} else {
-			Alert alert = new Alert(-1, alertEditRisk.getSelectedIndex(), 
-					alertEditReliability.getSelectedIndex(), (String) alertEditName.getSelectedItem());
-			alert.setHistoryRef(historyRef);
-			if (originalAlert != null) {
-				alert.setAlertId(originalAlert.getAlertId());
-			}
 			
-			String uri = null;
-			HttpMessage msg = null;
-			if (httpMessage != null) {
-			    uri = httpMessage.getRequestHeader().getURI().toString();
-			    msg = httpMessage;
-			} else if (historyRef != null) {
-				try {
-					uri = historyRef.getHttpMessage().getRequestHeader().getURI().toString();
-					msg = historyRef.getHttpMessage();
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-			} else if (originalAlert != null) {
-				uri = originalAlert.getUri();
-				msg = originalAlert.getMessage();
-			}
-			alert.setDetail(alertDescription.getText(), 
-					uri, 
-					(String)alertEditParam.getSelectedItem(), 
-					alertEditAttack.getText(),
-					alertOtherInfo.getText(), 
-					alertSolution.getText(), 
-					alertReference.getText(), 
-					msg);
 			return alert;
 		}
+		
+		Alert alert = new Alert(-1, alertEditRisk.getSelectedIndex(), 
+				alertEditReliability.getSelectedIndex(), (String) alertEditName.getSelectedItem());
+		alert.setHistoryRef(historyRef);
+		if (originalAlert != null) {
+			alert.setAlertId(originalAlert.getAlertId());
+		}
+		
+		String uri = null;
+		HttpMessage msg = null;
+		if (httpMessage != null) {
+		    uri = httpMessage.getRequestHeader().getURI().toString();
+		    msg = httpMessage;
+		} else if (historyRef != null) {
+			try {
+				uri = historyRef.getHttpMessage().getRequestHeader().getURI().toString();
+				msg = historyRef.getHttpMessage();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		} else if (originalAlert != null) {
+			uri = originalAlert.getUri();
+			msg = originalAlert.getMessage();
+		}
+		alert.setDetail(alertDescription.getText(), 
+				uri, 
+				(String)alertEditParam.getSelectedItem(), 
+				alertEditAttack.getText(),
+				alertOtherInfo.getText(), 
+				alertSolution.getText(), 
+				alertReference.getText(), 
+				msg);
+		return alert;
 	}
 
 	public Alert getOriginalAlert() {
@@ -676,7 +675,7 @@ public class AlertViewPanel extends AbstractPanel {
 
 	private List<String> getAllVulnerabilityNames() {
 		List <Vulnerability> vulns = this.getAllVulnerabilities();
-		List <String> names = new ArrayList<String>(vulns.size());
+		List <String> names = new ArrayList<>(vulns.size());
 		for (Vulnerability v : vulns) {
 			names.add(v.getAlert());
 		}

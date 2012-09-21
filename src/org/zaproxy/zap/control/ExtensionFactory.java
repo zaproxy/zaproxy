@@ -36,10 +36,10 @@ public class ExtensionFactory {
 
     private static Logger log = Logger.getLogger(ExtensionFactory.class);
 
-    private static Vector<Extension> listAllExtension = new Vector<Extension>();
-    private static TreeMap<String, Extension> mapAllExtension = new TreeMap<String, Extension>();
-    private static TreeMap<Integer, Extension> mapOrderToExtension = new TreeMap<Integer, Extension>();
-    private static List<Extension> unorderedExtensions = new ArrayList<Extension>();
+    private static Vector<Extension> listAllExtension = new Vector<>();
+    private static TreeMap<String, Extension> mapAllExtension = new TreeMap<>();
+    private static TreeMap<Integer, Extension> mapOrderToExtension = new TreeMap<>();
+    private static List<Extension> unorderedExtensions = new ArrayList<>();
     private static DynamicLoader parosLoader = null;
     private static DynamicLoader zapLoader = null;
     

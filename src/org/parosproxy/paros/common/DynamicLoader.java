@@ -62,7 +62,7 @@ public class DynamicLoader extends URLClassLoader {
     private static final Logger logger = Logger.getLogger(DynamicLoader.class);
 
     // ZAP: Changed to use an ArrayList instead of Vector.
-    private List<String> listClassName = new ArrayList<String>();
+    private List<String> listClassName = new ArrayList<>();
     
     public DynamicLoader(String directory, String packageName) {
     	this(directory, packageName, false);
@@ -144,7 +144,7 @@ public class DynamicLoader extends URLClassLoader {
     public <T> List<T> getFilteredObject (Class<T> classType) {
         String className = "";
         Class<?> cls = null;
-        List<T> listClass = new ArrayList<T>();
+        List<T> listClass = new ArrayList<>();
         for (int i=0; i < listClassName.size(); i++) {
             className = listClassName.get(i);
             try {

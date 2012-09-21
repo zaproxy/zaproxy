@@ -76,16 +76,16 @@ public class Session extends FileXML {
 	private Model model = null;
 	private String fileName = "";
 	private String sessionDesc = "";
-	private List<String> includeInScopeRegexs = new ArrayList<String>();
-	private List<String> excludeFromScopeRegexs = new ArrayList<String>();
-	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
-	private List<String> excludeFromScanRegexs = new ArrayList<String>();
-	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
+	private List<String> includeInScopeRegexs = new ArrayList<>();
+	private List<String> excludeFromScopeRegexs = new ArrayList<>();
+	private List<String> excludeFromProxyRegexs = new ArrayList<>();
+	private List<String> excludeFromScanRegexs = new ArrayList<>();
+	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
 
-	private List<String> excludeFromWebSocketRegexs = new ArrayList<String>();
+	private List<String> excludeFromWebSocketRegexs = new ArrayList<>();
     
-    private List<Pattern> includeInScopePatterns = new ArrayList<Pattern>();
-    private List<Pattern> excludeFromScopePatterns = new ArrayList<Pattern>();
+    private List<Pattern> includeInScopePatterns = new ArrayList<>();
+    private List<Pattern> excludeFromScopePatterns = new ArrayList<>();
 
 	// parameters in XML
 	private long sessionId = 0;
@@ -282,7 +282,7 @@ public class Session extends FileXML {
 	}
 	
 	private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
-	    List<String> urlList = new ArrayList<String>(rsuList.size());
+	    List<String> urlList = new ArrayList<>(rsuList.size());
 	    for (RecordSessionUrl url : rsuList) {
 	    	urlList.add(url.getUrl());
 	    }
@@ -437,7 +437,7 @@ public class Session extends FileXML {
 	
 	
 	private List<String> stripEmptyLines(List<String> list) {
-		List<String> slist = new ArrayList<String>();
+		List<String> slist = new ArrayList<>();
 		for (String str : list) {
 			if (str.length() > 0) {
 				slist.add(str);
@@ -579,7 +579,7 @@ public class Session extends FileXML {
 	 * @return the nodes in scope from site tree
 	 */
 	public List<SiteNode> getNodesInScopeFromSiteTree() {
-		List<SiteNode> nodes = new LinkedList<SiteNode>();
+		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
 		fillNodesInScope(rootNode, nodes);
 		return nodes;
@@ -779,7 +779,7 @@ public class Session extends FileXML {
 	}
 	
 	public void setSessionUrl(int type, String url) throws SQLException {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>(1);
 		list.add(url);
 		model.getDb().getTableSessionUrl().setUrls(type, list);
 		
@@ -787,7 +787,7 @@ public class Session extends FileXML {
 
 	public List<String> getSessionUrls(int type) throws SQLException {
 		List<RecordSessionUrl> urls = model.getDb().getTableSessionUrl().getUrlsForType(type);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>(urls.size());
 		for (RecordSessionUrl url : urls) {
 			list.add(url.getUrl());
 		}

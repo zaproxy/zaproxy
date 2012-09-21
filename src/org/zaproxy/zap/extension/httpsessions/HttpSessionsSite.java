@@ -69,7 +69,7 @@ public class HttpSessionsSite {
 		super();
 		this.extension = extension;
 		this.site = site;
-		this.sessions = new LinkedHashSet<HttpSession>();
+		this.sessions = new LinkedHashSet<>();
 		this.model = new HttpSessionsTableModel();
 		this.activeSession = null;
 	}
@@ -225,7 +225,7 @@ public class HttpSessionsSite {
 		if (activeSession != null && activeSession != session) {
 
 			// Make a copy of the session tokens set, as they will be modified
-			tokensSet = new LinkedHashSet<String>(tokensSet);
+			tokensSet = new LinkedHashSet<>(tokensSet);
 
 			// Iterate through the cookies in the request
 			Iterator<HttpCookie> it = requestCookies.iterator();
@@ -293,7 +293,7 @@ public class HttpSessionsSite {
 			return;
 		}
 		// Create an auxiliary map of token values and insert keys for every token
-		HashMap<String, String> tokenValues = new HashMap<String, String>();
+		HashMap<String, String> tokenValues = new HashMap<>();
 
 		// Get new values for tokens, if any
 		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
@@ -364,7 +364,7 @@ public class HttpSessionsSite {
 		if (sessions.isEmpty())
 			return null;
 
-		LinkedList<HttpSession> matchingSessions = new LinkedList<HttpSession>(sessions);
+		LinkedList<HttpSession> matchingSessions = new LinkedList<>(sessions);
 		for (String token : tokens) {
 			// Get the corresponding cookie from the cookies list
 			HttpCookie matchingCookie = null;
@@ -428,8 +428,8 @@ public class HttpSessionsSite {
 		}
 
 		// Iterate through all the sessions, eliminate the given token and eliminate any duplicates
-		HashMap<String, HttpSession> uniqueSession = new HashMap<String, HttpSession>(sessions.size());
-		LinkedList<HttpSession> toDelete = new LinkedList<HttpSession>();
+		HashMap<String, HttpSession> uniqueSession = new HashMap<>(sessions.size());
+		LinkedList<HttpSession> toDelete = new LinkedList<>();
 		for (HttpSession session : this.sessions) {
 			// Eliminate the token
 			session.removeToken(token);

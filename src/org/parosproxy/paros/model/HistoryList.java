@@ -30,12 +30,13 @@ import javax.swing.DefaultListModel;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class HistoryList extends DefaultListModel {
+public class HistoryList extends DefaultListModel<HistoryReference> {
     
 	private static final long serialVersionUID = 1L;
 	// ZAP: Added hashtable to allow elements of the list to be accessed via historyid
-	private Hashtable<Integer, Integer> historyIdToIndex = new Hashtable<Integer, Integer>();
+	private Hashtable<Integer, Integer> historyIdToIndex = new Hashtable<>();
 
+	@Override
 	public void addElement(final HistoryReference hRef) {
 		int sizeBefore = super.size();
         super.addElement(hRef);
@@ -64,7 +65,7 @@ public class HistoryList extends DefaultListModel {
     public HistoryReference getHistoryReference (int historyId) {
         Integer i = historyIdToIndex.get(historyId);
         if (i != null) {
-        	return (HistoryReference) this.elementAt(i);
+        	return this.elementAt(i);
         }
     	return null;
     }

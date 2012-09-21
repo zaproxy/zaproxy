@@ -111,7 +111,7 @@ public class ClientApi {
 	}
 
 	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws Exception {
-		List<Alert> reportAlerts = new ArrayList<Alert>();
+		List<Alert> reportAlerts = new ArrayList<>();
 		JSONArray response = JSONArray.fromObject(openUrlViaProxy(proxy, "http://zap/json/core/view/alerts").toString());
 		if (response != null && response.size() == 1 && response.get(0) instanceof JSONArray) {
 			JSONArray alerts = (JSONArray)response.get(0);
@@ -178,7 +178,7 @@ public class ClientApi {
 	}
 	
 	private List<String> openUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
-		List<String> response = new ArrayList<String>();
+		List<String> response = new ArrayList<>();
 		URL url = new URL(apiurl);
 		if (debug) {
 			System.out.println("Open URL: " + apiurl);

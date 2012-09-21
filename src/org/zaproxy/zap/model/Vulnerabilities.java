@@ -73,8 +73,8 @@ public class Vulnerabilities {
 	        }
         	final int numberOfVulns = test.length;
         	
-        	List<Vulnerability> tempVulns = new ArrayList<Vulnerability>(numberOfVulns);
-        	idToVuln = new HashMap<String, Vulnerability>(Math.max((int) (numberOfVulns / 0.75) + 1, 16));
+        	List<Vulnerability> tempVulns = new ArrayList<>(numberOfVulns);
+        	idToVuln = new HashMap<>(Math.max((int) (numberOfVulns / 0.75) + 1, 16));
         	
         	String name;
         	List<String> references;
@@ -82,10 +82,10 @@ public class Vulnerabilities {
         	for (String item : test) {
         		name = "vuln_item_" + item;
         		try {
-        			references = new ArrayList<String>(Arrays.asList(config.getStringArray(name + ".reference")));
+        			references = new ArrayList<>(Arrays.asList(config.getStringArray(name + ".reference")));
         		} catch (ConversionException e) {
         			logger.error(e.getMessage(), e);
-        			references = new ArrayList<String>(0);
+        			references = new ArrayList<>(0);
         		}
         			
         		Vulnerability v = 

@@ -134,7 +134,7 @@ public class HtmlContextAnalyser {
 	}
 
 	public List<HtmlContext> getHtmlContexts (String target, HtmlContext targetContext, int ignoreFlags) {
-		List<HtmlContext> contexts = new ArrayList<HtmlContext>();
+		List<HtmlContext> contexts = new ArrayList<>();
 		
 		int offset = 0;
 		while ((offset = htmlPage.indexOf(target, offset)) >= 0) {

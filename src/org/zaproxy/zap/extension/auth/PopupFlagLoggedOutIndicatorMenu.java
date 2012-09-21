@@ -50,7 +50,6 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("auth.popup.logout.indicate"));

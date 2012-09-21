@@ -51,9 +51,9 @@ public class AntiCsrfParam extends AbstractParam {
     @Override
 	protected void parse(){
     	try {
-    		this.tokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(TOKENS_KEY)));
+    		this.tokens = new ArrayList<>(Arrays.asList(getConfig().getStringArray(TOKENS_KEY)));
     	} catch (ConversionException e) {
-    		this.tokens = new ArrayList<String>(DEFAULT_TOKENS.length);
+    		this.tokens = new ArrayList<>(DEFAULT_TOKENS.length);
     	}
     	if (this.tokens.size() == 0) {
     		this.tokens.addAll(Arrays.asList(DEFAULT_TOKENS));

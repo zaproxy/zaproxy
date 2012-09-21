@@ -33,7 +33,7 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
 	private static final String[] columnNames = {
 				Constant.messages.getString("options.acsrf.label.token")};
     
-    private List<String> tokens = new ArrayList<String>();
+    private List<String> tokens = new ArrayList<>();
     
     /**
      * 
@@ -83,14 +83,14 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
             i++;
         }
         
-        List<String> newList = new ArrayList<String>(tokens);
+        List<String> newList = new ArrayList<>(tokens);
         return newList;
     }
     /**
      * @param tokens The tokens to set.
      */
     public void setTokens(List<String> tokens) {
-		this.tokens = new ArrayList<String>();
+		this.tokens = new ArrayList<>();
     	if (tokens != null) {
     		for (String token : tokens) {
     			if ( ! this.tokens.contains(token)) {

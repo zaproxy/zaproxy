@@ -89,28 +89,28 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JScrollPane jScrollPane = null;
 	private JLabel activeScansNameLabel = null;
 	private JLabel activeScansValueLabel = null;
-	private List<String> activeScans = new ArrayList<String>();;
+	private List<String> activeScans = new ArrayList<>();
     private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
     private List<String> fileList = null;
-	private JComboBox fileSelect = null;
+	private JComboBox<String> fileSelect = null;
 
 	private String fileDirectory = Constant.getInstance().DIRBUSTER_DIR;
 	private String customFileDirectory = Constant.getInstance().DIRBUSTER_CUSTOM_DIR;
 	private String fileExtension = ".txt";
 
 	private String currentSite = null;
-	private JComboBox siteSelect = null;
+	private JComboBox<String> siteSelect = null;
 	// The siteModel entries are all HTML, with the active ones in bold
-	private SortedComboBoxModel siteModel = new SortedComboBoxModel();
+	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
 	private JToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	//private JButton launchButton = null;
-	private JList bruteForceList = null;
+	private JList<BruteForceItem> bruteForceList = null;
 	private JProgressBar progressBar = null;
-	private Map <String, BruteForce> bruteForceMap = new HashMap <String, BruteForce>();
+	private Map <String, BruteForce> bruteForceMap = new HashMap <>();
 
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
@@ -133,8 +133,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
         this.setLayout(new CardLayout());
@@ -488,12 +486,12 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	private void resetBruteForceList() {
-		getBruteForceList().setModel(new DefaultListModel());
+		getBruteForceList().setModel(new DefaultListModel<BruteForceItem>());
 	}
 
-	protected JList getBruteForceList() {
+	protected JList<BruteForceItem> getBruteForceList() {
 		if (bruteForceList == null) {
-			bruteForceList = new JList();
+			bruteForceList = new JList<>();
 			bruteForceList.setDoubleBuffered(true);
 			bruteForceList.setCellRenderer(getBruteForcePanelCellRenderer());
 			bruteForceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -510,7 +508,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				        return;
 				    }
                     
-				    displayMessage((BruteForceItem) bruteForceList.getSelectedValue());
+				    displayMessage(bruteForceList.getSelectedValue());
 				}
 			});
 			
@@ -563,7 +561,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
     }
 
-	private ListCellRenderer getBruteForcePanelCellRenderer() {
+	private ListCellRenderer<BruteForceItem> getBruteForcePanelCellRenderer() {
         if (bfPanelCellRenderer == null) {
             bfPanelCellRenderer = new BruteForcePanelCellRenderer();
             bfPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
@@ -573,17 +571,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         return bfPanelCellRenderer;
 	}
 
-	private JComboBox getFileSelect() {
+	private JComboBox<String> getFileSelect() {
 		if (fileSelect == null) {
-			fileSelect = new JComboBox();
+			fileSelect = new JComboBox<>();
 			this.refreshFileList();
 		}
 		return fileSelect;
 	}
 
-	private JComboBox getSiteSelect() {
+	private JComboBox<String> getSiteSelect() {
 		if (siteSelect == null) {
-			siteSelect = new JComboBox(siteModel);
+			siteSelect = new JComboBox<>(siteModel);
 			siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
 			siteSelect.setSelectedIndex(0);
 
@@ -656,10 +654,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				if (! f.exists()) {
 					log.error("No such file: " + f.getAbsolutePath());
 					return;
-				} else {
-					bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam, null);
-					bruteForceMap.put(site, bruteForce);
 				}
+				
+				bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam, null);
+				bruteForceMap.put(site, bruteForce);
 			}
 			if (bruteForce.isAlive()) {
 				getStartScanButton().setEnabled(false);
@@ -923,7 +921,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	public List<String> getFileList() {
 		if (fileList == null) {
-			fileList = new ArrayList<String>();
+			fileList = new ArrayList<>();
 			File dir = new File(fileDirectory);
 			FilenameFilter filter = new FilenameExtensionFilter(fileExtension, true);
 			String[] files = dir.list(filter );

@@ -46,7 +46,7 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 	
 	private static final String[] CHARSETS = {"ISO-8859-1", "US-ASCII", "UTF-8"};
 	
-	private JComboBox comboBoxBase64Charset;
+	private JComboBox<String> comboBoxBase64Charset;
 	
 	private JCheckBox checkBoxBase64DoBreakLines;
 	
@@ -104,9 +104,9 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 		return base64Panel;
 	}
 	
-	private JComboBox getComboBoxBase64Charset() {
+	private JComboBox<String> getComboBoxBase64Charset() {
 		if (comboBoxBase64Charset == null) {
-			comboBoxBase64Charset = new JComboBox(new DefaultComboBoxModel(CHARSETS));
+			comboBoxBase64Charset = new JComboBox<>(new DefaultComboBoxModel<>(CHARSETS));
 		}
 		return comboBoxBase64Charset;
 	}

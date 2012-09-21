@@ -33,7 +33,7 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
 public abstract class SpiderParser {
 
 	/** The listeners to spider parsing events. */
-	private LinkedList<SpiderParserListener> listeners = new LinkedList<SpiderParserListener>();
+	private LinkedList<SpiderParserListener> listeners = new LinkedList<>();
 
 	/** The Constant log. */
 	protected static final Logger log = Logger.getLogger(SpiderParser.class);

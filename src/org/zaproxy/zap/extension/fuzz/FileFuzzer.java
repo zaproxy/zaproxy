@@ -35,7 +35,7 @@ public class FileFuzzer {
 
 	private File file = null;
 	private int length = -1;
-	private List<String> fuzzStrs = new ArrayList<String>();
+	private List<String> fuzzStrs = new ArrayList<>();
 	private Iterator<String> iter = null;
     private static Logger log = Logger.getLogger(FileFuzzer.class);
 

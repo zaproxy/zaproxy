@@ -35,6 +35,7 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -57,7 +58,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 	private HttpPanelParamTableModel httpPanelTabularModel;
 	private boolean isEditable = false;
 	private List<ParamAddinInterface> addins;
-	private JComboBox comboBoxAddIns;
+	private JComboBox<Object> comboBoxAddIns;
 	
 	private HttpPanelViewModel model;
 	
@@ -99,11 +100,11 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 	
 	private void initAddins() {
 		// Get all addins
-		addins = new LinkedList<ParamAddinInterface>();
+		addins = new LinkedList<>();
 		addins.add( new ParamAddinMagic());
 		addins.add( new ParamAddinUrlencode());
 		
-		comboBoxAddIns = new JComboBox();
+		comboBoxAddIns = new JComboBox<>();
 		comboBoxAddIns.addItem(ADD_INS);
 		for(ParamAddinInterface addin: addins) {
 			comboBoxAddIns.addItem(addin);
@@ -122,7 +123,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 		table.getColumnModel().getColumn(3).setCellRenderer(new ComboBoxCellRenderer(comboBoxAddIns));
 	}
 	
-	abstract public JComboBox getComboBoxTypes();
+	abstract public JComboBox<HtmlParameter.Type> getComboBoxTypes();
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {
@@ -216,15 +217,15 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			((JComboBox)e.getSource()).setSelectedIndex(0);
+			((JComboBox<?>)e.getSource()).setSelectedIndex(0);
 		}
 	}
 
-	private static final class ComboBoxCellRenderer extends JComboBox implements TableCellRenderer {
+	private static final class ComboBoxCellRenderer extends JComboBox<Object> implements TableCellRenderer {
 
 		private static final long serialVersionUID = 7945388210094363435L;
 
-		public ComboBoxCellRenderer(JComboBox comboBox) {
+		public ComboBoxCellRenderer(JComboBox<Object> comboBox) {
 			this.addItem(comboBox.getModel().getElementAt(0));
 		}
 		

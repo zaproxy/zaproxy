@@ -25,6 +25,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -54,8 +55,6 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("ports.copy.popup"));
@@ -65,14 +64,14 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
         	@Override
         	public void actionPerformed(java.awt.event.ActionEvent e) {
                 
-                Object[] objs = extension.getPortScanPanel().getPortList().getSelectedValues();
-                if (objs== null) {
+                if (extension.getPortScanPanel().getPortList().isSelectionEmpty()) {
                     return;
                 }
                 
+                List<Integer> values = extension.getPortScanPanel().getPortList().getSelectedValuesList();
+                
                 StringBuilder sb = new StringBuilder();
-                for (Object obj: objs) {
-                	Integer port = (Integer) obj;
+                for (Integer port : values) {
                 	sb.append(port);
                 	sb.append('\t');
             		if (Constant.messages.containsKey("port." + port)) {
@@ -97,12 +96,10 @@ public class PopupMenuPortCopy extends ExtensionPopupMenuItem implements Clipboa
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(PortScanPanel.PANEL_NAME)) {
             try {
-                Object[] obj = extension.getPortScanPanel().getPortList().getSelectedValues();
-
-                if (obj.length >= 1) {
-                    this.setEnabled(true);
-                } else {
+                if (extension.getPortScanPanel().getPortList().isSelectionEmpty()) {
                     this.setEnabled(false);
+                } else {
+                    this.setEnabled(true);
                 }
 
             } catch (Exception e) {

@@ -25,7 +25,7 @@ public abstract class AbstractFuzzProcess implements FuzzProcess {
     private String fuzz;
     
     
-    private List<FuzzerListener> listeners = new ArrayList<FuzzerListener>(1);
+    private List<FuzzerListener> listeners = new ArrayList<>(1);
     
     @Override
     public final void setFuzz(String fuzz) {

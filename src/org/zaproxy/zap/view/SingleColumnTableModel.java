@@ -31,7 +31,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
 
 	private  String[] columnNames = null;
     
-    private List<String> lines = new ArrayList<String>();
+    private List<String> lines = new ArrayList<>();
     
     /**
      * 
@@ -82,7 +82,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
             i++;
         }
         
-        List<String> newList = new ArrayList<String>(lines);
+        List<String> newList = new ArrayList<>(lines);
         return newList;
     }
     /**
@@ -90,9 +90,9 @@ public class SingleColumnTableModel extends AbstractTableModel {
      */
     public void setLines(List<String> lines) {
     	if (lines == null) {
-    		this.lines = new ArrayList<String>();
+    		this.lines = new ArrayList<>();
     	} else {
-    		this.lines = new ArrayList<String>(lines);
+    		this.lines = new ArrayList<>(lines);
     	}
         checkAndAppendNewRow();
   	  	fireTableDataChanged();

@@ -34,7 +34,7 @@ import org.parosproxy.paros.view.View;
 
 public class ExtensionInvoke extends ExtensionAdaptor {
 
-	private List <PopupMenuInvoke> invokeMenus = new ArrayList<PopupMenuInvoke>();
+	private List <PopupMenuInvoke> invokeMenus = new ArrayList<>();
 	private PopupMenuInvokeConfigure confPopup = null;
 	private OptionsInvokePanel optionsInvokePanel;
 	
@@ -55,8 +55,6 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionInvoke");

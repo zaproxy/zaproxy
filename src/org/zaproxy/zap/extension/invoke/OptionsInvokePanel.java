@@ -74,8 +74,6 @@ public class OptionsInvokePanel extends AbstractParamPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 

@@ -27,7 +27,7 @@ public class CommandLineArgument {
 
     private String name = "";
     private int numOfArguments = 0;
-    private Vector<String> arg = new Vector<String>();
+    private Vector<String> arg = new Vector<>();
     private boolean enabled = false;
     private Pattern pattern = null;
     private String errorMessage = "";

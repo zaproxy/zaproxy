@@ -45,7 +45,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
-public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
+public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<HistoryReference> {
 
     private JLabel txtId = null;
     private JLabel txtMethod = null;
@@ -69,8 +69,6 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
     	// ZAP: Added flag image
@@ -249,9 +247,8 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer {
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends HistoryReference> list, HistoryReference ref, int index, boolean isSelected, boolean cellHasFocus) {
         
-        HistoryReference ref = (HistoryReference) value;
         txtId.setText(Integer.toString(ref.getHistoryId()));
         
         HttpMessage msg;

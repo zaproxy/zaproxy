@@ -35,7 +35,7 @@ public class InvokeParam extends AbstractParam {
     private static final String INVOKE_NOTE = "note";
     private static final String INVOKE_DIRECTORY = "directory";
 
-	private List<InvokableApp> listInvoke = new ArrayList<InvokableApp>();
+	private List<InvokableApp> listInvoke = new ArrayList<>();
 	
 	public InvokeParam() {
 	}

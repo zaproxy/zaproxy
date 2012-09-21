@@ -42,7 +42,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
 		Constant.messages.getString("pscan.options.table.type"),
 		Constant.messages.getString("pscan.options.table.enabled")};
     
-	private List <RegexAutoTagScanner> defns = new ArrayList<RegexAutoTagScanner>();
+	private List <RegexAutoTagScanner> defns = new ArrayList<>();
     //private Vector listAuth = new Vector();
     
     /**
@@ -100,7 +100,7 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
      * @param defns
      */
     public void setScanDefns(List <RegexAutoTagScanner> defns) {
-        this.defns = new ArrayList<RegexAutoTagScanner>(defns);
+        this.defns = new ArrayList<>(defns);
   	  	fireTableDataChanged();
     }
     

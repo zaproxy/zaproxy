@@ -60,7 +60,7 @@ public class WavsepStatic {
 	
 	// Note that this method is a copy of the code in org.parosproxy.paros.model
 	private static TreeSet<String> getParamNameSet(String params) throws Exception {
-	    TreeSet<String> set = new TreeSet<String>();
+	    TreeSet<String> set = new TreeSet<>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
 		int pos = 0;
@@ -147,10 +147,10 @@ public class WavsepStatic {
 		client.activeScanUrl(nodeName);
 		Thread.sleep(sleepInMs);
 
-		List<Alert> ignoreAlertsList = new ArrayList<Alert>();
+		List<Alert> ignoreAlertsList = new ArrayList<>(ignoreAlerts.length);
 		ignoreAlertsList.addAll(Arrays.asList(setAlertsUrl(ignoreAlerts, url)));
 
-		List<Alert> requireAlertsList = new ArrayList<Alert>();
+		List<Alert> requireAlertsList = new ArrayList<>(requireAlerts.length);
 		requireAlertsList.addAll(Arrays.asList(setAlertsUrl(requireAlerts, url)));
 		
 		client.checkAlerts(ignoreAlertsList, requireAlertsList);

@@ -48,8 +48,6 @@ public class TabbedPanel extends JTabbedPane {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
 		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,8 +59,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public static final String NAME = "ExtensionAntiCSRF"; 
 	public static final String TAG = "AntiCSRF"; 
 	
-	private Map<String, AntiCsrfToken> valueToToken = new HashMap<String, AntiCsrfToken>();
-	private Map<String, AntiCsrfToken> urlToToken = new HashMap<String, AntiCsrfToken>();
+	private Map<String, AntiCsrfToken> valueToToken = new HashMap<>();
+	private Map<String, AntiCsrfToken> urlToToken = new HashMap<>();
 	
 	private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
 	private PopupMenuGenerateForm popupMenuGenerateForm = null;
@@ -149,7 +150,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	private List<AntiCsrfToken> getTokens(String reqBody, String targetUrl) {
-		List<AntiCsrfToken> tokens = new ArrayList<AntiCsrfToken>();
+		List<AntiCsrfToken> tokens = new ArrayList<>();
 		Set<String> values = valueToToken.keySet();
 		for (String value : values) {
 			if (reqBody.indexOf(value) >= 0) {
@@ -199,14 +200,14 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			return;
 		}
 
-		valueToToken = new HashMap<String, AntiCsrfToken>();
-		urlToToken = new HashMap<String, AntiCsrfToken>();
+		valueToToken = new HashMap<>();
+		urlToToken = new HashMap<>();
 		// search for tokens...
         try {
 			List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(
 					session.getSessionId(), HistoryReference.TYPE_MANUAL);
 			HistoryFilter filter = new HistoryFilter();
-			filter.setTags(new String[] {TAG});	
+			filter.setTags(Arrays.asList(new String[] {TAG}));
 			AntiCsrfDetectScanner scanner = new AntiCsrfDetectScanner();
 			
 			for (Integer i : list) {
@@ -219,9 +220,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 					scanner.scanHttpResponseReceive(hRef.getHttpMessage(), hRef.getHistoryId(), src);
 				}
 			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-		} catch (HttpMalformedHeaderException e) {
+		} catch (SQLException | HttpMalformedHeaderException e) {
 			log.error(e.getMessage(), e);
 		}
 
@@ -273,7 +272,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			if (hr == null) {
 				return null;
 			}
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder(300);
 			sb.append("<html>\n");
 			sb.append("<body>\n");
 			sb.append("<h3>");

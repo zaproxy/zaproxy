@@ -307,37 +307,14 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 			return tunnelSSLFactory;
 
-		} catch (NoSuchAlgorithmException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (KeyStoreException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (CertificateException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-			//	} catch (IOException e) {
-			//		// Turn into RuntimeException. How to handle this error in a user friendly way?
-			//		throw new RuntimeException(e);
-		} catch (UnrecoverableKeyException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (KeyManagementException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (InvalidKeyException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (NoSuchProviderException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (SignatureException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			// Turn into RuntimeException. How to handle this error in a user friendly way?
-			throw new RuntimeException(e);
-		}
+        } catch (NoSuchAlgorithmException | KeyStoreException
+                | CertificateException | UnrecoverableKeyException
+                | KeyManagementException | InvalidKeyException
+                | NoSuchProviderException | SignatureException | IOException e) {
+            // Turn into RuntimeException. How to handle this error in a user
+            // friendly way?
+            throw new RuntimeException(e);
+        }
 	}
 }
 

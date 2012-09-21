@@ -46,7 +46,7 @@ public class PolicyDialog extends AbstractParamDialog {
 	
 	private static final String[] ROOT = {};
 	private PolicyAllCategoryPanel policyAllCategoryPanel = null;
-	private List<AbstractParamPanel> additionalPanels = new ArrayList<AbstractParamPanel>();
+	private List<AbstractParamPanel> additionalPanels = new ArrayList<>();
 
 	public PolicyDialog() {
         super();

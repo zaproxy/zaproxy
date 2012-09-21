@@ -69,7 +69,6 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionReport");

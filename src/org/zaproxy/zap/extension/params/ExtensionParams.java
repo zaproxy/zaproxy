@@ -68,7 +68,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	private PopupMenuRemoveAntiCSRF popupMenuRemoveAntiCsrf = null;
 	private PopupMenuAddSession popupMenuAddSession = null;
 	private PopupMenuRemoveSession popupMenuRemoveSession = null;
-	private Map <String, SiteParameters> siteParamsMap = new HashMap <String, SiteParameters>();
+	private Map <String, SiteParameters> siteParamsMap = new HashMap <>();
 	
     private Logger logger = Logger.getLogger(ExtensionParams.class);
     
@@ -92,7 +92,6 @@ public class ExtensionParams extends ExtensionAdaptor
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName(NAME);
@@ -203,7 +202,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
-		siteParamsMap = new HashMap <String, SiteParameters>();
+		siteParamsMap = new HashMap <>();
 		this.getParamsPanel().reset();
 		if (session == null) {
 			// Closedown
@@ -443,7 +442,7 @@ public class ExtensionParams extends ExtensionAdaptor
 			
 			// If the HttpSessions extension is active, notify it of the new session token
 			ExtensionHttpSessions extSession = this.getExtensionHttpSessions();
-			if (extSession != null && item != null) {
+			if (extSession != null) {
 				extSession.addHttpSessionToken(this.getParamsPanel().getCurrentSite(), item.getName());
 			}
 			

@@ -28,7 +28,7 @@ public class Test {
 		// * Work out priorities for extending api
 		// * Complete tasks - more for internal use than anything else
 
-		List<Alert> ignoreAlerts = new ArrayList<Alert>(2);
+		List<Alert> ignoreAlerts = new ArrayList<>(2);
 		ignoreAlerts.add(new Alert("Cookie set without HttpOnly flag", null, Risk.Low, Reliability.Warning, null, null));
 		ignoreAlerts.add(new Alert(null, null, Risk.Low, Reliability.Warning, null, null));
 		
@@ -39,7 +39,7 @@ public class Test {
 			e.printStackTrace();
 		}
 
-		List<Alert> requireAlerts = new ArrayList<Alert>(1);
+		List<Alert> requireAlerts = new ArrayList<>(1);
 		//ignoreAlerts.add(new Alert(null, null, null, null, null, null));
 		requireAlerts.add(new Alert("Not present", null, Risk.Low, Reliability.Warning, null, null));
 		try {

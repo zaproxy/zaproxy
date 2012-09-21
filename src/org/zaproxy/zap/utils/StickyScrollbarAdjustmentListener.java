@@ -30,6 +30,7 @@ import java.awt.event.AdjustmentListener;
 public class StickyScrollbarAdjustmentListener implements AdjustmentListener {
 	private int previousMaximum;
 
+	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		Adjustable source = (Adjustable) e.getSource();
 

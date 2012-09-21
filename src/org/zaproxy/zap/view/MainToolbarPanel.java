@@ -34,6 +34,7 @@ import javax.swing.JToolBar;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -43,8 +44,11 @@ import org.parosproxy.paros.view.View;
 public class MainToolbarPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger logger = Logger.getLogger(MainToolbarPanel.class);
+	
 	private JToolBar toolbar = null;
- 	private JComboBox modeSelect = null;
+ 	private JComboBox<String> modeSelect = null;
 	private JButton btnNew = null;
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
@@ -129,9 +133,9 @@ public class MainToolbarPanel extends JPanel {
 		getToolbar().addSeparator();
 	}
 	
-	private JComboBox getModeSelect() {
+	private JComboBox<String> getModeSelect() {
 		if (modeSelect == null) {
-			modeSelect = new JComboBox();
+			modeSelect = new JComboBox<>();
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.safe.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.protect.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.standard.select"));
@@ -178,9 +182,9 @@ public class MainToolbarPanel extends JPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().newSession(true);
-					} catch (Exception e1) {
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
 						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.newSession.error"));
-						e1.printStackTrace();
 					}
 				}
 			});
@@ -200,9 +204,9 @@ public class MainToolbarPanel extends JPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().openSession();
-					} catch (Exception e1) {
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
 						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.openSession.error"));
-						e1.printStackTrace();
 					}
 				}
 			});
@@ -222,9 +226,9 @@ public class MainToolbarPanel extends JPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Control.getSingleton().getMenuFileControl().saveAsSession();
-					} catch (Exception e1) {
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
 						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.saveSession.error"));
-						e1.printStackTrace();
 					}
 				}
 			});
@@ -244,9 +248,9 @@ public class MainToolbarPanel extends JPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
-					} catch (Exception e1) {
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
 						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.SessionSession.error"));
-						e1.printStackTrace();
 					}
 				}
 			});
@@ -285,8 +289,8 @@ public class MainToolbarPanel extends JPanel {
 						View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_LEFT_FULL);
 						try {
 							Model.getSingleton().getOptionsParam().getConfig().save();
-						} catch (ConfigurationException e1) {
-							e1.printStackTrace();
+						} catch (ConfigurationException ex) {
+							logger.error(ex.getMessage(), ex);
 						}
 					} else {
 						((JToggleButton)e.getSource()).setSelected(true);
@@ -313,8 +317,8 @@ public class MainToolbarPanel extends JPanel {
 						View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_BOTTOM_FULL);
 						try {
 							Model.getSingleton().getOptionsParam().getConfig().save();
-						} catch (ConfigurationException e1) {
-							e1.printStackTrace();
+						} catch (ConfigurationException ex) {
+							logger.error(ex.getMessage(), ex);
 						}
 					} else {
 						((JToggleButton)e.getSource()).setSelected(true);

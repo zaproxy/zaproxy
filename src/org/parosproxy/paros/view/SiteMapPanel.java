@@ -62,7 +62,7 @@ public class SiteMapPanel extends JPanel {
 	private View view = null;
 	
 	// ZAP: Added SiteMapListenners
-	private List<SiteMapListener> listenners = new ArrayList<SiteMapListener>();
+	private List<SiteMapListener> listenners = new ArrayList<>();
 	
 	/**
 	 * This is the default constructor
@@ -81,8 +81,6 @@ public class SiteMapPanel extends JPanel {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
 		this.setLayout(new CardLayout());

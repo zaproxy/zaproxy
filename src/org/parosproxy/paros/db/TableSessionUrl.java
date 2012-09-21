@@ -17,8 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 
 package org.parosproxy.paros.db;
 
@@ -103,7 +101,7 @@ public class TableSessionUrl extends AbstractTable {
     
 
     public List<RecordSessionUrl> getUrlsForType (int type) throws SQLException {
-    	List<RecordSessionUrl> result = new ArrayList<RecordSessionUrl>();
+    	List<RecordSessionUrl> result = new ArrayList<>();
     	psGetAlluRLSForType.setInt(1, type);
     	ResultSet rs = psGetAlluRLSForType.executeQuery();
     	while (rs.next()) {

@@ -31,7 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
 abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
 
 
-    private Vector<Variant> listVariant = new Vector<Variant>();
+    private Vector<Variant> listVariant = new Vector<>();
     
     private Variant variant = null;
     private NameValuePair originalPair = null;

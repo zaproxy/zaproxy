@@ -40,7 +40,7 @@ public class OptionsInvokeTableModel extends AbstractTableModel {
 		Constant.messages.getString("invoke.options.label.name"), 
 		Constant.messages.getString("invoke.options.label.command")};
     
-    private List<InvokableApp> listApps = new ArrayList<InvokableApp>();
+    private List<InvokableApp> listApps = new ArrayList<>();
     
     /**
      * 
@@ -82,12 +82,12 @@ public class OptionsInvokeTableModel extends AbstractTableModel {
      * @param apps The listAuth to set.
      */
     public void setListInvokableApps(List<InvokableApp> apps) {
-        this.listApps = new ArrayList<InvokableApp>(apps);
+        this.listApps = new ArrayList<>(apps);
   	  	fireTableDataChanged();
     }
     
     public List<InvokableApp> getListInvokableApps() {
-        return new ArrayList<InvokableApp>(listApps);
+        return new ArrayList<>(listApps);
     }
 
     public void addInvokableApp(InvokableApp app) {

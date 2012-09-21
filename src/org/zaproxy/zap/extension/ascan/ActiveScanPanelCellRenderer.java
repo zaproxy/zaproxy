@@ -35,7 +35,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
-public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRenderer {
+public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRenderer<HistoryReference> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -63,8 +63,6 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
     	// ZAP: Added flag image
@@ -241,12 +239,11 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends HistoryReference> list, HistoryReference ref, int index, boolean isSelected, boolean cellHasFocus) {
         /*
         HistoryReference ref = (HistoryReference) value;
         txtId.setText(Integer.toString(ref.getHistoryId()));
         */
-        HistoryReference ref = (HistoryReference) value;
         try {
             HttpMessage msg = ref.getHttpMessage();
             

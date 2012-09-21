@@ -125,7 +125,7 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 		this.setPreferredSize(new Dimension(700, 800));
 		initialize();
         
-        mapMessageSenders = new HashMap<Class<? extends Message>, MessageSender>();
+        mapMessageSenders = new HashMap<>();
         mapMessageSenders.put(HttpMessage.class, new HttpPanelSender(getRequestPanel(), getResponsePanel()));
 	}
 

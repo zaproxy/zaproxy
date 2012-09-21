@@ -82,8 +82,6 @@ public class WorkbenchPanel extends JPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();

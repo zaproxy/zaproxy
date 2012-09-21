@@ -97,7 +97,7 @@ class ProxyThread implements Runnable {
 	private static Object semaphoreSingleton = new Object();
 //	private Thread forwardThread = null;
     
-    private static Vector<Thread> proxyThreadList = new Vector<Thread>();
+    private static Vector<Thread> proxyThreadList = new Vector<>();
     
 	ProxyThread(ProxyServer server, Socket socket) {
 		parentServer = server;

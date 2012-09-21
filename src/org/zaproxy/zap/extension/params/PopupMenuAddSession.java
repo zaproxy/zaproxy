@@ -58,8 +58,6 @@ public class PopupMenuAddSession extends ExtensionPopupMenuItem {
 
     /**
 	 * This method initialises this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("params.session.add.popup"));

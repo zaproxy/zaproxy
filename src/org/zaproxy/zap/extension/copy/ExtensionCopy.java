@@ -57,8 +57,6 @@ public class ExtensionCopy extends ExtensionAdaptor implements ClipboardOwner {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionCopy");

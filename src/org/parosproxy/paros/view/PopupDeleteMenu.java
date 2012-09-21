@@ -56,8 +56,6 @@ public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("sites.delete.popup"));	// ZAP: i18n

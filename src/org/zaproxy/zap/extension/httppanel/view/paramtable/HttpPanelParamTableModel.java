@@ -48,7 +48,7 @@ public abstract class HttpPanelParamTableModel extends AbstractTableModel {
 	private boolean hasChanged;
 	
 	public HttpPanelParamTableModel() {
-		allParams = new LinkedList<HtmlParameter>();
+		allParams = new LinkedList<>();
 	}
 	
 	@Override

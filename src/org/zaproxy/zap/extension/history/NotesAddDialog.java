@@ -69,8 +69,6 @@ public class NotesAddDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setTitle(Constant.messages.getString("history.addnote.title"));

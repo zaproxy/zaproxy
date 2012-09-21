@@ -17,8 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 
 package org.parosproxy.paros.db;
 
@@ -87,7 +85,7 @@ public class TableParam extends AbstractTable {
 	}
 	
     public List<RecordParam> getAll () throws SQLException {
-    	List<RecordParam> result = new ArrayList<RecordParam>();
+    	List<RecordParam> result = new ArrayList<>();
     	ResultSet rs = psGetAll.executeQuery();
     	while (rs.next()) {
     		result.add(new RecordParam(rs.getLong(PARAMID), rs.getString(SITE), rs.getString(TYPE),  

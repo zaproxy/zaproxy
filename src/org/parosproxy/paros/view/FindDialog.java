@@ -85,8 +85,6 @@ public class FindDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setVisible(false);

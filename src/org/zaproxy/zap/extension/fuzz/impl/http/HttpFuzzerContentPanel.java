@@ -59,7 +59,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
      * the instance variable {@code resultsModel}. Used to delete the
      * {@code HistoryReference}s from the database when no longer needed.
      */
-    private List<Integer> historyReferencesToDelete = new ArrayList<Integer>();
+    private List<Integer> historyReferencesToDelete = new ArrayList<>();
 
     private boolean showTokenRequests;
     
@@ -151,7 +151,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             }
         }
         resultsModel = new HttpFuzzTableModel();
-        historyReferencesToDelete = new ArrayList<Integer>();
+        historyReferencesToDelete = new ArrayList<>();
         getFuzzResultTable().setModel(resultsModel);
     }
     
@@ -221,7 +221,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
     }
 
     public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
-        List<SearchResult> results = new ArrayList<SearchResult>();
+        List<SearchResult> results = new ArrayList<>();
         
         if (resultsModel == null) {
             return results;

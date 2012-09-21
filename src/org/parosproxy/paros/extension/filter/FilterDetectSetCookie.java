@@ -87,7 +87,7 @@ public class FilterDetectSetCookie extends FilterAdaptor {
         
         if (resHeader.getHeader("Set-cookie") != null) {
             Matcher matcher = pattern.matcher(resHeader.toString());
-            List<String> result = new LinkedList<String>();
+            List<String> result = new LinkedList<>();
             
             while (matcher.find()){
                 String cookie = matcher.group(1);

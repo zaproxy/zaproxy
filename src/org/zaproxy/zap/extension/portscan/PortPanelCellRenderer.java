@@ -31,7 +31,7 @@ import javax.swing.ListCellRenderer;
 
 import org.parosproxy.paros.Constant;
 
-public class PortPanelCellRenderer extends JPanel implements ListCellRenderer {
+public class PortPanelCellRenderer extends JPanel implements ListCellRenderer<Integer> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -49,8 +49,6 @@ public class PortPanelCellRenderer extends JPanel implements ListCellRenderer {
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
         
@@ -99,9 +97,7 @@ public class PortPanelCellRenderer extends JPanel implements ListCellRenderer {
     }
 
     @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        
-        Integer port = (Integer) value;
+    public Component getListCellRendererComponent(JList<? extends Integer> list, Integer port, int index, boolean isSelected, boolean cellHasFocus) {
         
 		String portDesc = Constant.messages.getString("port.unknown");
 		if (Constant.messages.containsKey("port." + port)) {

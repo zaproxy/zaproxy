@@ -36,7 +36,7 @@ import org.zaproxy.zap.view.HttpPanelManager;
 public class HttpPanelRequest extends HttpPanel {
 	private static final long serialVersionUID = 1L;
 	
-	private JComboBox comboChangeMethod;
+	private JComboBox<String> comboChangeMethod;
 	
 	private static final String REQUEST_KEY = "request.";
 	
@@ -71,7 +71,7 @@ public class HttpPanelRequest extends HttpPanel {
 	//	private JComboBox getComboChangeMethod() {
 	private void initComboChangeMethod() {
 		if (comboChangeMethod == null) {
-			comboChangeMethod = new JComboBox();
+			comboChangeMethod = new JComboBox<>();
 			comboChangeMethod.setEditable(false);
 			comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
 			comboChangeMethod.addItem(HttpRequestHeader.CONNECT);

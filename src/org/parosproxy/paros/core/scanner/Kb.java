@@ -48,9 +48,9 @@ public class Kb {
 
     // KB related
     // ZAP: Added the type arguments.
-    private TreeMap<String, Object> mapKb = new TreeMap<String, Object>();
+    private TreeMap<String, Object> mapKb = new TreeMap<>();
     // ZAP: Added the type arguments.
-    private TreeMap<String, TreeMap<String, Object>> mapURI = new TreeMap<String, TreeMap<String, Object>>();
+    private TreeMap<String, TreeMap<String, Object>> mapURI = new TreeMap<>();
     
 	/**
 	 * Get a list of the values matching the key.
@@ -137,7 +137,7 @@ public class Kb {
 	    TreeMap<String, Object> map = mapURI.get(uriKey);
 	    if (map == null) {
 	        // ZAP: Added the type argument.
-	        map = new TreeMap<String, Object>();
+	        map = new TreeMap<>();
 	        mapURI.put(uriKey, map);
 	    } // ZAP: Removed else branch.
 	    
@@ -209,7 +209,7 @@ public class Kb {
 	    Vector<Object> v = getList(map, key);
 	    if (v == null) {
 	    	// ZAP: Added the type argument.
-	        v = new Vector<Object>();
+	        v = new Vector<>();
 	        synchronized (map) {
 	            map.put(key, v);
 	        }

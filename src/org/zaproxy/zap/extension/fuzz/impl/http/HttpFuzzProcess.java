@@ -77,7 +77,7 @@ public class HttpFuzzProcess extends AbstractFuzzProcess {
                 tokenValue = extAntiCSRF.getTokenValue(tokenMsg, acsrfToken.getName());
 
                 if (showTokenRequests) {
-                    List<HttpMessage> tokenRequests = new ArrayList<HttpMessage>();
+                    List<HttpMessage> tokenRequests = new ArrayList<>();
                     tokenRequests.add(tokenMsg);
                     fuzzResult.setTokenRequestMessages(tokenRequests);
                 }

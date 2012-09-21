@@ -50,7 +50,7 @@ public class WebSocketFuzzerHandler implements FuzzerHandler, WebSocketObserver 
     
     public WebSocketFuzzerHandler(TableWebSocket webSocketTable) {
         super();
-        wsProxies = new HashMap<Integer, WebSocketProxy>();
+        wsProxies = new HashMap<>();
         table = webSocketTable;
 		viewModel = new WebSocketFuzzMessagesViewModel(table);
     }

@@ -59,7 +59,7 @@ public class AllFilterTableModel extends DefaultTableModel {
      */
     public AllFilterTableModel() {
         // ZAP: Added the type argument.
-        allFilters = new Vector<Filter>();
+        allFilters = new Vector<>();
     }
     
     // ZAP: Added the type argument.
@@ -169,7 +169,7 @@ public class AllFilterTableModel extends DefaultTableModel {
     // ZAP: Added the type arguments.
     public List<Filter> getAllFilters() {
         if (allFilters == null) {
-            allFilters = new Vector<Filter>();
+            allFilters = new Vector<>();
         }
         return allFilters;
     }

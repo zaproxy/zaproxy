@@ -51,7 +51,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
-    private JList listInvoker = null;
+    private JList<?> listInvoker = null;
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
 
@@ -85,8 +85,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 
@@ -166,9 +164,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	}
 	
 	private List<HistoryReference> getSelectedHistoryReferences() {
-	    List <HistoryReference> refs = new ArrayList<HistoryReference>();
+	    List <HistoryReference> refs = new ArrayList<>();
 	    TreePath[] treePaths = null;
-	    Object[] objArray = null;
+	    List<?> selectedValues = null;
 		HttpMessage msg = null;
     	try {
     		switch (lastInvoker) {
@@ -185,9 +183,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		case ascan:
             case fuzz:
     		case history:
-        	    objArray = listInvoker.getSelectedValues();
-        	    if (objArray != null) {
-        	    	for (Object obj : objArray) {
+        	    selectedValues = listInvoker.getSelectedValuesList();
+        	    if (selectedValues != null) {
+        	    	for (Object obj : selectedValues) {
         	    		refs.add((HistoryReference)obj);
         	    	}
         	    }
@@ -204,9 +202,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    }
 				break;
     		case search:
-        	    objArray = listInvoker.getSelectedValues();
-        	    if (objArray != null) {
-        	    	for (Object obj : objArray) {
+        	    selectedValues = listInvoker.getSelectedValuesList();
+        	    if (selectedValues != null) {
+        	    	for (Object obj : selectedValues) {
                 	    SearchResult sr = (SearchResult) obj;
                 	    if (sr != null) {
                 	    	msg = sr.getMessage();
@@ -218,9 +216,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    }
 				break;
     		case bruteforce:
-        	    objArray = listInvoker.getSelectedValues();
-        	    if (objArray != null) {
-        	    	for (Object obj : objArray) {
+        	    selectedValues = listInvoker.getSelectedValuesList();
+        	    if (selectedValues != null) {
+        	    	for (Object obj : selectedValues) {
                 	    BruteForceItem bfi = (BruteForceItem)obj;
             	    	refs.add(new HistoryReference(bfi.getHistoryId()));
         	    	}
@@ -243,7 +241,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     	
         if (invoker.getName().equals("ListLog")) {
         	this.lastInvoker = Invoker.history;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
@@ -271,22 +269,22 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             display = true;
         } else if (invoker.getName().equals("listSearch")) {
         	this.lastInvoker = Invoker.search;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.ascan;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.fuzz;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
-            this.listInvoker = (JList) invoker;
+            this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else {

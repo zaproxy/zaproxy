@@ -67,9 +67,9 @@ public class HttpSessionsParam extends AbstractParam {
 	protected void parse() {
 		// Parse the default token names
 		try {
-			this.defaultTokens = new ArrayList<String>(Arrays.asList(getConfig().getStringArray(DEFAULT_TOKENS_KEY)));
+			this.defaultTokens = new ArrayList<>(Arrays.asList(getConfig().getStringArray(DEFAULT_TOKENS_KEY)));
 		} catch (ConversionException e) {
-			this.defaultTokens = new ArrayList<String>(DEFAULT_TOKENS.length);
+			this.defaultTokens = new ArrayList<>(DEFAULT_TOKENS.length);
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 		if (this.defaultTokens.size() == 0) {

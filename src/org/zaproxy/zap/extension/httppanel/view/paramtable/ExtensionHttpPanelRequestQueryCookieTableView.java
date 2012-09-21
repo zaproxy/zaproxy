@@ -67,8 +67,8 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 		}
 
 		@Override
-		public JComboBox getComboBoxTypes() {
-			JComboBox comboBoxTypes = new JComboBox();
+		public JComboBox<HtmlParameter.Type> getComboBoxTypes() {
+			JComboBox<HtmlParameter.Type> comboBoxTypes = new JComboBox<>();
 			
 			comboBoxTypes.addItem(HtmlParameter.Type.url);
 			comboBoxTypes.addItem(HtmlParameter.Type.cookie);
@@ -89,8 +89,8 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 
 		@Override
 		public void saveAllParams() {
-			TreeSet<HtmlParameter> get = new TreeSet<HtmlParameter>();
-			TreeSet<HtmlParameter> cookies = new TreeSet<HtmlParameter>();
+			TreeSet<HtmlParameter> get = new TreeSet<>();
+			TreeSet<HtmlParameter> cookies = new TreeSet<>();
 			
 			Iterator<HtmlParameter> it = allParams.iterator();
 			while (it.hasNext()) {

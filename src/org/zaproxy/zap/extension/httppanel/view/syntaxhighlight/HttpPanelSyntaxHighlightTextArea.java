@@ -96,7 +96,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		((RSyntaxDocument)getDocument()).setTokenMakerFactory(getTokenMakerFactory());
 		setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
 		
-		syntaxStyles = new Vector<SyntaxStyle>();
+		syntaxStyles = new Vector<>();
 		addSyntaxStyle(PLAIN_SYNTAX_LABEL, SyntaxConstants.SYNTAX_STYLE_NONE);
 		
 		if (syntaxMenu == null) {
@@ -353,7 +353,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		
 		@Override
 		protected Map<String, String> createTokenMakerKeyToClassNameMap() {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 
 			String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
 			map.put(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");

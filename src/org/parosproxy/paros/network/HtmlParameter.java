@@ -28,7 +28,7 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 	private String name;
 	private String value;
 	private Type type;
-	private Set<String> flags = new HashSet<String>();
+	private Set<String> flags = new HashSet<>();
 	
 	public HtmlParameter(Type type, String name, String value) {
 		super();

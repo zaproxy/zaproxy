@@ -194,7 +194,7 @@ public class TableAlert extends AbstractTable {
     public Vector<Integer> getAlertListByScan(int scanId) throws SQLException {
         PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " WHERE " + SCANID + " = ?");
         
-        Vector<Integer> v = new Vector<Integer>();
+        Vector<Integer> v = new Vector<>();
         psReadScan.setInt(1, scanId);
         ResultSet rs = psReadScan.executeQuery();
         while (rs.next()) {
@@ -210,7 +210,7 @@ public class TableAlert extends AbstractTable {
 
         PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " INNER JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SESSIONID = ?");
         
-        Vector<Integer> v = new Vector<Integer>();
+        Vector<Integer> v = new Vector<>();
         psReadSession.setLong(1, sessionId);
         ResultSet rs = psReadSession.executeQuery();
         while (rs.next()) {
@@ -227,7 +227,7 @@ public class TableAlert extends AbstractTable {
 
         PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME);
         
-        Vector<Integer> v = new Vector<Integer>();
+        Vector<Integer> v = new Vector<>();
         ResultSet rs = psReadSession.executeQuery();
         while (rs.next()) {
             int alertId = rs.getInt(ALERTID);
@@ -276,7 +276,7 @@ public class TableAlert extends AbstractTable {
 
     public List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws SQLException {
 
-        List<RecordAlert> result = new ArrayList<RecordAlert>();
+        List<RecordAlert> result = new ArrayList<>();
         psGetAlertsForHistoryId.setLong(1, historyId);
         ResultSet rs = psGetAlertsForHistoryId.executeQuery();
         RecordAlert ra = build(rs);
@@ -293,7 +293,7 @@ public class TableAlert extends AbstractTable {
     public Vector<Integer> getAlertList() throws SQLException {
         PreparedStatement psReadScan = getConnection().prepareStatement("SELECT " + ALERTID + " FROM " + TABLE_NAME);
         
-        Vector<Integer> v = new Vector<Integer>();
+        Vector<Integer> v = new Vector<>();
         ResultSet rs = psReadScan.executeQuery();
         while (rs.next()) {
             v.add(Integer.valueOf(rs.getInt(ALERTID)));

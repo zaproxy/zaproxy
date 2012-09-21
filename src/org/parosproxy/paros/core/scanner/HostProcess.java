@@ -64,7 +64,7 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     
     // time related 
-    private HashMap<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
+    private HashMap<Long, Long> mapPluginStartTime = new HashMap<>();
     private long hostProcessStartTime = 0;
 
 
@@ -151,7 +151,7 @@ public class HostProcess implements Runnable {
             return;
         }
         
-        Set<SiteNode> parentNodes = new HashSet<SiteNode>();
+        Set<SiteNode> parentNodes = new HashSet<>();
         parentNodes.add(node);
         
         scanSingleNode(plugin, node);

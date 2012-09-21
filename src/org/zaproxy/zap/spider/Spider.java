@@ -121,8 +121,8 @@ public class Spider {
 		this.connectionParam = connectionParam;
 		this.model = model;
 		this.controller = new SpiderController(this);
-		this.listeners = new LinkedList<SpiderListener>();
-		this.seedList = new ArrayList<URI>();
+		this.listeners = new LinkedList<>();
+		this.seedList = new ArrayList<>();
 		this.cookieManager = new CookieManager();
 
 		init();

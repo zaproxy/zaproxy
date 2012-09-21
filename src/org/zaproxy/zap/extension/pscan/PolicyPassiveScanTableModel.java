@@ -39,7 +39,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 									Constant.messages.getString("ascan.policy.table.testname"), 
 									Constant.messages.getString("ascan.policy.table.enabled")};
 
-    private List<PluginPassiveScanner> listScanners = new ArrayList<PluginPassiveScanner>();
+    private List<PluginPassiveScanner> listScanners = new ArrayList<>();
     
     /**
      * 

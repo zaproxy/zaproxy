@@ -227,7 +227,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 			return table.getMessages(getCriterionMessage(), getCriterionOpcodes(), offset, length, PAYLOAD_PREVIEW_LENGTH);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			return new ArrayList<WebSocketMessageDTO>();
+			return new ArrayList<>(0);
 		}
 	}
 

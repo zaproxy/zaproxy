@@ -40,14 +40,14 @@ public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
 
-    private static Vector<Plugin> listAllPlugin = new Vector<Plugin>();
-    private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<Integer, Plugin>();
-    private static TreeMap<String, Plugin> mapAllPluginOrderCodeName = new TreeMap<String, Plugin>();
+    private static Vector<Plugin> listAllPlugin = new Vector<>();
+    private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<>();
+    private static TreeMap<String, Plugin> mapAllPluginOrderCodeName = new TreeMap<>();
     private static DynamicLoader parosLoader = null;
     private static DynamicLoader zapLoader = null;
-    private Vector<Plugin> listPending = new Vector<Plugin>();
-    private Vector<Plugin> listRunning = new Vector<Plugin>();
-    private Vector<Plugin> listCompleted = new Vector<Plugin>();
+    private Vector<Plugin> listPending = new Vector<>();
+    private Vector<Plugin> listRunning = new Vector<>();
+    private Vector<Plugin> listCompleted = new Vector<>();
     private int	totalPluginToRun = 0;
     
     /**

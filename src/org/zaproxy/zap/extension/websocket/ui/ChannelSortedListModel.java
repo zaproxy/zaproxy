@@ -21,7 +21,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.utils.SortedListModel;
 
-public class ChannelSortedListModel extends SortedListModel {
+public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO> {
 
 	private static final long serialVersionUID = 83057590716441165L;
 
@@ -73,7 +73,7 @@ public class ChannelSortedListModel extends SortedListModel {
 		synchronized (this) {
 			final int index = indexOf(channel);
 			if (index != -1) {
-				WebSocketChannelDTO old = (WebSocketChannelDTO) getElementAt(index);
+				WebSocketChannelDTO old = getElementAt(index);
 				old.endTimestamp = channel.endTimestamp;
 
 				fireContentsChanged(this, index, index);

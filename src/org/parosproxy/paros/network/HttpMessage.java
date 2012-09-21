@@ -73,7 +73,7 @@ public class HttpMessage implements Message {
     // ZAP: Added note to HttpMessage
     private String note = "";
     // ZAP: Support for multiple tags
-    private Vector<String> tags = new Vector<String>();
+    private Vector<String> tags = new Vector<>();
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added logger
@@ -425,7 +425,7 @@ public class HttpMessage implements Message {
 	}
 	
 	public TreeSet<String> getParamNameSet(String params) {
-	    TreeSet<String> set = new TreeSet<String>();
+	    TreeSet<String> set = new TreeSet<>();
 	    String[] keyValue = staticPatternParam.split(params);
 		String key = null;
 		int pos = 0;
@@ -457,7 +457,7 @@ public class HttpMessage implements Message {
 
 	// ZAP: Introduced HtmlParameter
 	private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type, String params) {
-		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		TreeSet<HtmlParameter> set = new TreeSet<>();
 		//!!! note: this means param not separated by & is not parsed
 	    String[] keyValue = staticPatternParam.split(params);
 	    // TODO need to parse the header to split out params if separated by semicolons
@@ -497,7 +497,7 @@ public class HttpMessage implements Message {
 	
 	// ZAP: Added getParamNames
 	public String [] getParamNames() {
-		Vector<String> v = new Vector<String>();
+		Vector<String> v = new Vector<>();
 		try {
 			// Get the params names from the query
 			String query = this.getRequestHeader().getURI().getQuery();
@@ -571,7 +571,7 @@ public class HttpMessage implements Message {
 	}
 	
 	public String getCookieParamsAsString() {
-		List<String> cookies = new LinkedList<String>();
+		List<String> cookies = new LinkedList<>();
         if (! this.getRequestHeader().isEmpty()) {
         	addAll(cookies,this.getRequestHeader().getHeaders(HttpHeader.COOKIE));
         }
@@ -600,7 +600,7 @@ public class HttpMessage implements Message {
 	
 	// ZAP: Added getCookieParams
 	public TreeSet<HtmlParameter> getCookieParams() {
-		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		TreeSet<HtmlParameter> set = new TreeSet<>();
 		
 	    if (! this.getRequestHeader().isEmpty()) {
 	    	set.addAll(this.getRequestHeader().getCookieParams());

@@ -43,9 +43,9 @@ public class FilterFactory {
 
     private DynamicLoader loader = null;
     // ZAP: Added the type arguments.
-    private static TreeMap<Integer, Filter> mapAllFilter = new TreeMap<Integer, Filter>();
+    private static TreeMap<Integer, Filter> mapAllFilter = new TreeMap<>();
     // ZAP: Added the type arguments.
-    private Vector<Filter> listAllFilter = new Vector<Filter>();
+    private Vector<Filter> listAllFilter = new Vector<>();
 
     public void loadAllFilter() {
         if (loader == null) {

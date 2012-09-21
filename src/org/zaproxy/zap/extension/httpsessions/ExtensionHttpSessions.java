@@ -149,7 +149,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	@Override
 	public void init() {
 		super.init();
-		this.sessionTokens = new HashMap<String, LinkedHashSet<String>>();
+		this.sessionTokens = new HashMap<>();
 	}
 
 	/* (non-Javadoc)
@@ -285,10 +285,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 */
 	private void markRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
-			removedDefaultTokens = new HashMap<String, HashSet<String>>(1);
+			removedDefaultTokens = new HashMap<>(1);
 		HashSet<String> removedSet = removedDefaultTokens.get(site);
 		if (removedSet == null) {
-			removedSet = new HashSet<String>(1);
+			removedSet = new HashSet<>(1);
 			removedDefaultTokens.put(site, removedSet);
 		}
 		removedSet.add(token.toLowerCase(Locale.ENGLISH));
@@ -336,7 +336,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	public void addHttpSessionToken(String site, String token) {
 		LinkedHashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null) {
-			siteTokens = new LinkedHashSet<String>();
+			siteTokens = new LinkedHashSet<>();
 			sessionTokens.put(site, siteTokens);
 		}
 		log.info("Added new session token for site '" + site + "': " + token);
@@ -422,7 +422,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 */
 	protected HttpSessionsSite getHttpSessionsSite(String site) {
 		if (sessions == null) {
-			sessions = new HashMap<String, HttpSessionsSite>();
+			sessions = new HashMap<>();
 		}
 		HttpSessionsSite hss = sessions.get(site);
 		if (hss == null) {

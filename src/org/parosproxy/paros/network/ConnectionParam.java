@@ -65,7 +65,7 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-	private Vector<HostAuthentication> listAuth = new Vector<HostAuthentication>();
+	private Vector<HostAuthentication> listAuth = new Vector<>();
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;

@@ -87,8 +87,6 @@ public abstract class AbstractFrame extends JFrame {
 	}
 	/**
 	 * This method initializes this
-	 *
-	 * @return void
 	 */
 	private void initialize() {
 		// ZAP: Rebrand
@@ -263,7 +261,7 @@ public abstract class AbstractFrame extends JFrame {
 
 	protected List<Image> loadIconImages() {
 		if (icons == null) {
-			icons = new ArrayList<Image>(4);
+			icons = new ArrayList<>(4);
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap16x16.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap32x32.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap48x48.png")));

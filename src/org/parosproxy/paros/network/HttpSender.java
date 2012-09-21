@@ -70,7 +70,7 @@ public class HttpSender {
     // Issue 90
     private static boolean allowUnsafeSSLRenegotiation = false;
     
-    private static List<HttpSenderListener> listeners = new ArrayList<HttpSenderListener>();
+    private static List<HttpSenderListener> listeners = new ArrayList<>();
     private static Comparator<HttpSenderListener> listenersComparator = null;;
 
     static {        

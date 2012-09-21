@@ -85,7 +85,6 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
 
@@ -269,7 +268,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 	}
 	
 	private List<RegexAutoTagScanner> getRegexAutoTags(List<PassiveScanner> scannerList) {
-		List<RegexAutoTagScanner> ratsList = new ArrayList<RegexAutoTagScanner>();
+		List<RegexAutoTagScanner> ratsList = new ArrayList<>();
 		for (PassiveScanner scanner : scannerList) {
 			if (scanner instanceof RegexAutoTagScanner) {
 				ratsList.add((RegexAutoTagScanner)scanner);
@@ -320,8 +319,8 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 			
 			// Set up the sortable columns
 			TableRowSorter<TableModel> sorter 
-				= new TableRowSorter<TableModel>(tableAuth.getModel());
-			List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+				= new TableRowSorter<>(tableAuth.getModel());
+			List <RowSorter.SortKey> sortKeys = new ArrayList<>(1);
 			sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 			sorter.setSortKeys(sortKeys); 
 			sorter.setSortable(1, false);	// enums not handled well

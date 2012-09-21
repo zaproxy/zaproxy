@@ -92,6 +92,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	/* (non-Javadoc)
 	 * 
 	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String) */
+	@Override
 	protected SiteNode getSiteNode(String site) {
 		return super.getSiteNode(site);
 	}

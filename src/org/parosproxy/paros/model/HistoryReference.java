@@ -97,8 +97,8 @@ public class HistoryReference {
 
     public HistoryReference(int historyId) throws HttpMalformedHeaderException, SQLException {
 		RecordHistory history = null;
-		this.icons =  new ArrayList<String>();
-		this.clearIfManual = new ArrayList<Boolean>();
+		this.icons =  new ArrayList<>();
+		this.clearIfManual = new ArrayList<>();
 		history = staticTableHistory.read(historyId);
 		if (history == null) {
 			throw new HttpMalformedHeaderException();
@@ -116,8 +116,8 @@ public class HistoryReference {
 	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
 		
 		RecordHistory history = null;	
-		this.icons =  new ArrayList<String>();
-		this.clearIfManual = new ArrayList<Boolean>();
+		this.icons =  new ArrayList<>();
+		this.clearIfManual = new ArrayList<>();
 		history = staticTableHistory.write(session.getSessionId(), historyType, msg);		
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
@@ -302,7 +302,7 @@ public class HistoryReference {
    }
    
    public List<String> getTags() {
-	   List <String> tags = new ArrayList<String>();
+	   List <String> tags = new ArrayList<>();
        try {
            List<RecordTag> rTags = staticTableTag.getTagsForHistoryID(historyId);
            for (RecordTag rTag : rTags) {
@@ -341,7 +341,7 @@ public class HistoryReference {
 	   
 	   //If this is the first alert
 	   if(alerts==null)
-		   alerts=new ArrayList<Alert>(1);
+		   alerts=new ArrayList<>(1);
 	   
 	   for (Alert a : alerts) {
 		   if (alert.equals(a)) {

@@ -50,8 +50,8 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 		}
 
 		@Override
-		public JComboBox getComboBoxTypes() {
-			JComboBox comboBoxTypes = new JComboBox();
+		public JComboBox<HtmlParameter.Type> getComboBoxTypes() {
+			JComboBox<HtmlParameter.Type> comboBoxTypes = new JComboBox<>();
 			
 			comboBoxTypes.addItem(HtmlParameter.Type.form);
 			
@@ -70,7 +70,7 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 
 		@Override
 		public void saveAllParams() {
-			TreeSet<HtmlParameter> form = new TreeSet<HtmlParameter>();
+			TreeSet<HtmlParameter> form = new TreeSet<>();
 			
 			Iterator<HtmlParameter> it = allParams.iterator();
 			while (it.hasNext()) {

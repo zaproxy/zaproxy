@@ -46,9 +46,9 @@ public class LocaleUtils {
 		List<String> locales;
 		if (files == null || files.length == 0) {
 			logger.error("Failed to find any locale files in directory " + dir.getAbsolutePath());
-			locales = new ArrayList<String>(1);
+			locales = new ArrayList<>(1);
 		} else {
-			locales = new ArrayList<String>(files.length + 1);
+			locales = new ArrayList<>(files.length + 1);
 			// XXX: Doing the sort here doesn't add much to the end user.
 			// This sort the locales (es_ES, in_ID). The sort should be made on
 			// the names ("español", "Bahasa Indonesia") returned by the method

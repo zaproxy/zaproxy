@@ -68,6 +68,7 @@ public class HttpFuzzerHandler implements FuzzerHandler {
         return fuzzerPanel;
     }
     
+    @Override
     public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
         return fuzzerPanel.searchResults(pattern, inverse);
     }

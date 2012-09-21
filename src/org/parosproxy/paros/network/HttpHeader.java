@@ -96,7 +96,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	protected String mStartLine = "";
 	protected String mMsgHeader = "";
 	protected boolean mMalformedHeader = false;
-	protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<String, Vector<String>>();
+	protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<>();
 	protected int mContentLength = -1;
 	protected String mLineDelimiter = CRLF;
 	protected String mVersion = "";
@@ -120,7 +120,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 * Inititialization.
 	 */
 	private void init() {
-		mHeaderFields = new Hashtable<String, Vector<String>>();
+		mHeaderFields = new Hashtable<>();
 		mStartLine = "";
 		mMsgHeader = "";
 		mMalformedHeader = false;
@@ -404,7 +404,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 		String key = name.toUpperCase();
 		Vector<String> v = getHeaders(key);
 		if (v == null) {
-			v = new Vector<String>();
+			v = new Vector<>();
 			mHeaderFields.put(key, v);
 		}
 
@@ -425,7 +425,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 		String key = name.toUpperCase();
 		Vector<String> v = getHeaders(key);
 		if (v == null) {
-			v = new Vector<String>();
+			v = new Vector<>();
 			mHeaderFields.put(key, v);
 		}
 

@@ -64,7 +64,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	private static final long serialVersionUID = -5223178126156052670L;
 
 	private Object paramObject = null;
-    private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<String, AbstractParamPanel>();
+    private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<>();
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
 	private JPanel jContentPane = null;
@@ -112,8 +112,6 @@ public class AbstractParamDialog extends AbstractDialog {
 	}
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
 		// enables the options dialog to be in front, but an modal dialog
@@ -370,6 +368,7 @@ public class AbstractParamDialog extends AbstractDialog {
 		}
 		return panelParam;
 	}
+	
 	/**
 	 * @return
 	 */

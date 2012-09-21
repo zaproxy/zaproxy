@@ -22,7 +22,7 @@ import java.util.List;
 
 public class DirCategory {
 	private String name;
-	private List<FileFuzzer> fuzzers = new ArrayList<FileFuzzer>();
+	private List<FileFuzzer> fuzzers = new ArrayList<>();
 	
 	public List<FileFuzzer> getFuzzers() {
 		return fuzzers;

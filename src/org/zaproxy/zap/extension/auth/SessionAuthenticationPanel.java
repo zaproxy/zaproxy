@@ -57,7 +57,6 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());

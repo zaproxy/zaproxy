@@ -50,7 +50,6 @@ public class PopupFlagLoggedInIndicatorMenu extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("auth.popup.login.indicate"));

@@ -63,8 +63,8 @@ import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
 
-    private Vector<Extension> extensionList = new Vector<Extension>();
-    private Vector<ExtensionHook> hookList = new Vector<ExtensionHook>();
+    private Vector<Extension> extensionList = new Vector<>();
+    private Vector<ExtensionHook> hookList = new Vector<>();
     private Model model = null;
 
     private View view = null;
@@ -383,7 +383,7 @@ public class ExtensionLoader {
      * @param cmdLine
      */
     public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
-        Vector<CommandLineArgument[]> allCommandLineList = new Vector<CommandLineArgument[]>();
+        Vector<CommandLineArgument[]> allCommandLineList = new Vector<>();
         for (int i=0; i<hookList.size(); i++) {
             ExtensionHook hook = hookList.get(i);
             CommandLineArgument[] arg = hook.getCommandLineArgument();

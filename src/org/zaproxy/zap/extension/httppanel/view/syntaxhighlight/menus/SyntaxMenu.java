@@ -56,7 +56,7 @@ public class SyntaxMenu extends ExtensionPopupMenu {
 		super(MENU_LABEL);
 
 		syntaxStylesButtonGroup = new ButtonGroup();
-		syntaxOptions = new HashMap<String, JRadioButtonMenuItem>();
+		syntaxOptions = new HashMap<>();
 
 		autoDetectSyntax = new JCheckBoxMenuItem(new ChangeAutoDetectSyntaxAction(AUTO_DETECT_SYNTAX_OPTION));
 		add(autoDetectSyntax);

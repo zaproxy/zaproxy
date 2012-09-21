@@ -56,7 +56,7 @@ public class HttpSession {
 		this.active = false;
 		this.valid = true;
 		this.messagesMatched = 0;
-		this.tokenValues = new HashMap<String, String>(1);
+		this.tokenValues = new HashMap<>(1);
 	}
 
 	/**

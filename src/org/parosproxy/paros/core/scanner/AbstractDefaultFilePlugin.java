@@ -43,7 +43,7 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
     
 
     private URI baseURI = null;    
-    private Vector<URI> listURI = new Vector<URI>();
+    private Vector<URI> listURI = new Vector<>();
 		
 	protected void addTest(String directories, String files) {
 		String[] 	dirList = null,

@@ -58,8 +58,6 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 
     /**
 	 * This method initialises this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("params.anticrsf.remove.popup"));

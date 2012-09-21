@@ -75,7 +75,7 @@ public class View implements ViewDelegate {
 	private HttpPanelResponse responsePanel = null;
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
-	private Vector<JMenuItem> popupList = new Vector<JMenuItem>();
+	private Vector<JMenuItem> popupList = new Vector<>();
 	
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 

@@ -102,10 +102,10 @@ public class HttpPanelManager {
 		private Map<String, List<HttpPanelDefaultViewSelectorFactory>> defaultViews;
 		
 		public HttpPanelManagement() {
-			panels = new ArrayList<HttpPanel> ();
-			components = new ArrayList<HttpPanelComponentFactory> ();
-			views = new HashMap<String, List<HttpPanelViewFactory>> ();
-			defaultViews = new HashMap<String, List<HttpPanelDefaultViewSelectorFactory>> ();
+			panels = new ArrayList<> ();
+			components = new ArrayList<> ();
+			views = new HashMap<> ();
+			defaultViews = new HashMap<> ();
 		}
 		
 		public void addPanel (HttpPanel panel) {
@@ -181,7 +181,7 @@ public class HttpPanelManager {
 				
 				List<HttpPanelViewFactory> componentViews = this.views.get(componentName);
 				if (componentViews == null) {
-					componentViews = new ArrayList<HttpPanelViewFactory> ();
+					componentViews = new ArrayList<> ();
 					this.views.put(componentName, componentViews);
 				}
 				
@@ -200,7 +200,7 @@ public class HttpPanelManager {
 				
 				List<HttpPanelDefaultViewSelectorFactory> defaultViews = this.defaultViews.get(componentName);
 				if (defaultViews == null) {
-					defaultViews = new ArrayList<HttpPanelDefaultViewSelectorFactory> ();
+					defaultViews = new ArrayList<> ();
 					this.defaultViews.put(componentName, defaultViews);
 				}
 				

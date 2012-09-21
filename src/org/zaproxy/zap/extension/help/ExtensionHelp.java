@@ -69,8 +69,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionHelp");

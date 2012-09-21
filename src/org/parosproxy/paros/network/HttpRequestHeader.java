@@ -601,7 +601,7 @@ public class HttpRequestHeader extends HttpHeader {
     }
     
     public TreeSet<HtmlParameter> getCookieParams() {
-		TreeSet<HtmlParameter> set = new TreeSet<HtmlParameter>();
+		TreeSet<HtmlParameter> set = new TreeSet<>();
 		
     	Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
 		if (cookieLines != null) {
@@ -629,7 +629,7 @@ public class HttpRequestHeader extends HttpHeader {
 	 * @throws IllegalArgumentException if a problem is encountered while processing the "Cookie: " header line.
 	 */
 	public List<HttpCookie> getHttpCookies() {
-		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+		List<HttpCookie> cookies = new LinkedList<>();
 
 		// Process each "Cookie: " header line
 		Vector<String> cookiesS = getHeaders(HttpHeader.COOKIE);

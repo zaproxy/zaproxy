@@ -60,8 +60,6 @@ public class LicenseFrame extends AbstractFrame {
 
 	/**
 	 * This method initializes this
-	 *
-	 * @return void
 	 */
 	private void initialize() {
         this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);

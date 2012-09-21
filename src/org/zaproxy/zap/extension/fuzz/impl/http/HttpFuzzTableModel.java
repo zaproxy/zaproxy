@@ -48,7 +48,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
     
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
-    private List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> data = new LinkedList<Pair<HttpFuzzerContentPanel.State, HistoryReference>>();
+    private List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> data = new LinkedList<>();
     
     @Override
     public int getColumnCount() {
@@ -110,7 +110,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
             }
             break;
         case 6:
-            Pair<String, ImageIcon> icons = new Pair<String, ImageIcon>();
+            Pair<String, ImageIcon> icons = new Pair<>();
             HttpFuzzerContentPanel.State state = result.first;
 
             switch (state) {
@@ -183,7 +183,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
 
     public void addHistoryReference(HttpFuzzerContentPanel.State state, HistoryReference historyReference) {
         final int row = data.size();
-        data.add(new Pair<HttpFuzzerContentPanel.State, HistoryReference>(state, historyReference));
+        data.add(new Pair<>(state, historyReference));
         fireTableRowsInserted(row, row);
     }
 

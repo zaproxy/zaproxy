@@ -48,7 +48,7 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 		delegate = SslCertificateServiceImpl.getService();
 	}
 
-	private Map<String, KeyStore> cache = new HashMap<String, KeyStore>();
+	private Map<String, KeyStore> cache = new HashMap<>();
 
 	/* (non-Javadoc)
 	 * @see org.parosproxy.paros.security.SslCertificateService#createCertForHost(java.lang.String)

@@ -67,7 +67,6 @@ public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("history.delete.popup"));	// ZAP: i18n
@@ -91,7 +90,7 @@ public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
         
         if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
             try {
-                JList list = (JList) invoker;
+                JList<?> list = (JList<?>) invoker;
                 if (list.getSelectedIndex() >= 0) {
                     this.setEnabled(true);
                 } else {

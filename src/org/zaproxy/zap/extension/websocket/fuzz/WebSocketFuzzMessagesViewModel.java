@@ -54,7 +54,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	/**
 	 * This list holds all erroneous messages for this view model.
 	 */
-	private List<WebSocketMessageDTO> erroneousMessages = new ArrayList<WebSocketMessageDTO>();
+	private List<WebSocketMessageDTO> erroneousMessages = new ArrayList<>();
 
 	private Integer currentFuzzId = Integer.valueOf(-1);
 
@@ -147,7 +147,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 
 	@Override
 	protected List<Integer> getCriterionOpcodes() {
-		return new ArrayList<Integer>();
+		return new ArrayList<>(0);
 	}
 
 	/**
@@ -212,7 +212,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		
 			if (offset >= sqlRowCount) {
 				offset = offset - (sqlRowCount - 1);
-				return new ArrayList<WebSocketMessageDTO>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
+				return new ArrayList<>(erroneousMessages.subList(offset, Math.min(erroneousRowCount, offset + length)));
 			} else if (offset + length >= sqlRowCount) {
 				int sqlLength = sqlRowCount - offset;
 				List<WebSocketMessageDTO> page = super.loadPage(offset, sqlLength);

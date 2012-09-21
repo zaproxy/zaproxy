@@ -58,9 +58,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JLabel labelThreadsPerHostValue = null;
 	private JLabel labelDelayInMsValue = null;
 	private JCheckBox chkHandleAntiCrsfTokens = null;
-	private JComboBox comboThreshold = null;
+	private JComboBox<String> comboThreshold = null;
 	private JLabel labelThresholdNotes = null;
-	private JComboBox comboStrength = null;
+	private JComboBox<String> comboStrength = null;
 	private JLabel labelStrengthNotes = null;
 	// Not enabled yet - not sure how helpful they are, and can yet show that the cookie scanning finds any issues!
 	//private JCheckBox chkTargetParamsUrl = null;
@@ -75,8 +75,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
@@ -148,9 +146,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	}
 
 
-	private JComboBox getComboThreshold() {
+	private JComboBox<String> getComboThreshold() {
 		if (comboThreshold == null) {
-			comboThreshold = new JComboBox();
+			comboThreshold = new JComboBox<>();
 			comboThreshold.addItem(Constant.messages.getString("ascan.options.level.low"));
 			comboThreshold.addItem(Constant.messages.getString("ascan.options.level.medium"));
 			comboThreshold.addItem(Constant.messages.getString("ascan.options.level.high"));
@@ -178,9 +176,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	}
 
 
-	private JComboBox getComboStrength() {
+	private JComboBox<String> getComboStrength() {
 		if (comboStrength == null) {
-			comboStrength = new JComboBox();
+			comboStrength = new JComboBox<>();
 			comboStrength.addItem(Constant.messages.getString("ascan.options.strength.low"));
 			comboStrength.addItem(Constant.messages.getString("ascan.options.strength.medium"));
 			comboStrength.addItem(Constant.messages.getString("ascan.options.strength.high"));

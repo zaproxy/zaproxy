@@ -72,8 +72,8 @@ public class TableWebSocket extends AbstractTable {
 	
 	private PreparedStatement psSelectMaxChannelId;
 
-	private Queue<WebSocketMessageDTO> messagesBuffer = new LinkedList<WebSocketMessageDTO>();
-	private Queue<WebSocketChannelDTO> channelsBuffer = new LinkedList<WebSocketChannelDTO>();
+	private Queue<WebSocketMessageDTO> messagesBuffer = new LinkedList<>();
+	private Queue<WebSocketChannelDTO> channelsBuffer = new LinkedList<>();
 
     /**
      * Create tables if not already available
@@ -125,7 +125,7 @@ public class TableWebSocket extends AbstractTable {
 							+ ")");
 			DbUtils.executeAndClose(stmt);
 			
-			channelIds = new HashSet<Integer>();
+			channelIds = new HashSet<>();
 		} else {
 			channelIds = null;
 		}
@@ -175,7 +175,7 @@ public class TableWebSocket extends AbstractTable {
 				+ "WHERE channel_id = ?");
 		
 		if (channelIds == null) {
-			channelIds = new HashSet<Integer>();
+			channelIds = new HashSet<>();
 			PreparedStatement psSelectChannelIds = conn.prepareStatement("SELECT c.channel_id "
 					+ "FROM websocket_channel AS c "
 					+ "ORDER BY c.channel_id");
@@ -291,7 +291,7 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketMessageDTO>(0);
+				return new ArrayList<>(0);
 			}
 			
 			throw e;
@@ -323,7 +323,7 @@ public class TableWebSocket extends AbstractTable {
 	 * @throws SQLException
 	 */
 	private List<WebSocketMessageDTO> buildMessageDTOs(ResultSet rs, boolean interpretLiteralBytes, int payloadLength) throws SQLException {
-		ArrayList<WebSocketMessageDTO> messages = new ArrayList<WebSocketMessageDTO>();
+		ArrayList<WebSocketMessageDTO> messages = new ArrayList<>();
 		try {
 			while (rs.next()) {
 				WebSocketMessageDTO message;
@@ -406,8 +406,8 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
-		ArrayList<String> where = new ArrayList<String>();
-		ArrayList<Object> params = new ArrayList<Object>();
+		ArrayList<String> where = new ArrayList<>();
+		ArrayList<Object> params = new ArrayList<>();
 
 		if (criteria.channel.id != null) {
 			where.add("m.channel_id = ?");
@@ -462,7 +462,7 @@ public class TableWebSocket extends AbstractTable {
 	}
 
 	private List<WebSocketChannelDTO> buildChannelDTOs(ResultSet rs) throws SQLException {
-		ArrayList<WebSocketChannelDTO> channels = new ArrayList<WebSocketChannelDTO>();
+		ArrayList<WebSocketChannelDTO> channels = new ArrayList<>();
 		try {
 			while (rs.next()) {
 				WebSocketChannelDTO channel = new WebSocketChannelDTO();
@@ -610,7 +610,7 @@ public class TableWebSocket extends AbstractTable {
 			stmt = buildMessageCriteriaStatement(query, criteria);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
-				return new ArrayList<WebSocketChannelDTO>(0);
+				return new ArrayList<>(0);
 			}
 			
 			throw e;
@@ -622,8 +622,8 @@ public class TableWebSocket extends AbstractTable {
 	}
 	
 	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketChannelDTO criteria) throws SQLException {
-		List<String> where = new ArrayList<String>();
-		List<Object> params = new ArrayList<Object>();
+		List<String> where = new ArrayList<>();
+		List<Object> params = new ArrayList<>();
 	
 		if (criteria.id != null) {
 			where.add("c.channel_id = ?");

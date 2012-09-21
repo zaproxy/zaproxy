@@ -34,7 +34,7 @@ abstract public class VariantAbstractQuery implements Variant {
     
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
 
-    private Vector<NameValuePair> listParam = new Vector<NameValuePair>();
+    private Vector<NameValuePair> listParam = new Vector<>();
     
     public VariantAbstractQuery() {
         

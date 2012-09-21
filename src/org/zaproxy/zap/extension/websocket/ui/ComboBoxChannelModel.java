@@ -22,7 +22,7 @@ import javax.swing.event.ListDataListener;
 
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 
-public class ComboBoxChannelModel implements ComboBoxModel {
+public class ComboBoxChannelModel implements ComboBoxModel<WebSocketChannelDTO> {
 
     private ChannelSortedListModel delegate;
 
@@ -41,7 +41,7 @@ public class ComboBoxChannelModel implements ComboBoxModel {
         }
 
         for (int i = 0; i < getSize(); i++) {
-            WebSocketChannelDTO channel = (WebSocketChannelDTO) getElementAt(i);
+            WebSocketChannelDTO channel = getElementAt(i);
             if (channelId.equals(channel.id)) {
                 setSelectedItem(channel);
                 return;
@@ -71,7 +71,7 @@ public class ComboBoxChannelModel implements ComboBoxModel {
     }
 
     @Override
-    public Object getElementAt(int index) {
+    public WebSocketChannelDTO getElementAt(int index) {
         return delegate.elementAt(index);
     }
 

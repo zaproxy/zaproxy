@@ -33,8 +33,8 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 	private String name;
 	private HtmlParameter.Type type;
 	private int timesUsed = 0;
-	private Set<String> flags = new HashSet<String>();
-	private Set<String> values = new HashSet<String>();
+	private Set<String> flags = new HashSet<>();
+	private Set<String> values = new HashSet<>();
 	
 	public HtmlParameterStats(String site, String name, HtmlParameter.Type type, String value, Set<String> flags) {
 		this.site = site;

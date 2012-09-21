@@ -45,8 +45,8 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	private static final int MAX_PAGE_SIZE = 50;
 
 	private int dataOffset = 0;
-	private List<T> data = new ArrayList<T>();
-	private SortedSet<Segment> pending = new TreeSet<Segment>();
+	private List<T> data = new ArrayList<>();
+	private SortedSet<Segment> pending = new TreeSet<>();
 
 	/**
 	 * Return number of all items. Scrollbar will appear accordingly. 

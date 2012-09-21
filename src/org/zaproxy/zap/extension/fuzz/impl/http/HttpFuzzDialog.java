@@ -81,6 +81,7 @@ public class HttpFuzzDialog extends FuzzDialog {
         }
     }
     
+    @Override
     protected int addCustomComponents(JPanel panel, int row) {
         int currentRow = row;
         if (incAcsrfToken) {

@@ -212,6 +212,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
      * scans all GET and POST parameters for Path Traversal vulnerabilities
      * TODO: consider looking in header fields and cookies as well
      */
+    @Override
     public void scan () {
     
     	try {
@@ -254,7 +255,7 @@ public class TestPathTraversal extends AbstractAppPlugin {
     		}
     		
 	    	//find all params set in the request (GET/POST)
-	    	TreeSet<HtmlParameter> htmlParams = new TreeSet<HtmlParameter> ();
+	    	TreeSet<HtmlParameter> htmlParams = new TreeSet<> ();
 	    	htmlParams.addAll(getBaseMsg().getUrlParams()); //add in the GET params
 			htmlParams.addAll(getBaseMsg().getFormParams());  //add in the POST params
 			

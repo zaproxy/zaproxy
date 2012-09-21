@@ -49,10 +49,10 @@ public class BreakpointsTableModel extends AbstractTableModel {
 	public BreakpointsTableModel() {
 		super();
 
-		breakpoints = new ArrayList<BreakpointMessageInterface>(0);
-		breakpointsEnabled = new ArrayList<BreakpointMessageInterface>(0);
+		breakpoints = new ArrayList<>(0);
+		breakpointsEnabled = new ArrayList<>(0);
 		
-        mapBreakpointRow = new HashMap<BreakpointMessageInterface, Integer>();
+        mapBreakpointRow = new HashMap<>();
 		
         lastAffectedRow = -1;
 	}

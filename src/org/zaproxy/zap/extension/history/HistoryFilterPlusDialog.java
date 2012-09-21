@@ -72,20 +72,20 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JButton btnReset = null;
 	private JPanel jPanel2 = null;
 	
-	private JList methodList = null;
-	private JList codeList = null;
-	private JList riskList = null;
-	private JList reliabilityList = null;
-	private JList tagList = null;
+	private JList<String> methodList = null;
+	private JList<Integer> codeList = null;
+	private JList<String> riskList = null;
+	private JList<String> reliabilityList = null;
+	private JList<String> tagList = null;
 	
-	private DefaultListModel tagModel = null;
+	private DefaultListModel<String> tagModel = null;
 	
 	private JScrollPane methodScroller = null;
 	private JScrollPane codeScroller = null;
 	private JScrollPane tagScroller = null;
 	private JScrollPane riskScroller = null;
 	private JScrollPane reliabilityScroller = null;
-	private JComboBox notesComboBox = null;
+	private JComboBox<String> notesComboBox = null;
 	
     /**
      * @throws HeadlessException
@@ -107,8 +107,6 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setContentPane(getJPanel());
@@ -217,11 +215,11 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					filter.setMethods(methodList.getSelectedValues());
-					filter.setCodes(codeList.getSelectedValues());
-					filter.setTags(tagList.getSelectedValues());
-					filter.setRisks(riskList.getSelectedValues());
-					filter.setReliabilities(reliabilityList.getSelectedValues());
+					filter.setMethods(methodList.getSelectedValuesList());
+					filter.setCodes(codeList.getSelectedValuesList());
+					filter.setTags(tagList.getSelectedValuesList());
+					filter.setRisks(riskList.getSelectedValuesList());
+					filter.setReliabilities(reliabilityList.getSelectedValuesList());
 					filter.setNote(notesComboBox.getSelectedItem());
 				    exitResult = JOptionPane.OK_OPTION;
 				    HistoryFilterPlusDialog.this.dispose();
@@ -412,7 +410,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getMethodScroller() {
 		if (methodScroller == null) {
-			methodList = new JList(HttpRequestHeader.METHODS);
+			methodList = new JList<>(HttpRequestHeader.METHODS);
 			methodList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			methodList.setLayoutOrientation(JList.VERTICAL);
 			methodList.setVisibleRowCount(HttpRequestHeader.METHODS.length);
@@ -423,11 +421,11 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getCodeScroller() {
 		if (codeScroller == null) {
-			Vector <Integer> codeInts = new Vector<Integer>(HttpStatusCode.CODES.length);
+			Vector <Integer> codeInts = new Vector<>(HttpStatusCode.CODES.length);
 			for (int i : HttpStatusCode.CODES) {
 				codeInts.add(i);
 			}
-			codeList = new JList(codeInts);
+			codeList = new JList<>(codeInts);
 			codeList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			codeList.setLayoutOrientation(JList.VERTICAL);
 			codeScroller = new JScrollPane(codeList);
@@ -437,7 +435,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getRiskScroller() {
 		if (riskScroller == null) {
-			riskList = new JList(Alert.MSG_RISK);
+			riskList = new JList<>(Alert.MSG_RISK);
 			riskList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			riskList.setLayoutOrientation(JList.VERTICAL);
 			riskList.setVisibleRowCount(Alert.MSG_RISK.length);
@@ -448,7 +446,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getReliabilityScroller() {
 		if (reliabilityScroller == null) {
-			reliabilityList = new JList(Alert.MSG_RELIABILITY);
+			reliabilityList = new JList<>(Alert.MSG_RELIABILITY);
 			reliabilityList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			reliabilityList.setLayoutOrientation(JList.VERTICAL);
 			reliabilityList.setVisibleRowCount(Alert.MSG_RELIABILITY.length);
@@ -457,16 +455,16 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		return reliabilityScroller;
 	}
 	
-	private DefaultListModel getTagModel() {
+	private DefaultListModel<String> getTagModel() {
 		if (tagModel == null) {
-			tagModel = new DefaultListModel();
+			tagModel = new DefaultListModel<>();
 		}
 		return tagModel;
 	}
 	
 	private JScrollPane getTagScroller() {
 		if (tagScroller == null) {
-			tagList = new JList(getTagModel());
+			tagList = new JList<>(getTagModel());
 			tagScroller = new JScrollPane(tagList);
 			tagScroller.setPreferredSize(new Dimension(120, 160));
 			tagScroller.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -475,15 +473,15 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		return tagScroller;
 	}
 	
-	private JComboBox getNotesComboBox () {
+	private JComboBox<String> getNotesComboBox () {
 		if (notesComboBox == null) {
-			notesComboBox = new JComboBox(HistoryFilter.NOTES_OPTIONS);
+			notesComboBox = new JComboBox<>(HistoryFilter.NOTES_OPTIONS);
 		}
 		return notesComboBox;
 	}
 
 	public void setAllTags(List<String> allTags) {
-		Object [] selected = tagList.getSelectedValues();
+		List<String> selected = tagList.getSelectedValuesList();
 		int [] inds = new int[allTags.size()];
 		Arrays.fill(inds, -1);
 

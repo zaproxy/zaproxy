@@ -65,8 +65,6 @@ public class ExtensionPatternSearch extends ExtensionAdaptor {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setName("ExtensionSearch");

@@ -92,7 +92,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		log.debug("Initializing spider thread for site: " + site);
 		this.extension = extension;
 		this.site = site;
-		this.pendingSpiderListeners = new LinkedList<SpiderListener>();
+		this.pendingSpiderListeners = new LinkedList<>();
 		this.resultsModel = new SpiderPanelTableModel();
 
 	}
@@ -150,7 +150,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * 
 	 * @see org.zaproxy.zap.model.GenericScanner#getList() */
 	@Override
-	public DefaultListModel getList() {
+	public DefaultListModel<?> getList() {
 		// Not used, as the SpiderPanel is relying on a TableModel
 		return null;
 	}

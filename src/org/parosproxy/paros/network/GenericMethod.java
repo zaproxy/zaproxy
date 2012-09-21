@@ -49,7 +49,7 @@ public class GenericMethod extends EntityEnclosingMethod {
     /** 
      * The buffered request body consisting of <code>NameValuePair</code>s. 
      */
-    private Vector<NameValuePair> params = new Vector<NameValuePair>();
+    private Vector<NameValuePair> params = new Vector<>();
     private String method = null;
 
     public GenericMethod(String method) {

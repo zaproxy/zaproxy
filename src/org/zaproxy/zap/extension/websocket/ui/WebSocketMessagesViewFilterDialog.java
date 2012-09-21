@@ -84,7 +84,6 @@ public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
 	/**
 	 * This method initializes this
 	 * 
-	 * @return void
 	 */
 	private void initialize() {
         setContentPane(getJPanel());

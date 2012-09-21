@@ -46,10 +46,10 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
-	private JComboBox localeSelect = null;
+	private JComboBox<String> localeSelect = null;
 	private JLabel localeLabel = null;
 	private JLabel localeChangeLabel = null;
-	private Map<String, String> localeMap = new HashMap<String, String>();
+	private Map<String, String> localeMap = new HashMap<>();
 	
     public OptionsLocalePanel() {
         super();
@@ -57,8 +57,6 @@ public class OptionsLocalePanel extends AbstractParamPanel {
    }
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
     private void initialize() {
         this.setLayout(new CardLayout());
@@ -146,9 +144,9 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 		return panelMisc;
 	}
 	
-	private JComboBox getLocaleSelect() {
+	private JComboBox<String> getLocaleSelect() {
 		if (localeSelect == null) {
-			localeSelect = new JComboBox();
+			localeSelect = new JComboBox<>();
 			localeSelect.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

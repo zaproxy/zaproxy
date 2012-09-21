@@ -75,8 +75,8 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     private String componentsConfigurationKey;
     
     private SwitchComponentItemListener switchComponentItemListener;
-    private Hashtable<String, HttpPanelComponentInterface> components = new Hashtable<String, HttpPanelComponentInterface>();
-    private List<HttpPanelComponentInterface> enabledComponents = new ArrayList<HttpPanelComponentInterface>();
+    private Hashtable<String, HttpPanelComponentInterface> components = new Hashtable<>();
+    private List<HttpPanelComponentInterface> enabledComponents = new ArrayList<>();
     private HttpPanelComponentInterface currentComponent;
 
     private JPanel noComponentsPanel;

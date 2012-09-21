@@ -51,7 +51,7 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
     
     
 	private JPanel jPanel = null;
-	private JComboBox cmbUserAgent = null;
+	private JComboBox<String> cmbUserAgent = null;
 	private JLabel jLabel = null;
 	private JLabel jLabel1 = null;
 	private JButton btnOK = null;
@@ -83,8 +83,6 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         this.setTitle(Constant.messages.getString("filter.changeua.title"));
@@ -152,9 +150,9 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	 * 	
 	 * @return javax.swing.JComboBox	
 	 */    
-	private JComboBox getCmbUserAgent() {
+	private JComboBox<String> getCmbUserAgent() {
 		if (cmbUserAgent == null) {
-			cmbUserAgent = new JComboBox();
+			cmbUserAgent = new JComboBox<>();
 		}
 		return cmbUserAgent;
 	}

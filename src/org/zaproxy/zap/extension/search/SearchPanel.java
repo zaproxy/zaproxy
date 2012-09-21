@@ -38,7 +38,6 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -63,13 +62,13 @@ public class SearchPanel extends AbstractPanel {
 	private JToggleButton scopeButton = null;
 	private ZapTextField regEx = null;
 	private JButton btnSearch = null;
-	private JComboBox searchType = null;
+	private JComboBox<String> searchType = null;
 	private JButton btnNext = null;
 	private JButton btnPrev = null;
 	private JCheckBox chkInverse = null;
 	
-	private JList resultsList = new JList();
-	private DefaultListModel resultsModel;
+	private JList<SearchResult> resultsList = new JList<>();
+	private DefaultListModel<SearchResult> resultsModel;
 
 	private HttpPanelRequest requestPanel = null;
 	private HttpPanelResponse responsePanel = null;
@@ -95,8 +94,6 @@ public class SearchPanel extends AbstractPanel {
 
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private  void initialize() {
         this.setLayout(new CardLayout());
@@ -105,7 +102,7 @@ public class SearchPanel extends AbstractPanel {
 		this.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
         
-		resultsModel = new DefaultListModel();
+		resultsModel = new DefaultListModel<>();
 		resultsList.setModel(resultsModel);
 		
 		resultsList.setName("listSearch");
@@ -142,7 +139,7 @@ public class SearchPanel extends AbstractPanel {
 				}
 				
 				if(!e.getValueIsAdjusting()) {
-					displayMessage(((SearchResult)resultsList.getSelectedValue()));
+					displayMessage(resultsList.getSelectedValue());
 				}
 			}
 		});
@@ -237,7 +234,7 @@ public class SearchPanel extends AbstractPanel {
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
 			scopeButton = new JToggleButton();
-			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -246,10 +243,10 @@ public class SearchPanel extends AbstractPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.setSearchJustInScope(scopeButton.isSelected());
 					if (scopeButton.isSelected()) {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target.png")));
 						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
 					} else {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
 					}
 				}
@@ -487,7 +484,7 @@ public class SearchPanel extends AbstractPanel {
     		return;
     	}
     	
-    	SearchResult sr = (SearchResult)resultsList.getSelectedValue();
+    	SearchResult sr = resultsList.getSelectedValue();
     	SearchMatch sm = sr.getNextMatch();
     	
     	if (sm != null) {
@@ -513,7 +510,7 @@ public class SearchPanel extends AbstractPanel {
     		return;
     	}
     	
-    	SearchResult sr = (SearchResult)resultsList.getSelectedValue();
+    	SearchResult sr = resultsList.getSelectedValue();
     	SearchMatch sm = sr.getPrevMatch();
     	
     	if (sm != null) {
@@ -526,13 +523,13 @@ public class SearchPanel extends AbstractPanel {
         		resultsList.setSelectedIndex(resultsList.getModel().getSize()-1);
         	}
     		resultsList.ensureIndexIsVisible(resultsList.getSelectedIndex());
-    		highlightLastResult((SearchResult)resultsList.getSelectedValue());
+    		highlightLastResult(resultsList.getSelectedValue());
     	}
     }
 
-    private JComboBox getSearchType () {
+    private JComboBox<String> getSearchType () {
     	if (searchType == null) {
-	    	searchType = new JComboBox();
+	    	searchType = new JComboBox<>();
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.all"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.url"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.request"));

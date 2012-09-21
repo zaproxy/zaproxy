@@ -68,7 +68,7 @@ public class Database {
     private static final Logger log = Logger.getLogger(Database.class);
 
 	// ZAP: Added type arguments.
-	private Vector<DatabaseListener> listenerList = new Vector<DatabaseListener>();
+	private Vector<DatabaseListener> listenerList = new Vector<>();
 
 	public Database() {
 	    tableHistory = new TableHistory();
