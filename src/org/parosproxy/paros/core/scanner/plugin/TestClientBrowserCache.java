@@ -154,4 +154,9 @@ public class TestClientBrowserCache extends AbstractAppPlugin {
 
     }
 
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
+
 }

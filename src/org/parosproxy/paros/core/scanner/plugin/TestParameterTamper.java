@@ -215,4 +215,9 @@ public class TestParameterTamper extends AbstractAppParamPlugin {
 		
 	}
 
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
+
 }

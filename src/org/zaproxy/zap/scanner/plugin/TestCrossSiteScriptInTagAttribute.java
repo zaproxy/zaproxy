@@ -191,4 +191,10 @@ public class TestCrossSiteScriptInTagAttribute extends AbstractAppParamPlugin {
             log.error(e.getMessage(), e);;
         }
 	}
+    
+	@Override
+	public int getRisk() {
+		return Alert.RISK_HIGH;
+	}
+
 }

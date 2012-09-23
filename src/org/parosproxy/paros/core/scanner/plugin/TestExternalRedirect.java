@@ -187,4 +187,10 @@ public class TestExternalRedirect extends AbstractAppParamPlugin {
 		return false;
 		
 	}
+	
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
+
 }

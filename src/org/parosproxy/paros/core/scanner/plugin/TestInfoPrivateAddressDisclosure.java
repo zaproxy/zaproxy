@@ -156,5 +156,9 @@ public class TestInfoPrivateAddressDisclosure extends AbstractAppPlugin {
 		}
 		
     }
+	@Override
+	public int getRisk() {
+		return Alert.RISK_LOW;
+	}
 
 }

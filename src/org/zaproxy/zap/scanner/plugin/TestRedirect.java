@@ -124,4 +124,10 @@ public class TestRedirect extends AbstractAppParamPlugin {
         }	
 
 	}
+    
+	@Override
+	public int getRisk() {
+		return Alert.RISK_HIGH;
+	}
+
 }

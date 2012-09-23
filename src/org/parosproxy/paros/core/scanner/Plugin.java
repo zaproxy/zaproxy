@@ -64,6 +64,16 @@ public interface Plugin extends Runnable {
      */
     public String getDescription();
     
+    /**
+     * returns the maximum risk alert that is thrown by the plugin
+     * @return the maximum risk alert that is thrown by the plugin
+     * @see Alert.RISK_HIGH
+     * @see Alert.RISK_MEDIUM
+     * @see Alert.RISK_LOW
+     * @see Alert.RISK_INFO
+     */
+    public int getRisk ();
+    
     public void init(HttpMessage msg, HostProcess parent);
     
     public void scan();

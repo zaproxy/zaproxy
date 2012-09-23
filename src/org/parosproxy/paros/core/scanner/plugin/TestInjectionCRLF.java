@@ -166,4 +166,9 @@ public class TestInjectionCRLF extends AbstractAppParamPlugin {
         
     }
 
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
+
 }

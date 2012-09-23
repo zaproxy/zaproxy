@@ -198,5 +198,9 @@ public class TestInfoSessionIdURL extends AbstractAppPlugin {
 		}
 	}
 
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
 
 }

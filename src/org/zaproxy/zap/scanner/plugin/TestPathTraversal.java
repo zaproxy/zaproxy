@@ -447,5 +447,11 @@ public class TestPathTraversal extends AbstractAppPlugin {
 			log.error("Error scanning parameters for Path Traversal: "+ e.getMessage());
 			return;
 		}
-    }    
+    }
+    
+	@Override
+	public int getRisk() {
+		return Alert.RISK_HIGH;
+	}
+
 }

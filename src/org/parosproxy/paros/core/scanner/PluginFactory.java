@@ -26,9 +26,11 @@
 
 package org.parosproxy.paros.core.scanner;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
@@ -41,8 +43,8 @@ public class PluginFactory {
     private static Logger log = Logger.getLogger(PluginFactory.class);
 
     private static Vector<Plugin> listAllPlugin = new Vector<>();
-    private static TreeMap<Integer, Plugin> mapAllPlugin = new TreeMap<>();
-    private static TreeMap<String, Plugin> mapAllPluginOrderCodeName = new TreeMap<>();
+    private static LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
+    private static LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
     private static DynamicLoader parosLoader = null;
     private static DynamicLoader zapLoader = null;
     private Vector<Plugin> listPending = new Vector<>();
@@ -113,7 +115,31 @@ public class PluginFactory {
         }
         List<AbstractPlugin> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
         listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
-
+        
+        //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
+        final Comparator<AbstractPlugin> riskComparator = 
+        		new Comparator<AbstractPlugin>() {
+        	public int compare(AbstractPlugin e1, AbstractPlugin e2) {
+        		if (e1.getRisk() > e2.getRisk())  //High Risk alerts are checked before low risk alerts
+        			return -1;
+        		else if (e1.getRisk() < e2.getRisk())
+        			return 1;
+        		else {
+        			//need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
+        			if (e1.getId() < e2.getId())  //log numbered (older) plugins are run before newer plugins
+            			return -1;
+            		else if (e1.getId() > e2.getId())
+            			return 1;
+            		else
+            			return 0;
+        		}
+        	}
+        };
+        //sort by the criteria above.
+        Collections.sort (listTest, riskComparator);
+                
+        //mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is used 
+        //when mapAllPlugin is iterated
         synchronized (mapAllPlugin) {
             
             mapAllPlugin.clear();

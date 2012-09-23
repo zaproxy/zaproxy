@@ -160,4 +160,10 @@ public class TestCrossSiteScriptInTag extends AbstractAppParamPlugin {
 		}
 		return falsePositive;
 	}
+	
+	@Override
+	public int getRisk() {
+		return Alert.RISK_HIGH;
+	}
+
 }

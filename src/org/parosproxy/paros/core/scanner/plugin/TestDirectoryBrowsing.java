@@ -152,5 +152,10 @@ public class TestDirectoryBrowsing extends AbstractAppPlugin {
             bingo(Alert.RISK_MEDIUM, reliability, msg.getRequestHeader().getURI().toString(), "", "", "", msg);
 		}
 	}
-    
+
+	@Override
+	public int getRisk() {
+		return Alert.RISK_MEDIUM;
+	}
+
 }
