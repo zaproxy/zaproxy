@@ -680,7 +680,7 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	private void scanFinshedEventHandler(String host) {
 		log.debug("scanFinished " + prefix + " on " + currentSite);
-		if (host.equals(currentSite)) {
+		if (host != null && host.equals(currentSite)) {
 			getStartScanButton().setEnabled(true);
 			getStopScanButton().setEnabled(false);
 			getPauseScanButton().setEnabled(false);
@@ -783,7 +783,9 @@ public abstract class ScanPanel extends AbstractPanel {
     }
     
 	public void sessionScopeChanged(Session session) {
-		this.siteSelected(currentSite, true);
+		if (currentSite != null) {
+			this.siteSelected(currentSite, true);
+		}
 	}
 
 	public void sessionModeChanged(Mode mode) {

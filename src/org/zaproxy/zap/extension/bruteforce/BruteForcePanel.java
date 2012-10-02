@@ -956,7 +956,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	public void sessionScopeChanged(Session session) {
-		this.siteSelected(currentSite, true);
+		if (currentSite != null) {
+			this.siteSelected(currentSite, true);
+		}
 	}
 
 	public void sessionModeChanged(Mode mode) {
