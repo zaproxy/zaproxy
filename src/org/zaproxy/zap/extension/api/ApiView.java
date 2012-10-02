@@ -17,50 +17,19 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ApiView {
-
-	private String name = null;
-	private List<String> paramNames = new ArrayList<>();
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+public class ApiView extends ApiElement {
 
 	public ApiView(String name) {
-		super();
-		this.name = name;
+		super(name);
 	}
 
 	public ApiView(String name, List<String> paramNames) {
-		super();
-		this.name = name;
-		this.paramNames = paramNames;
+		super(name, paramNames);
 	}
 	
 	public ApiView(String name, String[] paramNames) {
-		super();
-		this.name = name;
-		if (paramNames != null) {
-			this.paramNames = new ArrayList<>(paramNames.length);
-			for (String param : paramNames) {
-				this.paramNames.add(param);
-			}
-		}
-	}
-
-
-	public void setParamNames(List<String> paramNames) {
-		this.paramNames = paramNames;
-	}
-
-	public List<String> getParamNames() {
-		return paramNames;
+		super(name, paramNames);
 	}
 }
