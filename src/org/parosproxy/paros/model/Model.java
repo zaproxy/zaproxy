@@ -25,6 +25,7 @@
 // ZAP: 2012/06/11 Changed the method copySessionDb to call the method
 // Database.close(boolean, boolean).
 // ZAP: 2012/08/08 Check if file exist.
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.model;
 
@@ -39,6 +40,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.ContextDataFactory;
 
 
 /**
@@ -61,7 +64,8 @@ public class Model {
 	private String currentDBNameUntitled = "";
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(Model.class);
-	private List <SessionListener> sessionListeners = new ArrayList<>();
+	private List <SessionListener> sessionListeners = new ArrayList<SessionListener>();
+	private List <ContextDataFactory> contextDataFactories = new ArrayList <ContextDataFactory>(); 
 	
 	public Model() {
 	    // make sure the variable here will not refer back to model itself.
@@ -140,6 +144,13 @@ public class Model {
 	 */
 	public void discardSession() {
 		getSession().discard();
+	}
+
+	/**
+	 * This method should typically only be called from the Control class
+	 */
+	public void closeSession() {
+		getSession().close();
 	}
 
 
@@ -343,6 +354,22 @@ public class Model {
 
     public void addSessionListener(SessionListener listener) {
     	this.sessionListeners.add(listener);
+    }
+    
+    public void addContextDataFactory(ContextDataFactory cdf) {
+    	this.contextDataFactories.add(cdf);
+    }
+    
+    public void loadContext (Context ctx) {
+		for (ContextDataFactory cdf : this.contextDataFactories) {
+			cdf.loadContextData(ctx);
+		}
+    }
+    
+    public void saveContext (Context ctx) {
+		for (ContextDataFactory cdf : this.contextDataFactories) {
+			cdf.saveContextData(ctx);
+		}
     }
     
 }

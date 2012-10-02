@@ -17,66 +17,79 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.auth;
+package org.zaproxy.zap.extension.stdmenus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
-public class PopupFlagLoginMenu extends PopupMenuSiteNode {
+public class PopupContextExcludeMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
-	private ExtensionAuth extension = null;
+
+    private List<PopupExcludeFromContextMenu> subMenus = new ArrayList<PopupExcludeFromContextMenu>();
 
 	/**
 	 * This method initializes 
 	 * 
 	 */
-	public PopupFlagLoginMenu(ExtensionAuth ext) {
-		super(Constant.messages.getString("auth.popup.login.req"), true);
-		extension = ext;
+	public PopupContextExcludeMenu() {
+		super("excludeFromContextX", true);
 	}
+	/**/
+    @Override
+    public String getParentMenuName() {
+    	return Constant.messages.getString("context.exclude.popup");
+    }
+    
+    @Override
+    public boolean isSubMenu() {
+    	return true;
+    }
+    @Override
+    public boolean isDummyItem () {
+    	return true;
+    }
 	    
-   @Override
-   public boolean isSubMenu() {
-	   return true;
-   }
-   
-   @Override
-   public String getParentMenuName() {
-		return Constant.messages.getString("flag.site.popup");
-   }
-
-   @Override
-   public int getParentMenuIndex() {
-	   return FLAG_MENU_INDEX;
-   }
-   
 	@Override
 	public void performAction(SiteNode sn) throws Exception {
-		this.extension.setLoginRequest(sn);
-		// Show the relevant session dialog
-        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), SessionAuthenticationPanel.PANEL_NAME);
+		// Do nothing
 	}
 
 	@Override
     public void performActions (List<HistoryReference> hrefs) throws Exception {
-		super.performActions(hrefs);
 	}
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {
 		return true;
 	}
-	
+
 	@Override
     public boolean isEnabledForSiteNode (SiteNode sn) {
-    	return true;
+		for (PopupExcludeFromContextMenu menu : subMenus) {
+			View.getSingleton().getPopupMenu().removeMenu(menu);
+			
+		}
+		subMenus.clear();
+		
+        Session session = Model.getSingleton().getSession();
+        List<Context> contexts = session.getContexts();
+        for (Context context : contexts) {
+        	PopupExcludeFromContextMenu piicm = new PopupExcludeFromContextMenu(context);
+        	piicm.setMenuIndex(this.getMenuIndex());
+			View.getSingleton().getPopupMenu().addMenu(piicm);
+			this.subMenus.add(piicm);
+        }
+    	return false;
     }
 
     @Override

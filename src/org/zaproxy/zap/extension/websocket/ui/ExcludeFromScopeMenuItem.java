@@ -59,12 +59,15 @@ public class ExcludeFromScopeMenuItem extends WebSocketMessagesPopupMenuItem {
 		if (message != null) {
 			String url = message.channel.url;
         	url = Pattern.quote(url.substring(0, url.indexOf("?")));
+        	// TODO support contexts
+        	/*
 	        try {
 				Session session = Model.getSingleton().getSession();
 				session.addExcludeFromScopeRegex(url);
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}
+			*/
 		}
 	}
 

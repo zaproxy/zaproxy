@@ -32,10 +32,13 @@
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/07 Removed the unused method changeDisplayOption(int)
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.view;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.Icon;
@@ -53,11 +56,15 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.ContextExcludePanel;
+import org.zaproxy.zap.view.ContextGeneralPanel;
+import org.zaproxy.zap.view.ContextIncludePanel;
+import org.zaproxy.zap.view.ContextListPanel;
+import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
-import org.zaproxy.zap.view.SessionExcludeFromScopePanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
-import org.zaproxy.zap.view.SessionIncludeInScopePanel;
 
 public class View implements ViewDelegate {
 	
@@ -76,7 +83,10 @@ public class View implements ViewDelegate {
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
 	private Vector<JMenuItem> popupList = new Vector<>();
-	
+
+    private List<AbstractParamPanel> contextPanels = new ArrayList<AbstractParamPanel>();
+    private List<ContextPanelFactory> contextPanelFactories = new ArrayList<ContextPanelFactory>();
+
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 
 	/**
@@ -225,16 +235,15 @@ public class View implements ViewDelegate {
         	String dialogTitle = Constant.messages.getString("session.dialog.title");
             sessionDialog = new SessionDialog(getMainFrame(), true, propertiesTitle, dialogTitle);
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
-            sessionDialog.addParamPanel(ROOT, new SessionIncludeInScopePanel(), false);
-            sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScopePanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new ContextListPanel(), false);
         }
         
         return sessionDialog;
     }
-    
+
     public void showSessionDialog(Session session, String panel) {
     	if (sessionDialog != null) {
     		sessionDialog.initParam(session);
@@ -242,6 +251,54 @@ public class View implements ViewDelegate {
     		sessionDialog.showDialog(false, panel);
     	}
     }
+    
+    public void addContext(Context c) {
+    	ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
+		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list")}, contextGenPanel, false);
+		this.contextPanels.add(contextGenPanel);
+		
+		ContextIncludePanel contextIncPanel = new ContextIncludePanel(c);
+		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextIncPanel, false);
+		this.contextPanels.add(contextIncPanel);
+		
+		ContextExcludePanel contextExcPanel = new ContextExcludePanel(c);
+		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
+		this.contextPanels.add(contextExcPanel);
+
+		for (ContextPanelFactory cpf : this.contextPanelFactories) {
+			AbstractParamPanel panel = cpf.getContextPanel(c);
+			getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, panel, false);
+			this.contextPanels.add(panel);
+		}
+    }
+    
+    public void renameContext(Context c) {
+    	for (AbstractParamPanel panel : contextPanels) {
+    		if (panel instanceof ContextGeneralPanel) {
+    			ContextGeneralPanel ctxPanel = (ContextGeneralPanel) panel;
+    			if (ctxPanel.getContextIndex() == c.getIndex()) {
+    				getSessionDialog().renamePanel(ctxPanel, c.getName());
+    				break;
+    			}
+    		}
+    	}
+    }
+    
+    public void addContextPanelFactory (ContextPanelFactory cpf) {
+    	this.contextPanelFactories.add(cpf);
+    }
+    
+	public void discardContexts() {
+		for (AbstractParamPanel panel : contextPanels) {
+			getSessionDialog().removeParamPanel(panel);
+		}
+		for (ContextPanelFactory cpf : this.contextPanelFactories) {
+			cpf.discardContexts();
+		}
+		
+		contextPanels.clear();
+	}
+
     
     public OptionsDialog getOptionsDialog(String title) {
 		// ZAP: FindBugs fix - dont need ROOT

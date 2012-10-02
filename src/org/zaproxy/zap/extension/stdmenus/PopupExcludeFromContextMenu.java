@@ -20,40 +20,52 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
-public class PopupIncludeInScopeMenu extends PopupMenuSiteNode {
+public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
+	
+	private Context context;
 
 	/**
 	 * This method initializes 
 	 * 
 	 */
-	public PopupIncludeInScopeMenu() {
-		super(Constant.messages.getString("sites.include.scope.popup"), true);
-	}
 	    
+	public PopupExcludeFromContextMenu(Context context) {
+		super(context.getName(), true);
+		this.context = context;
+	}
+	
+    @Override
+    public String getParentMenuName() {
+    	return Constant.messages.getString("context.exclude.popup");
+    }
+    
+    @Override
+    public boolean isSubMenu() {
+    	return true;
+    }
+
 	@Override
 	public void performAction(SiteNode sn) throws Exception {
-		sn.setIncludedInScope(true, true);
-
+		
         Session session = Model.getSingleton().getSession();
-        String url = new URI(sn.getHierarchicNodeName(), false).toString();
-        if (sn.isLeaf()) {
-            url = Pattern.quote(url);
-        } else {
-        	url = Pattern.quote(url) + ".*";
-        }
-        session.addIncludeInScopeRegex(url);
+        context.excludeFromContext(sn, ! sn.isLeaf());
+        session.saveContext(context);
+
+        View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context));
+
 	}
 
 	@Override
@@ -68,8 +80,8 @@ public class PopupIncludeInScopeMenu extends PopupMenuSiteNode {
 	
 	@Override
     public boolean isEnabledForSiteNode (SiteNode sn) {
-		if (sn.isIncludedInScope() || sn.isExcludedFromScope()) {
-			// Either explicitly included or excluded, so would have to change that regex in a non trivial way to include!
+		if ( ! context.isIncluded(sn) || context.isExcluded(sn)) {
+			// Either not included or excluded, so would have to change that regex in a non trivial way to include!
 			return false;
 		}
     	return true;

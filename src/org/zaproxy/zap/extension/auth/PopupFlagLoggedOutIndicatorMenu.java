@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -21,50 +19,43 @@ package org.zaproxy.zap.extension.auth;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.text.MessageFormat;
 
 import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.model.Context;
 
 public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
     private JFrame parentFrame = null;
-	private ExtensionAuth extension = null;
 	private String selectedText = null;
+	private int contextId;
     
     /**
 	 * This method initializes 
 	 * 
 	 */
-	public PopupFlagLoggedOutIndicatorMenu(ExtensionAuth ext) {
-		super();
-		this.extension = ext;
-		initialize();
-	}
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("auth.popup.logout.indicate"));
+	public PopupFlagLoggedOutIndicatorMenu(Context ctx) {
+		this.contextId = ctx.getIndex();
+		
+		this.setText(MessageFormat.format(Constant.messages.getString("auth.popup.logout.indicate"), ctx.getName()));
 		this.addActionListener(new java.awt.event.ActionListener() { 
 
 			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {    
-                extension.setLoggedOutIndicationRegex(selectedText);
-    			// Show the relevant session dialog
-    	        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), SessionAuthenticationPanel.PANEL_NAME);
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				performAction();
 			}
 		});
-
 	}
-	
+
+	public void performAction() {
+	}
+
 	@Override
 	public boolean isSubMenu() {
 		return true;
@@ -72,12 +63,12 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
    
 	@Override
 	public String getParentMenuName() {
-		return Constant.messages.getString("flag.site.popup");
+		return Constant.messages.getString("context.flag.popup");
 	}
 
 	@Override
 	public int getParentMenuIndex() {
-		return FLAG_MENU_INDEX;
+		return CONTEXT_FLAG_MENU_INDEX;
 	}
 
 	
@@ -128,5 +119,12 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
         this.parentFrame = parentFrame;
     }
 
+    public String getSelectedText() {
+		return selectedText;
+	}
+    
+	public int getContextId() {
+		return contextId;
+	}
     
 }

@@ -65,13 +65,13 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			// WebSocket icon
 			ExtensionWebSocket extWebSocket = getExtWebSocket();
 			if (extWebSocket != null && extWebSocket.isConnected(getHttpMessageFromNode(value))) {
-				if (node.isIncludedInScope()) {
+				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 					setIcon(WebSocketPanel.connectTargetIcon);
 				} else {
 					setIcon(WebSocketPanel.connectIcon);
 				}
 			} else {
-				if (node.isIncludedInScope()) {
+				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 					setIcon(WebSocketPanel.disconnectTargetIcon);
 				} else {
 					setIcon(WebSocketPanel.disconnectIcon);
@@ -82,20 +82,20 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			if (node.isRoot()) {
 				setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/094.png")));	// 'World' icon
 			} else if (leaf) {
-				if (node.isIncludedInScope()) {
+				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document-target.png")));
 				} else {
 					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document.png")));
 				}
 			} else {
 				if  (expanded) {
-					if (node.isIncludedInScope()) {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open-target.png")));
 					} else {
 						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open.png")));
 					}
 				} else {
-					if (node.isIncludedInScope()) {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-target.png")));
 					} else {
 						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal.png")));

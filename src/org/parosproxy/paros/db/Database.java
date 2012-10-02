@@ -29,6 +29,7 @@
 // method close(boolean) to call the method close(boolean, boolean), added 
 // method close(boolean, boolean).
 // ZAP: 2012/07/16 Added TableWebSocket. Removed unused setters.
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.db;
 
@@ -64,6 +65,7 @@ public class Database {
 	private TableParam tableParam = null;
 	// ZAP: Added TableWebSocket.
 	private TableWebSocket tableWebSocket = null;
+	private TableContext tableContext = null;
 	// ZAP: Added Logger.
     private static final Logger log = Logger.getLogger(Database.class);
 
@@ -83,6 +85,7 @@ public class Database {
 	    tableParam = new TableParam();
 	    // ZAP: Added statement.
 	    tableWebSocket = new TableWebSocket();
+	    tableContext = new TableContext();
 	    
 	    addDatabaseListener(tableHistory);
 	    addDatabaseListener(tableSession);
@@ -96,6 +99,7 @@ public class Database {
 	    addDatabaseListener(tableParam);
 	    // ZAP: Added statement.
 	    addDatabaseListener(tableWebSocket);
+	    addDatabaseListener(tableContext);
 
 	}
 	
@@ -285,5 +289,11 @@ public class Database {
 	public TableWebSocket getTableWebSocket() {
 		return tableWebSocket;
 	}
+
+	public TableContext getTableContext() {
+		return tableContext;
+	}
+	
+	
 	
 }

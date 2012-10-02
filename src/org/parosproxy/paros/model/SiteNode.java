@@ -29,6 +29,7 @@
 //      getIcons to appendIcons.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.model;
 
@@ -80,9 +81,11 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void addCustomIcon(String resourceName, boolean clearIfManual) {
-    	this.icons.add(resourceName);
-    	this.clearIfManual.add(clearIfManual);
-    	this.nodeChanged();
+    	if (! this.icons.contains(resourceName)) {
+	    	this.icons.add(resourceName);
+	    	this.clearIfManual.add(clearIfManual);
+	    	this.nodeChanged();
+    	}
     }
     
     public void removeCustomIcon(String resourceName) {

@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.auth;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -41,8 +42,11 @@ public class AuthAPI extends ApiImplementor {
 	private static final String VIEW_LOGOUT_URL = "logoutUrl";
 	private static final String VIEW_LOGOUT_DATA = "logoutData";
 	private static final String VIEW_LOGGED_OUT_INDICATOR = "loggedOutIndicator";
-	
-	private static final String ACTION_AUTHENTICATE = "authenticate";
+
+	private static final String VIEW_PARAM_CONTEXT_ID = "contextId";
+
+	private static final String ACTION_LOGIN = "login";
+	private static final String ACTION_LOGOUT = "logout";
 	private static final String ACTION_AUTO_REAUTH_ON = "autoReauthOn";
 	private static final String ACTION_AUTO_REAUTH_OFF = "autoReauthOff";
 	private static final String ACTION_SET_LOGIN_NODE = "setLoginUrl";
@@ -50,6 +54,7 @@ public class AuthAPI extends ApiImplementor {
 	private static final String ACTION_SET_LOGOUT_NODE = "setLogoutUrl";
 	private static final String ACTION_SET_LOGOUT_INDICATOR = "setLoggedOutIndicator";
 
+	private static final String ACTION_PARAM_CONTEXT_ID = "contextId";
 	private static final String ACTION_PARAM_URL = "url";
 	private static final String ACTION_PARAM_DATA = "postData";
 	private static final String ACTION_PARAM_INDICATOR = "indicator";
@@ -59,26 +64,35 @@ public class AuthAPI extends ApiImplementor {
 	public AuthAPI (ExtensionAuth extension) {
 		this.extension = extension;
 		
-		this.addApiView(new ApiView(VIEW_LOGIN_URL));
-		this.addApiView(new ApiView(VIEW_LOGIN_DATA));
-		this.addApiView(new ApiView(VIEW_LOGGED_IN_INDICATOR));
+		this.addApiView(new ApiView(VIEW_LOGIN_URL, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
+		this.addApiView(new ApiView(VIEW_LOGIN_DATA, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
+		this.addApiView(new ApiView(VIEW_LOGGED_IN_INDICATOR, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
 		
-		this.addApiView(new ApiView(VIEW_LOGOUT_URL));
-		this.addApiView(new ApiView(VIEW_LOGOUT_DATA));
-		this.addApiView(new ApiView(VIEW_LOGGED_OUT_INDICATOR));
+		this.addApiView(new ApiView(VIEW_LOGOUT_URL, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
+		this.addApiView(new ApiView(VIEW_LOGOUT_DATA, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
+		this.addApiView(new ApiView(VIEW_LOGGED_OUT_INDICATOR, 
+				new String[] {VIEW_PARAM_CONTEXT_ID}));
 		
-		this.addApiAction(new ApiAction(ACTION_AUTHENTICATE));
+		this.addApiAction(new ApiAction(ACTION_LOGIN, 
+				new String[] {ACTION_PARAM_CONTEXT_ID}));
+		this.addApiAction(new ApiAction(ACTION_LOGOUT, 
+				new String[] {ACTION_PARAM_CONTEXT_ID}));
 		this.addApiAction(new ApiAction(ACTION_AUTO_REAUTH_ON));
 		this.addApiAction(new ApiAction(ACTION_AUTO_REAUTH_OFF));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGIN_NODE, 
-				new String[] {ACTION_PARAM_URL, ACTION_PARAM_DATA}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL, ACTION_PARAM_DATA}));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGIN_INDICATOR, 
-				new String[] {ACTION_PARAM_INDICATOR}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_INDICATOR}));
 		
 		this.addApiAction(new ApiAction(ACTION_SET_LOGOUT_NODE, 
-				new String[] {ACTION_PARAM_URL, ACTION_PARAM_DATA}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL, ACTION_PARAM_DATA}));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGOUT_INDICATOR, 
-				new String[] {ACTION_PARAM_INDICATOR}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_INDICATOR}));
 
 	}
 	
@@ -90,13 +104,38 @@ public class AuthAPI extends ApiImplementor {
 	@Override
 	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
-		if (ACTION_AUTHENTICATE.equals(name)) {
-		} else if (ACTION_AUTO_REAUTH_ON.equals(name)) {
-			if (! this.login()) {
-				JSONArray result = new JSONArray();
-				result.add("FAIL");
-				return result;
+		if (ACTION_LOGIN.equals(name)) {
+			try {
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				if (! this.login(contextId)) {
+					JSONArray result = new JSONArray();
+					result.add("FAIL");
+					return result;
+				}
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+						e.getMessage());
 			}
+		} else if (ACTION_LOGOUT.equals(name)) {
+			try {
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				if (! this.logout(contextId)) {
+					JSONArray result = new JSONArray();
+					result.add("FAIL");
+					return result;
+				}
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+						e.getMessage());
+			}
+		} else if (ACTION_AUTO_REAUTH_ON.equals(name)) {
+			this.setReauthenticate(true);
 		} else if (ACTION_AUTO_REAUTH_OFF.equals(name)) {
 			this.setReauthenticate(false);
 		} else if (ACTION_SET_LOGIN_NODE.equals(name)) {
@@ -106,7 +145,10 @@ public class AuthAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_URL);
 			}
 			try {
-				setLoginRequest(url, postData);
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				setLoginRequest(contextId, url, postData);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
@@ -117,7 +159,16 @@ public class AuthAPI extends ApiImplementor {
 			if (ind == null || ind.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_INDICATOR);
 			}
-			setLoggedInIndicationRegex(ind);
+			try {
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				setLoggedInIndicationRegex(contextId, ind);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+						e.getMessage());
+			}
 		} else if (ACTION_SET_LOGOUT_NODE.equals(name)) {
 			String url = params.getString(ACTION_PARAM_URL);
 			String postData = params.getString(ACTION_PARAM_DATA);
@@ -125,7 +176,10 @@ public class AuthAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_URL);
 			}
 			try {
-				setLogoutRequest(url, postData);
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				setLogoutRequest(contextId, url, postData);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
@@ -136,7 +190,16 @@ public class AuthAPI extends ApiImplementor {
 			if (ind == null || ind.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_INDICATOR);
 			}
-			setLoggedOutIndicationRegex(ind);
+			try {
+				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
+				setLoggedOutIndicationRegex(contextId, ind);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+						e.getMessage());
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -149,28 +212,42 @@ public class AuthAPI extends ApiImplementor {
 	public JSON handleApiView(String name, JSONObject params)
 			throws ApiException {
 		JSONArray result = new JSONArray();
-		if (VIEW_LOGIN_URL.equals(name)) {
-			if (getLoginRequest() != null) {
-				result.add(getLoginRequest().getRequestHeader().getURI().toString());
+		try {
+			if (VIEW_LOGIN_URL.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				if (getLoginRequest(contextId) != null) {
+					result.add(getLoginRequest(contextId).getRequestHeader().getURI().toString());
+				}
+			} else if (VIEW_LOGIN_DATA.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				if (getLoginRequest(contextId) != null) {
+					result.add(getLoginRequest(contextId).getRequestBody().toString());
+				}
+			} else if (VIEW_LOGGED_IN_INDICATOR.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				result.add(getLoggedInIndicationRegex(contextId));
+			} else if (VIEW_LOGOUT_URL.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				if (getLogoutRequest(contextId) != null) {
+					result.add(getLogoutRequest(contextId).getRequestHeader().getURI().toString());
+				}
+			} else if (VIEW_LOGOUT_DATA.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				if (getLogoutRequest(contextId) != null) {
+					result.add(getLogoutRequest(contextId).getRequestBody().toString());
+				}
+			} else if (VIEW_LOGGED_OUT_INDICATOR.equals(name)) {
+				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
+				result.add(getLoggedOutIndicationRegex(contextId));
+			} else {
+				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
-		} else if (VIEW_LOGIN_DATA.equals(name)) {
-			if (getLoginRequest() != null) {
-				result.add(getLoginRequest().getRequestBody().toString());
-			}
-		} else if (VIEW_LOGGED_IN_INDICATOR.equals(name)) {
-			result.add(getLoggedInIndicationRegex());
-		} else if (VIEW_LOGOUT_URL.equals(name)) {
-			if (getLogoutRequest() != null) {
-				result.add(getLogoutRequest().getRequestHeader().getURI().toString());
-			}
-		} else if (VIEW_LOGOUT_DATA.equals(name)) {
-			if (getLogoutRequest() != null) {
-				result.add(getLogoutRequest().getRequestBody().toString());
-			}
-		} else if (VIEW_LOGGED_OUT_INDICATOR.equals(name)) {
-			result.add(getLoggedOutIndicationRegex());
-		} else {
-			throw new ApiException(ApiException.Type.BAD_VIEW);
+		} catch (JSONException e) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+					e.getMessage());
 		}
 		return result;
 	}
@@ -205,9 +282,10 @@ public class AuthAPI extends ApiImplementor {
 	/**
 	 * Return the login message defined
 	 * @return
+	 * @throws Exception 
 	 */
-	public HttpMessage getLoginRequest() {
-		return extension.getLoginRequest();
+	public HttpMessage getLoginRequest(int contextId) throws Exception {
+		return extension.getLoginRequest(contextId);
 	}
 	
 	/**
@@ -215,8 +293,8 @@ public class AuthAPI extends ApiImplementor {
 	 * @param sn
 	 * @throws Exception
 	 */
-	public void setLoginRequest(SiteNode sn) throws Exception {
-		extension.setLoginRequest(sn);
+	public void setLoginRequest(int contextId, SiteNode sn) throws Exception {
+		extension.setLoginRequest(contextId, sn);
 	}
 
 	/**
@@ -225,16 +303,17 @@ public class AuthAPI extends ApiImplementor {
 	 * @param postData
 	 * @throws Exception
 	 */
-	public void setLoginRequest(String url, String postData) throws Exception {
-		extension.setLoginRequest(url, postData);
+	public void setLoginRequest(int contextId, String url, String postData) throws Exception {
+		extension.setLoginRequest(contextId, url, postData);
 	}
 
 	/**
 	 * Get the logout request
 	 * @return
+	 * @throws Exception 
 	 */
-	public HttpMessage getLogoutRequest() {
-		return extension.getLogoutRequest();
+	public HttpMessage getLogoutRequest(int contextId) throws Exception {
+		return extension.getLogoutRequest(contextId);
 	}
 
 	/**
@@ -242,8 +321,8 @@ public class AuthAPI extends ApiImplementor {
 	 * @param sn
 	 * @throws Exception
 	 */
-	public void setLogoutRequest(SiteNode sn) throws Exception {
-		extension.setLogoutRequest(sn);
+	public void setLogoutRequest(int contextId, SiteNode sn) throws Exception {
+		extension.setLogoutRequest(contextId, sn);
 	}
 
 	/**
@@ -252,56 +331,62 @@ public class AuthAPI extends ApiImplementor {
 	 * @param postData
 	 * @throws Exception
 	 */
-	public void setLogoutRequest(String url, String postData) throws Exception {
-		extension.setLogoutRequest(url, postData);
+	public void setLogoutRequest(int contextId, String url, String postData) throws Exception {
+		extension.setLogoutRequest(contextId, url, postData);
 	}
 
 	/**
 	 * Login using the login request previously set
 	 * @return
+	 * @throws Exception 
 	 */
-	public boolean login() {
-		return extension.login();
+	public boolean login(int contextId) throws Exception {
+		return extension.login(contextId);
 	}
 
 	/**
 	 * Logout using the logout request previously set
 	 * @return
+	 * @throws Exception 
 	 */
-	public boolean logout() {
-		return extension.logout();
+	public boolean logout(int contextId) throws Exception {
+		return extension.logout(contextId);
 	}
 
 	/**
 	 * Get the regex pattern used to tell if the user is logged out
 	 * @return
+	 * @throws Exception 
 	 */
-	public String getLoggedOutIndicationRegex() {
-		return extension.getLoggedOutIndicationRegex();
+	public String getLoggedOutIndicationRegex(int contextId) throws Exception {
+		return extension.getLoggedOutIndicationRegex(contextId);
 	}
 
 	/**
 	 * Set the regex pattern used to tell if the user is logged out
 	 * @param unauthIndicationRegex
+	 * @throws Exception 
 	 */
-	public void setLoggedOutIndicationRegex(String unauthIndicationRegex) {
-		extension.setLoggedOutIndicationRegex(unauthIndicationRegex);
+	public void setLoggedOutIndicationRegex(int contextId, String unauthIndicationRegex) throws Exception {
+		extension.setLoggedOutIndicationRegex(contextId, unauthIndicationRegex);
 	}
 	
 	/**
 	 * Get the regex pattern used to tell if the user is logged in
 	 * @return
+	 * @throws Exception 
 	 */
-	public String getLoggedInIndicationRegex() {
-		return extension.getLoggedInIndicationRegex();
+	public String getLoggedInIndicationRegex(int contextId) throws Exception {
+		return extension.getLoggedInIndicationRegex(contextId);
 	}
 
 	/**
 	 * Set the regex pattern used to tell if the user is logged in
 	 * @param authIndicationRegex
+	 * @throws Exception 
 	 */
-	public void setLoggedInIndicationRegex(String authIndicationRegex) {
-		this.extension.setLoggedInIndicationRegex(authIndicationRegex);
+	public void setLoggedInIndicationRegex(int contextId, String authIndicationRegex) throws Exception {
+		this.extension.setLoggedInIndicationRegex(contextId, authIndicationRegex);
 	}
 
 }

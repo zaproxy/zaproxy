@@ -1,10 +1,30 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.auth;
 
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
@@ -15,9 +35,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.db.RecordSessionUrl;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -26,36 +47,40 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.view.ContextPanelFactory;
 
-public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener {
+public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener, ContextPanelFactory, ContextDataFactory {
 	
 	public static final String NAME = "ExtensionAuth";
 	
 	private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
-	private static final String LOGOUT_ICON_RESOURCE = "/resource/icon/fugue/door-open-red-arrow.png";
-	private static final String REAUTH_OFF_ICON_RESOURCE = "/resource/icon/fugue/door-open.png";
+	private static final String LOGOUT_ICON_RESOURCE = "/resource/icon/fugue/door-half-open-red-arrow.png";
+	private static final String REAUTH_OFF_ICON_RESOURCE = "/resource/icon/fugue/door-half-open.png";
 	private static final String REAUTH_ON_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-loop-arrow.png";
 
-	private PopupFlagLoginMenu popupFlagLoginMenu= null;
-	private PopupFlagLogoutMenu popupFlagLogoutMenu= null;
-	private PopupFlagLoggedInIndicatorMenu popupFlagAuthIndicatorMenu = null;
-	private PopupFlagLoggedOutIndicatorMenu popupFlagUnauthIndicatorMenu = null;
+	private PopupContextMenuSiteNodeFactory popupFlagLoginMenuFactory= null;
+	private PopupContextMenuSiteNodeFactory popupFlagLogoutMenuFactory= null;
+	private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory= null;
+	private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory= null;
+
 	private JToggleButton reauthenticateButton = null;
 
-	private SessionAuthenticationPanel sessionAuthenticationPanel = null;
 	private HttpSender httpSender = null;
-	private SiteNode loginSiteNode = null;
-	private HttpMessage loginMsg = null;
-	private SiteNode logoutSiteNode = null;
-	private HttpMessage logoutMsg = null;
-	private Pattern loggedInIndicationPattern = null;
-	private Pattern loggedOutIndicationPattern = null;
 	private boolean reauthenticate = false;
 	private Session session = null;
 	private AuthAPI api = null;
+	
+	private Map<Integer,SessionAuthenticationPanel> authPanelMap = new HashMap<Integer,SessionAuthenticationPanel>();
+	private Map<Integer,ContextAuth> contextAuthMap = new HashMap<Integer,ContextAuth>();
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	
@@ -80,17 +105,20 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 		extensionHook.addSessionListener(this);
+		// TODO addthis to the extensionHook??
+		Model.getSingleton().addContextDataFactory(this);
 
-	    if (getView() != null) {	        
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginMenu());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLogoutMenu());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagAuthIndicatorMenu());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagUnauthIndicatorMenu());
+	    if (getView() != null) {	
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginMenuFactory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLogoutMenuFactory());
+
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenuFactory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenuFactory());
+
 			View.getSingleton().addMainToolbarButton(getReauthenticateButton());
 
-			// setup Session Properties
-            this.sessionAuthenticationPanel = new SessionAuthenticationPanel();
-			getView().getSessionDialog().addParamPanel(new String[]{}, sessionAuthenticationPanel, false);
+			// Factory for generating Session Context Auth panels
+			getView().addContextPanelFactory(this);
 
 	    }
 	}
@@ -126,36 +154,142 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		return reauthenticateButton;
 	}
 
-	private PopupFlagLoginMenu getPopupFlagLoginMenu() {
-		if (popupFlagLoginMenu == null) {
-			popupFlagLoginMenu = new PopupFlagLoginMenu(this);
+	private PopupContextMenuSiteNodeFactory getPopupFlagLoginMenuFactory() {
+		if (this.popupFlagLoginMenuFactory == null) {
+			popupFlagLoginMenuFactory = new PopupContextMenuSiteNodeFactory (Constant.messages.getString("context.flag.popup")) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public PopupContextMenu getContextMenu(Context context,
+						String parentMenu) {
+					return new PopupContextMenu(context, parentMenu, 
+							MessageFormat.format(Constant.messages.getString("auth.popup.login.req"), context.getName())) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void performAction(SiteNode sn) throws Exception {
+							setLoginRequest(this.getContext().getIndex(), sn);
+					        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContext()).getName());
+						}
+					};
+				}
+			    @Override
+			    public int getParentMenuIndex() {
+			    	return 3;
+			    }
+			};
 		}
-		return popupFlagLoginMenu;
+		return this.popupFlagLoginMenuFactory;
 	}
 
-	private PopupFlagLogoutMenu getPopupFlagLogoutMenu() {
-		if (popupFlagLogoutMenu == null) {
-			popupFlagLogoutMenu = new PopupFlagLogoutMenu(this);
+	private PopupContextMenuSiteNodeFactory getPopupFlagLogoutMenuFactory() {
+		if (this.popupFlagLogoutMenuFactory == null) {
+			popupFlagLogoutMenuFactory = new PopupContextMenuSiteNodeFactory (Constant.messages.getString("context.flag.popup")) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public PopupContextMenu getContextMenu(Context context,
+						String parentMenu) {
+					return new PopupContextMenu(context, parentMenu, 
+							MessageFormat.format(Constant.messages.getString("auth.popup.logout.req"), context.getName())) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void performAction(SiteNode sn) throws Exception {
+							setLogoutRequest(this.getContext().getIndex(), sn);
+					        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContext()).getName());
+						}
+					};
+				}
+			    @Override
+			    public int getParentMenuIndex() {
+			    	return 3;
+			    }
+			};
 		}
-		return popupFlagLogoutMenu;
+		return this.popupFlagLogoutMenuFactory;
 	}
 
-	private PopupFlagLoggedInIndicatorMenu getPopupFlagAuthIndicatorMenu() {
-		if (popupFlagAuthIndicatorMenu == null) {
-			popupFlagAuthIndicatorMenu = new PopupFlagLoggedInIndicatorMenu(this);
+	private PopupContextMenuItemFactory getPopupFlagLoggedInIndicatorMenuFactory() {
+		if (this.popupFlagLoggedInIndicatorMenuFactory == null) {
+			popupFlagLoggedInIndicatorMenuFactory = new PopupContextMenuItemFactory (Constant.messages.getString("context.flag.popup")) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public ExtensionPopupMenuItem getContextMenu(Context context,
+						String parentMenu) {
+				
+					PopupFlagLoggedInIndicatorMenu subMenu = new PopupFlagLoggedInIndicatorMenu(context) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public void performAction() {
+							try {
+								setLoggedInIndicationRegex(this.getContextId(), this.getSelectedText());
+				    			// Show the relevant session dialog
+						        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContextId()).getName());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					};
+					
+					return subMenu;
+				}
+			    @Override
+			    public int getParentMenuIndex() {
+			    	return 3;
+			    }
+			};
 		}
-		return popupFlagAuthIndicatorMenu;
+		return this.popupFlagLoggedInIndicatorMenuFactory;
 	}
 
-	private PopupFlagLoggedOutIndicatorMenu getPopupFlagUnauthIndicatorMenu() {
-		if (popupFlagUnauthIndicatorMenu == null) {
-			popupFlagUnauthIndicatorMenu = new PopupFlagLoggedOutIndicatorMenu(this);
+	private PopupContextMenuItemFactory getPopupFlagLoggedOutIndicatorMenuFactory() {
+		if (this.popupFlagLoggedOutIndicatorMenuFactory == null) {
+			popupFlagLoggedOutIndicatorMenuFactory = new PopupContextMenuItemFactory (Constant.messages.getString("context.flag.popup")) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public ExtensionPopupMenuItem getContextMenu(Context context,
+						String parentMenu) {
+				
+					PopupFlagLoggedOutIndicatorMenu subMenu = new PopupFlagLoggedOutIndicatorMenu(context) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public void performAction() {
+							try {
+								setLoggedOutIndicationRegex(this.getContextId(), this.getSelectedText());
+				    			// Show the relevant session dialog
+						        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContextId()).getName());
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+						}
+					};
+					
+					return subMenu;
+				}
+			    @Override
+			    public int getParentMenuIndex() {
+			    	return 3;
+			    }
+			};
 		}
-		return popupFlagUnauthIndicatorMenu;
+		return this.popupFlagLoggedOutIndicatorMenuFactory;
 	}
 
-	protected HttpMessage getLoginRequest() {
-		return loginMsg;
+	
+	private ContextAuth getContextAuth (int contextId) {
+		if (this.contextAuthMap.containsKey(contextId)) {
+			return this.contextAuthMap.get(contextId);
+		}
+		ContextAuth ca = new ContextAuth(contextId);
+		this.contextAuthMap.put(contextId, ca);
+		return ca;
+	}
+	
+	protected HttpMessage getLoginRequest(int contextId) throws Exception {
+		return this.getContextAuth(contextId).getLoginMsg();
 	}
 	
 	private void setReauthButtonState(boolean enabled) {
@@ -177,7 +311,17 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			// safe mode - dont allow anything potentially 'bad' ;)
 			this.setReauthButtonState(false);
 		}
-		if (this.loginMsg != null && (this.loggedInIndicationPattern != null || this.loggedOutIndicationPattern != null)) {
+		boolean canAuth = false;
+		List<Context> contexts = Model.getSingleton().getSession().getContexts();
+		for (Context context : contexts) {
+			if (this.getContextAuth(context.getIndex()).canAuthenticate()) {
+				canAuth = true;
+				break;
+			}
+		}
+
+		if (canAuth) {
+			// Can reauthenticate for at least one context
 			if (! this.getReauthenticateButton().isEnabled()) {
 				// Theres now enough info for re-authentication
 				this.setReauthButtonState(true);
@@ -188,34 +332,36 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		}
 	}
 
-	protected void setLoginRequest(SiteNode sn) throws Exception {
-		if (this.loginSiteNode != null) {
-			this.loginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
+	protected void setLoginRequest(int contextId, SiteNode sn) throws Exception {
+		ContextAuth ca = this.getContextAuth(contextId);
+		if (ca.getLoginSiteNode() != null) {
+			ca.getLoginSiteNode().removeCustomIcon(LOGIN_ICON_RESOURCE);
 		}
-		this.loginSiteNode = sn;
+		ca.setLoginSiteNode(sn);
 		if (sn == null) {
-			this.loginMsg = null;
+			ca.setLoginMsg(null);
 	        if (getView() != null) {
-				this.sessionAuthenticationPanel.setLoginURL("");
-				this.sessionAuthenticationPanel.setLoginPostData("");
+	        	this.getContextPanel(contextId).setLoginURL("");
+	        	this.getContextPanel(contextId).setLoginPostData("");
 				this.setReauthButtonState();
 	        }
 			return;
 		}
 		sn.addCustomIcon(LOGIN_ICON_RESOURCE, false);
-		this.setLoginMsg(sn.getHistoryReference().getHttpMessage());
+		this.setLoginMsg(contextId, sn.getHistoryReference().getHttpMessage());
 	}
 
-	private void setLoginMsg(HttpMessage msg) throws Exception {
-		this.loginMsg = msg;
+	private void setLoginMsg(int contextId, HttpMessage msg) throws Exception {
+		ContextAuth ca = this.getContextAuth(contextId);
+		ca.setLoginMsg(msg);
 		
         if (getView() != null) {
-			this.sessionAuthenticationPanel.setLoginURL(this.loginMsg.getRequestHeader().getURI().toString());
+        	this.getContextPanel(contextId).setLoginURL(msg.getRequestHeader().getURI().toString());
 			
-			if (this.loginMsg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST)) {
-				this.sessionAuthenticationPanel.setLoginPostData(this.loginMsg.getRequestBody().toString());
+			if (ca.getLoginMsg().getRequestHeader().getMethod().equals(HttpRequestHeader.POST)) {
+				this.getContextPanel(contextId).setLoginPostData(msg.getRequestBody().toString());
 			} else {
-				this.sessionAuthenticationPanel.setLoginPostData("");
+				this.getContextPanel(contextId).setLoginPostData("");
 			}
 			
 			this.setReauthButtonState();
@@ -223,9 +369,9 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
         
 	}
 
-	protected void setLoginRequest(String url, String postData) throws Exception {
+	protected void setLoginRequest(int contextId, String url, String postData) throws Exception {
 		if (url == null || url.length() == 0) {
-			this.setLoginRequest(null);
+			this.setLoginRequest(contextId, null);
 		} else {
 			String method = HttpRequestHeader.GET;
 			if (postData != null && postData.length() > 0) {
@@ -234,55 +380,59 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			URI uri = new URI(url, true);
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
 			if (sn != null) {
-				this.setLoginRequest(sn);
+				this.setLoginRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem
 				HttpMessage msg = new HttpMessage();
 				msg.setRequestHeader(new HttpRequestHeader(method, uri, HttpHeader.HTTP10));
 				msg.setRequestBody(postData);
-				this.setLoginMsg(msg);
+				this.setLoginMsg(contextId, msg);
 			}
 		}
 	}
 
-	protected HttpMessage getLogoutRequest() {
-		return logoutMsg;
+	protected HttpMessage getLogoutRequest(int contextId) throws Exception {
+		return this.getContextAuth(contextId).getLogoutMsg();
 	}
 
-	protected void setLogoutRequest(SiteNode sn) throws Exception {
-		if (this.logoutSiteNode != null) {
-			this.logoutSiteNode.removeCustomIcon(LOGOUT_ICON_RESOURCE);
+	protected void setLogoutRequest(int contextId, SiteNode sn) throws Exception {
+		ContextAuth ca = this.getContextAuth(contextId);
+
+		if (ca.getLogoutSiteNode() != null) {
+			ca.getLogoutSiteNode().removeCustomIcon(LOGOUT_ICON_RESOURCE);
 		}
-		this.logoutSiteNode = sn;
+		ca.setLogoutSiteNode(sn);
 		if (sn == null) {
-			this.logoutMsg = null;
+			ca.setLogoutMsg(null);
 	        if (getView() != null) {
-				this.sessionAuthenticationPanel.setLogoutURL("");
-				this.sessionAuthenticationPanel.setLogoutPostData("");
+	        	this.getContextPanel(contextId).setLogoutURL("");
+	        	this.getContextPanel(contextId).setLogoutPostData("");
 	        }
 			return;
 		}
 		sn.addCustomIcon(LOGOUT_ICON_RESOURCE, false);
-		this.setLogoutMsg(sn.getHistoryReference().getHttpMessage());
+		this.setLogoutMsg(contextId, sn.getHistoryReference().getHttpMessage());
 	}
 	
-	private void setLogoutMsg(HttpMessage msg) throws Exception {
-		this.logoutMsg = msg;
+	private void setLogoutMsg(int contextId, HttpMessage msg) throws Exception {
+		ContextAuth ca = this.getContextAuth(contextId);
+
+		ca.setLogoutMsg(msg);
 
         if (getView() != null) {
-			this.sessionAuthenticationPanel.setLogoutURL(this.logoutMsg.getRequestHeader().getURI().toString());
+        	this.getContextPanel(contextId).setLogoutURL(msg.getRequestHeader().getURI().toString());
 			
-			if (this.logoutMsg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST)) {
-				this.sessionAuthenticationPanel.setLogoutPostData(this.logoutMsg.getRequestBody().toString());
+			if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST)) {
+				this.getContextPanel(contextId).setLogoutPostData(msg.getRequestBody().toString());
 			} else {
-				this.sessionAuthenticationPanel.setLogoutPostData("");
+				this.getContextPanel(contextId).setLogoutPostData("");
 			}
         }
 	}
 	
-	protected void setLogoutRequest(String url, String postData) throws Exception {
+	protected void setLogoutRequest(int contextId, String url, String postData) throws Exception {
 		if (url == null || url.length() == 0) {
-			this.setLogoutRequest(null);
+			this.setLogoutRequest(contextId, null);
 		} else {
 			String method = HttpRequestHeader.GET;
 			if (postData != null && postData.length() > 0) {
@@ -291,13 +441,13 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			URI uri = new URI(url, true);
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
 			if (sn != null) {
-				this.setLogoutRequest(sn);
+				this.setLogoutRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem
 				HttpMessage msg = new HttpMessage();
 				msg.setRequestHeader(new HttpRequestHeader(method, uri, HttpHeader.HTTP10));
 				msg.setRequestBody(postData);
-				this.setLogoutMsg(msg);
+				this.setLogoutMsg(contextId, msg);
 			}
 		}
 	}
@@ -333,21 +483,22 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 	}
 	
-	private boolean isLoggedIn(HttpMessage msg) {
+	private boolean isLoggedIn(int  contextId, HttpMessage msg) {
 		if (msg == null || msg.getResponseBody() == null) {
 			return false;
 		}
+		ContextAuth ca = this.getContextAuth(contextId);
 		String body = msg.getResponseBody().toString();
-		
-		if (this.loggedInIndicationPattern != null && this.loggedInIndicationPattern.matcher(body).find()) {
+
+		if (ca.getLoggedInIndicationPattern() != null && ca.getLoggedInIndicationPattern().matcher(body).find()) {
 			// Looks like we're authenticated
-			logger.debug("isLoggedIn " + msg.getRequestHeader().getURI() + " found auth pattern " + this.getLoggedInIndicationRegex());
+			logger.debug("isLoggedIn " + msg.getRequestHeader().getURI() + " found auth pattern " + ca.getLoggedInIndicationPattern());
 			return true;
 		}
 		
-		if (this.loggedOutIndicationPattern != null && ! this.loggedOutIndicationPattern.matcher(body).find()) {
+		if (ca.getLoggedOutIndicationPattern() != null && ! ca.getLoggedOutIndicationPattern().matcher(body).find()) {
 			// Cant find the unauthenticated indicator, assume we're authenticated
-			logger.debug("isLoggedIn " + msg.getRequestHeader().getURI() + " not found unauth pattern " + this.getLoggedOutIndicationRegex());
+			logger.debug("isLoggedIn " + msg.getRequestHeader().getURI() + " not found unauth pattern " + ca.getLoggedOutIndicationPattern());
 			return true;
 		}
 		return false;
@@ -359,12 +510,28 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			// Not relevant
 			return;
 		}
-		if (this.loginMsg == null || (this.loggedInIndicationPattern == null && this.loggedOutIndicationPattern == null)) {
-			// Dont have enough info yet
+		
+		// Is the message in any of the contexts?
+		List<Context> contexts = Model.getSingleton().getSession().getContexts();
+		ContextAuth ca = null;
+		for (Context context : contexts) {
+			if (context.isInContext(msg.getRequestHeader().getURI().toString())) {
+				ca = this.getContextAuth(context.getIndex());
+				if (! ca.canAuthenticate()) {
+					// Dont have enough info yet
+					ca = null;
+				} else {
+					// Select the first context we find that has enough info
+					break;
+				}
+			}
+		}
+		if (ca == null) {
+			// Havnt found a context this message is in with enough info to reauthenticate
 			return;
 		}
 		
-		if (this.isLoggedIn(msg)) {
+		if (this.isLoggedIn(ca.getContextId(), msg)) {
 			// Looks like we're authenticated - nothing to do
 			// logger.debug("onHttpResponseReceive " + msg.getRequestHeader().getURI() + " (initial req) is logged in, so no action");
 			return;
@@ -372,7 +539,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		
 		// We're not authenticated, so try to login
 
-		if (this.login()) {
+		if (this.login(ca.getContextId())) {
 			// Let the user know it worked
 			View.getSingleton().getOutputPanel().append(Constant.messages.getString("auth.output.success") + "\n");
 			
@@ -388,11 +555,13 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		}
 	}
 	
-	protected boolean login() {
-		if (this.loginMsg == null) {
+	protected boolean login(int contextId) {
+		ContextAuth ca = this.getContextAuth(contextId);
+		
+		if (ca.getLoginMsg() == null) {
 			return false;
 		}
-		HttpMessage msg = this.loginMsg.cloneRequest();
+		HttpMessage msg = ca.getLoginMsg().cloneRequest();
 		try {
 			// TODO log in history or relevant tab
 			this.getHttpSender().sendAndReceive(msg, true);
@@ -400,14 +569,16 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			logger.error(e.getMessage(), e);
 			return false;
 		}
-		return this.isLoggedIn(msg);
+		return this.isLoggedIn(contextId, msg);
 	}
 	
-	protected boolean logout() {
-		if (this.logoutMsg == null) {
+	protected boolean logout(int contextId) {
+		ContextAuth ca = this.getContextAuth(contextId);
+
+		if (ca.getLogoutMsg() == null) {
 			return false;
 		}
-		HttpMessage msg = this.logoutMsg.cloneRequest();
+		HttpMessage msg = ca.getLogoutMsg().cloneRequest();
 		try {
 			// TODO log in history or relevant tab
 			this.getHttpSender().sendAndReceive(msg, true);
@@ -415,94 +586,71 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			logger.error(e.getMessage(), e);
 			return false;
 		}
-		return ! this.isLoggedIn(msg);
+		return ! this.isLoggedIn(contextId, msg);
 	}
 	
-	protected String getLoggedOutIndicationRegex() {
-		if (loggedOutIndicationPattern == null) {
+	protected String getLoggedOutIndicationRegex(int contextId) {
+		ContextAuth ca = this.getContextAuth(contextId);
+
+		if (ca.getLoggedOutIndicationPattern() == null) {
 			return null;
 		}
-		return loggedOutIndicationPattern.pattern();
+		return ca.getLoggedOutIndicationPattern().pattern();
 	}
 
-	protected void setLoggedOutIndicationRegex(String unauthIndicationRegex) {
+	protected void setLoggedOutIndicationRegex(int contextId, String unauthIndicationRegex) {
+		ContextAuth ca = this.getContextAuth(contextId);
+
 		if (unauthIndicationRegex == null || unauthIndicationRegex.trim().length() == 0) {
-			this.loggedOutIndicationPattern = null;
+			ca.setLoggedOutIndicationPattern(null);
 		} else {
-			this.loggedOutIndicationPattern = Pattern.compile(unauthIndicationRegex);
+			ca.setLoggedOutIndicationPattern(Pattern.compile(unauthIndicationRegex));
 		}
         if (getView() != null) {
-        	this.sessionAuthenticationPanel.setLoggedOutIndicationRegex(unauthIndicationRegex);
+        	this.getContextPanel(contextId).setLoggedOutIndicationRegex(unauthIndicationRegex);
         	
 			this.setReauthButtonState();
         }
 	}
 	
-	protected String getLoggedInIndicationRegex() {
-		if (loggedInIndicationPattern == null) {
+	protected String getLoggedInIndicationRegex(int contextId) throws Exception {
+		ContextAuth ca = this.getContextAuth(contextId);
+
+		if (ca.getLoggedInIndicationPattern() == null) {
 			return null;
 		}
-		return loggedInIndicationPattern.pattern();
+		return ca.getLoggedInIndicationPattern().pattern();
 	}
 
-	protected void setLoggedInIndicationRegex(String authIndicationRegex) {
+	protected void setLoggedInIndicationRegex(int contextId, String authIndicationRegex) {
+		ContextAuth ca = this.getContextAuth(contextId);
+
 		if (authIndicationRegex == null || authIndicationRegex.trim().length() == 0) {
-			this.loggedInIndicationPattern = null;
+			ca.setLoggedInIndicationPattern (null);
 		} else {
-			this.loggedInIndicationPattern = Pattern.compile(authIndicationRegex);
+			ca.setLoggedInIndicationPattern (Pattern.compile(authIndicationRegex));
 		}
         if (getView() != null) {
-        	this.sessionAuthenticationPanel.setLoggedInIndicationRegex(authIndicationRegex);
+        	this.getContextPanel(contextId).setLoggedInIndicationRegex(authIndicationRegex);
 
 			this.setReauthButtonState();
         }
 	}
 	
-	private String getSingleSessionUrl(Session session, int type) {
-		try {
-		    List<String> urls = session.getSessionUrls(type);
-		    if (urls.size() > 0) {
-		    	return urls.get(0);
-		    }
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
-		}
-		return "";
-	}
-
 	@Override
 	public void sessionChanged(Session session) {
+		// Ignore
 		this.session = session;
-		if (session == null) {
-			// Shutting down
-			return;
-		}
-	    try {
-			this.setLoginRequest(getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGIN_URL),
-					getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGIN_POST_DATA));
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	    this.setLoggedInIndicationRegex(getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGIN_INDICATOR));
-	    try {
-			this.setLogoutRequest(getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGOUT_URL),
-					getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGOUT_POST_DATA));
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	    this.setLoggedOutIndicationRegex(getSingleSessionUrl(session, RecordSessionUrl.TYPE_AUTH_LOGOUT_INDICATOR));
 	}
 
 	@Override
 	public void sessionAboutToChange(Session session) {
 		// Ignore
-		
 	}
 
 	@Override
 	public void sessionScopeChanged(Session session) {
 		// Ignore
-		
 	}
 
 	@Override
@@ -510,26 +658,87 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		setReauthButtonState();
 	}
 
-	protected void saveAuthParams() {
+	protected void saveAuthParams(int contextId) {
         if (session != null) {
+    		ContextAuth ca = this.getContextAuth(contextId);
     		try {
-    			if (this.getLoginRequest() != null) {
-					session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGIN_URL, this.loginMsg.getRequestHeader().getURI().toString());
-					session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGIN_POST_DATA, this.loginMsg.getRequestBody().toString());
+    			if (ca.getLoginMsg() != null) {
+					session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGIN_URL, ca.getLoginMsg().getRequestHeader().getURI().toString());
+					session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGIN_POST_DATA, ca.getLoginMsg().getRequestBody().toString());
         		}
-    			if (this.getLogoutRequest() != null) {
-					session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGOUT_URL, this.logoutMsg.getRequestHeader().getURI().toString());
-					session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGOUT_POST_DATA, this.logoutMsg.getRequestBody().toString());
+    			if (ca.getLogoutMsg() != null) {
+    				session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGOUT_URL, ca.getLogoutMsg().getRequestHeader().getURI().toString());
+    				session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGOUT_POST_DATA, ca.getLogoutMsg().getRequestBody().toString());
     			}
-				session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGIN_INDICATOR, this.getLoggedInIndicationRegex());
-				session.setSessionUrl(RecordSessionUrl.TYPE_AUTH_LOGOUT_INDICATOR, this.getLoggedOutIndicationRegex());
+    			if (ca.getLoggedInIndicationPattern() != null) {
+    				session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGIN_INDICATOR, ca.getLoggedInIndicationPattern().toString());
+    			}
+    			if (ca.getLoggedOutIndicationPattern() != null) {
+    				session.setContextData(contextId, RecordContext.TYPE_AUTH_LOGOUT_INDICATOR, ca.getLoggedOutIndicationPattern().toString());
+    			}
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}
         }
 	}
+	
+	public void saveContextData (Context ctx) {
+		this.saveAuthParams(ctx.getIndex());
+	}
 
 	public AuthAPI getApi() {
 		return api;
+	}
+
+	@Override
+	public AbstractParamPanel getContextPanel(Context ctx) {
+		return this.getContextPanel(ctx.getIndex());
+	}
+	
+	private SessionAuthenticationPanel getContextPanel(int contextId) {
+		SessionAuthenticationPanel panel = this.authPanelMap.get(contextId);
+		if (panel == null) {
+			panel = new SessionAuthenticationPanel(contextId);
+			this.authPanelMap.put(contextId, panel);
+		} else {
+		}
+		return panel;
+	}
+
+	@Override
+	public void loadContextData(Context ctx) {
+        try {
+			if (session != null) {
+				this.getContextAuth(ctx.getIndex());
+				if (View.isInitialised()) {
+					this.getContextPanel(ctx);
+				}
+				
+				List<String> strs = session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGIN_URL);
+				if (strs != null && strs.size() > 0) {
+					this.setLoginRequest(ctx.getIndex(), strs.get(0), session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGIN_POST_DATA).get(0));
+				}
+				strs = session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGOUT_URL);
+				if (strs != null && strs.size() > 0) {
+					this.setLogoutRequest(ctx.getIndex(), strs.get(0), session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGOUT_POST_DATA).get(0));
+				}
+				strs = session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGIN_INDICATOR);
+				if (strs != null && strs.size() > 0) {
+					this.setLoggedInIndicationRegex(ctx.getIndex(), strs.get(0));
+				}
+				strs = session.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_AUTH_LOGOUT_INDICATOR);
+				if (strs != null && strs.size() > 0) {
+					this.setLoggedOutIndicationRegex(ctx.getIndex(), strs.get(0));
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	public void discardContexts() {
+		authPanelMap.clear();
+		contextAuthMap.clear();
+		
 	}
 }

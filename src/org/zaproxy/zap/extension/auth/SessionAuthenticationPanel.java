@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -38,9 +36,10 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class SessionAuthenticationPanel extends AbstractParamPanel {
 
-	public static final String PANEL_NAME = Constant.messages.getString("auth.session.title"); 
+	private static final String PANEL_NAME = Constant.messages.getString("auth.session.title"); 
 	private static final long serialVersionUID = -1;
 	
+	private int contextId;
 	private JPanel panelSession = null;
 	private ZapTextField txtLoginUrl = null;
 	private ZapTextField txtLoginPostData = null;
@@ -49,8 +48,14 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	private ZapTextField txtLoggedInIndicaterRegex = null;
 	private ZapTextField txtLoggedOutIndicaterRegex = null;
 	
-    public SessionAuthenticationPanel() {
+	public static String getPanelName (int contextId) {
+		// Panel names hav to be unique, so prefix with the context id
+		return contextId + ": " + PANEL_NAME;
+	}
+	
+    public SessionAuthenticationPanel(int contextId) {
         super();
+        this.contextId = contextId;
  		initialize();
 	}
     
@@ -60,7 +65,7 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(PANEL_NAME);
+        this.setName(getPanelName(this.contextId));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	
@@ -167,11 +172,11 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    ExtensionAuth ext = (ExtensionAuth) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAuth.NAME);
 	    if (ext != null) {
-	    	ext.setLoginRequest(this.getTxtLoginUrl().getText(), this.getTxtLoginPostData().getText());
-	    	ext.setLogoutRequest(this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData().getText());
-	    	ext.setLoggedInIndicationRegex(this.txtLoggedInIndicaterRegex.getText());
-	    	ext.setLoggedOutIndicationRegex(this.txtLoggedOutIndicaterRegex.getText());
-	    	ext.saveAuthParams();
+	    	ext.setLoginRequest(contextId, this.getTxtLoginUrl().getText(), this.getTxtLoginPostData().getText());
+	    	ext.setLogoutRequest(contextId, this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData().getText());
+	    	ext.setLoggedInIndicationRegex(contextId, this.txtLoggedInIndicaterRegex.getText());
+	    	ext.setLoggedOutIndicationRegex(contextId, this.txtLoggedOutIndicaterRegex.getText());
+	    	ext.saveAuthParams(contextId);
 	    }
 	}
 	

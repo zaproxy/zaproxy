@@ -59,7 +59,8 @@ public class IncludeInScopeMenuItem extends WebSocketMessagesPopupMenuItem {
 //			excluded.remove(url);
 //			session.setExcludeFromScopeRegexs(excluded);
         	Session session = Model.getSingleton().getSession();
-	        session.addIncludeInScopeRegex(url);
+        	// TODO support contexts
+	        //session.addIncludeInScopeRegex(url);
 		}
 	}
 

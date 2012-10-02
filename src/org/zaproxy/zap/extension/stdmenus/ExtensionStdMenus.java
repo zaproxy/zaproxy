@@ -35,9 +35,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuSpiderScope	popupMenuSpiderScope = null;
 	private PopupMenuSpiderSite		popupMenuSpiderSite = null;
 	private PopupMenuSpiderSubtree	popupMenuSpiderSubtree = null;
-	private PopupIncludeInScopeMenu popupIncludeInScopeMenu = null;
 	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
-	private PopupExcludeFromScopeMenu popupExcludeFromScopeMenu = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
 	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
@@ -45,6 +43,9 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuShowInHistory popupMenuShowInHistory = null;
 	private PopupMenuShowInSites popupMenuShowInSites = null;
 	private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
+	private PopupContextIncludeMenu popupContextIncludeMenu = null;
+	private PopupContextExcludeMenu popupContextExcludeMenu = null;
+	
 	// Still being developed
 	//private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
     private PopupMenuAlert popupMenuAlert = null;
@@ -63,24 +64,25 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    if (getView() != null) {
 	    	// Be careful when changing the menu indexes (and order above) - its easy to get unexpected results!
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupIncludeInScopeMenu(0));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(1));
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(1));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScopeMenu(2));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(2));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(2));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(2));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(3));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(4));
-   			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(5));		// Both are index 5
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(5));		// on purpose ;)
-	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(6));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(0));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(0));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextIncludeMenu(1));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
+            
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
+   			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6));		// Both are index 6
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(6));		// on purpose ;)
+	    	extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(7));
 	    	//extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
 	    }
@@ -89,6 +91,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuSpiderURL getPopupMenuSpiderURL(int menuIndex) {
 		if (popupMenuSpiderURL == null) {
 			popupMenuSpiderURL = new PopupMenuSpiderURL(Constant.messages.getString("spider.url.popup"));
+			popupMenuSpiderURL.setMenuIndex(menuIndex);
 		}
 		return popupMenuSpiderURL;
 	}
@@ -162,26 +165,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	*/
 	
 	
-	private PopupIncludeInScopeMenu getPopupIncludeInScopeMenu(int menuIndex) {
-		if (popupIncludeInScopeMenu == null) {
-			popupIncludeInScopeMenu = new PopupIncludeInScopeMenu();
-			popupIncludeInScopeMenu.setMenuIndex(menuIndex);
-		}
-		return popupIncludeInScopeMenu;
-	}
-
-	private PopupExcludeFromScopeMenu getPopupExcludeFromScopeMenu(int menuIndex) {
-		if (popupExcludeFromScopeMenu == null) {
-			popupExcludeFromScopeMenu = new PopupExcludeFromScopeMenu();
-			popupExcludeFromScopeMenu.setMenuIndex(menuIndex);
-		}
-		return popupExcludeFromScopeMenu;
-	}
-
 	private PopupExcludeFromProxyMenu getPopupExcludeFromProxyMenu(int menuIndex) {
 		if (popupExcludeFromProxyMenu == null) {
 			popupExcludeFromProxyMenu = new PopupExcludeFromProxyMenu();
-			//popupExcludeFromProxyMenu.setMenuIndex(menuIndex);
+			popupExcludeFromProxyMenu.setMenuIndex(menuIndex);
 		}
 		return popupExcludeFromProxyMenu;
 	}
@@ -189,7 +176,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupExcludeFromScanMenu getPopupExcludeFromScanMenu(int menuIndex) {
 		if (popupExcludeFromScanMenu == null) {
 			popupExcludeFromScanMenu = new PopupExcludeFromScanMenu();
-			//popupExcludeFromScanMenu.setMenuIndex(menuIndex);
+			popupExcludeFromScanMenu.setMenuIndex(menuIndex);
 		}
 		return popupExcludeFromScanMenu;
 	}
@@ -197,7 +184,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupExcludeFromSpiderMenu getPopupExcludeFromSpiderMenu(int menuIndex) {
 		if (popupExcludeFromSpiderMenu == null) {
 			popupExcludeFromSpiderMenu = new PopupExcludeFromSpiderMenu();
-			//popupExcludeFromSpiderMenu.setMenuIndex(menuIndex);
+			popupExcludeFromSpiderMenu.setMenuIndex(menuIndex);
 		}
 		return popupExcludeFromSpiderMenu;
 	}
@@ -232,6 +219,22 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
             popupMenuAlert.setMenuIndex(menuIndex);
         }
         return popupMenuAlert;
+    }
+    
+    private PopupContextIncludeMenu getPopupContextIncludeMenu(int menuIndex) {
+    	if (popupContextIncludeMenu == null) {
+    		popupContextIncludeMenu = new PopupContextIncludeMenu();
+    		popupContextIncludeMenu.setParentMenuIndex(menuIndex);
+    	}
+    	return popupContextIncludeMenu;
+    }
+
+    private PopupContextExcludeMenu getPopupContextExcludeMenu(int menuIndex) {
+    	if (popupContextExcludeMenu == null) {
+    		popupContextExcludeMenu = new PopupContextExcludeMenu();
+    		popupContextExcludeMenu.setParentMenuIndex(menuIndex);
+    	}
+    	return popupContextExcludeMenu;
     }
 
 	@Override

@@ -239,6 +239,7 @@ public class Control extends AbstractControl implements SessionListener {
 	public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
 	    log.info("Create and Open Untitled Db");
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		model.closeSession();
 		model.createAndOpenUntitledDb();
 		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 	}

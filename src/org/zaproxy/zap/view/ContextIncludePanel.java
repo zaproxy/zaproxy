@@ -35,29 +35,39 @@ import javax.swing.JTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.model.Context;
 
-public class SessionExcludeFromScopePanel extends AbstractParamPanel {
+public class ContextIncludePanel extends AbstractParamPanel {
 
-	public static final String PANEL_NAME = Constant.messages.getString("session.scope.exclude.title"); 
+	private static final String PANEL_NAME = Constant.messages.getString("context.scope.include.title"); 
 	private static final long serialVersionUID = -8337361808959321380L;
+	
+	private Context context;
 	
 	private JPanel panelSession = null;
 	private JTable tableIgnore = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
 	
-    public SessionExcludeFromScopePanel() {
+	public static String getPanelName(Context ctx) {
+		// Panel names have to be unique, so precede with the context id
+		return ctx.getIndex() + ": " + PANEL_NAME;
+	}
+
+    public ContextIncludePanel(Context context) {
         super();
+        this.context = context;
  		initialize();
    }
-
     
 	/**
 	 * This method initializes this
+	 * 
+	 * @return void
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(PANEL_NAME);
+        this.setName(getPanelName(this.context));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	/**
@@ -70,14 +80,14 @@ public class SessionExcludeFromScopePanel extends AbstractParamPanel {
 
 			panelSession = new JPanel();
 			panelSession.setLayout(new GridBagLayout());
-			panelSession.setName("ExcludeInScope");
+			panelSession.setName("IncludeInScope");
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
 	        javax.swing.JLabel jLabel = new JLabel();
 
-	        jLabel.setText(Constant.messages.getString("session.scope.label.exclude"));
+	        jLabel.setText(Constant.messages.getString("context.label.include"));
 	        gridBagConstraints1.gridx = 0;
 	        gridBagConstraints1.gridy = 0;
 	        gridBagConstraints1.gridheight = 1;
@@ -102,8 +112,8 @@ public class SessionExcludeFromScopePanel extends AbstractParamPanel {
 	
 	@Override
 	public void initParam(Object obj) {
-	    Session session = (Session) obj;
-	    getModel().setLines(session.getExcludeFromScopeRegexs());
+	    //Session session = (Session) obj;
+	    getModel().setLines(context.getIncludeInContextRegexs());
 	}
 	
 	@Override
@@ -119,7 +129,8 @@ public class SessionExcludeFromScopePanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
-	    session.setExcludeFromScopeRegexs(getModel().getLines());
+	    context.setIncludeInContextRegexs(getModel().getLines());
+	    session.saveContext(context);
 	}
 	
 	private JTable getTableIgnore() {
@@ -141,7 +152,7 @@ public class SessionExcludeFromScopePanel extends AbstractParamPanel {
 	
 	private SingleColumnTableModel getModel() {
 		if (model == null) {
-			model = new SingleColumnTableModel(Constant.messages.getString("session.scope.table.header.exclude"));
+			model = new SingleColumnTableModel(Constant.messages.getString("context.table.header.include"));
 		}
 		return model;
 	}

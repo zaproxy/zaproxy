@@ -31,6 +31,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/07 Added method for getting all Nodes in Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.model;
 
@@ -42,12 +43,12 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -55,6 +56,7 @@ import org.xml.sax.SAXException;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
+import org.zaproxy.zap.model.Context;
 
 
 public class Session extends FileXML {
@@ -76,16 +78,16 @@ public class Session extends FileXML {
 	private Model model = null;
 	private String fileName = "";
 	private String sessionDesc = "";
-	private List<String> includeInScopeRegexs = new ArrayList<>();
-	private List<String> excludeFromScopeRegexs = new ArrayList<>();
-	private List<String> excludeFromProxyRegexs = new ArrayList<>();
-	private List<String> excludeFromScanRegexs = new ArrayList<>();
-	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
+	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
+	private List<String> excludeFromScanRegexs = new ArrayList<String>();
+	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
 
 	private List<String> excludeFromWebSocketRegexs = new ArrayList<>();
     
-    private List<Pattern> includeInScopePatterns = new ArrayList<>();
-    private List<Pattern> excludeFromScopePatterns = new ArrayList<>();
+    //private TechSet techSet = new TechSet(Tech.builtInTech);
+
+    private List<Context> contexts = new ArrayList<Context>();
+    private int nextContextIndex = 1;
 
 	// parameters in XML
 	private long sessionId = 0;
@@ -99,26 +101,30 @@ public class Session extends FileXML {
 	protected Session(Model model) {
 		super(ROOT);
 
-		/*try {
-			parseFile("xml/untitledsession.xml");
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
 		// add session variable here
 		setSessionId(System.currentTimeMillis());
 		setSessionName(Constant.messages.getString("session.untitled"));
 		setSessionDesc("");
-		
+
 		// create default object
 		this.siteTree = SiteMap.createTree(model);
 		
 		this.model = model;
 		
+		discardContexts();
+		// Always start with one context
+	    getNewContext();
+
 	}
 	
+	private void discardContexts() {
+	    if (View.isInitialised()) {
+	    	View.getSingleton().discardContexts();
+		}
+	    this.contexts.clear();
+	    nextContextIndex = 1;
+	}
+
 	protected void discard() {
 	    try {
 	        model.getDb().getTableHistory().deleteHistorySession(getSessionId());
@@ -126,8 +132,12 @@ public class Session extends FileXML {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
         }
+		discardContexts();
 	}
-	
+
+	protected void close() {
+		discardContexts();
+	}
 	
     /**
      * @return Returns the sessionDesc.
@@ -154,8 +164,6 @@ public class Session extends FileXML {
     public SiteMap getSiteTree() {
         return siteTree;
     }
-	
-	
 
     /**
      * Tells whether this session is in a new state or not. A session is in a
@@ -206,13 +214,9 @@ public class Session extends FileXML {
 		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_MANUAL);
 		HistoryReference historyRef = null;
 
+		discardContexts();
+		
 	    // Load the session urls
-	    this.setIncludeInScopeRegexs(
-	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE)));
-
-	    this.setExcludeFromScopeRegexs(
-	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE)));
-
 	    this.setExcludeFromProxyRegexs(
 	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
 
@@ -224,6 +228,7 @@ public class Session extends FileXML {
 	    		
 	    this.setExcludeFromWebSocketRegexs(
 				sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET)));
+	    
 	    
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
@@ -267,16 +272,34 @@ public class Session extends FileXML {
 			
 			
 		}
+	    List<RecordContext> contextData = model.getDb().getTableContext().getAllData();
+	    for (RecordContext data : contextData) {
+	    	Context ctx = this.getContext(data.getContextId());
+	    	if (ctx == null) {
+	    		ctx = new Context(this, data.getContextId());
+	    		this.addContext(ctx);
+	    		if (nextContextIndex <= data.getContextId()) {
+	    			nextContextIndex = data.getContextId() + 1;
+	    		}
+	    	}
+	    	switch (data.getType()) {
+	    		case RecordContext.TYPE_NAME:			ctx.setName(data.getData());
+	    												if (View.isInitialised() && ctx.getName() != ""+ctx.getIndex()) {
+	    													View.getSingleton().renameContext(ctx);
+	    												}
+	    												break;
+	    		case RecordContext.TYPE_DESCRIPTION:	ctx.setDescription(data.getData()); break;
+	    		case RecordContext.TYPE_INCLUDE:		ctx.addIncludeInContextRegex(data.getData()); break;
+	    		case RecordContext.TYPE_EXCLUDE:		ctx.addExcludeFromContextRegex(data.getData()); break;
+	    		case RecordContext.TYPE_IN_SCOPE:		ctx.setInScope(Boolean.parseBoolean(data.getData())); break;
+	    	}
+	    }
 		
-        // XXX Temporary "hack" to check if ZAP is in GUI mode. Calling
-        // View.getSingleton() creates the View, if a View exists and the API
-        // was not enabled (through configuration) the API becomes disabled
-        // everywhere (including daemon mode).
-        // Note: the API needs to be enabled all the time in daemon mode.
 		if (View.isInitialised()) {
 		    // ZAP: expand root
 		    View.getSingleton().getSiteTreePanel().expandRoot();
 		}
+	    this.refreshScope();
 
 		System.gc();
 	}
@@ -502,8 +525,8 @@ public class Session extends FileXML {
 			// Strip off any parameters
 			url = url.substring(0, url.indexOf("?"));
 		}
-		for (Pattern p : this.includeInScopePatterns) {
-			if (p.matcher(url).matches()) {
+		for (Context context : contexts) {
+			if (context.isInScope() && context.isIncluded(url)) {
 				return true;
 			}
 		}
@@ -525,8 +548,8 @@ public class Session extends FileXML {
 			// Strip off any parameters
 			url = url.substring(0, url.indexOf("?"));
 		}
-		for (Pattern p : this.excludeFromScopePatterns) {
-			if (p.matcher(url).matches()) {
+		for (Context context : contexts) {
+			if (context.isInScope() && context.isExcluded(url)) {
 				return true;
 			}
 		}
@@ -600,102 +623,6 @@ public class Session extends FileXML {
 				nodesList.add(sn);
 			fillNodesInScope(sn, nodesList);
 		}
-	}
-	
-	public List<String> getIncludeInScopeRegexs() {
-		return includeInScopeRegexs;
-	}
-	
-	private void checkRegexs (List<String> regexs) throws Exception {
-	    for (String url : regexs) {
-	    	url = url.trim();
-	    	if (url.length() > 0) {
-				Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-	    	}
-	    }
-	}
-
-	public void setIncludeInScopeRegexs(List<String> includeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(includeRegexs);
-		// Check if theyve been changed
-		if (includeInScopeRegexs.size() == includeRegexs.size()) {
-			boolean changed = false;
-		    for (int i=0; i < includeInScopeRegexs.size(); i++) {
-		    	if (! includeInScopeRegexs.get(i).equals(includeRegexs.get(i))) {
-		    		changed = true;
-		    		break;
-		    	}
-		    }
-		    if (!changed) {
-		    	// No point reapplying the same regexs
-		    	return;
-		    }
-		}
-		includeInScopeRegexs.clear();
-		includeInScopePatterns.clear();
-	    for (String url : includeRegexs) {
-	    	url = url.trim();
-	    	if (url.length() > 0) {
-				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-				includeInScopeRegexs.add(url);
-				includeInScopePatterns.add(p);
-	    	}
-	    }
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE, this.includeInScopeRegexs);
-		refreshScope();
-	}
-	
-	public void addIncludeInScopeRegex(String includeRegex) throws SQLException {
-		Pattern p = Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE);
-		includeInScopePatterns.add(p);
-		includeInScopeRegexs.add(includeRegex);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_SCOPE, this.includeInScopeRegexs);
-    	Control.getSingleton().sessionScopeChanged();
-	}
-	
-	public List<String> getExcludeFromScopeRegexs() {
-		return excludeFromScopeRegexs;
-	}
-
-	public void setExcludeFromScopeRegexs(List<String> excludeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(excludeRegexs);
-		// Check if theyve been changed
-		if (excludeFromScopeRegexs.size() == excludeRegexs.size()) {
-			boolean changed = false;
-		    for (int i=0; i < excludeFromScopeRegexs.size(); i++) {
-		    	if (! excludeFromScopeRegexs.get(i).equals(excludeRegexs.get(i))) {
-		    		changed = true;
-		    		break;
-		    	}
-		    }
-		    if (!changed) {
-		    	// No point reapplying the same regexs
-		    	return;
-		    }
-		}
-		
-		excludeFromScopeRegexs.clear();
-		excludeFromScopePatterns.clear();
-	    for (String url : excludeRegexs) {
-	    	url = url.trim();
-	    	if (url.length() > 0) {
-				Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-				excludeFromScopePatterns.add(p);
-				excludeFromScopeRegexs.add(url);
-	    	}
-	    }
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE, this.excludeFromScopeRegexs);
-		refreshScope();
-	}
-
-	public void addExcludeFromScopeRegex(String excludeRegex) throws SQLException {
-		Pattern p = Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE);
-		excludeFromScopePatterns.add(p);
-		excludeFromScopeRegexs.add(excludeRegex);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCOPE, this.excludeFromScopeRegexs);
-    	Control.getSingleton().sessionScopeChanged();
 	}
 
 	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
@@ -781,8 +708,7 @@ public class Session extends FileXML {
 	public void setSessionUrl(int type, String url) throws SQLException {
 		List<String> list = new ArrayList<>(1);
 		list.add(url);
-		model.getDb().getTableSessionUrl().setUrls(type, list);
-		
+		this.setSessionUrls(type, list);
 	}
 
 	public List<String> getSessionUrls(int type) throws SQLException {
@@ -793,4 +719,69 @@ public class Session extends FileXML {
 		}
 		return list;
 	}
+	
+	public List<String> getContextDataStrings(int contextId, int type) throws SQLException {
+	    List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+		List<String> list = new ArrayList<String>();
+		for (RecordContext data : dataList) {
+			list.add(data.getData());
+		}
+		return list;
+	}
+
+	public void setContextData(int contextId, int type, String data) throws SQLException {
+		List<String> list = new ArrayList<String>();
+		list.add(data);
+		this.setContextData(contextId, type, list);
+	}
+
+	public void setContextData(int contextId, int type, List<String> dataList) throws SQLException {
+		model.getDb().getTableContext().setData(contextId, type, dataList);
+	}
+	
+	public void saveContext (Context c) {
+		try {
+			this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
+			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
+			model.saveContext(c);
+		} catch (SQLException e) {
+            log.error(e.getMessage(), e);
+		}
+		
+		if (View.isInitialised()) {
+			refreshScope();
+		}
+	}
+	
+	public Context getNewContext() {
+		Context c = new Context(this, this.nextContextIndex++);
+		this.addContext(c);
+		return c;
+	}
+
+	public void addContext(Context c) {
+		this.contexts.add(c);
+		this.model.loadContext(c);
+
+		if (View.isInitialised()) {
+			View.getSingleton().addContext(c);
+		}
+	}
+
+	public Context getContext(int index) {
+		for (Context context : contexts) {
+			if (context.getIndex() == index) {
+				return context;
+			}
+		}
+		return null;
+	}
+
+	public List<Context> getContexts() {
+		return contexts;
+	}
+	
 }

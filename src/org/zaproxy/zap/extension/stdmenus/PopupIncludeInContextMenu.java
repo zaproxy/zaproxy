@@ -28,47 +28,63 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
-public class PopupExcludeFromScopeMenu extends PopupMenuSiteNode {
+public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
+	
+	private Context context;
 
 	/**
 	 * This method initializes 
 	 * 
 	 */
-	public PopupExcludeFromScopeMenu() {
-		super(Constant.messages.getString("sites.exclude.scope.popup"), true);
+	public PopupIncludeInContextMenu() {
+		super(Constant.messages.getString("context.new.title"), true);
+		this.context = null;
+		this.setPrecedeWithSeparator(true);
 	}
 	    
-   @Override
-   public boolean isSubMenu() {
-	   return true;
-   }
-   
-   @Override
-   public String getParentMenuName() {
-	   return Constant.messages.getString("sites.exclude.popup");
-   }
+	public PopupIncludeInContextMenu(Context context) {
+		super(context.getName(), true);
+		this.context = context;
+	}
+	
+    @Override
+    public String getParentMenuName() {
+    	return Constant.messages.getString("context.include.popup");
+    }
+    
+    @Override
+    public boolean isSubMenu() {
+    	return true;
+    }
 
-   @Override
-   public int getParentMenuIndex() {
-	   return EXCLUDE_MENU_INDEX;
-   }
-   
 	@Override
 	public void performAction(SiteNode sn) throws Exception {
-		sn.setExcludedFromScope(true, true);
-
+		
         Session session = Model.getSingleton().getSession();
+        
+        if (context == null) {
+        	context = session.getNewContext();
+        }
+
         String url = new URI(sn.getHierarchicNodeName(), false).toString();
         if (sn.isLeaf()) {
             url = Pattern.quote(url);
         } else {
         	url = Pattern.quote(url) + ".*";
         }
-        session.addExcludeFromScopeRegex(url);
+
+        context.addIncludeInContextRegex(url);
+        session.saveContext(context);
+
+        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), ContextIncludePanel.getPanelName(context));
+
 	}
 
 	@Override
@@ -83,9 +99,12 @@ public class PopupExcludeFromScopeMenu extends PopupMenuSiteNode {
 	
 	@Override
     public boolean isEnabledForSiteNode (SiteNode sn) {
-		if (sn.isExcludedFromScope() || ! sn.isIncludedInScope()) {
-			// No point offering the option - default is false for both..
-			this.setEnabled(false);
+		if (context == null) {
+			// New context
+			return true;
+		}
+		if (context.isIncluded(sn) || context.isExcluded(sn)) {
+			// Either explicitly included or excluded, so would have to change that regex in a non trivial way to include!
 			return false;
 		}
     	return true;

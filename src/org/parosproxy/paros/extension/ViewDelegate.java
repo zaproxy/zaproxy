@@ -21,6 +21,7 @@
 // ZAP: 2011/08/04 Changed to support new HttpPanel interface
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 // ZAP: 2012/07/23 Added method getSessionDialog() to expose functionality.
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.extension;
 
@@ -32,6 +33,7 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.view.ContextPanelFactory;
 
 public interface ViewDelegate {
 
@@ -61,5 +63,7 @@ public interface ViewDelegate {
     public HttpPanelRequest getRequestPanel();
     
     public HttpPanelResponse getResponsePanel();
+    
+    public void addContextPanelFactory (ContextPanelFactory cpf);
     
 }

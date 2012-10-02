@@ -22,7 +22,8 @@
 // ZAP: 2011/11/20 Handle dialogs with no children
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/25 Added @SuppressWarnings annotation in the method
-// getTreeNodeFromPanelName(String).
+//      getTreeNodeFromPanelName(String).
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 
 package org.parosproxy.paros.view;
@@ -212,6 +213,7 @@ public class AbstractParamDialog extends AbstractDialog {
 					    
 						
 					} catch (Exception ex) {
+						log.error(ex.getMessage(), ex);
 					    View.getSingleton().showWarningDialog(ex.getMessage());
 					}
 					
@@ -325,7 +327,9 @@ public class AbstractParamDialog extends AbstractDialog {
 				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
 					
 			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
-			        if (node == null) return;
+			        if (node == null) {
+			        	return;
+			        }
 			        String name = (String) node.getUserObject();
 			        showParamPanel(name);
 				}
@@ -359,7 +363,8 @@ public class AbstractParamDialog extends AbstractDialog {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	protected JPanel getPanelParam() {
+	//protected JPanel getPanelParam() {
+	private JPanel getPanelParam() {
 		if (panelParam == null) {
 			panelParam = new JPanel();
 			panelParam.setLayout(new CardLayout());
@@ -447,7 +452,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	        
 	        if (result == null) {
 	            result = new DefaultMutableTreeNode(param);
-	            parent.add(result);
+	            getTreeModel().insertNodeInto(result, parent, parent.getChildCount());
 	        }
 
 	        parent = result;
@@ -474,14 +479,16 @@ public class AbstractParamDialog extends AbstractDialog {
 	        if (sort) {
 		        for (int i=0; i < parent.getChildCount(); i++) {
 		        	if (name.compareToIgnoreCase(parent.getChildAt(i).toString()) < 0) {
-		    	        parent.insert(newNode, i);
+			            getTreeModel().insertNodeInto(newNode, parent, i);
+
 		        		added = true;
 		        		break;
 		        	}
 		        }
 	        }
 	        if (! added) {
-	        	parent.add(newNode);
+	            getTreeModel().insertNodeInto(newNode, parent, parent.getChildCount());
+
 	        }
 	    } else {
 	        // No need to create node.  This is the root panel.
@@ -495,16 +502,44 @@ public class AbstractParamDialog extends AbstractDialog {
 	public void addParamPanel(String[] parentParams, AbstractParamPanel panel, boolean sort) {
 	    addParamPanel(parentParams, panel.getName(), panel, sort);
 	}
+
+	public void removeParamPanel(AbstractParamPanel panel) {
+		DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
+		if (node != null) {
+			getTreeModel().removeNodeFromParent(node);
+		}
+		getPanelParam().remove(panel);
+		tablePanel.remove(panel.getName());
+	}
+
 	
 	// ZAP: Made public so that other classes can specify which panel is displayed
+	public void showParamPanel(String parent, String child) {
+	    if (parent == null || child == null) {
+	    	return;
+	    }
+	    AbstractParamPanel panel = tablePanel.get(parent);
+	    if (panel == null) {
+	    	return;
+	    }
+	    showParamPanel(panel, parent);
+	}
+	
 	public void showParamPanel(String name) {
-	    if (name == null || name.equals("")) return;
+	    if (name == null || name.equals("")) {
+	    	return;
+	    }
 
 	    // exit if panel name not found. 
 	    AbstractParamPanel panel = tablePanel.get(name);
-	    if (panel == null) return;
+	    if (panel == null) {
+	    	return;
+	    }
 
-        // ZAP: show the last selected panel
+	    showParamPanel(panel, name);
+	}
+
+	public void showParamPanel(AbstractParamPanel panel, String name) {
         nameLastSelectedPanel = name;
 
         getPanelHeadline();
@@ -597,19 +632,81 @@ public class AbstractParamDialog extends AbstractDialog {
 
 	// ZAP: show the last selected panel
 	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
+		return this.getTreeNodeFromPanelName(panel, true);
+	}
+	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel, boolean recurse) {
+		return this.getTreeNodeFromPanelName( ((DefaultMutableTreeNode) getTreeModel().getRoot()), panel, recurse);
+	}
+	
+	private DefaultMutableTreeNode getTreeNodeFromPanelName(DefaultMutableTreeNode parent, String panel, boolean recurse) {
 		DefaultMutableTreeNode node = null;
 		
 		// ZAP: Added @SuppressWarnings annotation.
 		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> children = ((DefaultMutableTreeNode) getTreeModel().getRoot()).children();
+		Enumeration<DefaultMutableTreeNode> children = parent.children();
 		while (children.hasMoreElements()) {
 			DefaultMutableTreeNode child = children.nextElement();
 			if (panel.equals(child.toString())) {
 				node = child;
 				break;
+			} else if (recurse) {
+				node = this.getTreeNodeFromPanelName(child, panel, true);
+				if (node != null) {
+					break;
+				}
 			}
 		}
 		return node;
+	}
+
+	// Useful method for debugging panel issues ;)
+	public void printTree() {
+		this.printTree(((DefaultMutableTreeNode) getTreeModel().getRoot()), 0);
+	}
+	
+	private void printTree(DefaultMutableTreeNode parent, int level) {
+		for (int i=0; i < level; i++) {
+			System.out.print(" ");
+		}
+		System.out.print(parent.toString());
+		
+	    AbstractParamPanel panel = tablePanel.get(parent.toString());
+	    if (panel != null) {
+			System.out.print(" (" + panel.hashCode() + ")");
+	    }
+		System.out.println();
+
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<DefaultMutableTreeNode> children = parent.children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = children.nextElement();
+			this.printTree(child, level+1);
+		}
+	}
+	
+	public void renamePanel (AbstractParamPanel panel, String newPanelName) {
+		DefaultMutableTreeNode node = getTreeNodeFromPanelName(panel.getName(), true);
+		DefaultMutableTreeNode newNode = getTreeNodeFromPanelName(newPanelName, true);
+		if (node != null && newNode == null) {
+			// TODO work out which of these lines are really necessary ;)
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+			node.setUserObject(newPanelName);
+			tablePanel.remove(panel.getName());
+			int index = parent.getIndex(node);
+			getTreeModel().removeNodeFromParent(node);
+			getTreeModel().insertNodeInto(node, parent, index);
+			this.nameLastSelectedPanel = newPanelName;
+			
+			this.getPanelParam().remove(panel);
+			
+			panel.setName(newPanelName);
+			tablePanel.put(newPanelName, panel);
+			this.getPanelParam().add(newPanelName, panel);
+			
+			getTreeModel().nodeChanged(node);
+			getTreeModel().nodeChanged(node.getParent());
+		}
 	}
 
 	/**

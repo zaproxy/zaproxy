@@ -22,6 +22,7 @@
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/10/02 Issue 385: Added support for Contexts
 
 package org.parosproxy.paros.view;
 
@@ -157,10 +158,18 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
-	    session.setSessionName(getTxtSessionName().getText());
-	    session.setSessionDesc(getTxtDescription().getText());
+	    boolean changed = false;
+	    if (! getTxtSessionName().getText().equals(session.getSessionName())) {
+	    	session.setSessionName(getTxtSessionName().getText());
+	    	changed = true;
+	    }
+	    if (! getTxtDescription().getText().equals(session.getSessionDesc())) {
+	    	session.setSessionDesc(getTxtDescription().getText());
+	    	changed = true;
+	    }
 	    // ZAP Save session details
-	    if ( ! session.isNewState()) {
+	    if (changed && ! session.isNewState()) {
+	    	// TODO need to work out if this is really necessary, or if we can send a less 'dramatic' event ;)
 	    	Control.getSingleton().saveSession(session.getFileName());
 	    }
 	}
