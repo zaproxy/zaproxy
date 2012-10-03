@@ -47,8 +47,7 @@ public class Context {
     private List<Pattern> includeInPatterns = new ArrayList<Pattern>();
     private List<Pattern> excludeFromPatterns = new ArrayList<Pattern>();
     
-    // Work in porogress ;)
-    //private TechSet techSet = new TechSet(Tech.builtInTech);
+    private TechSet techSet = new TechSet(Tech.builtInTech);
     private boolean inScope = true;
     
     public Context(Session session, int index) {
@@ -321,7 +320,6 @@ public class Context {
 		this.session.saveContext(this);
 	}
 
-	/*
 	public TechSet getTechSet() {
 		return techSet;
 	}
@@ -329,7 +327,6 @@ public class Context {
 	public void setTechSet(TechSet techSet) {
 		this.techSet = techSet;
 	}
-	*/
 
 	public String getName() {
 		return name;

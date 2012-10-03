@@ -33,6 +33,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/07 Removed the unused method changeDisplayOption(int)
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2012/10/03 Issue 388: Added support for technologies
 
 package org.parosproxy.paros.view;
 
@@ -62,6 +63,7 @@ import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.ContextListPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.ContextTechnologyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
@@ -264,6 +266,10 @@ public class View implements ViewDelegate {
 		ContextExcludePanel contextExcPanel = new ContextExcludePanel(c);
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
 		this.contextPanels.add(contextExcPanel);
+		
+		ContextTechnologyPanel contextTechPanel = new ContextTechnologyPanel(c);
+		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextTechPanel, false);
+		this.contextPanels.add(contextTechPanel);
 
 		for (ContextPanelFactory cpf : this.contextPanelFactories) {
 			AbstractParamPanel panel = cpf.getContextPanel(c);

@@ -32,6 +32,7 @@
 // ZAP: 2012/08/07 Added method for getting all Nodes in Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2012/10/03 Issue 388: Added support for technologies
 
 package org.parosproxy.paros.model;
 
@@ -41,8 +42,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -57,6 +60,7 @@ import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Tech;
 
 
 public class Session extends FileXML {
@@ -84,8 +88,6 @@ public class Session extends FileXML {
 
 	private List<String> excludeFromWebSocketRegexs = new ArrayList<>();
     
-    //private TechSet techSet = new TechSet(Tech.builtInTech);
-
     private List<Context> contexts = new ArrayList<Context>();
     private int nextContextIndex = 1;
 
@@ -292,6 +294,8 @@ public class Session extends FileXML {
 	    		case RecordContext.TYPE_INCLUDE:		ctx.addIncludeInContextRegex(data.getData()); break;
 	    		case RecordContext.TYPE_EXCLUDE:		ctx.addExcludeFromContextRegex(data.getData()); break;
 	    		case RecordContext.TYPE_IN_SCOPE:		ctx.setInScope(Boolean.parseBoolean(data.getData())); break;
+	    		case RecordContext.TYPE_INCLUDE_TECH:	ctx.getTechSet().include(new Tech(data.getData())); break;
+	    		case RecordContext.TYPE_EXCLUDE_TECH:	ctx.getTechSet().exclude(new Tech(data.getData())); break;
 	    	}
 	    }
 		
@@ -739,6 +743,15 @@ public class Session extends FileXML {
 		model.getDb().getTableContext().setData(contextId, type, dataList);
 	}
 	
+	private List<String> techListToStringList (TreeSet<Tech> techList) {
+		List<String> strList = new ArrayList<String>();
+		Iterator<Tech> iter = techList.iterator();
+		while (iter.hasNext()) {
+			strList.add(iter.next().toString());
+		}
+		return strList;
+	}
+	
 	public void saveContext (Context c) {
 		try {
 			this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
@@ -746,6 +759,8 @@ public class Session extends FileXML {
 			this.setContextData(c.getIndex(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
 			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
 			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE_TECH, techListToStringList(c.getTechSet().getIncludeTech()));
+			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE_TECH, techListToStringList(c.getTechSet().getExcludeTech()));
 			model.saveContext(c);
 		} catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -783,5 +798,27 @@ public class Session extends FileXML {
 	public List<Context> getContexts() {
 		return contexts;
 	}
+
+	public List<Context> getContextsFortNode(SiteNode sn) {
+		if (sn == null) {
+			return new ArrayList<Context>();
+		}
+		return getContextsForUrl(sn.getHierarchicNodeName());
+	}
 	
+	public List<Context> getContextsForUrl(String url) {
+		List<Context> ctxList = new ArrayList<Context>();
+		if (url.indexOf("?") > 0) {
+			// String off any parameters
+			url = url.substring(0, url.indexOf("?"));
+		}
+		for (Context context : contexts) {
+			if (context.isInContext(url)) {
+				ctxList.add(context);
+			}
+		}
+		return ctxList;
+	}
+
 }
+ 

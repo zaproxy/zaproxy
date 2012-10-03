@@ -22,11 +22,14 @@
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault) 
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
+// ZAP: 2012/10/03 Issue 388: Added enabling support for technologies
 
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.Tech;
+import org.zaproxy.zap.model.TechSet;
 
 /**
  * This interface must be implemented by a Plugin for running the checks.
@@ -208,4 +211,17 @@ public interface Plugin extends Runnable {
 	 * @return
 	 */
 	public AttackStrength[] getAttackStrengthsSupported();
+	
+	/**
+	 * Set the technology set this scanner should include in scope (if relevant)
+	 * @param ts
+	 */
+	public void setTechSet(TechSet ts);
+	
+	/**
+	 * Returns true if the technology should be includes in the scope
+	 * @param tech
+	 * @return
+	 */
+	public boolean inScope(Tech tech);
 }

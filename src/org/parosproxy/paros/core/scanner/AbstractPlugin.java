@@ -26,7 +26,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
-
+// ZAP: 2012/10/03 Issue 388 Added enabling support for technologies
 
 package org.parosproxy.paros.core.scanner;
 
@@ -47,6 +47,8 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.model.Tech;
+import org.zaproxy.zap.model.TechSet;
 
 abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	
@@ -73,6 +75,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	private static final AlertThreshold[] alertThresholdsSupported = new AlertThreshold[] { AlertThreshold.MEDIUM };
 	private AttackStrength defaultAttackStrength = AttackStrength.MEDIUM;
 	private static final AttackStrength[] attackStrengthsSupported = new AttackStrength[] { AttackStrength.MEDIUM };
+	private TechSet techSet = null;
     
     public AbstractPlugin() {
     }
@@ -657,4 +660,13 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 		this.delayInMs = delayInMs;
 	}
 	
+	@Override
+	public boolean inScope(Tech tech) {
+		return this.techSet == null || this.techSet.includes(tech);
+	}
+	
+	@Override
+	public void setTechSet(TechSet ts) {
+		this.techSet = ts;
+	}
 }
