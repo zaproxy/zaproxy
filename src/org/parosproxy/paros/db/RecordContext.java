@@ -32,6 +32,8 @@ public class RecordContext {
 	public static final int TYPE_INCLUDE = 3;
 	public static final int TYPE_EXCLUDE = 4;
 	public static final int TYPE_IN_SCOPE = 5;
+	public static final int TYPE_INCLUDE_TECH = 6;
+	public static final int TYPE_EXCLUDE_TECH = 7;
 	
 	public static final int TYPE_AUTH_LOGIN_URL = 101;
 	public static final int TYPE_AUTH_LOGIN_POST_DATA = 102;
