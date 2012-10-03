@@ -25,7 +25,9 @@ public class Tech implements Comparable<Tech> {
 	// even though I've gone with a class instead on an enum;)
 
 	public static final Tech Db = new Tech("Db");
+	public static final Tech HypersonicSQL = new Tech(Db, "HypersonicSQL");
 	public static final Tech Oracle = new Tech(Db, "Oracle");
+	public static final Tech PostgreSQL = new Tech(Db, "PostgreSQL");
 	public static final Tech MsSQL = new Tech(Db, "MsSQL");
 	public static final Tech MySQL = new Tech(Db, "MySQL");
 	
@@ -40,7 +42,7 @@ public class Tech implements Comparable<Tech> {
 	public static final Tech Tomcat = new Tech(WS, "Tomcat");
 	
 	public static final Tech[] builtInTech = {
-									Db, Oracle, MsSQL, MySQL,
+									Db, HypersonicSQL, Oracle, PostgreSQL, MsSQL, MySQL,
 									OS, Linux, MacOS, Windows,
 									WS, Apache, IIS, Tomcat};
 
