@@ -23,6 +23,8 @@
 // ZAP: 2012/03/15 Removed an unnecessary try catch block and unnecessary casting.
 // Reworked the method getCharset.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2012/10/04 Changed to initialise the instance variable mVersion with a 
+// valid version (HttpHeader.HTTP10).
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -99,7 +101,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<>();
 	protected int mContentLength = -1;
 	protected String mLineDelimiter = CRLF;
-	protected String mVersion = "";
+	protected String mVersion = HttpHeader.HTTP10;
 	
 	public HttpHeader() {
 		init();
@@ -126,7 +128,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 		mMalformedHeader = false;
 		mContentLength = -1;
 		mLineDelimiter = CRLF;
-		mVersion = "";
+		mVersion = HttpHeader.HTTP10;
 	}
 
 	/**
