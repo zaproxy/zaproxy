@@ -36,6 +36,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -70,6 +71,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 	 * or 'SHA1PRNG' Secure random number generator
 	 * @throws IllegalStateException in case of errors during assembling {@link KeyStore}
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public final static KeyStore createRootCA() throws NoSuchAlgorithmException {
 		final Date startDate = Calendar.getInstance().getTime();
 		final Date expireDate = new Date(startDate.getTime()+ (DEFAULT_VALID_DAYS * 24L * 60L * 60L * 1000L));
@@ -104,9 +106,20 @@ import org.parosproxy.paros.security.SslCertificateService;
 			certGen.addExtension(X509Extension.subjectKeyIdentifier, true, new SubjectKeyIdentifierStructure(pubKey));
 			certGen.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
 			certGen.addExtension(X509Extension.keyUsage, false, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.cRLSign));
-			certGen.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.anyExtendedKeyUsage));
+			
+			// TODO check this works on all main browsers and platforms
+			// Start of changed section
+			//certGen.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.anyExtendedKeyUsage));
+			Vector eku = new Vector(5, 1);
+			eku.add(KeyPurposeId.id_kp_serverAuth);
+			eku.add(KeyPurposeId.id_kp_clientAuth);
+			eku.add(KeyPurposeId.anyExtendedKeyUsage);
+			certGen.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(eku));
+			// End of changed section
+
 			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privKey);
 			final X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
+
 			ks = KeyStore.getInstance(KeyStore.getDefaultType());
 			ks.load(null, null);
 			ks.setKeyEntry(SslCertificateService.ZAPROXY_JKS_ALIAS, privKey, SslCertificateService.PASSPHRASE, new Certificate[]{cert});
