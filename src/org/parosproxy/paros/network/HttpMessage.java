@@ -73,8 +73,6 @@ public class HttpMessage implements Message {
     //private String tag = "";
     // ZAP: Added note to HttpMessage
     private String note = "";
-    // ZAP: Support for multiple tags
-    private Vector<String> tags = new Vector<>();
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added logger
