@@ -38,6 +38,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 
 
 /**
@@ -128,24 +129,23 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
             return;
         }
         try {
-        	
+        	HttpMessage msg = node.getHistoryReference().getHttpMessage();
         	if (node.getHistoryReference() != null &&
         			(node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_MANUAL ||
         					node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER) &&
-        			node.getHistoryReference().getHttpMessage() != null &&
-        			node.getHistoryReference().getHttpMessage().getRequestHeader() != null &&
-        			node.getHistoryReference().getHttpMessage().getRequestHeader().getURI() != null) {
+        			msg != null && msg.getRequestHeader() != null &&
+        			msg.getRequestHeader().getURI() != null) {
 
-        		writer.write(node.getHistoryReference().getHttpMessage().getRequestHeader().getMethod());
+        		writer.write(msg.getRequestHeader().getMethod());
         		writer.write("\t");
         		if (html) {
             		writer.write("<a href=\"");
-        			writer.write(node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().toString());
+        			writer.write(msg.getRequestHeader().getURI().toString());
             		writer.write("\">");
-        			writer.write(node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().toString());
+        			writer.write(msg.getRequestHeader().getURI().toString());
             		writer.write("</a><br>");
         		} else {
-        			writer.write(node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().toString());
+        			writer.write(msg.getRequestHeader().getURI().toString());
         		}
         		writer.write(CRLF);
         	}

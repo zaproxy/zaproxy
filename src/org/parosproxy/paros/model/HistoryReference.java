@@ -26,6 +26,7 @@
 // ZAP: 2012/05/28 Added some JavaDoc
 // ZAP: 2012/06/13 Optimized alerts related code
 // ZAP: 2012/08/07 Deleted some not used Spider Related constants
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.model;
 
@@ -33,7 +34,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Vector;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
@@ -87,6 +91,17 @@ public class HistoryReference {
 	
 	// ZAP: Support for linking Alerts to Hrefs
 	private List<Alert> alerts;
+	
+	private String method = null;
+	private URI uri = null;
+	private int statusCode = -1;
+	private int rtt = -1;
+	private String reason = null;
+	private List<String> tags = new ArrayList<String>();
+	boolean hasNote = false;
+	private Boolean webSocketUpgrade = null;	// Deliberately a Boolean so we can initialise it from the msg
+
+    private static Logger log = Logger.getLogger(HistoryReference.class);
 
 	/**
      * @return Returns the sessionId.
@@ -105,10 +120,11 @@ public class HistoryReference {
 		}
 		HttpMessage msg = history.getHttpMessage();
  	   	// ZAP: Support for multiple tags
-		List<RecordTag> tags = staticTableTag.getTagsForHistoryID(historyId);
-		for (RecordTag tr : tags) {
-			msg.addTag(tr.getTag());
+		List<RecordTag> rtags = staticTableTag.getTagsForHistoryID(historyId);
+		for (RecordTag rtag : rtags) {
+			this.tags.add(rtag.getTag());
 		}
+
 		
 		build(history.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 	}
@@ -118,14 +134,16 @@ public class HistoryReference {
 		RecordHistory history = null;	
 		this.icons =  new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
+		this.uri = msg.getRequestHeader().getURI();
 		history = staticTableHistory.write(session.getSessionId(), historyType, msg);		
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
 		msg.setHistoryRef(this);
-		// ZAP: Support for multiple tags
-		for (String tag : msg.getTags()) {
-			this.addTag(tag);
+		List <RecordTag> rtags = staticTableTag.getTagsForHistoryID(historyId);
+		for (RecordTag rtag : rtags) {
+			this.tags.add(rtag.getTag());
 		}
+		
 		// ZAP: Support for loading the alerts from the db
 		List<RecordAlert> alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
 		for (RecordAlert alert: alerts) {
@@ -172,6 +190,15 @@ public class HistoryReference {
 		}
 		// ZAP: Init HttpMessage HistoryReference field
 		msg.setHistoryRef(this);
+		
+		// Cache info commonly used so that we dont need to keep reading the HttpMessage from the db. 
+		this.method = msg.getRequestHeader().getMethod();
+		this.uri = msg.getRequestHeader().getURI();
+		this.statusCode = msg.getResponseHeader().getStatusCode();
+        this.reason = msg.getResponseHeader().getReasonPhrase();
+        this.rtt = msg.getTimeElapsedMillis();
+        this.hasNote = msg.getNote() != null && msg.getNote().length() > 0;
+
 	}
 	
 	public static void setTableHistory(TableHistory tableHistory) {
@@ -191,7 +218,8 @@ public class HistoryReference {
 	}
 
 	/**
-	 * Gets the corresponding http message from the database.
+	 * Gets the corresponding http message from the database. Try to minimise calls to this method as much as possible.
+	 * But also dont cache the HttpMessage either as this can significantly increase ZAP's memory usage.
 	 * 
 	 * @return the http message
 	 * @throws HttpMalformedHeaderException the http malformed header exception
@@ -203,16 +231,16 @@ public class HistoryReference {
 		if (history == null) {
 			throw new HttpMalformedHeaderException("No history reference for id " + historyId + " type=" + historyType);
 		}
-		if (history.getHttpMessage() != null) {
-			// ZAP: Support for multiple tags
-			List <RecordTag> tags = staticTableTag.getTagsForHistoryID(historyId);
-			for (RecordTag tag : tags) {
-				history.getHttpMessage().addTag(tag.getTag());
-			}
-		}
 		// ZAP: Init HttpMessage HistoryReference field
 		history.getHttpMessage().setHistoryRef(this);
 		return history.getHttpMessage();
+	}
+	
+	public URI getURI() throws HttpMalformedHeaderException, SQLException {
+		if (this.uri == null) {
+			this.uri = this.getHttpMessage().getRequestHeader().getURI();
+		}
+		return this.uri;
 	}
 	
 	@Override
@@ -252,7 +280,7 @@ public class HistoryReference {
                staticTableTag.deleteTagsForHistoryID(historyId);
                staticTableHistory.delete(historyId);
            } catch (SQLException e) {
-               e.printStackTrace();
+        	   log.error(e.getMessage(), e);
            }
        }
    }
@@ -284,42 +312,35 @@ public class HistoryReference {
        
    }
    
-   // ZAP: Support for multiple tags
-   public void addTag(String tag) {
-       try {
-           staticTableTag.insert(historyId, tag);
-       } catch (SQLException e) {
-           e.printStackTrace();
-       }
-   }
+   	// ZAP: Support for multiple tags
+   	public void addTag(String tag) {
+   		try {
+   			staticTableTag.insert(historyId, tag);
+   			this.tags.add(tag);
+   		} catch (SQLException e) {
+   			log.error(e.getMessage(), e);
+   		}
+   	}
    
-   public void deleteTag(String tag) {
-       try {
-           staticTableTag.delete(historyId, tag);
-       } catch (SQLException e) {
-           e.printStackTrace();
-       }
-   }
-   
-   public List<String> getTags() {
-	   List <String> tags = new ArrayList<>();
-       try {
-           List<RecordTag> rTags = staticTableTag.getTagsForHistoryID(historyId);
-           for (RecordTag rTag : rTags) {
-        	   tags.add(rTag.getTag());
-           }
-       } catch (SQLException e) {
-           e.printStackTrace();
-       }
-       return tags;
-   }
+   	public void deleteTag(String tag) {
+   		try {
+   			staticTableTag.delete(historyId, tag);
+   			this.tags.remove(tag);
+   		} catch (SQLException e) {
+   			log.error(e.getMessage(), e);
+   		}
+   	}
+
+	public List<String> getTags() {
+		return this.tags;
+	}
    
    // ZAP: Added setNote method to HistoryReference
    public void setNote(String note) {
        try {
            staticTableHistory.updateNote(historyId, note);
        } catch (SQLException e) {
-           e.printStackTrace();
+           log.error(e.getMessage(), e);
        }
        
    }
@@ -333,15 +354,16 @@ public class HistoryReference {
 				this.addAlert(new Alert(alert, this));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
    }
    
    public synchronized boolean addAlert(Alert alert) {
 	   
 	   //If this is the first alert
-	   if(alerts==null)
-		   alerts=new ArrayList<>(1);
+	   if (alerts == null) {
+		   alerts = new ArrayList<>(1);
+	   }
 	   
 	   for (Alert a : alerts) {
 		   if (alert.equals(a)) {
@@ -403,9 +425,58 @@ public class HistoryReference {
 	 * @return the alerts
 	 */
    public List<Alert> getAlerts() {
-	   if(alerts!=null)
+	   if (alerts!=null) {
 		   return this.alerts;
-	   else
+	   } else {
 		   return Collections.emptyList();
+	   }
    }
+
+	public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public int getRtt() {
+		return rtt;
+	}
+
+	public void setRtt(int rtt) {
+		this.rtt = rtt;
+	}
+
+	public void setTags(Vector<String> tags) {
+		this.tags = tags;
+	}
+	
+	public boolean hasNote() {
+		return this.hasNote;
+	}
+
+	public boolean isWebSocketUpgrade() {
+		if (webSocketUpgrade == null) {
+			try {
+				webSocketUpgrade = this.getHttpMessage().isWebSocketUpgrade();
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+				webSocketUpgrade = false;
+			}
+		}
+		return webSocketUpgrade;
+	} 
 }

@@ -213,11 +213,12 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			for (Integer i : list) {
 				HistoryReference hRef = new HistoryReference(i);
 				if (filter.matches(hRef)) {
-					String response = hRef.getHttpMessage().getResponseHeader().toString() + 
-						hRef.getHttpMessage().getResponseBody().toString();
+					HttpMessage msg = hRef.getHttpMessage();
+					String response = msg.getResponseHeader().toString() + 
+						msg.getResponseBody().toString();
 					Source src = new Source(response);
 
-					scanner.scanHttpResponseReceive(hRef.getHttpMessage(), hRef.getHistoryId(), src);
+					scanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);
 				}
 			}
 		} catch (SQLException | HttpMalformedHeaderException e) {

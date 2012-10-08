@@ -122,10 +122,8 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
     	if (! supported) {
     		return;
     	}
-        HttpMessage msg = null;
         try {
-            msg = ref.getHttpMessage();
-            this.getBrowserLauncher().openURLinBrowser(msg.getRequestHeader().getURI().toString());
+            this.getBrowserLauncher().openURLinBrowser(ref.getURI().toString());
 
         } catch (Exception e) {
             extension.getView().showWarningDialog(Constant.messages.getString("history.browser.warning"));

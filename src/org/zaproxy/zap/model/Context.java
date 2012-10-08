@@ -145,10 +145,7 @@ public class Context {
 			return this.isInContext(href.getSiteNode());
 		}
 		try {
-			HttpMessage msg = href.getHttpMessage();
-			if (msg != null) {
-				return this.isInContext(msg.getRequestHeader().getURI().toString());
-			}
+			return this.isInContext(href.getURI().toString());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
 		}

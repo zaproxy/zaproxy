@@ -23,7 +23,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
 // class at runtime, to get the resources.
-
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.extension.history;
 
@@ -31,7 +31,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -39,15 +38,15 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 
 public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<HistoryReference> {
 
-    private JLabel txtId = null;
+	private static final long serialVersionUID = 1L;
+	private JLabel txtId = null;
     private JLabel txtMethod = null;
     private JLabel txtURI = null;
     private JLabel txtStatus = null;
@@ -57,6 +56,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<His
 	private JLabel txtNote = null;
 	private JLabel txtFlag = null;
 
+	private Logger logger = Logger.getLogger(LogPanelCellRenderer.class);
 
     /**
      * This is the default constructor
@@ -251,17 +251,15 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<His
         
         txtId.setText(Integer.toString(ref.getHistoryId()));
         
-        HttpMessage msg;
         try {
-            msg = ref.getHttpMessage();
-            txtMethod.setText(msg.getRequestHeader().getMethod());
-            txtURI.setText(msg.getRequestHeader().getURI().toString());
-            txtStatus.setText(Integer.toString(msg.getResponseHeader().getStatusCode()));
-            txtReason.setText(msg.getResponseHeader().getReasonPhrase());
-            txtRTT.setText(msg.getTimeElapsedMillis()+"ms");
+            txtMethod.setText(ref.getMethod());
+            txtURI.setText(ref.getURI().toString());
+            txtStatus.setText(""+ref.getStatusCode());
+            txtReason.setText(ref.getReason());
+            txtRTT.setText(ref.getRtt()+"ms");
             // ZAP: Support for multiple tags
             StringBuilder sb = new StringBuilder();
-            for (String tag : msg.getTags()) {
+            for (String tag : ref.getTags()) {
             	if (sb.length() > 0) {
                 	sb.append(", ");
             	}
@@ -269,7 +267,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<His
             }
             txtTag.setText(sb.toString());
             
-            if (msg.getNote() != null && msg.getNote().length() > 0) {
+            if (ref.hasNote()) {
             	// ZAP: Changed to use the class literal.
             	txtNote.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
             } else {
@@ -300,10 +298,8 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<His
             }
 
 
-        } catch (HttpMalformedHeaderException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+        	logger.error(e.getMessage(), e);
         }
         
         if (isSelected) {

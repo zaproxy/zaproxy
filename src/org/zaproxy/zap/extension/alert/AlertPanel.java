@@ -54,6 +54,8 @@ import org.zaproxy.zap.utils.ZapTextField;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class AlertPanel extends AbstractPanel {
+	
+	public static final String ALERT_TREE_PANEL_NAME = "treeAlert";
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AlertPanel.class);
@@ -137,6 +139,7 @@ public class AlertPanel extends AbstractPanel {
 		return panelCommand;
 	}
 
+	@SuppressWarnings("unused")
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
 			
@@ -223,7 +226,6 @@ public class AlertPanel extends AbstractPanel {
 	}
 
 	private void doSearch() {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -234,7 +236,7 @@ public class AlertPanel extends AbstractPanel {
 	JTree getTreeAlert() {
 		if (treeAlert == null) {
 			treeAlert = new JTree();
-			treeAlert.setName("treeAlert");
+			treeAlert.setName(ALERT_TREE_PANEL_NAME);
 			treeAlert.setShowsRootHandles(true);
 			treeAlert.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
 			treeAlert.addMouseListener(new java.awt.event.MouseAdapter() { 

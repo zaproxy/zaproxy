@@ -33,6 +33,7 @@
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.model;
 
@@ -568,10 +569,7 @@ public class Session extends FileXML {
 			return this.isInScope(href.getSiteNode());
 		}
 		try {
-			HttpMessage msg = href.getHttpMessage();
-			if (msg != null) {
-				return this.isInScope(msg.getRequestHeader().getURI().toString());
-			}
+			return this.isInScope(href.getURI().toString());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
 		}

@@ -599,7 +599,7 @@ public class AlertViewPanel extends AbstractPanel {
 		    msg = httpMessage;
 		} else if (historyRef != null) {
 			try {
-				uri = historyRef.getHttpMessage().getRequestHeader().getURI().toString();
+				uri = historyRef.getURI().toString();
 				msg = historyRef.getHttpMessage();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

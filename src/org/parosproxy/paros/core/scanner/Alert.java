@@ -28,11 +28,14 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/02 Changed to not create a new String in the setters.
 // ZAP: 2012/07/10 Issue 323: Added getIconUrl()
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
+import java.sql.SQLException;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordAlert;
@@ -70,12 +73,17 @@ public class Alert implements Comparable<Object>  {
 	private String 	otherInfo = "";
 	private String 	solution = "";
 	private String	reference = "";
+	// Tempory ref - should be cleared asap after use
 	private HttpMessage message = null;
 	// ZAP: Added sourceHistoryId to Alert
 	private int		sourceHistoryId = 0;
 	private HistoryReference historyRef = null;
 	// ZAP: Added logger
 	Logger logger = Logger.getLogger(Alert.class);
+	// Cache this info so that we dont have to keep a ref to the HttpMessage
+	private String method = null;
+	private String postData;
+	private URI msgUri = null;
 	
 	public Alert(int pluginId) {
 		this.pluginId = pluginId;
@@ -149,6 +157,21 @@ public class Alert implements Comparable<Object>  {
 		setSolution(solution);
 		setReference(reference);
 		setMessage(msg);
+		if (msg != null) {
+			this.historyRef = msg.getHistoryRef();
+		}
+	}
+
+	private void setDetail(String description, String uri, String param, String attack, String otherInfo, 
+			String solution, String reference, HistoryReference href) {
+		setDescription(description);
+		setUri(uri);
+		setParam(param);
+		setAttack(attack);
+		setOtherInfo(otherInfo);
+		setSolution(solution);
+		setReference(reference);
+		this.historyRef = href;
 	}
 
 	public void setUri(String uri) {
@@ -192,9 +215,13 @@ public class Alert implements Comparable<Object>  {
 
 	public void setMessage(HttpMessage message) {
 	    if (message != null) {
-	        this.message = message.cloneAll();
+	    	this.message = message;
+	    	this.method = message.getRequestHeader().getMethod();
+	    	this.postData = message.getRequestBody().toString();
+	    	this.msgUri = message.getRequestHeader().getURI();
 	    } else {
-	        this.message = message;
+	    	// Used to clear the ref so we dont hold onto it
+	    	this.message = null;
 	    }
 	}
 	
@@ -258,7 +285,7 @@ public class Alert implements Comparable<Object>  {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskReliability(this.risk, this.reliability);
 		item.setAlert(this.alert);
-		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.message);
+		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
 		return item;
 	}
 	
@@ -333,7 +360,17 @@ public class Alert implements Comparable<Object>  {
      * @return Returns the message.
      */
     public HttpMessage getMessage() {
-        return message;
+    	if (this.message != null) {
+    		return this.message;
+    	}
+    	if (this.historyRef != null) {
+    		try {
+				return this.historyRef.getHttpMessage();
+			} catch (HttpMalformedHeaderException | SQLException e) {
+	        	logger.error(e.getMessage(), e);
+			}
+    	}
+        return null;
     }
     /**
      * @return Returns the otherInfo.
@@ -443,6 +480,18 @@ public class Alert implements Comparable<Object>  {
 
 	public void setAttack(String attack) {
 		this.attack = attack;
+	}
+
+	public String getMethod() {
+		return method;
+	}
+
+	public String getPostData() {
+		return postData;
+	}
+
+	public URI getMsgUri() {
+		return msgUri;
 	}
     
 }	

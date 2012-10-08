@@ -77,19 +77,16 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReference {
 				alerts = href.getSiteNode().getAlerts();
 			}
 			try {
-				hrefURI = href.getHttpMessage().getRequestHeader().getURI();
+				hrefURI = href.getURI();
 			} catch (Exception e) {
-				// Ignore
+				// Probably closing the session?
+				return false;
 			}
 			List<PopupMenuShowAlert> alertList = new ArrayList<>(); 
 			for (Alert alert : alerts) {
 				// Just show ones for this node
-				if (alert.getMessage() != null) {
-					if ( ! alert.getMessage().getRequestHeader().getURI().equals(hrefURI)) {
-						continue;
-					} else if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
-						continue;
-					}
+				if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
+					continue;
 				}
 		    	StringBuilder sb = new StringBuilder();
 		    	sb.append("<html><body>");

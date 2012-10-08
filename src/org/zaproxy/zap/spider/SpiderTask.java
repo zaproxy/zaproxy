@@ -154,7 +154,7 @@ public class SpiderTask implements Runnable {
 			try {
 				log.debug("Spider Task Started. Processing uri at depth " + depth
 						+ " using already constructed message:  "
-						+ reference.getHttpMessage().getRequestHeader().getURI());
+						+ reference.getURI());
 			} catch (Exception e1) { // Ignore it
 			}
 		}

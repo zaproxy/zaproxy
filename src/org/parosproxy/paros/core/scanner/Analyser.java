@@ -24,6 +24,7 @@
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // 		as introduced with version 3.1 of HttpClient
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.core.scanner;
 
@@ -195,7 +196,6 @@ public class Analyser {
 		String suffix = null;
 		SiteNode child = null;
         HistoryReference ref = null;
-		HttpMessage msg = null;
 		try {
 
 			for (int i=0; i<staticSuffixList.length; i++) {
@@ -204,8 +204,7 @@ public class Analyser {
 					child = (SiteNode) node.getChildAt(j);
                     ref = child.getHistoryReference();
 					try {
-					    msg = ref.getHttpMessage();
-                        if (msg.getRequestHeader().getURI().getPath().endsWith(suffix)) {
+                        if (ref.getURI().getPath().endsWith(suffix)) {
 					        return suffix;
 					    }
 					} catch (Exception e) {

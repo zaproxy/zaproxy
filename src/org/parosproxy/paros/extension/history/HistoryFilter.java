@@ -23,6 +23,7 @@ package org.parosproxy.paros.extension.history;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
@@ -41,6 +42,8 @@ public class HistoryFilter {
 	private List<String> tagList = new ArrayList<>();
 	private String note = null;
 	
+	private Logger logger = Logger.getLogger(HistoryFilter.class);
+
 	public void setMethods(List<String> methods) {
 		methodList.clear();
 		methodList.addAll(methods);
@@ -74,13 +77,11 @@ public class HistoryFilter {
 	public boolean matches(HistoryReference historyRef) {
 		try {
 			if (methodList.size() > 0 && 
-					! methodList.contains(historyRef.getHttpMessage().
-							getRequestHeader().getMethod())) {
+					! methodList.contains(historyRef.getMethod())) {
 				return false;
 			}
 			if (codeList.size() > 0 &&  
-					! codeList.contains(Integer.valueOf(historyRef.getHttpMessage().
-							getResponseHeader().getStatusCode()))) {
+					! codeList.contains(Integer.valueOf(historyRef.getStatusCode()))) {
 				return false;
 			}
 			boolean foundTag = false;
@@ -118,8 +119,7 @@ public class HistoryFilter {
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return true;
 	}

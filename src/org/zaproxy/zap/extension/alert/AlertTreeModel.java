@@ -40,8 +40,7 @@ class AlertTreeModel extends DefaultTreeModel {
 	private int totalHigh = 0;
 	
     AlertTreeModel() {
-        super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));	// ZAP: i18n
-        
+        super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));
     }
     
     public void recalcAlertCounts() {
@@ -93,20 +92,14 @@ class AlertTreeModel extends DefaultTreeModel {
         
         AlertNode parent = (AlertNode) getRoot();
         String alertNodeName = getRiskString(alert);
-        
-        try {
-            parent = findAndAddChild(parent, alertNodeName, alert);
-            // Show the method first, if present
-            String method = "";
-            if (alert.getMessage() != null && alert.getMessage().getRequestHeader() != null) {
-            	method = alert.getMessage().getRequestHeader().getMethod() + ": ";
-            }
-            findAndAddLeaf(parent, method + alert.getUri(), alert);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
+    
+        parent = findAndAddChild(parent, alertNodeName, alert);
+        // Show the method first, if present
+        String method = "";
+        if (alert.getMethod() != null) {
+        	method = alert.getMethod() + ": ";
         }
-        
+        findAndAddLeaf(parent, method + alert.getUri(), alert);
     }
     
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {

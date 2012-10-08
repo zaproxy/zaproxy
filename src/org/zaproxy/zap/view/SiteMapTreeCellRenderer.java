@@ -24,11 +24,12 @@ import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
@@ -64,7 +65,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (leaf && isWebSocketNode(value)) {
 			// WebSocket icon
 			ExtensionWebSocket extWebSocket = getExtWebSocket();
-			if (extWebSocket != null && extWebSocket.isConnected(getHttpMessageFromNode(value))) {
+			if (extWebSocket != null && extWebSocket.isConnected(getHistoryReferenceFromNode(value))) {
 				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
 					setIcon(WebSocketPanel.connectTargetIcon);
 				} else {
@@ -121,15 +122,8 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @return
 	 */
 	private boolean isWebSocketNode(Object value) {
-		HttpMessage msg = null;
-		
-		msg = getHttpMessageFromNode(value);
-		
-		if (msg != null && msg.isWebSocketUpgrade()) {
-			return true;
-		}
-		
-		return false;
+		HistoryReference href = this.getHistoryReferenceFromNode(value);
+		return href != null && href.isWebSocketUpgrade();
 	}
 	
 	/**
@@ -138,17 +132,14 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @param value
 	 * @return
 	 */
-	private HttpMessage getHttpMessageFromNode(Object value) {
+	private HistoryReference getHistoryReferenceFromNode(Object value) {
 		SiteNode node = null;
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
 	
 			if (node.getHistoryReference() != null) {
 				try {
-					// TODO: When a new session is created, a HttpMalformedHeaderException is received here, but why?
-					HttpMessage msg = node.getHistoryReference().getHttpMessage();
-	
-					return msg;
+					return node.getHistoryReference();
 				} catch (Exception e) {
 					log.warn(e.getMessage(), e);
 				}

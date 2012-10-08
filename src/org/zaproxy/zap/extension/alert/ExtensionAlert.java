@@ -117,6 +117,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             }
             if (ref == null) {
                 ref = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_SCANNER, alert.getMessage());
+                alert.setHistoryRef(ref);
             }
 
             hrefs.add(ref);
@@ -126,6 +127,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
             // The node node may have a new alert flag...
             this.siteNodeChanged(ref.getSiteNode());
+
+            // Clear the message so that it can be GC'ed
+            alert.setMessage(null);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -176,7 +180,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
 
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        SiteNode node = siteTree.findNode(alert.getMessage());
+        SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
         if (ref != null && (node == null || !node.hasAlert(alert))) {
             // Add new alerts to the site tree
             siteTree.addPath(ref);
@@ -287,7 +291,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
         
-        // XXX Temporary "hack" to check if ZAP is in GUI mode.
+        // Check if ZAP is in GUI mode.
         // tree.recalcAlertCounts() calls View.getSingleton() that creates the
         // View, if a View exists and the API was not enabled (through
         // configuration) the API becomes disabled everywhere (including daemon
@@ -360,7 +364,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     private PopupMenuShowAlerts getPopupMenuShowAlerts() {
         if (popupMenuShowAlerts == null) {
-            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup")); // TODO
+            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"));
         }
         return popupMenuShowAlerts;
     }
@@ -405,7 +409,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private void deleteAlertFromDisplayEventHandler(Alert alert) {
         // Note - tried doing this in a SwingWorker but it too a LOT longer to run
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        SiteNode node = siteTree.findNode(alert.getMessage());
+        SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
         if (node != null && node.hasAlert(alert)) {
             siteNodeChanged(node);
         }
@@ -417,6 +421,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
                     try {
+                        node = siteTree.findNode(href.getHttpMessage());
+                        // TODO Ideally should cache the param names (and change findNode) so we dont have to get
+                        // the message from the db
                         node = siteTree.findNode(href.getHttpMessage());
                         if (node != null) {
 	                        node.deleteAlert(alert);

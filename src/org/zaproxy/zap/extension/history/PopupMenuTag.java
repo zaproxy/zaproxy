@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.history;
 
 import java.awt.Component;
-import java.sql.SQLException;
 
 import javax.swing.JList;
 
@@ -28,8 +27,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 
 
 /**
@@ -69,15 +66,9 @@ public class PopupMenuTag extends ExtensionPopupMenuItem {
         	public void actionPerformed(java.awt.event.ActionEvent e) {
         	    
         	    HistoryReference ref = extension.getSelectedHistoryReference();
-        	    HttpMessage msg = null;
-        	    try {
-                    msg = ref.getHttpMessage();
-            	    extension.showManageTagsDialog(ref, msg.getTags());
-                } catch (HttpMalformedHeaderException e1) {
-                    e1.printStackTrace();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
+        	    if (ref != null) {
+        	    	extension.showManageTagsDialog(ref, ref.getTags());
+        	    }
         	}
         });
 

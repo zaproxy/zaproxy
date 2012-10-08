@@ -44,6 +44,7 @@ import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -497,11 +498,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Returns true if the WebSocket connection that followed the given
 	 * WebSocket handshake is already alive.
 	 * 
-	 * @param handshakeMessage
+	 * @param handshakeRef
 	 * @return True if connection is still alive.
 	 */
-	public boolean isConnected(HttpMessage handshakeMessage) {
-		int historyId = handshakeMessage.getHistoryRef().getHistoryId();
+	public boolean isConnected(HistoryReference handshakeRef) {
+		int historyId = handshakeRef.getHistoryId();
 		synchronized (wsProxies) {
 			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
 				WebSocketProxy proxy = entry.getValue();

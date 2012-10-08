@@ -202,7 +202,7 @@ public class ManageTagsDialog extends AbstractDialog {
 		return tagList;
 	}
 	
-	public void setTags (Vector<String> tags) {
+	public void setTags (List<String> tags) {
 		addedTags.clear();
 		deletedTags.clear();
 		tagListModel.clear();

@@ -29,6 +29,7 @@
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/09 Added HttpSession field 
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.network;
 
@@ -423,6 +424,7 @@ public class HttpMessage implements Message {
 	    
 	    return result;
 	}
+	//TODO factor out
 	
 	public TreeSet<String> getParamNameSet(String params) {
 	    TreeSet<String> set = new TreeSet<>();
@@ -456,6 +458,7 @@ public class HttpMessage implements Message {
 	}
 
 	// ZAP: Introduced HtmlParameter
+	// TODO factor out
 	private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type, String params) {
 		TreeSet<HtmlParameter> set = new TreeSet<>();
 		//!!! note: this means param not separated by & is not parsed
@@ -680,33 +683,6 @@ public class HttpMessage implements Message {
      */
     public void setTimeSentMillis(long timeSent) {
         this.timeSent = timeSent;
-    }
-    
-    /*
-     * @return Returns the tag.
-     *
-    public String getTag() {
-        return tag;
-    }
-    */
-
-    /*
-     * @param tag The tag to set.
-     *
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-    */
-    public Vector<String> getTags() {
-    	return this.tags;
-    }
-    
-    public void addTag (String tag) {
-    	this.tags.add(tag);
-    }
-    
-    public void removeTag (String tag) {
-    	this.tags.remove(tag);
     }
     
     /**

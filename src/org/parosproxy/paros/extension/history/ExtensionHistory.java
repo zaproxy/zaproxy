@@ -38,13 +38,13 @@
 // ZAP: 2012/07/02 Added the method showAlertAddDialog(HttpMessage, int).
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event and removed access to some UI elements
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/10/08 Issue 391: Performance improvements
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -283,7 +283,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             synchronized (getHistoryList()) {
                 if (historyRef.getHistoryType() == HistoryReference.TYPE_MANUAL) {
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
-	            			historyRef.getHttpMessage().getRequestHeader().getURI().toString())) {
+	            			historyRef.getURI().toString())) {
 	            		// Not in scope
 	            		return;
 	            	}
@@ -359,7 +359,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	                    historyRef.setSiteNode(sn);
 	            	}
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
-	            			historyRef.getHttpMessage().getRequestHeader().getURI().toString())) {
+	            			historyRef.getURI().toString())) {
 	            		// Not in scope
 	            		continue;
 	            	}
@@ -571,7 +571,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		dialogAlertAdd.dispose();
 	}
 	
-	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, Vector<String> tags) {
+	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, List<String> tags) {
 		try {
 			manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
 		} catch (SQLException e) {
@@ -582,7 +582,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	manageTags.setVisible(true);
 	}
 	
-    public void showManageTagsDialog(HistoryReference ref, Vector<String> tags) {
+    public void showManageTagsDialog(HistoryReference ref, List<String> tags) {
     	if (manageTags == null) {
 	    	manageTags = new ManageTagsDialog(getView().getMainFrame(), false);
 	    	manageTags.setPlugin(this);
