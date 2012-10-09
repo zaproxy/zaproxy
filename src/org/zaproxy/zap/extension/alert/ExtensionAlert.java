@@ -47,6 +47,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -123,7 +124,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             hrefs.add(ref);
 
             writeAlertToDB(alert, ref);
-            addAlertToDisplay(alert, ref);
+            addAlertToDisplay(alert, ref, alert.getMessage());
 
             // The node node may have a new alert flag...
             this.siteNodeChanged(ref.getSiteNode());
@@ -145,13 +146,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         siteNodeChanged(node.getParent());
     }
 
-    private void addAlertToDisplay(final Alert alert, final HistoryReference ref) {
+    private void addAlertToDisplay(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
         if (getView() == null) {
             // Running as a daemon
             return;
         }
         if (EventQueue.isDispatchThread()) {
-            addAlertToDisplayEventHandler(alert, ref);
+            addAlertToDisplayEventHandler(alert, ref, msg);
 
         } else {
 
@@ -163,7 +164,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
                     @Override
                     public void run() {
-                        addAlertToDisplayEventHandler(alert, ref);
+                        addAlertToDisplayEventHandler(alert, ref, msg);
                     }
                 });
             } catch (Exception e) {
@@ -172,7 +173,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
     }
 
-    private void addAlertToDisplayEventHandler(Alert alert, HistoryReference ref) {
+    private void addAlertToDisplayEventHandler(Alert alert, HistoryReference ref, HttpMessage msg) {
 
         synchronized (treeAlert) {
             treeAlert.addPath(alert);
@@ -183,9 +184,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
         if (ref != null && (node == null || !node.hasAlert(alert))) {
             // Add new alerts to the site tree
-            siteTree.addPath(ref);
+        	if (msg != null) {
+        		// Saves a db read, which is always well worth it!
+        		siteTree.addPath(ref, msg);
+        	} else {
+        		siteTree.addPath(ref);
+        	}
             ref.addAlert(alert);
-            this.siteNodeChanged(ref.getSiteNode());
         }
     }
 
@@ -331,7 +336,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             Alert alert = new Alert(recAlert);
             if (alert.getHistoryRef() != null) {
                 // The ref can be null if hrefs are purged
-                addAlertToDisplay(alert, alert.getHistoryRef());
+                addAlertToDisplay(alert, alert.getHistoryRef(), null);
                 this.hrefs.add(alert.getHistoryRef());
             }
         }

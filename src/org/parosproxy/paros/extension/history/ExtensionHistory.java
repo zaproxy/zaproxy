@@ -44,6 +44,7 @@ package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -105,6 +106,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private ManageTagsDialog manageTags = null;
 	
 	private boolean showJustInScope = false;
+	
+	// Used to cache hrefs not added into the historyList
+	private Hashtable<Integer, HistoryReference> historyIdToRef = new Hashtable<Integer, HistoryReference>();
+
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
@@ -267,7 +272,21 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	public HistoryReference getHistoryReference (int historyId) {
-		return getHistoryList().getHistoryReference(historyId);
+		HistoryReference href = getHistoryList().getHistoryReference(historyId);
+		if (href != null) {
+			return href;
+		}
+		href = historyIdToRef.get(historyId);
+		if (href == null) {		
+			try {
+				href = new HistoryReference(historyId);
+				hack(href);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return href;
+		
 	}
 	
     public void addHistory (HttpMessage msg, int type) {
@@ -278,6 +297,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
     }
     
+    private void hack (HistoryReference historyRef) {
+    	historyIdToRef.put(historyRef.getHistoryId(), historyRef);
+    }
+    
     public void addHistory (HistoryReference historyRef) {
         try {
             synchronized (getHistoryList()) {
@@ -285,12 +308,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
 	            			historyRef.getURI().toString())) {
 	            		// Not in scope
+	            		hack(historyRef);
 	            		return;
 	            	}
 	        		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
 	        		HistoryFilter historyFilter = dialog.getFilter();
                     if (historyFilter != null && !historyFilter.matches(historyRef)) {
 	            		// Not in filter
+	            		hack(historyRef);
 	            		return;
                     }
 

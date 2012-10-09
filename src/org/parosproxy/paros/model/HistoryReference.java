@@ -359,30 +359,36 @@ public class HistoryReference {
    }
    
    public synchronized boolean addAlert(Alert alert) {
-	   
 	   //If this is the first alert
 	   if (alerts == null) {
 		   alerts = new ArrayList<>(1);
 	   }
 	   
+	   boolean add = true;
+	   
 	   for (Alert a : alerts) {
 		   if (alert.equals(a)) {
 			   // We've already recorded it
-			   return false;
+				add = false;
 		   }
 	   }
-	   this.alerts.add(alert);
-	   alert.setHistoryRef(this);
+	   if (add) {
+		   this.alerts.add(alert);
+		   alert.setHistoryRef(this);
+	   }
+	   // Try to add to the SiteHNode anyway - that will also check if its already added
 	   if (this.siteNode != null) {
 		   siteNode.addAlert(alert);
+	   } else {
 	   }
-	   return true;
+	   return add;
    }
    
    public synchronized void updateAlert(Alert alert) {
 	   //If there are no alerts yet
-	   if(alerts==null)
+	   if (alerts == null) {
 		   return;
+	   }
 	   
 	   for (Alert a : alerts) {
 		   if (a.getAlertId() == alert.getAlertId()) {
@@ -399,8 +405,9 @@ public class HistoryReference {
    }
    
    public synchronized void deleteAlert(Alert alert) {
-	   if(alerts!=null)
+	   if (alerts != null) {
 		   alerts.remove(alert);
+	   }
    }
    
    public int getHighestAlert() {
@@ -425,7 +432,7 @@ public class HistoryReference {
 	 * @return the alerts
 	 */
    public List<Alert> getAlerts() {
-	   if (alerts!=null) {
+	   if (alerts != null) {
 		   return this.alerts;
 	   } else {
 		   return Collections.emptyList();
