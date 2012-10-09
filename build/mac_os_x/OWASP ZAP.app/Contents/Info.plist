@@ -2,14 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleAllowMixedLocalizations</key>
-	<string>true</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>JavaApplicationStub</string>
-	<key>CFBundleGetInfoString</key>
+	<key>CFBundleDisplayName</key>
 	<string>OWASP ZAP</string>
+	<key>CFBundleExecutable</key>
+	<string>JavaAppLauncher</string>
 	<key>CFBundleIconFile</key>
 	<string>ZAP.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -26,25 +22,40 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>_VERSION_STRING_</string>
-	<key>Java</key>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>JVMInfo</key>
 	<dict>
-		<key>ClassPath</key>
-		<string>$JAVAROOT/zap.jar</string>
-		<key>JVMVersion</key>
-		<string>1.6+</string>
+		<key>JRE</key>
+		<string>1.7.0u.jre</string>
 		<key>MainClass</key>
 		<string>org.zaproxy.zap.ZAP</string>
-		<key>Properties</key>
+		<key>ClassPath</key>
+		<string>$JAVAROOT/zap.jar</string>	
+		<key>Arguments</key>
+        <array/>
+        <key>Properties</key>
 		<dict>
-			<key>apple.awt.showGrowBox</key>
-			<string>true</string>
 			<key>apple.laf.useScreenMenuBar</key>
+			<string>true</string>
+			<key>apple.awt.showGrowBox</key>
 			<string>true</string>
 		</dict>
 		<key>VMOptions</key>
-		<string>-Xms256m -Xmx512m -XX:PermSize=256M</string>
+		<array>
+			<string>-Xms256m</string>
+			<string>-Xmx512m</string>
+			<string>-XX:PermSize=256M</string>
+			<string>-Xdock:icon=Contents/Resources/ZAP.icns</string>
+		</array>
 		<key>WorkingDirectory</key>
-		<string>$APP_PACKAGE/Contents/Resources/Java</string>
+		<string>$JAVAROOT/</string>
 	</dict>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.developer-tools</string>
+	<key>LSMinimumSystemVersion</key>
+	<string></string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 2012 OWASP ZAP Project. All Rights Reserved.</string>
 </dict>
 </plist>

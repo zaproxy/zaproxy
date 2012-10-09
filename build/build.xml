@@ -17,9 +17,9 @@
 	<property name="mac-skeleton" location="mac_os_x" />
 	<property name="app.name" value="OWASP ZAP.app" />
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
-	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaApplicationStub" />
-	<property name="app.java" value="${app.bundle}/Contents/Resources/Java" />
-	<property name="apple.appstub" location="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub" />
+	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
+	<property name="app.java" value="${app.bundle}/Contents/Java" />
+	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
 	<condition property="isMac">
@@ -266,8 +266,6 @@
 			<fileset dir="${mac-skeleton}" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 
-		<copy file="${apple.appstub}" toFile="${app.executable}" overwrite="true" />
-		<!-- fix stub permissions -->
 		<chmod perm="755" file="${app.executable}" />
 
 		<copy todir="${app.java}">
@@ -275,15 +273,21 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
-				<exclude name="zap.sh" />
 				<exclude name="**/*.bat" />
+				<exclude name="**/*.ico" />
 			</fileset>
 		</copy>
-
+		
+		<!-- SVN destroys JRE, therefore we have to use this ugly fix in order to include a proper JRE -->
+		<exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
+			<arg line=" 1.7.0u.jre.zip" />
+		</exec>
+		<delete file="${app.plugins}/1.7.0u.jre.zip" />
+		
 		<replace dir="${app.bundle}" summary="true" encoding="UTF-8">
 			<include name="**/Info.plist" />
 			<replacefilter token="_SHORT_VERSION_STRING_" value="${version}" />
-			<replacefilter token="_VERSION_STRING_" value="${version}" />
+			<replacefilter token="_VERSION_STRING_" value="1" />
 		</replace>
 
 		<echo message="Creating ZIP archive for the Mac OS X release..." />
