@@ -173,9 +173,9 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		case 1:
 			// had problems with ASCII arrows => use icons
 			if (message.isOutgoing) {
-				return outgoingDirection; //"→";
+				return outgoingDirection;
 			} else {
-				return incomingDirection; //"←";
+				return incomingDirection;
 			}
 
 		case 2:
