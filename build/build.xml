@@ -266,8 +266,6 @@
 			<fileset dir="${mac-skeleton}" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 
-		<chmod perm="755" file="${app.executable}" />
-
 		<copy todir="${app.java}">
 			<fileset dir="${dist}">
 				<include name="**" />
@@ -278,7 +276,10 @@
 			</fileset>
 		</copy>
 		
-		<!-- SVN destroys JRE, therefore we have to use this ugly fix in order to include a proper JRE -->
+		<chmod perm="755" file="${app.executable}" />
+		<chmod perm="755" file="${app.java}/zap.sh" />
+		
+		<!-- SVN destroys the JRE directory, therefore we have to use this ugly fix in order to include a proper JRE -->
 		<exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
 			<arg line=" 1.7.0u.jre.zip" />
 		</exec>
