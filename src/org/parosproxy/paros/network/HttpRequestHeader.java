@@ -31,6 +31,8 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
+// ZAP: 2012/10/08 Issue 361: getHostPort on HttpRequestHeader for HTTPS CONNECT
+// requests returns the wrong port
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -73,7 +75,23 @@ public class HttpRequestHeader extends HttpHeader {
     private String mMethod = "";
     private URI mUri = null;
     private String mHostName = "";
-    private int mHostPort = 80;
+
+    /**
+     * The host port number of this request message, a non-negative integer.
+     * <p>
+     * <strong>Note:</strong> All the modifications to the instance variable
+     * {@code mHostPort} must be done through the method
+     * {@code setHostPort(int)}, so a valid and correct value is set when no
+     * port number is defined (which is represented with the negative integer
+     * -1).
+     * </p>
+     * 
+     * @see #getHostPort()
+     * @see #setHostPort(int)
+     * @see URI#getPort()
+     */
+    private int mHostPort;
+
     private boolean mIsSecure = false;
 
     /**
@@ -116,7 +134,7 @@ public class HttpRequestHeader extends HttpHeader {
         mMethod = "";
         mUri = null;
         mHostName = "";
-        mHostPort = 80;
+        setHostPort(-1);
         mMsgHeader = "";
 
     }
@@ -144,7 +162,7 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Set this requeset header with the given message.
+     * Set this request header with the given message.
      *
      * @param data
      * @param isSecure If this request header is secure. URL will be converted
@@ -227,6 +245,8 @@ public class HttpRequestHeader extends HttpHeader {
         } else {
             mIsSecure = false;
         }
+        
+        setHostPort(mUri.getPort());
     }
 
     /**
@@ -253,18 +273,18 @@ public class HttpRequestHeader extends HttpHeader {
             return;
         }
 
+        URI newUri = mUri;
         // check if URI consistent
         if (getSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
-            mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
-            return;
+            newUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
+        } else if (!getSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
+            newUri = new URI(mUri.toString().replaceFirst(HTTPS, HTTP), true);
         }
 
-        if (!getSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
-            mUri = new URI(mUri.toString().replaceFirst(HTTPS, HTTP), true);
-            return;
+        if (newUri != mUri) {
+            mUri = newUri;
+            setHostPort(mUri.getPort());
         }
-
-
     }
 
     /**
@@ -335,7 +355,7 @@ public class HttpRequestHeader extends HttpHeader {
             parseHostName(hostHeader);
         } else {
             mHostName = mUri.getHost();
-            mHostPort = mUri.getPort();
+            setHostPort(mUri.getPort());
         }
         return true;
     }
@@ -345,17 +365,19 @@ public class HttpRequestHeader extends HttpHeader {
         if (hostHeader == null) {
             return;
         }
+        int port = -1;
         int pos = 0;
         if ((pos = hostHeader.indexOf(':', 2)) > -1) {
             mHostName = hostHeader.substring(0, pos).trim();
             try {
-                mHostPort = Integer.parseInt(hostHeader.substring(pos + 1));
+                port = Integer.parseInt(hostHeader.substring(pos + 1));
             } catch (NumberFormatException e) {
             }
         } else {
             mHostName = hostHeader.trim();
         }
 
+        setHostPort(port);
     }
 
     /**
@@ -377,21 +399,42 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Get the host port.
-     *
-     * @return Host port.
+     * Gets the host port number of this request message, a non-negative
+     * integer.
+     * <p>
+     * If no port is defined the default port for the used scheme will be
+     * returned, either 80 for HTTP or 443 for HTTPS.
+     * </p>
+     * 
+     * @return the host port number, a non-negative integer
      */
     public int getHostPort() {
-        int port = mUri.getPort();
+        return mHostPort;
+    }
 
-        if (port > 0) {
-            return port;
+    /**
+     * Sets the host port number of this request message.
+     * <p>
+     * If the given {@code port} number is negative (usually -1 to represent
+     * that no port number is defined), the port number set will be the default
+     * port number for the used scheme known using the method
+     * {@code getSecure()}, either 80 for HTTP or 443 for HTTPS.
+     * </p>
+     * 
+     * @param port
+     *            the new port number
+     * @see #mHostPort
+     * @see #getSecure()
+     * @see URI#getPort()
+     */
+    private void setHostPort(int port) {
+        if (port > -1) {
+            mHostPort = port;
+        } else if (this.getSecure()) {
+            mHostPort = 443;
+        } else {
+            mHostPort = 80;
         }
-        if (this.getSecure()) {
-            return 443;
-        }
-        
-        return 80;
     }
 
     /**

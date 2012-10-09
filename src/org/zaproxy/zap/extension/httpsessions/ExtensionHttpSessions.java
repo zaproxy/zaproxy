@@ -493,11 +493,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	@Override
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
-		String site = msg.getRequestHeader().getHostName();
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		site = ScanPanel.cleanSiteName(site, true);
 		this.getHttpSessionsPanel().addSite(site);
 
@@ -527,11 +524,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
-		String site = msg.getRequestHeader().getHostName();
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		site = ScanPanel.cleanSiteName(site, true);
 		this.getHttpSessionsPanel().addSite(site);
 

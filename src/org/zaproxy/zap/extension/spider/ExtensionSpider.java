@@ -216,10 +216,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
-		String site = msg.getRequestHeader().getHostName();
-		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
-			site += ":" + msg.getRequestHeader().getHostPort();
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		this.getSpiderPanel().addSite(site, true);
 		return true;
 	}

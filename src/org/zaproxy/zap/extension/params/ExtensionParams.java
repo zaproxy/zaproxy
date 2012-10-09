@@ -238,11 +238,8 @@ public class ExtensionParams extends ExtensionAdaptor
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		
 		// Check we know the site
-		String site = msg.getRequestHeader().getHostName();
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		this.getParamsPanel().addSite(site);
 		
 		SiteParameters sps = this.siteParamsMap.get(site);
@@ -326,11 +323,8 @@ public class ExtensionParams extends ExtensionAdaptor
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		
 		// Check we know the site
-		String site = msg.getRequestHeader().getHostName(); 
-		int port = msg.getRequestHeader().getHostPort();
-		if (port > 0) {
-			site = site + ":" + port;
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		this.getParamsPanel().addSite(site);
 		
 		SiteParameters sps = this.getSiteParameters(site);

@@ -174,10 +174,8 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
-		String site = msg.getRequestHeader().getHostName();
-		if (msg.getRequestHeader().getHostPort() > 0 && msg.getRequestHeader().getHostPort() != 80) {
-			site += ":" + msg.getRequestHeader().getHostPort();
-		}
+		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+
 		this.getBruteForcePanel().addSite(site);
 		return true;
 	}
