@@ -40,6 +40,14 @@ import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
  * <code>ToolTipManager.sharedInstance().registerComponent(tree);</code>
  */
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
+	
+	private static final ImageIcon ROOT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
+	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
+	private static final ImageIcon LEAF_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
+	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
+	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
+	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
+	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
 
 	private static final long serialVersionUID = -4278691012245035225L;
 
@@ -81,25 +89,25 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		} else if (node != null) {
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
-				setIcon(new ImageIcon(getClass().getResource("/resource/icon/16/094.png")));	// 'World' icon
+				setIcon(ROOT_ICON);	// 'World' icon
 			} else if (leaf) {
 				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document-target.png")));
+					setIcon(LEAF_IN_SCOPE_ICON);
 				} else {
-					setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/document.png")));
+					setIcon(LEAF_ICON);
 				}
 			} else {
 				if  (expanded) {
 					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open-target.png")));
+						setIcon(FOLDER_OPEN_IN_SCOPE_ICON);
 					} else {
-						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-open.png")));
+						setIcon(FOLDER_OPEN_ICON);
 					}
 				} else {
 					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal-target.png")));
+						setIcon(FOLDER_CLOSED_IN_SCOPE_ICON);
 					} else {
-						setIcon(new ImageIcon(getClass().getResource("/resource/icon/fugue/folder-horizontal.png")));
+						setIcon(FOLDER_CLOSED_ICON);
 					}
 				}
 			}
