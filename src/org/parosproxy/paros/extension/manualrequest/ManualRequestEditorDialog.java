@@ -109,10 +109,10 @@ public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	// ZAP: introduced map of supported message types
     private Map<Class<? extends Message>, MessageSender> mapMessageSenders;
 
-	private static JLabel labelTimeElapse = null;
-	private static JLabel labelContentLength = null;
-	private static JLabel labelTotalLength = null;
-	private static JToolBar footerToolbar = null;
+	private JLabel labelTimeElapse = null;
+	private JLabel labelContentLength = null;
+	private JLabel labelTotalLength = null;
+	private JToolBar footerToolbar = null;
 	
 	
 	public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension, String configurationKey) throws HeadlessException {
