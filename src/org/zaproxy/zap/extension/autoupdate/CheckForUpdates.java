@@ -41,6 +41,8 @@ public class CheckForUpdates extends SwingWorker<String, String> {
     
     private static final String ZAP_START_TAG = "&lt;ZAP&gt;";
     private static final String ZAP_END_TAG = "&lt;/ZAP&gt;";
+    private static final String ZAP_D_START_TAG = "&lt;ZAP_D&gt;";
+    private static final String ZAP_D_END_TAG = "&lt;/ZAP_D&gt;";
 	private HttpSender httpSender = null;
 
     private Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
@@ -58,12 +60,14 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 		return latestVersionName;
 	}
 	
-	private boolean isNewerVersion (String progVersionStr, String latestVersionStr) {
+	private boolean isNewerVersion (String progVersionStr, String latestVersionStr, boolean checkDaily) {
 		boolean newerVersion = false;
-		if (Constant.DEV_VERSION.equals(progVersionStr)) {
+		if (Constant.isDailyBuild(progVersionStr)) {
 			return false;
-		}
-		if (latestVersionStr != null && latestVersionStr.length() > 0) {
+		} else if (checkDaily && Constant.isDailyBuild()) {
+        	// Will just be a 'dated' version, which we can just use a string compare on
+			return progVersionStr.compareTo(latestVersionStr) < 0;
+        } else if (latestVersionStr != null && latestVersionStr.length() > 0) {
 	    	// Compare the versions
 	    	String [] progVersion = progVersionStr.split("\\.");
 	    	String [] latestVersion = latestVersionStr.split("\\.");
@@ -111,7 +115,7 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 	@Override
 	public void done() {
 		extension.checkComplete(
-				this.isNewerVersion(Constant.PROGRAM_VERSION, latestVersionName), 
+				this.isNewerVersion(Constant.PROGRAM_VERSION, latestVersionName, true), 
 				latestVersionName);
 	}
 
@@ -143,11 +147,21 @@ public class CheckForUpdates extends SwingWorker<String, String> {
             }
             resBody = msg.getResponseBody().toString();
             
-            int startIndex = resBody.indexOf(ZAP_START_TAG);
-            if (startIndex > 0) {
-            	startIndex += ZAP_START_TAG.length();
-                int endIndex = resBody.indexOf(ZAP_END_TAG, startIndex);
-            	newVersionName = resBody.substring(startIndex, endIndex ); 
+            if (Constant.isDailyBuild()) {
+            	// Check the dated version instead of the standard release format
+	            int startIndex = resBody.indexOf(ZAP_D_START_TAG);
+	            if (startIndex > 0) {
+	            	startIndex += ZAP_D_START_TAG.length();
+	                int endIndex = resBody.indexOf(ZAP_D_END_TAG, startIndex);
+	            	newVersionName = resBody.substring(startIndex, endIndex ); 
+	            }
+            } else {
+	            int startIndex = resBody.indexOf(ZAP_START_TAG);
+	            if (startIndex > 0) {
+	            	startIndex += ZAP_START_TAG.length();
+	                int endIndex = resBody.indexOf(ZAP_END_TAG, startIndex);
+	            	newVersionName = resBody.substring(startIndex, endIndex ); 
+	            }
             }
             
         } catch (Exception e) {
@@ -166,7 +180,11 @@ public class CheckForUpdates extends SwingWorker<String, String> {
     }
     
 	private void compareVersions (String progVersionStr, String latestVersionStr) {
-		if (this.isNewerVersion(progVersionStr, latestVersionStr)) {
+		this.compareVersions(progVersionStr, latestVersionStr, false);
+	}
+	
+	private void compareVersions (String progVersionStr, String latestVersionStr, boolean checkDaily) {
+		if (this.isNewerVersion(progVersionStr, latestVersionStr, checkDaily)) {
 			System.out.println(progVersionStr + "\tis older than " + latestVersionStr);
 		} else {
 			System.out.println(progVersionStr + "\tis NOT older than " + latestVersionStr);
@@ -184,6 +202,8 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 		cfu.compareVersions("1.4.2", "1.4.11");
 		cfu.compareVersions("1.4.alpha.1", "1.4");
 		cfu.compareVersions("1.4.beta.1", "1.5");
+		cfu.compareVersions("D-2012-08-01", "D-2012-08-02", true);
+		cfu.compareVersions("D-2012-01-01", "D-2013-10-10", true);
 		System.out.println();
 		System.out.println("These should all NOT be older:");
 		cfu.compareVersions("1.4", "1.4");
@@ -191,7 +211,9 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 		cfu.compareVersions("1.4.2", "1.4.1");
 		cfu.compareVersions("1.4.20", "1.4.11");
 		cfu.compareVersions("1.4.alpha.1", "1.3.4");
-		cfu.compareVersions(Constant.DEV_VERSION, "1.5");
+		cfu.compareVersions("Dev Build", "1.5");
+		cfu.compareVersions("D-2012-08-02", "D-2012-08-01", true);
+		cfu.compareVersions("D-2013-10-10", "D-2012-01-01", true);
 		System.out.println();
 		System.out.println("These should cause errors:");
 		cfu.compareVersions("1.4.1", "1.4.beta.2");

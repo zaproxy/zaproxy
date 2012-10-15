@@ -30,12 +30,16 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.DefaultFileSystem;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.varia.NullAppender;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -78,10 +82,25 @@ public class ZAP {
 	public static void main(String[] args) throws Exception {
 	    final ZAP zap = new ZAP();
 	    zap.init(args);
+	    
+		// Nasty hack to prevent warning messages when running from the command line
+		NullAppender na = new NullAppender();
+		Logger.getRootLogger().addAppender(na);
+		Logger.getRootLogger().setLevel(Level.OFF);
+		Logger.getLogger(ConfigurationUtils.class).addAppender(na);
+		Logger.getLogger(DefaultFileSystem.class).addAppender(na);
+	    
         Constant.getInstance();
         final String msg = Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " started.";
         
-        BasicConfigurator.configure();
+		if (! zap.cmdLine.isGUI() && ! zap.cmdLine.isDaemon()) {
+			// Turn off log4j somewhere if not gui or daemon
+			Logger.getRootLogger().removeAllAppenders();
+			Logger.getRootLogger().addAppender(na);
+			Logger.getRootLogger().setLevel(Level.OFF);
+		} else {
+			BasicConfigurator.configure();
+		}
         
         log = Logger.getLogger(ZAP.class);
 	    log.info(msg);
@@ -309,6 +328,8 @@ public class ZAP {
 	        if (cmdLine.isEnabled(CommandLine.HELP) || cmdLine.isEnabled(CommandLine.HELP2)) {
 	            help = cmdLine.getHelp();
 	            System.out.println(help);
+	        } else if (cmdLine.isReportVersion()) {
+	            System.out.println(Constant.PROGRAM_VERSION);
 	        } else {
 
 	            control.runCommandLineNewSession(cmdLine.getArgument(CommandLine.NEW_SESSION));

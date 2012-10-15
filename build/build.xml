@@ -1,4 +1,4 @@
-<project name="zap" default="just-build" basedir=".">
+<project name="zap" default="full-release" basedir=".">
 	<description>Build ZAP.</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="../src" />
@@ -7,10 +7,6 @@
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
 	<property name="javadocs.dir" location="../javadocs" />
-
-	<!-- make the version accessible globally -->
-	<loadfile property="version" srcfile="version.txt">
-	</loadfile>
 
 	<!-- mac specific properties -->
 	<property name="dist-mac" location="zap-mac" />
@@ -302,10 +298,44 @@
 
 	</target>
 
-	<target name="just-build">
+	<target name="package-daily" description="package a date stamped build">
+		<echo message="Packaging a date stamped release..." />
+
+		<!-- delete any of packages for today -->
+		<property name="zipname" value="ZAP_${version}.zip" />
+		<delete file="${zipname}" />
+
+		<!-- Tar up the release -->
+		<zip destfile="${zipname}">
+			<zipfileset dir="${dist}" prefix="ZAP_${version}">
+				<include name="**" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
+				<exclude name="zap.sh" />
+			</zipfileset>
+			<zipfileset dir="${dist}" prefix="ZAP_${version}" filemode="755">
+				<include name="zap.sh" />
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="full-release">
+		<!-- Load the version from a file -->
+		<loadfile property="version" srcfile="version.txt" />
+
 		<antcall target="dist" />
 		<antcall target="package-linux" />
 		<antcall target="package-macosx" />
 	</target>
 	
+	<target name="day-stamped-release">
+		<tstamp>
+			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+		</tstamp>
+		<property name="version" value="D-${yyyymmdd}" />
+		<echo message="Version is ${version}" />
+		<antcall target="dist" />
+		<antcall target="package-daily" />
+	</target>
+
 </project>

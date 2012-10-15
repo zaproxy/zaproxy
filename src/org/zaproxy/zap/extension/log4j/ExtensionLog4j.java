@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -37,6 +38,8 @@ import org.zaproxy.zap.view.ScanStatus;
  *
  */
 public class ExtensionLog4j extends ExtensionAdaptor {
+
+    private JMenuItem menuGarbageCollect = null;
 
 	private ScanStatus scanStatus;
 	
@@ -62,7 +65,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         this.setName("ExtensionLog4j");
         this.setOrder(56);
 
-		if (Constant.PROGRAM_VERSION.equals(Constant.DEV_VERSION)) {
+		if (Constant.isDevBuild()) {
 			// Only enable if this is a developer build, ie build from source
         
 	        scanStatus = new ScanStatus(
@@ -78,15 +81,29 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 		}
 	}
 	
-
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
 	    if (getView() != null) {	        
+	        extensionHook.getHookMenu().addToolsMenuItem(getMenuGarbageCollect());
 	    }
 
 	}
+
+	private JMenuItem getMenuGarbageCollect() {
+        if (menuGarbageCollect == null) {
+        	menuGarbageCollect = new JMenuItem();
+        	menuGarbageCollect.setText(Constant.messages.getString("log4j.tools.menu.gc"));
+
+        	menuGarbageCollect.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	Runtime.getRuntime().gc();
+                }
+            });
+        }
+        return menuGarbageCollect;
+    }
 
 	@Override
 	public String getAuthor() {

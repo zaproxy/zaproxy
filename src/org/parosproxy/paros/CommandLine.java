@@ -21,6 +21,8 @@
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
 // ZAP: 2012/03/15 Removed unnecessary castings from methods parse, getArgument and getHelp.
 //      Changed to use the class StringBuilder instead of the class StringBuffer in the method getHelp.
+// ZAP: 2012/10/15 Issue 397: Support weekly builds
+
 package org.parosproxy.paros;
 
 import java.util.Hashtable;
@@ -44,12 +46,14 @@ public class CommandLine {
     public static final String HELP = "-help";
     public static final String HELP2 = "-h";
     public static final String DIR = "-dir";
+    public static final String VERSION = "-version";
     
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
     
     private boolean GUI = true;
     private boolean daemon = false;
+    private boolean reportVersion = false;
     private String[] args = null;
     private Hashtable<String, String> keywords = new Hashtable<>();
     private Vector<CommandLineArgument[]> commandList = null;
@@ -187,7 +191,10 @@ public class CommandLine {
         } else if (checkSwitch(args, HELP2, i)) {
             result = true;
             setGUI(false);
-            
+        } else if (checkSwitch(args, VERSION, i)) {
+            reportVersion = true;
+        	setDaemon(false);
+            setGUI(false);
         }
 
         return result;
@@ -228,6 +235,10 @@ public class CommandLine {
 	public void setDaemon(boolean daemon) {
 		this.daemon = daemon;
 	}
+	
+	public boolean isReportVersion() {
+		return this.reportVersion;
+	}
 
 	public String getArgument(String keyword) {
         return keywords.get(keyword);
@@ -239,7 +250,7 @@ public class CommandLine {
 		String help =
 			"GUI usage:" + CRLF +
 			"\tjavaw zap.jar" + CRLF +
-			"\tjava -jar zap.jar" + CRLF +
+			"\tjava -jar zap.jar {-dir directory}" + CRLF +
 			"see java -jar zap.jar {-h|-help} for detail.\r\n\r\n";
 		return help;
 	}
@@ -248,7 +259,7 @@ public class CommandLine {
     public String getHelp() {
     	StringBuilder sb = new StringBuilder(getHelpGeneral());        
         sb.append("Command line usage:\r\n");
-        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} (-daemon)\r\n");
+        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} {-dir directory} {-daemon} {-version}\r\n");
         sb.append("options:\r\n\r\n");
 
         for (int i=0; i<commandList.size(); i++) {

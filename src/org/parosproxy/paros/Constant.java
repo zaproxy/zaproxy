@@ -36,6 +36,7 @@
 // ZAP: 2012/05/03 Changed the Patterns used to detect the O.S. to be final.
 // ZAP: 2012/06/15 Issue 312 Increase the maximum number of scanning threads allowed
 // ZAP: 2012/07/13 Added variable for maximum number of threads used in scan (MAX_THREADS_PER_SCAN)
+// ZAP: 2012/10/15 Issue 397: Support weekly builds
 
 package org.parosproxy.paros;
 
@@ -46,6 +47,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,12 +78,11 @@ public final class Constant {
 //  the config.xml MUST be set to be the same as the version_tag
 //  otherwise the config.xml will be overwritten everytime.
 //  ************************************************************
-    public static final String DEV_VERSION = "Dev Build";
+    private static final String DEV_VERSION = "Dev Build";
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     // Note: Change this before building a release!
     //public static final String PROGRAM_VERSION = "1.4.0.1";
-    public static final String PROGRAM_VERSION = DEV_VERSION;
     
     private static final long VERSION_TAG = 1004001;
     
@@ -98,7 +100,10 @@ public final class Constant {
 //  note the above
 //  ************************************************************
     
-    public static final String PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
+    // These are no longer final
+    public static String PROGRAM_VERSION = DEV_VERSION;
+    public static String PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
+    
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
     
 //  public static final String FILE_CONFIG = "xml/config.xml";
@@ -144,8 +149,11 @@ public final class Constant {
     private static String staticEyeCatcher = "0W45pz4p";
     private static boolean staticSP = false;
     
+    // 
+    // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set to default loc
     private static String zapHome = null;
-
+    // Default home dir for 'full' releases - only used for copying full conf file when dev/daily release run for the first time
+    private static String zapStd = null;
     
     // ZAP: Added i18n
     public static ResourceBundle messages = null;
@@ -170,6 +178,7 @@ public final class Constant {
 	public static final URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png");		// Orange
 	public static final URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png");	// Red
 	public static final URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
+	public static final URL SPIDER_IMAGE_URL = Constant.class.getResource("/resource/icon/10/spider.png");
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -202,6 +211,10 @@ public final class Constant {
         // default to use application directory 'log'
         System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
+        // Set up the version from the manifest
+        PROGRAM_VERSION = getVersionFromManifest();
+        PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
+
         if (zapHome == null) {
             zapHome = System.getProperty("user.home");
             if (zapHome == null) {
@@ -219,10 +232,16 @@ public final class Constant {
 				// Windows: Zap directory in the user's home directory
 				zapHome += FILE_SEPARATOR + PROGRAM_NAME;
 			}
-
+            // Will use default when first dev/daily release run
+            zapStd = zapHome;
+            if (isDevBuild() || isDailyBuild()) {
+            	// Default to a different home dir to prevent messing up full releases
+            	zapHome += "_D";
+            }
         }
 		
 		f = new File(zapHome);
+		
 		zapHome += FILE_SEPARATOR;
 		FILE_CONFIG = zapHome + FILE_CONFIG;
 		FOLDER_SESSION = zapHome + FOLDER_SESSION;
@@ -252,22 +271,28 @@ public final class Constant {
             
             f = new File(FILE_CONFIG);
             if (!f.isFile()) {
-            	// try old location
-            	File oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+            	File oldf;
+                if (isDevBuild() || isDailyBuild()) {
+                	// try standard location
+                	oldf = new File (zapStd + FILE_SEPARATOR + FILE_CONFIG_NAME);
+                } else {
+                	// try old location
+                	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+                }
             	
             	if (oldf.exists()) {
             		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             		copier.copy(oldf,f);
             		
             	} else {
-            		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT+" to " + FILE_CONFIG);
+            		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT + " to " + FILE_CONFIG);
             		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
             	}
             }
             
-            f=new File(FOLDER_SESSION);
+            f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                log.info("Creating directory "+FOLDER_SESSION);
+                log.info("Creating directory " + FOLDER_SESSION);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -302,14 +327,14 @@ public final class Constant {
 	        try {
 	            
 	            // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-	            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
+	        	XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
 	            config.setAutoSave(false);
 	
 	            long ver = config.getLong("version");
 	            
 	            if (ver == VERSION_TAG) {
 	            	// Nothing to do
-	            } else if (PROGRAM_VERSION.equals(DEV_VERSION)) {
+	            } else if (isDevBuild() || isDevBuild()) {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
@@ -377,7 +402,6 @@ public final class Constant {
         }
         
         // ZAP: Init i18n
-        
         String lang = null;
         locale = Locale.ENGLISH;
         try {
@@ -446,7 +470,8 @@ public final class Constant {
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         locale = new Locale(langArray[0], langArray[1]);
-	    messages = ResourceBundle.getBundle("lang." + MESSAGES_PREFIX, locale);
+	    //messages = ResourceBundle.getBundle("lang." + MESSAGES_PREFIX, locale);
+	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
     }
 	
 	public static Locale getLocale () {
@@ -516,6 +541,39 @@ public final class Constant {
     
     public static void setZapHome (String dir) {
     	zapHome = dir;
+    }
+    
+    private static String getVersionFromManifest() {
+    	String className = Constant.class.getSimpleName() + ".class";
+    	String classPath = Constant.class.getResource(className).toString();
+    	if (!classPath.startsWith("jar")) {
+    	  // Class not from JAR
+    	  return DEV_VERSION;
+    	}
+    	String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+    	Manifest manifest;
+		try {
+			manifest = new Manifest(new URL(manifestPath).openStream());
+	    	Attributes attr = manifest.getMainAttributes();
+	    	return attr.getValue("Implementation-Version");
+		} catch (Exception e) {
+			// Ignore
+			return DEV_VERSION;
+		}
+    }
+    
+    public static boolean isDevBuild() {
+    	// Dev releases with be called "Dev Build" date stamped builds will be of the format D-{yyyy}-{mm}-{dd}
+    	return PROGRAM_VERSION.equals(DEV_VERSION);
+    }
+    
+    public static boolean isDailyBuild(String version) {
+    	// Date stamped builds will be of the format D-{yyyy}-{mm}-{dd}
+    	return version.startsWith("D-");
+    }
+    
+    public static boolean isDailyBuild() {
+    	return isDailyBuild(PROGRAM_VERSION);
     }
     
 }
