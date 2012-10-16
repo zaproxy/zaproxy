@@ -62,7 +62,7 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 	
 	private boolean isNewerVersion (String progVersionStr, String latestVersionStr, boolean checkDaily) {
 		boolean newerVersion = false;
-		if (Constant.isDailyBuild(progVersionStr)) {
+		if (Constant.isDevBuild(progVersionStr)) {
 			return false;
 		} else if (checkDaily && Constant.isDailyBuild()) {
         	// Will just be a 'dated' version, which we can just use a string compare on

@@ -563,8 +563,12 @@ public final class Constant {
     }
     
     public static boolean isDevBuild() {
+    	return isDevBuild(PROGRAM_VERSION);
+    }
+    
+    public static boolean isDevBuild(String version) {
     	// Dev releases with be called "Dev Build" date stamped builds will be of the format D-{yyyy}-{mm}-{dd}
-    	return PROGRAM_VERSION.equals(DEV_VERSION);
+    	return DEV_VERSION.equals(version);
     }
     
     public static boolean isDailyBuild(String version) {
