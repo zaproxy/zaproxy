@@ -334,7 +334,7 @@ public final class Constant {
 	            
 	            if (ver == VERSION_TAG) {
 	            	// Nothing to do
-	            } else if (isDevBuild() || isDevBuild()) {
+	            } else if (isDevBuild() || isDailyBuild()) {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
