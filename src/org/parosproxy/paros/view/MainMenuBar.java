@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/10/17 Issue 393: Added more online links from menu
 
 package org.parosproxy.paros.view;
 
@@ -54,7 +55,7 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuAnalyse = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
-	private JMenuItem menuHomepage = null;
+	private JMenu menuOnline = null;
 	/**
 	 * This method initializes 
 	 * 
@@ -73,6 +74,7 @@ public class MainMenuBar extends JMenuBar {
         this.add(getMenuAnalyse());
         this.add(getMenuReport());
         this.add(getMenuTools());
+        this.add(getMenuOnline());
         this.add(getMenuHelp());
 			
 	}
@@ -375,9 +377,91 @@ public class MainMenuBar extends JMenuBar {
 			menuHelp = new JMenu();
 			menuHelp.setText(Constant.messages.getString("menu.help")); // ZAP: i18n
 			menuHelp.add(getMenuHelpAbout());
-			menuHelp.add(getMenuHomepage());
 		}
 		return menuHelp;
+	}
+	
+	private JMenu getMenuOnline() {
+		if (menuOnline == null) {
+			menuOnline = new JMenu();
+			menuOnline.setText(Constant.messages.getString("menu.online"));
+
+			// All of these are builtin
+			
+			// Homepage
+			JMenuItem menuHomepage = new JMenuItem();
+			menuHomepage.setText(Constant.messages.getString("menu.help.home")); // left as menu.help for existing i18n;)
+			menuHomepage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_HOMEPAGE);
+				}
+			});
+			menuOnline.add(menuHomepage);
+
+			// Extensions
+			JMenuItem menuExtPage = new JMenuItem();
+			menuExtPage.setText(Constant.messages.getString("menu.online.ext"));
+			menuExtPage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuExtPage.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_EXTENSIONS_PAGE);
+				}
+			});
+			menuOnline.add(menuExtPage);
+
+			// Wiki
+			JMenuItem menuWiki = new JMenuItem();
+			menuWiki.setText(Constant.messages.getString("menu.online.wiki"));
+			menuWiki.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuWiki.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_WIKI_PAGE);
+				}
+			});
+			menuOnline.add(menuWiki);
+
+			// UserGroup
+			JMenuItem menuUserGroup = new JMenuItem();
+			menuUserGroup.setText(Constant.messages.getString("menu.online.usergroup"));
+			menuUserGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuUserGroup.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_USER_GROUP_PAGE);
+				}
+			});
+			menuOnline.add(menuUserGroup);
+
+			// DevGroup
+			JMenuItem menuDevGroup = new JMenuItem();
+			menuDevGroup.setText(Constant.messages.getString("menu.online.devgroup"));
+			menuDevGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuDevGroup.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_DEV_GROUP_PAGE);
+				}
+			});
+			menuOnline.add(menuDevGroup);
+
+			// Issues
+			JMenuItem menuIssues = new JMenuItem();
+			menuIssues.setText(Constant.messages.getString("menu.online.issues"));
+			menuIssues.setEnabled(DesktopUtils.canOpenUrlInBrowser());
+			menuIssues.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					DesktopUtils.openUrlInBrowser(Constant.ZAP_ISSUES_PAGE);
+				}
+			});
+			menuOnline.add(menuIssues);
+
+		}
+		return menuOnline;
 	}
 	
     // ZAP: Added standard report menu
@@ -424,23 +508,4 @@ public class MainMenuBar extends JMenuBar {
         }
         return menuAnalyse;
     }
-    
-	private JMenuItem getMenuHomepage() {
-		if (menuHomepage == null) {
-			menuHomepage = new JMenuItem();
-			menuHomepage.setText(Constant.messages.getString("menu.help.home"));
-			menuHomepage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			
-			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_HOMEPAGE);
-				}
-			});
-
-		}
-		return menuHomepage;
-	}
-
 }

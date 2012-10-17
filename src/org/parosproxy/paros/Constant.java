@@ -37,6 +37,7 @@
 // ZAP: 2012/06/15 Issue 312 Increase the maximum number of scanning threads allowed
 // ZAP: 2012/07/13 Added variable for maximum number of threads used in scan (MAX_THREADS_PER_SCAN)
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
+// ZAP: 2012/10/17 Issue 393: Added more online links from menu
 
 package org.parosproxy.paros;
 
@@ -67,13 +68,17 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public final class Constant {
 	// ZAP: rebrand
-    public static final String PROGRAM_NAME     = "OWASP ZAP";
-    public static final String PROGRAM_NAME_SHORT = "ZAP";
-    public static final String ZAP_HOMEPAGE		= "http://www.owasp.org/index.php/ZAP";
+    public static final String PROGRAM_NAME     		= "OWASP ZAP";
+    public static final String PROGRAM_NAME_SHORT 		= "ZAP";
+    public static final String ZAP_HOMEPAGE				= "http://www.owasp.org/index.php/ZAP";
     public static final String ZAP_EXTENSIONS_PAGE		= "https://code.google.com/p/zap-extensions/";
     public static final String ZAP_DOWNLOADS_PAGE		= "https://code.google.com/p/zaproxy/downloads/list";
-    public static final String ZAP_TEAM			= "ZAP Dev Team";
-    public static final String PAROS_TEAM		= "Chinotec Technologies";
+    public static final String ZAP_WIKI_PAGE			= "https://code.google.com/p/zaproxy/wiki/Introduction";
+    public static final String ZAP_USER_GROUP_PAGE		= "http://groups.google.com/group/zaproxy-users";
+    public static final String ZAP_DEV_GROUP_PAGE		= "http://groups.google.com/group/zaproxy-develop";
+    public static final String ZAP_ISSUES_PAGE			= "https://code.google.com/p/zaproxy/issues/list";
+    public static final String ZAP_TEAM					= "ZAP Dev Team";
+    public static final String PAROS_TEAM				= "Chinotec Technologies";
     
 //  ************************************************************
 //  the config.xml MUST be set to be the same as the version_tag
