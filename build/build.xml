@@ -115,6 +115,9 @@
 				<exclude name="**/_svn/**" />
 			</fileset>
 		</copy>
+		<!-- Copy standard README - this is overwritted for weekly releases -->
+		<copy file="${src}/doc/README" tofile="${dist}/README" />
+		
 		<!-- Copy any scripts, and give execute perms -->
 		<copy todir="${dist}">
 			<fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
@@ -302,7 +305,7 @@
 		<echo message="Packaging a date stamped release..." />
 
 		<!-- delete any of packages for today -->
-		<property name="zipname" value="ZAP_${version}.zip" />
+		<property name="zipname" value="ZAP_WEEKLY_${version}.zip" />
 		<delete file="${zipname}" />
 
 		<!-- Tar up the release -->
@@ -334,7 +337,12 @@
 		</tstamp>
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
+		
+		<antcall target="generate-help-file" />
 		<antcall target="dist" />
+		<!-- Overwrite the standard README with the weekly one -->
+		<delete file="${dist}/README" />
+		<copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
 		<antcall target="package-daily" />
 	</target>
 
