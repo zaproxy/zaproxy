@@ -71,6 +71,7 @@ public final class Constant {
     public static final String PROGRAM_NAME_SHORT = "ZAP";
     public static final String ZAP_HOMEPAGE		= "http://www.owasp.org/index.php/ZAP";
     public static final String ZAP_EXTENSIONS_PAGE		= "https://code.google.com/p/zap-extensions/";
+    public static final String ZAP_DOWNLOADS_PAGE		= "https://code.google.com/p/zaproxy/downloads/list";
     public static final String ZAP_TEAM			= "ZAP Dev Team";
     public static final String PAROS_TEAM		= "Chinotec Technologies";
     

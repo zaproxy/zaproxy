@@ -32,8 +32,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
+import org.zaproxy.zap.utils.DesktopUtils;
 
 /**
  *
@@ -111,9 +113,22 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements ComponentLi
     				Constant.messages.getString("cfu.check.failed"));
         	}
         } else if (newerVersion) {
+        	if (DesktopUtils.canOpenUrlInBrowser()) {
+        		// TODO would be better to have 'Visit downloads page' / 'Cancel' options, but will need new dialogs for that! 
+    	        int result = View.getSingleton().showConfirmDialog(MessageFormat.format(
+            			Constant.messages.getString("cfu.check.newer"),
+            			latestVersionName, Constant.ZAP_DOWNLOADS_PAGE));
+    	        if (result != JOptionPane.YES_OPTION) {
+    	            return;
+    	        }
+    	        DesktopUtils.openUrlInBrowser(Constant.ZAP_DOWNLOADS_PAGE);
+        	} else {
+        		// Cant open URLs in browser, just show message
             	getView().showMessageDialog(MessageFormat.format(
             			Constant.messages.getString("cfu.check.newer"),
-            			latestVersionName));
+            			latestVersionName, Constant.ZAP_DOWNLOADS_PAGE));
+        	}
+
     	} else {
         	if (isManual) {
         		getView().showMessageDialog(

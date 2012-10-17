@@ -36,6 +36,7 @@ public class CheckForUpdates extends SwingWorker<String, String> {
     //private static final String GF_ZAP_LATEST_OLD = "http://zaproxy.googlecode.com/svn/wiki/LatestVersion.wiki";
 	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/sIhXE
     private static final String GF_ZAP_LATEST_XML_SHORT = "http://goo.gl/sIhXE";
+    private static final String GF_ZAP_DAILY_XML_SHORT = "http://goo.gl/7RBIp";
     // The long URL is a failsafe ;)
     private static final String GF_ZAP_LATEST_XML_FULL = "http://code.google.com/p/zaproxy/wiki/LatestVersionXml";
     
@@ -56,7 +57,7 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 	
 	@Override
 	protected String doInBackground() throws Exception {
-        latestVersionName = getLatestVersionName();
+        latestVersionName = getLatestVersionName(Constant.isDailyBuild());
 		return latestVersionName;
 	}
 	
@@ -119,15 +120,22 @@ public class CheckForUpdates extends SwingWorker<String, String> {
 				latestVersionName);
 	}
 
-    private String getLatestVersionName() {
-        String newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_SHORT);
+    private String getLatestVersionName(boolean isDaily) {
+        String newVersionName;
+        if (isDaily) {
+        	newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_DAILY_XML_SHORT);
+        } else {
+        	newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_SHORT);
+        }
         if (newVersionName.length() == 0) {
         	// Shortened version failed, try going direct
             newVersionName = this.getLatestVersionNameFromUrl(GF_ZAP_LATEST_XML_FULL);
         }
 
-        httpSender.shutdown();
-        httpSender = null;
+        if (httpSender != null) {
+	        httpSender.shutdown();
+	        httpSender = null;
+        }
         
         return newVersionName;
     }
