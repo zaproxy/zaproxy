@@ -50,9 +50,16 @@
 	
 	<target name="compile" depends="init" description="compile the source ">
 		<echo message="Compiling the source..." />
+		
+		<!-- Compile with debug information if the property "javac.debug" is set to true -->
+		<local name="debug" />
+		<condition property="debug" value="true" else="false">
+			<istrue value="${javac.debug}" />
+		</condition>
+		
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false">
+		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}">
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
@@ -137,6 +144,9 @@
 
 		<copy file="${src}/resource/zap.ico" todir="${dist}"/>
 
+		<!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
+		<antcall target="copy-source-to-build" />
+
 		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
 			<!--classpath refid="dist.classpath" /-->
 			<classpath>
@@ -165,11 +175,27 @@
 		</jar>
 	</target>
 	
+	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
+		<property name="dist.with.source" value="true" />
+		<antcall target="dist" />
+	</target>
+	
+	<target name="copy-source-to-build" if="dist.with.source">
+		<copy todir="${build}">
+			<fileset dir="${src}" includes="**/*.java" />
+		</copy>
+	</target>
+	
 	<target name="generate-help-file" description="generates the help file and copies it to the right place">
+		<local name="help.dir" />
 		<property name="help.dir" location="${src}/help" />
+		<local name="help.zap.dir" />
 		<property name="help.zap.dir" location="${help.dir}/zaphelp" />
+		<local name="help.jar.name" />
 		<property name="help.jar.name" value="zaphelp" />
+		<local name="help.jar.generated" />
 		<property name="help.jar.generated" value="${help.dir}/${help.jar.name}.jar" />
+		<local name="help.jar.dist.lib" />
 		<property name="help.jar.dist.lib" value="${dist.lib.dir}/${help.jar.name}.jar" />
 		
 		<!-- Generate the indexes -->
@@ -339,6 +365,8 @@
 		<echo message="Version is ${version}" />
 		
 		<antcall target="generate-help-file" />
+		<!-- Set to compile with debug information -->
+		<property name="javac.debug" value="true" />
 		<antcall target="dist" />
 		<!-- Overwrite the standard README with the weekly one -->
 		<delete file="${dist}/README" />
