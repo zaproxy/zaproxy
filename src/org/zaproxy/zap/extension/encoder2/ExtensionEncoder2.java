@@ -23,7 +23,6 @@ import java.awt.Frame;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.text.JTextComponent;
 
@@ -98,7 +97,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-                    showEncodeDecodeDialog(getView().getMainFrame(), null);
+                    showEncodeDecodeDialog(null);
 				}
 			});
 
@@ -106,7 +105,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 		return toolsMenuEncoder;
 	}
 	
-    private void showEncodeDecodeDialog(JFrame frame, JTextComponent lastInvoker) {
+    private void showEncodeDecodeDialog(JTextComponent lastInvoker) {
         if (encodeDecodeDialog == null) {
             encodeDecodeDialog = new EncodeDecodeDialog();
             encodeDecodeDialog.updateOptions(getParams());
@@ -143,7 +142,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             menuEncode.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showEncodeDecodeDialog(getView().getMainFrame(), null);
+                    showEncodeDecodeDialog(null);
                 }
             });
         }
@@ -162,7 +161,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             popupEncodeMenu.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showEncodeDecodeDialog(popupEncodeMenu.getParentFrame(), popupEncodeMenu.getLastInvoker());
+                    showEncodeDecodeDialog(popupEncodeMenu.getLastInvoker());
                     
                 }
             });

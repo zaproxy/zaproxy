@@ -22,6 +22,7 @@ import java.awt.Container;
 import java.text.MessageFormat;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -76,15 +77,9 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
         	JTextComponent txt = (JTextComponent) invoker;
-			Container c = txt.getParent();
-			boolean responsePanel = false;
-			while (!(c instanceof JFrame)) {
-				if (c instanceof HttpPanelResponse) {
-					responsePanel = true;
-					break;
-				}
-			    c = c.getParent();
-			}
+
+			boolean responsePanel = (SwingUtilities.getAncestorOfClass(HttpPanelResponse.class, txt) != null);
+
 			if (! responsePanel) {
 	        	selectedText = null;
 	            return false;

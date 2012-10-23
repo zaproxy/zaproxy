@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.encoder2;
 
 import java.awt.Component;
-import java.awt.Container;
 
-import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -32,7 +30,6 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private JTextComponent lastInvoker = null;
-    private JFrame parentFrame = null;
     
 	/**
      * @return Returns the lastInvoker.
@@ -71,31 +68,12 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
         	}
         	
             setLastInvoker((JTextComponent) invoker);
-            Container c = getLastInvoker().getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-            }
-            setParentFrame((JFrame) c);
             return true;
         } else {
             setLastInvoker(null);
             return false;
         }
 
-    }
-
-    /**
-     * @return Returns the parentFrame.
-     */
-    public JFrame getParentFrame() {
-        return parentFrame;
-    }
-
-    /**
-     * @param parentFrame The parentFrame to set.
-     */
-    public void setParentFrame(JFrame parentFrame) {
-        this.parentFrame = parentFrame;
     }
 
     /**

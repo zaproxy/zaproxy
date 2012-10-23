@@ -21,12 +21,14 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/10/23 Changed to prevent a NullPointerException when there's no
+// parent JFrame (changed to use SwingUtilities.getAncestorOfClass(...)).
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;
-import java.awt.Container;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -63,11 +65,7 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
             setLastInvoker((JTextComponent) invoker);
-            Container c = getLastInvoker().getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-            }
-            setParentFrame((JFrame) c);
+            setParentFrame((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, invoker));
             return true;
         } else {
             setLastInvoker(null);

@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.saverawmessage;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedOutputStream;
@@ -27,12 +26,12 @@ import java.io.FileOutputStream;
 import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -268,18 +267,12 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
     public boolean isEnableForComponent(Component invoker) {
     	boolean display = false;
     	if (invoker instanceof JTextComponent) {
-            Container c = invoker.getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-                if (c instanceof HttpPanel) {
-                	if (!((HttpPanel)c).isEditable()) {
-	                	lastInvoker = Invoker.httppanel;
-	                	httpPanelInvoker = (HttpPanel)c;
-	                    this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
-	                	display = true;
-                	}
-                	break;
-                }
+            HttpPanel httpPanel = (HttpPanel) SwingUtilities.getAncestorOfClass(HttpPanel.class, invoker);
+            if (httpPanel != null && !httpPanel.isEditable()) {
+                lastInvoker = Invoker.httppanel;
+                httpPanelInvoker = httpPanel;
+                this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
+                display = true;
             }
     	} else if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
         	this.lastInvoker = Invoker.history;

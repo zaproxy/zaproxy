@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.copy;
 
 import java.awt.Component;
-import java.awt.Container;
 
-import javax.swing.JFrame;
 import javax.swing.text.JTextComponent;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -32,7 +30,6 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 1L;
 	private JTextComponent lastInvoker = null;
-    private JFrame parentFrame = null;
     
 	/**
      * @return Returns the lastInvoker.
@@ -61,39 +58,14 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
 	@Override
     public boolean isEnableForComponent(Component invoker) {
     	if (invoker instanceof JTextComponent && !(invoker instanceof RSyntaxTextArea)) {
-            setLastInvoker((JTextComponent) invoker);
-            Container c = getLastInvoker().getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-            }
-            setParentFrame((JFrame) c);
-           	this.setEnabled(((JTextComponent) invoker).getSelectedText() != null);
+    	    this.setEnabled(((JTextComponent) invoker).getSelectedText() != null);
+    	    
+            this.lastInvoker = (JTextComponent) invoker;
             return true;
         }
     	
-        setLastInvoker(null);
+    	this.lastInvoker = null;
         return false;
-    }
-
-    /**
-     * @return Returns the parentFrame.
-     */
-    public JFrame getParentFrame() {
-        return parentFrame;
-    }
-
-    /**
-     * @param parentFrame The parentFrame to set.
-     */
-    public void setParentFrame(JFrame parentFrame) {
-        this.parentFrame = parentFrame;
-    }
-
-    /**
-     * @param lastInvoker The lastInvoker to set.
-     */
-    public void setLastInvoker(JTextComponent lastInvoker) {
-        this.lastInvoker = lastInvoker;
     }
     
 }
