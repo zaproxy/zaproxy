@@ -128,7 +128,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDescription() */
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("httpsession.desc");
+		return Constant.messages.getString("httpsessions.desc");
 	}
 
 	/* (non-Javadoc)
