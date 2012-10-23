@@ -36,6 +36,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
@@ -81,6 +82,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 		final KeyPair keypair = g.genKeyPair();
 		final PrivateKey privKey = keypair.getPrivate();
         final PublicKey  pubKey = keypair.getPublic();
+        Random rnd = new Random();
 
 		// using the hash code of the user's name and home path, keeps anonymity
 		// but also gives user a chance to distinguish between each other
@@ -94,7 +96,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 		
 		X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder (
 												namebld.build(),
-												new BigInteger("3405691582"), // 0xCAFEBABE ;-)
+												BigInteger.valueOf(rnd.nextInt()),
 												startDate,
 												expireDate,
 												namebld.build(),
