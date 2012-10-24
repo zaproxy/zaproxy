@@ -252,8 +252,7 @@ public class CoreAPI extends ApiImplementor {
 				site = site.substring(site.indexOf("//") + 2);
 			}
 			try {
-				children.add(child.getHistoryReference().getHttpMessage()
-						.getRequestHeader().getURI().toString());
+				children.add(child.getHistoryReference().getURI().toString());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
