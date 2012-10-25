@@ -443,7 +443,7 @@ public class Spider {
 		int total = this.tasksTotalCount.get();
 
 		// Compute the progress and notify the listeners
-		this.notifyListenersSpiderProgress(done / total, done, total - done);
+		this.notifyListenersSpiderProgress(done*100 / total, done, total - done);
 
 		// Check for ending conditions
 		if (done == total && initialized == true)

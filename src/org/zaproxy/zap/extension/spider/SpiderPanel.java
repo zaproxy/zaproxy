@@ -38,8 +38,7 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.ScanPanel;
 
 /**
- * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider
- * Scan Tab.
+ * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider Scan Tab.
  */
 public class SpiderPanel extends ScanPanel implements ScanListenner {
 
@@ -79,27 +78,30 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 				spiderScanParam);
 	}
 
-	/* (non-Javadoc)
-	 * 
+	/*
+	 * (non-Javadoc)
 	 * @see org.zaproxy.zap.view.ScanPanel#newScanThread(java.lang.String,
-	 * org.parosproxy.paros.common.AbstractParam) */
+	 * org.parosproxy.paros.common.AbstractParam)
+	 */
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
 		return st;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String) */
+	/*
+	 * (non-Javadoc)
+	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String)
+	 */
 	@Override
 	protected SiteNode getSiteNode(String site) {
 		return super.getSiteNode(site);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.zaproxy.zap.view.ScanPanel#switchView(java.lang.String) */
+	/*
+	 * (non-Javadoc)
+	 * @see org.zaproxy.zap.view.ScanPanel#switchView(java.lang.String)
+	 */
 	@Override
 	protected void switchView(String site) {
 		this.updateCurrentScanResultsModel(site);
@@ -221,10 +223,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		return foundCountValueLabel;
 	}
 
-	/* (non-Javadoc)
-	 * 
+	/*
+	 * (non-Javadoc)
 	 * @see org.zaproxy.zap.view.ScanPanel#addToolBarElements(javax.swing.JToolBar,
-	 * org.zaproxy.zap.view.ScanPanel.Location, int) */
+	 * org.zaproxy.zap.view.ScanPanel.Location, int)
+	 */
 	@Override
 	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
 		if (ScanPanel.Location.afterProgressBar == location) {
@@ -238,6 +241,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * Update the count of found URIs.
 	 */
 	protected void updateFoundCount() {
-		this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
+		if (this.currentResultsModel != null)
+			this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
 	}
 }
