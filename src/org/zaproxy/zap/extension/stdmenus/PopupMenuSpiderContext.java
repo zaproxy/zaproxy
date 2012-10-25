@@ -73,8 +73,6 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 
 			@Override
 			public void performAction(SiteNode sn) throws Exception {
-				System.out.println("Spidering context: " + getContext().getName() + "-"
-						+ sn.getHistoryReference().getURI());
 				getExtensionSpider().startScanAllInContext(getContext());
 			}
 		};

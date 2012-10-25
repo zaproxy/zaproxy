@@ -46,14 +46,11 @@ public class ExtensionPopupMenu extends JMenu {
 		boolean retV = false;
 		for (int index = 0; index < this.getItemCount(); index++) {
 			JMenuItem item = this.getItem(index);
-			System.out.println(item.getText());
 			if (item instanceof PopupMenuHistoryReference) {
 				PopupMenuHistoryReference itemRef=(PopupMenuHistoryReference) item;
-				System.out.println("Here");
 				if (itemRef.isEnableForComponent(invoker))
 				{
 					retV = true;
-					System.out.println("Enabled");
 				}
 			}
 		}
