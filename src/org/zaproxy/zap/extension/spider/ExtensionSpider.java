@@ -124,7 +124,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		extensionHook.addOptionsParamSet(getSpiderParam());
 
 		// Register as an API implementor
-		API.getInstance().registerApiImplementor(new SpiderAPI(this));
+		SpiderAPI spiderApi = new SpiderAPI(this);
+		spiderApi.addApiOptions(getSpiderParam());
+		API.getInstance().registerApiImplementor(spiderApi);
 	}
 
 	/**

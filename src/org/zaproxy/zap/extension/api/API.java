@@ -28,6 +28,8 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -179,7 +181,10 @@ public class API {
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
 						*/
-						result = impl.handleApiAction(name, params);
+						result = impl.handleApiOptionAction(name, params);	
+						if (result == null) {
+							result = impl.handleApiAction(name, params);
+						}
 						switch (format) {
 						case JSON: 	response = result.toString();
 									break;
@@ -192,7 +197,10 @@ public class API {
 						}
 						break;
 					case view:		
-						result = impl.handleApiView(name, params);	
+						result = impl.handleApiOptionView(name, params);	
+						if (result == null) {
+							result = impl.handleApiView(name, params);
+						}
 						switch (format) {
 						case JSON: 	response = result.toString();
 									break;

@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,14 +31,19 @@ import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
 
 
 public abstract class ApiImplementor {
+	
+	private static final String GET_OPTION_PREFIX = "get_option_";
+	private static final String SET_OPTION_PREFIX = "set_option_";
 
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
 	private List<ApiOther> apiOthers = new ArrayList<>();
+	private AbstractParam param = null;
 	
 	public List<ApiView> getApiViews() {
 		return this.apiViews;
@@ -129,6 +135,101 @@ public abstract class ApiImplementor {
 			
 		}
 	}
+	
+	public void addApiOptions(AbstractParam param) {
+		// Add option parameter getters and setters via reflection
+		this.param = param;
+		Method[] methods = param.getClass().getDeclaredMethods();
+		List<String> addedActions = new ArrayList<String>();
+		// Check for string setters (which take precedence)
+		for (Method method : methods) {
+			if (method.getName().startsWith("get") && method.getParameterTypes().length == 0) {
+				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(3)));
+			}
+			if (method.getName().startsWith("is") && method.getParameterTypes().length == 0) {
+				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(2)));
+			}
+			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && method.getParameterTypes()[0].equals(String.class)) {
+				this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"String"}));
+				addedActions.add(method.getName());
+			}
+		}
+		// Now check for non string setters
+		for (Method method : methods) {
+			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && ! addedActions.contains(method.getName())) {
+				// Non String setter
+				if (method.getParameterTypes()[0].equals(Integer.class) || method.getParameterTypes()[0].equals(int.class)) {
+					this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"Integer"}));
+					addedActions.add(method.getName());	// Just in case there are more overloads
+				} else if (method.getParameterTypes()[0].equals(Boolean.class) || method.getParameterTypes()[0].equals(boolean.class)) {
+					this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"Boolean"}));
+					addedActions.add(method.getName());	// Just in case there are more overloads
+				}
+			}
+		}
+		
+	}
+
+	public JSON handleApiOptionView(String name, JSONObject params) throws ApiException {
+		if (this.param == null) {
+			return null;
+		}
+		if (name.startsWith(GET_OPTION_PREFIX)) {
+			name = name.substring(GET_OPTION_PREFIX.length());
+			Method[] methods = param.getClass().getDeclaredMethods();
+			for (Method method : methods) {
+				if ((method.getName().equals("get" + name) ||  method.getName().equals("is" + name)) && method.getParameterTypes().length == 0) {
+					try {
+						JSONArray result = new JSONArray();
+						Object value = method.invoke(this.param);
+						result.add(value);
+						return result;
+					} catch (Exception e) {
+						throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+
+	public JSON handleApiOptionAction(String name, JSONObject params) throws ApiException {
+		if (this.param == null) {
+			return null;
+		}
+		if (name.startsWith(SET_OPTION_PREFIX)) {
+			name = name.substring(SET_OPTION_PREFIX.length());
+			Method[] methods = param.getClass().getDeclaredMethods();
+			for (Method method : methods) {
+				if (method.getName().equals("set" + name) && method.getParameterTypes().length == 1) {
+					Object val = null;
+					if (method.getParameterTypes()[0].equals(String.class)) {
+						val = params.getString("String");
+					} else if (method.getParameterTypes()[0].equals(Integer.class) || method.getParameterTypes()[0].equals(int.class)) {
+						val = params.getInt("Integer");
+					} else if (method.getParameterTypes()[0].equals(Boolean.class) || method.getParameterTypes()[0].equals(boolean.class)) {
+						val = params.getBoolean("Boolean");
+					}
+					if (val == null) {
+						// Value supplied doesnt match the type - try the next one
+						continue;
+					}
+
+					try {
+						JSONArray result = new JSONArray();
+						method.invoke(this.param, val);
+						result.add("OK");
+						return result;
+					} catch (Exception e) {
+						throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 
 	/**
 	 * Override if implementing one or more views
@@ -175,4 +276,5 @@ public abstract class ApiImplementor {
 	}
 
 	public abstract String getPrefix();
+
 }

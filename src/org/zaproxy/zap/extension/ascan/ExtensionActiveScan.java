@@ -111,7 +111,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.setName(NAME);
         this.setOrder(28);
 			
-        API.getInstance().registerApiImplementor(new ActiveScanAPI(this));
 
 	}
 
@@ -135,7 +134,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         extensionHook.addOptionsParamSet(getScannerParam());
         extensionHook.addCommandLine(getCommandLineArguments());
 
-
+        ActiveScanAPI api = new ActiveScanAPI(this);
+        api.addApiOptions(getScannerParam());
+        API.getInstance().registerApiImplementor(api);
 	}
 	
 	private ActiveScanPanel getActiveScanPanel() {
