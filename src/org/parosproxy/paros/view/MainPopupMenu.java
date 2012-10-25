@@ -27,6 +27,8 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/06/06 Issue 323: Added isDummyItem to support dynamic menus
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/10/07 Added support for prepareShow() that is run on PopupMenu before showing it
+// ZAP: 2012/10/08 Added check for PopupMenu safeness
 
 package org.parosproxy.paros.view;
 
@@ -114,12 +116,14 @@ public class MainPopupMenu extends JPopupMenu {
 	    }
 	    
 	    for (int i=0; i<itemList.size(); i++) {
-	        if (itemList.get(i) instanceof ExtensionPopupMenuItem) {
-	        	handleMenuItem(invoker, (ExtensionPopupMenuItem)itemList.get(i));
-	        } else if(itemList.get(i) instanceof ExtensionPopupMenu) {
-	        	handleMenu(invoker, (ExtensionPopupMenu)itemList.get(i));
-	        }
-	    }
+			if (itemList.get(i) instanceof ExtensionPopupMenuItem) {
+				handleMenuItem(invoker, (ExtensionPopupMenuItem) itemList.get(i));
+			} else if (itemList.get(i) instanceof ExtensionPopupMenu) {
+				ExtensionPopupMenu item = (ExtensionPopupMenu) itemList.get(i);
+				item.prepareShow();
+				handleMenu(invoker, item);
+			}
+		}
 	    super.show(invoker, x, y);
 	}
 	
@@ -191,6 +195,10 @@ public class MainPopupMenu extends JPopupMenu {
     	                this.addSeparator();
             		}
             	}
+                if (Control.getSingleton().getMode().equals(Mode.safe) && ! menu.isSafe()) {
+            		// Safe mode, disable all nor safe menus
+                	menu.setEnabled(false);
+                }
             }
         } catch (Exception e) {
         	log.error(e.getMessage(), e);

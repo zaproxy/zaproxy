@@ -54,6 +54,7 @@ public abstract class PopupContextMenu extends PopupMenuSiteNode {
     	return parentMenu;
     }
     
+   
     @Override
     public boolean isSubMenu() {
     	return true;
@@ -66,7 +67,10 @@ public abstract class PopupContextMenu extends PopupMenuSiteNode {
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {
-		return true;
+		if(invoker==Invoker.sites)
+			return true;
+		else
+			return false;
 	}
 	
     @Override

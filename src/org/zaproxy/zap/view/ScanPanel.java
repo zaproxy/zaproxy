@@ -58,6 +58,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
@@ -413,7 +414,16 @@ public abstract class ScanPanel extends AbstractPanel {
  		log.debug("scanSite (all in scope)");
 		this.setTabFocus();
 		if (this.getStartScanButton().isEnabled()) {
-			this.startScan(null, true, true);
+			this.startScan(null, true, true, null);
+		}
+	}
+	
+	public void scanAllInContext(Context context){
+		log.debug("Scan all in context: "+context.getName());
+		this.setTabFocus();
+		if (this.getStartScanButton().isEnabled()) {
+			
+			this.startScan(null, true, true, context);
 		}
 	}
 	
@@ -422,7 +432,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, false, true);
+			startScan(node, false, true, null);
 		}
 	}
 	
@@ -431,7 +441,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, false, false);
+			startScan(node, false, false, null);
 		}
 	}
 	
@@ -596,10 +606,10 @@ public abstract class ScanPanel extends AbstractPanel {
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
 	protected void startScan() {
-		this.startScan(null, false, true);
+		this.startScan(null, false, true, null);
 	}
 	
-	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren) {
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext) {
  		log.debug("startScan " + prefix + " " + startNode);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
@@ -616,8 +626,10 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (justScanInScope) {
 			scanThread.setStartNode(null);
 			scanThread.setJustScanInScope(true);
+			scanThread.setScanContext(scanContext);
 		} else {
 			scanThread.setJustScanInScope(false);
+			scanThread.setScanContext(null);
 			if (scanThread.getStartNode() == null) {
 				// Quick fix - need to look at this again
 				scanThread.setStartNode(startNode);

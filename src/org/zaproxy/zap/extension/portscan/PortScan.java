@@ -35,6 +35,7 @@ import javax.swing.DefaultListModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.utils.SortedListModel;
@@ -312,6 +313,11 @@ public class PortScan extends ScanThread implements ScanListenner {
 	@Override
 	public void setScanChildren(boolean scanChildren) {
 		// Dont support
+	}
+
+	@Override
+	public void setScanContext(Context context) {
+		// Don't support			
 	}
 
 }

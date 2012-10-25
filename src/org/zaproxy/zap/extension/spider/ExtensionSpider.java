@@ -41,6 +41,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -364,5 +365,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 */
 	public void startScan(SiteNode startNode) {
 		this.getSpiderPanel().scanSite(startNode, true);
+	}
+	
+	/**
+	 * Start scan all in context.
+	 */
+	public void startScanAllInContext(Context context) {
+		this.getSpiderPanel().scanAllInContext(context);
 	}
 }

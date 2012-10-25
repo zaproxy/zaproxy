@@ -626,6 +626,39 @@ public class Session extends FileXML {
 			fillNodesInScope(sn, nodesList);
 		}
 	}
+	
+	/**
+	 * Gets the nodes from the site tree which are "In Scope" in a given context. Searches recursively
+	 * starting from the root node. Should be used with care, as it is time-consuming, querying the database
+	 * for every node in the Site Tree.
+	 * 
+	 * @param context the context
+	 * @return the nodes in scope from site tree
+	 */
+	public List<SiteNode> getNodesInContextFromSiteTree(Context context) {
+		List<SiteNode> nodes = new LinkedList<>();
+		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		fillNodesInContext(rootNode, nodes, context);
+		return nodes;
+	}
+	
+	/**
+	 * Fills a given list with nodes in context, searching recursively.
+	 * 
+	 * @param rootNode the root node
+	 * @param nodesList the nodes list
+	 * @param context the context
+	 */
+	private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (context.isInContext(sn))
+				nodesList.add(sn);
+			fillNodesInContext(sn, nodesList, context);
+		}
+	}
 
 	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
 		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);

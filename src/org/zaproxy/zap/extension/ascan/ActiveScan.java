@@ -20,6 +20,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -31,6 +32,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private boolean isAlive = false;
 	private DefaultListModel<HistoryReference> list = new DefaultListModel<>();
 	private SiteNode startNode = null;
+	private Context startContext = null;
 	
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
@@ -205,6 +207,12 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public boolean getJustScanInScope() {
 		return super.getJustScanInScope();
+	}
+
+	@Override
+	public void setScanContext(Context context) {
+		this.startContext=context;		
+		//TODO: Use this context to start the active scan only on Nodes in scope
 	}
 
 }

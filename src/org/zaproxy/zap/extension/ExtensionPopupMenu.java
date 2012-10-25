@@ -22,48 +22,73 @@ package org.zaproxy.zap.extension;
 import java.awt.Component;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 public class ExtensionPopupMenu extends JMenu {
 
 	private static final long serialVersionUID = 1925623776527543421L;
-	
+
 	public ExtensionPopupMenu() {
-        super();
-    }
-    
-    public ExtensionPopupMenu(String label) {
-        super(label);
-    }
-    
-    /**
-	 * @param invoker  
+		super();
+	}
+
+	public ExtensionPopupMenu(String label) {
+		super(label);
+	}
+
+	/**
+	 * @param invoker
 	 */
-    public boolean isEnableForComponent(Component invoker) {
-        return true;
-    }
-    
-    public String getParentMenuName() {
-    	return null;
-    }
-    
-    public int getMenuIndex() {
-    	return -1;
-    }
-    
-    public int getParentMenuIndex() {
-    	return -1;
-    }
-    
-    public boolean isSubMenu() {
-    	return false;
-    }
-    
-    public boolean precedeWithSeparator() {
-    	return false;
-    }
-    
-    public boolean succeedWithSeparator() {
-    	return false;
-    }
+	public boolean isEnableForComponent(Component invoker) {
+		boolean retV = false;
+		for (int index = 0; index < this.getItemCount(); index++) {
+			JMenuItem item = this.getItem(index);
+			System.out.println(item.getText());
+			if (item instanceof PopupMenuHistoryReference) {
+				PopupMenuHistoryReference itemRef=(PopupMenuHistoryReference) item;
+				System.out.println("Here");
+				if (itemRef.isEnableForComponent(invoker))
+				{
+					retV = true;
+					System.out.println("Enabled");
+				}
+			}
+		}
+		return retV;
+	}
+
+	public String getParentMenuName() {
+		return null;
+	}
+
+	public int getMenuIndex() {
+		return -1;
+	}
+
+	public int getParentMenuIndex() {
+		return -1;
+	}
+
+	public boolean isSubMenu() {
+		return false;
+	}
+
+	public boolean precedeWithSeparator() {
+		return false;
+	}
+
+	public boolean succeedWithSeparator() {
+		return false;
+	}
+
+	public boolean isSafe() {
+		return true;
+	}
+
+	public void prepareShow() {
+		return;
+	}
 }

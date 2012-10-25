@@ -25,7 +25,6 @@ import javax.swing.ListModel;
 
 import org.parosproxy.paros.model.SiteNode;
 
-
 public interface GenericScanner extends Runnable {
 
 	public void stopScan();
@@ -33,33 +32,51 @@ public interface GenericScanner extends Runnable {
 	public boolean isStopped();
 
 	public String getSite();
-	
-	public int getProgress ();
 
-	public int getMaximum ();
-	
+	public int getProgress();
+
+	public int getMaximum();
+
 	public void pauseScan();
 
 	public void resumeScan();
-	
+
 	public boolean isPaused();
-	
+
 	public boolean isRunning();
-	
+
 	public void start();
 
 	public SiteNode getStartNode();
-	
-	public void setStartNode(SiteNode startNode);
-	
-	public void setJustScanInScope (boolean scanInScope);
 
-	public boolean getJustScanInScope ();
+	public void setStartNode(SiteNode startNode);
+
+	/**
+	 * Sets whether the scanner is started with the nodes in scope or in context.
+	 * 
+	 * @param scanInScope the new just scan in scope
+	 * @see GenericScanner#setScanContext(Context)
+	 */
+	public void setJustScanInScope(boolean scanInScope);
+
+	public boolean getJustScanInScope();
 
 	public ListModel<?> getList();
 
 	public void reset();
-	
-	public void setScanChildren (boolean scanChildren);
+
+	public void setScanChildren(boolean scanChildren);
+
+	/**
+	 * Sets the {@link Context} that should be scanned. The value should be used only if
+	 * {@code JustScanInScope} is enabled. If the {@code justScanInScope} property is set, when the scan is
+	 * started, it should be scan all the nodes in scope, if this StartContext is <code>null</code>, or all
+	 * the nodes in context, if this StartContext is null.
+	 * 
+	 * @param context the new scan context. If null, the scan will be run for all the nodes in scope.
+	 * @see GenericScanner#setJustScanInScope(boolean)
+	 * @see GenericScanner#getJustScanInScope()
+	 */
+	public void setScanContext(Context context);
 
 }
