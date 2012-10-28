@@ -76,7 +76,7 @@ public class SpiderParam extends AbstractParam {
 
 		/**
 		 * Converts the value of the Enum in a String with the exact same value, as the toString was
-		 * overriden.
+		 * overridden.
 		 * 
 		 * @return the string
 		 */
@@ -233,7 +233,7 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			setHandleParameters(HandleParametersOption.valueOf(getConfig().getString(SPIDER_HANDLE_PARAMETERS,
-					HandleParametersOption.USE_ALL.toString())));
+					HandleParametersOption.USE_ALL.toValue())));
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}

@@ -50,7 +50,7 @@ public class URLCanonicalizer {
 	private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
 
 	/** The Constant IRRELEVANT_PARAMETERS defining the parameter names which are ignored in the URL. */
-	private static final HashSet<String> IRRELEVANT_PARAMETERS = new HashSet<String>(3);
+	private static final HashSet<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
 	static {
 		IRRELEVANT_PARAMETERS.add("jsessionid");
 		IRRELEVANT_PARAMETERS.add("phpsessid");
@@ -151,6 +151,12 @@ public class URLCanonicalizer {
 	 * URI was already visited. The URI provided as a parameter should be already cleaned and canonicalized,
 	 * so it should be build with a result from {@link #getCanonicalURL(String)}.
 	 * 
+	 * <p>
+	 * When building the URI representation, the same format should be used for all the cases, as it may
+	 * affect the number of times the pages are visited and reported if the option HandleParametersOption is
+	 * changed while the spider is running.
+	 * </p>
+	 * 
 	 * @param uri the uri
 	 * @param handleParameters the handle parameters option
 	 * @return the string representation of the URI
@@ -164,24 +170,24 @@ public class URLCanonicalizer {
 
 		// If the option is set to ignore parameters completely, ignore the query completely
 		if (handleParameters.equals(HandleParametersOption.IGNORE_COMPLETELY)) {
+			StringBuilder retVal = new StringBuilder();
+			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
+			if (uri.getPort() != -1)
+				retVal.append(':').append(uri.getPort());
 			if (uri.getPath() != null)
-				return new StringBuilder().append(uri.getScheme()).append("://").append(uri.getHost()).append(":")
-						.append(uri.getPort()).append(uri.getPath()).toString();
-			else
-				return new StringBuilder().append(uri.getScheme()).append("://").append(uri.getHost()).append(":")
-						.append(uri.getPort()).toString();
+				retVal.append(uri.getPath());
+			return retVal.toString();
 		}
 
 		// If the option is set to ignore the value, we get the parameters and we only add their name to the
 		// query
 		if (handleParameters.equals(HandleParametersOption.IGNORE_VALUE)) {
 			StringBuilder retVal = new StringBuilder();
+			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
+			if (uri.getPort() != -1)
+				retVal.append(':').append(uri.getPort());
 			if (uri.getPath() != null)
-				retVal.append(uri.getScheme()).append("://").append(uri.getHost()).append(":").append(uri.getPort())
-						.append(uri.getPath()).toString();
-			else
-				retVal.append(uri.getScheme()).append("://").append(uri.getHost()).append(":").append(uri.getPort())
-						.toString();
+				retVal.append(uri.getPath());
 
 			// Get the parameters' names
 			SortedMap<String, String> params = createParameterMap(uri.getQuery());
@@ -198,9 +204,9 @@ public class URLCanonicalizer {
 					sb.append(key);
 				}
 			}
-			// Add the parameters' names to the uri representation. We can add '?' everytime as it does not
-			// have any influence if we are consistent
-			retVal.append("?").append(sb);
+			// Add the parameters' names to the uri representation. 
+			if(sb.length()>0)
+				retVal.append("?").append(sb);
 
 			return retVal.toString();
 		}
@@ -222,7 +228,7 @@ public class URLCanonicalizer {
 		}
 
 		final String[] pairs = queryString.split("&");
-		final SortedMap<String, String> params = new TreeMap<String, String>();
+		final SortedMap<String, String> params = new TreeMap<>();
 
 		for (final String pair : pairs) {
 			if (pair.length() == 0) {
