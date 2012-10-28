@@ -29,6 +29,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,11 +42,12 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 /**
- * The Class OptionsSpiderPanel defines the Options Panel showed when configuring settings related
- * to the spider.
+ * The Class OptionsSpiderPanel defines the Options Panel showed when configuring settings related to the
+ * spider.
  */
 public class OptionsSpiderPanel extends AbstractParamPanel {
 
@@ -65,6 +67,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox useCookies = null;
 	private JCheckBox parseComments = null;
 	private JCheckBox parseRobotsTxt = null;
+	private JComboBox<HandleParametersOption> handleParameters = null;
 
 	/**
 	 * Instantiates a new options spider panel.
@@ -114,6 +117,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
 			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
 			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
+			GridBagConstraints handleParametersGridBag = new GridBagConstraints();
+			GridBagConstraints handleParametersLabelGridBag = new GridBagConstraints();
 
 			maxDepthLabelGridBag.gridx = 0;
 			maxDepthLabelGridBag.gridy = 0;
@@ -158,36 +163,52 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			domainsScrollPaneGridBag.anchor = GridBagConstraints.NORTHWEST;
 			domainsScrollPaneGridBag.insets = new Insets(2, 2, 2, 2);
 
+			handleParametersLabelGridBag.gridx = 0;
+			handleParametersLabelGridBag.gridy = 6;
+			handleParametersLabelGridBag.weightx = 1.0D;
+			handleParametersLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
+			handleParametersLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
+			handleParametersLabelGridBag.insets = new Insets(2, 2, 2, 2);
+
+
+			handleParametersGridBag.gridx = 0;
+			handleParametersGridBag.gridy = 7;
+			handleParametersGridBag.weightx = 1.0;
+			handleParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
+			handleParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
+			handleParametersGridBag.insets = new Insets(2, 2, 2, 2);
+
+			
 			processFormGridBag.gridx = 0;
-			processFormGridBag.gridy = 6;
+			processFormGridBag.gridy = 8;
 			processFormGridBag.weightx = 1.0;
 			processFormGridBag.fill = GridBagConstraints.HORIZONTAL;
 			processFormGridBag.anchor = GridBagConstraints.WEST;
 			processFormGridBag.insets = new Insets(2, 2, 2, 2);
 
 			postFormGridBag.gridx = 0;
-			postFormGridBag.gridy = 7;
+			postFormGridBag.gridy = 9;
 			postFormGridBag.weightx = 1.0;
 			postFormGridBag.fill = GridBagConstraints.HORIZONTAL;
 			postFormGridBag.anchor = GridBagConstraints.WEST;
 			postFormGridBag.insets = new Insets(2, 15, 2, 2);
 
 			useCookiesGridBag.gridx = 0;
-			useCookiesGridBag.gridy = 8;
+			useCookiesGridBag.gridy = 10;
 			useCookiesGridBag.weightx = 1.0;
 			useCookiesGridBag.fill = GridBagConstraints.HORIZONTAL;
 			useCookiesGridBag.anchor = GridBagConstraints.NORTHWEST;
 			useCookiesGridBag.insets = new Insets(2, 2, 2, 2);
 
 			parseCommentsGridBag.gridx = 0;
-			parseCommentsGridBag.gridy = 9;
+			parseCommentsGridBag.gridy =11;
 			parseCommentsGridBag.weightx = 1.0;
 			parseCommentsGridBag.fill = GridBagConstraints.HORIZONTAL;
 			parseCommentsGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseCommentsGridBag.insets = new Insets(2, 2, 2, 2);
 
 			parseRobotsTxtGridBag.gridx = 0;
-			parseRobotsTxtGridBag.gridy = 10;
+			parseRobotsTxtGridBag.gridy = 12;
 			parseRobotsTxtGridBag.weightx = 1.0;
 			parseRobotsTxtGridBag.fill = GridBagConstraints.HORIZONTAL;
 			parseRobotsTxtGridBag.anchor = GridBagConstraints.NORTHWEST;
@@ -197,10 +218,12 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			JLabel domainsLabel = new JLabel();
 			JLabel noThreadsLabel = new JLabel();
 			JLabel maxDepthLabel = new JLabel();
+			JLabel handleParametersLabel = new JLabel();
 
 			maxDepthLabel.setText(Constant.messages.getString("spider.options.label.depth"));
 			noThreadsLabel.setText(Constant.messages.getString("spider.options.label.threads"));
 			domainsLabel.setText(Constant.messages.getString("spider.options.label.domains"));
+			handleParametersLabel.setText(Constant.messages.getString("spider.options.label.handleparameters"));
 
 			// Add the components on the panel
 			panelSpider.add(maxDepthLabel, maxDepthLabelGridBag);
@@ -214,6 +237,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getChkUseCookies(), useCookiesGridBag);
 			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
 			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
+			panelSpider.add(handleParametersLabel, handleParametersLabelGridBag);
+			panelSpider.add(getComboHandleParameters(), handleParametersGridBag);
 		}
 		return panelSpider;
 	}
@@ -232,6 +257,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkUseCookies().setSelected(param.isSendCookies());
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
+		getComboHandleParameters().setSelectedItem(param.getHandleParameters());
 
 	}
 
@@ -252,6 +278,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setSendCookies(getChkUseCookies().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
 		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
+		param.setHandleParameters((HandleParametersOption) getComboHandleParameters().getSelectedItem());
 	}
 
 	/**
@@ -337,8 +364,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	}
 
 	/**
-	 * This method initializes the checkbox for POST form option. This option should not be enabled
-	 * if the forms are not processed at all.
+	 * This method initializes the checkbox for POST form option. This option should not be enabled if the
+	 * forms are not processed at all.
 	 * 
 	 * @return javax.swing.JCheckBox
 	 */
@@ -414,6 +441,21 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseRobotsTxt.setText(Constant.messages.getString("spider.options.label.robotstxt"));
 		}
 		return parseRobotsTxt;
+	}
+
+	/**
+	 * This method initializes the combobox for HandleParameters option.
+	 * 
+	 * @return the combo handle parameters
+	 */
+	private JComboBox<HandleParametersOption> getComboHandleParameters() {
+		if (handleParameters == null) {
+			handleParameters = new JComboBox<HandleParametersOption>(new HandleParametersOption[] {
+					HandleParametersOption.USE_ALL, HandleParametersOption.IGNORE_VALUE,
+					HandleParametersOption.IGNORE_COMPLETELY });
+
+		}
+		return handleParameters;
 	}
 
 	/**

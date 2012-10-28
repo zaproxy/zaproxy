@@ -22,22 +22,91 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
  * The SpiderParam wraps all the parameters that are given to the spider.
  */
 public class SpiderParam extends AbstractParam {
+
+	/** The Constant SPIDER_MAX_DEPTH. */
 	private static final String SPIDER_MAX_DEPTH = "spider.maxDepth";
+
+	/** The Constant SPIDER_THREAD. */
 	private static final String SPIDER_THREAD = "spider.thread";
+
+	/** The Constant SPIDER_SCOPE. */
 	private static final String SPIDER_SCOPE = "spider.scope";
+
+	/** The Constant SPIDER_POST_FORM. */
 	private static final String SPIDER_POST_FORM = "spider.postform";
+
+	/** The Constant SPIDER_PROCESS_FORM. */
 	private static final String SPIDER_PROCESS_FORM = "spider.processform";
+
+	/** The Constant SPIDER_SKIP_URL. */
 	private static final String SPIDER_SKIP_URL = "spider.skipurl";
+
+	/** The Constant SPIDER_REQUEST_WAIT. */
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
+
+	/** The Constant SPIDER_SEND_COOKIES. */
 	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
+
+	/** The Constant SPIDER_PARSE_COMMENTS. */
 	private static final String SPIDER_PARSE_COMMENTS = "spider.parseComments";
+
+	/** The Constant SPIDER_PARSE_ROBOTS_TXT. */
 	private static final String SPIDER_PARSE_ROBOTS_TXT = "spider.parseRobotsTxt";
+
+	/** The Constant SPIDER_HANDLE_PARAMETERS. */
+	private static final String SPIDER_HANDLE_PARAMETERS = "spider.handleParameters";
+
+	/**
+	 * This option is used to define how the parameters are used when checking if an URI was already visited.
+	 */
+	public enum HandleParametersOption {
+		/** The parameters are ignored completely. */
+		IGNORE_COMPLETELY,
+		/** Only the name of the parameter is used, but the value is ignored. */
+		IGNORE_VALUE,
+		/** Both the name and value of the parameter are used. */
+		USE_ALL;
+
+		/**
+		 * Converts the value of the Enum in a String with the exact same value, as the toString was
+		 * overriden.
+		 * 
+		 * @return the string
+		 */
+		public String toValue() {
+			switch (this) {
+			case IGNORE_COMPLETELY:
+				return "IGNORE_COMPLETELY";
+			case IGNORE_VALUE:
+				return "IGNORE_VALUE";
+			case USE_ALL:
+				return "USE_ALL";
+			default:
+				return null;
+			}
+		}
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case IGNORE_COMPLETELY:
+				return Constant.messages.getString("spider.options.value.handleparameters.ignoreAll");
+			case IGNORE_VALUE:
+				return Constant.messages.getString("spider.options.value.handleparameters.ignoreValue");
+			case USE_ALL:
+				return Constant.messages.getString("spider.options.value.handleparameters.useAll");
+			default:
+				return null;
+			}
+		}
+	};
 
 	/** The max depth of the crawling. */
 	private int maxDepth = 5;
@@ -50,8 +119,8 @@ public class SpiderParam extends AbstractParam {
 	/** Whether the forms are processed and submitted at all. */
 	private boolean processForm = true;
 	/**
-	 * Whether the forms are submitted, if their method is HTTP POST. This option should not be used
-	 * if the forms are not processed at all (processForm).
+	 * Whether the forms are submitted, if their method is HTTP POST. This option should not be used if the
+	 * forms are not processed at all (processForm).
 	 */
 	private boolean postForm = false;
 	/** The waiting time between new requests to server - safe from DDOS. */
@@ -66,10 +135,12 @@ public class SpiderParam extends AbstractParam {
 	private String userAgent = null;
 	/** Whether the spider sends back the cookies received from the server. */
 	private boolean sendCookies = false;
+	/** The handle parameters visited. */
+	private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
 
 	/**
-	 * The simple scope text used just for caching the get for the scope. the scopeRegex is the
-	 * 'regexed' version of this variable's value.
+	 * The simple scope text used just for caching the get for the scope. the scopeRegex is the 'regexed'
+	 * version of this variable's value.
 	 */
 	private String simpleScopeText;
 
@@ -83,9 +154,10 @@ public class SpiderParam extends AbstractParam {
 	public SpiderParam() {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.common.FileXML#parse() */
+	/*
+	 * (non-Javadoc)
+	 * @see org.parosproxy.paros.common.FileXML#parse()
+	 */
 	@Override
 	protected void parse() {
 		// Use try/catch for every parameter so if the parsing of one fails, it's continued for the
@@ -111,15 +183,16 @@ public class SpiderParam extends AbstractParam {
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
 		} catch (ConversionException e) {
-			//conversion issue from 1.4.1: convert the field from int to boolean
-			log.info("Warning while parsing config file: " + SPIDER_POST_FORM + " was not in the expected format due to an upgrade. Converting  it!");
+			// conversion issue from 1.4.1: convert the field from int to boolean
+			log.info("Warning while parsing config file: " + SPIDER_POST_FORM
+					+ " was not in the expected format due to an upgrade. Converting  it!");
 			if (!getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0")) {
 				getConfig().setProperty(SPIDER_POST_FORM, "true");
 				this.postForm = true;
 			} else {
 				getConfig().setProperty(SPIDER_POST_FORM, "false");
 				this.postForm = false;
-			}			
+			}
 		}
 
 		try {
@@ -154,6 +227,13 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			setHandleParameters(HandleParametersOption.valueOf(getConfig().getString(SPIDER_HANDLE_PARAMETERS,
+					HandleParametersOption.USE_ALL.toString())));
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -240,7 +320,7 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Sets the thread count
+	 * Sets the thread count.
 	 * 
 	 * @param thread The thread count to set.
 	 */
@@ -250,8 +330,8 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Checks if is the forms should be submitted with the HTTP POST method. This option should not
-	 * be used if the forms are not processed at all (processForm).
+	 * Checks if is the forms should be submitted with the HTTP POST method. This option should not be used if
+	 * the forms are not processed at all (processForm).
 	 * 
 	 * @return true, if the forms should be posted.
 	 */
@@ -260,8 +340,8 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Sets if the forms should be submitted with the HTTP POST method. This option should not be
-	 * used if the forms are not processed at all (processForm).
+	 * Sets if the forms should be submitted with the HTTP POST method. This option should not be used if the
+	 * forms are not processed at all (processForm).
 	 * 
 	 * @param postForm the new post form status
 	 */
@@ -271,7 +351,7 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Checks if the forms should be processed
+	 * Checks if the forms should be processed.
 	 * 
 	 * @return true, if the forms should be processed
 	 */
@@ -291,8 +371,8 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Sets the skip url string. This string is being parsed into a pattern which is used to check
-	 * if a url should be skipped while crawling.
+	 * Sets the skip url string. This string is being parsed into a pattern which is used to check if a url
+	 * should be skipped while crawling.
 	 * 
 	 * @param skipURL the new skip url string
 	 */
@@ -419,8 +499,7 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Checks if the spider should parse the robots.txt for uris (not related to following the
-	 * directions).
+	 * Checks if the spider should parse the robots.txt for uris (not related to following the directions).
 	 * 
 	 * @return true, if it parses the file
 	 */
@@ -429,14 +508,32 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
-	 * Sets the whether the spider parses the robots.txt for uris (not related to following the
-	 * directions).
+	 * Sets the whether the spider parses the robots.txt for uris (not related to following the directions).
 	 * 
 	 * @param parseRobotsTxt the new value for parseRobotsTxt
 	 */
 	public void setParseRobotsTxt(boolean parseRobotsTxt) {
 		this.parseRobotsTxt = parseRobotsTxt;
 		getConfig().setProperty(SPIDER_PARSE_ROBOTS_TXT, Boolean.toString(parseRobotsTxt));
+	}
+
+	/**
+	 * Gets how the spider handles parameters when checking URIs visited.
+	 * 
+	 * @return the handle parameters visited
+	 */
+	public HandleParametersOption getHandleParameters() {
+		return handleParametersVisited;
+	}
+
+	/**
+	 * Sets the how the spider handles parameters when checking URIs visited.
+	 * 
+	 * @param handleParametersVisited the new handle parameters visited value
+	 */
+	public void setHandleParameters(HandleParametersOption handleParametersVisited) {
+		this.handleParametersVisited = handleParametersVisited;
+		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, handleParametersVisited.toValue());
 	}
 
 }

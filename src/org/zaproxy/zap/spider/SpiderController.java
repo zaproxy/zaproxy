@@ -39,8 +39,8 @@ import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
 import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
- * The SpiderController is used to manage the crawling process and interacts directly with the
- * Spider Task threads.
+ * The SpiderController is used to manage the crawling process and interacts directly with the Spider Task
+ * threads.
  */
 public class SpiderController implements SpiderParserListener {
 
@@ -48,8 +48,8 @@ public class SpiderController implements SpiderParserListener {
 	private LinkedList<FetchFilter> fetchFilters;
 
 	/**
-	 * The parse filters used by the spider to filter the resources which were fetched, but should
-	 * not be parsed.
+	 * The parse filters used by the spider to filter the resources which were fetched, but should not be
+	 * parsed.
 	 */
 	private LinkedList<ParseFilter> parseFilters;
 
@@ -112,22 +112,27 @@ public class SpiderController implements SpiderParserListener {
 	 * @param method the http method used for fetching the resource
 	 */
 	protected void addSeed(URI uri, String method) {
-		String uriS=uri.toString();
-		
 		// Check if the uri was processed already
+		String visitedURI;
+		try {
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uri, spider.getSpiderParam()
+					.getHandleParameters());
+		} catch (URIException e) {
+			return;
+		}
 		synchronized (visitedGet) {
-			if (visitedGet.contains(uriS)) {
-				log.debug("URI already visited: " + uriS);
+			if (visitedGet.contains(visitedURI)) {
+				log.debug("URI already visited: " + visitedURI);
 				return;
 			} else {
-				visitedGet.add(uriS);
+				visitedGet.add(visitedURI);
 			}
 		}
 		// Create and submit the new task
 		SpiderTask task = new SpiderTask(spider, uri, 0, method);
 		spider.submitTask(task);
 		// Add the uri to the found list
-		spider.notifyListenersFoundURI(uriS, method, FetchStatus.SEED);
+		spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.SEED);
 	}
 
 	/**
@@ -217,20 +222,27 @@ public class SpiderController implements SpiderParserListener {
 		if (uri == null)
 			return;
 
-		// Check if the uri was processed already
-		synchronized (visitedGet) {
-			if (visitedGet.contains(uri)) {
-				log.debug("URI already visited: " + uri);
-				return;
-			} else {
-				visitedGet.add(uri);
-			}
-		}
-
 		// Create the uri
 		URI uriV = createURI(uri);
 		if (uriV == null)
 			return;
+
+		// Check if the uri was processed already
+		String visitedURI;
+		try {
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uriV, spider.getSpiderParam()
+					.getHandleParameters());
+		} catch (URIException e) {
+			return;
+		}
+		synchronized (visitedGet) {
+			if (visitedGet.contains(visitedURI)) {
+				//log.debug("URI already visited: " + visitedURI);
+				return;
+			} else {
+				visitedGet.add(visitedURI);
+			}
+		}
 
 		// Check if any of the filters disallows this uri
 		for (FetchFilter f : fetchFilters) {
@@ -256,11 +268,11 @@ public class SpiderController implements SpiderParserListener {
 		spider.submitTask(task);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
-	 * .HttpMessage, java.lang.String) */
+	/*
+	 * (non-Javadoc)
+	 * @see org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
+	 * .HttpMessage, java.lang.String)
+	 */
 	@Override
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
 		resourceURIFound(responseMessage, depth, uri, false);
@@ -304,9 +316,8 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	/**
-	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a
-	 * String considering it's already encoded and, if it fails, tries to create it considering it's
-	 * not encoded.
+	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a String
+	 * considering it's already encoded and, if it fails, tries to create it considering it's not encoded.
 	 * 
 	 * @param uri the string of the uri
 	 * @return the URI, or null if an error occured and the URI could not be constructed.
