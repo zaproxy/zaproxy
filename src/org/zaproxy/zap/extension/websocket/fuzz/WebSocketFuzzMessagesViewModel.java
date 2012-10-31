@@ -150,6 +150,11 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		return new ArrayList<>(0);
 	}
 
+	@Override
+	protected List<Integer> getCriterianInScope() {
+		return null;
+	}
+
 	/**
 	 * Adds new message, that failed to be sent over channel.
 	 * 

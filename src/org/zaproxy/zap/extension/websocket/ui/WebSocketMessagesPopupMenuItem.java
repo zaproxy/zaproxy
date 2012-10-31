@@ -26,7 +26,6 @@ import javax.swing.JTable;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketMessagesViewModel;
 
 /**
  * Menu Item for a right click menu on the {@link WebSocketMessagesView}.
@@ -40,10 +39,15 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	 * Will be set by
 	 * {@link WebSocketMessagesPopupMenuItem#isEnableForComponent(Component)}.
 	 */
-    private JTable messagesView = null;
+	private WebSocketPopupHelper wsPopupHelper;
     
     public WebSocketMessagesPopupMenuItem() {
         super();
+ 		initialize();
+    }
+    
+    public WebSocketMessagesPopupMenuItem(String label) {
+        super(label);
  		initialize();
     }
 
@@ -94,31 +98,16 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	}
 
 	protected WebSocketMessageDTO getSelectedMessageDTO() {
-		int index = getSelectedRow();
-		if (index == -1) {
-			return null;
-		}
-		
-		WebSocketMessagesViewModel model = (WebSocketMessagesViewModel) messagesView.getModel();
-        WebSocketMessageDTO message = model.getDTO(index);
-        return message;
-	}
-
-	private int getSelectedRow() {
-		int[] rows = messagesView.getSelectedRows();
-	    if (rows.length != 1) {
-	        return -1;
-	    }
-	    return rows[0];
+		return wsPopupHelper.getSelectedMessage();
 	}
 	
     @Override
     public final boolean isEnableForComponent(Component invoker) {        
         if (invoker.getName() != null && invoker.getName().equals(getInvokerName())) {
             try {
-                messagesView = (JTable) invoker;
-                int[] rows = messagesView.getSelectedRows();
-                if (rows.length == 1 && isEnabledExtended()) {
+                wsPopupHelper = new WebSocketPopupHelper((JTable) invoker);
+                boolean isOneSelected = wsPopupHelper.isOneRowSelected();
+                if (isOneSelected && isEnabledExtended()) {
                     setEnabled(true);
                 } else {
                     setEnabled(false);

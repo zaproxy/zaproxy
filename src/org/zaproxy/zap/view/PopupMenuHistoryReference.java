@@ -86,7 +86,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	/**
 	 * This method initializes this
 	 */
-	private void initialize() {
+	protected void initialize() {
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -233,7 +233,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	}
 	
 	@Override
-    public final boolean isEnableForComponent(Component invoker) {
+    public boolean isEnableForComponent(Component invoker) {
     	boolean display = false;
     	if (invoker.getName() == null) {
     		return false;

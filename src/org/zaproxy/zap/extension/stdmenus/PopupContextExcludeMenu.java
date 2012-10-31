@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -35,16 +36,12 @@ public class PopupContextExcludeMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 
-    private List<PopupExcludeFromContextMenu> subMenus = new ArrayList<PopupExcludeFromContextMenu>();
+    private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
 
-	/**
-	 * This method initializes 
-	 * 
-	 */
 	public PopupContextExcludeMenu() {
 		super("excludeFromContextX", true);
 	}
-	/**/
+	
     @Override
     public String getParentMenuName() {
     	return Constant.messages.getString("context.exclude.popup");
@@ -75,22 +72,29 @@ public class PopupContextExcludeMenu extends PopupMenuSiteNode {
 
 	@Override
     public boolean isEnabledForSiteNode (SiteNode sn) {
-		for (PopupExcludeFromContextMenu menu : subMenus) {
+		reCreateSubMenu();
+    	return false;
+    }
+	
+    protected void reCreateSubMenu() {
+    	for (ExtensionPopupMenuItem menu : subMenus) {
 			View.getSingleton().getPopupMenu().removeMenu(menu);
-			
 		}
 		subMenus.clear();
 		
         Session session = Model.getSingleton().getSession();
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
-        	PopupExcludeFromContextMenu piicm = new PopupExcludeFromContextMenu(context);
+        	ExtensionPopupMenuItem piicm = createPopupExcludeFromContextMenu(context);
         	piicm.setMenuIndex(this.getMenuIndex());
 			View.getSingleton().getPopupMenu().addMenu(piicm);
 			this.subMenus.add(piicm);
         }
-    	return false;
-    }
+	}
+
+	protected ExtensionPopupMenuItem createPopupExcludeFromContextMenu(Context context) {
+    	return new PopupExcludeFromContextMenu(context);
+	}	
 
     @Override
     public boolean isSafe() {

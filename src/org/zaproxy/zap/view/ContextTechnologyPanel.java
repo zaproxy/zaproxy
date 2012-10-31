@@ -188,6 +188,7 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 		if (techTree == null) {
 			techTree = new CheckboxTree() {
 				private static final long serialVersionUID = 1L;
+				@Override
 				protected void setExpandedState(TreePath path, boolean state) {
 			        // Ignore all collapse requests; collapse events will not be fired
 			        if (state) {

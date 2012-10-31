@@ -27,6 +27,7 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage.Direction;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
@@ -135,8 +136,8 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	public int getRowCount() {
 		try {
 			synchronized (cachedRowCountSemaphore) {
-				if (cachedRowCount == null) {
-					cachedRowCount = table.getMessageCount(getCriterionMessage(), getCriterionOpcodes());
+				if (cachedRowCount == null) {					
+					cachedRowCount = table.getMessageCount(getCriterionMessage(), getCriterionOpcodes(), getCriterianInScope());
 				}
 				return cachedRowCount;
 			}
@@ -144,6 +145,26 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 			logger.error(e.getMessage(), e);
 			return 0;
 		}
+	}
+
+	protected List<Integer> getCriterianInScope() {
+		if (filter.getShowJustInScope()) {
+			ArrayList<Integer> inScopeChannelIds = new ArrayList<>();
+			
+			// iterate through channels, and derive channel-ids in scope
+			try {
+				for (WebSocketChannelDTO channel : table.getChannelItems()) {
+					if (channel.isInScope()) {
+						inScopeChannelIds.add(channel.id);
+					}
+				}
+				return inScopeChannelIds;
+			} catch (SQLException e) {
+				logger.warn(e.getMessage(), e);
+			}
+		}
+		
+		return null;
 	}
 
 	protected WebSocketMessageDTO getCriterionMessage() {
@@ -224,7 +245,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	@Override
 	protected List<WebSocketMessageDTO> loadPage(int offset, int length) {
 		try {
-			return table.getMessages(getCriterionMessage(), getCriterionOpcodes(), offset, length, PAYLOAD_PREVIEW_LENGTH);
+			return table.getMessages(getCriterionMessage(), getCriterionOpcodes(), getCriterianInScope(), offset, length, PAYLOAD_PREVIEW_LENGTH);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			return new ArrayList<>(0);
@@ -366,7 +387,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 		criteria.id = message.id;
 		
 		try {
-			return table.getIndexOf(criteria, null);
+			return table.getIndexOf(criteria, null, null);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			// maybe I'm right with this guess - try

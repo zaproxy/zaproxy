@@ -66,10 +66,10 @@ import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
-import org.zaproxy.zap.extension.websocket.ui.ExcludeFromScopeMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
-import org.zaproxy.zap.extension.websocket.ui.IncludeInScopeMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.PopupExcludeWebSocketContextMenu;
+import org.zaproxy.zap.extension.websocket.ui.PopupIncludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
@@ -258,8 +258,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			}
 			
 			// add exclude/include scope
-			hookMenu.addPopupMenuItem(new ExcludeFromScopeMenuItem());
-			hookMenu.addPopupMenuItem(new IncludeInScopeMenuItem());
+			hookMenu.addPopupMenuItem(new PopupIncludeWebSocketContextMenu());
+			hookMenu.addPopupMenuItem(new PopupExcludeWebSocketContextMenu());
 			
 			// setup Workpanel (window containing Request, Response & Break tab)
 			initializeWebSocketsForWorkPanel();

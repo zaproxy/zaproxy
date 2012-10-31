@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -35,7 +36,7 @@ public class PopupContextIncludeMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 
-    private List<PopupIncludeInContextMenu> subMenus = new ArrayList<PopupIncludeInContextMenu>();
+    private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
 
 	/**
 	 * This method initializes 
@@ -44,6 +45,7 @@ public class PopupContextIncludeMenu extends PopupMenuSiteNode {
 	public PopupContextIncludeMenu() {
 		super("IncludeInContextX", true);
 	}
+	
 	/**/
     @Override
     public String getParentMenuName() {
@@ -75,7 +77,13 @@ public class PopupContextIncludeMenu extends PopupMenuSiteNode {
 
 	@Override
     public boolean isEnabledForSiteNode (SiteNode sn) {
-		for (PopupIncludeInContextMenu menu : subMenus) {
+		reCreateSubMenu();
+		
+    	return false;
+    }
+	
+    protected void reCreateSubMenu() {
+    	for (ExtensionPopupMenuItem menu : subMenus) {
 			View.getSingleton().getPopupMenu().removeMenu(menu);
 			
 		}
@@ -84,20 +92,26 @@ public class PopupContextIncludeMenu extends PopupMenuSiteNode {
         Session session = Model.getSingleton().getSession();
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
-        	PopupIncludeInContextMenu piicm = new PopupIncludeInContextMenu(context);
+        	ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu(context);
         	piicm.setMenuIndex(this.getMenuIndex());
 			View.getSingleton().getPopupMenu().addMenu(piicm);
 			this.subMenus.add(piicm);
         }
         // Add the 'new context' menu
-    	PopupIncludeInContextMenu piicm = new PopupIncludeInContextMenu();
+        ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu();
 		View.getSingleton().getPopupMenu().addMenu(piicm);
 		this.subMenus.add(piicm);
-		
-    	return false;
-    }
+	}
 
-    @Override
+	protected ExtensionPopupMenuItem createPopupIncludeInContextMenu() {
+    	return new PopupIncludeInContextMenu();
+	}
+
+	protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(Context context) {
+    	return new PopupIncludeInContextMenu(context);
+	}
+
+	@Override
     public boolean isSafe() {
     	return true;
     }

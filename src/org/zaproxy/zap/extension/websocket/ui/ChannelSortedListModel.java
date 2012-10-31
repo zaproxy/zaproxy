@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.websocket.ui;
 
+import java.util.ArrayList;
+
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
 import org.zaproxy.zap.utils.SortedListModel;
@@ -24,6 +26,9 @@ import org.zaproxy.zap.utils.SortedListModel;
 public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO> {
 
 	private static final long serialVersionUID = 83057590716441165L;
+	
+	private boolean isShowJustInScope = false;
+	private ArrayList<WebSocketChannelDTO> hiddenChannels = new ArrayList<>();
 
 	public ChannelSortedListModel() {
 		super();
@@ -39,7 +44,7 @@ public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO>
 
 		String text = Constant.messages.getString("websocket.dialog.channel.select_all");
 		WebSocketChannelDTO allChannelsItem = new WebSocketChannelDTO(text);
-		addElement(allChannelsItem);
+		super.addElement(allChannelsItem);
 	}
 
 	/**
@@ -80,6 +85,15 @@ public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO>
 			}
 		}
 	}
+	
+	@Override
+	public void addElement(WebSocketChannelDTO channel) {
+		if (!isShowJustInScope || (isShowJustInScope && channel.isInScope())) {
+			super.addElement(channel);
+		} else {
+			hiddenChannels.add(channel);
+		}
+	}
 
 	/**
 	 * Notifies all {@code EventListenerList} that the element at the given
@@ -89,6 +103,35 @@ public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO>
 	 */
 	public void elementChanged(int index) {
 		fireContentsChanged(this, index, index);
+	}
+
+	/**
+	 * Entries from this model are hidden, when given parameter is
+	 * <code>true</code>. When <code>false</code> they are shown again.
+	 * 
+	 * @param isShow
+	 */
+	public void setShowJustInScope(boolean isShow) {
+		isShowJustInScope = isShow;
+		
+		// first, show all channels
+		for (WebSocketChannelDTO hiddenChannel : hiddenChannels) {
+			super.addElement(hiddenChannel);
+		}
+		hiddenChannels.clear();
+		
+		// second, hide those not in scope if enabled
+		if (isShowJustInScope) {
+			for (int i = getSize() - 1; i > 0; i--) {
+				WebSocketChannelDTO channel = getElementAt(i);
+				if (!channel.isInScope()) {
+					hiddenChannels.add(channel);
+					removeElement(channel);
+				}
+			}
+		}
+		
+		fireContentsChanged(this, 1, getSize());
 	}
 
 }

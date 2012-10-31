@@ -37,7 +37,7 @@ public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 	
-	private Context context;
+	protected Context context;
 
 	/**
 	 * This method initializes 
@@ -66,25 +66,28 @@ public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
 
 	@Override
 	public void performAction(SiteNode sn) throws Exception {
-		
+        String url = new URI(sn.getHierarchicNodeName(), false).toString();
+
+        if (sn.isLeaf()) {
+            url = Pattern.quote(url);
+        } else {
+        	url = Pattern.quote(url) + ".*";
+        }
+        
+        performAction(url);
+	}
+	
+	protected void performAction(String url) throws Exception {
         Session session = Model.getSingleton().getSession();
         
         if (context == null) {
         	context = session.getNewContext();
         }
 
-        String url = new URI(sn.getHierarchicNodeName(), false).toString();
-        if (sn.isLeaf()) {
-            url = Pattern.quote(url);
-        } else {
-        	url = Pattern.quote(url) + ".*";
-        }
-
         context.addIncludeInContextRegex(url);
         session.saveContext(context);
 
         View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), ContextIncludePanel.getPanelName(context));
-
 	}
 
 	@Override

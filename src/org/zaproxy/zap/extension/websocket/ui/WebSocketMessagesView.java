@@ -44,7 +44,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
  */
 public class WebSocketMessagesView implements Runnable {
 
-	public static final String TABLE_NAME = "websocket.table";
+	public static final String PANEL_NAME = "websocket.table";
 
 	private static final Logger logger = Logger.getLogger(WebSocketMessagesView.class);
 
@@ -96,7 +96,7 @@ public class WebSocketMessagesView implements Runnable {
 	}
 
 	protected String getViewComponentName() {
-		return TABLE_NAME;
+		return PANEL_NAME;
 	}
 
 	protected MouseListener getMouseListener() {

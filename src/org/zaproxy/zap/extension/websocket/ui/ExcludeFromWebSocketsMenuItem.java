@@ -75,7 +75,7 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
 	
 	@Override
 	protected String getInvokerName() {
-		return WebSocketMessagesView.TABLE_NAME;
+		return WebSocketMessagesView.PANEL_NAME;
 	}
 
 	protected String buildRegexForSelectedChannel() {

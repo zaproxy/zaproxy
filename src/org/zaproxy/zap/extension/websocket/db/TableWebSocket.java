@@ -198,7 +198,7 @@ public class TableWebSocket extends AbstractTable {
 		}
     }
 
-	/**
+    /**
 	 * Prepares a {@link PreparedStatement} instance on the fly.
 	 * 
 	 * @param criteria
@@ -207,12 +207,25 @@ public class TableWebSocket extends AbstractTable {
 	 * @throws SQLException
 	 */
 	public synchronized int getMessageCount(WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
+		return getMessageCount(criteria, opcodes, null);
+	}
+	
+	/**
+	 * Prepares a {@link PreparedStatement} instance on the fly.
+	 * 
+	 * @param criteria
+	 * @param opcodes Null when all opcodes should be retrieved.
+	 * @param inScopeChannelIds 
+	 * @return number of message that fulfill given template
+	 * @throws SQLException
+	 */
+	public synchronized int getMessageCount(WebSocketMessageDTO criteria, List<Integer> opcodes, List<Integer> inScopeChannelIds) throws SQLException {
 		String query = "SELECT COUNT(m.message_id) FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
         		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
 				+ "<where> ";
 		
-		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
+		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes, inScopeChannelIds);
 		try {
 			return executeAndGetSingleIntValue(stmt);
 		} finally {
@@ -233,13 +246,13 @@ public class TableWebSocket extends AbstractTable {
 		}
 	}
 
-	public synchronized int getIndexOf(WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
+	public synchronized int getIndexOf(WebSocketMessageDTO criteria, List<Integer> opcodes, List<Integer> inScopeChannelIds) throws SQLException {
 		String query = "SELECT COUNT(m.message_id) "
         		+ "FROM websocket_message AS m "
 				+ "LEFT OUTER JOIN websocket_message_fuzz f "
         		+ "ON m.message_id = f.message_id AND m.channel_id = f.channel_id "
         		+ "<where> AND m.message_id < ?";
-		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
+		PreparedStatement stmt = buildMessageCriteriaStatement(query, criteria, opcodes, inScopeChannelIds);
 		
 		int paramsCount = stmt.getParameterMetaData().getParameterCount();
 		stmt.setInt(paramsCount, criteria.id);
@@ -268,13 +281,14 @@ public class TableWebSocket extends AbstractTable {
 	 * 
 	 * @param criteria
 	 * @param opcodes
+	 * @param inScopeChannelIds 
 	 * @param offset
 	 * @param limit
 	 * @param payloadPreviewLength
 	 * @return Messages that fulfill given template.
 	 * @throws SQLException
 	 */
-	public synchronized List<WebSocketMessageDTO> getMessages(WebSocketMessageDTO criteria, List<Integer> opcodes, int offset, int limit, int payloadPreviewLength) throws SQLException {
+	public synchronized List<WebSocketMessageDTO> getMessages(WebSocketMessageDTO criteria, List<Integer> opcodes, List<Integer> inScopeChannelIds, int offset, int limit, int payloadPreviewLength) throws SQLException {
 		String query = "SELECT m.message_id, m.channel_id, m.timestamp, m.opcode, m.payload_length, m.is_outgoing, "
 				+ "m.payload_utf8, m.payload_bytes, "
 				+ "f.fuzz_id, f.state, f.fuzz "
@@ -288,7 +302,7 @@ public class TableWebSocket extends AbstractTable {
 
 		PreparedStatement stmt;
 		try {
-			stmt = buildMessageCriteriaStatement(query, criteria, opcodes);
+			stmt = buildMessageCriteriaStatement(query, criteria, opcodes, inScopeChannelIds);
 		} catch (SQLException e) {
 			if (getConnection().isClosed()) {
 				return new ArrayList<>(0);
@@ -405,7 +419,7 @@ public class TableWebSocket extends AbstractTable {
 		return (WebSocketChannelDTO) channelCache.get(channelId);
 	}
 
-	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDTO criteria, List<Integer> opcodes) throws SQLException {
+	private PreparedStatement buildMessageCriteriaStatement(String query, WebSocketMessageDTO criteria, List<Integer> opcodes, List<Integer> inScopeChannelIds) throws SQLException {
 		ArrayList<String> where = new ArrayList<>();
 		ArrayList<Object> params = new ArrayList<>();
 
@@ -434,6 +448,27 @@ public class TableWebSocket extends AbstractTable {
 			
 			opcodeExpr.append(")");
 			where.add(opcodeExpr.toString());
+		}
+		
+		if (inScopeChannelIds != null) {
+			StringBuilder whereExpr = new StringBuilder("m.channel_id IN (");
+			int inScopeChannelCount = inScopeChannelIds.size();
+			
+			if (inScopeChannelCount > 0) {
+				for (int i = 0; i < inScopeChannelCount; i++) {
+					params.add(inScopeChannelIds.get(i));
+					
+					whereExpr.append("?");
+					if ((i + 1) < inScopeChannelCount) {
+						whereExpr.append(",");
+					}
+				}
+			} else {
+				whereExpr.append("null");
+			}
+			
+			whereExpr.append(")");
+			where.add(whereExpr.toString());
 		}
 
 		if (criteria instanceof WebSocketFuzzMessageDTO) {

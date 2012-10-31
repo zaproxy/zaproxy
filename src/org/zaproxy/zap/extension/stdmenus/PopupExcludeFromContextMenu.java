@@ -35,13 +35,8 @@ public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
 	
-	private Context context;
+	protected Context context;
 
-	/**
-	 * This method initializes 
-	 * 
-	 */
-	    
 	public PopupExcludeFromContextMenu(Context context) {
 		super(context.getName(), true);
 		this.context = context;

@@ -103,7 +103,25 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 	}
 
 	public boolean isInScope() {
-		return Model.getSingleton().getSession().isInScope(this.url);
+		return Model.getSingleton().getSession().isInScope(getContextUrl());
+	}
+
+	/**
+	 * Returns URL without trailing slash and without parameters. This
+	 * representation is used for the Mode+Context feature.
+	 * 
+	 * @return
+	 */
+	public String getContextUrl() {
+		if (url == null) {
+			return null;
+		}
+		
+		if (url.indexOf("?") != -1) {		
+    		url = url.substring(0, url.indexOf("?"));
+		}
+		
+		return url.replaceFirst("/$", "");
 	}
 
 	@Override

@@ -35,7 +35,10 @@ public class WebSocketMessagesViewFilter {
 	 * applied.
 	 */
 	private List<Integer> opcodeList;
+	
 	private Direction direction;
+	
+	private boolean isShowJustInScope = false;
 	
 	public void setOpcodes(List<Integer> list) {
 		opcodeList = list;
@@ -59,6 +62,14 @@ public class WebSocketMessagesViewFilter {
 		return direction;
 	}
 
+	public void setShowJustInScope(boolean isShowJustInScope) {
+		this.isShowJustInScope = isShowJustInScope;
+	}
+
+	public boolean getShowJustInScope() {
+		return isShowJustInScope;
+	}
+
 	/**
 	 * Resets this filter. Message will no longer be blacklisted.
 	 */
@@ -75,6 +86,10 @@ public class WebSocketMessagesViewFilter {
 	 * @return True if the given entry is filtered out, false if valid.
 	 */
 	public boolean isBlacklisted(WebSocketMessageDTO message) {
+		if (isShowJustInScope && !message.channel.isInScope()) {
+			return true;
+		}
+		
 		if (opcodeList != null) {
 			if (!opcodeList.contains(message.opcode)) {
 				return true;

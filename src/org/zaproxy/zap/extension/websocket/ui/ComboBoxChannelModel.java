@@ -84,5 +84,5 @@ public class ComboBoxChannelModel implements ComboBoxModel<WebSocketChannelDTO> 
     public void removeListDataListener(ListDataListener l) {
         delegate.removeListDataListener(l);
     }
-
+    
 }

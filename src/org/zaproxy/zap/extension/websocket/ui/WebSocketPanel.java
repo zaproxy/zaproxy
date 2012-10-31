@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
@@ -45,6 +46,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -100,6 +102,8 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 	};
 
 	private JToolBar panelToolbar = null;
+
+	private JToggleButton scopeButton;
 
 	private JComboBox<WebSocketChannelDTO> channelSelect;
 	private ChannelSortedListModel channelsModel;
@@ -198,9 +202,14 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("websocket.toolbar");
 
+			GridBagConstraints constraints;
 			int x = 0;
+			
+			constraints = new GridBagConstraints();
+			constraints.gridx = x++;
+			panelToolbar.add(getScopeButton());
 
-			GridBagConstraints constraints = new GridBagConstraints();
+			constraints = new GridBagConstraints();
 			constraints.gridx = x++;
 			panelToolbar.add(new JLabel(Constant.messages.getString("websocket.toolbar.channel.label")), constraints);
 			
@@ -740,5 +749,41 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		messagesView.resume();
 		channelSelect.setEnabled(true);
 		update();
+	}
+	
+	private JToggleButton getScopeButton() {
+		if (scopeButton == null) {
+			scopeButton = new JToggleButton();
+			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+
+			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					// show channels only in scope in JComboBox (select element)
+					boolean isShowJustInScope = scopeButton.isSelected();
+					
+					channelsModel.setShowJustInScope(isShowJustInScope);
+					if (!channelsModel.contains(channelSelect.getSelectedItem())) {
+						// select first entry, if selected item does no longer appear in drop-down
+						channelSelect.setSelectedIndex(0);
+					}
+					
+					// show messages only from channels in scope
+					getFilterDialog().getFilter().setShowJustInScope(isShowJustInScope);
+					applyFilter();
+					
+					if (scopeButton.isSelected()) {
+						scopeButton.setIcon(new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
+					} else {
+						scopeButton.setIcon(new ImageIcon(WebSocketPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+					}
+				}
+			});
+		}
+		return scopeButton;
 	}
 }
