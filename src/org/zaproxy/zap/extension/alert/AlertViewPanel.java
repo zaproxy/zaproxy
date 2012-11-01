@@ -628,8 +628,9 @@ public class AlertViewPanel extends AbstractPanel {
 		this.httpMessage = null;
 		try {
 			if (historyRef != null) {
-				setParamNames(historyRef.getHttpMessage().getParamNames());
-		        this.alertUrl.setText(historyRef.getHttpMessage().getRequestHeader().getURI().toString());
+				HttpMessage msg = historyRef.getHttpMessage();
+				setParamNames(msg.getParamNames());
+		        this.alertUrl.setText(msg.getRequestHeader().getURI().toString());
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

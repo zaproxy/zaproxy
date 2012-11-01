@@ -426,7 +426,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
                     try {
-                        node = siteTree.findNode(href.getHttpMessage());
                         // TODO Ideally should cache the param names (and change findNode) so we dont have to get
                         // the message from the db
                         node = siteTree.findNode(href.getHttpMessage());

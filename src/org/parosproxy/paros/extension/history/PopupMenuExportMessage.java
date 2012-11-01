@@ -24,6 +24,7 @@
 // Made the "log" final.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2012/11/01 Changed to load the HttpMessage from the database only once.
 
 package org.parosproxy.paros.extension.history;
 
@@ -44,6 +45,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMessage;
 
 
 /**
@@ -178,20 +180,22 @@ public class PopupMenuExportMessage extends ExtensionPopupMenuItem {
         String s = null;
         
         try {
+            // ZAP: Changed to load the HttpMessage from the database only once.
+            HttpMessage msg = ref.getHttpMessage();
             writer.write("==== " + ref.getHistoryId() + " ==========" + CRLF);
-            s = ref.getHttpMessage().getRequestHeader().toString();
+            s = msg.getRequestHeader().toString();
             writer.write(s);
-            s = ref.getHttpMessage().getRequestBody().toString();
+            s = msg.getRequestBody().toString();
             writer.write(s);
             if (!s.endsWith(CRLF)) {
                 writer.write(CRLF);
             }
         
             
-            if (!ref.getHttpMessage().getResponseHeader().isEmpty()) {
-                s = ref.getHttpMessage().getResponseHeader().toString();
+            if (!msg.getResponseHeader().isEmpty()) {
+                s = msg.getResponseHeader().toString();
                 writer.write(s);
-                s = ref.getHttpMessage().getResponseBody().toString();
+                s = msg.getResponseBody().toString();
                 writer.write(s);
                 if (!s.endsWith(CRLF)) {
                     writer.write(CRLF);

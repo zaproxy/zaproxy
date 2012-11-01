@@ -273,16 +273,19 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			if (hr == null) {
 				return null;
 			}
+			HttpMessage msg = hr.getHttpMessage();
 			StringBuilder sb = new StringBuilder(300);
 			sb.append("<html>\n");
 			sb.append("<body>\n");
 			sb.append("<h3>");
-			sb.append(hr.getHttpMessage().getRequestHeader().getURI());
+			sb.append(msg.getRequestHeader().getURI());
 			sb.append("</h3>");
-			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + hr.getHttpMessage().getRequestHeader().getURI() + "\">\n");
+			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + msg.getRequestHeader().getURI() + "\">\n");
 			sb.append("<table>\n");
 			
-			TreeSet<HtmlParameter> params = hr.getHttpMessage().getFormParams();
+			TreeSet<HtmlParameter> params = msg.getFormParams();
+			// Let the message be GC'ed as it's no longer needed.
+			msg = null;
 			Iterator<HtmlParameter> iter = params.iterator();
 			while (iter.hasNext()) {
 				HtmlParameter htmlParam = iter.next();

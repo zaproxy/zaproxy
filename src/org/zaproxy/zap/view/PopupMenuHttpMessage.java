@@ -53,7 +53,7 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
     
     @Override
     public void performAction (HistoryReference href) throws Exception {
-    	if (href != null && href.getHttpMessage() != null) {
+    	if (href != null) {
     		this.performAction(href.getHttpMessage());
     	}
     }
