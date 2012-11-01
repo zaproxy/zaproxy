@@ -339,6 +339,7 @@ public class HistoryReference {
    public void setNote(String note) {
        try {
            staticTableHistory.updateNote(historyId, note);
+           this.hasNote = note != null && note.length() > 0;
        } catch (SQLException e) {
            log.error(e.getMessage(), e);
        }
