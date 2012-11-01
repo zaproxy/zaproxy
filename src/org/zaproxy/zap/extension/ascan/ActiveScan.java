@@ -163,14 +163,18 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void notifyNewMessage(final HttpMessage msg) {
 	    synchronized (list) {
 	        HistoryReference hRef = msg.getHistoryRef();
-            try {
-                hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
-                this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
+            if (hRef == null) {
+                try {
+                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+                    this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
+                    this.list.addElement(hRef);
+                } catch (HttpMalformedHeaderException e) {
+                    log.error(e.getMessage(), e);
+                } catch (SQLException e) {
+                    log.error(e.getMessage(), e);
+                }
+            } else {
                 this.list.addElement(hRef);
-            } catch (HttpMalformedHeaderException e) {
-                log.error(e.getMessage(), e);
-            } catch (SQLException e) {
-                log.error(e.getMessage(), e);
             }
         }
 	}
