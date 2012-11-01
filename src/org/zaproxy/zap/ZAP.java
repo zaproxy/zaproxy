@@ -46,6 +46,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.dynssl.DynSSLParam;
 import org.zaproxy.zap.extension.dynssl.DynamicSSLWelcomeDialog;
@@ -313,12 +314,18 @@ public class ZAP {
 		}
 		return userloc;
 	}
+	
+	private ControlOverrides getOverrides() {
+		ControlOverrides overrides = new ControlOverrides();
+		overrides.setProxyPort(this.cmdLine.getPort());
+		return overrides;
+	}
 
 	private void runCommandLine() {
 	    int rc = 0;
 	    String help = "";
 
-	    Control.initSingletonWithoutView();
+	    Control.initSingletonWithoutView(this.getOverrides());
 	    final Control control = Control.getSingleton();
 
 	    // no view initialization
@@ -354,7 +361,7 @@ public class ZAP {
 
 	private void runGUI() throws ClassNotFoundException, Exception {
 
-	    Control.initSingletonWithView();
+	    Control.initSingletonWithView(this.getOverrides());
 	    final Control control = Control.getSingleton();
 	    final View view = View.getSingleton();
 	    view.postInit();
@@ -369,7 +376,7 @@ public class ZAP {
         final Thread t = new Thread(new Runnable() {
             @Override
 			public void run() {
-        		Control.initSingletonWithoutView();
+        		Control.initSingletonWithoutView(getOverrides());
         		// This is the only non-daemon thread, so should keep running
         		// CoreAPI.handleApiAction uses System.exit to shutdown
         		while (true) {

@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/15 Support for exclusions
+// ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
 
 package org.parosproxy.paros.control;
  
@@ -30,6 +31,7 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.proxy.ProxyServerSSL;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.control.ControlOverrides;
 
 public class Proxy {
     
@@ -38,10 +40,12 @@ public class Proxy {
 	private ProxyServerSSL proxyServerSSL = null;
 	private boolean reverseProxy = false;
 	private String reverseProxyHost = "";
+	private ControlOverrides overrides = null;
     
-	public Proxy(Model model) {
+	public Proxy(Model model, ControlOverrides overrides) {
 		
 	    this.model = model;
+	    this.overrides = overrides;
 	    
 		proxyServer = new ProxyServer();
 		proxyServerSSL = new ProxyServerSSL();
@@ -63,13 +67,26 @@ public class Proxy {
 		    proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getReverseProxyIp(), model.getOptionsParam().getProxyParam().getReverseProxyHttpsPort(), false);
 
 //			proxyServer.setForwardPort(sslPort);
+		    
 			proxyServer.startServer(model.getOptionsParam().getProxyParam().getReverseProxyIp(), model.getOptionsParam().getProxyParam().getReverseProxyHttpPort(), false);
 		    
 		} else {
 
 //		    int sslPort = proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), model.getOptionsParam().getProxyParam().getProxySSLPort(), true);
 //			proxyServer.setForwardPort(sslPort);
-			proxyServer.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), model.getOptionsParam().getProxyParam().getProxyPort(), false);
+			
+		    int proxyPort = -1;
+		    if (this.overrides != null) {
+		    	proxyPort = this.overrides.getProxyPort();
+		    }
+		    if (proxyPort > 0) {
+		    	// Save the override in the configs
+		    	model.getOptionsParam().getProxyParam().setProxyPort(proxyPort);
+		    } else {
+		    	proxyPort = model.getOptionsParam().getProxyParam().getProxyPort();
+		    }
+
+			proxyServer.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), proxyPort, false);
 		    
 		}
 	}

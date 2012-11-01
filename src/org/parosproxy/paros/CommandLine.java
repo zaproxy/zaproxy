@@ -47,6 +47,7 @@ public class CommandLine {
     public static final String HELP2 = "-h";
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
+    public static final String PORT = "-port";
     
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -54,6 +55,7 @@ public class CommandLine {
     private boolean GUI = true;
     private boolean daemon = false;
     private boolean reportVersion = false;
+    private int port = -1;
     private String[] args = null;
     private Hashtable<String, String> keywords = new Hashtable<>();
     private Vector<CommandLineArgument[]> commandList = null;
@@ -211,6 +213,9 @@ public class CommandLine {
 	    } else if (checkPair(args, DIR, i)) {
 	    	Constant.setZapHome(keywords.get(DIR));
 	        result = true;
+	    } else if (checkPair(args, PORT, i)) {
+	    	this.port = Integer.parseInt(keywords.get(PORT));
+	        result = true;
 	    }
 	    return result;
 	}
@@ -239,6 +244,10 @@ public class CommandLine {
 	public boolean isReportVersion() {
 		return this.reportVersion;
 	}
+	
+	public int getPort () {
+		return this.port;
+	}
 
 	public String getArgument(String keyword) {
         return keywords.get(keyword);
@@ -259,7 +268,7 @@ public class CommandLine {
     public String getHelp() {
     	StringBuilder sb = new StringBuilder(getHelpGeneral());        
         sb.append("Command line usage:\r\n");
-        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} {-dir directory} {-daemon} {-version}\r\n");
+        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} {-dir directory} {-port port} {-daemon} {-version}\r\n");
         sb.append("options:\r\n\r\n");
 
         for (int i=0; i<commandList.size(); i++) {

@@ -34,6 +34,7 @@
 // and extension).
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
 
 package org.parosproxy.paros.control;
 
@@ -47,6 +48,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 /**
@@ -77,7 +79,7 @@ public class Control extends AbstractControl implements SessionListener {
 		super(null, null);
 	}
 
-	private void init() {
+	private void init(ControlOverrides overrides) {
         
         PluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
         		
@@ -85,20 +87,24 @@ public class Control extends AbstractControl implements SessionListener {
 		loadExtension();
 		
 		// ZAP: Start proxy even if no view
-	    getProxy();
-	    getExtensionLoader().hookProxyListener(getProxy());
+	    getProxy(overrides);
+	    getExtensionLoader().hookProxyListener(getProxy(overrides));
 		
 		if (view != null) {
 		    // ZAP: Add site map listeners
 		    getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
 		}
 		
-		getProxy().startServer();
+		getProxy(overrides).startServer();
     }
-    
+
     public Proxy getProxy() {
+    	return this.getProxy(null);
+    }
+
+    public Proxy getProxy(ControlOverrides overrides) {
         if (proxy == null) {
-            proxy = new Proxy(model);
+            proxy = new Proxy(model, overrides);
         }
         
         return proxy;
@@ -143,7 +149,7 @@ public class Control extends AbstractControl implements SessionListener {
 			log.error("Error saving config", e);
 		}
 		
-        getProxy().stopServer();
+        getProxy(null).stopServer();
         super.shutdown(compact);
     }
     
@@ -152,16 +158,16 @@ public class Control extends AbstractControl implements SessionListener {
         return control;
     }
 
-    public static void initSingletonWithView() {
+    public static void initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
-        control.init();
+        control.init(overrides);
         // Initialise the mode
         control.setMode(control.getMode());
     }
     
-    public static void initSingletonWithoutView() {
+    public static void initSingletonWithoutView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), null);
-        control.init();
+        control.init(overrides);
     }
 
     // ZAP: Added method to allow for testing
@@ -196,7 +202,7 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     public void setExcludeFromProxyUrls(List<String> urls) {
-		this.getProxy().setIgnoreList(urls);
+		this.getProxy(null).setIgnoreList(urls);
     }
     
     public void openSession(final File file, final SessionListener callback) {
