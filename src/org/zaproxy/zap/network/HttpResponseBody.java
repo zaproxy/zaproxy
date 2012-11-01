@@ -54,7 +54,7 @@ public class HttpResponseBody extends HttpBody {
 				result = new String(getBytes(), charset);
 				isChangedCharset = false;
 			} catch (UnsupportedEncodingException e) {
-				log.error(e.getMessage(), e);
+				log.error("Unable to encode with the \"Content-Type\" charset: " + e.getMessage());
 			}
 		}
 		
@@ -89,7 +89,8 @@ public class HttpResponseBody extends HttpBody {
 				}
 			}
 		} catch(UnsupportedEncodingException e) {
-			log.error(e.getMessage(), e);
+			log.error("Unable to encode with the (X)HTML meta charset: " + e.getMessage());
+			log.warn("Using default charset: 8859_1");
 			
 			result = resultDefaultCharset;
 		}
@@ -107,7 +108,6 @@ public class HttpResponseBody extends HttpBody {
 			utf8 = new String(buf1, "UTF8");
 			length2 = utf8.getBytes("UTF8").length;
 		} catch (UnsupportedEncodingException e) {
-			log.error(e.getMessage(), e);
 			log.warn("UTF8 not supported. Using 8859_1 instead.");
 			return null;
 		}

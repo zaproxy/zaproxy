@@ -25,6 +25,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/10/04 Changed to initialise the instance variable mVersion with a 
 // valid version (HttpHeader.HTTP10).
+// ZAP: 2012/11/01 Issue 410: charset wrapped in quotation marks
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -83,7 +84,8 @@ abstract public class HttpHeader implements java.io.Serializable{
 	public static final Pattern patternCRLF			= Pattern.compile("\\r\\n", Pattern.MULTILINE);
 	public static final Pattern patternLF				= Pattern.compile("\\n", Pattern.MULTILINE);
 	
-	private static final Pattern patternCharset = Pattern.compile("charset *= *([^;\\s]+)", Pattern.CASE_INSENSITIVE);
+	// ZAP: Issue 410: charset wrapped in quotation marks
+	private static final Pattern patternCharset = Pattern.compile("charset *= *\"?([^\";\\s]+)\"?", Pattern.CASE_INSENSITIVE);
 
 	protected static final String p_TEXT		= "[^\\x00-\\x1f\\r\\n]*"; 
 	protected static final String p_METHOD		= "(\\w+)";
