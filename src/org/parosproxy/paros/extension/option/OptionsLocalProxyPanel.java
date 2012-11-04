@@ -21,6 +21,9 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
+// option to control whether the "Accept-Encoding" request-header field is 
+// modified/removed or not.
 
 package org.parosproxy.paros.extension.option;
 
@@ -52,6 +55,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	private JPanel panelProxy = null;  //  @jve:decl-index=0:visual-constraint="10,283"
 	private ZapTextField txtProxyIp = null;
 	private ZapTextField txtReverseProxyIp = null;
+
+	private JCheckBox chkModifyAcceptEncodingHeader = null;
     
 	// ZAP: Do not allow invalid port numbers
 	private ZapPortNumberSpinner spinnerProxyPort = null;
@@ -141,6 +146,14 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 			panelLocalProxy.add(jLabel1, gridBagConstraints6);
 			panelLocalProxy.add(getSpinnerProxyPort(), gridBagConstraints7);
 			panelLocalProxy.add(jLabel6, gridBagConstraints15);
+			java.awt.GridBagConstraints gbc = new GridBagConstraints();
+			gbc.gridx = 0;
+			gbc.insets = new java.awt.Insets(2,2,2,2);
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 1.0D;
+			gbc.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+			gbc.anchor = java.awt.GridBagConstraints.PAGE_START;
+			panelLocalProxy.add(getChkModifyAcceptEncodingHeader(), gbc);
 		}
 		return panelLocalProxy;
 	}
@@ -355,6 +368,13 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 		return txtReverseProxyIp;
 	}
 
+	public JCheckBox getChkModifyAcceptEncodingHeader() {
+		if (chkModifyAcceptEncodingHeader == null) {
+			chkModifyAcceptEncodingHeader = new JCheckBox(Constant.messages.getString("options.proxy.local.label.modifyAcceptHeader"));
+			chkModifyAcceptEncodingHeader.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.modifyAccepHeader"));
+		}
+		return chkModifyAcceptEncodingHeader;
+	}
 	
 	
 	/**
@@ -408,6 +428,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 		// ZAP: Do not allow invalid port numbers
 	    spinnerProxyPort.setValue(proxyParam.getProxyPort());
 	    
+		chkModifyAcceptEncodingHeader.setSelected(proxyParam.isModifyAcceptEncodingHeader());
+		
 	    // set reverse proxy param
         txtReverseProxyIp.setText(proxyParam.getReverseProxyIp());
         txtReverseProxyIp.discardAllEdits();
@@ -432,6 +454,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 	    proxyParam.setProxyIp(txtProxyIp.getText());
 		// ZAP: Do not allow invalid port numbers
 	    proxyParam.setProxyPort(spinnerProxyPort.getValue());
+
+		proxyParam.setModifyAcceptEncodingHeader(getChkModifyAcceptEncodingHeader().isSelected());
 
 	    proxyParam.setReverseProxyIp(txtReverseProxyIp.getText());
 		// ZAP: Do not allow invalid port numbers

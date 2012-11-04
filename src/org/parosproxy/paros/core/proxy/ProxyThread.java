@@ -31,6 +31,9 @@
 // ZAP: 2012/05/11 Do not close connections in final clause of run() method,
 // if boolean attribute keepSocketOpen is set to true.
 // ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
+// ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
+// option to control whether the "Accept-Encoding" request-header field is 
+// modified/removed or not.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -251,7 +254,9 @@ class ProxyThread implements Runnable {
 				msg.setRequestBody(reqBody);
 			}
             
-			modifyHeader(msg);
+			if (proxyParam.isModifyAcceptEncodingHeader()) {
+				modifyHeader(msg);
+			}
 
             if (isProcessCache(msg)) {
                 continue;

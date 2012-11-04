@@ -20,6 +20,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
+// option to control whether the "Accept-Encoding" request-header field is 
+// modified/removed or not.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -46,7 +49,13 @@ public class ProxyParam extends AbstractParam {
 	private static final String USE_REVERSE_PROXY = "proxy.reverseProxy.use";
 	private static final String REVERSE_PROXY_IP = "proxy.reverseProxy.ip";
 	private static final String REVERSE_PROXY_HTTP_PORT = "proxy.reverseProxy.httpPort";
-	private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";	
+	private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";
+
+	/**
+	 * The configuration key for the option that controls whether the proxy
+	 * should modify/remove the "Accept-Encoding" request-header field or not.
+	 */
+	private static final String MODIFY_ACCEPT_ENCODING_HEADER = "proxy.modifyAcceptEncoding";
 		
 	private String proxyIp = "localhost";
 	private int proxyPort = 8080;
@@ -55,6 +64,12 @@ public class ProxyParam extends AbstractParam {
 	private String reverseProxyIp = "localhost";
 	private int reverseProxyHttpPort = 80;
 	private int reverseProxyHttpsPort = 443;
+	
+	/**
+	 * The option that controls whether the proxy should modify/remove the
+	 * "Accept-Encoding" request-header field or not.
+	 */
+	private boolean modifyAcceptEncodingHeader = true;
 		
 	public ProxyParam() {
 	}
@@ -83,6 +98,8 @@ public class ProxyParam extends AbstractParam {
 		reverseProxyHttpPort = getConfig().getInt(REVERSE_PROXY_HTTP_PORT, 80);
 		reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
 		useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
+
+		modifyAcceptEncodingHeader = getConfig().getBoolean(MODIFY_ACCEPT_ENCODING_HEADER, true);
 
 	}
 	
@@ -155,6 +172,31 @@ public class ProxyParam extends AbstractParam {
 	    useReverseProxy = 0;
 	    getConfig().setProperty(USE_REVERSE_PROXY, Integer.toString(useReverseProxy));
 	    
+	}
+	
+	/**
+	 * Sets whether the proxy should modify/remove the "Accept-Encoding"
+	 * request-header field or not.
+	 * 
+	 * @param modifyAcceptEncodingHeader
+	 *            {@code true} if the proxy should modify/remove the
+	 *            "Accept-Encoding" request-header field, {@code false}
+	 *            otherwise
+	 */
+	public void setModifyAcceptEncodingHeader(boolean modifyAcceptEncodingHeader) {
+		this.modifyAcceptEncodingHeader = modifyAcceptEncodingHeader;
+		getConfig().setProperty(MODIFY_ACCEPT_ENCODING_HEADER, Boolean.valueOf(modifyAcceptEncodingHeader));
+	}
+
+	/**
+	 * Tells whether the proxy should modify/remove the "Accept-Encoding"
+	 * request-header field or not.
+	 * 
+	 * @return {@code true} if the proxy should modify/remove the
+	 *         "Accept-Encoding" request-header field, {@code false} otherwise
+	 */
+	public boolean isModifyAcceptEncodingHeader() {
+		return modifyAcceptEncodingHeader;
 	}
 
 }
