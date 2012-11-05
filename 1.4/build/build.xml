@@ -54,9 +54,16 @@
 	
 	<target name="compile" depends="init" description="compile the source ">
 		<echo message="Compiling the source..." />
+		
+		<!-- Compile with debug information if the property "javac.debug" is set to true -->
+		<local name="debug" />
+		<condition property="debug" value="true" else="false">
+			<istrue value="${javac.debug}" />
+		</condition>
+		
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false">
+		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}">
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
@@ -156,7 +163,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 			</manifest>
 		</jar>
-		<jar jarfile="${dist}/zap-1.4-api-X.jar" update="true" compress="false">
+		<jar jarfile="${dist}/zap-1.4-api-2.jar" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
 				<include name="org/zaproxy/clientapi/**"/>
 			</zipfileset>
@@ -195,6 +202,18 @@
 		<!-- Move the new one to the lib directory -->
 		<move file="${help.jar.generated}" tofile="${help.jar.dist.lib}" />
 		
+	</target>
+
+	<target name="generate-language-file" description="generates the language file (note the X should be changed;)">
+		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
+		<!-- delete the previous one (if present) -->
+		<delete file="${langfile}" />
+		<!-- Zip up the language files -->
+		<zip destfile="${langfile}"
+			basedir="${src}"
+			includes="/lang/**"
+			excludes="**/.svn/**"
+		/>
 	</target>
 
 	<target name="generate-javadocs" description="generates the javadocs">
