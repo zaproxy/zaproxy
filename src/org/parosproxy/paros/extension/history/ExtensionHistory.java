@@ -311,16 +311,19 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            		hack(historyRef);
 	            		return;
 	            	}
-	        		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
-	        		HistoryFilter historyFilter = dialog.getFilter();
-                    if (historyFilter != null && !historyFilter.matches(historyRef)) {
-	            		// Not in filter
-	            		hack(historyRef);
-	            		return;
-                    }
-
-                	addHistoryInEventQueue(historyRef);
-                    historyList.notifyItemChanged(historyRef);
+	        	    if (getView() != null) { 
+	        	    	// Dont do this in daemon mode 
+		        		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
+		        		HistoryFilter historyFilter = dialog.getFilter();
+	                    if (historyFilter != null && !historyFilter.matches(historyRef)) {
+		            		// Not in filter
+		            		hack(historyRef);
+		            		return;
+	                    }
+	
+	                	addHistoryInEventQueue(historyRef);
+	                    historyList.notifyItemChanged(historyRef);
+	        	    }
                 }
             }
         } catch (final Exception e) {
