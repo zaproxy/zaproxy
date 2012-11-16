@@ -23,19 +23,31 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class InvokeParam extends AbstractParam {
+    
+    private static final Logger logger = Logger.getLogger(InvokeParam.class);
 
-    private static final String INVOKE = "invoke";
-    private static final String INVOKE_NAME = "name";
-    private static final String INVOKE_COMMAND = "command";
-    private static final String INVOKE_PARAMS = "parameters";
-    private static final String INVOKE_OUTPUT = "output";
-    private static final String INVOKE_NOTE = "note";
-    private static final String INVOKE_DIRECTORY = "directory";
+    private static final String INVOKE_BASE_KEY = "invoke";
+    private static final String ALL_APPS_KEY = INVOKE_BASE_KEY + ".apps.app";
+    private static final String APP_NAME_KEY = "name";
+    private static final String APP_COMMAND_KEY = "command";
+    private static final String APP_DIRECTORY_KEY = "directory";
+    private static final String APP_PARAMS_KEY = "parameters";
+    private static final String APP_OUTPUT_KEY = "output";
+    private static final String APP_NOTE_KEY = "note";
+    private static final String APP_ENABLED_KEY = "enabled";
+    
+    private static final String CONFIRM_REMOVE_APP_KEY = INVOKE_BASE_KEY + ".confirmRemoveApp";
 
-	private List<InvokableApp> listInvoke = new ArrayList<>();
+	private List<InvokableApp> listInvoke = new ArrayList<>(0);
+	private List<InvokableApp> listInvokeEnabled = new ArrayList<>(0);
+	
+	private boolean confirmRemoveApp = true;
 	
 	public InvokeParam() {
 	}
@@ -43,71 +55,97 @@ public class InvokeParam extends AbstractParam {
 	@Override
 	protected void parse() {
         listInvoke.clear();
+        
+        ArrayList<InvokableApp> enabledApps = null;
+        try {
+            List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_APPS_KEY);
+            this.listInvoke = new ArrayList<>(fields.size());
+            enabledApps = new ArrayList<>(fields.size());
+            List<String> tempListNames = new ArrayList<>(fields.size());
+            for (HierarchicalConfiguration sub : fields) {
+                String name = sub.getString(APP_NAME_KEY, "");
+                if (!"".equals(name) && !tempListNames.contains(name)) {
+                    tempListNames.add(name);
+                    
+                    File dir = null;
+                    String directory = sub.getString(APP_DIRECTORY_KEY, "");
+                    if (directory.length() > 0) {
+                        dir = new File (directory);
+                    }
+                    
+                    InvokableApp app = new InvokableApp(
+                            name,
+                            dir,
+                            sub.getString(APP_COMMAND_KEY),
+                            sub.getString(APP_PARAMS_KEY),
+                            sub.getBoolean(APP_OUTPUT_KEY, true),
+                            sub.getBoolean(APP_NOTE_KEY, false));
+                    
+                    app.setEnabled(sub.getBoolean(APP_ENABLED_KEY, true));
+                    
+                    listInvoke.add(app);
+                    
+                    if (app.isEnabled()) {
+                        enabledApps.add(app);
+                    }
+                }
+            }
+            enabledApps.trimToSize();
+            this.listInvokeEnabled = enabledApps;
+        } catch (ConversionException e) {
+            logger.error("Error while loading anti CSRF tokens: " + e.getMessage(), e);
+        }
 
-        String host = "";
-        for (int i=0; host != null; i++) {
-
-            host = getConfig().getString(getInvoke(i, INVOKE_NAME));
-            if (host == null) {
-                   break;
-            }
-            
-            if (host.equals("")) {
-                break;
-            }
-            
-            File dir = null;
-            String directory = getConfig().getString(getInvoke(i, INVOKE_DIRECTORY));
-            if (directory != null && directory.length() > 0) {
-            	dir = new File (directory);
-            }
-            
-            InvokableApp auth = new InvokableApp(
-                    getConfig().getString(getInvoke(i, INVOKE_NAME)),
-                    dir,
-                    getConfig().getString(getInvoke(i, INVOKE_COMMAND)),
-                    getConfig().getString(getInvoke(i, INVOKE_PARAMS)),
-                    getConfig().getBoolean(getInvoke(i, INVOKE_OUTPUT), true),
-                    getConfig().getBoolean(getInvoke(i, INVOKE_NOTE), false)
-                    );
-            listInvoke.add(auth);
+        try {
+            this.confirmRemoveApp = getConfig().getBoolean(CONFIRM_REMOVE_APP_KEY, true);
+        } catch (ConversionException e) {
+            logger.error("Error while loading the confirm remove option: " + e.getMessage(), e);
         }
 	}
-
 
     public List<InvokableApp> getListInvoke() {
         return listInvoke;
     }
 
-    public void setListInvoke(List<InvokableApp> listAuth) {
-        this.listInvoke = listAuth;
-        InvokableApp app = null;
-        
-        for (int i=0; i<((listAuth.size() > 100)? listAuth.size(): 100); i++) {
-            // clearProperty doesn't work.  So set all host name to blank as a workaround.
-            getConfig().clearProperty(getInvoke(i, INVOKE_NAME));            
-            getConfig().clearProperty(getInvoke(i, INVOKE_DIRECTORY));
-            getConfig().clearProperty(getInvoke(i, INVOKE_COMMAND));            
-            getConfig().clearProperty(getInvoke(i, INVOKE_PARAMS));
-            getConfig().clearProperty(getInvoke(i, INVOKE_OUTPUT));
-            getConfig().clearProperty(getInvoke(i, INVOKE_NOTE));
-            getConfig().clearProperty(INVOKE + ".A"+i);
-        }
-        for (int i=0; i<listAuth.size(); i++) {
-            app = listAuth.get(i);            
-            getConfig().setProperty(getInvoke(i, INVOKE_NAME), app.getDisplayName());
-            if (app.getWorkingDirectory() != null) {
-                getConfig().setProperty(getInvoke(i, INVOKE_DIRECTORY), app.getWorkingDirectory().getAbsolutePath());
-            }
-            getConfig().setProperty(getInvoke(i, INVOKE_COMMAND), app.getFullCommand());
-            getConfig().setProperty(getInvoke(i, INVOKE_PARAMS), app.getParameters());
-            getConfig().setProperty(getInvoke(i, INVOKE_OUTPUT), app.isCaptureOutput());
-            getConfig().setProperty(getInvoke(i, INVOKE_NOTE), app.isOutputNote());
-        }
-        
+    public List<InvokableApp> getListInvokeEnabled() {
+        return listInvokeEnabled;
     }
 
-    private String getInvoke(int i, String name) {
-        return INVOKE + ".A" + i + "." + name;
+    public void setListInvoke(List<InvokableApp> listInvoke) {
+        this.listInvoke = listInvoke;
+        
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_APPS_KEY);
+
+        ArrayList<InvokableApp> enabledApps = new ArrayList<>(listInvoke.size());
+        for (int i = 0, size = listInvoke.size(); i < size; ++i) {
+            String elementBaseKey = ALL_APPS_KEY + "(" + i + ").";
+            InvokableApp app = listInvoke.get(i);
+            
+            getConfig().setProperty(elementBaseKey + APP_NAME_KEY, app.getDisplayName());
+            File file = app.getWorkingDirectory();
+            getConfig().setProperty(elementBaseKey + APP_DIRECTORY_KEY, file != null ? file.getAbsolutePath() : "");
+            getConfig().setProperty(elementBaseKey + APP_COMMAND_KEY, app.getFullCommand());
+            getConfig().setProperty(elementBaseKey + APP_PARAMS_KEY, app.getParameters());
+            getConfig().setProperty(elementBaseKey + APP_OUTPUT_KEY, Boolean.valueOf(app.isCaptureOutput()));
+            getConfig().setProperty(elementBaseKey + APP_NOTE_KEY, Boolean.valueOf(app.isOutputNote()));
+            
+            getConfig().setProperty(elementBaseKey + APP_ENABLED_KEY, Boolean.valueOf(app.isEnabled()));
+
+            if (app.isEnabled()) {
+                enabledApps.add(app);
+            }
+        }
+        
+        enabledApps.trimToSize();
+        this.listInvokeEnabled = enabledApps;
+    }
+    
+    public boolean isConfirmRemoveApp() {
+        return this.confirmRemoveApp;
+    }
+    
+    public void setConfirmRemoveApp(boolean confirmRemove) {
+        this.confirmRemoveApp = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_APP_KEY, Boolean.valueOf(confirmRemoveApp));
     }
 }

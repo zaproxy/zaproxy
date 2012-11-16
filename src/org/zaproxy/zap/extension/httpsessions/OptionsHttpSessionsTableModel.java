@@ -18,29 +18,29 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-
-import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 /**
  * The OptionsHttpSessionsTableModel is used as a table model to display the token names for
  * {@link OptionsHttpSessionsPanel}.
  */
-public class OptionsHttpSessionsTableModel extends AbstractTableModel {
+public class OptionsHttpSessionsTableModel extends AbstractMultipleOptionsTableModel<HttpSessionToken> {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
 	/** The Constant defining the table column names. */
-	private static final String[] columnNames = { Constant.messages.getString("httpsessions.options.table.token") };
+	private static final String[] COLUMN_NAMES = {
+			Constant.messages.getString("httpsessions.options.table.header.enabled"),
+			Constant.messages.getString("httpsessions.options.table.header.token") };
 
-	/** The token names. */
-	private List<String> tokenNames = new ArrayList<>();
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+	
+	/** The tokens. */
+	private List<HttpSessionToken> tokens = new ArrayList<>(0);
 
 	/**
 	 * Instantiates a new options http sessions table model.
@@ -48,121 +48,75 @@ public class OptionsHttpSessionsTableModel extends AbstractTableModel {
 	public OptionsHttpSessionsTableModel() {
 		super();
 	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.TableModel#getColumnCount() */
+	
 	@Override
-	public int getColumnCount() {
-		return 1;
+	protected List<HttpSessionToken> getElements() {
+		return tokens;
 	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.TableModel#getRowCount() */
-	@Override
-	public int getRowCount() {
-		return tokenNames.size();
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.TableModel#getValueAt(int, int) */
-	@Override
-	public Object getValueAt(int row, int col) {
-		return tokenNames.get(row);
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int) */
-	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int) */
-	@Override
-	public void setValueAt(Object value, int row, int col) {
-		tokenNames.set(row, ((String) value).toLowerCase(Locale.ENGLISH));
-		checkAndAppendNewRow();
-		fireTableCellUpdated(row, col);
+	
+	public List<HttpSessionToken> getTokens() {
+		return tokens;
 	}
 
 	/**
-	 * Gets the token names.
-	 * 
-	 * @return the list of token names
+	 * @param tokens The tokens to set.
 	 */
-	public List<String> getTokens() {
-		// Do some cleanup
-		String token = null;
-		Iterator<String> it = tokenNames.iterator();
-		while (it.hasNext()) {
-			token = it.next();
-			if (token == null || token.isEmpty()) {
-				it.remove();
-			}
+	public void setTokens(List<HttpSessionToken> tokens) {
+		this.tokens = new ArrayList<>(tokens.size());
+		
+		for (HttpSessionToken token : tokens) {
+			this.tokens.add(new HttpSessionToken(token));
 		}
-
-		// Make a copy of the internal list
-		List<String> newList = new ArrayList<>(tokenNames);
-		return newList;
-	}
-
-	/**
-	 * Sets the tokens.
-	 * 
-	 * @param tokens the new tokens
-	 */
-	public void setTokens(List<String> tokens) {
-		this.tokenNames = new ArrayList<>();
-		if (tokens != null) {
-			for (String token : tokens) {
-				if (!this.tokenNames.contains(token)) {
-					// Ensure duplicated removed
-					this.tokenNames.add(token);
-				}
-			}
-			Collections.sort(this.tokenNames);
-		}
-		checkAndAppendNewRow();
+		
 		fireTableDataChanged();
 	}
-
-	/**
-	 * Checks if the last element is an empty element and adds an empty element if necessary.
-	 */
-	private void checkAndAppendNewRow() {
-		String token = null;
-		if (tokenNames.size() > 0) {
-			token = tokenNames.get(tokenNames.size() - 1);
-			if (!token.isEmpty()) {
-				token = "";
-				tokenNames.add(token);
-			}
-		} else {
-			token = "";
-			tokenNames.add(token);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.AbstractTableModel#getColumnName(int) */
+	
 	@Override
 	public String getColumnName(int col) {
-		return columnNames[col];
+		return COLUMN_NAMES[col];
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int) */
 	@Override
-	public Class<String> getColumnClass(int c) {
+	public int getColumnCount() {
+		return COLUMN_COUNT;
+	}
+	
+	@Override
+	public Class<?> getColumnClass(int c) {
+		if (c == 0) {
+			return Boolean.class;
+		}
 		return String.class;
+	}
+
+	@Override
+	public int getRowCount() {
+		return tokens.size();
+	}
+
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
+		return (columnIndex == 0);
+	}
+	
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		switch(columnIndex) {
+		case 0:
+			return Boolean.valueOf(getElement(rowIndex).isEnabled());
+		case 1:
+			return getElement(rowIndex).getName();
+		}
+		return null;
+	}
+
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		if (columnIndex == 0) {
+			if (aValue instanceof Boolean) {
+				tokens.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+			}
+		}
 	}
 
 }

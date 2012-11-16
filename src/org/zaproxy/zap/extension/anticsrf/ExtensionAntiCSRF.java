@@ -113,7 +113,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	public List<String> getAntiCsrfTokenNames() {
-		return this.getParam().getTokens();
+		return this.getParam().getTokensNames();
 	}
 	
 	public void addAntiCsrfTokenName(String token) {
@@ -231,7 +231,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		if (name == null) {
 			return false;
 		}
-		return this.getParam().getTokens().contains(name.toLowerCase());
+		return this.getParam().getTokensNames().contains(name.toLowerCase());
 	}
 	
 	@Override

@@ -21,7 +21,9 @@ package org.zaproxy.zap.extension.invoke;
 
 import java.io.File;
 
-public class InvokableApp {
+import org.zaproxy.zap.utils.Enableable;
+
+public class InvokableApp extends Enableable {
 
 	private String displayName = "";
 	private String fullCommand = "";
@@ -29,6 +31,9 @@ public class InvokableApp {
 	private boolean captureOutput = true;
 	private boolean outputNote = false;
 	private File workingDirectory = null;
+
+	public InvokableApp() {
+	}
 	
 	public InvokableApp(String displayName, File workingDirectory, String fullCommand, String parameters, 
 			boolean captureOutput, boolean outputNote) {
@@ -41,7 +46,11 @@ public class InvokableApp {
 		this.outputNote = outputNote;
 	}
 	
-	public InvokableApp() {
+	public InvokableApp(InvokableApp app) {
+		this(app.displayName, app.workingDirectory, app.fullCommand,
+				app.parameters, app.captureOutput, app.outputNote);
+		
+		setEnabled(app.isEnabled());
 	}
 
 	public String getDisplayName() {
@@ -87,6 +96,68 @@ public class InvokableApp {
 
 	public void setOutputNote(boolean outputNote) {
 		this.outputNote = outputNote;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (captureOutput ? 1231 : 1237);
+		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
+		result = prime * result + ((fullCommand == null) ? 0 : fullCommand.hashCode());
+		result = prime * result + (outputNote ? 1231 : 1237);
+		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
+		result = prime * result + ((workingDirectory == null) ? 0 : workingDirectory.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		InvokableApp other = (InvokableApp) obj;
+		if (captureOutput != other.captureOutput) {
+			return false;
+		}
+		if (displayName == null) {
+			if (other.displayName != null) {
+				return false;
+			}
+		} else if (!displayName.equals(other.displayName)) {
+			return false;
+		}
+		if (fullCommand == null) {
+			if (other.fullCommand != null) {
+				return false;
+			}
+		} else if (!fullCommand.equals(other.fullCommand)) {
+			return false;
+		}
+		if (outputNote != other.outputNote) {
+			return false;
+		}
+		if (parameters == null) {
+			if (other.parameters != null) {
+				return false;
+			}
+		} else if (!parameters.equals(other.parameters)) {
+			return false;
+		}
+		if (workingDirectory == null) {
+			if (other.workingDirectory != null) {
+				return false;
+			}
+		} else if (!workingDirectory.equals(other.workingDirectory)) {
+			return false;
+		}
+		return true;
 	}
 	
 }

@@ -25,12 +25,14 @@ import java.awt.Insets;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.JOptionPane;
+import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
 /**
  * The OptionsHttpSessionsPanel is used to display and allow the users to modify the settings
@@ -41,15 +43,11 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The table default tokens. */
-	private JTable tableDefaultTokens = null;
-
-	/** The scroll pane for default tokens. */
-	private JScrollPane scrollPaneDefaultTokens = null;
-
 	/** The proxy only checkbox. */
 	private JCheckBox proxyOnlyCheckbox = null;
 
+	private HttpSessionTokensMultipleOptionsPanel tokensOptionsPanel;
+	
 	/** The default session tokens model. */
 	private OptionsHttpSessionsTableModel defaultTokensModel = null;
 
@@ -65,45 +63,28 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	 * This method initializes this panel.
 	 */
 	private void initialize() {
-		this.setLayout(new GridBagLayout());
-		this.setSize(409, 268);
 		this.setName(Constant.messages.getString("httpsessions.options.title"));
+		this.setLayout(new GridBagLayout());
 
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.weightx = 1.0;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.fill = GridBagConstraints.BOTH;
+		
 		JLabel tokenNamesLabel = new JLabel();
 		tokenNamesLabel.setText(Constant.messages.getString("httpsessions.options.label.tokens"));
-		tokenNamesLabel.setPreferredSize(new java.awt.Dimension(494, 25));
-		tokenNamesLabel.setMinimumSize(new java.awt.Dimension(494, 25));
 
-		GridBagConstraints tokenNamesScrollGridBag = new GridBagConstraints();
-		GridBagConstraints tokenNamesLableGridBag = new GridBagConstraints();
-		GridBagConstraints proxyOnlyGridBag = new GridBagConstraints();
+		this.add(tokenNamesLabel, gbc);
 
-		tokenNamesLableGridBag.gridx = 0;
-		tokenNamesLableGridBag.gridy = 0;
-		tokenNamesLableGridBag.gridheight = 1;
-		tokenNamesLableGridBag.ipady = 25;
-		tokenNamesLableGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
-		tokenNamesLableGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		tokenNamesLableGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-		tokenNamesScrollGridBag.gridx = 0;
-		tokenNamesScrollGridBag.gridy = 1;
-		tokenNamesScrollGridBag.weightx = 1.0;
-		tokenNamesScrollGridBag.weighty = 1.0;
-		tokenNamesScrollGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
-		tokenNamesScrollGridBag.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		tokenNamesScrollGridBag.fill = java.awt.GridBagConstraints.BOTH;
-
-		proxyOnlyGridBag.gridx = 0;
-		proxyOnlyGridBag.gridy = 2;
-		proxyOnlyGridBag.weightx = 1.0;
-		proxyOnlyGridBag.fill = GridBagConstraints.HORIZONTAL;
-		proxyOnlyGridBag.anchor = GridBagConstraints.NORTHWEST;
-		proxyOnlyGridBag.insets = new Insets(10, 2, 2, 2);
-
-		this.add(tokenNamesLabel, tokenNamesLableGridBag);
-		this.add(getDefaultTokensScrollPane(), tokenNamesScrollGridBag);
-		this.add(getChkProxyOnly(), proxyOnlyGridBag);
+		tokensOptionsPanel = new HttpSessionTokensMultipleOptionsPanel(getDefaultTokensModel());
+		
+		gbc.weighty = 1.0;
+		this.add(tokensOptionsPanel, gbc);
+		
+		gbc.weighty = 0.0;
+		gbc.insets = new Insets(10, 2, 2, 2);
+		this.add(getChkProxyOnly(), gbc);
 	}
 
 	/* (non-Javadoc)
@@ -116,6 +97,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		HttpSessionsParam param = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
 		getDefaultTokensModel().setTokens(param.getDefaultTokens());
 		getChkProxyOnly().setSelected(param.isEnabledProxyOnly());
+		tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDefaultToken());
 	}
 
 	/* (non-Javadoc)
@@ -134,35 +116,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 		HttpSessionsParam sessionParam = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
 		sessionParam.setDefaultTokens(getDefaultTokensModel().getTokens());
 		sessionParam.setEnabledProxyOnly(getChkProxyOnly().isSelected());
-	}
-
-	/**
-	 * Gets the table for default tokens.
-	 * 
-	 * @return the table for default tokens
-	 */
-	private JTable getDefaultTokensTable() {
-		if (tableDefaultTokens == null) {
-			tableDefaultTokens = new JTable();
-			tableDefaultTokens.setModel(getDefaultTokensModel());
-			tableDefaultTokens.setRowHeight(18);
-		}
-		return tableDefaultTokens;
-	}
-
-	/**
-	 * Gets the token names' scroll pane.
-	 * 
-	 * @return the token names' scroll pane
-	 */
-	private JScrollPane getDefaultTokensScrollPane() {
-		if (scrollPaneDefaultTokens == null) {
-			scrollPaneDefaultTokens = new JScrollPane();
-			scrollPaneDefaultTokens.setViewportView(getDefaultTokensTable());
-			scrollPaneDefaultTokens.setBorder(javax.swing.BorderFactory
-					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-		}
-		return scrollPaneDefaultTokens;
+		sessionParam.setConfirmRemoveDefaultToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());
 	}
 
 	/**
@@ -196,5 +150,84 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.options.httpsessions";
+	}
+	
+	private static class HttpSessionTokensMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<HttpSessionToken> {
+
+		private static final long serialVersionUID = -512878859657091461L;
+		
+		private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("httpsessions.options.dialog.token.remove.title");
+		private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("httpsessions.options.dialog.token.remove.text");
+		
+		private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("httpsessions.options.dialog.token.remove.button.confirm");
+		private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("httpsessions.options.dialog.token.remove.button.cancel");
+		
+		private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("httpsessions.options.dialog.token.remove.checkbox.label");
+		
+		private DialogAddToken addDialog = null;
+		private DialogModifyToken modifyDialog = null;
+		
+		private OptionsHttpSessionsTableModel model;
+		
+		public HttpSessionTokensMultipleOptionsPanel(OptionsHttpSessionsTableModel model) {
+			super(model);
+			
+			this.model = model;
+			
+			getTable().getColumnExt(0).setPreferredWidth(20);
+			getTable().setSortOrder(1, SortOrder.ASCENDING);
+		}
+
+		@Override
+		public HttpSessionToken showAddDialogue() {
+			if (addDialog == null) {
+				addDialog = new DialogAddToken(View.getSingleton().getOptionsDialog(null));
+				addDialog.pack();
+			}
+			addDialog.setTokens(model.getElements());
+			addDialog.setVisible(true);
+			
+			HttpSessionToken token = addDialog.getToken();
+			addDialog.clear();
+			
+			return token;
+		}
+		
+		@Override
+		public HttpSessionToken showModifyDialogue(HttpSessionToken e) {
+			if (modifyDialog == null) {
+				modifyDialog = new DialogModifyToken(View.getSingleton().getOptionsDialog(null));
+				modifyDialog.pack();
+			}
+			modifyDialog.setTokens(model.getElements());
+			modifyDialog.setToken(e);
+			modifyDialog.setVisible(true);
+			
+			HttpSessionToken token = modifyDialog.getToken();
+			modifyDialog.clear();
+			
+			if (!token.equals(e)) {
+				return token;
+			}
+			
+			return null;
+		}
+		
+		@Override
+		public boolean showRemoveDialogue(HttpSessionToken e) {
+			JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+			Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+			int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(), messages, REMOVE_DIALOG_TITLE,
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+					null, new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL }, null);
+
+			if (option == JOptionPane.OK_OPTION) {
+				setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+				
+				return true;
+			}
+			
+			return false;
+		}
 	}
 }

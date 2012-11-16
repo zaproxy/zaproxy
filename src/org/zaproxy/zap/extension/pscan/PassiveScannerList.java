@@ -2,8 +2,11 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScannerList {
 
@@ -19,27 +22,33 @@ public class PassiveScannerList {
 		scannerNames.add(scanner.getName());
 	}
 	
-	protected void remove (PassiveScanner scanner) {
-		passiveScanners.remove(scanner);
-		scannerNames.remove(scanner.getName());
-	}
-
 	protected List<PassiveScanner> list () {
 		return this.passiveScanners;
 	}
 	
-	protected PassiveScanner getDefn(String name) {
-		for (PassiveScanner scanner : passiveScanners) {
-			if (scanner.getName().equals(name)) {
-				return scanner;
-			}
-		}
-		return null;
-	}
-
-	public void save(PassiveScanner defn) {
-		passiveScanners.remove(defn);
-		passiveScanners.add(defn);
-	}
+	public void setAutoTagScanners(List<RegexAutoTagScanner> autoTagScanners) {
+		List<PassiveScanner> tempScanners = new ArrayList<>(passiveScanners.size() + autoTagScanners.size());
+        
+        for (Iterator<PassiveScanner> it = passiveScanners.iterator(); it.hasNext();) {
+            PassiveScanner scanner = it.next();
+            if (!(scanner instanceof RegexAutoTagScanner)) {
+                tempScanners.add(scanner);
+            } else {
+                this.scannerNames.remove(scanner.getName());
+            }
+        }
+        
+        for (Iterator<PassiveScanner> it = passiveScanners.iterator(); it.hasNext();) {
+            PassiveScanner scanner = it.next();
+            if (scannerNames.contains(scanner.getName())) {
+                // Prevent duplicates, log error?
+                break;
+            }
+            tempScanners.add(scanner);
+            scannerNames.add(scanner.getName());
+        }
+        
+        this.passiveScanners = tempScanners;
+    }
 
 }

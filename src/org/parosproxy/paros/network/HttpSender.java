@@ -213,7 +213,7 @@ public class HttpSender {
     }
     
     private void addAuth(HttpClient client) {
-        List<HostAuthentication> list = param.getListAuth();
+        List<HostAuthentication> list = param.getListAuthEnabled();
         for (int i=0; i<list.size(); i++) {
             HostAuthentication auth = list.get(i);
             AuthScope authScope = null;

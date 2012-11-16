@@ -47,42 +47,11 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 	private Pattern requestHeaderPattern = null;
 	private Pattern responseHeaderPattern = null;
 	private Pattern responseBodyPattern = null;
-
-	private PassiveScanThread parent = null;
 	
-	public Pattern getRequestUrlPattern() {
-		return requestUrlPattern;
-	}
-
-	public Pattern getRequestHeaderPattern() {
-		return requestHeaderPattern;
-	}
-
-	public Pattern getResponseHeaderPattern() {
-		return responseHeaderPattern;
-	}
-
-	public Pattern getResponseBodyPattern() {
-		return responseBodyPattern;
-	}
 	private TYPE type = null;
 	private String config = null;
-	
-	public TYPE getType() {
-		return type;
-	}
 
-	public void setType(TYPE type) {
-		this.type = type;
-	}
-
-	public String getConf() {
-		return config;
-	}
-
-	public void setConf(String config) {
-		this.config = config;
-	}
+	private PassiveScanThread parent = null;
 
 	public RegexAutoTagScanner(String name, TYPE type, String config) {
 		super();
@@ -104,6 +73,45 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 		this.type = type;
 		this.config = config;
 		setEnabled(enabled);
+	}
+
+	public RegexAutoTagScanner(RegexAutoTagScanner scanner) {
+		this(scanner.name, scanner.type, scanner.config,
+				scanner.requestUrlRegex, scanner.requestHeaderRegex,
+				scanner.responseHeaderRegex, scanner.responseBodyRegex,
+				scanner.isEnabled());
+	}
+	
+	public Pattern getRequestUrlPattern() {
+		return requestUrlPattern;
+	}
+
+	public Pattern getRequestHeaderPattern() {
+		return requestHeaderPattern;
+	}
+
+	public Pattern getResponseHeaderPattern() {
+		return responseHeaderPattern;
+	}
+
+	public Pattern getResponseBodyPattern() {
+		return responseBodyPattern;
+	}
+	
+	public TYPE getType() {
+		return type;
+	}
+
+	public void setType(TYPE type) {
+		this.type = type;
+	}
+
+	public String getConf() {
+		return config;
+	}
+
+	public void setConf(String config) {
+		this.config = config;
 	}
 
 	public String getRequestUrlRegex() {

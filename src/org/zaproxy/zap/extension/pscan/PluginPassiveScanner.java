@@ -21,24 +21,14 @@ package org.zaproxy.zap.extension.pscan;
 
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.zaproxy.zap.utils.Enableable;
 
 
-public abstract class PluginPassiveScanner implements PassiveScanner {
+public abstract class PluginPassiveScanner extends Enableable implements PassiveScanner {
 
-	private boolean enabled = true;
 	private AlertThreshold level = AlertThreshold.DEFAULT;
 	private AlertThreshold defaultLevel = AlertThreshold.MEDIUM;
 	private Configuration config = null;
-
-	@Override
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	@Override
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
 
 	public void setConfig(Configuration config) {
 	    this.config = config;

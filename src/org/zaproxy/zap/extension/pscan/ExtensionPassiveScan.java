@@ -38,20 +38,19 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.params.ParamScanner;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionPassiveScan"; 
-	private static final String PSCAN_NAMES = "pscans.names";
+	
+	private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
 
 	private PassiveScannerList scannerList;
 	private OptionsPassiveScan optionsPassiveScan = null;
 	private PolicyPassiveScanPanel policyPanel = null;
 	private PassiveScanThread pst = null;
 	
-	private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
+	private PassiveScanParam passiveScanParam;
 	
 	private static final List<Class<?>> DEPENDENCIES;
 	
@@ -76,6 +75,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
+        extensionHook.addOptionsParamSet(getPassiveScanParam());
+        
         extensionHook.addProxyListener(getPassiveScanThread());
         extensionHook.addSessionListener(this);
         //extensionHook.addSessionListener(getPassiveScanThread());
@@ -113,19 +114,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 			scannerList = new PassiveScannerList();
 	        
             // Read from the configs
-            FileConfiguration config = this.getModel().getOptionsParam().getConfig();
-            String[] pscanList = config.getStringArray(PSCAN_NAMES);
-            for (String pscanName : pscanList) {
-            	scannerList.add(
-                	new RegexAutoTagScanner(pscanName, 
-                		TYPE.valueOf(config.getString("pscans." + pscanName + ".type")),
-                		config.getString("pscans." + pscanName + ".config"),
-                		config.getString("pscans." + pscanName + ".reqUrlRegex"),
-                		config.getString("pscans." + pscanName + ".reqHeadRegex"),
-                		config.getString("pscans." + pscanName + ".resHeadRegex"),
-                		config.getString("pscans." + pscanName + ".resBodyRegex"),
-                		config.getBoolean("pscans." + pscanName + ".enabled")));
-            }
+            scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
+            
     		scannerList.add(new AntiCsrfDetectScanner());
     		scannerList.add(new ParamScanner());
             
@@ -155,46 +145,24 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		return pst;
 	}
 
-	protected void save (RegexAutoTagScanner defn) {
-        FileConfiguration config = this.getModel().getOptionsParam().getConfig();
-    	String pscanName = defn.getName();
-
-    	// Note that the name and type cant change on a save
-		config.setProperty("pscans." + pscanName + ".config", defn.getConf());
-		config.setProperty("pscans." + pscanName + ".reqUrlRegex", defn.getRequestUrlRegex());
-		config.setProperty("pscans." + pscanName + ".reqHeadRegex", defn.getRequestHeaderRegex());
-		config.setProperty("pscans." + pscanName + ".resHeadRegex", defn.getResponseHeaderRegex());
-		config.setProperty("pscans." + pscanName + ".resBodyRegex", defn.getResponseBodyRegex());
-		config.setProperty("pscans." + pscanName + ".enabled", defn.isEnabled());
-		
-	}
-
-	
-	protected void add (RegexAutoTagScanner defn) {
-        FileConfiguration config = this.getModel().getOptionsParam().getConfig();
-    	String pscanName = defn.getName();
-
-        // Add to the list
-    	List<Object> names = config.getList(PSCAN_NAMES);
-    	names.add(pscanName);
-		config.setProperty(PSCAN_NAMES, names);
-
-    	// Add the details
-		config.setProperty("pscans." + pscanName + ".type", defn.getType().toString());
-		config.setProperty("pscans." + pscanName + ".config", defn.getConf());
-		config.setProperty("pscans." + pscanName + ".reqUrlRegex", defn.getRequestUrlRegex());
-		config.setProperty("pscans." + pscanName + ".reqHeadRegex", defn.getRequestHeaderRegex());
-		config.setProperty("pscans." + pscanName + ".resHeadRegex", defn.getResponseHeaderRegex());
-		config.setProperty("pscans." + pscanName + ".resBodyRegex", defn.getResponseBodyRegex());
-		config.setProperty("pscans." + pscanName + ".enabled", defn.isEnabled());
-		
-	}
+    private PassiveScanParam getPassiveScanParam() {
+        if (passiveScanParam == null) {
+            passiveScanParam = new PassiveScanParam();
+        }
+        return passiveScanParam;
+    }
 
 	private OptionsPassiveScan getOptionsPassiveScan(PassiveScanThread passiveScanThread) {
 		if (optionsPassiveScan == null) {
-			optionsPassiveScan = new OptionsPassiveScan(this, scannerList);
+			optionsPassiveScan = new OptionsPassiveScan(scannerList);
 		}
 		return optionsPassiveScan;
+	}
+
+	@Override
+	public void sessionAboutToChange(Session session) {
+		getPassiveScanThread().shutdown();
+		this.pst = null;
 	}
 
 	@Override
@@ -206,12 +174,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	@Override
 	public List<Class<?>> getDependencies() {
 		return DEPENDENCIES;
-	}
-
-	@Override
-	public void sessionAboutToChange(Session session) {
-		getPassiveScanThread().shutdown();
-		this.pst = null;
 	}
 	
 	@Override

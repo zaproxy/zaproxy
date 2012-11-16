@@ -22,12 +22,17 @@
 // ZAP: 2011/08/03 Cope with unexpected values in config file
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method and removed
 // unnecessary cast.
+// ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
+// throughout ZAP and enhance the usability of some options.
 
 package org.parosproxy.paros.network;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -37,25 +42,30 @@ public class ConnectionParam extends AbstractParam {
     // ZAP: Added logger
     private static Logger log = Logger.getLogger(ConnectionParam.class);
 
-//	private static final String CONNECTION = "connection";
+	private static final String CONNECTION_BASE_KEY = "connection";
 
-	private static final String PROXY_CHAIN_NAME = "connection.proxyChain.hostName";
-	private static final String PROXY_CHAIN_PORT = "connection.proxyChain.port";
-	private static final String PROXY_CHAIN_SKIP_NAME = "connection.proxyChain.skipName";
-	private static final String PROXY_CHAIN_REALM = "connection.proxyChain.realm";
-	private static final String PROXY_CHAIN_USER_NAME = "connection.proxyChain.userName";
-	private static final String PROXY_CHAIN_PASSWORD = "connection.proxyChain.password";
+	private static final String PROXY_CHAIN_NAME = CONNECTION_BASE_KEY + ".proxyChain.hostName";
+	private static final String PROXY_CHAIN_PORT = CONNECTION_BASE_KEY + ".proxyChain.port";
+	private static final String PROXY_CHAIN_SKIP_NAME = CONNECTION_BASE_KEY + ".proxyChain.skipName";
+	private static final String PROXY_CHAIN_REALM = CONNECTION_BASE_KEY + ".proxyChain.realm";
+	private static final String PROXY_CHAIN_USER_NAME = CONNECTION_BASE_KEY + ".proxyChain.userName";
+	private static final String PROXY_CHAIN_PASSWORD = CONNECTION_BASE_KEY + ".proxyChain.password";
 
-    private static final String AUTH = "connection.auth";
-    private static final String AUTH_HOST_NAME = "hostName";
-    private static final String AUTH_PORT = "port";
-    private static final String AUTH_USER_NAME = "userName";
-    private static final String AUTH_PASSWORD = "password";
-    private static final String AUTH_REALM = "realm";
+    private static final String AUTH_KEY = CONNECTION_BASE_KEY + ".auths";
+    private static final String ALL_AUTHS_KEY = AUTH_KEY + ".auth";
+    private static final String AUTH_NAME_KEY = "name";
+    private static final String AUTH_HOST_NAME_KEY = "hostName";
+    private static final String AUTH_PORT_KEY = "port";
+    private static final String AUTH_USER_NAME_KEY = "userName";
+    private static final String AUTH_PASSWORD_KEY = "password";
+    private static final String AUTH_REALM_KEY = "realm";
+    private static final String AUTH_ENABLED_KEY = "enabled";
     
     // ZAP: Added prompt option and timeout
-	private static final String PROXY_CHAIN_PROMPT = "connection.proxyChain.prompt";
-	private static final String TIMEOUT_IN_SECS = "connection.timeoutInSecs";
+	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
+	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
+    
+    private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
 
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -65,13 +75,16 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-	private Vector<HostAuthentication> listAuth = new Vector<>();
+	private List<HostAuthentication> listAuth = new ArrayList<>(0);
+    private List<HostAuthentication> listAuthEnabled = new ArrayList<>(0);
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
 	private int timeoutInSecs = 120;
 
 	private Pattern	patternSkip = null;
+	
+	private boolean confirmRemoveAuth = true;
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -136,6 +149,12 @@ public class ConnectionParam extends AbstractParam {
 		}
 		
 		parseAuthentication();
+
+        try {
+            this.confirmRemoveAuth = getConfig().getBoolean(CONFIRM_REMOVE_AUTH_KEY, true);
+        } catch (ConversionException e) {
+            log.error("Error while loading the confirm remove option: " + e.getMessage(), e);
+        }
 	}
 	
 	
@@ -269,68 +288,79 @@ public class ConnectionParam extends AbstractParam {
     /**
      * @return Returns the listAuth.
      */
-    public Vector<HostAuthentication> getListAuth() {
+    public List<HostAuthentication> getListAuth() {
         return listAuth;
     }
+    
+    public List<HostAuthentication> getListAuthEnabled() {
+        return listAuthEnabled;
+    }
+    
     /**
      * @param listAuth The listAuth to set.
      */
-    public void setListAuth(Vector<HostAuthentication> listAuth) {
-        this.listAuth = listAuth;
-        HostAuthentication auth = null;
+    public void setListAuth(List<HostAuthentication> listAuth) {
+        this.listAuth = new ArrayList<>(listAuth);
         
-        for (int i=0; i<((listAuth.size() > 100)? listAuth.size(): 100); i++) {
-            // clearProperty doesn't work.  So set all host name to blank as a workaround.
-            getConfig().clearProperty(getAuth(i, AUTH_HOST_NAME));            
-            getConfig().clearProperty(getAuth(i, AUTH_PORT));            
-            getConfig().clearProperty(getAuth(i, AUTH_USER_NAME));            
-            getConfig().clearProperty(getAuth(i, AUTH_PASSWORD));            
-            getConfig().clearProperty(getAuth(i, AUTH_REALM));
-            getConfig().clearProperty(AUTH + ".A"+i);
-        }
-        for (int i=0; i<listAuth.size(); i++) {
-            auth = listAuth.get(i);            
-            getConfig().setProperty(getAuth(i, AUTH_HOST_NAME), auth.getHostName());
-            getConfig().setProperty(getAuth(i, AUTH_PORT), Integer.toString(auth.getPort()));
-            getConfig().setProperty(getAuth(i, AUTH_USER_NAME), auth.getUserName());
-            getConfig().setProperty(getAuth(i, AUTH_PASSWORD), auth.getPassword());
-            getConfig().setProperty(getAuth(i, AUTH_REALM), auth.getRealm());
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_AUTHS_KEY);
+        
+        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(listAuth);
+        for (int i = 0, size = listAuth.size(); i < size; ++i) {
+            String elementBaseKey = ALL_AUTHS_KEY + "(" + i + ").";
+            HostAuthentication auth = listAuth.get(i);
             
+            getConfig().setProperty(elementBaseKey + AUTH_NAME_KEY, auth.getName());
+            getConfig().setProperty(elementBaseKey + AUTH_HOST_NAME_KEY, auth.getHostName());
+            getConfig().setProperty(elementBaseKey + AUTH_PORT_KEY, Integer.valueOf(auth.getPort()));
+            getConfig().setProperty(elementBaseKey + AUTH_USER_NAME_KEY, auth.getUserName());
+            getConfig().setProperty(elementBaseKey + AUTH_PASSWORD_KEY, auth.getPassword());
+            getConfig().setProperty(elementBaseKey + AUTH_REALM_KEY, auth.getRealm());
+            getConfig().setProperty(elementBaseKey + AUTH_ENABLED_KEY, Boolean.valueOf(auth.isEnabled()));
+            
+            if (auth.isEnabled()) {
+                enabledAuths.add(auth);
+            }
         }
         
-    }
-
-    private String getAuth(int i, String name) {
-        return AUTH + ".A" + i + "." + name;
+        enabledAuths.trimToSize();
+        this.listAuthEnabled = enabledAuths;
     }
     
     private void parseAuthentication() {
-        listAuth.clear();
-
-        String host = "";
-        for (int i=0; host != null; i++) {
-
-            host = getConfig().getString(getAuth(i, AUTH_HOST_NAME));
-            if (host == null) {
-                   break;
+        List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_AUTHS_KEY);
+        this.listAuth = new ArrayList<>(fields.size());
+        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(fields.size());
+        List<String> tempListNames = new ArrayList<>(fields.size());
+        for (HierarchicalConfiguration sub : fields) {
+            String name = sub.getString(AUTH_NAME_KEY, "");
+            if (!"".equals(name) && !tempListNames.contains(name)) {
+                tempListNames.add(name);
+                
+                String host = sub.getString(AUTH_HOST_NAME_KEY, "");
+                if ("".equals(host)) {
+                    break;
+                }
+                
+                HostAuthentication auth = new HostAuthentication(
+                        name,
+                        host,
+                        sub.getInt(AUTH_PORT_KEY),
+                        sub.getString(AUTH_USER_NAME_KEY),
+                        sub.getString(AUTH_PASSWORD_KEY),
+                        sub.getString(AUTH_REALM_KEY));
+                
+                auth.setEnabled(sub.getBoolean(AUTH_ENABLED_KEY, true));
+                
+                listAuth.add(auth);
+                
+                if (auth.isEnabled()) {
+                    enabledAuths.add(auth);
+                }
             }
-            
-            if (host.equals("")) {
-                break;
-            }
-            
-            HostAuthentication auth = new HostAuthentication(
-                    host,
-                    getConfig().getInt(getAuth(i, AUTH_PORT)),
-                    getConfig().getString(getAuth(i, AUTH_USER_NAME)),
-                    getConfig().getString(getAuth(i, AUTH_PASSWORD)),
-                    getConfig().getString(getAuth(i, AUTH_REALM))
-                    );
-            listAuth.add(auth);
-            
-            
         }
-
+        
+        enabledAuths.trimToSize();
+        this.listAuthEnabled = enabledAuths;
     }
     
     /**
@@ -352,4 +382,13 @@ public class ConnectionParam extends AbstractParam {
 		this.timeoutInSecs = timeoutInSecs;
 		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
 	}
+    
+    public boolean isConfirmRemoveAuth() {
+        return this.confirmRemoveAuth;
+    }
+    
+    public void setConfirmRemoveAuth(boolean confirmRemove) {
+        this.confirmRemoveAuth = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_AUTH_KEY, Boolean.valueOf(confirmRemoveAuth));
+    }
 }

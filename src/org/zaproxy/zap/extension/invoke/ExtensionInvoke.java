@@ -66,7 +66,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	    super.hook(extensionHook);
 	 
 	    if (getView() != null) {
-	        List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvoke();
+	        List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvokeEnabled();
 	        
 	        for (InvokableApp app: apps) {
 	            PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());

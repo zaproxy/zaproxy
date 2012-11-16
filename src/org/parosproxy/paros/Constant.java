@@ -38,13 +38,17 @@
 // ZAP: 2012/07/13 Added variable for maximum number of threads used in scan (MAX_THREADS_PER_SCAN)
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
+// ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
+// throughout ZAP and enhance the usability of some options.
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -471,6 +475,130 @@ public final class Constant {
 			config.setProperty("spider.postform", "false");
 			config.setProperty("spider.processform", "false");
 		}
+
+		
+		// Move the old session tokens to the new "httpsessions" hierarchy and 
+		// delete the old "session" hierarchy as it's no longer used/needed.
+		String[] tokens = config.getStringArray("session.tokens");
+		for (int i = 0; i < tokens.length; ++i) {
+		    String elementBaseKey = "httpsessions.tokens.token(" + i + ").";
+		    
+		    config.setProperty(elementBaseKey + "name", tokens[i]);
+		    config.setProperty(elementBaseKey + "enabled", Boolean.TRUE);
+		}
+		config.clearTree("session");
+		
+		
+		// Update the anti CSRF tokens elements/hierarchy.
+		tokens = config.getStringArray("anticsrf.tokens");
+		config.clearTree("anticsrf.tokens");
+		for (int i = 0; i < tokens.length; ++i) {
+		    String elementBaseKey = "anticsrf.tokens.token(" + i + ").";
+		    
+		    config.setProperty(elementBaseKey + "name", tokens[i]);
+		    config.setProperty(elementBaseKey + "enabled", Boolean.TRUE);
+		}
+		
+		
+		// Update the invoke applications elements/hierarchy.
+		List<Object[]> oldData = new ArrayList<>();
+		for (int i = 0; ; i++) {
+		    String baseKey = "invoke.A" + i + ".";
+            String host = config.getString(baseKey + "name");
+            if (host == null || "".equals(host)) {
+               break;
+            }
+            
+            Object[] data = new Object[6];
+            data[0] = host;
+            data[1] = config.getString(baseKey + "directory", "");
+            data[2] = config.getString(baseKey + "command");
+            data[3] = config.getString(baseKey + "parameters");
+            data[4] = Boolean.valueOf(config.getBoolean(baseKey + "output", true));
+            data[5] = Boolean.valueOf(config.getBoolean(baseKey + "note", false));
+            oldData.add(data);
+        }
+        config.clearTree("invoke.A");
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "invoke.apps.app(" + i + ").";
+            Object[] data = oldData.get(i);
+            
+            config.setProperty(elementBaseKey + "name", data[0]);
+            config.setProperty(elementBaseKey + "directory", data[1]);
+            config.setProperty(elementBaseKey + "command", data[2]);
+            config.setProperty(elementBaseKey + "parameters", data[3]);
+            config.setProperty(elementBaseKey + "output", data[4]);
+            config.setProperty(elementBaseKey + "note", data[5]);
+            config.setProperty(elementBaseKey + "enabled", Boolean.TRUE);
+        }
+
+        
+		// Update the authentication elements/hierarchy.
+        oldData = new ArrayList<>();
+        for (int i = 0; ; i++) {
+            String baseKey = "connection.auth.A" + i + ".";
+            String host = config.getString(baseKey + "hostName");
+            if (host == null || "".equals(host)) {
+               break;
+            }
+            
+            Object[] data = new Object[5];
+            data[0] = host;
+            data[1] = Integer.valueOf(config.getString(baseKey + "port", "80"));
+            data[2] = config.getString(baseKey + "userName");
+            data[3] = config.getString(baseKey + "password");
+            data[4] = config.getString(baseKey + "realm");
+            oldData.add(data);
+        }
+        config.clearTree("connection.auth.A");
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "connection.auths.auth(" + i + ").";
+            Object[] data = oldData.get(i);
+            
+            config.setProperty(elementBaseKey + "name", "Auth " + i);
+            config.setProperty(elementBaseKey + "hostName", data[0]);
+            config.setProperty(elementBaseKey + "port", data[1]);
+            config.setProperty(elementBaseKey + "userName", data[2]);
+            config.setProperty(elementBaseKey + "password", data[3]);
+            config.setProperty(elementBaseKey + "realm", data[4]);
+            config.setProperty(elementBaseKey + "enabled", Boolean.TRUE);
+        }
+        
+        
+        // Update the passive scan elements/hierarchy.
+        String[] names = config.getStringArray("pscans.names");
+        oldData = new ArrayList<>();
+        for (String pscanName : names) {
+            String baseKey = "pscans." + pscanName + ".";
+
+            Object[] data = new Object[8];
+            data[0] = pscanName;
+            data[1] = config.getString(baseKey + "type");
+            data[2] = config.getString(baseKey + "config");
+            data[3] = config.getString(baseKey + "reqUrlRegex");
+            data[4] = config.getString(baseKey + "reqHeadRegex");
+            data[5] = config.getString(baseKey + "resHeadRegex");
+            data[6] = config.getString(baseKey + "resBodyRegex");
+            data[7] = Boolean.valueOf(config.getBoolean(baseKey + "enabled"));
+            oldData.add(data);
+        }
+        config.clearTree("pscans.names");
+        for (String pscanName : names) {
+            config.clearTree("pscans." + pscanName);
+        }
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "pscans.autoTagScanners.scanner(" + i + ").";
+            Object[] data = oldData.get(i);
+            
+            config.setProperty(elementBaseKey + "name", data[0]);
+            config.setProperty(elementBaseKey + "type", data[1]);
+            config.setProperty(elementBaseKey + "config", data[2]);
+            config.setProperty(elementBaseKey + "reqUrlRegex", data[3]);
+            config.setProperty(elementBaseKey + "reqHeadRegex", data[4]);
+            config.setProperty(elementBaseKey + "resHeadRegex", data[5]);
+            config.setProperty(elementBaseKey + "resBodyRegex", data[6]);
+            config.setProperty(elementBaseKey + "enabled", data[7]);
+        }
 	}
 
 	public static void setLocale (String loc) {

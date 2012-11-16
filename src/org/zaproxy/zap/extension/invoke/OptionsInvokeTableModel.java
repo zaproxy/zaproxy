@@ -22,9 +22,8 @@ package org.zaproxy.zap.extension.invoke;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 
 /**
@@ -32,26 +31,58 @@ import org.parosproxy.paros.Constant;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class OptionsInvokeTableModel extends AbstractTableModel {
+public class OptionsInvokeTableModel extends AbstractMultipleOptionsTableModel<InvokableApp> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] columnNames = {
-		Constant.messages.getString("invoke.options.label.name"), 
-		Constant.messages.getString("invoke.options.label.command")};
+	private static final String[] COLUMN_NAMES = {
+	    Constant.messages.getString("invoke.options.table.header.enabled"),
+        Constant.messages.getString("invoke.options.table.header.name"),
+        Constant.messages.getString("invoke.options.table.header.command"),
+        Constant.messages.getString("invoke.options.table.header.directory"),
+        Constant.messages.getString("invoke.options.table.header.parameters"),
+        Constant.messages.getString("invoke.options.table.header.ouput"),
+        Constant.messages.getString("invoke.options.table.header.toNote")
+	};
     
-    private List<InvokableApp> listApps = new ArrayList<>();
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+	
+    private List<InvokableApp> listApps = new ArrayList<>(5);
     
-    /**
-     * 
-     */
     public OptionsInvokeTableModel() {
         super();
+    }
+    
+    /**
+     * @param apps The listAuth to set.
+     */
+    public void setListInvokableApps(List<InvokableApp> apps) {
+        this.listApps = new ArrayList<>(apps.size());
+        
+        for (InvokableApp app : apps) {
+            this.listApps.add(new InvokableApp(app));
+        }
+        
+        fireTableDataChanged();
+    }
+    
+    public List<InvokableApp> getListInvokableApps() {
+        return new ArrayList<>(listApps);
+    }
+
+    @Override
+    protected List<InvokableApp> getElements() {
+        return listApps;
     }
 
     @Override
     public int getColumnCount() {
-        return columnNames.length;
+        return COLUMN_COUNT;
+    }
+
+    @Override
+    public String getColumnName(int col) {
+        return COLUMN_NAMES[col];
     }
 
     @Override
@@ -60,64 +91,49 @@ public class OptionsInvokeTableModel extends AbstractTableModel {
     }
 
     @Override
-    public Object getValueAt(int row, int col) {
-    	InvokableApp app = listApps.get(row);
-        Object result = null;
-        switch (col) {
-        	case 0:	result = app.getDisplayName();
-        			break;
-        	case 1: result = app.getFullCommand();
-        			break;
-        	default: result = "";
+    public Class<?> getColumnClass(int columnIndex) {
+        switch(columnIndex) {
+        case 0:
+        case 5:
+        case 6:
+            return Boolean.class;
         }
-        return result;
+        return String.class;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch (columnIndex) {
+        case 0:
+            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+        case 1:
+            return getElement(rowIndex).getDisplayName();
+        case 2:
+            return getElement(rowIndex).getFullCommand();
+        case 3:
+            return getElement(rowIndex).getWorkingDirectory();
+        case 4:
+            return getElement(rowIndex).getParameters();
+        case 5:
+            return Boolean.valueOf(getElement(rowIndex).isCaptureOutput());
+        case 6:
+            return Boolean.valueOf(getElement(rowIndex).isOutputNote());
+        }
+        return null;
+    }
+    
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            if (aValue instanceof Boolean) {
+                getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            }
+        }
     }
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
-    }
-    
-    /**
-     * @param apps The listAuth to set.
-     */
-    public void setListInvokableApps(List<InvokableApp> apps) {
-        this.listApps = new ArrayList<>(apps);
-  	  	fireTableDataChanged();
-    }
-    
-    public List<InvokableApp> getListInvokableApps() {
-        return new ArrayList<>(listApps);
+        return (columnIndex == 0);
     }
 
-    public void addInvokableApp(InvokableApp app) {
-        this.listApps.add(app);
-  	  	fireTableDataChanged();
-    }
-
-    public InvokableApp getInvokableApp(int index) {
-    	return this.listApps.get(index);
-    }
-
-    @Override
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
-
-    @Override
-	public Class<String> getColumnClass(int c) {
-        return String.class;
-    }
-
-	public void replaceInvokableApp(int index, InvokableApp app) {
-        this.listApps.remove(index);
-        this.listApps.add(index, app);
-  	  	fireTableDataChanged();
-	}
-
-	public void removeInvokableApp(int index) {
-        this.listApps.remove(index);
-  	  	fireTableDataChanged();
-	}
-    
 }

@@ -18,15 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
+// throughout ZAP and enhance the usability of some options.
 package org.parosproxy.paros.network;
+
+import org.zaproxy.zap.utils.Enableable;
 
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class HostAuthentication {
+public class HostAuthentication extends Enableable {
 
+    private String  name = "";
     private String	hostName = "";
     private int		port		= 80;
     private String	userName = "";
@@ -36,16 +41,29 @@ public class HostAuthentication {
     public HostAuthentication() {
         
     }
-    /**
-     * 
-     */
-    public HostAuthentication(String hostName, int port, String userName, String password, String realm) {
+    
+    public HostAuthentication(String name, String hostName, int port, String userName, String password, String realm) {
         super();
+        setName(name);
         setHostName(hostName);
         setPort(port);
         setUserName(userName);
         setPassword(password);
         setRealm(realm);
+    }
+    
+    public HostAuthentication(HostAuthentication auth) {
+        this(auth.name, auth.hostName, auth.port, auth.userName, auth.password, auth.realm);
+        
+        setEnabled(auth.isEnabled());
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -107,5 +125,71 @@ public class HostAuthentication {
      */
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + port;
+        result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+        result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        HostAuthentication other = (HostAuthentication) obj;
+        if (hostName == null) {
+            if (other.hostName != null) {
+                return false;
+            }
+        } else if (!hostName.equals(other.hostName)) {
+            return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (password == null) {
+            if (other.password != null) {
+                return false;
+            }
+        } else if (!password.equals(other.password)) {
+            return false;
+        }
+        if (port != other.port) {
+            return false;
+        }
+        if (realm == null) {
+            if (other.realm != null) {
+                return false;
+            }
+        } else if (!realm.equals(other.realm)) {
+            return false;
+        }
+        if (userName == null) {
+            if (other.userName != null) {
+                return false;
+            }
+        } else if (!userName.equals(other.userName)) {
+            return false;
+        }
+        return true;
     }
 }

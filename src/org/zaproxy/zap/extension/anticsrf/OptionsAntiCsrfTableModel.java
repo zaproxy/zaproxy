@@ -19,21 +19,22 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class OptionsAntiCsrfTableModel extends AbstractTableModel {
+public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel<AntiCsrfParamToken> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] columnNames = {
-				Constant.messages.getString("options.acsrf.label.token")};
+    private static final String[] COLUMN_NAMES = {
+            Constant.messages.getString("options.acsrf.table.header.enabled"),
+            Constant.messages.getString("options.acsrf.table.header.token")};
     
-    private List<String> tokens = new ArrayList<>();
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+	
+    private List<AntiCsrfParamToken> tokens = new ArrayList<>(0);
     
     /**
      * 
@@ -41,10 +42,41 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
     public OptionsAntiCsrfTableModel() {
         super();
     }
+    
+    @Override
+    protected List<AntiCsrfParamToken> getElements() {
+        return tokens;
+    }
+
+    /**
+     * @param tokens The tokens to set.
+     */
+    public void setTokens(List<AntiCsrfParamToken> tokens) {
+		this.tokens = new ArrayList<>(tokens.size());
+		
+		for (AntiCsrfParamToken token : tokens) {
+			this.tokens.add(new AntiCsrfParamToken(token));
+		}
+    	
+  	  	fireTableDataChanged();
+    }
+    
+    @Override
+    public String getColumnName(int col) {
+        return COLUMN_NAMES[col];
+    }
 
     @Override
     public int getColumnCount() {
-        return 1;
+        return COLUMN_COUNT;
+    }
+    
+    @Override
+	public Class<?> getColumnClass(int c) {
+        if (c == 0) {
+            return Boolean.class;
+        }
+        return String.class;
     }
 
     @Override
@@ -53,80 +85,28 @@ public class OptionsAntiCsrfTableModel extends AbstractTableModel {
     }
 
     @Override
-    public Object getValueAt(int row, int col) {
-        return tokens.get(row);
-    }
-    
-    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return (columnIndex == 0);
     }
     
     @Override
-    public void setValueAt(Object value, int row, int col) {
-    	tokens.set(row, (String)value);
-        checkAndAppendNewRow();
-        fireTableCellUpdated(row, col);
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch(columnIndex) {
+        case 0:
+            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+        case 1:
+            return getElement(rowIndex).getName();
+        }
+        return null;
     }
 
-    /**
-     * @return Returns the tokens.
-     */
-    public List<String> getTokens() {
-        String auth = null;
-        for (int i=0; i<tokens.size();) {
-            auth =  tokens.get(i);
-            if (auth.equals("")) {
-                tokens.remove(i);
-                continue;
-            }
-            i++;
-        }
-        
-        List<String> newList = new ArrayList<>(tokens);
-        return newList;
-    }
-    /**
-     * @param tokens The tokens to set.
-     */
-    public void setTokens(List<String> tokens) {
-		this.tokens = new ArrayList<>();
-    	if (tokens != null) {
-    		for (String token : tokens) {
-    			if ( ! this.tokens.contains(token)) {
-    				// Ensure duplicated removed
-    				this.tokens.add(token);
-    			}
-    		}
-    		Collections.sort(this.tokens);
-    	}
-        checkAndAppendNewRow();
-  	  	fireTableDataChanged();
-    }
-    
     @Override
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
-    
-    private void checkAndAppendNewRow() {
-        String auth = null;
-        if (tokens.size() > 0) {
-            auth =  tokens.get(tokens.size()-1);
-            if (!auth.equals("")) {
-                auth = "";
-                tokens.add(auth);
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            if (aValue instanceof Boolean) {
+                tokens.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
             }
-        } else {
-            auth = "";
-            tokens.add(auth);
         }
-    }
-    
-    @Override
-	public Class<String> getColumnClass(int c) {
-        return String.class;
-        
     }
     
 }

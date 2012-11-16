@@ -252,7 +252,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @return true, if it is a default session token
 	 */
 	public boolean isDefaultSessionToken(String token) {
-		if (getParam().getDefaultTokens().contains(token.toLowerCase(Locale.ENGLISH)))
+		if (getParam().getDefaultTokensEnabled().contains(token.toLowerCase(Locale.ENGLISH)))
 			return true;
 		return false;
 	}

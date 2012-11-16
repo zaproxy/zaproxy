@@ -23,28 +23,34 @@
 // removed unnecessary casts.
 // ZAP: 2012/04/25 Added type argument to generic type and changed to use the
 // method Integer.valueOf.
+// ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
+// throughout ZAP and enhance the usability of some options.
 
 package org.parosproxy.paros.view;
 
-import java.util.Vector;
-
-import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HostAuthentication;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class OptionsAuthenticationTableModel extends AbstractTableModel {
+public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTableModel<HostAuthentication> {
 
 	private static final long serialVersionUID = -7596331927341748685L;
 
-	private static final String[] columnNames = {
-				Constant.messages.getString("options.auth.label.host"), 
-				Constant.messages.getString("options.auth.label.port"), 
-				Constant.messages.getString("options.auth.label.uname"), 
-				Constant.messages.getString("options.auth.label.password"), 
-				Constant.messages.getString("options.auth.label.realm")};
+	private static final String[] COLUMN_NAMES = {
+		Constant.messages.getString("options.auth.table.header.enabled"),
+		Constant.messages.getString("options.auth.table.header.name"),
+		Constant.messages.getString("options.auth.table.header.host"),
+		Constant.messages.getString("options.auth.table.header.port"),
+		Constant.messages.getString("options.auth.table.header.uname"),
+		Constant.messages.getString("options.auth.table.header.password"),
+		Constant.messages.getString("options.auth.table.header.realm")};
+	
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
-    private Vector<HostAuthentication> listAuth = new Vector<>();
+    private List<HostAuthentication> listAuth = new ArrayList<>(5);
     
     /**
      * 
@@ -52,77 +58,72 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
     public OptionsAuthenticationTableModel() {
         super();
     }
-
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnCount()
-     */
+    
     @Override
-    public int getColumnCount() {
-        return 5;
+    public String getColumnName(int col) {
+        return COLUMN_NAMES[col];
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
+    @Override
+    public int getColumnCount() {
+        return COLUMN_COUNT;
+    }
+
     @Override
     public int getRowCount() {
         return listAuth.size();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
-    @Override
-    public Object getValueAt(int row, int col) {
-        HostAuthentication auth = listAuth.get(row);
-        Object result = null;
-        switch (col) {
-        	case 0:	result = auth.getHostName();
-        			break;
-        	case 1: // ZAP: Changed to use the method Integer.valueOf.
-        			result = Integer.valueOf(auth.getPort());
-        			break;
-        	case 2: result = auth.getUserName();
-        			break;
-        	case 3:	result = auth.getPassword();
-        			break;
-        	case 4:	result = auth.getRealm();
-        			break;
-        	default: result = "";
-        }
-        return result;
-    }
-    
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return (columnIndex == 0);
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch(columnIndex) {
+        case 0:
+            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+        case 1:
+            return getElement(rowIndex).getName();
+        case 2:
+            return getElement(rowIndex).getHostName();
+        case 3:
+            return Integer.valueOf(getElement(rowIndex).getPort());
+        case 4:
+            return getElement(rowIndex).getUserName();
+        case 5:
+            return getElement(rowIndex).getPassword();
+        case 6:
+            return getElement(rowIndex).getRealm();
+        }
+        return null;
     }
     
     @Override
-    public void setValueAt(Object value, int row, int col) {
-        
-        HostAuthentication auth = listAuth.get(row);
-        //Object result = null;
-        switch (col) {
-        	case 0:	auth.setHostName((String) value);
-        			break;
-        	case 1: auth.setPort(((Integer) value).intValue());
-        			break;
-        	case 2: auth.setUserName((String) value);
-        			break;
-        	case 3:	auth.setPassword((String) value);
-        			break;
-        	case 4:	auth.setRealm((String) value);
-        			break;
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            if (aValue instanceof Boolean) {
+                listAuth.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            }
         }
-        checkAndAppendNewRow();
-        fireTableCellUpdated(row, col);
+    }
+    
+    @Override
+    // ZAP: Added type argument.
+    public Class<?> getColumnClass(int c) {
+        if (c == 0) {
+            return Boolean.class;
+        } else if (c == 3) {
+            return Integer.class;
+        }
+        return String.class;
     }
 
     /**
      * @return Returns the listAuth.
      */
-    public Vector<HostAuthentication> getListAuth() {
+    public List<HostAuthentication> getListAuth() {
         HostAuthentication auth = null;
         for (int i=0; i<listAuth.size();) {
             auth = listAuth.get(i);
@@ -133,45 +134,25 @@ public class OptionsAuthenticationTableModel extends AbstractTableModel {
             i++;
         }
         
-        Vector<HostAuthentication> newList = new Vector<>(listAuth);
+        List<HostAuthentication> newList = new ArrayList<>(listAuth);
         return newList;
     }
+    
     /**
      * @param listAuth The listAuth to set.
      */
-    public void setListAuth(Vector<HostAuthentication> listAuth) {
-        this.listAuth = new Vector<>(listAuth);
-        checkAndAppendNewRow();
-  	  	fireTableDataChanged();
-    }
-    
-    @Override
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
-    
-    private void checkAndAppendNewRow() {
-        HostAuthentication auth = null;
-        if (listAuth.size() > 0) {
-            auth = listAuth.get(listAuth.size()-1);
-            if (!auth.getHostName().equals("")) {
-                auth = new HostAuthentication();
-                listAuth.add(auth);
-            }
-        } else {
-            auth = new HostAuthentication();
-            listAuth.add(auth);
-        }
-    }
-    
-    @Override
-    // ZAP: Added type argument.
-    public Class<?> getColumnClass(int c) {
-        if (c == 1) {
-            return Integer.class;
-        }
-        return String.class;
+    public void setListAuth(List<HostAuthentication> listAuth) {
+        this.listAuth = new ArrayList<>(listAuth.size());
         
+        for (HostAuthentication auth : listAuth) {
+            this.listAuth.add(new HostAuthentication(auth));
+        }
+        
+        fireTableDataChanged();
     }
-    
+
+    @Override
+    public List<HostAuthentication> getElements() {
+        return listAuth;
+    }
 }

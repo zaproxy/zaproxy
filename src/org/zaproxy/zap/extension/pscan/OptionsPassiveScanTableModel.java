@@ -22,10 +22,9 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 
 /**
@@ -33,17 +32,19 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class OptionsPassiveScanTableModel extends AbstractTableModel {
+public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] columnNames = {
-		Constant.messages.getString("pscan.options.table.name"),
-		Constant.messages.getString("pscan.options.table.type"),
-		Constant.messages.getString("pscan.options.table.enabled")};
+	private static final String[] COLUMN_NAMES = {
+		Constant.messages.getString("pscan.options.table.header.enabled"),
+		Constant.messages.getString("pscan.options.table.header.name"),
+		Constant.messages.getString("pscan.options.table.header.type"),
+		Constant.messages.getString("pscan.options.table.header.configuration")};
     
-	private List <RegexAutoTagScanner> defns = new ArrayList<>();
-    //private Vector listAuth = new Vector();
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+    
+	private List <RegexAutoTagScanner> defns = new ArrayList<>(5);
     
     /**
      * 
@@ -52,66 +53,74 @@ public class OptionsPassiveScanTableModel extends AbstractTableModel {
         super();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnCount()
+    /**
+     * @param defns
      */
-    @Override
-    public int getColumnCount() {
-        return 3;
+    public void setScanDefns(List <RegexAutoTagScanner> defns) {
+        this.defns = new ArrayList<>(defns.size());
+        
+        for (RegexAutoTagScanner def : defns) {
+            this.defns.add(new RegexAutoTagScanner(def));
+        }
+        
+        fireTableDataChanged();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
+    @Override
+    protected List<RegexAutoTagScanner> getElements() {
+        return defns;
+    }
+
+    @Override
+    public int getColumnCount() {
+        return COLUMN_COUNT;
+    }
+
+    @Override
+    public String getColumnName(int col) {
+        return COLUMN_NAMES[col];
+    }
+
     @Override
     public int getRowCount() {
         return defns.size();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
     @Override
-    public Object getValueAt(int row, int col) {
-    	RegexAutoTagScanner defn = defns.get(row);
-        Object result = null;
-        switch (col) {
-        	case 0:	result = defn.getName();
-        			break;
-        	case 1: result = defn.getType();
-        			break;
-        	case 2: result = defn.isEnabled() ? "Y" : "N";
-					break;
-        	default: result = "";
+    public Class<?> getColumnClass(int columnIndex) {
+        if (columnIndex == 0) {
+            return Boolean.class;
         }
-        return result;
+        return String.class;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        switch (columnIndex) {
+        case 0:
+            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+        case 1:
+            return getElement(rowIndex).getName();
+        case 2:
+            return getElement(rowIndex).getType().toString();
+        case 3:
+            return getElement(rowIndex).getConf();
+        }
+        return null;
     }
     
-    public RegexAutoTagScanner getRegexAutoTagScannerAtRow(int row) {
-        return defns.get(row);
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (columnIndex == 0) {
+            if (aValue instanceof Boolean) {
+                getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            }
+        }
     }
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
-    }
-    
-    /**
-     * @param defns
-     */
-    public void setScanDefns(List <RegexAutoTagScanner> defns) {
-        this.defns = new ArrayList<>(defns);
-  	  	fireTableDataChanged();
-    }
-    
-    @Override
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
-    
-    @Override
-	public Class<String> getColumnClass(int c) {
-        return String.class;
+        return (columnIndex == 0);
     }
     
 }

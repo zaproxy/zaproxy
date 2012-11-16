@@ -20,23 +20,27 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
+// throughout ZAP and enhance the usability of some options.
 
 package org.parosproxy.paros.extension.option;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.TableColumn;
+import javax.swing.JOptionPane;
+import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.network.HostAuthentication;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.OptionsAuthenticationTableModel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 /**
  *
  * To change the template for this generated type comment go to
@@ -44,9 +48,12 @@ import org.parosproxy.paros.view.OptionsAuthenticationTableModel;
  */
 public class OptionsAuthenticationPanel extends AbstractParamPanel {
 
-	private JTable tableAuth = null;
-	private JScrollPane jScrollPane = null;
-	private OptionsAuthenticationTableModel authModel = null;  //  @jve:decl-index=0:parse,visual-constraint="110,314"
+	private static final long serialVersionUID = -2971474654304050620L;
+
+	private HostAuthenticationMultipleOptionsPanel authsOptionsPanel;
+
+	private OptionsAuthenticationTableModel authModel = null;
+	
     /**
      * 
      */
@@ -59,40 +66,23 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
-        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-        javax.swing.JLabel jLabel = new JLabel();
-
+	    this.setName(Constant.messages.getString("options.auth.title"));
         this.setLayout(new GridBagLayout());
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(409, 268);
-	    }
-        this.setName(Constant.messages.getString("options.auth.title"));
-        jLabel.setText(Constant.messages.getString("options.auth.label.hosts"));
-        jLabel.setPreferredSize(new java.awt.Dimension(494,80));
-        jLabel.setMinimumSize(new java.awt.Dimension(494,16));
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridheight = 1;
-        gridBagConstraints1.ipady = 65;
-        gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.weightx = 1.0D;
-        gridBagConstraints2.gridx = 0;
-        gridBagConstraints2.gridy = 1;
-        gridBagConstraints2.weightx = 1.0;
-        gridBagConstraints2.weighty = 1.0;
-        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints2.ipadx = 0;
-        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        this.add(jLabel, gridBagConstraints1);
-        this.add(getJScrollPane(), gridBagConstraints2);
-			
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.fill = GridBagConstraints.BOTH;
+        
+        this.add(new JLabel(Constant.messages.getString("options.auth.label.hosts")), gbc);
+
+        authsOptionsPanel = new HostAuthenticationMultipleOptionsPanel(getAuthModel());
+        
+        gbc.weighty = 1.0;
+        this.add(authsOptionsPanel, gbc);
 	}
+	
     /* (non-Javadoc)
      * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
      */
@@ -101,6 +91,7 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    getAuthModel().setListAuth(connectionParam.getListAuth());
+	    authsOptionsPanel.setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveAuth());
     }
 
     /* (non-Javadoc)
@@ -119,43 +110,9 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    connectionParam.setListAuth(getAuthModel().getListAuth());
+	    connectionParam.setConfirmRemoveAuth(!authsOptionsPanel.isRemoveWithoutConfirmation());
     }
 
-    private static int[] width = {280,55,100,100,70};
-    
-	/**
-	 * This method initializes tableAuth	
-	 * 	
-	 * @return javax.swing.JTable	
-	 */    
-	private JTable getTableAuth() {
-		if (tableAuth == null) {
-			tableAuth = new JTable();
-			tableAuth.setModel(getAuthModel());
-			tableAuth.setRowHeight(18);
-			tableAuth.setIntercellSpacing(new java.awt.Dimension(1,1));
-	        for (int i = 0; i < 5; i++) {
-	            TableColumn column = tableAuth.getColumnModel().getColumn(i);
-	            column.setPreferredWidth(width[i]);
-	        }
-		}
-		return tableAuth;
-	}
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTableAuth());
-			jScrollPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-		}
-		return jScrollPane;
-	}
-	
-		
 	/**
 	 * This method initializes authModel	
 	 * 	
@@ -174,4 +131,83 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 		return "ui.dialogs.options.authentication";
 	}
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+    private static class HostAuthenticationMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<HostAuthentication> {
+
+        private static final long serialVersionUID = 2332044353650231701L;
+        
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("options.auth.dialog.hostAuth.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("options.auth.dialog.hostAuth.remove.text");
+        
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.remove.button.cancel");
+        
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.remove.checkbox.label");
+        
+        private DialogAddHostAuthentication addDialog = null;
+        private DialogModifyHostAuthentication modifyDialog = null;
+        
+        private OptionsAuthenticationTableModel model;
+        
+        public HostAuthenticationMultipleOptionsPanel(OptionsAuthenticationTableModel model) {
+            super(model);
+            
+            this.model = model;
+            
+            getTable().getColumnExt(0).setPreferredWidth(20);
+            getTable().setSortOrder(1, SortOrder.ASCENDING);
+        }
+
+        @Override
+        public HostAuthentication showAddDialogue() {
+            if (addDialog == null) {
+                addDialog = new DialogAddHostAuthentication(View.getSingleton().getOptionsDialog(null));
+                addDialog.pack();
+            }
+            addDialog.setAuthentications(model.getElements());
+            addDialog.setVisible(true);
+            
+            HostAuthentication hostAuthentication = addDialog.getToken();
+            addDialog.clear();
+            
+            return hostAuthentication;
+        }
+        
+        @Override
+        public HostAuthentication showModifyDialogue(HostAuthentication e) {
+            if (modifyDialog == null) {
+                modifyDialog = new DialogModifyHostAuthentication(View.getSingleton().getOptionsDialog(null));
+                modifyDialog.pack();
+            }
+            modifyDialog.setAuthentications(model.getElements());
+            modifyDialog.setHostAuthentication(e);
+            modifyDialog.setVisible(true);
+            
+            HostAuthentication hostAuthentication = modifyDialog.getToken();
+            modifyDialog.clear();
+            
+            if (!hostAuthentication.equals(e)) {
+                return hostAuthentication;
+            }
+            
+            return null;
+        }
+        
+        @Override
+        public boolean showRemoveDialogue(HostAuthentication e) {
+            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+            int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(), messages, REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL }, null);
+
+            if (option == JOptionPane.OK_OPTION) {
+                setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+                
+                return true;
+            }
+            
+            return false;
+        }
+    }
+
+}
