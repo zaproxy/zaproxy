@@ -40,6 +40,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
@@ -72,7 +73,6 @@ import org.parosproxy.paros.security.SslCertificateService;
 	 * or 'SHA1PRNG' Secure random number generator
 	 * @throws IllegalStateException in case of errors during assembling {@link KeyStore}
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public final static KeyStore createRootCA() throws NoSuchAlgorithmException {
 		final Date startDate = Calendar.getInstance().getTime();
 		final Date expireDate = new Date(startDate.getTime()+ (DEFAULT_VALID_DAYS * 24L * 60L * 60L * 1000L));
@@ -109,7 +109,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 			certGen.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
 			certGen.addExtension(X509Extension.keyUsage, false, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.cRLSign));
 			
-			Vector eku = new Vector(5, 1);
+			Vector<DERObject> eku = new Vector<>(3, 1);
 			eku.add(KeyPurposeId.id_kp_serverAuth);
 			eku.add(KeyPurposeId.id_kp_clientAuth);
 			eku.add(KeyPurposeId.anyExtendedKeyUsage);
