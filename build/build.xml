@@ -240,7 +240,7 @@
 		You need to download the latest language file build from http://crowdin.net/project/owasp-zap
 		and then expand it into the ${crowdin.dir} directory.   
 		-->
-		<copy file="${crowdin.dir}/da/Messages.properties" tofile="${src}/lang/Messages_dk_DA.properties" overwrite="true"/>
+		<copy file="${crowdin.dir}/da/Messages.properties" tofile="${src}/lang/Messages_da_DK.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/de/Messages.properties" tofile="${src}/lang/Messages_de_DE.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/el/Messages.properties" tofile="${src}/lang/Messages_el_GR.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/es-ES/Messages.properties" tofile="${src}/lang/Messages_es_ES.properties" overwrite="true"/>
