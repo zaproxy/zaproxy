@@ -7,7 +7,9 @@ import org.junit.Test;
 
 
 /**
- * @author Björn Kimminich
+ * Unit test for {@link URLResolver}.
+ * 
+ * @author bjoern.kimminich@gmx.de
  */
 public class URLResolverUnitTest {
 
