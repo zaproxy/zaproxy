@@ -4,16 +4,17 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.net.Socket;
 import java.security.KeyStore;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Unit test for {@link AliasKeyManager}
@@ -27,18 +28,18 @@ public class AliasKeyManagerUnitTest {
 	
 	private AliasKeyManager aliasKeyManager;
 	
-	@Mock
-	private KeyStore keyStoreMock;
+	private KeyStore keyStore;
 
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
+		keyStore = spy(KeyStore.getInstance(KeyStore.getDefaultType()));
+		keyStore.load(null);
 	}
 
 	@Test
 	public void shouldAlwaysChooseInitiallyGivenAliasAsClientAlias() {
 		// Given
-		aliasKeyManager = new AliasKeyManager(keyStoreMock, ALIAS, PASSWORD);
+		aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
 		// When
 		String clientAlias = aliasKeyManager.chooseClientAlias(new String[0], new Principal[]{mock(Principal.class)}, mock(Socket.class));
 		// Then
@@ -48,7 +49,7 @@ public class AliasKeyManagerUnitTest {
 	@Test
 	public void shouldOnlyReturnInitiallyGivenAliasAsClientAlias() {
 		// Given
-		aliasKeyManager = new AliasKeyManager(keyStoreMock, ALIAS, PASSWORD);
+		aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
 		// When
 		String[] clientAliases = aliasKeyManager.getClientAliases("", new Principal[]{mock(Principal.class)});
 		// Then
@@ -59,7 +60,7 @@ public class AliasKeyManagerUnitTest {
 	@Test
 	public void shouldAlwaysChooseInitiallyGivenAliasAsServerAlias() {
 		// Given
-		aliasKeyManager = new AliasKeyManager(keyStoreMock, ALIAS, PASSWORD);
+		aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
 		// When
 		String serverAlias = aliasKeyManager.chooseServerAlias("", new Principal[]{mock(Principal.class)}, mock(Socket.class));
 		// Then
@@ -69,12 +70,23 @@ public class AliasKeyManagerUnitTest {
 	@Test
 	public void shouldOnlyReturnInitiallyGivenAliasAsServerAlias() {
 		// Given
-		aliasKeyManager = new AliasKeyManager(keyStoreMock, ALIAS, PASSWORD);
+		aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
 		// When
 		String[] serverAliases = aliasKeyManager.getServerAliases("", new Principal[]{mock(Principal.class)});
 		// Then
 		assertThat(serverAliases.length, is(1));
 		assertThat(serverAliases, hasItemInArray(ALIAS));
 	}	
+	
+	@Test
+	public void shouldReturnNullWhenNoCertificatesAreFoundForGivenAlias() throws Exception {
+		// Given
+		doReturn(null).when(keyStore).getCertificate(ALIAS);
+		aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
+		// When
+		X509Certificate[] certificates = aliasKeyManager.getCertificateChain(ALIAS);
+		// Then
+		assertThat(certificates, is(equalTo(null)));
+	}		
 
 }
