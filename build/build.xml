@@ -247,7 +247,7 @@
 		<copy file="${crowdin.dir}/fa/Messages.properties" tofile="${src}/lang/Messages_fa_FA.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/fr/Messages.properties" tofile="${src}/lang/Messages_fr_FR.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/id/Messages.properties" tofile="${src}/lang/Messages_in_ID.properties" overwrite="true"/>
-		<copy file="${crowdin.dir}/ja/Messages.properties" tofile="${src}/lang/Messages_ja_JA.properties" overwrite="true"/>
+		<copy file="${crowdin.dir}/ja/Messages.properties" tofile="${src}/lang/Messages_ja_JP.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/pl/Messages.properties" tofile="${src}/lang/Messages_pl_PL.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/pt-BR/Messages.properties" tofile="${src}/lang/Messages_pt_BR.properties" overwrite="true"/>
 		<copy file="${crowdin.dir}/ru/Messages.properties" tofile="${src}/lang/Messages_ru_RU.properties" overwrite="true"/>
