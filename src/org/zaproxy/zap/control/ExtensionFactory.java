@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Vector;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.DynamicLoader;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 
@@ -40,8 +40,8 @@ public class ExtensionFactory {
     private static TreeMap<String, Extension> mapAllExtension = new TreeMap<>();
     private static TreeMap<Integer, Extension> mapOrderToExtension = new TreeMap<>();
     private static List<Extension> unorderedExtensions = new ArrayList<>();
-    private static DynamicLoader parosLoader = null;
-    private static DynamicLoader zapLoader = null;
+    
+    private static AddOnLoader addOnLoader = null;
     
     /**
      * 
@@ -50,16 +50,18 @@ public class ExtensionFactory {
         super();
     }
     
+    public static AddOnLoader getAddOnLoader() {
+    	if (addOnLoader == null) {
+    		addOnLoader = new AddOnLoader(new File[] {
+					new File(Constant.FOLDER_PLUGIN),
+					new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN)});
+    	}
+    	return addOnLoader;
+    }
+    
     public synchronized static void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
-        if (zapLoader == null) {
-        	zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension", true);
-        }
-        if (parosLoader == null) {
-        	parosLoader = new DynamicLoader("", "org.parosproxy.paros.extension", true);
-        }
-
-        List<Extension> listTest = parosLoader.getFilteredObject(Extension.class);
-        listTest.addAll(zapLoader.getFilteredObject(Extension.class));
+       	List<Extension> listTest = getAddOnLoader().getImplementors("org.zaproxy.zap.extension", Extension.class);
+		listTest.addAll(getAddOnLoader().getImplementors("org.parosproxy.paros.extension", Extension.class));
 
         synchronized (mapAllExtension) {
             

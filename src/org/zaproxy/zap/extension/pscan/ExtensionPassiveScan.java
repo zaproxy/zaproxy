@@ -28,13 +28,13 @@ import java.util.List;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.DynamicLoader;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.params.ParamScanner;
@@ -94,10 +94,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 			scannerList.add(scanner);
 
-			// XXX temporary "hack" to check if ZAP is in GUI mode (see
-			// below).
 			if (View.isInitialised()) {
-				
 				// The method getPolicyPanel() creates view elements
 				// (subsequently initialising the java.awt.Toolkit) that are not
 				// needed when ZAP is running in non GUI mode.
@@ -120,9 +117,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     		scannerList.add(new ParamScanner());
             
             // Dynamically load 'switchable' plugins
-           	DynamicLoader zapLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.zaproxy.zap.extension.pscan.scanner");
-            List<PluginPassiveScanner> listTest = zapLoader.getFilteredObject(PluginPassiveScanner.class);
-            for (PluginPassiveScanner scanner : listTest) {
+           	List<PluginPassiveScanner> listTest = ExtensionFactory.getAddOnLoader().getImplementors(
+           					"org.zaproxy.zap.extension", PluginPassiveScanner.class);
+
+           	for (PluginPassiveScanner scanner : listTest) {
         		addPassiveScanner(scanner);
             }
 		}

@@ -23,6 +23,7 @@
 // in the method DynamicLoader.getFilteredObject(Class).
 // ZAP: 2012/04/25 Removed unnecessary casts, changed to use the method
 // Integer.valueOf and added logging of exception.
+// ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 
 package org.parosproxy.paros.core.scanner;
 
@@ -35,8 +36,7 @@ import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.DynamicLoader;
+import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
 
@@ -45,8 +45,6 @@ public class PluginFactory {
     private static Vector<Plugin> listAllPlugin = new Vector<>();
     private static LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
     private static LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
-    private static DynamicLoader parosLoader = null;
-    private static DynamicLoader zapLoader = null;
     private Vector<Plugin> listPending = new Vector<>();
     private Vector<Plugin> listRunning = new Vector<>();
     private Vector<Plugin> listCompleted = new Vector<>();
@@ -107,15 +105,11 @@ public class PluginFactory {
     }
 
     public synchronized static void loadAllPlugin(Configuration config) {
-        if (parosLoader == null) {
-        	parosLoader = new DynamicLoader(Constant.FOLDER_PLUGIN, "org.parosproxy.paros.core.scanner.plugin");
-        }
-        if (zapLoader == null) {
-        	zapLoader = new DynamicLoader("", "org.zaproxy.zap.scanner.plugin");
-        }
-        List<AbstractPlugin> listTest = parosLoader.getFilteredObject(AbstractPlugin.class);
-        listTest.addAll(zapLoader.getFilteredObject(AbstractPlugin.class));
-        
+    	
+       	List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
+		listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
+		listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
+
         //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
         final Comparator<AbstractPlugin> riskComparator = 
         		new Comparator<AbstractPlugin>() {

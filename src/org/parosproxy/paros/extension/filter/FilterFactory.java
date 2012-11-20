@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/04/25 Added type arguments to the generic types, removed an 
 // unnecessary cast and changed to use the method Integer.valueOf.
+// ZAP: 2012/11/20 Issue 419: Restructure jar loading code
+
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Iterator;
@@ -28,8 +30,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.DynamicLoader;
+import org.zaproxy.zap.control.ExtensionFactory;
 
 
 /**
@@ -41,19 +42,14 @@ public class FilterFactory {
 
     private static Logger log = Logger.getLogger(FilterFactory.class);
 
-    private DynamicLoader loader = null;
     // ZAP: Added the type arguments.
     private static TreeMap<Integer, Filter> mapAllFilter = new TreeMap<>();
     // ZAP: Added the type arguments.
     private Vector<Filter> listAllFilter = new Vector<>();
 
     public void loadAllFilter() {
-        if (loader == null) {
-            loader = new DynamicLoader(Constant.FOLDER_FILTER, "org.parosproxy.paros.extension.filter");
-        }
-        
-        // ZAP: Added the type argument.
-        List<Filter> listFilter = loader.getFilteredObject(Filter.class);
+       	List<Filter> listFilter = ExtensionFactory.getAddOnLoader().getImplementors(
+       					"org.parosproxy.paros.extension.filter", Filter.class);
 
         synchronized (mapAllFilter) {
             

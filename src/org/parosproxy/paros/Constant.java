@@ -40,6 +40,7 @@
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
+// ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 
 package org.parosproxy.paros;
 
@@ -677,6 +678,10 @@ public final class Constant {
     	zapHome = dir;
     }
     
+    public static String getZapHome () {
+    	return zapHome;
+    }
+
     private static String getVersionFromManifest() {
     	String className = Constant.class.getSimpleName() + ".class";
     	String classPath = Constant.class.getResource(className).toString();
@@ -713,5 +718,4 @@ public final class Constant {
     public static boolean isDailyBuild() {
     	return isDailyBuild(PROGRAM_VERSION);
     }
-    
 }
