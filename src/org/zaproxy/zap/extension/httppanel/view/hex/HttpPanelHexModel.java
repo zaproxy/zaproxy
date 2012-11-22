@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.zaproxy.zap.utils.ByteBuilder;
+
 public class HttpPanelHexModel extends AbstractTableModel {
 
     private final static String[] hexSymbols = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
@@ -140,16 +142,16 @@ public class HttpPanelHexModel extends AbstractTableModel {
     
     public synchronized byte[] getData() {
     	// Need to implement if/when edit supported
-    	StringBuilder sb = new StringBuilder();
+    	ByteBuilder bb = new ByteBuilder();
     	for (String[] row : listRow) {
     		for (int i=1; i < 17; i++) {
     			if (row[i] == null || row[i].length() == 0) {
     				break;
     			}
-    			sb.append(String.valueOf((char)Integer.parseInt(row[i], 16)));
+    			bb.append((char)Integer.parseInt(row[i], 16));
     		}
     	}
-    	return sb.toString().getBytes();
+    	return bb.toByteArray();
     }
     
     @Override

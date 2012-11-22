@@ -15,20 +15,29 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.utility;
+
+package org.zaproxy.zap.extension.websocket.manualsend;
+
+import javax.swing.JComboBox;
+
+import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 
 /**
- * Simple class that represents a tuple.
- * 
- * @param <X>
- * @param <Y>
+ * Craft custom WebSocket message and send them. Avoid HTTP method panel to
+ * appear here.
  */
-public class Pair<X, Y> {
-	public final X x;
-	public final Y y;
+public class WebSocketSendPanel extends HttpPanelRequest {
+	
+	private static final long serialVersionUID = 1L;
 
-	public Pair(X x, Y y) {
-		this.x = x;
-		this.y = y;
+	public WebSocketSendPanel(boolean isEditable, String configurationKey) {
+		super(isEditable, configurationKey);
+	}
+
+	@Override
+	protected void initComboChangeMethod() {
+		if (comboChangeMethod == null) {
+			comboChangeMethod = new JComboBox<>();
+		}
 	}
 }

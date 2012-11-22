@@ -50,7 +50,7 @@ public class HttpPanelSender implements MessageSender {
     private static final Logger logger = Logger.getLogger(HttpPanelSender.class);
     
     private final HttpPanelResponse responsePanel;
-    private final ExtensionHistory extension;
+    private ExtensionHistory extension;
 
     private HttpSender delegate;
     
@@ -65,8 +65,6 @@ public class HttpPanelSender implements MessageSender {
 
         final boolean isSessionTrackingEnabled = Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
         getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
-        
-        this.extension = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
     }
     
     /* (non-Javadoc)
@@ -75,6 +73,7 @@ public class HttpPanelSender implements MessageSender {
     @Override
     public void handleSendMessage(Message aMessage) throws Exception {
         final HttpMessage httpMessage = (HttpMessage)aMessage;
+        final ExtensionHistory extHistory = extension;
         try {
             httpMessage.getRequestHeader().setContentLength(httpMessage.getRequestBody().length());
             getDelegate().sendAndReceive(httpMessage, getButtonFollowRedirects().isSelected());
@@ -90,7 +89,7 @@ public class HttpPanelSender implements MessageSender {
                         final Thread t = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                extension.addHistory(httpMessage, finalType);
+                            	getHistoryExtension().addHistory(httpMessage, finalType);
                             }
                         });
                         t.start();
@@ -104,6 +103,13 @@ public class HttpPanelSender implements MessageSender {
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
         }
+    }
+    
+    protected ExtensionHistory getHistoryExtension() {
+    	if (extension == null) {
+	        extension = ((ExtensionHistory)Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+		}
+    	return extension;
     }
     
     /* (non-Javadoc)

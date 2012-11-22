@@ -146,7 +146,10 @@ public class WebSocketMessageDTO implements Message {
 
 	@Override
 	public String toString() {
-		return "#" + channel.id + "." + id;
+		if (channel.id != null && id != null) {
+			return "#" + channel.id + "." + id;
+		}
+		return "";
 	}
 
 	/**
@@ -170,6 +173,9 @@ public class WebSocketMessageDTO implements Message {
 	
 	@Override
 	public boolean isInScope() {
+		if (channel == null) {
+			return false;
+		}
 		return channel.isInScope();
 	}
 

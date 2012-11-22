@@ -145,8 +145,12 @@ public class WebSocketComponent implements HttpPanelComponentInterface, Searchab
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(message.toString()).append(" - ");
-		sb.append(message.dateTime).append(" - ");
-		sb.append(message.readableOpcode);
+		if (message.dateTime != null) {
+			sb.append(message.dateTime).append(" - ");
+		}
+		if (message.readableOpcode != null) {
+			sb.append(message.readableOpcode);
+		}
 		
 		informationLabel.setText(sb.toString());
 		

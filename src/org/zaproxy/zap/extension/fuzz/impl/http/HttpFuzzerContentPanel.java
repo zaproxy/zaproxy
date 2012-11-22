@@ -43,6 +43,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchResult;
+import org.zaproxy.zap.utils.Pair;
 
 public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 

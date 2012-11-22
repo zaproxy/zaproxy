@@ -26,6 +26,8 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
+import org.zaproxy.zap.utils.Pair;
+
 /**
  * Added via {@link JTable#setDefaultRenderer(Class, TableCellRenderer)} as
  * <code>JTable#setDefaultRenderer(Pair.class, new IconTableCellRenderer());</code>

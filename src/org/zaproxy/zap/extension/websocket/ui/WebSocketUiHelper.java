@@ -52,8 +52,10 @@ public class WebSocketUiHelper {
 
 	private JCheckBox outgoingCheckbox;
 	private JCheckBox incomingCheckbox;
+	private JComboBox<String> directionComboBox;
 	
 	private ZapTextField patternTextField;
+
 	
 	// ************************************************************************
 	// ***** HELPER
@@ -110,6 +112,24 @@ public class WebSocketUiHelper {
 			return null;
 		}
 		return (String) getOpcodeSingleSelect().getSelectedItem();
+	}
+
+	/**
+	 * @return Null if '--All Opcodes--' is selected
+	 */
+	public Integer getSelectedOpcodeInteger() {
+		if (getOpcodeSingleSelect().getSelectedIndex() == 0) {
+			return null;
+		}
+		
+		String opcodeString = (String) getOpcodeSingleSelect().getSelectedItem();
+		
+		for (int opcode : WebSocketMessage.OPCODES) {
+			if (WebSocketMessage.opcode2string(opcode).equals(opcodeString)) {
+				return opcode;
+			}
+		}
+		return null;
 	}
 
 	public JScrollPane getOpcodeMultipleSelect() {
@@ -239,6 +259,14 @@ public class WebSocketUiHelper {
 		}
 		WebSocketChannelDTO channel = (WebSocketChannelDTO) getChannelSingleSelect().getSelectedItem();
 		return channel.id;
+	}
+	
+	public WebSocketChannelDTO getSelectedChannelDTO() {
+		if (getChannelSingleSelect().getSelectedIndex() == 0) {
+			return null;
+		}
+		WebSocketChannelDTO channel = (WebSocketChannelDTO) getChannelSingleSelect().getSelectedItem();
+		return channel;
 	}
 	
 	public void setSelectedChannelId(Integer channelId) {
@@ -374,6 +402,34 @@ public class WebSocketUiHelper {
 			getOutgoingCheckbox().setSelected(false);
 			getIncomingCheckbox().setSelected(true);
 		}
+	}
+
+	public JComboBox<String> getDirectionSingleSelect() {
+        if (directionComboBox == null) {
+        	directionComboBox = new JComboBox<String>(getDirectionModel());
+        }
+        return directionComboBox;
+    }
+
+	private String[] getDirectionModel() {
+		String[] directions = new String[]{
+			Constant.messages.getString("websocket.filter.label.direction_outgoing"),
+			Constant.messages.getString("websocket.filter.label.direction_incoming"),
+		};
+        
+		return directions;
+	}
+	
+	public Boolean isDirectionSingleSelectOutgoing() {
+		if (getDirectionSingleSelect().getSelectedIndex() == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public void setDirectionSingleSelect(Boolean isOutgoing) {
+		int index = (isOutgoing == null || isOutgoing) ? 0 : 1;
+		getDirectionSingleSelect().setSelectedIndex(index);
 	}
 
 	// ************************************************************************

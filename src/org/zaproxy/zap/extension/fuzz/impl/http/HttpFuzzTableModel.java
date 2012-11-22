@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.Pair;
 
 public class HttpFuzzTableModel extends AbstractTableModel {
 
@@ -110,27 +111,30 @@ public class HttpFuzzTableModel extends AbstractTableModel {
             }
             break;
         case 6:
-            Pair<String, ImageIcon> icons = new Pair<>();
             HttpFuzzerContentPanel.State state = result.first;
-
+            String status;
+            ImageIcon icon;
+            
             switch (state) {
             case ERROR:
-                icons.first = "Error occured.";
-                icons.second = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/150.png"));
+            	status = "Error occured.";
+                icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/150.png"));
                 break;
             case REFLECTED:
-                icons.first = "Reflected";
-                icons.second = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/099.png")); // Yellow fuzzy circle
+            	status = "Reflected";
+                icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/099.png")); // Yellow fuzzy circle
                 break;
             case ANTI_CRSF_TOKEN:
-                icons.first = "Anti CSRF Token Request";
-                icons.second = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/183.png"));
+            	status = "Anti CSRF Token Request";
+                icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/183.png"));
                 break;
             case SUCCESSFUL:
             default:
-                icons.first = "Successful";
+            	status = "Successful";
+            	icon = null;
             }
-            value = icons;
+            
+            value = new Pair<>(status, icon);
             
             break;
         case 7:

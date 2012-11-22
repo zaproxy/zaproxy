@@ -31,590 +31,196 @@
 // getButtonFollowRedirect and getButtonUseTrackingSessionState and changed the
 // methods windowClosing and setVisible.
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.extension.manualrequest.http.impl.HttpPanelSender;
 import org.parosproxy.paros.extension.option.OptionsParamView;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 
-
-
-public class ManualRequestEditorDialog extends AbstractFrame implements Tab {
+/**
+ * Send custom crafted messages via HTTP, WebSockets, etc. 
+ */
+public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;
-
-	// Window
-	private JPanel panelWindow = null; // ZAP
-//	private JPanel panelHeader = null;
-
-	private HttpPanelRequest requestPanel = null;
-	private HttpPanelResponse responsePanel = null;
-
-//	private JComponent panelMain = null;
-//	private JPanel panelContent = null;
 	
-	// ZAP: Removed the instance variables "JToggleButton followRedirect". and
-	// "JToggleButton useTrackingSessionState".
-	
-	//private JComboBox comboChangeMethod = null;
-
-	private JButton btnSend = null;
-	
-	// ZAP: Removed the instance variable "HttpSender httpSender".
+    private static final Logger logger = Logger.getLogger(ManualRequestEditorDialog.class);
 	
 	private boolean isSendEnabled = true;
+	
+	protected String configurationKey;
+	
+	private JPanel panelWindow = null;
 
-	private Extension extension = null;
-	
-	// ZAP: Use more general class than HttpMessage
-	private Message message = null;
-	
-	private String configurationKey;
-	
-	private RequestResponsePanel requestResponsePanel;
+	private JButton btnSend = null;
 
-	// ZAP: introduced map of supported message types
-    private Map<Class<? extends Message>, MessageSender> mapMessageSenders;
-
-	private JLabel labelTimeElapse = null;
-	private JLabel labelContentLength = null;
-	private JLabel labelTotalLength = null;
-	private JToolBar footerToolbar = null;
-	
-	
-	public ManualRequestEditorDialog(Frame parent, boolean modal, boolean isSendEnabled, Extension extension, String configurationKey) throws HeadlessException {
+	/**
+	 * Non-abstract classes should call {@link #initialize()} in their constructor.
+	 * 
+	 * @param isSendEnabled
+	 * @param configurationKey
+	 * @throws HeadlessException
+	 */
+	public ManualRequestEditorDialog(boolean isSendEnabled, String configurationKey) throws HeadlessException {
 		super();
-		this.isSendEnabled = isSendEnabled;
-		this.extension = extension;
 		
+		this.isSendEnabled = isSendEnabled;
 		this.configurationKey = OptionsParamView.BASE_VIEW_KEY + "." + configurationKey + ".";
 		
 		this.setPreferredSize(new Dimension(700, 800));
-		initialize();
-        
-        mapMessageSenders = new HashMap<>();
-        mapMessageSenders.put(HttpMessage.class, new HttpPanelSender(getRequestPanel(), getResponsePanel()));
 	}
 
-	
-	private void initialize() {
-		
-		requestResponsePanel = new RequestResponsePanel(configurationKey, getRequestPanel(), getResponsePanel());
-		
-		requestResponsePanel.addEndButton(getBtnSend());
-		requestResponsePanel.addSeparator();
-
-		requestResponsePanel.loadConfig();
-		
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
+	protected void initialize() {
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(java.awt.event.WindowEvent e) {
-				// ZAP: Changed to call the method cleanup on the MessageSender.
-				for (Iterator<MessageSender> it = mapMessageSenders.values().iterator(); it.hasNext();) {
-                    it.next().cleanup();
-                }
+			public void windowClosing(WindowEvent e) {
+				getMessageSender().cleanup();
 				saveConfig();
 			}
 		});
-
-		//setting footer status bar label and separator
-		getFooterStatusBar().add(getLabelTimeLapse());
-		getFooterStatusBar().addSeparator();
-		getFooterStatusBar().add(getLabelContentLength());
-		getFooterStatusBar().addSeparator();
-		getFooterStatusBar().add(getLabelTotalLength());
 		
-		this.setContentPane(getWindowPanel());
+		setContentPane(getWindowPanel());
 	}
 
-	private JPanel getWindowPanel() {
+	/**
+	 * Returns type of message it handles.
+	 * 
+	 * @return
+	 */
+	abstract public Class<? extends Message> getMessageType();
+	
+	/**
+	 * Message sender for the given {@link #getMessageType()}.
+	 * 
+	 * @return
+	 */
+	abstract protected MessageSender getMessageSender();
+	
+	/**
+	 * Menu item that calls this editor.
+	 * 
+	 * @return
+	 */
+	abstract public JMenuItem getMenuItem();
+
+	protected JPanel getWindowPanel() {
 		if (panelWindow == null) {
 			panelWindow = new JPanel();
 			panelWindow.setLayout(new BorderLayout());
-
-			panelWindow.add(requestResponsePanel);
-			// add footer status bar
-			panelWindow.add(getFooterStatusBar(), BorderLayout.SOUTH);
+			
+			panelWindow.add(getManualSendPanel());
 		}
 
 		return panelWindow;
 	}
-
 	
-	private HttpPanelRequest getRequestPanel() {
-		if (requestPanel == null) {
-			requestPanel = new HttpPanelRequest(true, configurationKey);
-			requestPanel.setEnableViewSelect(true);
-			requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-		}
-		return requestPanel;
-	}
-
+	abstract protected Component getManualSendPanel();
 	
-	private HttpPanelResponse getResponsePanel() {
-		if (responsePanel == null) {
-			responsePanel = new HttpPanelResponse(false, configurationKey);
-			responsePanel.setEnableViewSelect(true);
-			responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-		}
-		return responsePanel;
-	}
-	
-	// ZAP: Removed the method setExtension(Extension), not used anymore.
-
 	@Override
 	public void setVisible(boolean show) {
-		// ZAP: Changed to call the method cleanup on the MessageSender.
-		if (!show && mapMessageSenders != null) {
-            for (Iterator<MessageSender> it = mapMessageSenders.values().iterator(); it.hasNext();) {
-                it.next().cleanup();
-            }
+		if (!show && getMessageSender() != null) {
+           getMessageSender().cleanup();
 		}
-
-		switchToTab(0);
 		
 		super.setVisible(show);
 	}
 
-	// ZAP: Removed the method "HttpSender getHttpSender()".
-
-	/* Set new HttpMessage
-	 * this means ManualRequestEditor does show another HttpMessage.
-	 * Copy the message (this is not a viewer. User will modify it),
-	 * and update Request/Response views.
-	 */
+	abstract public void setDefaultMessage();
 	
-	public void setMessage(Message aMessage) {
-		if (aMessage == null) {
-			return;
-		}
+	abstract public void setMessage(Message aMessage);
 
-		this.message = aMessage; // .cloneAll();
-
-		getRequestPanel().setMessage(aMessage);
-		getResponsePanel().setMessage(aMessage);
-		//reload footer status
-		setFooterStatus(null);
-		switchToTab(0);
-	}
-
-	public Message getMessage() {
-		return message;
-	}
+	abstract public Message getMessage();
 
 	public void clear() {
-		requestPanel.clearView();
-		responsePanel.clearView();
+		getRequestPanel().clearView();
 	}
 
-	// ZAP: Removed the methods "JToggleButton getButtonFollowRedirect()" and
-	// "JToggleButton getButtonUseTrackingSessionState()".
-	
-	private JButton getBtnSend() {
+	protected JButton getBtnSend() {
 		if (btnSend == null) {
 			btnSend = new JButton();
-			btnSend.setText(Constant.messages.getString("manReq.button.send"));		// ZAP: i18n
+			btnSend.setText(Constant.messages.getString("manReq.button.send"));
 			btnSend.setEnabled(isSendEnabled);
-			btnSend.addActionListener(new java.awt.event.ActionListener() {
+			btnSend.addActionListener(new ActionListener() {
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+				public void actionPerformed(ActionEvent e) {
+					btnSend.setEnabled(false);
+					
+					// save current message (i.e. set payload/body)
+					getRequestPanel().saveData();
+					
+					Mode mode = Control.getSingleton().getMode();
+					if (mode.equals(Mode.safe)) {
+						// Can happen if the user turns on safe mode with the dialog open
+						View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.safe.warning"));
+						btnSend.setEnabled(true);
+						return;
+					} else if (mode.equals(Mode.protect)) {
+						if (!getMessage().isInScope()) {
+							// In protected mode and not in scope, so fail
+							View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.outofscope.warning"));
+							btnSend.setEnabled(true);
+							return;
+						}
+					}
+					
 					btnSendAction();
 				}
 			});
 		}
 		return btnSend;
 	}
-    /**
-     * Get Label status time lapse
-     * @return
-     */
-	private JLabel getLabelTimeLapse(){
-		if (labelTimeElapse==null){
-			labelTimeElapse = new JLabel("", JLabel.LEADING);
-		}
-		return labelTimeElapse;
-	}
-	 /**
-     * Get Label status Content Length
-     * @return
-     */
-	private JLabel getLabelContentLength(){
-		if (labelContentLength==null){
-			labelContentLength = new JLabel("", JLabel.LEADING);
-		}
-		return labelContentLength;
-	}
-	 /**
-     * Get Label status Total Length
-     * @return
-     */
-	private JLabel getLabelTotalLength(){
-		if (labelTotalLength==null){
-			labelTotalLength = new JLabel("", JLabel.LEADING);
-		}
-		return labelTotalLength;
-	}
-	private void btnSendAction() {
-		btnSend.setEnabled(false);
-
-		// Save current Message
-		requestPanel.saveData();
-
-		// Send Request, Receive Response
-		if (Control.getSingleton().getMode().equals(Mode.safe)) {
-			// Can happen if the user turns on safe mode with the dialog open
-			View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.safe.warning"));
-			btnSend.setEnabled(true);
-			return;
-		} else if (Control.getSingleton().getMode().equals(Mode.protect)) {
-			if (! requestPanel.getMessage().isInScope()) {
-				// In protected mode and not in scope, so fail
-				View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.outofscope.warning"));
-				btnSend.setEnabled(true);
-				return;
-			}
-		}
-		send(requestPanel.getMessage());
-
-		// redraw request, as it could have changed
-		requestPanel.updateContent();
-		
-	}
-
-	/**
-	 * Return the footer status bar object
-	 * @return
-	 */
-	private JToolBar getFooterStatusBar() {
-		if (footerToolbar == null) {
-			footerToolbar = new JToolBar();
-			footerToolbar.setEnabled(true);
-			footerToolbar.setFloatable(false);
-			footerToolbar.setRollover(true);
-			footerToolbar.setName("Footer Toolbar Left");
-			footerToolbar.setBorder(BorderFactory.createEtchedBorder());
-		}
-		return footerToolbar;
-	}
 	
 	/**
-	 * Set footer status bar
-	 * @param msg
+	 * Do not forget to enable the send button again i
 	 */
-	private void setFooterStatus(HttpMessage msg){
-		if (msg != null) {
-			//get values
-			long contentLength = msg.getResponseBody().length();
-			long totalLength = msg.getResponseHeader().toString().length() + contentLength;
-			long timeLapse =msg.getTimeElapsedMillis(); 
-			// show time lapse and content length between request and response Constant.messages.getString("manReq.label.timeLapse")
-			getLabelTimeLapse().setText(
-					Constant.messages.getString("manReq.label.timeLapse") + String.valueOf(timeLapse) + " ms"); 
-			getLabelContentLength().setText(
-					Constant.messages.getString("manReq.label.contentLength") + String.valueOf(contentLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
-			getLabelTotalLength().setText(
-					Constant.messages.getString("manReq.label.totalLength") + String.valueOf(totalLength) + " " + Constant.messages.getString("manReq.label.totalLengthBytes"));
-		} else {
-			getLabelTimeLapse().setText(Constant.messages.getString("manReq.label.timeLapse")); 
-			getLabelContentLength().setText(Constant.messages.getString("manReq.label.contentLength"));
-			getLabelTotalLength().setText(Constant.messages.getString("manReq.label.totalLength"));
-		}
+	abstract protected void btnSendAction();
+
+	protected void send(final Message aMessage) {
+        final Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                	getMessageSender().handleSendMessage(aMessage);                    
+                    postSend();
+                } catch (Exception e) {
+                	logger.warn(e.getMessage(), e);
+                    View.getSingleton().showWarningDialog(e.getMessage());
+                } finally {
+                    btnSend.setEnabled(true);
+                }
+            }
+        });
+		t.setPriority(Thread.NORM_PRIORITY);
+		t.start();
 	}
 
-	private void send(final Message aMessage) {
-	    final MessageSender sender = mapMessageSenders.get(aMessage.getClass());
-	    if (sender != null) {
-	        final Thread t = new Thread(new Runnable() {
-	            @Override
-	            public void run() {
-	                try {
-	                    sender.handleSendMessage(aMessage);
-	                    // FIXME change to the HttpPanelSender
-                        switchToTab(1);
-                        
-                        setFooterStatus((HttpMessage) getResponsePanel().getMessage());
-	                } catch (Exception e) {
-	                    extension.getView().showWarningDialog(e.getMessage());
-                    } finally {
-                        btnSend.setEnabled(true);
-                    }
-	            }
-            });
-			t.setPriority(Thread.NORM_PRIORITY);
-			t.start();
-	    }
-	}
-
-	private void switchToTab(int i) {
-		if (requestResponsePanel != null) {
-			requestResponsePanel.switchToTab(i);
-		}
+	protected void postSend() {
+		// redraw, as message may have changed after sending
+		getRequestPanel().updateContent();
 	}
 	
-	private void saveConfig() {
-		requestResponsePanel.saveConfig();
-	}
+	abstract protected void saveConfig();
 
-	private static final class RequestResponsePanel extends JPanel {
-		
-		private static final String REQUEST_CAPTION = Constant.messages.getString("manReq.tab.request");
-		private static final String RESPONSE_CAPTION = Constant.messages.getString("manReq.tab.response");
-
-		private static final String TABS_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.tabs");
-		private static final String ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.above");
-		private static final String SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("manReq.display.sidebyside");
-		
-		private static final String SELECTEDLAYOUT_CONFIG_KEY = "selectedlayout";
-		private static final String HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY = "horizontalDividerLocation";
-		private static final String VERTICAL_DIVIDER_LOCATION_CONFIG_KEY = "verticalDividerLocation";
-
-		private static final long serialVersionUID = -3335708932021769432L;
-		
-		private static final int TABS_VIEW = 0;
-		private static final int ABOVE_VIEW = 1;
-		private static final int SIDE_BY_SIDE_VIEW = 2;
-		
-		private final HttpPanelRequest requestPanel;
-		private final HttpPanelResponse responsePanel;
-		
-		private int currentView;
-		private JComponent currentViewPanel;
-		private JToggleButton currentButtonView;
-		
-		private JToggleButton tabsButtonView;
-		private JToggleButton aboveButtonView;
-		private JToggleButton sideBySideButtonView;
-		
-		private String configurationKey;
-		
-		private int verticalDividerLocation;
-		private int horizontalDividerLocation;
-		
-		public RequestResponsePanel(String configurationKey, HttpPanelRequest request, HttpPanelResponse response) throws IllegalArgumentException {
-			super(new BorderLayout());
-			if (request == null || response == null) {
-				throw new IllegalArgumentException("The request and response panels cannot be null.");
-			}
-			
-			
-			this.configurationKey = configurationKey;
-
-			this.requestPanel = request;
-			this.responsePanel = response;
-			
-			this.currentView = -1;
-			
-			tabsButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_tabbed.png")));
-			tabsButtonView.setToolTipText(TABS_VIEW_TOOL_TIP);
-			
-			tabsButtonView.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeView(TABS_VIEW);
-				}
-			});
-			
-			addToolbarButton(tabsButtonView);
-			
-			aboveButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_vertical_split.png")));
-			aboveButtonView.setToolTipText(ABOVE_VIEW_TOOL_TIP);
-			
-			aboveButtonView.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeView(ABOVE_VIEW);
-				}
-			});
-			
-			addToolbarButton(aboveButtonView);
-			
-			sideBySideButtonView = new JToggleButton(new ImageIcon(ManualRequestEditorDialog.class.getResource("/resource/icon/layout_horizontal_split.png")));
-			sideBySideButtonView.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
-			
-			sideBySideButtonView.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeView(SIDE_BY_SIDE_VIEW);
-				}
-			});
-			
-			addToolbarButton(sideBySideButtonView);
-		}
-		
-		public void loadConfig() {
-			verticalDividerLocation = Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, -1);
-			horizontalDividerLocation = Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, -1);
-			
-			changeView(Model.getSingleton().getOptionsParam().getConfig().getInt(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, TABS_VIEW));
-			
-			requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-			responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-		}
-		
-		public void saveConfig() {
-			switch(currentView) {
-			case ABOVE_VIEW:
-				verticalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
-				break;
-			case SIDE_BY_SIDE_VIEW:
-				horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
-				break;
-			default:
-			}
-			
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(verticalDividerLocation));
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(horizontalDividerLocation));
-			
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, Integer.valueOf(currentView));
-			
-			requestPanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
-			responsePanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
-		}
-
-		public void addToolbarButton(JToggleButton button) {
-			requestPanel.addOptions(button, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-		}
-		
-		public void addSeparator() {
-			requestPanel.addOptionsSeparator();
-		}
-		
-		public void addEndButton(JButton button) {
-			requestPanel.addOptions(button, HttpPanel.OptionsLocation.END);
-		}
-
-		public void switchToTab(int i) {
-			if (currentView == TABS_VIEW) {
-				((JTabbedPane) currentViewPanel).setSelectedIndex(i);
-			}
-		}
-
-		public void changeView(int newView) {
-			if (newView != currentView) {
-				final int oldView = currentView;
-				currentView = newView;
-				
-				if (oldView != -1) {
-					this.removeAll();
-					currentButtonView.setSelected(false);
-					
-					switch(oldView) {
-					case ABOVE_VIEW:
-						verticalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
-						break;
-					case SIDE_BY_SIDE_VIEW:
-						horizontalDividerLocation = ((JSplitPane)currentViewPanel).getDividerLocation();
-						break;
-					default:
-					}
-				}
-				
-				switch (newView) {
-				case TABS_VIEW:
-					switchToTabsView();
-					break;
-				case ABOVE_VIEW:
-					switchToAboveView();
-					break;
-				case SIDE_BY_SIDE_VIEW:
-					switchToSideBySideView();
-					break;
-				default:
-					switchToTabsView();
-					break;
-				}
-				
-				currentButtonView.setSelected(true);
-				
-				this.add(currentViewPanel);
-				
-				this.validate();
-				this.repaint();
-			}
-		}
-		
-		private void switchToTabsView() {
-			currentView = TABS_VIEW;
-			currentButtonView = tabsButtonView;
-			
-			final JTabbedPane tabbedPane = new JTabbedPane();
-			tabbedPane.addTab(REQUEST_CAPTION, null, requestPanel, null);
-			tabbedPane.addTab(RESPONSE_CAPTION, null, responsePanel, null);
-			tabbedPane.setSelectedIndex(0);
-			
-			currentViewPanel = tabbedPane;
-		}
-		
-		private void switchToAboveView() {
-			currentView = ABOVE_VIEW;
-			currentButtonView = aboveButtonView;
-			
-			currentViewPanel = createSplitPane(JSplitPane.VERTICAL_SPLIT);
-		}
-		
-		private void switchToSideBySideView() {
-			currentView = SIDE_BY_SIDE_VIEW;
-			currentButtonView = sideBySideButtonView;
-			
-			currentViewPanel = createSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		}
-		
-		private JSplitPane createSplitPane(int orientation) {
-			final JTabbedPane tabbedPaneRequest = new JTabbedPane();
-			tabbedPaneRequest.addTab(REQUEST_CAPTION, null, requestPanel, null);
-
-			final JTabbedPane tabbedPaneResponse = new JTabbedPane();
-			tabbedPaneResponse.addTab(RESPONSE_CAPTION, null, responsePanel, null);
-			
-			final JSplitPane splitPane = new JSplitPane(orientation, tabbedPaneRequest, tabbedPaneResponse);
-			splitPane.setDividerSize(3);
-			splitPane.setResizeWeight(0.5d);
-			splitPane.setContinuousLayout(false);
-			splitPane.setDoubleBuffered(true);
-			
-			int dividerLocation;
-			if (orientation == JSplitPane.HORIZONTAL_SPLIT) {
-				dividerLocation = horizontalDividerLocation;
-			} else {
-				dividerLocation = verticalDividerLocation;
-			}
-			splitPane.setDividerLocation(dividerLocation);
-			
-			return splitPane;
-		}
-
-	}
+	abstract protected HttpPanelRequest getRequestPanel();
 }

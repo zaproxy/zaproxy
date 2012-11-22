@@ -45,11 +45,10 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class PopupMenuResend extends ExtensionPopupMenuItem {
 
-    private ExtensionHistory extension = null;
+	private static final long serialVersionUID = 2598282233227430069L;
+	
+	private ExtensionHistory extension = null;
     
-    /**
-     * 
-     */
     public PopupMenuResend() {
         super();
  		initialize();
@@ -61,10 +60,7 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
     public PopupMenuResend(String label) {
         super(label);
     }
-
-	/**
-	 * This method initializes this
-	 */
+    
 	private void initialize() {
         this.setText(Constant.messages.getString("history.resend.popup"));	// ZAP: i18n
 

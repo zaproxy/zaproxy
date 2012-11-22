@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.websocket.ui.httppanel.models;
 
 import java.nio.charset.Charset;
 
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.AbstractWebSocketBytePanelViewModel;
 
 public class ByteWebSocketPanelViewModel extends AbstractWebSocketBytePanelViewModel {
@@ -40,10 +41,18 @@ public class ByteWebSocketPanelViewModel extends AbstractWebSocketBytePanelViewM
 
 	@Override
 	public void setData(byte[] data) {
-		if (webSocketMessage.payload instanceof String) {
-			webSocketMessage.payload = new String(data, Charset.forName("UTF-8"));
-		} else if (webSocketMessage.payload instanceof byte[]) {
-			webSocketMessage.payload = data;
+		if (webSocketMessage.opcode != null) {
+			if (webSocketMessage.opcode == WebSocketMessage.OPCODE_BINARY) {
+				webSocketMessage.payload = data;
+			} else {
+				webSocketMessage.payload = new String(data, Charset.forName("UTF-8"));
+			}
+		} else {
+			if (webSocketMessage.payload instanceof String) {
+				webSocketMessage.payload = new String(data, Charset.forName("UTF-8"));
+			} else if (webSocketMessage.payload instanceof byte[]) {
+				webSocketMessage.payload = data;
+			}
 		}
 	}
 }

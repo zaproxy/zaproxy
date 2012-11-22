@@ -29,14 +29,10 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 
-/*
- *
- */
-
 public class HttpPanelRequest extends HttpPanel {
 	private static final long serialVersionUID = 1L;
 	
-	private JComboBox<String> comboChangeMethod;
+	protected JComboBox<String> comboChangeMethod;
 	
 	private static final String REQUEST_KEY = "request.";
 	
@@ -68,8 +64,7 @@ public class HttpPanelRequest extends HttpPanel {
 		}
 	}
 	
-	//	private JComboBox getComboChangeMethod() {
-	private void initComboChangeMethod() {
+	protected void initComboChangeMethod() {
 		if (comboChangeMethod == null) {
 			comboChangeMethod = new JComboBox<>();
 			comboChangeMethod.setEditable(false);

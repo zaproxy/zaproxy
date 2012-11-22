@@ -207,7 +207,6 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         }
         
         boolean switchView = true;
-        String componentName = null;
         if (currentComponent != null && enabledComponents.contains(components.get(currentComponent.getName()))) {
             switchView = false;
         }
@@ -215,10 +214,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         this.validate();
         
         if (switchView) {
-            if (componentName == null) {
-                componentName = enabledComponents.get(0).getName();
-            }
-            switchComponent(componentName);
+            switchComponent(enabledComponents.get(0).getName());
         } else {
             updateContent();
         }

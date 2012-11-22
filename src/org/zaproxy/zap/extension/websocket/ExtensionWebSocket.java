@@ -44,6 +44,7 @@ import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
+import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -66,12 +67,15 @@ import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
+import org.zaproxy.zap.extension.websocket.manualsend.ManualWebSocketSendEditorDialog;
+import org.zaproxy.zap.extension.websocket.manualsend.WebSocketPanelSender;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.PopupExcludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.PopupIncludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
+import org.zaproxy.zap.extension.websocket.ui.ResendWebSocketMessageMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.component.WebSocketComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
@@ -80,7 +84,7 @@ import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketSyntaxHig
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadUtil;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadView;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargetPayloadViewModel;
-import org.zaproxy.zap.extension.websocket.utility.Pair;
+import org.zaproxy.zap.utils.Pair;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
@@ -156,7 +160,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public ExtensionWebSocket() {
 		super(NAME);
 		
-		// should be initialized after ExtensionBreak (24) & ExtensionFilter (8)
+		// should be initialized after ExtensionBreak (24) and
+		// ExtensionFilter (8) and ManualRequestEditor (36)
 		setOrder(150);
 	}
 	
@@ -263,6 +268,21 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			
 			// setup Workpanel (window containing Request, Response & Break tab)
 			initializeWebSocketsForWorkPanel();
+			
+			// setup manualrequest extension
+			ExtensionManualRequestEditor extManReqEdit = (ExtensionManualRequestEditor) extLoader
+					.getExtension(ExtensionManualRequestEditor.NAME);
+			if (extManReqEdit != null) {
+				WebSocketPanelSender sender = new WebSocketPanelSender();
+				addAllChannelObserver(sender);
+				
+				ManualWebSocketSendEditorDialog sendDialog = createManualSendDialog(sender);
+				extManReqEdit.addManualSendEditor(sendDialog);
+				extensionHook.getHookMenu().addToolsMenuItem(sendDialog.getMenuItem());
+				
+				// add 'Resend Message' menu item to WebSocket tab context menu
+				hookMenu.addPopupMenuItem(new ResendWebSocketMessageMenuItem(createReSendDialog(sender)));
+			}
 		}
 	}
 
@@ -593,8 +613,8 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		
 		WebSocketChannelDTO channel = wsProxy.getDTO();
 		for (Pair<String, Integer> regex : storageBlacklist) {
-			if (regex.x == null || channel.host.matches(regex.x)) {
-				if (regex.y == null || channel.port.equals(regex.y)) {
+			if (regex.first == null || channel.host.matches(regex.first)) {
+				if (regex.second == null || channel.port.equals(regex.second)) {
 					// match found => should go onto storage blacklist
 					return true;
 				}
@@ -794,11 +814,12 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         
         @Override
         public boolean matchToDefaultView(Message aMessage) {
-            if (aMessage instanceof WebSocketMessageDTO) {
-                WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
-                
-                return (msg.opcode == WebSocketMessage.OPCODE_BINARY);
-            }
+        	// use hex view only when previously selected
+//            if (aMessage instanceof WebSocketMessageDTO) {
+//                WebSocketMessageDTO msg = (WebSocketMessageDTO)aMessage;
+//                
+//                return (msg.opcode == WebSocketMessage.OPCODE_BINARY);
+//            }
             return false;
         }
 
@@ -917,5 +938,31 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
         	// has to come before HexDefaultViewSelector
             return 15;
         }
+	}
+
+	/**
+	 * This method initializes the dialog for crafting custom messages.
+	 * 
+	 * @param sender
+	 * 
+	 * @return
+	 */
+	private ManualWebSocketSendEditorDialog createManualSendDialog(WebSocketPanelSender sender) {
+		ManualWebSocketSendEditorDialog sendDialog = new ManualWebSocketSendEditorDialog(getWebSocketPanel().getChannelsModel(), sender, true, "websocket.manual_send");
+		sendDialog.setTitle(Constant.messages.getString("websocket.manual_send.menu"));
+		return sendDialog;
+	}
+	
+	/**
+	 * This method initializes the re-send WebSocket message dialog.
+	 * 
+	 * @param sender
+	 * 
+	 * @return
+	 */    
+	private ManualWebSocketSendEditorDialog createReSendDialog(WebSocketPanelSender sender) {
+		ManualWebSocketSendEditorDialog	resendDialog = new ManualWebSocketSendEditorDialog(getWebSocketPanel().getChannelsModel(), sender, true, "websocket.manual_resend");
+		resendDialog.setTitle(Constant.messages.getString("websocket.manual_send.popup"));
+		return resendDialog;
 	}
 }
