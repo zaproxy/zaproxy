@@ -32,6 +32,7 @@
 // ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
+// ZAP: 2012/11/22 Issue 421: Cleanly shut down any active scan threads on shutdown
 
 package org.parosproxy.paros.core.scanner;
 
@@ -101,7 +102,7 @@ public class HostProcess implements Runnable {
         getAnalyser().start(startNode);
         
         Plugin plugin = null;
-        while (!isStop && getPluginFactory().existPluginToRun()) {
+        while (!isStop() && getPluginFactory().existPluginToRun()) {
             plugin = getPluginFactory().nextPlugin();
             if (plugin != null) {
             	plugin.setDelayInMs(this.scannerParam.getDelayInMs());
@@ -303,7 +304,7 @@ public class HostProcess implements Runnable {
 	void pluginCompleted(Plugin plugin) {
 	    Object obj = mapPluginStartTime.get(Long.valueOf(plugin.getId()));
 	    StringBuilder sb = new StringBuilder();
-	    if (isStop) {
+	    if (isStop()) {
 	        sb.append("stopped host/plugin ");
 	    } else {
 	        sb.append("completed host/plugin "); 

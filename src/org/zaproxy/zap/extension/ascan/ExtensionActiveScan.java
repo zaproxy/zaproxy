@@ -359,7 +359,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	@Override
-	public void sessionAboutToChange(Session session) {
+	public void sessionAboutToChange(final Session session) {
+		// Shut all of the scans down
+		this.getActiveScanPanel().reset();
 	}
 
 	@Override
@@ -389,5 +391,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		this.getActiveScanPanel().sessionModeChanged(mode);
+	}
+	@Override
+    public void destroy() {
+		// Shut all of the scans down
+		this.getActiveScanPanel().reset();
 	}
 }
