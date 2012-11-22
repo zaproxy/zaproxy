@@ -45,13 +45,14 @@ import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
-public class CoreAPI extends ApiImplementor {
+public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private static Logger log = Logger.getLogger(CoreAPI.class);
 
@@ -69,6 +70,7 @@ public class CoreAPI extends ApiImplementor {
 	private static final String ACTION_SESSION_PARAM_NAME = "name";
 
 	private Logger logger = Logger.getLogger(this.getClass());
+	private boolean savingSession = false;
 
 	public CoreAPI() {
 
@@ -112,19 +114,42 @@ public class CoreAPI extends ApiImplementor {
 			if (!sessionName.endsWith(".session")) {
 				sessionName = sessionName + ".session";
 			}
-			String filename = Model.getSingleton().getOptionsParam()
-					.getUserDirectory()
-					+ File.separator + sessionName;
-			if (new File(filename).exists()) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+			
+			File file = new File(sessionName);
+			String filename = file.getAbsolutePath();
+			
+			if (! sessionName.equals(filename)) {
+				// Treat as a relative path
+				filename = Model.getSingleton().getOptionsParam()
+						.getUserDirectory()
+						+ File.separator + sessionName;
+				file = new File(filename);
+			} 
+			
+			if (file.exists()) {
+				throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 						filename);
 			}
+			this.savingSession = true;
 			try {
-		    	Control.getSingleton().saveSession(filename);
+		    	Control.getSingleton().saveSession(filename, this);
 			} catch (Exception e) {
+				this.savingSession = false;
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						e.getMessage());
 			}
+			// Wait for notification that its worked ok
+			try {
+				while (this.savingSession) {
+						Thread.sleep(200);
+				}
+			} catch (InterruptedException e) {
+				// Probably not an error
+				logger.debug(e.getMessage(), e);
+			}
+			logger.debug("Can now return after saving session");
+			
+			
 		} else if (ACTION_LOAD_SESSION.equals(name)) {
 			String sessionName = params.getString(ACTION_SESSION_PARAM_NAME);
 			if (sessionName == null || sessionName.length() == 0) {
@@ -134,12 +159,20 @@ public class CoreAPI extends ApiImplementor {
 			if (!sessionName.endsWith(".session")) {
 				sessionName = sessionName + ".session";
 			}
-			String filename = Model.getSingleton().getOptionsParam()
-					.getUserDirectory()
-					+ File.separator + sessionName;
-			if (!new File(filename).exists()) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
-						filename);
+			
+			File file = new File(sessionName);
+			String filename = file.getAbsolutePath();
+
+			if (! sessionName.equals(filename)) {
+				// Treat as a relative path
+				filename = Model.getSingleton().getOptionsParam()
+						.getUserDirectory()
+						+ File.separator + sessionName;
+				file = new File(filename);
+			} 
+
+			if (!file.exists()) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, filename);
 			}
 			try {
 				Control.getSingleton().runCommandLineOpenSession(filename);
@@ -165,11 +198,19 @@ public class CoreAPI extends ApiImplementor {
 				if (!sessionName.endsWith(".session")) {
 					sessionName = sessionName + ".session";
 				}
-				String filename = Model.getSingleton().getOptionsParam()
-						.getUserDirectory()
-						+ File.separator + sessionName;
-				if (new File(filename).exists()) {
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+				File file = new File(sessionName);
+				String filename = file.getAbsolutePath();
+				
+				if (! sessionName.equals(filename)) {
+					// Treat as a relative path
+					filename = Model.getSingleton().getOptionsParam()
+							.getUserDirectory()
+							+ File.separator + sessionName;
+					file = new File(filename);
+				} 
+				
+				if (file.exists()) {
+					throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 							filename);
 				}
 				try {
@@ -399,6 +440,17 @@ public class CoreAPI extends ApiImplementor {
 	public HttpMessage handleApiOther(HttpMessage msg, String name,
 			JSONObject params) throws ApiException {
 		throw new ApiException(ApiException.Type.BAD_OTHER);
+	}
+
+	@Override
+	public void sessionOpened(File file, Exception e) {
+		// Ignore
+	}
+
+	@Override
+	public void sessionSaved(Exception e) {
+		logger.debug("Saved session notification");
+		this.savingSession = false;
 	}
 
 }
