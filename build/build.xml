@@ -174,7 +174,9 @@
 			</zipfileset>
 			<manifest>
 				<attribute name="Implementation-Version" value="${version}" />
-			</manifest>
+                <attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
+                <attribute name="Class-Path" value="${dist.manifest.classpath}" />
+            </manifest>
 		</jar>
 	</target>
 	

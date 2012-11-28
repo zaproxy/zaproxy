@@ -1,10 +1,10 @@
 package org.zaproxy.clientapi.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.zaproxy.clientapi.core.Alert.Reliability;
 import org.zaproxy.clientapi.core.Alert.Risk;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Test {
 

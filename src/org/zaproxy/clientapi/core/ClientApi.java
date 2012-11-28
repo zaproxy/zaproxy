@@ -19,7 +19,11 @@
  */
 package org.zaproxy.clientapi.core;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -27,10 +31,10 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import static org.junit.Assert.fail;
 
 /*
  * TODO - these are more for zap testing :)
@@ -111,74 +115,103 @@ public class ClientApi {
 	}
 
 	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws Exception {
-		List<Alert> reportAlerts = new ArrayList<>();
-		JSONArray response = JSONArray.fromObject(openUrlViaProxy(proxy, "http://zap/json/core/view/alerts").toString());
-		if (response != null && response.size() == 1 && response.get(0) instanceof JSONArray) {
-			JSONArray alerts = (JSONArray)response.get(0);
-			Object[] alertObjs = alerts.toArray();
-			for (Object alertObj : alertObjs) {
-				boolean ignore = false;
-				Alert foundAlert = new Alert((JSONObject) alertObj);
-				
-				if (ignoreAlerts != null) {
-					for (Alert ignoreAlert : ignoreAlerts) {
-						if (foundAlert.matches(ignoreAlert)) {
-							if (debug) {
-								System.out.println("Ignoring alert " + ignoreAlert);
-							}
-							ignore = true;
-							break;
-						}
-					}
-				}
-				if (! ignore) {
-					reportAlerts.add(foundAlert);
-				}
-				if (requireAlerts != null) {
-					for (Alert requireAlert : requireAlerts) {
-						if (foundAlert.matches(requireAlert)) {
-							if (debug) {
-								System.out.println("Found alert " + foundAlert);
-							}
-							requireAlerts.remove(requireAlert);
-							// Remove it from the not-ignored list as well
-							reportAlerts.remove(foundAlert);
-							break;
-						}
-					}
-				}
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		if (reportAlerts.size() > 0) {
-			sb.append("Found ").append(reportAlerts.size()).append(" alerts\n");
-			for (Alert alert: reportAlerts) {
-				sb.append('\t');
-				sb.append(alert.toString());
-				sb.append('\n');
-			}
-		}
-		if (requireAlerts != null && requireAlerts.size() > 0) {
-			if (sb.length() > 0) {
-				sb.append('\n');
-			}
-			sb.append("Not found ").append(requireAlerts.size()).append(" alerts\n");
-			for (Alert alert: requireAlerts) {
-				sb.append('\t');
-				sb.append(alert.toString());
-				sb.append('\n');
-			}
-		}
-		if (sb.length() > 0) {
-			if (debug) {
-				System.out.println("Failed: " + sb.toString());
-			}
-			throw new Exception (sb.toString());
-		}
+        HashMap<String,List<Alert>> results = checkForAlerts(ignoreAlerts, requireAlerts);
+        verifyAlerts(results.get("requireAlerts"), results.get("reportAlerts"));
 	}
-	
-	private List<String> openUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
-		List<String> response = new ArrayList<>();
+
+    private void verifyAlerts(List<Alert> requireAlerts, List<Alert> reportAlerts) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        if (reportAlerts.size() > 0) {
+            sb.append("Found ").append(reportAlerts.size()).append(" alerts\n");
+            for (Alert alert: reportAlerts) {
+                sb.append('\t');
+                sb.append(alert.toString());
+                sb.append('\n');
+            }
+        }
+        if (requireAlerts != null && requireAlerts.size() > 0) {
+            if (sb.length() > 0) {
+                sb.append('\n');
+            }
+            sb.append("Not found ").append(requireAlerts.size()).append(" alerts\n");
+            for (Alert alert: requireAlerts) {
+                sb.append('\t');
+                sb.append(alert.toString());
+                sb.append('\n');
+            }
+        }
+        if (sb.length() > 0) {
+            if (debug) {
+                System.out.println("Failed: " + sb.toString());
+            }
+            throw new Exception (sb.toString());
+        }
+    }
+
+    public void checkAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts, File outputFile) throws Exception {
+        HashMap<String,List<Alert>> results = checkForAlerts(ignoreAlerts, requireAlerts);
+        int alertsFound = results.get("reportAlerts").size();
+        int alertsNotFound = results.get("requireAlerts").size();
+        int alertsIgnored = results.get("ignoredAlerts").size();
+        String resultsString = String.format("Alerts Found: %d, Alerts required but not found: %d, Alerts ignored: %d", alertsFound, alertsNotFound, alertsIgnored);
+        AlertsFile.saveAlertsToFile(results.get("requireAlerts"), results.get("reportAlerts"), results.get("ignoredAlerts"), outputFile);
+        if (alertsFound>0 || alertsNotFound>0){
+            fail("Check Alerts Failed!\n"+resultsString);
+        }else{
+            System.out.println("Check Alerts Passed!\n" + resultsString);
+        }
+    }
+
+    private HashMap<String, List<Alert>> checkForAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws Exception {
+        List<Alert> reportAlerts = new ArrayList<Alert>();
+        List<Alert> ignoredAlerts = new ArrayList<Alert>();
+        JSONArray response = JSONArray.fromObject(openUrlViaProxy(proxy, "http://zap/json/core/view/alerts").toString());
+        if (response != null && response.size() == 1 && response.get(0) instanceof JSONArray) {
+            JSONArray alerts = (JSONArray)response.get(0);
+            Object[] alertObjs = alerts.toArray();
+            for (Object alertObj : alertObjs) {
+                boolean ignore = false;
+                Alert foundAlert = new Alert((JSONObject) alertObj);
+
+                if (ignoreAlerts != null) {
+                    for (Alert ignoreAlert : ignoreAlerts) {
+                        if (foundAlert.matches(ignoreAlert)) {
+                            if (debug) {
+                                System.out.println("Ignoring alert " + ignoreAlert);
+                            }
+                            ignoredAlerts.add(foundAlert);
+                            ignore = true;
+                            break;
+                        }
+                    }
+                }
+                if (! ignore) {
+                    reportAlerts.add(foundAlert);
+                }
+                if (requireAlerts != null) {
+                    for (Alert requireAlert : requireAlerts) {
+                        if (foundAlert.matches(requireAlert)) {
+                            if (debug) {
+                                System.out.println("Found alert " + foundAlert);
+                            }
+                            requireAlerts.remove(requireAlert);
+                            // Remove it from the not-ignored list as well
+                            reportAlerts.remove(foundAlert);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        HashMap<String, List<Alert>> results = new HashMap<String, List<Alert>>();
+        results.put("reportAlerts", reportAlerts);
+        results.put("requireAlerts", requireAlerts);
+        results.put("ignoredAlerts", ignoredAlerts);
+        return results;
+    }
+
+    private List<String> openUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
+		List<String> response = new ArrayList<String>();
 		URL url = new URL(apiurl);
 		if (debug) {
 			System.out.println("Open URL: " + apiurl);
