@@ -523,6 +523,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * .HttpMessage, int) */
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
+		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR) {
+			// Not a session we care about
+			return;
+		}
+		
 		// Check if we know the site and add it otherwise
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
@@ -530,8 +535,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		this.getHttpSessionsPanel().addSite(site);
 
 		// Check if it's enabled for proxy only
-		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
+		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR) {
 			return;
+		}
 
 		// Check for default tokens set in response messages
 		List<HttpCookie> responseCookies = msg.getResponseHeader().getHttpCookies();
