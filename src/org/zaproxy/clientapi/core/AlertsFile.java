@@ -20,7 +20,7 @@ public class AlertsFile {
         alertsDocument.setRootElement(alerts);
         if (reportAlerts.size() > 0){
             Element alertsFound = new Element("alertsFound");
-            alertsFound.setAttribute("Alerts_Found", ""+reportAlerts.size());
+            alertsFound.setAttribute("alertsFound", Integer.toString(reportAlerts.size()));
             for (Alert alert : reportAlerts){
                createAlertXMLElements(alertsFound, alert);
             }
@@ -29,7 +29,7 @@ public class AlertsFile {
 
         if (requireAlerts.size() > 0){
             Element alertsNotFound = new Element("alertsNotFound");
-            alertsNotFound.setAttribute("Alerts_Not_Found", ""+requireAlerts.size());
+            alertsNotFound.setAttribute("alertsNotFound", Integer.toString(requireAlerts.size()));
             for (Alert alert : requireAlerts){
                 createAlertXMLElements(alertsNotFound, alert);
             }
@@ -38,7 +38,7 @@ public class AlertsFile {
 
         if (ignoredAlerts.size() > 0){
             Element ignoredAlertsFound = new Element("ignoredAlertsFound");
-            ignoredAlertsFound.setAttribute("ignoredAlertsFound", ""+ignoredAlerts.size());
+            ignoredAlertsFound.setAttribute("ignoredAlertsFound", Integer.toString(ignoredAlerts.size()));
             for (Alert alert : ignoredAlerts){
                 createAlertXMLElements(ignoredAlertsFound, alert);
             }
@@ -46,21 +46,6 @@ public class AlertsFile {
         }
 
         writeAlertsToFile(outputFile, alertsDocument);
-    }
-
-    private static Document getDocument(File outputFile) throws JDOMException, IOException {
-        Element alerts;
-        Document alertsDocument;
-        if(outputFile.exists()){
-            SAXBuilder saxBuilder = new SAXBuilder();
-            alertsDocument = (Document)saxBuilder.build(outputFile);
-            alerts = alertsDocument.getRootElement();
-        }else{
-            alerts = new Element("alerts");
-            alertsDocument = new Document(alerts);
-            alertsDocument.setRootElement(alerts);
-        }
-        return alertsDocument;
     }
     
     private static void writeAlertsToFile(File outputFile, Document doc) {
@@ -102,7 +87,7 @@ public class AlertsFile {
     }
 
     public static List<Alert> getAlertsFromFile(File file, String alertType) throws JDOMException, IOException {
-        List<Alert> alerts =  new ArrayList<Alert>();
+        List<Alert> alerts =  new ArrayList<>();
         SAXBuilder parser = new SAXBuilder();
         Document alertsDoc = parser.build(file);
         @SuppressWarnings("unchecked")

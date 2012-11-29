@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class ClientApiMain {
 
-    private HashMap<String, Object> params = new HashMap<String, Object>();
+    private HashMap<String, Object> params = new HashMap<>();
     private String zapaddr = "localhost";
     private int zapport = 8090;
     private Task task;
@@ -181,9 +181,10 @@ public class ClientApiMain {
                                 "1. Type 'java -jar zap-api.jar checkAlerts alertsFile=\"C:\\Users\\me\\My Documents\\alerts.xml\"' \n\t\t" +
                                     "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile, using zap listening on localhost:8090\n\t" +
                                 "2. Type 'java -jar zap-api.jar checkAlerts alertsFile=\"C:\\Users\\me\\My Documents\\alerts.xml\" outputFile=\"C:\\Users\\me\\My Documents\\report.xml\"' \n\t\t" +
-                                    "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile. Ouputting results to report.xml, using zap listening on localhost:8090\n\t" +
+                                    "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile. Outputting results to report.xml, using zap listening on localhost:8090\n\t" +
                                 "3. Type 'java -jar zap-api.jar checkAlerts alertsFile=\"C:\\Users\\me\\My Documents\\alerts.xml\" outputFile=\"C:\\Users\\me\\My Documents\\report.xml\"' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
-                                    "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile. Ouputting results to report.xml, using zap listening on 192.168.1.1:7080\nNote: for paths containing spaces ensure path is encolsed in quotes\n\n";
+                                    "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile. Outputting results to report.xml, using zap listening on 192.168.1.1:7080\n" +
+                            "Note: for paths containing spaces ensure path is enclosed in quotes\n\n";
                     break;
                 case saveSession:
                     help = "usage: saveSession sessionName={PATH} [zapaddr={ip}] [zapport={port}]\n\n" +
@@ -191,7 +192,7 @@ public class ClientApiMain {
                                 "1. Type 'java -jar zap-api.jar saveSession sessionName=\"Users/me/My Documents/mysession/mysessionfile\"' \n\t\t" +
                                     "Save zap session using zap listening on localhost:8090\n\t" +
                                 "2. Type 'java -jar zap-api.jar saveSession sessionName=\"Users/me/My Documents/mysession/mysessionfile\" zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
-                                    "Save zap session using zap listening on 192.168.1.1:7080\nNote: for paths containing spaces ensure path is encolsed in quotes\n\n";
+                                    "Save zap session using zap listening on 192.168.1.1:7080\nNote: for paths containing spaces ensure path is enclosed in quotes\n\n";
                     break;
                 case newSession:
                     help = "usage: newSession [sessionName={PATH}] [zapaddr={ip}] [zapport={port}]\n\n" +
@@ -204,7 +205,7 @@ public class ClientApiMain {
                                     "Start new session using zap listening on localhost:8090, creating session files at /Users/me/My Documents/mysession/newsession\n\t" +
                                 "4. Type 'java -jar zap-api.jar newSession sessionName=\"Users/me/My Documents/mysession/mysessionfile\" zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
                                     "Start new session using zap listening on 192.168.1.1:7080, creating session files at /Users/me/My Documents/mysession/newsession\n" +
-                            "Note: for paths containing spaces ensure path is encolsed in quotes";
+                            "Note: for paths containing spaces ensure path is enclosed in quotes";
                     break;
                 case activeScanUrl:
                     help = "usage: activeScanUrl url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
