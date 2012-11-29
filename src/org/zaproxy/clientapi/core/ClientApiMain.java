@@ -129,6 +129,9 @@ public class ClientApiMain {
                     }else if(pair[0].contains("File")){
                         params.put(pair[0], new File(pair[1]));
                     }
+                    else{
+                        params.put(pair[0], pair[1]);
+                    }
                 }
             }
         } else {
