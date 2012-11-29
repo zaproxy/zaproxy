@@ -90,6 +90,14 @@ public class AlertsFile {
             alertElement.setAttribute("param", alert.getParam());
         if (alert.getOther() != null)
             alertElement.setAttribute("other", alert.getOther());
+        if (alert.getAttack() != null)
+            alertElement.setAttribute("attack", alert.getAttack());
+        if (alert.getDescription() != null)
+            alertElement.setAttribute("description", alert.getDescription());
+        if (alert.getSolution() != null)
+            alertElement.setAttribute("solution", alert.getSolution());
+        if (alert.getReference() != null)
+            alertElement.setAttribute("reference", alert.getReference());
         alertsFound.addContent(alertElement);
     }
 

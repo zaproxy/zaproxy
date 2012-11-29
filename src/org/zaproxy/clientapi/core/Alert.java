@@ -21,9 +21,11 @@ package org.zaproxy.clientapi.core;
 
 import net.sf.json.JSONObject;
 
+import java.util.HashMap;
+
 public class Alert {
-	
-	public enum Risk {Informational, Low, Medium, High};
+
+    public enum Risk {Informational, Low, Medium, High};
 	public enum Reliability {Suspicious, Warning};
 	
 	private String alert;
@@ -32,6 +34,10 @@ public class Alert {
 	private String url;
 	private String other;
 	private String param;
+    private String attack;
+    private String description;
+    private String reference;
+    private String solution;
 	
 	public Alert (JSONObject json) {
 		this(json.get("alert").toString(), 
@@ -39,26 +45,30 @@ public class Alert {
 				Risk.valueOf(json.get("risk").toString()), 
 				Reliability.valueOf(json.get("reliability").toString()), 
 				json.get("param").toString(), 
-				json.get("other").toString());
+				json.get("other").toString(),
+                json.get("attack").toString(),
+                json.get("description").toString(),
+                json.get("reference").toString(),
+                json.get("solution").toString());
 	}
-	
-	public Alert(String alert, String url, String riskStr, String reliabilityStr, 
-			String param, String other) {
-		super();
-		this.alert = alert;
-		this.url = url;
-		this.other = other;
-		this.param = param;
-		if (riskStr != null) {
-			this.risk = Risk.valueOf(riskStr);
-		}
-		if (reliabilityStr != null) {
-			this.reliability = Reliability.valueOf(reliabilityStr);
-		}
-	}
+
+    public Alert(String alert, String url, String riskStr, String reliabilityStr,
+                 String param, String other) {
+        super();
+        this.alert = alert;
+        this.url = url;
+        this.other = other;
+        this.param = param;
+        if (riskStr != null) {
+            this.risk = Risk.valueOf(riskStr);
+        }
+        if (reliabilityStr != null) {
+            this.reliability = Reliability.valueOf(reliabilityStr);
+        }
+    }
 	
 	public Alert(String alert, String url, Risk risk, Reliability reliability, 
-			String param, String other) {
+			String param, String other, String attack, String description, String reference, String solution) {
 		super();
 		this.alert = alert;
 		this.risk = risk;
@@ -66,7 +76,22 @@ public class Alert {
 		this.url = url;
 		this.other = other;
 		this.param = param;
+        this.attack = attack;
+        this.description = description;
+        this.reference = reference;
+        this.solution = solution;
 	}
+
+    public Alert(String alert, String url, Risk risk, Reliability reliability,
+                 String param, String other) {
+        super();
+        this.alert = alert;
+        this.risk = risk;
+        this.reliability = reliability;
+        this.url = url;
+        this.other = other;
+        this.param = param;
+    }
 	
 	public Alert(String alert, String url, Risk risk, Reliability reliability) {
 		super();
@@ -124,6 +149,22 @@ public class Alert {
 	public void setParam(String param) {
 		this.param = param;
 	}
+
+    public String getAttack() {
+        return attack;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public String getSolution() {
+        return solution;
+    }
 
 	public boolean matches (Alert alertFilter) {
 		boolean matches = true;
