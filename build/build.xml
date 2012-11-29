@@ -1,443 +1,461 @@
 <project name="zap" default="full-release" basedir=".">
-	<description>Build ZAP.</description>
-	<!-- set global properties for this build -->
-	<property name="src" location="../src" />
-	<property name="src.version" value="1.7" />
-	<property name="build" location="build" />
-	<property name="dist" location="zap" />
-	<property name="dist.lib.dir" location="../lib" />
-	<property name="javadocs.dir" location="../javadocs" />
-	<property name="crowdin.dir" location="${build}/crowdin" />
-	<property name="lang.dir" value="${src}/lang" />
-	<property name="zap.extensions.src.dir" location="../../zap-extensions/src/" />
+    <description>Build ZAP.</description>
+    <!-- set global properties for this build -->
+    <property name="src" location="../src" />
+    <property name="src.version" value="1.7" />
+    <property name="build" location="build" />
+    <property name="dist" location="zap" />
+    <property name="dist.lib.dir" location="../lib" />
+    <property name="javadocs.dir" location="../javadocs" />
+    <property name="crowdin.dir" location="${build}/crowdin" />
+    <property name="lang.dir" value="${src}/lang" />
+    <property name="zap.extensions.src.dir" location="../../zap-extensions/src/" />
 
-	<!-- mac specific properties -->
-	<property name="dist-mac" location="zap-mac" />
-	<property name="mac-skeleton" location="mac_os_x" />
-	<property name="app.name" value="OWASP ZAP.app" />
-	<property name="app.bundle" value="${dist-mac}/${app.name}" />
-	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
-	<property name="app.java" value="${app.bundle}/Contents/Java" />
-	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
+    <!-- mac specific properties -->
+    <property name="dist-mac" location="zap-mac" />
+    <property name="mac-skeleton" location="mac_os_x" />
+    <property name="app.name" value="OWASP ZAP.app" />
+    <property name="app.bundle" value="${dist-mac}/${app.name}" />
+    <property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
+    <property name="app.java" value="${app.bundle}/Contents/Java" />
+    <property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
-	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
-	<condition property="isMac">
-		<os family="mac" />
-	</condition>
-	<condition property="isUnix">
-		<os family="unix" />
-	</condition>
-	<condition property="isWindows">
-		<os family="windows" />
-	</condition>
-	
-	<!-- svn command line -->
-	<property name="svn.cmd" value="svn" />
+    <!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
+    <condition property="isMac">
+        <os family="mac" />
+    </condition>
+    <condition property="isUnix">
+        <os family="unix" />
+    </condition>
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
 
-	<path id="dist.classpath">
-		<!--pathelement location="."/-->
-		<fileset dir="${dist.lib.dir}" includes="**/*.jar" />
-	</path>
+    <!-- svn command line -->
+    <property name="svn.cmd" value="svn" />
 
-	<target name="init">
-		<!-- Create the time stamp -->
-		<tstamp />
+    <path id="dist.classpath">
+        <!--pathelement location="."/-->
+        <fileset dir="${dist.lib.dir}" includes="**/*.jar" />
+    </path>
 
-		<!-- Create the build directory structure used by compile -->
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp />
 
-		<delete dir="${dist}" includeEmptyDirs="true" />
-		<delete dir="${build}" includeEmptyDirs="true" />
+        <!-- Create the build directory structure used by compile -->
 
-		<mkdir dir="${build}" />
-	</target>
-	
-	<target name="compile" depends="init" description="compile the source ">
-		<echo message="Compiling the source..." />
-		
-		<!-- Compile with debug information if the property "javac.debug" is set to true -->
-		<local name="debug" />
-		<condition property="debug" value="true" else="false">
-			<istrue value="${javac.debug}" />
-		</condition>
-		
-		<!-- Compile the java code from ${src} into ${build} -->
-		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}">
-			<classpath>
-				<fileset dir="${dist.lib.dir}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
+        <delete dir="${dist}" includeEmptyDirs="true" />
+        <delete dir="${build}" includeEmptyDirs="true" />
 
-	</target>
+        <mkdir dir="${build}" />
+    </target>
 
-	<target name="dist" depends="compile" description="generate the distribution">
-		<echo message="Creating the distribution set..." />
+    <target name="compile" depends="init" description="compile the source ">
+        <echo message="Compiling the source..." />
 
-		<!-- Create the distribution directory -->
-		<mkdir dir="${dist}" />
-		<!--copy file="lib.jar" tofile="${dist}/lib.jar"/-->
+        <!-- Compile with debug information if the property "javac.debug" is set to true -->
+        <local name="debug" />
+        <condition property="debug" value="true" else="false">
+            <istrue value="${javac.debug}" />
+        </condition>
 
-		<copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties" />
+        <!-- Compile the java code from ${src} into ${build} -->
+        <!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
+        <javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}">
+            <classpath>
+                <fileset dir="${dist.lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
 
-		<copy todir="${build}/resource">
-			<fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
-		</copy>
+    </target>
 
-		<copy todir="${dist}/xml">
-			<fileset dir="${src}/xml" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/db">
-			<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/dirbuster">
-			<fileset dir="${src}/dirbuster" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/filter">
-			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/fuzzers">
-			<fileset dir="${src}/fuzzers" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/plugin">
-			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/session">
-			<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/lang">
-			<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<!-- Special case - duplicate the default lang file (issue 151)-->
-		<copy file="${src}/lang/Messages.properties" tofile="${dist}/lang/Messages_en_GB.properties"/>
-		
-		<copy todir="${dist}/license">
-			<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/log">
-			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/lib">
-			<fileset dir="${dist.lib.dir}">
-				<include name="**/*.jar" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/_svn/**" />
-			</fileset>
-		</copy>
-		<!-- Copy standard README - this is overwritted for weekly releases -->
-		<copy file="${src}/doc/README" tofile="${dist}/README" />
-		
-		<!-- Copy any scripts, and give execute perms -->
-		<copy todir="${dist}">
-			<fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
-			<fileset dir="${src}" includes="*.bat" excludes="**/.svn/** **/_svn/**" />
-		</copy>
+    <target name="dist" depends="compile" description="generate the distribution">
+        <echo message="Creating the distribution set..." />
 
-		<chmod perm="ug+x">
-			<!-- This only has any effect on Linux -->
-			<fileset dir="${dist}">
-				<include name="*.sh" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/_svn/**" />
-			</fileset>
-		</chmod>
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist}" />
+        <!--copy file="lib.jar" tofile="${dist}/lib.jar"/-->
 
-		<!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
+        <copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties" />
 
-		<copy file="${src}/resource/zap.ico" todir="${dist}"/>
+        <copy todir="${build}/resource">
+            <fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
+        </copy>
 
-		<!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
-		<antcall target="copy-source-to-build" />
+        <copy todir="${dist}/xml">
+            <fileset dir="${src}/xml" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/db">
+            <fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/dirbuster">
+            <fileset dir="${src}/dirbuster" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/filter">
+            <fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/fuzzers">
+            <fileset dir="${src}/fuzzers" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/plugin">
+            <fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/session">
+            <fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/lang">
+            <fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <!-- Special case - duplicate the default lang file (issue 151)-->
+        <copy file="${src}/lang/Messages.properties" tofile="${dist}/lang/Messages_en_GB.properties"/>
 
-		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
-			<!--classpath refid="dist.classpath" /-->
-			<classpath>
-				<fileset dir="${dist}/lib">
-					<include name="**/*.jar" />
-				</fileset>
-				<!--path location="lang"/-->
-			</classpath>
-		</manifestclasspath>
+        <copy todir="${dist}/license">
+            <fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/log">
+            <fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+        <copy todir="${dist}/lib">
+            <fileset dir="${dist.lib.dir}">
+                <include name="**/*.jar" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+            </fileset>
+        </copy>
+        <!-- Copy standard README - this is overwritted for weekly releases -->
+        <copy file="${src}/doc/README" tofile="${dist}/README" />
 
-		<jar jarfile="${dist}/zap.jar" update="true" compress="false">
-			<zipfileset dir="${build}" prefix="" />
-			<manifest>
-				<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
-				<attribute name="Class-Path" value="${dist.manifest.classpath}" />
-				<attribute name="Implementation-Version" value="${version}" />
-			</manifest>
-		</jar>
-		<jar jarfile="${dist}/zap-api.jar" update="true" compress="false">
-			<zipfileset dir="${build}" prefix="">
-				<include name="org/zaproxy/clientapi/**"/>
-			</zipfileset>
-			<manifest>
-				<attribute name="Implementation-Version" value="${version}" />
-                <attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
+        <!-- Copy any scripts, and give execute perms -->
+        <copy todir="${dist}">
+            <fileset dir="${src}" includes="*.sh" excludes="**/.svn/** **/_svn/**" />
+            <fileset dir="${src}" includes="*.bat" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+
+        <chmod perm="ug+x">
+            <!-- This only has any effect on Linux -->
+            <fileset dir="${dist}">
+                <include name="*.sh" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+            </fileset>
+        </chmod>
+
+        <!--copy file="${src}/doc/release.txt" todir="${dist}"/-->
+
+        <copy file="${src}/resource/zap.ico" todir="${dist}"/>
+
+        <!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
+        <antcall target="copy-source-to-build" />
+
+        <manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
+            <!--classpath refid="dist.classpath" /-->
+            <classpath>
+                <fileset dir="${dist}/lib">
+                    <include name="**/*.jar" />
+                </fileset>
+                <!--path location="lang"/-->
+            </classpath>
+        </manifestclasspath>
+
+        <manifestclasspath property="dist.manifest.classpath.client-api" jarfile="${dist}/zap-api.jar">
+            <!--classpath refid="dist.classpath" /-->
+            <classpath>
+                <fileset dir="${dist}/lib">
+                    <include name="**/ant.jar" />
+                    <include name="**/jdom.jar" />
+                    <include name="**/json-lib-2.4-jdk15.jar" />
+                    <include name="**/commons-beanutils-1.8.3.jar" />
+                    <include name="**/commons-collections-3.2.1.jar" />
+                    <include name="**/commons-lang-2.6.jar" />
+                    <include name="**/commons-logging-1.1.1.jar" />
+                    <include name="**/ezmorph-1.0.6.jar" />
+                    <include name="**/junit-4.8.2.jar" />
+                </fileset>
+                <!--path location="lang"/-->
+            </classpath>
+        </manifestclasspath>
+
+        <jar jarfile="${dist}/zap.jar" update="true" compress="false">
+            <zipfileset dir="${build}" prefix="" />
+            <manifest>
+                <attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
                 <attribute name="Class-Path" value="${dist.manifest.classpath}" />
+                <attribute name="Implementation-Version" value="${version}" />
             </manifest>
-		</jar>
-	</target>
-	
-	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
-		<property name="dist.with.source" value="true" />
-		<antcall target="dist" />
-	</target>
-	
-	<target name="copy-source-to-build" if="dist.with.source">
-		<copy todir="${build}">
-			<fileset dir="${src}" includes="**/*.java" />
-		</copy>
-	</target>
-	
-	<target name="generate-help-file" description="generates the help file and copies it to the right place">
-		<local name="help.dir" />
-		<property name="help.dir" location="${src}/help" />
-		<local name="help.zap.dir" />
-		<property name="help.zap.dir" location="${help.dir}/zaphelp" />
-		<local name="help.jar.name" />
-		<property name="help.jar.name" value="zaphelp" />
-		<local name="help.jar.generated" />
-		<property name="help.jar.generated" value="${help.dir}/${help.jar.name}.jar" />
-		<local name="help.jar.dist.lib" />
-		<property name="help.jar.dist.lib" value="${dist.lib.dir}/${help.jar.name}.jar" />
-		
-		<!-- Generate the indexes -->
-		<java classname="com.sun.java.help.search.Indexer" fork="true" dir="${help.zap.dir}">
-			<arg value="zaphelp"/>
-			<classpath>
-				<pathelement location="lib/jhall.jar"/>
-			</classpath>
-		</java>
-		<!-- delete the previous jar in the help directory (if present) -->
-		<delete file="${help.jar.generated}" />
-		<!-- Jar up the help files -->
-		<jar destfile="${help.jar.generated}"
-			basedir="${help.zap.dir}"
-			includes="**"
-			excludes="**/.svn/**"
-		/>
-		<!-- Delete the indexes, generated previously, as they are no longer needed. -->
-		<delete dir="${help.zap.dir}/JavaHelpSearch" />
-		<!-- Delete the old jar in lib directory -->
-		<delete file="${help.jar.dist.lib}" />
-		<!-- Move the new one to the lib directory -->
-		<move file="${help.jar.generated}" tofile="${help.jar.dist.lib}" />
-		
-	</target>
+        </jar>
+        <jar jarfile="${dist}/zap-api.jar" update="true" compress="false">
+            <zipfileset dir="${build}" prefix="">
+                <include name="org/zaproxy/clientapi/**"/>
+            </zipfileset>
+            <manifest>
+                <attribute name="Implementation-Version" value="${version}" />
+                <attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
+                <attribute name="Class-Path" value="${dist.manifest.classpath.client-api}" />
+            </manifest>
+        </jar>
+    </target>
 
-	<target name="generate-language-file" description="generates the language file (note the X should be changed;)">
-		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
-		<!-- delete the previous one (if present) -->
-		<delete file="${langfile}" />
-		<!-- Zip up the language files -->
-		<zip destfile="${langfile}"
-			basedir="${src}"
-			includes="/lang/**"
-			excludes="**/.svn/**"
-		/>
-	</target>
+    <target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
+        <property name="dist.with.source" value="true" />
+        <antcall target="dist" />
+    </target>
 
-	<target name="download-copy-crowdin-lang-files" description="downloads and copies the files generated by crowdin for both zaproxy and zap-extensions projects">
-		<local name="crowdin.project.name" />
-		<property name="crowdin.project.name" value="owasp-zap" />
-		
-		<delete dir="${crowdin.dir}"/>
-		
-		<mkdir dir="${crowdin.dir}"/>
-		<copy todir="${crowdin.dir}">
-			<url url="http://crowdin.net/download/project/${crowdin.project.name}.zip"/>
-			<flattenmapper/>
-		</copy>
-		<unzip src="${crowdin.dir}/${crowdin.project.name}.zip" dest="${crowdin.dir}" stripAbsolutePathSpec="true" />
-		
-		<antcall target="copy-zaproxy-crowdin-lang-files" />
-		<antcall target="copy-zap-extensions-crowdin-lang-files" />
-		
-		<delete dir="${crowdin.dir}"/>
-	</target>
-	
-	<target name="copy-zaproxy-crowdin-lang-files" description="copy the files generated by crowdin for zaproxy project">
-		<!-- Copy the files generated by Crowdin.
-		You need to download the latest language file build from http://crowdin.net/project/owasp-zap
-		and then expand it into the ${crowdin.dir} directory.
-		-->
-		
-		<!-- Copy all core translations (project zaproxy). -->
-		<copy todir="${lang.dir}" overwrite="true">
-			<fileset dir="${crowdin.dir}/zaproxy/" casesensitive="yes">
-				<include name="Messages_*.properties" />
-			</fileset>
-			<firstmatchmapper>
-				<!-- Special cases, the name is not the same, so they need to be renamed. -->
-				<globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
-				<globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
-				<!-- Keep the same name for the other files. -->
-				<identitymapper/>
-			</firstmatchmapper>
-		</copy>
-	</target>
+    <target name="copy-source-to-build" if="dist.with.source">
+        <copy todir="${build}">
+            <fileset dir="${src}" includes="**/*.java" />
+        </copy>
+    </target>
 
-	<target name="copy-zap-extensions-crowdin-lang-files" description="copy the files generated by crowdin for zap-extensions project">
-		<!-- Copy the files generated by Crowdin.
-		You need to download the latest language file build from http://crowdin.net/project/owasp-zap
-		and then expand it into the ${crowdin.dir} directory.
-		-->
-		
-		<!-- Copy all extensions translations (project zap-extensions) -->
-		<copy todir="${zap.extensions.src.dir}/org/zaproxy/zap/extension/" overwrite="true">
-			<fileset dir="${crowdin.dir}/zap-extensions/" casesensitive="yes">
-				<include name="**/Messages_*.properties" />
-			</fileset>
-			<firstmatchmapper>
-				<!-- Special cases, the name is not the same, so they need to be renamed. -->
-				<globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
-				<globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
-				<!-- Keep the same name for the other files. -->
-				<identitymapper/>
-			</firstmatchmapper>
-		</copy>
-	</target>
+    <target name="generate-help-file" description="generates the help file and copies it to the right place">
+        <local name="help.dir" />
+        <property name="help.dir" location="${src}/help" />
+        <local name="help.zap.dir" />
+        <property name="help.zap.dir" location="${help.dir}/zaphelp" />
+        <local name="help.jar.name" />
+        <property name="help.jar.name" value="zaphelp" />
+        <local name="help.jar.generated" />
+        <property name="help.jar.generated" value="${help.dir}/${help.jar.name}.jar" />
+        <local name="help.jar.dist.lib" />
+        <property name="help.jar.dist.lib" value="${dist.lib.dir}/${help.jar.name}.jar" />
 
-	<target name="generate-javadocs" description="generates the javadocs">
-		<!-- Delete all the previous generated files and directories from the 
-		"javadocs.dir" directory before generating the new ones in case of any 
-		class or package has been renamed, deleted or moved. -->
-		<delete includeEmptyDirs="true">
-			<fileset dir="${javadocs.dir}" includes="**/*" />
-		</delete>
-		
-		<javadoc packagenames="org.*"
-			sourcepath="${src}"
-			destdir="${javadocs.dir}"
-			windowTitle="OWASP Zed Attack Proxy"
-			classpathref="dist.classpath"
-			link="http://docs.oracle.com/javase/7/docs/api/">
-		</javadoc>
-		<!-- set mime-type such that HTML is returned by server -->
-		<exec executable="${svn.cmd}">
-			<arg value="propset" />
-			<arg value="svn:mime-type" />
-			<arg value="text/html" />
-			<arg value="${javadocs.dir}/org" />
-			<arg value="--recursive" />
-			<arg value="--quiet" />
-		</exec>
-	</target>
-	
+        <!-- Generate the indexes -->
+        <java classname="com.sun.java.help.search.Indexer" fork="true" dir="${help.zap.dir}">
+            <arg value="zaphelp"/>
+            <classpath>
+                <pathelement location="lib/jhall.jar"/>
+            </classpath>
+        </java>
+        <!-- delete the previous jar in the help directory (if present) -->
+        <delete file="${help.jar.generated}" />
+        <!-- Jar up the help files -->
+        <jar destfile="${help.jar.generated}"
+             basedir="${help.zap.dir}"
+             includes="**"
+             excludes="**/.svn/**"
+                />
+        <!-- Delete the indexes, generated previously, as they are no longer needed. -->
+        <delete dir="${help.zap.dir}/JavaHelpSearch" />
+        <!-- Delete the old jar in lib directory -->
+        <delete file="${help.jar.dist.lib}" />
+        <!-- Move the new one to the lib directory -->
+        <move file="${help.jar.generated}" tofile="${help.jar.dist.lib}" />
 
-	<target name="package-linux" description="package the Linux build">
-		<echo message="Packaging the Linux build..." />
+    </target>
 
-		<!-- delete previously build packages -->
-		<delete file="ZAP_${version}_Linux.tar.gz" />
+    <target name="generate-language-file" description="generates the language file (note the X should be changed;)">
+        <property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
+        <!-- delete the previous one (if present) -->
+        <delete file="${langfile}" />
+        <!-- Zip up the language files -->
+        <zip destfile="${langfile}"
+             basedir="${src}"
+             includes="/lang/**"
+             excludes="**/.svn/**"
+                />
+    </target>
 
-		<!-- Tar up the release -->
-		<tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip">
-			<tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
-				<include name="**" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/_svn/**" />
-				<exclude name="zap.sh" />
-			</tarfileset>
-			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
-				<include name="zap.sh" />
-			</tarfileset>
-		</tar>
-	</target>
+    <target name="download-copy-crowdin-lang-files" description="downloads and copies the files generated by crowdin for both zaproxy and zap-extensions projects">
+        <local name="crowdin.project.name" />
+        <property name="crowdin.project.name" value="owasp-zap" />
 
-	<target name="package-macosx" if="isMac" description="package the Mac OS X release">
-		<echo message="Packaging the Mac OS X build..." />
+        <delete dir="${crowdin.dir}"/>
 
-		<delete dir="${dist-mac}" includeEmptyDirs="true" />
-		<mkdir dir="${dist-mac}" />
+        <mkdir dir="${crowdin.dir}"/>
+        <copy todir="${crowdin.dir}">
+            <url url="http://crowdin.net/download/project/${crowdin.project.name}.zip"/>
+            <flattenmapper/>
+        </copy>
+        <unzip src="${crowdin.dir}/${crowdin.project.name}.zip" dest="${crowdin.dir}" stripAbsolutePathSpec="true" />
 
-		<copy todir="${dist-mac}">
-			<fileset dir="${mac-skeleton}" excludes="**/.svn/** **/_svn/**" />
-		</copy>
+        <antcall target="copy-zaproxy-crowdin-lang-files" />
+        <antcall target="copy-zap-extensions-crowdin-lang-files" />
 
-		<copy todir="${app.java}">
-			<fileset dir="${dist}">
-				<include name="**" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/_svn/**" />
-				<exclude name="**/*.bat" />
-				<exclude name="**/*.ico" />
-			</fileset>
-		</copy>
-		
-		<chmod perm="755" file="${app.executable}" />
-		<chmod perm="755" file="${app.java}/zap.sh" />
-		
-		<!-- SVN destroys the JRE directory, therefore we have to use this ugly fix in order to include a proper JRE -->
-		<exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
-			<arg line=" 1.7.0u.jre.zip" />
-		</exec>
-		<delete file="${app.plugins}/1.7.0u.jre.zip" />
-		
-		<replace dir="${app.bundle}" summary="true" encoding="UTF-8">
-			<include name="**/Info.plist" />
-			<replacefilter token="_SHORT_VERSION_STRING_" value="${version}" />
-			<replacefilter token="_VERSION_STRING_" value="1" />
-		</replace>
+        <delete dir="${crowdin.dir}"/>
+    </target>
 
-		<echo message="Creating ZIP archive for the Mac OS X release..." />
-		<delete file="ZAP_${version}_Mac_OS_X.zip" />
-		<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
-			<arg line="-y -r ../ZAP_${version}_Mac_OS_X.zip '${app.name}'" />
-		</exec>
+    <target name="copy-zaproxy-crowdin-lang-files" description="copy the files generated by crowdin for zaproxy project">
+        <!-- Copy the files generated by Crowdin.
+          You need to download the latest language file build from http://crowdin.net/project/owasp-zap
+          and then expand it into the ${crowdin.dir} directory.
+          -->
 
-		<!-- Housekeeping: Delete the mac distribution directory -->
-		<delete dir="${dist-mac}" includeEmptyDirs="true" />
+        <!-- Copy all core translations (project zaproxy). -->
+        <copy todir="${lang.dir}" overwrite="true">
+            <fileset dir="${crowdin.dir}/zaproxy/" casesensitive="yes">
+                <include name="Messages_*.properties" />
+            </fileset>
+            <firstmatchmapper>
+                <!-- Special cases, the name is not the same, so they need to be renamed. -->
+                <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
+                <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
+                <!-- Keep the same name for the other files. -->
+                <identitymapper/>
+            </firstmatchmapper>
+        </copy>
+    </target>
 
-	</target>
+    <target name="copy-zap-extensions-crowdin-lang-files" description="copy the files generated by crowdin for zap-extensions project">
+        <!-- Copy the files generated by Crowdin.
+          You need to download the latest language file build from http://crowdin.net/project/owasp-zap
+          and then expand it into the ${crowdin.dir} directory.
+          -->
 
-	<target name="package-daily" description="package a date stamped build">
-		<echo message="Packaging a date stamped release..." />
+        <!-- Copy all extensions translations (project zap-extensions) -->
+        <copy todir="${zap.extensions.src.dir}/org/zaproxy/zap/extension/" overwrite="true">
+            <fileset dir="${crowdin.dir}/zap-extensions/" casesensitive="yes">
+                <include name="**/Messages_*.properties" />
+            </fileset>
+            <firstmatchmapper>
+                <!-- Special cases, the name is not the same, so they need to be renamed. -->
+                <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
+                <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
+                <!-- Keep the same name for the other files. -->
+                <identitymapper/>
+            </firstmatchmapper>
+        </copy>
+    </target>
 
-		<!-- delete any of packages for today -->
-		<property name="zipname" value="ZAP_WEEKLY_${version}.zip" />
-		<delete file="${zipname}" />
+    <target name="generate-javadocs" description="generates the javadocs">
+        <!-- Delete all the previous generated files and directories from the
+          "javadocs.dir" directory before generating the new ones in case of any
+          class or package has been renamed, deleted or moved. -->
+        <delete includeEmptyDirs="true">
+            <fileset dir="${javadocs.dir}" includes="**/*" />
+        </delete>
 
-		<!-- Tar up the release -->
-		<zip destfile="${zipname}">
-			<zipfileset dir="${dist}" prefix="ZAP_${version}">
-				<include name="**" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/_svn/**" />
-				<exclude name="zap.sh" />
-			</zipfileset>
-			<zipfileset dir="${dist}" prefix="ZAP_${version}" filemode="755">
-				<include name="zap.sh" />
-			</zipfileset>
-		</zip>
-	</target>
+        <javadoc packagenames="org.*"
+                 sourcepath="${src}"
+                 destdir="${javadocs.dir}"
+                 windowTitle="OWASP Zed Attack Proxy"
+                 classpathref="dist.classpath"
+                 link="http://docs.oracle.com/javase/7/docs/api/">
+        </javadoc>
+        <!-- set mime-type such that HTML is returned by server -->
+        <exec executable="${svn.cmd}">
+            <arg value="propset" />
+            <arg value="svn:mime-type" />
+            <arg value="text/html" />
+            <arg value="${javadocs.dir}/org" />
+            <arg value="--recursive" />
+            <arg value="--quiet" />
+        </exec>
+    </target>
 
-	<target name="full-release">
-		<!-- Load the version from a file -->
-		<loadfile property="version" srcfile="version.txt" />
 
-		<antcall target="dist" />
-		<antcall target="package-linux" />
-		<antcall target="package-macosx" />
-	</target>
-	
-	<target name="day-stamped-release">
-		<tstamp>
-			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
-		</tstamp>
-		<property name="version" value="D-${yyyymmdd}" />
-		<echo message="Version is ${version}" />
-		
-		<antcall target="generate-help-file" />
-		<!-- Set to compile with debug information -->
-		<property name="javac.debug" value="true" />
-		<antcall target="dist" />
-		<!-- Overwrite the standard README with the weekly one -->
-		<delete file="${dist}/README" />
-		<copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
-		<antcall target="package-daily" />
-	</target>
+    <target name="package-linux" description="package the Linux build">
+        <echo message="Packaging the Linux build..." />
+
+        <!-- delete previously build packages -->
+        <delete file="ZAP_${version}_Linux.tar.gz" />
+
+        <!-- Tar up the release -->
+        <tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip">
+            <tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
+                <include name="**" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+                <exclude name="zap.sh" />
+            </tarfileset>
+            <tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
+                <include name="zap.sh" />
+            </tarfileset>
+        </tar>
+    </target>
+
+    <target name="package-macosx" if="isMac" description="package the Mac OS X release">
+        <echo message="Packaging the Mac OS X build..." />
+
+        <delete dir="${dist-mac}" includeEmptyDirs="true" />
+        <mkdir dir="${dist-mac}" />
+
+        <copy todir="${dist-mac}">
+            <fileset dir="${mac-skeleton}" excludes="**/.svn/** **/_svn/**" />
+        </copy>
+
+        <copy todir="${app.java}">
+            <fileset dir="${dist}">
+                <include name="**" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+                <exclude name="**/*.bat" />
+                <exclude name="**/*.ico" />
+            </fileset>
+        </copy>
+
+        <chmod perm="755" file="${app.executable}" />
+        <chmod perm="755" file="${app.java}/zap.sh" />
+
+        <!-- SVN destroys the JRE directory, therefore we have to use this ugly fix in order to include a proper JRE -->
+        <exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
+            <arg line=" 1.7.0u.jre.zip" />
+        </exec>
+        <delete file="${app.plugins}/1.7.0u.jre.zip" />
+
+        <replace dir="${app.bundle}" summary="true" encoding="UTF-8">
+            <include name="**/Info.plist" />
+            <replacefilter token="_SHORT_VERSION_STRING_" value="${version}" />
+            <replacefilter token="_VERSION_STRING_" value="1" />
+        </replace>
+
+        <echo message="Creating ZIP archive for the Mac OS X release..." />
+        <delete file="ZAP_${version}_Mac_OS_X.zip" />
+        <exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
+            <arg line="-y -r ../ZAP_${version}_Mac_OS_X.zip '${app.name}'" />
+        </exec>
+
+        <!-- Housekeeping: Delete the mac distribution directory -->
+        <delete dir="${dist-mac}" includeEmptyDirs="true" />
+
+    </target>
+
+    <target name="package-daily" description="package a date stamped build">
+        <echo message="Packaging a date stamped release..." />
+
+        <!-- delete any of packages for today -->
+        <property name="zipname" value="ZAP_WEEKLY_${version}.zip" />
+        <delete file="${zipname}" />
+
+        <!-- Tar up the release -->
+        <zip destfile="${zipname}">
+            <zipfileset dir="${dist}" prefix="ZAP_${version}">
+                <include name="**" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+                <exclude name="zap.sh" />
+            </zipfileset>
+            <zipfileset dir="${dist}" prefix="ZAP_${version}" filemode="755">
+                <include name="zap.sh" />
+            </zipfileset>
+        </zip>
+    </target>
+
+    <target name="full-release">
+        <!-- Load the version from a file -->
+        <loadfile property="version" srcfile="version.txt" />
+
+        <antcall target="dist" />
+        <antcall target="package-linux" />
+        <antcall target="package-macosx" />
+    </target>
+
+    <target name="day-stamped-release">
+        <tstamp>
+            <format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+        </tstamp>
+        <property name="version" value="D-${yyyymmdd}" />
+        <echo message="Version is ${version}" />
+
+        <antcall target="generate-help-file" />
+        <!-- Set to compile with debug information -->
+        <property name="javac.debug" value="true" />
+        <antcall target="dist" />
+        <!-- Overwrite the standard README with the weekly one -->
+        <delete file="${dist}/README" />
+        <copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
+        <antcall target="package-daily" />
+    </target>
 
 </project>
