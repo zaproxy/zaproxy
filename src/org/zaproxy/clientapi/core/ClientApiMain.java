@@ -14,7 +14,7 @@ public class ClientApiMain {
     private boolean debug = false;
 
     private enum Task{
-        stop, checkAlerts, saveSession, newSession
+        stop, checkAlerts, saveSession, newSession, activeScanUrl
     }
 
     public static void main(String[] args){
@@ -68,7 +68,7 @@ public class ClientApiMain {
                     break;
                 case saveSession:
                     if (params.get("sessionName") == null){
-                        System.out.println("No session name Supplied\n");
+                        System.out.println("No session name supplied\n");
                         showHelp();
                         System.exit(1);
                     }
@@ -79,6 +79,15 @@ public class ClientApiMain {
                         api.newSession();
                     }else{
                         api.newSession((String)params.get("sessionName"));
+                    }
+                    break;
+                case activeScanUrl:
+                    if (params.get("url") == null){
+                        System.out.println("No url supplied\n");
+                        showHelp();
+                        System.exit(1);
+                    }else{
+                        api.activeScanUrl((String)params.get("url"));
                     }
                     break;
             }
@@ -193,6 +202,14 @@ public class ClientApiMain {
                                 "4. Type 'java -jar zap-api.jar newSession sessionName=\"Users/me/My Documents/mysession/mysessionfile\" zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
                                     "Start new session using zap listening on 192.168.1.1:7080, creating session files at /Users/me/My Documents/mysession/newsession\n" +
                             "Note: for paths containing spaces ensure path is encolsed in quotes";
+                    break;
+                case activeScanUrl:
+                    help = "usage: activeScanUrl url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
                     break;
             }
         }
