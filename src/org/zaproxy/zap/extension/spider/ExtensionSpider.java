@@ -161,6 +161,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * .paros.model.Session) */
 	@Override
 	public void sessionAboutToChange(Session session) {
+		// Shut all of the scans down
+		this.getSpiderPanel().reset();
 	}
 
 	/* (non-Javadoc)
@@ -373,4 +375,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanAllInContext(Context context) {
 		this.getSpiderPanel().scanAllInContext(context);
 	}
+	
+	@Override
+    public void destroy() {
+		// Shut all of the scans down
+		this.getSpiderPanel().reset();
+	}
+
 }

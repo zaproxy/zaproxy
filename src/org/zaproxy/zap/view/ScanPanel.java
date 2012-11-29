@@ -752,8 +752,11 @@ public abstract class ScanPanel extends AbstractPanel {
 			entry.getValue().stopScan();
 			entry.getValue().reset();
 		}
-		// Wait until all threads have stopped
-		while (activeScans.size() > 0) {
+		// Allow 2 secs for the threads to stop - if we wait 'for ever' then we can get deadlocks
+		for (int i = 0; i < 20; i++) {
+			if (activeScans.size() == 0) {
+				break;
+			}
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -761,6 +764,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			}
 		}
 		scanMap.clear();
+		activeScans.clear();
 		
 		siteModel.removeAllElements();
 		siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
