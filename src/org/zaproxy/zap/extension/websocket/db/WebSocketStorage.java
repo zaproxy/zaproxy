@@ -77,7 +77,11 @@ public class WebSocketStorage implements WebSocketObserver {
 	public void onStateChange(State state, WebSocketProxy proxy) {
 		if (state.equals(State.OPEN) || state.equals(State.CLOSED) || state.equals(State.INCLUDED)) {
 			try {
-				table.insertOrUpdateChannel(proxy.getDTO());
+				if (table != null) {
+					table.insertOrUpdateChannel(proxy.getDTO());
+				} else if (!state.equals(State.CLOSED)) {
+					logger.warn("Could not update state of WebSocket channel to '" + state.toString() + "'!");
+				}
 			} catch (SQLException e) {
 				logger.error(e.getMessage(), e);
 			}
