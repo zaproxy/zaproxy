@@ -523,7 +523,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * .HttpMessage, int) */
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
-		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR) {
+		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR) {
 			// Not a session we care about
 			return;
 		}

@@ -151,6 +151,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	public void startScan(SiteNode startNode) {
+		try {
+			// Add to sites if not already present - required for quick start tab
+			this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+		} catch (Exception e) {
+			// Ignore
+		}
 		this.getActiveScanPanel().scanSite(startNode, true);
 	}
 
@@ -397,4 +403,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		// Shut all of the scans down
 		this.getActiveScanPanel().reset();
 	}
+
+	public void stopScan(SiteNode startNode) {
+		try {
+			this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
+		} catch (Exception e) {
+        	logger.error(e.getMessage(), e);
+		}
+	}
+	
+	public void stopScan (String site) {
+		this.getActiveScanPanel().stopScan(site);
+	}
+
 }

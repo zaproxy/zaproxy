@@ -22,16 +22,20 @@ package org.zaproxy.zap.extension.ext;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Model;
 
 public class ExtensionExtension extends ExtensionAdaptor {
 
 	public static final String NAME = "ExtensionExtension"; 
 	
 	private OptionsExtensionPanel optionsExceptionsPanel = null;
-	
+
+    private Logger logger = Logger.getLogger(ExtensionExtension.class);
+
 	public ExtensionExtension() {
 		super();
 		initialize();
@@ -57,6 +61,16 @@ public class ExtensionExtension extends ExtensionAdaptor {
 			optionsExceptionsPanel = new OptionsExtensionPanel(this);
 		}
 		return optionsExceptionsPanel;
+	}
+	
+	public void enableExtension(String name, boolean enable) {
+		if (this.getOptionsExtensionPanel().enableExtension(name, enable)) {
+			try {
+				this.getOptionsExtensionPanel().saveParam(Model.getSingleton().getOptionsParam());
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	@Override

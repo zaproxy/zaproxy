@@ -32,6 +32,7 @@
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
 
 package org.parosproxy.paros.extension;
 
@@ -338,7 +339,16 @@ public class ExtensionLoader {
                 tab.add(panel, panel.getName());
                 
         		// ZAP: added icon
-        		tab.addTab(panel.getName() + " ", panel.getIcon(), panel);
+                if (panel.getTabIndex() >= 0) {
+                	tab.insertTab(panel.getName() + " ", panel.getIcon(), panel, null, panel.getTabIndex());
+                    if (panel.getTabIndex() == 0) {
+                    	// Its now the first one, give it focus
+                    	tab.setSelectedComponent(panel);	
+                    }
+
+                } else {
+                	tab.addTab(panel.getName() + " ", panel.getIcon(), panel);
+                }
 
                 
             } catch (Exception e) {

@@ -338,7 +338,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					stopScan();
+					stopScan(currentSite);
 				}
 			});
 		}
@@ -354,7 +354,7 @@ public abstract class ScanPanel extends AbstractPanel {
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					pauseScan();
+					pauseScan(currentSite);
 				}
 			});
 		}
@@ -651,17 +651,17 @@ public abstract class ScanPanel extends AbstractPanel {
 		switchView(currentSite);
 	}
 	
-	private void stopScan() {
-		log.debug("stopScan " + prefix + " on " + currentSite);
-		GenericScanner scan = scanMap.get(currentSite);
+	public void stopScan(String site) {
+		log.debug("stopScan " + prefix + " on " + site);
+		GenericScanner scan = scanMap.get(site);
 		if (scan != null) {
 			scan.stopScan();
 		}
 	}
 
-	private void pauseScan() {
-		log.debug("pauseScan " + prefix + " on " + currentSite);
-		GenericScanner scan = scanMap.get(currentSite);
+	public void pauseScan(String site) {
+		log.debug("pauseScan " + prefix + " on " + site);
+		GenericScanner scan = scanMap.get(site);
 		if (scan != null) {
 			if (scan.isPaused()) {
 				scan.resumeScan();

@@ -163,6 +163,15 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         return  extensions.get(row);
 	}
 
+	protected Extension getExtension (String name) {
+		for (Extension ext : extensions) {
+			if (ext.getName().equals(name)) {
+				return ext;
+			}
+		}
+        return  null;
+	}
+
 	protected List<Extension> getExtensions() {
 		return extensions;
 	}

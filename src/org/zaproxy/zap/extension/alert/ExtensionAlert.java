@@ -518,4 +518,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+
+	public void setAlertTabFocus() {
+		this.getAlertPanel().setTabFocus();
+	}
 }

@@ -40,6 +40,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -366,7 +367,28 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param startNode the start node
 	 */
 	public void startScan(SiteNode startNode) {
+		try {
+			// Add to sites if not already present - required for quick start tab
+			this.getSpiderPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+		} catch (Exception e) {
+			// Ignore
+			log.debug(e.getMessage(), e);
+		}
+
 		this.getSpiderPanel().scanSite(startNode, true);
+	}
+
+	public void stopScan(SiteNode startNode) {
+		try {
+			this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		
+	}
+
+	public void stopScan (String site) {
+		this.getSpiderPanel().stopScan(site);
 	}
 	
 	/**

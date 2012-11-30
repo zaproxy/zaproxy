@@ -263,6 +263,16 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 		}
 		return extensionModel;
 	}
+	
+	protected boolean enableExtension(String name, boolean enable) {
+		Extension ext = this.getExtensionModel().getExtension(name);
+		if (ext != null) {
+			ext.setEnabled(enable);
+			return true;
+		}
+		return false;
+	}
+
 
 	@Override
 	public String getHelpIndex() {

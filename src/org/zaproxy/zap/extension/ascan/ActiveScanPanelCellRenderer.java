@@ -240,10 +240,6 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
 
     @Override
     public Component getListCellRendererComponent(JList<? extends HistoryReference> list, HistoryReference ref, int index, boolean isSelected, boolean cellHasFocus) {
-        /*
-        HistoryReference ref = (HistoryReference) value;
-        txtId.setText(Integer.toString(ref.getHistoryId()));
-        */
         try {
             HttpMessage msg = ref.getHttpMessage();
             
@@ -256,7 +252,8 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
             txtNote.setIcon(null);
             
         } catch (HttpMalformedHeaderException e) {
-            logger.error(e.getMessage(), e);
+        	// Typically happens when a scan is interupted
+            logger.debug(e.getMessage(), e);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
