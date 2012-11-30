@@ -215,6 +215,14 @@ public class ClientApiMain {
                             "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
                             "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
                     break;
+                case activeScanUrl:
+                    help = "usage: activeScanUrl url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
+                    break;
             }
         }
         System.out.println(help);
