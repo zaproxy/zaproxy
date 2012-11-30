@@ -261,4 +261,8 @@ public class ClientApi {
 		}
 
 	}
+
+    public void activeScanSessionUrls(String regex){
+
+    }
 }
