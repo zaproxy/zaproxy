@@ -63,6 +63,7 @@ import org.zaproxy.zap.extension.websocket.brk.PopupMenuAddBreakWebSocket;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointMessageHandler;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
+import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
@@ -626,8 +627,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionChanged(final Session session) {
+		TableWebSocket table = Model.getSingleton().getDb().getTableWebSocket();
+		getWebSocketPanel().setTable(table);
+		storage.setTable(table);
 		try {
-			WebSocketProxy.setChannelIdGenerator(storage.getTable().getMaxChannelId());
+			WebSocketProxy.setChannelIdGenerator(table.getMaxChannelId());
 		} catch (SQLException e) {
 			logger.error("Unable to retrieve current channelId value!", e);
 		}
@@ -639,6 +643,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+		// Prevent the table from being used
+		getWebSocketPanel().setTable(null);
+		storage.setTable(null);
 		// close existing connections
 		synchronized (wsProxies) {
 			for (WebSocketProxy wsProxy : wsProxies.values()) {

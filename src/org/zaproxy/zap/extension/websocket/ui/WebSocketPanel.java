@@ -786,4 +786,9 @@ public class WebSocketPanel extends AbstractPanel implements WebSocketObserver {
 		}
 		return scopeButton;
 	}
+
+	public void setTable(TableWebSocket table) {
+		this.table = table;
+		this.messagesModel.setTable(table);
+	}
 }

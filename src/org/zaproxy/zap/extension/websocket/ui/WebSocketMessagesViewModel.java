@@ -73,7 +73,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	/**
 	 * Interface to database.
 	 */
-	protected TableWebSocket table;
+	private TableWebSocket table;
 
 	/**
 	 * If null, all messages are shown.
@@ -134,6 +134,9 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	 */
 	@Override
 	public int getRowCount() {
+		if (table == null) {
+			return 0;
+		}
 		try {
 			synchronized (cachedRowCountSemaphore) {
 				if (cachedRowCount == null) {					
@@ -393,5 +396,9 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 			// maybe I'm right with this guess - try
 			return message.id - 1;
 		}
+	}
+
+	public void setTable(TableWebSocket table) {
+		this.table = table;
 	}
 }

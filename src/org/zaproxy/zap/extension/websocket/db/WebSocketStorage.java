@@ -68,6 +68,10 @@ public class WebSocketStorage implements WebSocketObserver {
 	public TableWebSocket getTable() {
 		return table;
 	}
+	
+	public void setTable(TableWebSocket table) {
+		this.table = table;
+	}
 
 	@Override
 	public void onStateChange(State state, WebSocketProxy proxy) {
