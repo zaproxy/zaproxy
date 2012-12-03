@@ -172,7 +172,6 @@
                     <include name="**/commons-lang-2.6.jar" />
                     <include name="**/commons-logging-1.1.1.jar" />
                     <include name="**/ezmorph-1.0.6.jar" />
-                    <include name="**/junit-4.8.2.jar" />
                 </fileset>
                 <!--path location="lang"/-->
             </classpath>
