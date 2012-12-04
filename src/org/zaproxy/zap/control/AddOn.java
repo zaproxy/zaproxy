@@ -44,6 +44,14 @@ public class AddOn extends Enableable {
 		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {
 			return false;
 		}
+		String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
+		try {
+			Status.valueOf(strArray[1]);
+			Integer.parseInt(strArray[2]);
+		} catch (Exception e) {
+			return false;
+		}
+
 		return true;
 		
 	}
