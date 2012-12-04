@@ -182,6 +182,9 @@ public final class Constant {
 
     public String FUZZER_DIR = "fuzzers";
     public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
+    
+    public static String FOLDER_LOCAL_PLUGIN = FOLDER_PLUGIN;
+
 
 	public static final URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
 	public static final URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); 	// Blue
@@ -260,6 +263,7 @@ public final class Constant {
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
 		FUZZER_CUSTOM_DIR = zapHome + FUZZER_CUSTOM_DIR;
+		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_LOCAL_PLUGIN;
 
         try {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
@@ -320,6 +324,14 @@ public final class Constant {
             f = new File(FUZZER_CUSTOM_DIR);
             if (!f.isDirectory()) {
                 log.info("Creating directory " + FUZZER_CUSTOM_DIR);
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+            f = new File(FOLDER_LOCAL_PLUGIN);
+            if (!f.isDirectory()) {
+                log.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
