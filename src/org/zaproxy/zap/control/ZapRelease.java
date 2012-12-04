@@ -37,6 +37,10 @@ public class ZapRelease {
 	public ZapRelease() {
 	}
 	
+	public ZapRelease(String version) {
+		this.version = version;
+	}
+	
 	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes) {
 		super();
 		this.version = version;
@@ -95,7 +99,7 @@ public class ZapRelease {
 			return false;
 		} else if (isCheckDaily) {
         	// Will just be a 'dated' version, which we can just use a string compare on
-			return otherVersion.compareTo(this.version) > 0;
+			return otherVersion.compareTo(this.version) < 0;
 		} else if (otherVersion == null) {
 			return true;
         } else {
@@ -106,9 +110,9 @@ public class ZapRelease {
 	    	for (int i = 0; i < versionArray.length; i++) {
 	    		if (Constant.ALPHA_VERSION.equals(versionArray[i]) ||
 	    				Constant.BETA_VERSION.equals(versionArray[i])) {
-	    			// Alpha and beta versions will only ever appear in the progVersion,
+	    			// Alpha and beta versions will only ever appear in this.version,
 	    			// everything has matched up to now so its a newer 'release' quality version
-	    			newerVersion = true;
+	    			newerVersion = false;
 	    			break;
 	    		} else if (i < otherArray.length) {
     				int versionElement;
