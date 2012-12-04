@@ -56,12 +56,22 @@ import org.apache.log4j.Logger;
 public class AddOnLoader extends URLClassLoader {
 
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
-    private List<AddOn> addOns = new ArrayList<AddOn>();
+    private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<File>();
 
     public AddOnLoader(File[] dirs) {
         super(new URL[0]);
+
+        this.aoc = new AddOnCollection(dirs);
         
+        for (AddOn ao : this.aoc.getAddOns()) {
+            try {
+            	this.addURL(ao.getFile().toURI().toURL());
+			} catch (MalformedURLException e) {
+	    		logger.error(e.getMessage(), e);
+			}
+        }
+
         if (dirs != null) {
         	for (File dir : dirs) {
                 try {
@@ -72,13 +82,6 @@ public class AddOnLoader extends URLClassLoader {
         	}
         }
         
-    	for (AddOn addOn : addOns) {
-            try {
-				this.addURL(addOn.getFile().toURI().toURL());
-			} catch (MalformedURLException e) {
-	    		logger.error(e.getMessage(), e);
-			}
-    	}
     	for (File jar : jars) {
             try {
 				this.addURL(jar.toURI().toURL());
@@ -86,6 +89,10 @@ public class AddOnLoader extends URLClassLoader {
 	    		logger.error(e.getMessage(), e);
 			}
     	}
+    }
+    
+    public AddOnCollection getAddOnCollection() {
+    	return this.aoc;
     }
     
     private void addDirectory (File dir) throws Exception {
@@ -99,26 +106,6 @@ public class AddOnLoader extends URLClassLoader {
     	if (! dir.isDirectory()) {
     		logger.error("Not a directory: " + dir.getAbsolutePath());
     	}
-    	// Load the addons
-        File[] listFile = dir.listFiles(new ZapFilenameFilter());
-
-        List<AddOn> removeAddOns = new ArrayList<AddOn>();
-
-        if (listFile != null) {
-        	for (File addOnFile : listFile) {
-            	AddOn ao = new AddOn(addOnFile);
-            	for (AddOn addOn : addOns) {
-            		if (ao.isSameAddOn(addOn) && ao.isUpdateTo(addOn)) {
-            			// Remove them below so we're not changing a list we're iterating through
-            			removeAddOns.add(addOn);
-            		}
-            	}
-            	this.addOns.add(ao);
-	        }
-	    	for (AddOn remAddOn : removeAddOns) {
-	    		this.addOns.remove(remAddOn);
-	    	}
-        }
 
         // Load the jar files
         File[] listJars = dir.listFiles(new JarFilenameFilter());
@@ -133,7 +120,7 @@ public class AddOnLoader extends URLClassLoader {
     	List<String> listClassName = new ArrayList<>();
     	
     	listClassName.addAll(this.getLocalClassNames(packageName));
-    	for (AddOn addOn : addOns) {
+    	for (AddOn addOn : this.aoc.getAddOns()) {
         	listClassName.addAll(this.getJarClassNames(addOn.getFile(), packageName));
     	}
     	for (File jar : jars) {
@@ -275,13 +262,6 @@ public class AddOnLoader extends URLClassLoader {
                 return true;
             }
             return false;
-        }
-    }
-    
-    private static final class ZapFilenameFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File dir, String fileName) {
-        	return AddOn.isAddOn(dir);
         }
     }
     

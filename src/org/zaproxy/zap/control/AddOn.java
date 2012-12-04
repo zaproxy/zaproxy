@@ -20,40 +20,77 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.net.URL;
 
-public class AddOn {
-	public enum Status {alpha, beta, weekly, release}
+import org.zaproxy.zap.utils.Enableable;
+
+public class AddOn extends Enableable {
+	public enum Status {alpha, beta, weekly, release, example}
+	private String id;
 	private String name;
 	private int version;
 	private Status status;
-	private File file;
+	private String changes;
+	private File file = null;
+	private URL url = null;
+	private long size = 0;
+	private int progress = 0;
+	private boolean failed = false;
 	
+	public static boolean isAddOn(String fileName) {
+		if (! fileName.toLowerCase().endsWith(".zap")) {
+			return false;
+		}
+		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {
+			return false;
+		}
+		return true;
+		
+	}
 	public static boolean isAddOn(File f) {
 		if (! f.exists()) {
 			return false;
 		}
-		String fileName = f.getName();
-		// TODO HACK
-		if (! fileName.startsWith("zap-ext-") || ! fileName.endsWith(".zap")) {
-			return false;
-		}
-		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 5) {
-			return false;
-		}
-		return true;
+		return isAddOn(f.getName());
 	}
-	
+
+	public AddOn(String fileName) throws Exception {
+		// Format is <name>-<status>-<version>.zap
+		if (! isAddOn(fileName)) {
+			throw new Exception("Invalid ZAP add-on file " + fileName);
+		}
+		String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
+		this.id = strArray[0];
+		this.status = Status.valueOf(strArray[1]);
+		this.version = Integer.parseInt(strArray[2]);
+	}
+
 	public AddOn(File file) throws Exception {
+		this(file.getName());
 		if (! isAddOn(file)) {
 			throw new Exception("Invalid ZAP add-on file " + file.getAbsolutePath());
 		}
 		this.file = file;
-		String fileName = file.getName();
-		// Format is zap-ext-<name>-<status>-<version>.zap
-		String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
-		this.name = strArray[2];
-		this.status = Status.valueOf(strArray[3]);
-		this.version = Integer.parseInt(strArray[4]);
+	}
+	
+	public AddOn(String id, String name, int version, Status status, 
+			String changes, URL url, File file, long size) {
+		this.id = id;
+		this.name = name;
+		this.version = version;
+		this.status = status;
+		this.changes = changes;
+		this.url = url;
+		this.file = file;
+		this.size = size;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -80,6 +117,14 @@ public class AddOn {
 		this.status = status;
 	}
 
+	public String getChanges() {
+		return changes;
+	}
+
+	public void setChanges(String changes) {
+		this.changes = changes;
+	}
+
 	public File getFile() {
 		return file;
 	}
@@ -88,40 +133,49 @@ public class AddOn {
 		this.file = file;
 	}
 	
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
+	}
+
+	public int getProgress() {
+		return progress;
+	}
+
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	public boolean isFailed() {
+		return failed;
+	}
+
+	public void setFailed(boolean failed) {
+		this.failed = failed;
+	}
+
 	public boolean isSameAddOn(AddOn addOn) {
-		return this.getName().equals(addOn.getName());
+		return this.getId().equals(addOn.getId());
 	}
 
 	public boolean isUpdateTo(AddOn addOn) throws Exception {
 		if (! this.isSameAddOn(addOn)) {
-			throw new Exception("Different addons: " + this.getName() + " != " + addOn.getName());
+			throw new Exception("Different addons: " + this.getId() + " != " + addOn.getId());
 		}
 		if (this.getVersion() > addOn.getVersion()) {
 			return true;
 		}
 		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
 	}
-
-	public static void main(String[] args) throws Exception {
-		File f1 = new File("zap-ext-test-alpha-1.zap");
-		File f2 = new File("zap-ext-test-alpha-2.zap");
-		File f3 = new File("zap-ext-test-beta-2.zap");
-		File f4 = new File("zap-ext-testy-alpha-1.zap");
-		
-		AddOn addOn1 = new AddOn(f1);
-		AddOn addOn2 = new AddOn(f2);
-		AddOn addOn3 = new AddOn(f3);
-		AddOn addOn4 = new AddOn(f4);
-		System.out.println("Name = " + addOn1.getName());
-		System.out.println("Status = " + addOn1.getStatus());
-		System.out.println("Version = " + addOn1.getVersion());
-
-		System.out.println("a2 update to a1 " + addOn2.isUpdateTo(addOn1));
-		System.out.println("a1 NOT update to a2 " + addOn1.isUpdateTo(addOn2));
-		System.out.println("a3 update to a1 " + addOn3.isUpdateTo(addOn1));
-		System.out.println("a3 update to a2 " + addOn3.isUpdateTo(addOn2));
-		// Should throw exception
-		System.out.println("a4 update to a2 " + addOn4.isUpdateTo(addOn2));
-	}
-
 }
