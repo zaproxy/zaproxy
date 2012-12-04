@@ -6,6 +6,8 @@
     <property name="build" location="build" />
     <property name="dist" location="zap" />
     <property name="dist.lib.dir" location="../lib" />
+    <property name="dist.lib.license.dir" location="../license" />
+    <property name="dist.lib.exploded.dir" location="api-libs-exploded" />
     <property name="javadocs.dir" location="../javadocs" />
     <property name="crowdin.dir" location="${build}/crowdin" />
     <property name="lang.dir" value="${src}/lang" />
@@ -47,6 +49,7 @@
 
         <delete dir="${dist}" includeEmptyDirs="true" />
         <delete dir="${build}" includeEmptyDirs="true" />
+        <delete dir="api-libs-exploded" includeEmptyDirs="true" />
 
         <mkdir dir="${build}" />
     </target>
@@ -160,39 +163,42 @@
             </classpath>
         </manifestclasspath>
 
-        <manifestclasspath property="dist.manifest.classpath.client-api" jarfile="${dist}/zap-api.jar">
-            <!--classpath refid="dist.classpath" /-->
-            <classpath>
-                <fileset dir="${dist}/lib">
-                    <include name="**/ant.jar" />
-                    <include name="**/jdom.jar" />
-                    <include name="**/json-lib-2.4-jdk15.jar" />
-                    <include name="**/commons-beanutils-1.8.3.jar" />
-                    <include name="**/commons-collections-3.2.1.jar" />
-                    <include name="**/commons-lang-2.6.jar" />
-                    <include name="**/commons-logging-1.1.1.jar" />
-                    <include name="**/ezmorph-1.0.6.jar" />
-                </fileset>
-                <!--path location="lang"/-->
-            </classpath>
-        </manifestclasspath>
-
         <jar jarfile="${dist}/zap.jar" update="true" compress="false">
-            <zipfileset dir="${build}" prefix="" />
+            <zipfileset dir="${build}" prefix=""/>
             <manifest>
                 <attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
                 <attribute name="Class-Path" value="${dist.manifest.classpath}" />
                 <attribute name="Implementation-Version" value="${version}" />
             </manifest>
         </jar>
+
+        <unjar dest="${dist.lib.exploded.dir}">
+            <fileset dir="${dist.lib.dir}" casesensitive="yes">
+                <include name="**/ant.jar" />
+                <include name="**/jdom.jar" />
+                <include name="**/json-lib-2.4-jdk15.jar" />
+                <include name="**/commons-beanutils-1.8.3.jar" />
+                <include name="**/commons-collections-3.2.1.jar" />
+                <include name="**/commons-lang-2.6.jar" />
+                <include name="**/commons-logging-1.1.1.jar" />
+                <include name="**/ezmorph-1.0.6.jar" />
+                <include name="**/junit-4.8.2.jar" />
+            </fileset>
+        </unjar>
+
         <jar jarfile="${dist}/zap-api.jar" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
                 <include name="org/zaproxy/clientapi/**"/>
             </zipfileset>
+            <zipfileset dir="${dist.lib.exploded.dir}" prefix="">
+                <include name="**/*.class"/>
+                <exclude name="**/*LICENSE*"/>
+                <exclude name="**/*NOTICE*"/>
+            </zipfileset>
+            <zipfileset dir="${dist.lib.license.dir}" prefix="META-INF/license"/>
             <manifest>
                 <attribute name="Implementation-Version" value="${version}" />
                 <attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
-                <attribute name="Class-Path" value="${dist.manifest.classpath.client-api}" />
             </manifest>
         </jar>
     </target>

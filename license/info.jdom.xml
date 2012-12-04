@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<info>
+    <title>JDOM</title>
+    <version>1.1.1, built July 23 2009</version>
+    <description>
+        JDOM is a Java-oriented object model which models XML documents.
+        It provides a Java-centric means of generating and manipulating
+        XML documents. While JDOM interoperates well with existing
+        standards such as the Simple API for XML (SAX) and the Document
+        Object Model (DOM), it is not an abstraction layer or
+        enhancement to those APIs. Rather, it seeks to provide a robust,
+        light-weight means of reading and writing XML data without the
+        complex and memory-consumptive options that current API
+        offerings provide.
+    </description>
+    <copyright>2000-2007, Jason Hunter</copyright>
+    <license>BSD/Apache style, see LICENSE.txt</license>
+    <support>See the jdom-interest mailing list at jdom.org,
+             searchable at http://jdom.markmail.org</support>
+    <web-site>http://www.jdom.org/</web-site>
+    <!--
+    The following list of authors was initially extracted from @author
+    comments in the code. Apologies if anyone has been left out.
+    -->
+    <author>
+        <name>Jason Hunter (primary)</name>
+    </author>
+    <author>
+        <name>Brett McLaughlin (primary)</name>
+    </author>
+    <author>
+        <name>Steven Gould</name>
+    </author>
+    <author>
+        <name>Alex Chaffee</name>
+    </author>
+    <author>
+        <name>Jon Baer</name>
+    </author>
+    <author>
+        <name>Elliotte Rusty Harold</name>
+    </author>
+    <author>
+        <name>Dan Schaffer</name>
+    </author>
+    <author>
+        <name>Fred Trimble</name>
+    </author>
+    <author>
+        <name>Jason Reid</name>
+    </author>
+    <author>
+        <name>Kevin Regan</name>
+    </author>
+    <author>
+        <name>Lucas Gonze</name>
+    </author>
+    <author>
+        <name>Matthew Merlo</name>
+    </author>
+    <author>
+        <name>Philip Nelson</name>
+    </author>
+    <author>
+        <name>Wesley Biggs</name>
+    </author>
+    <author>
+        <name>Wolfgang Werner</name>
+    </author>
+    <author>
+        <name>Yusuf Goolamabbas</name>
+    </author>
+    <author>
+        <name>Brad Huffman</name>
+    </author>
+</info>
+
+<!-- 
+
+The following would go in MANIFEST.MF, if only the file supported comments.
+
+For more information on package versioning, see http://java.sun.com/
+  products/jdk/1.2/docs/guide/versioning/spec/VersioningSpecification.html
+Also http://java.sun.com/products/jdk/1.2/docs/guide/jar/manifest.html
+and http://java.sun.com/j2se/1.3/docs/guide/extensions/versioning.html
+
+FYI- Spec version 0.6 means beta6, 0.7 means beta7, and so on.  Perhaps
+surprisingly, 0.10 means beta10.  It's ugly, but is in line with the 
+Dewey Decimal system used by package versioning.
+
+-->
