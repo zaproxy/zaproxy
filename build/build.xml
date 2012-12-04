@@ -183,6 +183,10 @@
                 <include name="**/commons-logging-1.1.1.jar" />
                 <include name="**/ezmorph-1.0.6.jar" />
                 <include name="**/junit-4.8.2.jar" />
+                <!--
+                    NOTE: If you're adding a jar to this list, ensure you add the license to ../license
+                    so it is brought into zap-api.jar
+                -->
             </fileset>
         </unjar>
 
