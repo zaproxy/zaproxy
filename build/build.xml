@@ -49,7 +49,7 @@
 
         <delete dir="${dist}" includeEmptyDirs="true" />
         <delete dir="${build}" includeEmptyDirs="true" />
-        <delete dir="api-libs-exploded" includeEmptyDirs="true" />
+        <delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
 
         <mkdir dir="${build}" />
     </target>
