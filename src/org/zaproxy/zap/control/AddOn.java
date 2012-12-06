@@ -25,7 +25,7 @@ import java.net.URL;
 import org.zaproxy.zap.utils.Enableable;
 
 public class AddOn extends Enableable {
-	public enum Status {alpha, beta, weekly, release, example}
+	public enum Status {example, alpha, beta, weekly, release}
 	private String id;
 	private String name;
 	private int version;
@@ -185,5 +185,11 @@ public class AddOn extends Enableable {
 			return true;
 		}
 		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
+	}
+	
+	public void replaceWith(AddOn ao) {
+		this.version = ao.getVersion();
+		this.status = ao.getStatus();
+		this.file = ao.getFile();
 	}
 }

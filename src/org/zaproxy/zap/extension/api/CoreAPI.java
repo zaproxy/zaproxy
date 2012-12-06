@@ -66,6 +66,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
 	private static final String VIEW_HTTP = "http";
+	private static final String VIEW_VERSION = "version";
 
 	private static final String ACTION_SESSION_PARAM_NAME = "name";
 
@@ -85,6 +86,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS));
 		this.addApiView(new ApiView(VIEW_HTTP));
+		this.addApiView(new ApiView(VIEW_VERSION));
 	}
 
 	@Override
@@ -274,8 +276,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (HttpMalformedHeaderException e) {
 				logger.error(e.getMessage(), e);
 			}
-
-		
+		} else if (VIEW_VERSION.equals(name)) {
+			result.add(Constant.PROGRAM_VERSION);
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

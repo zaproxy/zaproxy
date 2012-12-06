@@ -37,10 +37,6 @@ public class ZapRelease {
 	public ZapRelease() {
 	}
 	
-	public ZapRelease(String version) {
-		this.version = version;
-	}
-	
 	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes) {
 		super();
 		this.version = version;
@@ -90,14 +86,14 @@ public class ZapRelease {
 		this.releaseNotes = releaseNotes;
 	}
 	
-	public boolean isNewerThan (String otherVersion, boolean isCheckDaily) {
+	public boolean isNewerThan (String otherVersion) {
 		boolean newerVersion = false;
 		if (Constant.isDevBuild(this.version)) {
 			// A dev build is always treated as the most recent 
 			return true;
 		} else if (Constant.isDevBuild(otherVersion)) {
 			return false;
-		} else if (isCheckDaily) {
+		} else if (Constant.isDailyBuild(otherVersion)) {
         	// Will just be a 'dated' version, which we can just use a string compare on
 			return otherVersion.compareTo(this.version) < 0;
 		} else if (otherVersion == null) {
@@ -108,11 +104,11 @@ public class ZapRelease {
 	    	String [] otherArray = otherVersion.split("\\.");
 	    	//boolean newerVersion = false;
 	    	for (int i = 0; i < versionArray.length; i++) {
-	    		if (Constant.ALPHA_VERSION.equals(versionArray[i]) ||
-	    				Constant.BETA_VERSION.equals(versionArray[i])) {
-	    			// Alpha and beta versions will only ever appear in this.version,
+	    		if (Constant.ALPHA_VERSION.equals(otherArray[i]) ||
+	    				Constant.BETA_VERSION.equals(otherArray[i])) {
+	    			// Alpha and beta versions should only ever appear in the otherVersion,
 	    			// everything has matched up to now so its a newer 'release' quality version
-	    			newerVersion = false;
+	    			newerVersion = true;
 	    			break;
 	    		} else if (i < otherArray.length) {
     				int versionElement;
@@ -145,6 +141,4 @@ public class ZapRelease {
 		}
 		return newerVersion;
 	}
-	
-	
 }

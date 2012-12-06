@@ -240,9 +240,9 @@ public class ZAP {
 		    } else {
 		    	// Dont auto check for updates the first time, no chance of any proxy having been set
 			    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate)
-		    	Control.getSingleton().getExtensionLoader().getExtension("ExtensionAutoUpdate");
+			    		Control.getSingleton().getExtensionLoader().getExtension("ExtensionAutoUpdate");
 			    if (eau != null) {
-			    	eau.checkForUpdates(false);
+			    	eau.alertIfNewVersions();
 			    }
 		    }
 		    

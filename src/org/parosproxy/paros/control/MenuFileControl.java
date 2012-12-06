@@ -29,6 +29,7 @@
 // ZAP: 2012/07/02 Changed to use the new database compact option in the method
 // exit().
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
+// ZAP: 2012/12/06 Issue 428: Moved exit code to control to support the marketplace
 
 package org.parosproxy.paros.control;
  
@@ -69,30 +70,7 @@ public class MenuFileControl implements SessionListener {
     }
     
 	public void exit() {
-	    boolean isNewState = model.getSession().isNewState();
-	    boolean askOnExit = Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
-	    
-	    if (isNewState && askOnExit) {
-	    	// ZAP: i18n
-			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
-				return;
-			}
-			control.discardSession();
-	    }
-
-	    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
-
-	    Thread t = new Thread(new Runnable() {
-	        @Override
-	        public void run() {
-	            // ZAP: Changed to use the option compact database.
-	            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
-	    		System.exit(0);   
-	        }
-	    });
-	    t.start();
-	    dialog.setVisible(true);
+		control.exit(false, null);
 	}
 	
 	public void newSession(boolean isPromptNewSession) throws ClassNotFoundException, Exception {

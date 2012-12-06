@@ -35,19 +35,26 @@
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
+// ZAP: 2012/12/06 Issue 428: Added exit method to support the marketplace
 
 package org.parosproxy.paros.control;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
 
@@ -151,6 +158,46 @@ public class Control extends AbstractControl implements SessionListener {
 		
         getProxy(null).stopServer();
         super.shutdown(compact);
+    }
+    
+    public void exit (boolean noPrompt, final File openOnExit) {
+	    boolean isNewState = model.getSession().isNewState();
+	    boolean askOnExit = view != null && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
+	    
+	    if (isNewState && askOnExit && ! noPrompt) {
+	    	// ZAP: i18n
+			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
+				return;
+			}
+			control.discardSession();
+	    }
+
+	    Thread t = new Thread(new Runnable() {
+	        @Override
+	        public void run() {
+	            // ZAP: Changed to use the option compact database.
+	            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
+	    	    
+	    	    if (openOnExit != null && Desktop.isDesktopSupported()) {
+					try {
+			    	    log.info("Openning file " + openOnExit.getAbsolutePath());
+						Desktop.getDesktop().open(openOnExit);
+					} catch (IOException e) {
+						log.error("Failed to open file " + openOnExit.getAbsolutePath(), e);
+					}
+	    	    }
+	    		System.exit(0);   
+	        }
+	    });
+
+	    if (view != null) {
+		    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
+		    t.start();
+		    dialog.setVisible(true);
+	    } else {
+		    t.start();
+	    }
     }
     
     public static Control getSingleton() {

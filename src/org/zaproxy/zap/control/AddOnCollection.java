@@ -113,24 +113,22 @@ public class AddOnCollection {
     	// Load the addons
         File[] listFile = dir.listFiles();
 
-        List<AddOn> removeAddOns = new ArrayList<AddOn>();
-
         if (listFile != null) {
         	for (File addOnFile : listFile) {
         		if (AddOn.isAddOn(addOnFile)) {
 	            	AddOn ao = new AddOn(addOnFile);
 	            	for (AddOn addOn : addOns) {
 	            		if (ao.isSameAddOn(addOn) && ao.isUpdateTo(addOn)) {
-	            			// Remove them below so we're not changing a list we're iterating through
-	            			removeAddOns.add(addOn);
+	            			// Replace in situ so we're not changing a list we're iterating through
+	                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
+	                    			" superceeded by " + ao.getVersion());
+	            			addOn.replaceWith(ao);
 	            		}
 	            	}
+	            	logger.debug("Found addon " + ao.getId() + " version " + ao.getVersion());
 	            	this.addOns.add(ao);
         		}
 	        }
-	    	for (AddOn remAddOn : removeAddOns) {
-	    		this.addOns.remove(remAddOn);
-	    	}
         }
     }
     

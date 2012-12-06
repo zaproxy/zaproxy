@@ -43,9 +43,9 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
+import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
-import org.zaproxy.zap.extension.option.OptionsParamCheckForUpdates;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
