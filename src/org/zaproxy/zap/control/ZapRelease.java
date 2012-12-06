@@ -37,6 +37,10 @@ public class ZapRelease {
 	public ZapRelease() {
 	}
 	
+	public ZapRelease(String version) {
+		this.version = version;
+	}
+	
 	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes) {
 		super();
 		this.version = version;
