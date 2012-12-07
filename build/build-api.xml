@@ -19,6 +19,7 @@
 	-->
 	<taskdef name="accessUrlTask" classname="org.zaproxy.clientapi.ant.AccessUrlTask"/>
 	<taskdef name="activeScanUrlTask" classname="org.zaproxy.clientapi.ant.ActiveScanUrlTask"/>
+    <taskdef name="activeScanSiteTask" classname="org.zaproxy.clientapi.ant.ActiveScanSiteTask"/>
 	<taskdef name="alertCheckTask" classname="org.zaproxy.clientapi.ant.AlertCheckTask"/>
 	<taskdef name="loadSessionTask" classname="org.zaproxy.clientapi.ant.LoadSessionTask"/>
 	<taskdef name="newSessionTask" classname="org.zaproxy.clientapi.ant.NewSessionTask"/>
@@ -67,9 +68,13 @@
 	    <spiderUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}"/>
 	</target>
 
-	<target name="activescan">
-	    <activeScanUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}"/>
+	<target name="activescanSite">
+	    <activeScanSiteTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}"/>
 	</target>
+
+    <target name="activescanUrl">
+        <activeScanUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}"/>
+    </target>
 	
 	<target name="wave-test">
 		
