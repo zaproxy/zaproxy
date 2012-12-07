@@ -72,7 +72,7 @@ public class ClientApi {
 	}
 	
 	public void activeScanUrl (String url) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/ascan/action/scan/?url=" + url).toString();
+		String result = openUrlViaProxy(proxy, "http://zap/json/ascan/action/scan_url/?url=" + url).toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
 			throw new Exception("Unexpected result: " + result);
 		}
@@ -81,6 +81,17 @@ public class ClientApi {
 			Thread.sleep(1000);
 		}
 	}
+
+    public void activeScanSite (String url) throws Exception {
+        String result = openUrlViaProxy(proxy, "http://zap/json/ascan/action/scan_site/?url=" + url).toString();
+        if ( ! result.equals("[[\"OK\"]]")) {
+            throw new Exception("Unexpected result: " + result);
+        }
+        // Poll until spider finished
+        while ( ! openUrlViaProxy(proxy, "http://zap/json/ascan/view/status").toString().equals("[[\"100\"]]")) {
+            Thread.sleep(1000);
+        }
+    }
 	
 	public void accessUrl (String url) throws Exception {
 		accessUrlViaProxy(proxy, url);

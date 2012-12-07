@@ -46,7 +46,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
     private static Logger log = Logger.getLogger(ActiveScanAPI.class);
 
 	private static final String PREFIX = "ascan";
-	private static final String ACTION_SCAN = "scan";
+	private static final String ACTION_SCAN = "scan_url";
+    private static final String ACTION_SCAN_SITE = "scan_site";
 	private static final String VIEW_STATUS = "status";
 	private static final String ACTION_SCANSITE_PARAM_URL = "url";
 	
@@ -59,6 +60,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		List<String> scanParams = new ArrayList<>(1);
 		scanParams.add(ACTION_SCANSITE_PARAM_URL);
 		this.addApiAction(new ApiAction(ACTION_SCAN, scanParams));
+        this.addApiAction(new ApiAction(ACTION_SCAN_SITE, scanParams));
 		this.addApiView(new ApiView(VIEW_STATUS));
 
 	}
@@ -71,12 +73,16 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	@Override
 	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
-		if (ACTION_SCAN.equals(name)) {
+		if (ACTION_SCAN.equals(name) || ACTION_SCAN_SITE.equals(name)) {
 			String url = params.getString(ACTION_SCANSITE_PARAM_URL);
 			if (url == null || url.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_SCANSITE_PARAM_URL);
 			}
-			scanURL(url);
+            if (ACTION_SCAN.equals(name)){
+			    scanURL(url, false);
+            }else if(ACTION_SCAN_SITE.equals(name)){
+                scanURL(url, true);
+            }
 
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
@@ -86,7 +92,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		return result;
 	}
 
-	private void scanURL(String url) throws ApiException {
+	private void scanURL(String url, boolean scanChildren) throws ApiException {
 		
 		if (activeScan != null && ! activeScan.isStopped()) {
 			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
@@ -104,7 +110,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		}
 
 		activeScan = new ActiveScan(url, extension.getScannerParam(), 
-				extension.getModel().getOptionsParam().getConnectionParam(), null);
+				extension.getModel().getOptionsParam().getConnectionParam(), null, scanChildren);
 		
 		progress = 0;
 		activeScan.addScannerListener(this);
