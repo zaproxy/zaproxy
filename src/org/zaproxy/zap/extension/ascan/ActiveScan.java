@@ -57,19 +57,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	
 	}
 
-    public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel, boolean scanChildren) {
-        super(scannerParam, param);
-        this.site = site;
-        this.scanChildren = scanChildren;
-        if (activeScanPanel != null) {
-            this.activeScanPanel = activeScanPanel;
-            this.addScannerListener(activeScanPanel);
-        }
-        // TODO doesnt this make it circular??
-        this.addScannerListener(this);
-
-    }
-
 	@Override
 	public int getMaximum() {
 		return 100;

@@ -110,11 +110,12 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		}
 
 		activeScan = new ActiveScan(url, extension.getScannerParam(), 
-				extension.getModel().getOptionsParam().getConnectionParam(), null, scanChildren);
+				extension.getModel().getOptionsParam().getConnectionParam(), null);
 		
 		progress = 0;
 		activeScan.addScannerListener(this);
 		activeScan.setStartNode(startNode);
+        activeScan.setScanChildren(scanChildren);
 		activeScan.start();
 	}
 
