@@ -22,12 +22,14 @@
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -47,6 +49,8 @@ public abstract class ExtensionAdaptor implements Extension {
     private ExtensionHook extensionHook = null;
     private int order = 0;
     private boolean enabled = true;
+    private ResourceBundle messages = null;
+    private String i18nPrefix = null;
     
     public ExtensionAdaptor() {
     }
@@ -188,6 +192,31 @@ public abstract class ExtensionAdaptor implements Extension {
 	@Override
 	public URL getURL () {
 		return null;
+	}
+	
+	@Override
+	public ResourceBundle getMessages() {
+		return this.messages;
+	}
+	
+	@Override
+	public void setMessages(ResourceBundle messages) {
+		this.messages = messages;
+	}
+	
+	@Override
+	public String getI18nPrefix () {
+		if (this.i18nPrefix == null) {
+			// Default to the (last part of the )name of the package 
+			String packageName = this.getClass().getPackage().getName();
+			this.i18nPrefix = packageName.substring(packageName.lastIndexOf(".") + 1);
+		}
+		return this.i18nPrefix;
+	}
+
+	@Override
+	public void setI18nPrefix (String prefix) {
+		this.i18nPrefix = prefix;
 	}
 
 }

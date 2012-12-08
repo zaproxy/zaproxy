@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -113,6 +114,7 @@ public class ExtensionFactory {
             	if (ext.isEnabled()) {
             		log.debug("Ordered extension " + order + " " + ext.getName());
             		extensionLoader.addExtension(ext);
+            		loadMessages(ext);
             	}
             }
             // And then the unordered ones
@@ -120,9 +122,22 @@ public class ExtensionFactory {
             	if (ext.isEnabled()) {
             		log.debug("Unordered extension " + ext.getName());
             		extensionLoader.addExtension(ext);
+            		loadMessages(ext);
             	}
             }
         }
+    }
+    
+    private static void loadMessages(Extension ext) {
+    	// Try to load a message bundle in the same package as the extension 
+		String name = ext.getClass().getPackage().getName() + "." + Constant.MESSAGES_PREFIX;
+		try {
+			ResourceBundle msg = ResourceBundle.getBundle(name, Constant.getLocale(), ext.getClass().getClassLoader());
+			ext.setMessages(msg);
+			Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
+		} catch (Exception e) {
+			// Ignore - it will be using the standard message bundle
+		}
     }
     
 	public static List<Extension> getAllExtensions() {

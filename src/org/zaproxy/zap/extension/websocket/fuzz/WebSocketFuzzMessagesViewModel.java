@@ -62,9 +62,8 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	private static final String msgFail;
 	
 	static {
-		ResourceBundle msgs = Constant.messages;
-		msgSuccess = msgs.getString("websocket.fuzz.success");
-		msgFail = msgs.getString("websocket.fuzz.fail");
+		msgSuccess = Constant.messages.getString("websocket.fuzz.success");
+		msgFail = Constant.messages.getString("websocket.fuzz.fail");
 	}
     
 	/**

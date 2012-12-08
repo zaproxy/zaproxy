@@ -162,29 +162,28 @@ public class WebSocketBreakpointMessage extends AbstractBreakPointMessage {
 
     @Override
     public String getDisplayMessage() {
-    	ResourceBundle msgs = Constant.messages;
     	String message = "";
     	
     	if (opcode != null) {
-    		message += msgs.getString("websocket.brk.add.opcode") + " " + opcode + "; ";
+    		message += Constant.messages.getString("websocket.brk.add.opcode") + " " + opcode + "; ";
         }
         
         if (channelId != null) {
-    		message += msgs.getString("websocket.brk.add.channel") + " #" + channelId + "; ";
+    		message += Constant.messages.getString("websocket.brk.add.channel") + " #" + channelId + "; ";
         }
         
         if (payloadPattern != null) {
-    		message += msgs.getString("websocket.brk.add.pattern") + " " + payloadPattern.pattern() + "; ";
+    		message += Constant.messages.getString("websocket.brk.add.pattern") + " " + payloadPattern.pattern() + "; ";
         }
         
         if (direction != null) {
-    		message += msgs.getString("websocket.brk.add.direction") + " " + direction + "; ";
+    		message += Constant.messages.getString("websocket.brk.add.direction") + " " + direction + "; ";
         }
         
         if (message.isEmpty()) {
-        	return msgs.getString("websocket.brk.add.break_on_all");
+        	return Constant.messages.getString("websocket.brk.add.break_on_all");
         }
         
-        return msgs.getString("websocket.brk.add.break_on_custom") + " " + message;
+        return Constant.messages.getString("websocket.brk.add.break_on_custom") + " " + message;
     }
 }

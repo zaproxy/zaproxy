@@ -21,11 +21,13 @@
 // ZAP: 2011/11/20 Support for extension factory
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/03/17 Issue 282 Added getAuthor() and getURL();
+// ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -108,5 +110,13 @@ public interface Extension {
 	public String getAuthor ();
 	
 	public URL getURL ();
+
+	public ResourceBundle getMessages();
 	
+	public void setMessages(ResourceBundle messages);
+	
+	public String getI18nPrefix ();
+
+	public void setI18nPrefix(String prefix);
+
 }

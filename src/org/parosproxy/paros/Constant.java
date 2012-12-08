@@ -41,6 +41,7 @@
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
+// ZAP: 2012/12/08 Issue 428: Changed to use I18N for messages, to support the marketplace
 
 package org.parosproxy.paros;
 
@@ -52,7 +53,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -64,6 +64,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
+import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
@@ -167,8 +168,7 @@ public final class Constant {
     private static String zapStd = null;
     
     // ZAP: Added i18n
-    public static ResourceBundle messages = null;
-    private static Locale locale = null;
+    public static I18N messages = null;
 
     /**
      * Path to the file that contains the vulnerabilities' data.
@@ -426,7 +426,7 @@ public final class Constant {
         
         // ZAP: Init i18n
         String lang = null;
-        locale = Locale.ENGLISH;
+        Locale locale = Locale.ENGLISH;
         try {
             // Select the correct locale
             // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
@@ -442,8 +442,8 @@ public final class Constant {
         } catch (Exception e) {
         	System.out.println("Failed to initialise locale " + e);
         }
-        
-        messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
+
+        messages = new I18N(locale);
     }
     
     private void copyProperty(XMLConfiguration fromConfig, XMLConfiguration toConfig, String key) {
@@ -616,13 +616,16 @@ public final class Constant {
 
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
-        locale = new Locale(langArray[0], langArray[1]);
-	    //messages = ResourceBundle.getBundle("lang." + MESSAGES_PREFIX, locale);
-	    messages = ResourceBundle.getBundle(MESSAGES_PREFIX, locale);
+        Locale locale = new Locale(langArray[0], langArray[1]);
+        if (messages == null) {
+        	messages = new I18N(locale);
+        } else {
+        	messages.setLocale(locale);
+        }
     }
 	
 	public static Locale getLocale () {
-		return locale;
+		return messages.getLocal();
 	}
     
     public static Constant getInstance() {
