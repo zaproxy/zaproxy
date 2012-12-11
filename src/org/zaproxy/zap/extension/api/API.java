@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.api;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -28,8 +29,6 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -144,6 +143,8 @@ public class API {
 									break;
 						case UI:	contentType = "text/html";
 									break;
+						default:
+									break;
 						}
 					} catch (IllegalArgumentException e) {
 						throw new ApiException(ApiException.Type.BAD_FORMAT);
@@ -181,6 +182,20 @@ public class API {
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
 						*/
+						// TODO check for mandatory params
+						ApiAction action = impl.getApiAction(name);
+						if (action != null) {
+							// Checking for null to handle option actions
+							List<String> mandatoryParams = action.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (params.getString(param) == null || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
+						
 						result = impl.handleApiOptionAction(name, params);	
 						if (result == null) {
 							result = impl.handleApiAction(name, params);
@@ -194,9 +209,23 @@ public class API {
 									break;
 						case HTML:	response = impl.actionResultToHTML(name, result);
 									break;
+						default:
+									break;
 						}
 						break;
 					case view:		
+						ApiView view = impl.getApiView(name);
+						if (view != null) {
+							// Checking for null to handle option actions
+							List<String> mandatoryParams = view.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (params.getString(param) == null || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
 						result = impl.handleApiOptionView(name, params);	
 						if (result == null) {
 							result = impl.handleApiView(name, params);
@@ -210,9 +239,23 @@ public class API {
 									break;
 						case HTML:	response = impl.viewResultToHTML(name, result);
 									break;
+						default:
+									break;
 						}
 						break;
 					case other:
+						ApiOther other = impl.getApiOther(name);
+						if (other != null) {
+							// Checking for null to handle option actions
+							List<String> mandatoryParams = other.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (params.getString(param) == null || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
 						msg = impl.handleApiOther(msg, name, params);
 					}
 				}

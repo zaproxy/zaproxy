@@ -25,11 +25,20 @@ public class ApiAction extends ApiElement {
 		super(name);
 	}
 	
-	public ApiAction(String name, List<String> paramNames) {
-		super(name, paramNames);
+	public ApiAction(String name, List<String> mandatoryParamNames) {
+		super(name, mandatoryParamNames);
 	}
 	
-	public ApiAction(String name, String[] paramNames) {
-		super(name, paramNames);
+	public ApiAction(String name, String[] mandatoryParamNames) {
+		super(name, mandatoryParamNames);
 	}
+	
+	public ApiAction(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+		super(name, mandatoryParamNames, optionalParamNames);
+	}
+	
+	public ApiAction(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+		super(name, mandatoryParamNames, optionalParamNames);
+	}
+	
 }

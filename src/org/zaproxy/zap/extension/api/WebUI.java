@@ -83,7 +83,8 @@ public class WebUI {
 	private void appendElements(StringBuilder sb, String component, String type, List<ApiElement> elementList) {
 		sb.append("<table>\n");
 		for (ApiElement element : elementList) {
-			List<String> params = element.getParamNames();
+			List<String> mandatoryParams = element.getMandatoryParamNames();
+			List<String> optionalParams = element.getOptionalParamNames();
 			sb.append("<tr>");
 			sb.append("<td>");
 			sb.append("<a href=\"http://zap/");
@@ -96,16 +97,39 @@ public class WebUI {
 			sb.append(element.getName());
 			sb.append("/\">");
 			sb.append(element.getName());
-			if (params != null) {
+			if (mandatoryParams != null || optionalParams != null) {
 				sb.append(" (");
-				for (String param : params) {
-					sb.append(param);
-					sb.append(' ');
+				if (mandatoryParams != null) {
+					for (String param : mandatoryParams) {
+						sb.append(param);
+						sb.append("* ");
+					}
+				}
+				if (optionalParams != null) {
+					for (String param : optionalParams) {
+						sb.append(param);
+						sb.append(" ");
+					}
 				}
 				sb.append(") ");
 			}
 			sb.append("</a>");
+			sb.append("</td><td>");
+			
+			String descTag = element.getDescriptionTag();
+			if (descTag == null) {
+				// This is the default, but it can be overriden by the getDescriptionTag method if required
+				descTag = component + ".api." + type + "." + element.getName();
+			}
+			try {
+				sb.append(Constant.messages.getString(descTag));
+			} catch (Exception e) {
+				// Might not be set, so ignore failures
+				// Uncomment to see what tags are missing via the UI
+				// sb.append(descTag);
+			}
 			sb.append("</td>");
+			
 			sb.append("</tr>\n");
 		}
 		sb.append("</table>\n");
@@ -157,11 +181,24 @@ public class WebUI {
 			if (name != null) {
 				ApiElement element = this.getElement(impl, name, reqType);
 				
-				List<String> params = element.getParamNames();
+				List<String> mandatoryParams = element.getMandatoryParamNames();
+				List<String> optionalParams = element.getOptionalParamNames();
 				sb.append("<h3>");
 				sb.append(Constant.messages.getString("api.html." + reqType.name()));
 				sb.append(element.getName());
 				sb.append("</h3>\n");
+				// Handle the (optional) description
+				String descTag = element.getDescriptionTag();
+				if (descTag == null) {
+					// This is the default, but it can be overriden by the getDescriptionTag method if required
+					descTag = component + ".api." + reqType.name() + "." + name;
+				}
+				try {
+					sb.append(Constant.messages.getString(descTag));
+				} catch (Exception e) {
+					// Might not be set, so ignore failures
+				}
+				
 				sb.append("<form id=\"zapform\" name=\"zapform\">");
 				sb.append("<table>\n");
 				sb.append("<tr><td>");
@@ -174,8 +211,24 @@ public class WebUI {
 				sb.append("</select>\n");
 				sb.append("</td></tr>\n");
 				
-				if (params != null) {
-					for (String param : params) {
+				if (mandatoryParams != null) {
+					for (String param : mandatoryParams) {
+						sb.append("<tr>");
+						sb.append("<td>");
+						sb.append(param);
+						sb.append("*</td>");
+						sb.append("<td>");
+						sb.append("<input id=\"");
+						sb.append(param);
+						sb.append("\" name=\"");
+						sb.append(param);
+						sb.append("\"></input>");
+						sb.append("</td>");
+						sb.append("</tr>\n");
+					}
+				}
+				if (optionalParams != null) {
+					for (String param : optionalParams) {
 						sb.append("<tr>");
 						sb.append("<td>");
 						sb.append(param);

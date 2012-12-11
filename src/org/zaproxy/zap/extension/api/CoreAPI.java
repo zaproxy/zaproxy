@@ -74,13 +74,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private boolean savingSession = false;
 
 	public CoreAPI() {
-
-		List<String> params = new ArrayList<>(1);
-		params.add(ACTION_SESSION_PARAM_NAME);
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
-		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, params));
-		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, params));
-		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, params));
+		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {ACTION_SESSION_PARAM_NAME}));
+		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {ACTION_SESSION_PARAM_NAME}));
+		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {ACTION_SESSION_PARAM_NAME}));
 		this.addApiView(new ApiView(VIEW_ALERTS));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));

@@ -17,9 +17,6 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -39,15 +36,12 @@ public class AutoUpdateAPI extends ApiImplementor {
 	private static final String DOWNLOAD_LATEST_RELEASE = "download_latest_release";
 	private static final String VIEW_LATEST_VERSION_NUMBER = "latest_version_number";
 	private static final String VIEW_IS_LATEST_VERSION = "is_latest_version";
-	private static final String ACTION_SCANSITE_PARAM_URL = "url";
 	
 	private ExtensionAutoUpdate extension;
 	
 	public AutoUpdateAPI (ExtensionAutoUpdate extension) {
 		this.extension = extension;
-		List<String> scanParams = new ArrayList<>(1);
-		scanParams.add(ACTION_SCANSITE_PARAM_URL);
-		this.addApiAction(new ApiAction(DOWNLOAD_LATEST_RELEASE, scanParams));
+		this.addApiAction(new ApiAction(DOWNLOAD_LATEST_RELEASE));
 		this.addApiView(new ApiView(VIEW_LATEST_VERSION_NUMBER));
 		this.addApiView(new ApiView(VIEW_IS_LATEST_VERSION));
 

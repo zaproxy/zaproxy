@@ -23,7 +23,9 @@ import java.util.List;
 public class ApiElement {
 
 	private String name = null;
-	private List<String> paramNames = new ArrayList<>();
+	private String descriptionTag = null;
+	private List<String> mandatoryParamNames = new ArrayList<>();
+	private List<String> optionalParamNames = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -38,29 +40,72 @@ public class ApiElement {
 		this.name = name;
 	}
 	
-	public ApiElement(String name, List<String> paramNames) {
-		super();
-		this.name = name;
-		this.paramNames = paramNames;
+	public ApiElement(String name, List<String> mandatoryParamNames) {
+		this(name, mandatoryParamNames, null);
 	}
 	
-	public ApiElement(String name, String[] paramNames) {
+	public ApiElement(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
 		super();
 		this.name = name;
+		if (this.mandatoryParamNames != null) {
+			this.mandatoryParamNames = mandatoryParamNames;
+		}
+		if (this.optionalParamNames != null) {
+			this.optionalParamNames = optionalParamNames;
+		}
+	}
+	
+	public ApiElement(String name, String[] mandatoryParamNames) {
+		this(name, mandatoryParamNames, null);
+	}
+	
+	public ApiElement(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+		super();
+		this.name = name;
+		this.setMandatoryParamNames(mandatoryParamNames);
+		this.setOptionalParamNames(optionalParamNames);
+	}
+	
+	public void setMandatoryParamNames(String[] paramNames) {
 		if (paramNames != null) {
-			this.paramNames = new ArrayList<>(paramNames.length);
+			this.mandatoryParamNames = new ArrayList<>(paramNames.length);
 			for (String param : paramNames) {
-				this.paramNames.add(param);
+				this.mandatoryParamNames.add(param);
 			}
 		}
 	}
 	
-	public void setParamNames(List<String> paramNames) {
-		this.paramNames = paramNames;
+	public void setMandatoryParamNames(List<String> paramNames) {
+		this.mandatoryParamNames = paramNames;
 	}
 
-	public List<String> getParamNames() {
-		return paramNames;
+	public List<String> getMandatoryParamNames() {
+		return mandatoryParamNames;
+	}
+
+	public String getDescriptionTag() {
+		return descriptionTag;
+	}
+
+	public void setDescriptionTag(String descriptionTag) {
+		this.descriptionTag = descriptionTag;
+	}
+
+	public List<String> getOptionalParamNames() {
+		return optionalParamNames;
+	}
+	
+	public void setOptionalParamNames(String[] optionalParamNames) {
+		if (optionalParamNames != null) {
+			this.optionalParamNames = new ArrayList<>(optionalParamNames.length);
+			for (String param : optionalParamNames) {
+				this.optionalParamNames.add(param);
+			}
+		}
+	}
+
+	public void setOptionalParamNames(List<String> optionalParamNames) {
+		this.optionalParamNames = optionalParamNames;
 	}
 
 }

@@ -277,4 +277,31 @@ public abstract class ApiImplementor {
 
 	public abstract String getPrefix();
 
+	public ApiAction getApiAction(String name) {
+		for (ApiAction action :this.apiActions) {
+			if (action.getName().equals(name)) {
+				return action;
+			}
+		}
+		return null;
+	}
+
+	public ApiView getApiView(String name) {
+		for (ApiView view :this.apiViews) {
+			if (view.getName().equals(name)) {
+				return view;
+			}
+		}
+		return null;
+	}
+
+	public ApiOther getApiOther(String name) {
+		for (ApiOther other : this.apiOthers) {
+			if (other.getName().equals(name)) {
+				return other;
+			}
+		}
+		return null;
+	}
+
 }

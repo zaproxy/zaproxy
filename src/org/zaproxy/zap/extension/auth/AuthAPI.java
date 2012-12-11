@@ -85,12 +85,12 @@ public class AuthAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_AUTO_REAUTH_ON));
 		this.addApiAction(new ApiAction(ACTION_AUTO_REAUTH_OFF));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGIN_NODE, 
-				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL, ACTION_PARAM_DATA}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL}, new String[] {ACTION_PARAM_DATA}));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGIN_INDICATOR, 
 				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_INDICATOR}));
 		
 		this.addApiAction(new ApiAction(ACTION_SET_LOGOUT_NODE, 
-				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL, ACTION_PARAM_DATA}));
+				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_URL}, new String[] {ACTION_PARAM_DATA}));
 		this.addApiAction(new ApiAction(ACTION_SET_LOGOUT_INDICATOR, 
 				new String[] {ACTION_PARAM_CONTEXT_ID, ACTION_PARAM_INDICATOR}));
 

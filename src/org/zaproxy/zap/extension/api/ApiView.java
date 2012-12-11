@@ -25,11 +25,19 @@ public class ApiView extends ApiElement {
 		super(name);
 	}
 
-	public ApiView(String name, List<String> paramNames) {
-		super(name, paramNames);
+	public ApiView(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+		super(name, mandatoryParamNames, optionalParamNames);
 	}
 	
-	public ApiView(String name, String[] paramNames) {
-		super(name, paramNames);
+	public ApiView(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+		super(name, mandatoryParamNames, optionalParamNames);
+	}
+	
+	public ApiView(String name, List<String> mandatoryParamNames) {
+		super(name, mandatoryParamNames);
+	}
+	
+	public ApiView(String name, String[] mandatoryParamNames) {
+		super(name, mandatoryParamNames);
 	}
 }
