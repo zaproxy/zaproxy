@@ -59,7 +59,33 @@ public class WikiAPI {
 		for (ApiImplementor imp : this.implementors) {
 			out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
 		}
+		out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
 		out.write("Generated on " + new Date() + "\n");
+		out.close();
+	}
+
+	private void generateWikiFull() throws IOException {
+		File f = new File(this.dir, base + "Full.wiki");
+		System.out.println("Generating " + f.getAbsolutePath());
+		FileWriter out = new FileWriter(f);
+		out.write(title);
+		out.write("== Full List ==\n");
+		out.write("|| _Component_ || _Name_ || _Type_ || _Parameters_ || _Description_ ||\n");
+		for (ApiImplementor imp : this.implementors) {
+			for (ApiElement view : imp.getApiViews()) {
+				this.generateWikiElement(view, imp.getPrefix(), "view", out, true);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generateWikiElement(action, imp.getPrefix(), "action", out, true);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generateWikiElement(other, imp.getPrefix(), "other", out, true);
+			}
+		}
+		out.write("\n");
+		out.write("Starred parameters are mandatory\n\n");
+		out.write("Back to [" + base + "Index index]\n\n");
+		out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}
 
@@ -69,9 +95,17 @@ public class WikiAPI {
 		for (ApiImplementor imp : this.implementors) {
 			this.generateWikiComponent(imp);
 		}
+		this.generateWikiFull();
 	}
 	
 	private void generateWikiElement(ApiElement element, String component, String type, Writer out) throws IOException {
+		this.generateWikiElement(element, component, type, out, false);
+		
+	}
+	private void generateWikiElement(ApiElement element, String component, String type, Writer out, boolean incComponentCol) throws IOException {
+		if (incComponentCol) {
+			out.write("|| " + component);
+		}
 		out.write("|| " + element.getName() + "|| " + type + " || ");
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
