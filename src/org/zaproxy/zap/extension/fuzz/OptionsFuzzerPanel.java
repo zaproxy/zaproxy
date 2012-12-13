@@ -232,7 +232,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 			sliderThreadsPerScan.setPaintTicks(true);
 			sliderThreadsPerScan.setPaintLabels(true);
 			sliderThreadsPerScan.setMinorTickSpacing(1);
-			sliderThreadsPerScan.setMajorTickSpacing(1);
+			sliderThreadsPerScan.setMajorTickSpacing(5);
 			sliderThreadsPerScan.setSnapToTicks(true);
 			sliderThreadsPerScan.setPaintTrack(true);
 		}
