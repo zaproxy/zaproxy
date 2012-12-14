@@ -128,6 +128,10 @@
                 <exclude name="**/_svn/**" />
             </fileset>
         </copy>
+    	<echo message="TODO here goes"/>
+        <copy todir="${build}/org">
+            <fileset dir="${src}/org" includes="**/*.properties" />
+        </copy>
         <!-- Copy standard README - this is overwritted for weekly releases -->
         <copy file="${src}/doc/README" tofile="${dist}/README" />
 
