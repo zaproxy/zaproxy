@@ -44,6 +44,7 @@ import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -512,6 +513,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					continue;
 				}
 				if ( ! msg.getRequestHeader().isImage() && ! msg.getResponseHeader().isImage()) {
+					
+					msg.setHistoryRef(new HistoryReference(historyId));
+					
 					mgss.add(msg);
 					c ++;
 					if (count > 0 && c >= count) {
