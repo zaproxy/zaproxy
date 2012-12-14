@@ -45,7 +45,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.ZapTextField;
 
 
-public class SearchPanel extends AbstractPanel {
+public class SearchPanel extends AbstractPanel implements SearchListenner {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -555,4 +555,9 @@ public class SearchPanel extends AbstractPanel {
         }
         return searchPanelCellRenderer;
     }
+
+	@Override
+	public void searchComplete() {
+		// TODO Ignore
+	}
 }

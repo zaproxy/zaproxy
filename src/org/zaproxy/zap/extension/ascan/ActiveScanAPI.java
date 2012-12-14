@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -46,22 +48,30 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
     private static Logger log = Logger.getLogger(ActiveScanAPI.class);
 
 	private static final String PREFIX = "ascan";
-	private static final String ACTION_SCAN = "scan_url";
-    private static final String ACTION_SCAN_SITE = "scan_site";
+    private static final String ACTION_SCAN = "scan";
+    
+	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
+	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
+    
 	private static final String VIEW_STATUS = "status";
-	private static final String ACTION_SCANSITE_PARAM_URL = "url";
-	
+	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
+
+	private static final String PARAM_URL = "url";
+	private static final String PARAM_REGEX = "regex";
+	private static final String PARAM_RECURSE = "recurse";
+
 	private ExtensionActiveScan extension;
 	private ActiveScan activeScan = null;
 	private int progress = 0;
 	
 	public ActiveScanAPI (ExtensionActiveScan extension) {
 		this.extension = extension;
-		List<String> scanParams = new ArrayList<>(1);
-		scanParams.add(ACTION_SCANSITE_PARAM_URL);
-		this.addApiAction(new ApiAction(ACTION_SCAN, scanParams));
-        this.addApiAction(new ApiAction(ACTION_SCAN_SITE, scanParams));
+        this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE}));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
+
 		this.addApiView(new ApiView(VIEW_STATUS));
+		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 
 	}
 	
@@ -73,17 +83,28 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	@Override
 	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
-		if (ACTION_SCAN.equals(name) || ACTION_SCAN_SITE.equals(name)) {
-			String url = params.getString(ACTION_SCANSITE_PARAM_URL);
+		if (ACTION_SCAN.equals(name)) {
+			String url = params.getString(PARAM_URL);
 			if (url == null || url.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_SCANSITE_PARAM_URL);
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 			}
-            if (ACTION_SCAN.equals(name)){
-			    scanURL(url, false);
-            }else if(ACTION_SCAN_SITE.equals(name)){
-                scanURL(url, true);
-            }
+		    scanURL(params.getString(PARAM_URL), this.getParam(params, PARAM_RECURSE, true));
 
+		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
+			try {
+				Session session = Model.getSingleton().getSession();
+				session.setExcludeFromScanRegexs(new ArrayList<String>());
+			} catch (SQLException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+		} else if (ACTION_EXCLUDE_FROM_SCAN.equals(name)) {
+			String regex = params.getString(PARAM_REGEX);
+			try {
+				Session session = Model.getSingleton().getSession();
+				session.addExcludeFromScanRegexs(regex);
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -125,6 +146,12 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		JSONArray result = new JSONArray();
 		if (VIEW_STATUS.equals(name)) {
 			result.add("" + progress);
+		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
+			Session session = Model.getSingleton().getSession();
+			List<String> regexs = session.getExcludeFromScanRegexs();
+			for (String regex : regexs) {
+				result.add(regex);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

@@ -54,7 +54,6 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.security.SslCertificateService;
-import org.parosproxy.paros.security.SslCertificateServiceImpl;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextArea;
 
@@ -68,14 +67,16 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	private JButton bt_save;
 
 	private KeyStore rootca;
+	private ExtensionDynSSL extension;
 
 	private static final Logger logger = Logger.getLogger(DynamicSSLPanel.class);
 
 	/**
 	 * Create the panel.
 	 */
-	public DynamicSSLPanel() {
+	public DynamicSSLPanel(ExtensionDynSSL extension) {
 		super();
+		this.extension = extension;
 
 		setName(Constant.messages.getString("dynssl.options.name"));
 		setLayout(new BorderLayout(0, 0));
@@ -209,7 +210,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		final OptionsParam options = (OptionsParam) obj;
 		final DynSSLParam param = (DynSSLParam) options.getParamSet(DynSSLParam.class);
 		param.setRootca(rootca);
-		SslCertificateServiceImpl.getService().initializeRootCA(rootca);
+		extension.setRootCa(rootca);
 	}
 	
 	@Override
@@ -226,6 +227,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				final PemWriter pw = new PemWriter(sw);
 				pw.writeObject(new MiscPEMGenerator(cert));
 				pw.flush();
+				pw.close();
 			} catch (final Exception e) {
 				logger.error("Error while extracting public part from generated Root CA certificate.", e);
 			}

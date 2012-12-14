@@ -22,6 +22,9 @@ package org.zaproxy.zap.extension.dynssl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -72,7 +75,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 
 	private DynamicSSLPanel getOptionsPanel() {
 		if (optionsPanel == null) {
-			optionsPanel = new DynamicSSLPanel();
+			optionsPanel = new DynamicSSLPanel(this);
 		}
 		return optionsPanel;
 	}
@@ -101,5 +104,9 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+
+	public void setRootCa(KeyStore rootca) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
+		SslCertificateServiceImpl.getService().initializeRootCA(rootca);
 	}
 }

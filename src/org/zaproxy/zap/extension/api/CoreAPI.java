@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -50,6 +51,8 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
@@ -57,33 +60,57 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static Logger log = Logger.getLogger(CoreAPI.class);
 
 	private static final String PREFIX = "core";
+	// TODO change to CamelCase when the client APIs can be easily updated
 	private static final String ACTION_LOAD_SESSION = "loadsession";
 	private static final String ACTION_NEW_SESSION = "newsession";
 	private static final String ACTION_SAVE_SESSION = "savesession";
+	
 	private static final String ACTION_SHUTDOWN = "shutdown";
+	private static final String ACTION_EXCLUDE_FROM_PROXY = "excludeFromProxy";
+	private static final String ACTION_CLEAR_EXCLUDED_FROM_PROXY = "clearExcludedFromProxy";
+	private static final String ACTION_SET_HOME_DIRECTORY = "setHomeDirectory";
+	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
+	
 	private static final String VIEW_ALERTS = "alerts";
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
-	private static final String VIEW_HTTP = "http";
+	private static final String VIEW_MESSAGES = "messages";
 	private static final String VIEW_VERSION = "version";
+	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
+	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 
-	private static final String ACTION_SESSION_PARAM_NAME = "name";
+	private static final String PARAM_BASE_URL = "baseurl";
+	private static final String PARAM_COUNT = "count";
+	private static final String PARAM_DIR = "dir";
+	private static final String PARAM_SESSION = "name";
+	//private static final String PARAM_CONTEXT = "context";	// TODO need to support context methods for this!
+	private static final String PARAM_REGEX = "regex";
+	private static final String PARAM_START = "start";
 
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean savingSession = false;
 
 	public CoreAPI() {
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
-		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {ACTION_SESSION_PARAM_NAME}));
-		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {ACTION_SESSION_PARAM_NAME}));
-		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {ACTION_SESSION_PARAM_NAME}));
-		this.addApiView(new ApiView(VIEW_ALERTS));
+		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
+		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
+		this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
+		
+		this.addApiView(new ApiView(VIEW_ALERTS, null, 
+				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS));
-		this.addApiView(new ApiView(VIEW_HTTP));
+		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
+				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiView(new ApiView(VIEW_VERSION));
+		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
+		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 	}
 
 	@Override
@@ -95,7 +122,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	public JSON handleApiAction(String name, JSONObject params)
 			throws ApiException {
 
-		// Session session = API.getInstance().getSession();
 		Session session = Model.getSingleton().getSession();
 
 		if (ACTION_SHUTDOWN.equals(name)) {
@@ -104,11 +130,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			System.exit(0);
 
 		} else if (ACTION_SAVE_SESSION.equals(name)) {
-			String sessionName = params.getString(ACTION_SESSION_PARAM_NAME);
-			if (sessionName == null || sessionName.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER,
-						ACTION_SESSION_PARAM_NAME);
-			}
+			String sessionName = params.getString(PARAM_SESSION);
 			session.setSessionName(name);
 			if (!sessionName.endsWith(".session")) {
 				sessionName = sessionName + ".session";
@@ -150,11 +172,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 			
 		} else if (ACTION_LOAD_SESSION.equals(name)) {
-			String sessionName = params.getString(ACTION_SESSION_PARAM_NAME);
-			if (sessionName == null || sessionName.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER,
-						ACTION_SESSION_PARAM_NAME);
-			}
+			String sessionName = params.getString(PARAM_SESSION);
 			if (!sessionName.endsWith(".session")) {
 				sessionName = sessionName + ".session";
 			}
@@ -181,7 +199,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 
 		} else if (ACTION_NEW_SESSION.equals(name)) {
-			String sessionName = params.getString(ACTION_SESSION_PARAM_NAME);
+			String sessionName = params.getString(PARAM_SESSION);
 			if (sessionName == null || sessionName.length() == 0) {
 				// Create a new 'unnamed' session
 				Control.getSingleton().discardSession();
@@ -215,8 +233,40 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				try {
 					Control.getSingleton().runCommandLineNewSession(filename);
 				} catch (Exception e) {
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
-							e.getMessage());
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+			}
+		} else if (ACTION_CLEAR_EXCLUDED_FROM_PROXY.equals(name)) {
+			try {
+				session.setExcludeFromProxyRegexs(new ArrayList<String>());
+			} catch (SQLException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+		} else if (ACTION_EXCLUDE_FROM_PROXY.equals(name)) {
+			String regex = params.getString(PARAM_REGEX);
+			try {
+				session.addExcludeFromProxyRegex(regex);
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			}
+		} else if (ACTION_SET_HOME_DIRECTORY.equals(name)) {
+			File f = new File(params.getString(PARAM_DIR));
+			if (f.exists() && f.isDirectory()) {
+				Model.getSingleton().getOptionsParam().setUserDirectory(f);
+			} else {
+				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_DIR);
+			}
+		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
+			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			if (extDyn != null) {
+				try {
+					final KeyStore newrootca = SslCertificateUtils.createRootCA();
+					extDyn.setRootCa(newrootca);
+					extDyn.getParams().setRootca(newrootca);
+					
+				} catch (Exception e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			}
 		} else {
@@ -258,15 +308,21 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			this.getURLs(root, result);
 		} else if (VIEW_ALERTS.equals(name)) {
-			List<Alert> alerts = getAlerts();
+			List<Alert> alerts = getAlerts(
+					this.getParam(params, PARAM_BASE_URL, (String) null), 
+					this.getParam(params, PARAM_START, -1), 
+					this.getParam(params, PARAM_COUNT, -1));
 			for (Alert alert : alerts) {
 				result.add(this.alertToJSON(alert));
 			}
-		} else if (VIEW_HTTP.equals(name)) {
+		} else if (VIEW_MESSAGES.equals(name)) {
 
 			ArrayList<HttpMessage> hm = null;
 			try {
-				hm = getHttpMessages();
+				hm = getHttpMessages(
+						this.getParam(params, PARAM_BASE_URL, (String) null), 
+						this.getParam(params, PARAM_START, -1), 
+						this.getParam(params, PARAM_COUNT, -1));
 				for (HttpMessage httpm : hm) {
 					result.add(this.httpMessageToJSON(httpm));
 				}
@@ -275,12 +331,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 		} else if (VIEW_VERSION.equals(name)) {
 			result.add(Constant.PROGRAM_VERSION);
+		} else if (VIEW_EXCLUDED_FROM_PROXY.equals(name)) {
+			List<String> regexs = session.getExcludeFromProxyRegexs();
+			for (String regex : regexs) {
+				result.add(regex);
+			}
+		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
+			result.add(Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
 	}
-
 	
 	private void getURLs(SiteNode parent, JSONArray children) {
 		@SuppressWarnings("unchecked")
@@ -302,6 +364,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private JSONObject alertToJSON(Alert alert) {
 		JSONObject ja = new JSONObject();
+		ja.put("id", alert.getAlertId());
 		ja.put("alert", alert.getAlert());
 		ja.put("description", alert.getDescription());
 		ja.put("risk", Alert.MSG_RISK[alert.getRisk()]);
@@ -312,26 +375,30 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		ja.put("attack", XMLStringUtil.escapeControlChrs(alert.getAttack()));
 		ja.put("reference", alert.getReference());
 		ja.put("solution", alert.getSolution());
+		if (alert.getHistoryRef() != null) {
+			ja.put("messageId", alert.getHistoryRef().getHistoryId());
+		}
 		return ja;
 	}
 
 	/**
 	 * 
-	 * @param hm
+	 * @param msg
 	 * @return
 	 */
-	private JSONObject httpMessageToJSON(HttpMessage hm) {
+	private JSONObject httpMessageToJSON(HttpMessage msg) {
 		JSONObject ja = new JSONObject();
-		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(hm.getCookieParamsAsString()));
-		ja.put("note", hm.getNote());
-		ja.put("requestHeader", XMLStringUtil.escapeControlChrs(hm.getRequestHeader().toString()));
-		ja.put("requestBody", XMLStringUtil.escapeControlChrs(hm.getRequestBody().toString()));
-		ja.put("responseHeader", XMLStringUtil.escapeControlChrs(hm.getResponseHeader().toString()));
+		ja.put("id", msg.getHistoryRef().getHistoryId());
+		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(msg.getCookieParamsAsString()));
+		ja.put("note", msg.getNote());
+		ja.put("requestHeader", XMLStringUtil.escapeControlChrs(msg.getRequestHeader().toString()));
+		ja.put("requestBody", XMLStringUtil.escapeControlChrs(msg.getRequestBody().toString()));
+		ja.put("responseHeader", XMLStringUtil.escapeControlChrs(msg.getResponseHeader().toString()));
 		
-		if (HttpHeader.GZIP.equals(hm.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+		if (HttpHeader.GZIP.equals(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
 			// Uncompress gziped content
 			try {
-				ByteArrayInputStream bais = new ByteArrayInputStream(hm.getResponseBody().getBytes());
+				ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
 				GZIPInputStream gis = new GZIPInputStream(bais);
 				InputStreamReader isr = new InputStreamReader(gis);
 				BufferedReader br = new BufferedReader(isr);
@@ -350,7 +417,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				System.out.println(e);
 			}
 		} else {
-			ja.put("responseBody", XMLStringUtil.escapeControlChrs(hm.getResponseBody().toString()));
+			ja.put("responseBody", XMLStringUtil.escapeControlChrs(msg.getResponseBody().toString()));
 		}
 		
 		return ja;
@@ -371,9 +438,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_ALERTS.equals(name)) {
 			serializer.setArrayName("alerts");
 			serializer.setElementName("alert");
-		} else if (VIEW_HTTP.equals(name)) {
-			serializer.setArrayName("https");
-			serializer.setElementName("http");
+		} else if (VIEW_MESSAGES.equals(name)) {
+			serializer.setArrayName("messages");
+			serializer.setElementName("message");
 		}
 		return serializer.write(result);
 	}
@@ -385,8 +452,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return serializer.write(result);
 	}
 
-	private List<Alert> getAlerts() throws ApiException {
+	private List<Alert> getAlerts(String baseUrl, int start, int count) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
+		int c = 0;
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb()
 					.getTableAlert();
@@ -394,12 +462,23 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			for (int i = 0; i < v.size(); i++) {
 				int alertId = v.get(i).intValue();
+				if (start >= 0 && alertId < start) {
+					continue;
+				}
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
 				if (alert.getReliability() != Alert.FALSE_POSITIVE
 						&& !alerts.contains(alert)) {
+					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
+						// Not subordinate to the specified URL
+						continue;
+					}
 					alerts.add(alert);
+					c ++;
+					if (count > 0 && c >= count) {
+						break;
+					}
 				}
 			}
 			return alerts;
@@ -412,20 +491,32 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	/**
 	 * @throws HttpMalformedHeaderException
 	 */
-	private ArrayList<HttpMessage> getHttpMessages() throws ApiException,
+	private ArrayList<HttpMessage> getHttpMessages(String baseUrl, int start, int count) throws ApiException,
 			HttpMalformedHeaderException {
 		try {
+			int c = 0;
 			TableHistory tableHistory = Model.getSingleton().getDb()
 					.getTableHistory();
 			Vector<Integer> v = tableHistory.getHistoryList(Model
 					.getSingleton().getSession().getSessionId());
 			ArrayList<HttpMessage> mgss = new ArrayList<>();
 			for (int i = 0; i < v.size(); i++) {
-				int sessionId = v.get(i).intValue();
-				RecordHistory recAlert = tableHistory.read(sessionId);
-				HttpMessage msg = recAlert.getHttpMessage();
+				int historyId = v.get(i).intValue();
+				if (start >= 0 && historyId < start) {
+					continue;
+				}
+				RecordHistory recHistory = tableHistory.read(historyId);
+				HttpMessage msg = recHistory.getHttpMessage();
+				if (baseUrl != null && ! msg.getRequestHeader().getURI().toString().startsWith(baseUrl)) {
+					// Not subordinate to the specified URL
+					continue;
+				}
 				if ( ! msg.getRequestHeader().isImage() && ! msg.getResponseHeader().isImage()) {
 					mgss.add(msg);
+					c ++;
+					if (count > 0 && c >= count) {
+						break;
+					}
 				}
 			}
 			return mgss;

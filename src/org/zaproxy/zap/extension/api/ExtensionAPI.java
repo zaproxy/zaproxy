@@ -56,8 +56,6 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	private void initialize() {
         this.setName("ExtensionAPI");
         this.setOrder(10);
-
-        API.getInstance().registerApiImplementor(new CoreAPI());
 	}
 
 	@Override
@@ -68,6 +66,10 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	    	extensionHook.getHookView().addOptionPanel(getOptionsAPIPanel());
 	    	extensionHook.getHookMenu().addToolsMenuItem(getMenuAPI());
 	    }
+        
+        CoreAPI coreApi = new CoreAPI();
+        coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
+        API.getInstance().registerApiImplementor(coreApi);
 
 	}
 

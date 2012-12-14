@@ -98,28 +98,28 @@ public class ClientApi {
 	}
 
 	public void newSession () throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newsession/?name=").toString();
+		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newSession/?name=").toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
 			throw new Exception("Unexpected result: " + result);
 		}
 	}
 
 	public void newSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newsession/?name=" + name).toString();
+		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newSession/?name=" + name).toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
 			throw new Exception("Unexpected result: " + result);
 		}
 	}
 
 	public void loadSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/loadsession/?name=" + name).toString();
+		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/loadSession/?name=" + name).toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
 			throw new Exception("Unexpected result: " + result);
 		}
 	}
 
 	public void saveSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/savesession/?name=" + name).toString();
+		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/saveSession/?name=" + name).toString();
 		if ( ! result.equals("[[\"OK\"]]")) {
 			throw new Exception("Unexpected result: " + result);
 		}

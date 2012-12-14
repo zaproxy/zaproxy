@@ -37,8 +37,8 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class ApiImplementor {
 	
-	private static final String GET_OPTION_PREFIX = "get_option_";
-	private static final String SET_OPTION_PREFIX = "set_option_";
+	private static final String GET_OPTION_PREFIX = "getOption";
+	private static final String SET_OPTION_PREFIX = "setOption";
 
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
@@ -302,6 +302,30 @@ public abstract class ApiImplementor {
 			}
 		}
 		return null;
+	}
+
+	protected int getParam(JSONObject params, String name, int defaultValue) {
+		try {
+			return params.getInt(name);
+		} catch (Exception e) {
+			return defaultValue;
+		}
+	}
+	
+	protected String getParam(JSONObject params, String name, String defaultValue) {
+		try {
+			return params.getString(name);
+		} catch (Exception e) {
+			return defaultValue;
+		}
+	}
+	
+	protected boolean getParam(JSONObject params, String name, boolean defaultValue) {
+		try {
+			return params.getBoolean(name);
+		} catch (Exception e) {
+			return defaultValue;
+		}
 	}
 
 }

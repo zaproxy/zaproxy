@@ -32,6 +32,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 /**
@@ -93,6 +94,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	        ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
 	    }
+        API.getInstance().registerApiImplementor(new SearchAPI(this));
 	}
 	
 	private SearchPanel getSearchPanel() {
@@ -133,9 +135,16 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 	public void search(String filter, Type reqType, boolean setToolbar, boolean inverse){
-		
 		this.searchPanel.resetSearchResults();
-		
+		this.search(filter, this.searchPanel, reqType, setToolbar, inverse);
+	}
+	
+	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse){
+		this.search(filter, listenner, reqType, setToolbar, inverse, null, -1, -1);
+	}
+	
+	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse,
+			String baseUrl, int start, int count){
 		if (setToolbar) {
 			this.getSearchPanel().searchFocus();
 			this.getSearchPanel().getRegExField().setText(filter);
@@ -154,7 +163,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 					}
 	    		}
 	    	}
-    		searchThread = new SearchThread(filter, reqType, searchPanel, inverse, searchJustInScope);
+    		searchThread = new SearchThread(filter, reqType, listenner, inverse, searchJustInScope, baseUrl, start, count);
 	    	searchThread.start();
 	    	
 	    }

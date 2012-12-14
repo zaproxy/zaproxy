@@ -34,6 +34,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2012/12/14 Issue 438: Validate regexs as part of API enhancements
 
 package org.parosproxy.paros.model;
 
@@ -47,6 +48,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -661,7 +663,21 @@ public class Session extends FileXML {
 	}
 
 	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
+		// Validate its a valid regex first
+	    for (String url : ignoredRegexs) {
+			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+	    }
+
 		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
+		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
+	}
+
+	public void addExcludeFromProxyRegex(String ignoredRegex) throws SQLException {
+		// Validate its a valid regex first
+		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
+		
+		this.excludeFromProxyRegexs.add(ignoredRegex);
 		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
 	}
@@ -671,6 +687,9 @@ public class Session extends FileXML {
 	}
 
 	public void addExcludeFromScanRegexs(String ignoredRegex) throws SQLException {
+		// Validate its a valid regex first
+		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
+		
 		this.excludeFromScanRegexs.add(ignoredRegex);
 		ExtensionActiveScan extAscan = 
 			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
@@ -681,6 +700,11 @@ public class Session extends FileXML {
 	}
 
 	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
+		// Validate its a valid regex first
+	    for (String url : ignoredRegexs) {
+			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+	    }
+
 		this.excludeFromScanRegexs = stripEmptyLines(ignoredRegexs);
 		ExtensionActiveScan extAscan = 
 			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
@@ -695,6 +719,9 @@ public class Session extends FileXML {
 	}
 
 	public void addExcludeFromSpiderRegex(String ignoredRegex) throws SQLException {
+		// Validate its a valid regex first
+		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
+
 		this.excludeFromSpiderRegexs.add(ignoredRegex);
 		ExtensionSpider extSpider = 
 			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
@@ -706,6 +733,11 @@ public class Session extends FileXML {
 
 
 	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
+		// Validate its a valid regex first
+	    for (String url : ignoredRegexs) {
+			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+	    }
+
 		this.excludeFromSpiderRegexs = stripEmptyLines(ignoredRegexs);
 		ExtensionSpider extSpider = 
 			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);

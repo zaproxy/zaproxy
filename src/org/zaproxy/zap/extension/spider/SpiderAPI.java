@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -64,10 +66,16 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	private static final String VIEW_RESULTS = "results";
 
 	/**
-	 * The Constant ACTION_SCANSITE_PARAM_URL that defines the parameter defining the url of the
-	 * scan.
+	 * The Constant PARAM_URL that defines the parameter defining the url of the scan.
 	 */
-	private static final String ACTION_SCANSITE_PARAM_URL = "url";
+	private static final String PARAM_URL = "url";
+	private static final String PARAM_REGEX = "regex";
+
+	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
+	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
+
+	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
+
 
 	/** The spider extension. */
 	private ExtensionSpider extension;
@@ -90,14 +98,15 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		this.extension = extension;
 		this.foundURIs = new ArrayList<>();
 		// Register the actions
-		List<String> scanParams = new ArrayList<>(1);
-		scanParams.add(ACTION_SCANSITE_PARAM_URL);
-		this.addApiAction(new ApiAction(ACTION_START_SCAN, scanParams));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] {PARAM_URL}));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
 
 		// Register the views
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_RESULTS));
+		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 
 	}
 
@@ -110,21 +119,35 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
 
-		// The action is to start a new Scan
 		if (ACTION_START_SCAN.equals(name)) {
-			String url = params.getString(ACTION_SCANSITE_PARAM_URL);
+			// The action is to start a new Scan
+			String url = params.getString(PARAM_URL);
 
 			// Check for required parameter
 			if (url == null || url.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_SCANSITE_PARAM_URL);
+				throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 			}
 
 			scanURL(url);
-		}
-		// The action is to stop a pending scan
-		else if (ACTION_STOP_SCAN.equals(name)) {
+		} else if (ACTION_STOP_SCAN.equals(name)) {
+			// The action is to stop a pending scan
 			if (spiderThread != null)
 				spiderThread.stopScan();
+		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
+			try {
+				Session session = Model.getSingleton().getSession();
+				session.setExcludeFromSpiderRegexs(new ArrayList<String>());
+			} catch (SQLException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+		} else if (ACTION_EXCLUDE_FROM_SCAN.equals(name)) {
+			String regex = params.getString(PARAM_REGEX);
+			try {
+				Session session = Model.getSingleton().getSession();
+				session.addExcludeFromSpiderRegex(regex);
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -179,6 +202,12 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		} else if (VIEW_RESULTS.equals(name)) {
 			for (String s : foundURIs)
 				result.add(s);
+		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
+			Session session = Model.getSingleton().getSession();
+			List<String> regexs = session.getExcludeFromSpiderRegexs();
+			for (String regex : regexs) {
+				result.add(regex);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

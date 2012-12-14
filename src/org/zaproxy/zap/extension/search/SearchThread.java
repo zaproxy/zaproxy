@@ -38,20 +38,28 @@ import org.zaproxy.zap.extension.search.ExtensionSearch.Type;
 public class SearchThread extends Thread {
 
 	private String filter;
-	private 	Type reqType;
-	private SearchPanel searchPanel;
+	private Type reqType;
+	private SearchListenner searchListenner;
 	private boolean stopSearch = false;
 	private boolean inverse = false;
 	private boolean searchJustInScope = false;
+	private String baseUrl;
+	private int start;
+	private int count;
+	
     private static Logger log = Logger.getLogger(SearchThread.class);
 	
-    public SearchThread(String filter, Type reqType, SearchPanel searchPanel, boolean inverse, boolean searchJustInScope) {
+    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
+    		String baseUrl, int start, int count) {
 		super();
 		this.filter = filter;
 		this.reqType = reqType;
-		this.searchPanel = searchPanel;
+		this.searchListenner = searchListenner;
 		this.inverse = inverse;
 		this.searchJustInScope = searchJustInScope;
+		this.baseUrl = baseUrl;
+		this.start = start;
+		this.count = count;
 	}
 
     public void stopSearch() {
@@ -66,24 +74,32 @@ public class SearchThread extends Thread {
 		
         try {
 	        // Fuzz results handled differently from the others
+        	// Its also only called from the UI, so havnt implemented the baseurl, start and count options
+        	// which are (currently;) just used from the API
         	if (Type.Fuzz.equals(reqType)) {
         		ExtensionFuzz extFuzz = (ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.NAME);
         		if (extFuzz != null) {
         			List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern, inverse);
         			for (SearchResult sr : fuzzResults) {
-        				searchPanel.addSearchResult(sr);
+        				searchListenner.addSearchResult(sr);
         			}
         		}
+        		this.searchListenner.searchComplete();
         		return;
         	}
 
 			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
+			int c = 0;
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
 					break;
 				}
 			    int v = list.get(index).intValue();
+			    if (this.start > 0 && v < start) {
+			    	// Before the specified start
+			    	continue;
+			    }
 			    try {
 			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
 			        if (hr.getHistoryType() == HistoryReference.TYPE_MANUAL || 
@@ -95,23 +111,29 @@ public class SearchThread extends Thread {
 			        		// Not in scope, so ignore
 			        		continue;
 			        	}
+			        	if (this.baseUrl != null && ! message.getRequestHeader().getURI().toString().startsWith(baseUrl)) {
+			        		// doesnt start with the specified baseurl
+			        		continue;
+			        	}
 				
 				        if (Type.URL.equals(reqType)) {
 				            // URL
 				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, "", 
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						0, 0))); 
+							        c++;
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(), 
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
 					            	
 					            }
 				            }
@@ -122,34 +144,44 @@ public class SearchThread extends Thread {
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, "",
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						0, 0))); 
+							        c++;
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 				            }
 				        	// Response header
 				            matcher = pattern.matcher(message.getResponseHeader().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, "",
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						0, 0))); 
+							        c++;
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 				            }
 						}
@@ -159,27 +191,36 @@ public class SearchThread extends Thread {
 					            // Check for no matches in either Request Header or Body 
 					            if (! pattern.matcher(message.getRequestHeader().toString()).find() && 
 					            		! pattern.matcher(message.getRequestBody().toString()).find()) {    
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, "",
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						0, 0))); 
+							        c++;
 					            }
 				            } else {
 					            // Request Header 
 					            matcher = pattern.matcher(message.getRequestHeader().toString());    
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 					            // Request Body
 					            matcher = pattern.matcher(message.getRequestBody().toString());    
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 				            }
 				        }
@@ -189,27 +230,36 @@ public class SearchThread extends Thread {
 					            // Check for no matches in either Response Header or Body 
 					            if (! pattern.matcher(message.getResponseHeader().toString()).find() && 
 					            		! pattern.matcher(message.getResponseBody().toString()).find()) {    
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, "",
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						0, 0))); 
+							        c++;
 					            }
 				            } else {
 					            // Response header
 					            matcher = pattern.matcher(message.getResponseHeader().toString());    
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 					            // Response body
 					            matcher = pattern.matcher(message.getResponseBody().toString());    
 					            while (matcher.find()) {
-							        searchPanel.addSearchResult(
+							        searchListenner.addSearchResult(
 							        		new SearchResult(reqType, filter, matcher.group(),
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
 							        						matcher.start(), matcher.end()))); 
+							        c++;
+								    if (this.count > 0 && c >= count) {
+								    	break;
+								    }
 					            }
 				            }
 				        }
@@ -217,10 +267,14 @@ public class SearchThread extends Thread {
 			        
 			    } catch (HttpMalformedHeaderException e1) {
 			        log.error(e1.getMessage(), e1);
-			    }	               
+			    }
+			    if (this.count > 0 && c >= count) {
+			    	break;
+			    }
 			}	            
 		} catch (SQLException e) {
 	        log.error(e.getMessage(), e);
 		}
+		this.searchListenner.searchComplete();
 	}
 }

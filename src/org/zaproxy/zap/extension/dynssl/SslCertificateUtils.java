@@ -59,7 +59,7 @@ import org.parosproxy.paros.security.SslCertificateService;
 /**
  * @author MaWoKi
  */
-/*default*/ final class SslCertificateUtils {
+public class SslCertificateUtils {
 
 	private static final long DEFAULT_VALID_DAYS = 365L;
 

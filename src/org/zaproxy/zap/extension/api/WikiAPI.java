@@ -22,18 +22,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
 import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.auth.AuthAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
+import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.spider.SpiderAPI;
+import org.zaproxy.zap.spider.SpiderParam;
 
 public class WikiAPI {
 	/*
@@ -43,6 +46,7 @@ public class WikiAPI {
 	private String base = "ApiGen_";
 	private String title = "= ZAP 2.0.0 API (work in progress) =\n";
 	private File dir = new File("../zaproxy-wiki"); 
+	private int methods = 0;
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
 
@@ -60,7 +64,7 @@ public class WikiAPI {
 			out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
 		}
 		out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
-		out.write("Generated on " + new Date() + "\n");
+		//out.write("Generated on " + new Date() + "\n");
 		out.close();
 	}
 
@@ -85,7 +89,7 @@ public class WikiAPI {
 		out.write("\n");
 		out.write("Starred parameters are mandatory\n\n");
 		out.write("Back to [" + base + "Index index]\n\n");
-		out.write("\nGenerated on " + new Date() + "\n");
+		//out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}
 
@@ -95,7 +99,9 @@ public class WikiAPI {
 		for (ApiImplementor imp : this.implementors) {
 			this.generateWikiComponent(imp);
 		}
+		this.methods = 0;
 		this.generateWikiFull();
+		System.out.println("Generated a total of " + methods + " methods");
 	}
 	
 	private void generateWikiElement(ApiElement element, String component, String type, Writer out) throws IOException {
@@ -132,6 +138,7 @@ public class WikiAPI {
 		}
 		
 		out.write(" ||\n");
+		methods++;
 		
 	}
 
@@ -154,7 +161,7 @@ public class WikiAPI {
 		out.write("\n");
 		out.write("Starred parameters are mandatory\n\n");
 		out.write("Back to [" + base + "Index index]\n\n");
-		out.write("\nGenerated on " + new Date() + "\n");
+		//out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}
 
@@ -162,12 +169,26 @@ public class WikiAPI {
 		// Command for generating a wiki version of the ZAP API
 		
 		WikiAPI wapi = new WikiAPI();
+		ApiImplementor api;
+
 		wapi.addImplementor(new AntiCsrfAPI(null));
+		wapi.addImplementor(new SearchAPI(null));
 		wapi.addImplementor(new AutoUpdateAPI(null));
-		wapi.addImplementor(new SpiderAPI(null));
-		wapi.addImplementor(new CoreAPI());
+		
+		api = new SpiderAPI(null);
+		api.addApiOptions(new SpiderParam());
+		wapi.addImplementor(api);
+		
+		api = new CoreAPI();
+        api.addApiOptions(new ConnectionParam());
+		wapi.addImplementor(api);
+		
 		wapi.addImplementor(new ParamsAPI(null));
-		wapi.addImplementor(new ActiveScanAPI(null));
+		
+		api = new ActiveScanAPI(null);
+		api.addApiOptions(new ScannerParam());
+		wapi.addImplementor(api);
+		
 		wapi.addImplementor(new AuthAPI(null));
 		
 		wapi.generateWikiFiles();
