@@ -128,7 +128,7 @@
                 <exclude name="**/_svn/**" />
             </fileset>
         </copy>
-    	<echo message="TODO here goes"/>
+        <!-- Include properties files from the source code to support extension specific language files -->
         <copy todir="${build}/org">
             <fileset dir="${src}/org" includes="**/*.properties" />
         </copy>
