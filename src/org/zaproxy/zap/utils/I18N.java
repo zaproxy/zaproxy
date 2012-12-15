@@ -1,8 +1,10 @@
 package org.zaproxy.zap.utils;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -69,4 +71,12 @@ public class I18N {
     	}
     	return this.stdMessages.containsKey(key);
 	}
+	
+    public String getString(String key, Object... params  ) {
+        try {
+            return MessageFormat.format(this.getString(key), params);
+        } catch (MissingResourceException e) {
+            return '!' + key + '!';
+        }
+    }
 }
