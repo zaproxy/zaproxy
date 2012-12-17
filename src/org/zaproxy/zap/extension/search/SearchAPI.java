@@ -18,15 +18,18 @@
 package org.zaproxy.zap.extension.search;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class SearchAPI extends ApiImplementor implements SearchListenner {
@@ -71,9 +74,9 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 	}
 
 	@Override
-	public JSON handleApiView(String name, JSONObject params)
+	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
-		JSONArray result = new JSONArray();
+		ApiResponseList result = new ApiResponseList(name);
 		try {
 			if (this.searchInProgress) {
 				// TODO better exception
@@ -108,14 +111,14 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 			}
 
 			for (SearchResult sr : this.results) {
-				JSONObject ja = new JSONObject();
-				ja.put("id", sr.getMessage().getHistoryRef().getHistoryId());
-				ja.put("type", sr.getMessage().getHistoryRef().getHistoryType());
-				ja.put("method", sr.getMessage().getRequestHeader().getMethod());
-				ja.put("url", sr.getMessage().getRequestHeader().getURI().toString());
-				ja.put("code", sr.getMessage().getResponseHeader().getStatusCode());
-				ja.put("time", sr.getMessage().getTimeElapsedMillis());
-				result.add(ja);
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("id", "" + sr.getMessage().getHistoryRef().getHistoryId());
+				map.put("type", "" + sr.getMessage().getHistoryRef().getHistoryType());
+				map.put("method", "" + sr.getMessage().getRequestHeader().getMethod());
+				map.put("url", "" + sr.getMessage().getRequestHeader().getURI().toString());
+				map.put("code", "" + sr.getMessage().getResponseHeader().getStatusCode());
+				map.put("time", "" + sr.getMessage().getTimeElapsedMillis());
+				result.addItem(new ApiResponseSet(name, map));
 			}
 			
 		} catch (Exception e) {

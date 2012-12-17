@@ -232,6 +232,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
 	    }
         this.api = new AutoUpdateAPI(this);
+        this.api.addApiOptions(getModel().getOptionsParam().getCheckForUpdatesParam());
         API.getInstance().registerApiImplementor(this.api);
 	}
 	
@@ -390,6 +391,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 									report = true;
 								}
 								break;
+							default:
+									break;
 							}
 						}
 						if (report) {

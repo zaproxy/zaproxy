@@ -21,13 +21,17 @@
 package org.zaproxy.zap.extension.params;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class ParamsAPI extends ApiImplementor {
@@ -50,24 +54,45 @@ public class ParamsAPI extends ApiImplementor {
 	}
 
 	@Override
-	public JSON handleApiAction(String name, JSONObject params)
+	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
-		throw new ApiException(ApiException.Type.BAD_ACTION);
-	}
-
-	@Override
-	public JSON handleApiView(String name, JSONObject params)
-			throws ApiException {
-		JSONArray result = new JSONArray();
 		if (VIEW_PARAMS.equals(name)) {
+			ApiResponseList result = new ApiResponseList("Parameters");
 			Collection<SiteParameters> siteParams = extension.getAllSiteParameters();
 			for (SiteParameters siteParam : siteParams) {
-				result.add(siteParam.toJSON());
+				for (HtmlParameterStats param : siteParam.getParams()) {
+					ApiResponseList stats = new ApiResponseList("Parameter");
+					Map<String, String> map = new HashMap<String, String>();
+					map.put("site", param.getSite());
+					map.put("name", param.getName());
+					map.put("type", param.getType().name());
+					map.put("timesUsed", ""+param.getTimesUsed());
+					stats.addItem(new ApiResponseSet("Stats", map));
+					
+					ApiResponseList flags = new ApiResponseList("Flags");
+					for (String flag : param.getFlags()) {
+						flags.addItem(new ApiResponseElement("Flag", flag));
+					}
+					if (param.getFlags().size() > 0) {
+						stats.addItem(flags);
+					}
+
+					ApiResponseList vals = new ApiResponseList("Values");
+					for (String value : param.getValues()) {
+						vals.addItem(new ApiResponseElement("Value", value));
+					}
+					if (param.getValues().size() > 0) {
+						stats.addItem(vals);
+					}
+					
+					result.addItem(stats);
+				}
 			}
+			return result;
+			
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
-		return result;
 	}
 
 }

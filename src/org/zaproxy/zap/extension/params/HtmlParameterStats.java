@@ -22,9 +22,6 @@ package org.zaproxy.zap.extension.params;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import org.parosproxy.paros.network.HtmlParameter;
 
 public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
@@ -145,28 +142,5 @@ public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
 
 	public void removeFlag(String flag) {
 		this.flags.remove(flag);
-	}
-
-	public JSONObject toJSON() {
-		JSONObject ja = new JSONObject();
-		
-		ja.put("site", this.site);
-		ja.put("name", this.name);
-		ja.put("type", this.type.name());
-		ja.put("timesUsed", this.timesUsed);
-		
-		JSONArray flagArray = new JSONArray();
-		for (String flag : flags) {
-			flagArray.add(flag);
-		}
-		ja.put("flags", flagArray);
-
-		JSONArray valueArray = new JSONArray();
-		for (String value : values) {
-			valueArray.add(value);
-		}
-		ja.put("values", valueArray);
-
-		return ja;
 	}
 }

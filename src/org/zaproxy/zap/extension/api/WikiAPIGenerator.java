@@ -33,12 +33,13 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
 import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.auth.AuthAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
+import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.spider.SpiderAPI;
 import org.zaproxy.zap.spider.SpiderParam;
 
-public class WikiAPI {
+public class WikiAPIGenerator {
 	/*
 	 * Note that this currently only generates English wiki pages, although the API itself can be internationalized
 	 */
@@ -168,12 +169,15 @@ public class WikiAPI {
 	public static void main(String[] args) throws Exception {
 		// Command for generating a wiki version of the ZAP API
 		
-		WikiAPI wapi = new WikiAPI();
+		WikiAPIGenerator wapi = new WikiAPIGenerator();
 		ApiImplementor api;
 
 		wapi.addImplementor(new AntiCsrfAPI(null));
 		wapi.addImplementor(new SearchAPI(null));
-		wapi.addImplementor(new AutoUpdateAPI(null));
+		
+		api = new AutoUpdateAPI(null);
+		api.addApiOptions(new OptionsParamCheckForUpdates());
+		wapi.addImplementor(api);
 		
 		api = new SpiderAPI(null);
 		api.addApiOptions(new SpiderParam());

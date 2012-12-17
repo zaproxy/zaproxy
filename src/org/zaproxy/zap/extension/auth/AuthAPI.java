@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.auth;
 
-import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -28,6 +27,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class AuthAPI extends ApiImplementor {
@@ -102,15 +103,13 @@ public class AuthAPI extends ApiImplementor {
 	}
 
 	@Override
-	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
+	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
 		if (ACTION_LOGIN.equals(name)) {
 			try {
 				int contextId = params.getInt(ACTION_PARAM_CONTEXT_ID);
 				if (! this.login(contextId)) {
-					JSONArray result = new JSONArray();
-					result.add("FAIL");
-					return result;
+					return ApiResponseElement.FAIL;
 				}
 			} catch (JSONException e) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
@@ -125,7 +124,7 @@ public class AuthAPI extends ApiImplementor {
 				if (! this.logout(contextId)) {
 					JSONArray result = new JSONArray();
 					result.add("FAIL");
-					return result;
+					return ApiResponseElement.FAIL;
 				}
 			} catch (JSONException e) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, ACTION_PARAM_CONTEXT_ID);
@@ -203,42 +202,41 @@ public class AuthAPI extends ApiImplementor {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
-		JSONArray result = new JSONArray();
-		result.add("OK");
-		return result;
+		return ApiResponseElement.OK;
 	}
 
 	@Override
-	public JSON handleApiView(String name, JSONObject params)
+	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
-		JSONArray result = new JSONArray();
+		ApiResponseElement result = new ApiResponseElement(name, "");
+
 		try {
 			if (VIEW_LOGIN_URL.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
 				if (getLoginRequest(contextId) != null) {
-					result.add(getLoginRequest(contextId).getRequestHeader().getURI().toString());
+					result = new ApiResponseElement(name, getLoginRequest(contextId).getRequestHeader().getURI().toString());
 				}
 			} else if (VIEW_LOGIN_DATA.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
 				if (getLoginRequest(contextId) != null) {
-					result.add(getLoginRequest(contextId).getRequestBody().toString());
+					result = new ApiResponseElement(name, getLoginRequest(contextId).getRequestBody().toString());
 				}
 			} else if (VIEW_LOGGED_IN_INDICATOR.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
-				result.add(getLoggedInIndicationRegex(contextId));
+				result = new ApiResponseElement(name, getLoggedInIndicationRegex(contextId));
 			} else if (VIEW_LOGOUT_URL.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
 				if (getLogoutRequest(contextId) != null) {
-					result.add(getLogoutRequest(contextId).getRequestHeader().getURI().toString());
+					result = new ApiResponseElement(name, getLogoutRequest(contextId).getRequestHeader().getURI().toString());
 				}
 			} else if (VIEW_LOGOUT_DATA.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
 				if (getLogoutRequest(contextId) != null) {
-					result.add(getLogoutRequest(contextId).getRequestBody().toString());
+					result = new ApiResponseElement(name, getLogoutRequest(contextId).getRequestBody().toString());
 				}
 			} else if (VIEW_LOGGED_OUT_INDICATOR.equals(name)) {
 				int contextId = params.getInt(VIEW_PARAM_CONTEXT_ID);
-				result.add(getLoggedOutIndicationRegex(contextId));
+				result = new ApiResponseElement(name, getLoggedOutIndicationRegex(contextId));
 			} else {
 				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
@@ -251,24 +249,6 @@ public class AuthAPI extends ApiImplementor {
 		}
 		return result;
 	}
-	/*
-	@Override
-	public String viewResultToXML (String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		if (VIEW_STATUS.equals(name)) {
-			serializer.setArrayName("status");
-			serializer.setElementName("percent");
-		}
-		return serializer.write(result);
-	}
-
-	@Override
-	public String actionResultToXML (String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		serializer.setArrayName("result");
-		return serializer.write(result);
-	}
-	*/
 
 	/**
 	 * Control automatic reauthentication

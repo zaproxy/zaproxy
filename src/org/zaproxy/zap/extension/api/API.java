@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,13 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import net.sf.json.JSON;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -35,6 +42,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 
 public class API {
@@ -172,7 +181,7 @@ public class API {
 					response = webUI.handleRequest(component, impl, reqType, name);
 					contentType = "text/html";
 				} else if (name != null) {
-					JSON result;
+					ApiResponse res;
 					JSONObject params = getParams(requestHeader.getURI().getQuery());
 					switch (reqType) {
 					case action:	
@@ -182,7 +191,7 @@ public class API {
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
 						*/
-						// TODO check for mandatory params
+						// Check for mandatory params
 						ApiAction action = impl.getApiAction(name);
 						if (action != null) {
 							// Checking for null to handle option actions
@@ -196,22 +205,23 @@ public class API {
 							}
 						}
 						
-						result = impl.handleApiOptionAction(name, params);	
-						if (result == null) {
-							result = impl.handleApiAction(name, params);
+						res = impl.handleApiOptionAction(name, params);	
+						if (res == null) {
+							res = impl.handleApiAction(name, params);
 						}
 						switch (format) {
-						case JSON: 	response = result.toString();
+						case JSON: 	response = res.toJSON().toString();
 									break;
-						case JSONP: response = this.getJsonpWrapper(result.toString()); 
+						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
 									break;
-						case XML:	response = impl.actionResultToXML(name, result);
+						case XML:	response = this.responseToXml(name, res);
 									break;
-						case HTML:	response = impl.actionResultToHTML(name, result);
+						case HTML:	this.responseToHtml(name, res);;
 									break;
 						default:
 									break;
 						}
+							
 						break;
 					case view:		
 						ApiView view = impl.getApiView(name);
@@ -226,22 +236,23 @@ public class API {
 								}
 							}
 						}
-						result = impl.handleApiOptionView(name, params);	
-						if (result == null) {
-							result = impl.handleApiView(name, params);
+						res = impl.handleApiOptionView(name, params);	
+						if (res == null) {
+							res = impl.handleApiView(name, params);
 						}
 						switch (format) {
-						case JSON: 	response = result.toString();
+						case JSON: 	response = res.toJSON().toString();
 									break;
-						case JSONP: response = this.getJsonpWrapper(result.toString()); 
+						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
 									break;
-						case XML:	response = impl.viewResultToXML(name, result);
+						case XML:	response = this.responseToXml(name, res);
 									break;
-						case HTML:	response = impl.viewResultToHTML(name, result);
+						case HTML:	response = this.responseToHtml(name, res);;
 									break;
 						default:
 									break;
 						}
+
 						break;
 					case other:
 						ApiOther other = impl.getApiOther(name);
@@ -287,6 +298,42 @@ public class API {
 		return true;
 	}
 	
+	private String responseToHtml(String name, ApiResponse res) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<head>\n");
+		sb.append("</head>\n");
+		sb.append("<body>\n");
+		res.toHTML(sb);
+		sb.append("</body>\n");
+		return sb.toString();
+	}
+
+	private String responseToXml(String name, ApiResponse res) {
+		try {
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+	
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement(name);
+			doc.appendChild(rootElement);
+			res.toXML(doc, rootElement);
+			
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			
+			StringWriter sw = new StringWriter();
+			StreamResult result =  new StreamResult(sw);
+			transformer.transform(source, result);
+			
+			return sw.toString();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
 	private JSONObject getParams (String params) throws ApiException {
 		JSONObject jp = new JSONObject();
 		if (params == null || params.length() == 0) {

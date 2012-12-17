@@ -58,6 +58,9 @@ public class ApiException extends Exception {
 
 		case JSON:
 			return this.toJSON().toString();
+			
+		default:
+			break;
 		}
 		return null;
 	}

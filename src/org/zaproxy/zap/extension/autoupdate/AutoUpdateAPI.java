@@ -17,15 +17,14 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
 
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class AutoUpdateAPI extends ApiImplementor {
@@ -33,9 +32,9 @@ public class AutoUpdateAPI extends ApiImplementor {
     private static Logger log = Logger.getLogger(AutoUpdateAPI.class);
 
 	private static final String PREFIX = "autoupdate";
-	private static final String DOWNLOAD_LATEST_RELEASE = "download_latest_release";
-	private static final String VIEW_LATEST_VERSION_NUMBER = "latest_version_number";
-	private static final String VIEW_IS_LATEST_VERSION = "is_latest_version";
+	private static final String DOWNLOAD_LATEST_RELEASE = "downloadLatestRelease";
+	private static final String VIEW_LATEST_VERSION_NUMBER = "latestVersionNumber";
+	private static final String VIEW_IS_LATEST_VERSION = "isLatestVersion";
 	
 	private ExtensionAutoUpdate extension;
 	
@@ -53,53 +52,32 @@ public class AutoUpdateAPI extends ApiImplementor {
 	}
 
 	@Override
-	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
+	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
-		JSONArray result = new JSONArray();
 		if (DOWNLOAD_LATEST_RELEASE.equals(name)) {
 			if (this.downloadLatestRelease()) {
-				result.add("OK");
+				return ApiResponseElement.OK;
 			} else {
-				result.add("FAIL");
+				return ApiResponseElement.FAIL;
 			}
-			return result;
 
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 	}
 
-
 	@Override
-	public JSON handleApiView(String name, JSONObject params)
+	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
-		JSONArray result = new JSONArray();
+		ApiResponse result;
 		if (VIEW_LATEST_VERSION_NUMBER.equals(name)) {
-			result.add(this.getLatestVersionNumber());
+			result = new ApiResponseElement(name, this.getLatestVersionNumber());
 		} else if (VIEW_IS_LATEST_VERSION.equals(name)) {
-			result.add(this.isLatestVersion());
+			result = new ApiResponseElement(name, "" + this.isLatestVersion());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
-	}
-	/*
-	@Override
-	public String viewResultToXML (String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		if (VIEW_STATUS.equals(name)) {
-			serializer.setArrayName("status");
-			serializer.setElementName("percent");
-		}
-		return serializer.write(result);
-	}
-	*/
-
-	@Override
-	public String actionResultToXML (String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		serializer.setArrayName("result");
-		return serializer.write(result);
 	}
 	
     public String getLatestVersionNumber() {

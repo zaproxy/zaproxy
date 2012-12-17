@@ -21,10 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -36,6 +33,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.spider.SpiderListener;
@@ -116,7 +116,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	}
 
 	@Override
-	public JSON handleApiAction(String name, JSONObject params) throws ApiException {
+	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
 
 		if (ACTION_START_SCAN.equals(name)) {
@@ -151,9 +151,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
-		JSONArray result = new JSONArray();
-		result.add("OK");
-		return result;
+		return ApiResponseElement.OK;
 	}
 
 	private boolean scanInProgress() {
@@ -195,43 +193,26 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	}
 
 	@Override
-	public JSON handleApiView(String name, JSONObject params) throws ApiException {
-		JSONArray result = new JSONArray();
+	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
+		ApiResponse result;
 		if (VIEW_STATUS.equals(name)) {
-			result.add(Integer.toString(progress));
+			result = new ApiResponseElement(name, Integer.toString(progress));
 		} else if (VIEW_RESULTS.equals(name)) {
-			for (String s : foundURIs)
-				result.add(s);
+			result = new ApiResponseList(name);
+			for (String s : foundURIs) {
+				((ApiResponseList)result).addItem(new ApiResponseElement("url", s));
+			}
 		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
+			result = new ApiResponseList(name);
 			Session session = Model.getSingleton().getSession();
 			List<String> regexs = session.getExcludeFromSpiderRegexs();
 			for (String regex : regexs) {
-				result.add(regex);
+				((ApiResponseList)result).addItem(new ApiResponseElement("regex", regex));
 			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
-	}
-
-	@Override
-	public String viewResultToXML(String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		if (VIEW_STATUS.equals(name)) {
-			serializer.setArrayName("status");
-			serializer.setElementName("percent");
-		} else if (VIEW_RESULTS.equals(name)) {
-			serializer.setArrayName("uris_found");
-			serializer.setElementName("uri");
-		}
-		return serializer.write(result);
-	}
-
-	@Override
-	public String actionResultToXML(String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		serializer.setArrayName("result");
-		return serializer.write(result);
 	}
 
 	@Override

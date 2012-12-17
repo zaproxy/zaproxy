@@ -19,13 +19,12 @@
  */
 package org.zaproxy.zap.extension.params;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.sf.json.JSONArray;
 
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.network.HtmlParameter;
@@ -64,6 +63,42 @@ public class SiteParameters {
 			return formParams.get(name);
 		}
 		return null;
+	}
+
+	public List<HtmlParameterStats> getParams(HtmlParameter.Type type) {
+		List<HtmlParameterStats> params = new ArrayList<HtmlParameterStats>();
+		switch (type) {
+		case cookie:
+			for (HtmlParameterStats param : this.cookieParams.values()) {
+				params.add(param);
+			}
+			break;
+		case url:
+			for (HtmlParameterStats param : this.urlParams.values()) {
+				params.add(param);
+			}
+			break;
+		case form:
+			for (HtmlParameterStats param : this.formParams.values()) {
+				params.add(param);
+			}
+			break;
+		}
+		return params;
+	}
+
+	public List<HtmlParameterStats> getParams() {
+		List<HtmlParameterStats> params = new ArrayList<HtmlParameterStats>();
+		for (HtmlParameterStats param : this.cookieParams.values()) {
+			params.add(param);
+		}
+		for (HtmlParameterStats param : this.urlParams.values()) {
+			params.add(param);
+		}
+		for (HtmlParameterStats param : this.formParams.values()) {
+			params.add(param);
+		}
+		return params;
 	}
 
 	public HtmlParameterStats addParam(String site, HtmlParameter param, HttpMessage msg) {
@@ -146,23 +181,5 @@ public class SiteParameters {
 			params.put(param.getName(), p);
 			model.addHtmlParameterStats(p);
 		}
-	}
-
-	public JSONArray toJSON() {
-		JSONArray result = new JSONArray();
-
-		Collection<HtmlParameterStats> cookieValues = cookieParams.values();
-		for (HtmlParameterStats param : cookieValues) {
-			result.add(param.toJSON());
-		}
-		Collection<HtmlParameterStats> urlValues = urlParams.values();
-		for (HtmlParameterStats param : urlValues) {
-			result.add(param.toJSON());
-		}
-		Collection<HtmlParameterStats> formValues = formParams.values();
-		for (HtmlParameterStats param : formValues) {
-			result.add(param.toJSON());
-		}
-		return result;
 	}
 }

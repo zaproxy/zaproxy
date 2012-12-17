@@ -27,14 +27,13 @@ import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -61,10 +60,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static Logger log = Logger.getLogger(CoreAPI.class);
 
 	private static final String PREFIX = "core";
-	// TODO change to CamelCase when the client APIs can be easily updated
-	private static final String ACTION_LOAD_SESSION = "loadsession";
-	private static final String ACTION_NEW_SESSION = "newsession";
-	private static final String ACTION_SAVE_SESSION = "savesession";
+	private static final String ACTION_LOAD_SESSION = "loadSession";
+	private static final String ACTION_NEW_SESSION = "newSession";
+	private static final String ACTION_SAVE_SESSION = "saveSession";
 	
 	private static final String ACTION_SHUTDOWN = "shutdown";
 	private static final String ACTION_EXCLUDE_FROM_PROXY = "excludeFromProxy";
@@ -120,7 +118,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	}
 
 	@Override
-	public JSON handleApiAction(String name, JSONObject params)
+	public ApiResponse handleApiAction(String name, JSONObject params)
 			throws ApiException {
 
 		Session session = Model.getSingleton().getSession();
@@ -273,18 +271,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
-		JSONArray result = new JSONArray();
-		result.add("OK");
-		return result;
+		return ApiResponseElement.OK;
 	}
 
 	@Override
-	public JSON handleApiView(String name, JSONObject params)
+	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
-		JSONArray result = new JSONArray();
+		ApiResponse result = null;
+		//JSONArray result = new JSONArray();
 		Session session = Model.getSingleton().getSession();
 
 		if (VIEW_HOSTS.equals(name)) {
+			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = root.children();
@@ -296,27 +294,31 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				if (site.indexOf(":") >= 0) {
 					site = site.substring(0, site.indexOf(":"));
 				}
-				result.add(site);
+				((ApiResponseList)result).addItem(new ApiResponseElement("host", site));
 			}
 		} else if (VIEW_SITES.equals(name)) {
+			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<SiteNode> en = root.children();
 			while (en.hasMoreElements()) {
-				result.add(en.nextElement().getNodeName());
+				((ApiResponseList)result).addItem(new ApiResponseElement("site", en.nextElement().getNodeName()));
 			}
 		} else if (VIEW_URLS.equals(name)) {
+			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			this.getURLs(root, result);
+			this.getURLs(root, (ApiResponseList)result);
 		} else if (VIEW_ALERTS.equals(name)) {
+			result = new ApiResponseList(name);
 			List<Alert> alerts = getAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
 					this.getParam(params, PARAM_COUNT, -1));
 			for (Alert alert : alerts) {
-				result.add(this.alertToJSON(alert));
+				((ApiResponseList)result).addItem(this.alertToSet(alert));
 			}
 		} else if (VIEW_MESSAGES.equals(name)) {
+			result = new ApiResponseList(name);
 
 			ArrayList<HttpMessage> hm = null;
 			try {
@@ -325,27 +327,29 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						this.getParam(params, PARAM_START, -1), 
 						this.getParam(params, PARAM_COUNT, -1));
 				for (HttpMessage httpm : hm) {
-					result.add(this.httpMessageToJSON(httpm));
+					((ApiResponseList)result).addItem(this.httpMessageToSet(httpm));
 				}
 			} catch (HttpMalformedHeaderException e) {
 				logger.error(e.getMessage(), e);
 			}
 		} else if (VIEW_VERSION.equals(name)) {
-			result.add(Constant.PROGRAM_VERSION);
+			result = new ApiResponseList(name);
+			result = new ApiResponseElement(name, Constant.PROGRAM_VERSION);
 		} else if (VIEW_EXCLUDED_FROM_PROXY.equals(name)) {
+			result = new ApiResponseList(name);
 			List<String> regexs = session.getExcludeFromProxyRegexs();
 			for (String regex : regexs) {
-				result.add(regex);
+				((ApiResponseList)result).addItem(new ApiResponseElement("regex", regex));
 			}
 		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
-			result.add(Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
+			result = new ApiResponseElement(name, Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
 	}
 	
-	private void getURLs(SiteNode parent, JSONArray children) {
+	private void getURLs(SiteNode parent, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = parent.children();
 		while (en.hasMoreElements()) {
@@ -355,31 +359,31 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				site = site.substring(site.indexOf("//") + 2);
 			}
 			try {
-				children.add(child.getHistoryReference().getURI().toString());
+				list.addItem(new ApiResponseElement("url", child.getHistoryReference().getURI().toString()));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-			getURLs(child, children);
+			getURLs(child, list);
 		}
 	}
 
-	private JSONObject alertToJSON(Alert alert) {
-		JSONObject ja = new JSONObject();
-		ja.put("id", alert.getAlertId());
-		ja.put("alert", alert.getAlert());
-		ja.put("description", alert.getDescription());
-		ja.put("risk", Alert.MSG_RISK[alert.getRisk()]);
-		ja.put("reliability", Alert.MSG_RELIABILITY[alert.getReliability()]);
-		ja.put("url", alert.getUri());
-		ja.put("other", alert.getOtherInfo());
-		ja.put("param", XMLStringUtil.escapeControlChrs(alert.getParam()));
-		ja.put("attack", XMLStringUtil.escapeControlChrs(alert.getAttack()));
-		ja.put("reference", alert.getReference());
-		ja.put("solution", alert.getSolution());
+	private ApiResponseSet alertToSet(Alert alert) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("id", "" + alert.getAlertId());
+		map.put("alert", alert.getAlert());
+		map.put("description", alert.getDescription());
+		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
+		map.put("reliability", Alert.MSG_RELIABILITY[alert.getReliability()]);
+		map.put("url", alert.getUri());
+		map.put("other", alert.getOtherInfo());
+		map.put("param", XMLStringUtil.escapeControlChrs(alert.getParam()));
+		map.put("attack", XMLStringUtil.escapeControlChrs(alert.getAttack()));
+		map.put("reference", alert.getReference());
+		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
-			ja.put("messageId", alert.getHistoryRef().getHistoryId());
+			map.put("messageId", "" + alert.getHistoryRef().getHistoryId());
 		}
-		return ja;
+		return new ApiResponseSet("alert", map);
 	}
 
 	/**
@@ -387,14 +391,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	 * @param msg
 	 * @return
 	 */
-	private JSONObject httpMessageToJSON(HttpMessage msg) {
-		JSONObject ja = new JSONObject();
-		ja.put("id", msg.getHistoryRef().getHistoryId());
-		ja.put("cookieParams", XMLStringUtil.escapeControlChrs(msg.getCookieParamsAsString()));
-		ja.put("note", msg.getNote());
-		ja.put("requestHeader", XMLStringUtil.escapeControlChrs(msg.getRequestHeader().toString()));
-		ja.put("requestBody", XMLStringUtil.escapeControlChrs(msg.getRequestBody().toString()));
-		ja.put("responseHeader", XMLStringUtil.escapeControlChrs(msg.getResponseHeader().toString()));
+	private ApiResponseSet httpMessageToSet(HttpMessage msg) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("id", "" + msg.getHistoryRef().getHistoryId());
+		map.put("cookieParams", XMLStringUtil.escapeControlChrs(msg.getCookieParamsAsString()));
+		map.put("note", msg.getNote());
+		map.put("requestHeader", XMLStringUtil.escapeControlChrs(msg.getRequestHeader().toString()));
+		map.put("requestBody", XMLStringUtil.escapeControlChrs(msg.getRequestBody().toString()));
+		map.put("responseHeader", XMLStringUtil.escapeControlChrs(msg.getResponseHeader().toString()));
 		
 		if (HttpHeader.GZIP.equals(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
 			// Uncompress gziped content
@@ -412,45 +416,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				isr.close();
 				gis.close();
 				bais.close();
-				ja.put("responseBody", XMLStringUtil.escapeControlChrs(sb.toString()));
+				map.put("responseBody", XMLStringUtil.escapeControlChrs(sb.toString()));
 			} catch (IOException e) {
 				//this.log.error(e.getMessage(), e);
 				System.out.println(e);
 			}
 		} else {
-			ja.put("responseBody", XMLStringUtil.escapeControlChrs(msg.getResponseBody().toString()));
+			map.put("responseBody", XMLStringUtil.escapeControlChrs(msg.getResponseBody().toString()));
 		}
 		
-		return ja;
-	}
-
-	@Override
-	public String viewResultToXML(String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		if (VIEW_HOSTS.equals(name)) {
-			serializer.setArrayName("hosts");
-			serializer.setElementName("host");
-		} else if (VIEW_SITES.equals(name)) {
-			serializer.setArrayName("sites");
-			serializer.setElementName("site");
-		} else if (VIEW_URLS.equals(name)) {
-			serializer.setArrayName("urls");
-			serializer.setElementName("url");
-		} else if (VIEW_ALERTS.equals(name)) {
-			serializer.setArrayName("alerts");
-			serializer.setElementName("alert");
-		} else if (VIEW_MESSAGES.equals(name)) {
-			serializer.setArrayName("messages");
-			serializer.setElementName("message");
-		}
-		return serializer.write(result);
-	}
-
-	@Override
-	public String actionResultToXML(String name, JSON result) {
-		XMLSerializer serializer = new XMLSerializer();
-		serializer.setArrayName("result");
-		return serializer.write(result);
+		return new ApiResponseSet("message", map);
 	}
 
 	private List<Alert> getAlerts(String baseUrl, int start, int count) throws ApiException {
