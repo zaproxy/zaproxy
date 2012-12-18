@@ -982,15 +982,15 @@ public class JPanelSetup extends javax.swing.JPanel
             //if brute and fuzz
             else if(jRadioButtonPureBrute.isSelected() && jRadioButtonURLFuzz.isSelected())
             {
-                parent.startBruteForceFuzz(charSet, 
-                        minLen, 
-                        maxLen, 
-                        protocol, 
-                        host, 
-                        port, 
-                        threadsNumber, 
-                        auto, 
-                        fuzzStart, 
+                parent.startBruteForceFuzz(charSet,
+                        minLen,
+                        maxLen,
+                        protocol,
+                        host,
+                        port,
+                        threadsNumber,
+                        auto,
+                        fuzzStart,
                         fuzzEnd);
             }
             else
@@ -1003,8 +1003,8 @@ public class JPanelSetup extends javax.swing.JPanel
         {
             new JDialogDisplayErrors(parent, true, errors).setVisible(true);
         }
-        
-        
+
+
     }//GEN-LAST:event_jButtonStartActionPerformed
 
     private void jRadioButtonStandardStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jRadioButtonStandardStartActionPerformed
@@ -1083,7 +1083,7 @@ public class JPanelSetup extends javax.swing.JPanel
             else
             {
                 //split the string into an array to determine if there is a file name
-                String array[] = startPoint.split("/");
+                String[] array = startPoint.split("/");
 
 
                 if(array.length > 1)

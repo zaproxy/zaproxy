@@ -131,7 +131,7 @@ public class HTMLparse extends Thread
                                         //add to vector to remove duplicates
                                         //links.addElement(urlString);
                                         Vector found = processURL(tempURL);
-                                        
+
                                         if(found != null)
                                         {
                                             for(int a = 0; a < found.size(); a++)
@@ -255,7 +255,7 @@ public class HTMLparse extends Thread
 
             String toProcess = url.getPath();
             boolean noFile = url.getPath().endsWith("/");
-            String split[] = toProcess.split("/");
+            String[] split = toProcess.split("/");
 
             String found = "";
 
@@ -299,7 +299,7 @@ public class HTMLparse extends Thread
                 //System.out.println("found a / in findBaseCasePoint");
                 return GenBaseCase.genBaseCase(manager.getFirstPartOfURL() + "/", true, null);
             }
-            String array[] = item.split("/");
+            String[] array = item.split("/");
 
             String baseItem = "";
             for(int a = 0; a < array.length - 1; a++)

@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -44,7 +44,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	private AllCategoryTableModel allCategoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
     /**
-     * 
+     *
      */
     public PolicyAllCategoryPanel() {
         super();
@@ -83,16 +83,16 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         this.add(getBtnEnableAll(), gridBagConstraints1);
         this.add(getBtnDisableAll(), gridBagConstraints2);
         this.add(getJScrollPane(), gridBagConstraints11);
-			
+
 	}
-	private static final int width[] = {300,50};
+	private static final int[] width = {300,50};
 	private JButton btnEnableAll = null;
 	private JButton btnDisableAll = null;
 	/**
-	 * This method initializes tableTest	
-	 * 	
-	 * @return javax.swing.JTable	
-	 */    
+	 * This method initializes tableTest
+	 *
+	 * @return javax.swing.JTable
+	 */
 	private JTable getTableTest() {
 		if (tableTest == null) {
 			tableTest = new JTable();
@@ -112,7 +112,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void initParam(Object obj) {
-        
+
     }
 
     /* (non-Javadoc)
@@ -120,7 +120,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void validateParam(Object obj) throws Exception {
-        
+
     }
 
     /* (non-Javadoc)
@@ -128,13 +128,13 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void saveParam(Object obj) throws Exception {
-        
+
     }
 	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
+	 * This method initializes jScrollPane
+	 *
+	 * @return javax.swing.JScrollPane
+	 */
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -144,10 +144,10 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		return jScrollPane;
 	}
 	/**
-	 * This method initializes categoryTableModel	
-	 * 	
-	 * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel	
-	 */    
+	 * This method initializes categoryTableModel
+	 *
+	 * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel
+	 */
 	AllCategoryTableModel getAllCategoryTableModel() {
 		if (allCategoryTableModel == null) {
 			allCategoryTableModel = new AllCategoryTableModel();
@@ -156,21 +156,21 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		return allCategoryTableModel;
 	}
 	/**
-	 * This method initializes btnEnableAll	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnEnableAll
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnEnableAll() {
 		if (btnEnableAll == null) {
 			btnEnableAll = new JButton();
 			btnEnableAll.setText(Constant.messages.getString("ascan.policy.button.enableall"));
-			btnEnableAll.addActionListener(new java.awt.event.ActionListener() { 
+			btnEnableAll.addActionListener(new java.awt.event.ActionListener() {
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				public void actionPerformed(java.awt.event.ActionEvent e) {
 
 					getAllCategoryTableModel().setAllCategoryEnabled(true);
-					
+
 				}
 			});
 
@@ -178,18 +178,18 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		return btnEnableAll;
 	}
 	/**
-	 * This method initializes btnDisableAll	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnDisableAll
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnDisableAll() {
 		if (btnDisableAll == null) {
 			btnDisableAll = new JButton();
 			btnDisableAll.setText(Constant.messages.getString("ascan.policy.button.disableall"));
-			btnDisableAll.addActionListener(new java.awt.event.ActionListener() { 
+			btnDisableAll.addActionListener(new java.awt.event.ActionListener() {
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+				public void actionPerformed(java.awt.event.ActionEvent e) {
 
 					getAllCategoryTableModel().setAllCategoryEnabled(false);
 

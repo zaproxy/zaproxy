@@ -46,7 +46,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
     StartGUI parent;
     public ResultsTableModel resultsTableModel;
     private DirToCheck localDirToCheck;
-    
+
     public ResultsNode rootNode;
     public JTreeTable jTableTreeResults;
     public ResultsTableTreeModel tableTreeModel;
@@ -62,7 +62,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
 
         /*
          * Error Handling added to deal with java 1.6 only function
-         * Thus 
+         * Thus
          */
         try
         {
@@ -82,36 +82,36 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
         colModel.getColumn(4).setPreferredWidth(50);
         colModel.getColumn(0).setMinWidth(20);
         colModel.getColumn(0).setPreferredWidth(20);
-        
-        
+
+
         /*
          * add the table view model
          */
-        
+
         tableTreeModel = new ResultsTableTreeModel(new ResultsNode("/"));
         jTableTreeResults = new JTreeTable(tableTreeModel);
         jTableTreeResults.getTree().setShowsRootHandles(true);
-        
+
         jTableTreeResults.addMouseListener(new java.awt.event.MouseAdapter()
         {
-            
+
             public void mouseClicked(java.awt.event.MouseEvent e)
             {
-                
+
                 if(e.getButton() == 2 || e.getButton() == 3)
                 {
                     if(jTableTreeResults.getSelectedRowCount() != 0)
                     {
                         jPopupMenuTreeTableResults.show(e.getComponent(),e.getX(), e.getY());
                     }
-                    
+
                 }
-                 
+
             }
-            
+
         });
-        
-        
+
+
         //jTableTreeResults.setModel();
         jScrollPaneTreeView.setViewportView(jTableTreeResults);
 
@@ -504,7 +504,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
         if (type.equalsIgnoreCase("Dir") && parent.manager.getDoFiles())
         {
             DirToCheck tempDirToCheck = null;
-            Object tempArray[] = parent.manager.dirQueue.toArray();
+            Object[] tempArray = parent.manager.dirQueue.toArray();
             DirToCheck toCheck = null;
             for (int b = 0; b < tempArray.length; b++)
             {
@@ -535,7 +535,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
 
                     //create the new checkBox Item
                     JCheckBoxMenuItem tempItem = new JCheckBoxMenuItem(tempExt.getName(), tempExt.toCheck());
-                    
+
                     //add the action listener
                     tempItem.addActionListener(new java.awt.event.ActionListener()
                     {
@@ -580,7 +580,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
                 parent.manager.removeWorkers(numberToRemove);
             }
         }
-        
+
     }//GEN-LAST:event_jButtonChangeThreadsActionPerformed
 
     private void jMenuItemViewActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemViewActionPerformed
@@ -620,7 +620,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
         {
             select = jTableResults.getSelectedRow();
         }
-        
+
          */
         StringSelection urlFromTable = new StringSelection(resultsTableModel.getSelectedURL(select));
         clip.setContents(urlFromTable, this);
@@ -677,7 +677,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
     {//GEN-HEADEREND:event_jButtonBackActionPerformed
         resultsTableModel.clearData();
         parent.showSetup();
-        
+
     }//GEN-LAST:event_jButtonBackActionPerformed
 
     private void jMenuExtListActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuExtListActionPerformed
@@ -707,7 +707,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
                 parent.manager.skipCurrentWork();
             }
         }
-        
+
     }//GEN-LAST:event_jMenuItemSkipActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -733,7 +733,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
         {
             try
             {
-                
+
                 ResultsNode node =(ResultsNode) ((TreeTableModelAdapter) jTableTreeResults.getModel()).getRowNode(jTableTreeResults.getSelectedRow());
                 String tempURL = node.getResult().getFullURL();
                 System.out.println("URL from tree item: "+ tempURL);
@@ -750,9 +750,9 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
     private void jMenuItemViewResponceActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemViewResponceActionPerformed
     {//GEN-HEADEREND:event_jMenuItemViewResponceActionPerformed
         ResultsNode node =(ResultsNode) ((TreeTableModelAdapter) jTableTreeResults.getModel()).getRowNode(jTableTreeResults.getSelectedRow());
-        
+
         ResultsTableObject item = node.getResult();
-        
+
         /*
         new JDialogViewResponce(parent, true,
                 resultsTableModel.getRowResponce(select),
@@ -761,7 +761,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
                 resultsTableModel.getRowRawResponce(select),
                 resultsTableModel.getBaseCaseObj(select)).setVisible(true);
          */
-        
+
         new JDialogViewResponce(parent, true,
                 item.getFullURL(),
                 item.getResponce(),
@@ -773,9 +773,9 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
     private void jMenuItemCopyURLActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jMenuItemCopyURLActionPerformed
     {//GEN-HEADEREND:event_jMenuItemCopyURLActionPerformed
         ResultsNode node =(ResultsNode) ((TreeTableModelAdapter) jTableTreeResults.getModel()).getRowNode(jTableTreeResults.getSelectedRow());
-        
+
         ResultsTableObject item = node.getResult();
-        
+
         Clipboard clip = getToolkit().getSystemClipboard();
 
         StringSelection urlFromTable = new StringSelection(item.getFullURL());
@@ -784,7 +784,7 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
 
     /*
      * Function to process the selection and deselection of extentions to be scanned
-     * 
+     *
      */
     private synchronized void dymanicMenuAction(java.awt.event.ActionEvent evt)
     {
@@ -895,12 +895,12 @@ public class JPanelRunning extends javax.swing.JPanel implements ClipboardOwner
     {
         this.jLabelCurrentTarget.setText(target);
     }
-    
+
     public int getSelectedItemInTable()
     {
         try
         {
-            
+
             return jTableResults.getRowSorter().convertRowIndexToModel(jTableResults.getSelectedRow());
         }
         catch (java.lang.NoSuchMethodError e)

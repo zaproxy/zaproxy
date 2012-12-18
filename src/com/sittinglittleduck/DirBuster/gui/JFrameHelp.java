@@ -1,6 +1,6 @@
 /*
  * JFrameHelp.java
- * 
+ *
  * Copyright 2007 James Fisher
  *
  * This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
- * 
+ *
  * Created on 16 January 2008, 23:18
  */
 
@@ -36,18 +36,18 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class JFrameHelp extends javax.swing.JFrame
 {
-    
+
     /** Creates new form jFrameHelp */
     public JFrameHelp(JHelp help)
     {
         try
         {
             //TODO does not work under linux!
-            
-            
+
+
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
-            
+
+
             initComponents();
             setIconImage(new ImageIcon(getClass().getResource("/com/sittinglittleduck/DirBuster/images/duck.gif")).getImage());
             add(help);
@@ -68,9 +68,9 @@ public class JFrameHelp extends javax.swing.JFrame
         {
             Logger.getLogger(JFrameHelp.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -132,11 +132,11 @@ public class JFrameHelp extends javax.swing.JFrame
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((screenSize.width-747)/2, (screenSize.height-563)/2, 747, 563);
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[])
+    public static void main(String[] args)
     {
         java.awt.EventQueue.invokeLater(new Runnable()
         {
@@ -146,11 +146,11 @@ public class JFrameHelp extends javax.swing.JFrame
             }
         });
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.help.JHelp jHelp1;
     private javax.help.JHelp jHelp2;
     private javax.help.JHelp jHelp3;
     // End of variables declaration//GEN-END:variables
-    
+
 }

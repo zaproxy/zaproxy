@@ -6,7 +6,7 @@
  *
  * WwwFormTokenMaker.java - Generates tokens for HTTP request body syntax highlighting.
  * Specifically to "application/x-www-form-urlencoded" body.
- * 
+ *
  * Some code has been commented and other reordered to remove warnings.
  *
  */
@@ -58,34 +58,34 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
  */
 public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
-  
+
   public static final int YYEOF = -1;
 
-  
+
   private static final int ZZ_BUFFERSIZE = 16384;
 
-  
+
   public static final int ERROR = 2;
   public static final int YYINITIAL = 0;
   public static final int SEPARATOR = 6;
   public static final int VALUE = 8;
   public static final int NAME = 4;
 
-  
-  private static final int ZZ_LEXSTATE[] = { 
+
+  private static final int[] ZZ_LEXSTATE = {
      0,  0,  1,  1,  0,  0,  2,  2,  3, 3
   };
 
-  
-  private static final String ZZ_CMAP_PACKED = 
+
+  private static final String ZZ_CMAP_PACKED =
     "\12\0\1\0\32\0\1\5\1\2\3\0\1\6\1\3\1\0\2\6"+
     "\1\0\12\4\3\0\1\1\3\0\6\4\24\6\4\0\1\6\1\0"+
     "\6\4\24\6\uff85\0";
 
-  
+
   private static final char [] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
 
-  
+
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
@@ -111,7 +111,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  
+
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
@@ -136,7 +136,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
     return j;
   }
 
-  
+
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
@@ -171,7 +171,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   private static final int ZZ_PUSHBACK_2BIG = 2;
 
   /* error messages for the codes above */
-  private static final String ZZ_ERROR_MSG[] = {
+  private static final String[] ZZ_ERROR_MSG = {
     "Unkown internal scanner error",
     "Error: could not match input",
     "Error: pushback value was too large"
@@ -203,36 +203,36 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
     return j;
   }
 
-  
+
   private java.io.Reader zzReader;
 
-  
+
   private int zzState;
 
-  
+
   private int zzLexicalState = YYINITIAL;
 
-  
-  private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
 
-  
+  private char[] zzBuffer = new char[ZZ_BUFFERSIZE];
+
+
   private int zzMarkedPos;
 
-  
+
   private int zzCurrentPos;
 
-  
+
   private int zzStartRead;
 
-  
+
   private int zzEndRead;
 
-  
+
   private boolean zzAtEOF;
 
   /* user code: */
 
-	
+
 	public WwwFormTokenMaker() {
 		super();
 	}
@@ -252,20 +252,20 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 		addToken(zzMarkedPos,zzMarkedPos, tokenType);
 	}
 
-	
+
 	private void addToken(int tokenType) {
 		addToken(zzStartRead, zzMarkedPos-1, tokenType);
 	}
 
 
-	
+
 	private void addToken(int start, int end, int tokenType) {
 		int so = start + offsetShift;
 		addToken(zzBuffer, start,end, tokenType, so);
 	}
 
 
-	
+
 	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
@@ -331,11 +331,11 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 	 * Resets the scanner to read from a new input stream.
 	 * Does not close the old reader.
 	 *
-	 * All internal variables are reset, the old input stream 
+	 * All internal variables are reset, the old input stream
 	 * <b>cannot</b> be reused (internal buffer is discarded and lost).
 	 * Lexical state is set to <tt>YY_INITIAL</tt>.
 	 *
-	 * @param reader   the new input stream 
+	 * @param reader   the new input stream
 	 */
 	public final void yyreset(java.io.Reader reader) {
 		// 's' has been updated.
@@ -358,17 +358,17 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 
 
-  
+
   public WwwFormTokenMaker(java.io.Reader in) {
     this.zzReader = in;
   }
 
-  
+
   public WwwFormTokenMaker(java.io.InputStream in) {
     this(new java.io.InputStreamReader(in));
   }
 
-  
+
   private static char [] zzUnpackCMap(String packed) {
     char [] map = new char[0x10000];
     int i = 0;  /* index in packed string  */
@@ -383,8 +383,8 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 
 
-    
-  
+
+
   public final void yyclose() throws java.io.IOException {
     zzAtEOF = true;            /* indicate end of file */
     zzEndRead = zzStartRead;  /* invalidate buffer    */
@@ -394,31 +394,31 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  
+
   public final int yystate() {
     return zzLexicalState;
   }
 
 
-  
+
   public final void yybegin(int newState) {
     zzLexicalState = newState;
   }
 
 
-  
+
   public final String yytext() {
     return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
   }
 
 
   /**
-   * Returns the character at position <tt>pos</tt> from the 
-   * matched text. 
-   * 
+   * Returns the character at position <tt>pos</tt> from the
+   * matched text.
+   *
    * It is equivalent to yytext().charAt(pos), but faster
    *
-   * @param pos the position of the character to fetch. 
+   * @param pos the position of the character to fetch.
    *            A value from 0 to yylength()-1.
    *
    * @return the character at position pos
@@ -428,7 +428,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   }
 
 
-  
+
   public final int yylength() {
     return zzMarkedPos-zzStartRead;
   }
@@ -437,8 +437,8 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
   /**
    * Reports an error that occured while scanning.
    *
-   * In a wellformed scanner (no or only correct usage of 
-   * yypushback(int) and a match-all fallback rule) this method 
+   * In a wellformed scanner (no or only correct usage of
+   * yypushback(int) and a match-all fallback rule) this method
    * will only be called with things that "Can't Possibly Happen".
    * If this method is called, something is seriously wrong
    * (e.g. a JFlex bug producing a faulty scanner etc.).
@@ -458,10 +458,10 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
     }
 
     throw new Error(message);
-  } 
+  }
 
 
-  
+
   public void yypushback(int number)  {
     if ( number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);
@@ -498,13 +498,13 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
       zzAction = -1;
 
       zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
-  
+
       zzState = ZZ_LEXSTATE[zzLexicalState];
 
 
       zzForAction: {
         while (true) {
-    
+
           if (zzCurrentPosL < zzEndReadL)
             zzInput = zzBufferL[zzCurrentPosL++];
           else if (zzAtEOF) {
@@ -545,35 +545,35 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
       zzMarkedPos = zzMarkedPosL;
 
       switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
-        case 1: 
+        case 1:
           { addToken(Token.IDENTIFIER); yybegin(ERROR);
           }break;
-        case 2: 
+        case 2:
           { addToken(Token.RESERVED_WORD); yybegin(SEPARATOR);
           }break;
-        case 3: 
+        case 3:
           { addToken(Token.IDENTIFIER);
           }break;
-        case 4: 
+        case 4:
           { addToken(Token.SEPARATOR); yybegin(VALUE);
           }break;
-        case 5: 
+        case 5:
           { addToken(Token.VARIABLE); yybegin(NAME);
           }break;
-        case 6: 
+        case 6:
           { addToken(Token.COMMENT_DOCUMENTATION);
           }break;
-        case 7: 
+        case 7:
           { addToken(Token.DATA_TYPE);
           }break;
-        case 8: 
-        case 9: 
-        case 10: 
-        case 11: 
-        case 12: 
-        case 13: 
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
         case 14: break;
-        default: 
+        default:
           if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
             zzAtEOF = true;
             switch (zzLexicalState) {
@@ -583,15 +583,15 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
             case SEPARATOR:
             case VALUE:
               addNullToken(); return firstToken;
-            case 18: 
-            case 19: 
-            case 20: 
+            case 18:
+            case 19:
+            case 20:
             case 21:
             case 22: break;
             default:
             return null;
             }
-          } 
+          }
           else {
             zzScanError(ZZ_NO_MATCH);
           }

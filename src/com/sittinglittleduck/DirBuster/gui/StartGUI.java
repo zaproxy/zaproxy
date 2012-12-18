@@ -56,9 +56,9 @@ public class StartGUI extends javax.swing.JFrame
     {
         try
         {
-            
-            
-            
+
+
+
             System.out.println("Starting OWASP DirBuster " + Config.version);
 
             /*
@@ -74,23 +74,23 @@ public class StartGUI extends javax.swing.JFrame
 
 
             initComponents();
-            
+
             /*
              * Detect if the OS is vista, as we need to rsize the gui, as the buttons are not visable
              */
             String os = System.getProperty("os.name");
-            
-            
+
+
             if(os.contains("Vista"))
             {
-                
+
                 java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
                 setBounds((screenSize.width-771)/2, (screenSize.height-590)/2, 771, 590);
-                
+
             }
-            
-            
-            
+
+
+
             this.setTitle("OWASP DirBuster " + Config.version + " - Web Application Brute Forcing");
             jPanelSetup = new JPanelSetup(this);
             jPanelRunning = new JPanelRunning(this);
@@ -104,7 +104,7 @@ public class StartGUI extends javax.swing.JFrame
             jCheckBoxMenuDebug.setSelected(Config.debug);
             jCheckBoxMenuParseHTML.setSelected(Config.parseHTML);
             jCheckBoxMenuItemCaseInsensativeMode.setSelected(Config.caseInsensativeMode);
-            
+
             /*
              * populate the setting with the values from user prefs
              */
@@ -117,13 +117,13 @@ public class StartGUI extends javax.swing.JFrame
              * load the help
              */
             loadHelp();
-            
+
             /*
              * check for an update
              */
             checkForUpdate();
-            
-            
+
+
 
         }
         catch (ClassNotFoundException ex)
@@ -476,7 +476,7 @@ public class StartGUI extends javax.swing.JFrame
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[])
+    public static void main(String[] args)
     {
         java.awt.EventQueue.invokeLater(new Runnable()
         {
@@ -559,7 +559,7 @@ public class StartGUI extends javax.swing.JFrame
 
     public void setStatus(String status)
     {
-        
+
         jLabelStatus.setText(status);
     }
 
@@ -590,7 +590,7 @@ public class StartGUI extends javax.swing.JFrame
         manager.setAuto(auto);
         manager.start();
     }
-    
+
     /*
      * start bruteforce fuzzing
      */
@@ -663,24 +663,24 @@ public class StartGUI extends javax.swing.JFrame
             Logger.getLogger(StartGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /*
      * used to check for an update
      */
     private void checkForUpdate()
     {
-        
+
         /*
          * get the date now
          */
         manager.checkForUpdates(false);
     }
-    
+
     public void setURL(String URL)
     {
         jPanelSetup.jTextFieldTarget.setText(URL);
     }
-    
+
     public JPanelSetup jPanelSetup;
     public JPanelRunning jPanelRunning;
     public JPanelReport jPanelReport;

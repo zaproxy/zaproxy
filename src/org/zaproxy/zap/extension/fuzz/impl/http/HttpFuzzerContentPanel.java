@@ -1,19 +1,19 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.fuzz.impl.http;
 
@@ -51,7 +51,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
     private JTable fuzzResultTable;
     private HttpFuzzTableModel resultsModel;
-    
+
     private HttpPanel requestPanel;
     private HttpPanel responsePanel;
 
@@ -63,17 +63,17 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
     private List<Integer> historyReferencesToDelete = new ArrayList<>();
 
     private boolean showTokenRequests;
-    
+
     enum State {
         SUCCESSFUL,
         REFLECTED,
         ERROR,
         ANTI_CRSF_TOKEN,
     }
-    
+
     public HttpFuzzerContentPanel() {
         super();
-        
+
         showTokenRequests = false;
     }
 
@@ -81,7 +81,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
     }
-    
+
     private JTable getFuzzResultTable() {
         if (fuzzResultTable == null) {
             fuzzResultTable = new JTable(resultsModel);
@@ -90,18 +90,18 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             fuzzResultTable.setName("HttpFuzzerContentPanel");
             fuzzResultTable.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
             fuzzResultTable.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
-            
-            int widths[] = {
+
+            int[] widths = {
                     10, 25, 550, 30, 85, 55, 40, 70
              };
             for (int i = 0, count = widths.length; i < count; i++) {
                 TableColumn column = fuzzResultTable.getColumnModel().getColumn(i);
                 column.setPreferredWidth(widths[i]);
             }
-            
-            fuzzResultTable.addMouseListener(new java.awt.event.MouseAdapter() { 
+
+            fuzzResultTable.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
-                public void mousePressed(java.awt.event.MouseEvent e) {    
+                public void mousePressed(java.awt.event.MouseEvent e) {
                     if (SwingUtilities.isRightMouseButton(e)) {
                         // Select list item on right click
                         JTable table = (JTable) e.getSource();
@@ -115,7 +115,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                 }
             });
 
-            fuzzResultTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
+            fuzzResultTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
 
                 @Override
                 public void valueChanged(javax.swing.event.ListSelectionEvent e) {
@@ -123,10 +123,10 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                         if (fuzzResultTable.getSelectedRowCount() == 0) {
                             return;
                         }
-                        
+
                         final int row = fuzzResultTable.getSelectedRow();
                         final HistoryReference historyReference = resultsModel.getHistoryReferenceAtRow(row);
-                        
+
                         try {
                             displayMessage(historyReference.getHttpMessage());
                         } catch (HttpMalformedHeaderException ex) {
@@ -137,7 +137,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                     }
                 }
             });
-            
+
             resetFuzzResultTable();
         }
         return fuzzResultTable;
@@ -155,9 +155,9 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         historyReferencesToDelete = new ArrayList<>();
         getFuzzResultTable().setModel(resultsModel);
     }
-    
+
     private void addFuzzResult(final State state, final HttpMessage  msg) {
-        
+
         if (EventQueue.isDispatchThread()) {
             addFuzzResultToView(state, msg);
             return;
@@ -194,15 +194,15 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             } else {
                 requestPanel.setMessage(msg);
             }
-            
+
             if (msg.getResponseHeader().isEmpty()) {
                 responsePanel.clearView(false);
             } else {
                 responsePanel.setMessage(msg, true);
             }
-            
+
             // The fuzz payload is recorded in the note
-            
+
             String note = msg.getNote();
             if (note != null && note.length() > 0) {
                 int startIndex = msg.getResponseBody().toString().indexOf(note);
@@ -215,7 +215,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                 }
             }
 
-            
+
         } catch (Exception e) {
             logger.error("Failed to access message ", e);
         }
@@ -223,11 +223,11 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
     public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
         List<SearchResult> results = new ArrayList<>();
-        
+
         if (resultsModel == null) {
             return results;
         }
-        
+
         Iterator<Pair<State, HistoryReference>> it = resultsModel.getHistoryReferences().iterator();
         Matcher matcher;
         while (it.hasNext()) {
@@ -243,7 +243,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                     } else {
                         while (matcher.find()) {
                             results.add(
-                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(), 
+                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(),
                                             new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
                         }
                     }
@@ -256,24 +256,24 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         }
         return results;
     }
-    
+
     @Override
     public JComponent getComponent() {
         return getFuzzResultTable();
     }
-    
+
     @Override
     public void addFuzzResult(FuzzResult fuzzResult) {
         HttpFuzzResult httpFuzzResult = (HttpFuzzResult)fuzzResult;
         if (showTokenRequests) {
-            
+
             for (HttpMessage tokenMsg : httpFuzzResult.getTokenRequestMessages()) {
                 addFuzzResult(State.ANTI_CRSF_TOKEN, tokenMsg);
             }
         }
         addFuzzResult(convertState(fuzzResult.getState()), (HttpMessage)fuzzResult.getMessage());
     }
-    
+
     private State convertState(FuzzResult.State fuzzState) {
         State state;
         switch (fuzzState) {
@@ -290,7 +290,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         }
         return state;
     }
-    
+
     @Override
     public void clear() {
         resetFuzzResultTable();
@@ -299,5 +299,5 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
     protected void setShowTokenRequests(boolean showTokenRequests) {
         this.showTokenRequests = showTokenRequests;
     }
-    
+
 }

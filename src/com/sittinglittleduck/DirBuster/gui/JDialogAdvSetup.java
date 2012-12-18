@@ -987,7 +987,7 @@ public class JDialogAdvSetup extends javax.swing.JDialog
         }
         catch(NumberFormatException ex)
         {
-            //TODO: throw error when connection time out is not a number 
+            //TODO: throw error when connection time out is not a number
         }
 
         if(jTextFieldFailCaseString.getText() != null && !jTextFieldFailCaseString.getText().equals(""))
@@ -1002,7 +1002,7 @@ public class JDialogAdvSetup extends javax.swing.JDialog
 
         String exts = jTextFieldExtToMiss.getText();
 
-        String extsArray[] = exts.split(",");
+        String[] extsArray = exts.split(",");
 
         manager.extsToMiss.clear();
 

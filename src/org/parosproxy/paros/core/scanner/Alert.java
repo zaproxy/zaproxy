@@ -29,6 +29,7 @@
 // ZAP: 2012/05/02 Changed to not create a new String in the setters.
 // ZAP: 2012/07/10 Issue 323: Added getIconUrl()
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 
 package org.parosproxy.paros.core.scanner;
 
@@ -57,9 +58,9 @@ public class Alert implements Comparable<Object>  {
 	public static final int SUSPICIOUS = 1;
 	public static final int WARNING = 2;
 	
-	public static final String MSG_RISK[] = {"Informational", "Low", "Medium", "High"};
+	public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 	// ZAP: Added "false positive"
-	public static final String MSG_RELIABILITY[] = {"False Positive", "Suspicious", "Warning"};
+	public static final String[] MSG_RELIABILITY = {"False Positive", "Suspicious", "Warning"};
 	
 	private int		alertId = -1;	// ZAP: Changed default alertId
 	private int		pluginId = 0;

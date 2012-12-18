@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 
 package org.parosproxy.paros.extension.filter;
 
@@ -90,7 +91,7 @@ public class AllFilterPanel extends AbstractParamPanel {
         this.add(getJScrollPane(), gridBagConstraints11);
 		
 	}
-	private static final int width[] = {400,50, 20};
+	private static final int[] width = {400,50, 20};
 	private JButton btnEnableAll = null;
 	private JButton btnDisableAll = null;
 	private AllFilterTableModel allFilterTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="43,246"

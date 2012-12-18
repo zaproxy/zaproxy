@@ -2,23 +2,23 @@
  * %W% %E%
  *
  * Copyright 1997, 1998 Sun Microsystems, Inc. All Rights Reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
  * conditions are met:
- * 
+ *
  * - Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer. 
- *   
+ *   notice, this list of conditions and the following disclaimer.
+ *
  * - Redistribution in binary form must reproduce the above
  *   copyright notice, this list of conditions and the following
  *   disclaimer in the documentation and/or other materials
- *   provided with the distribution. 
- *   
+ *   provided with the distribution.
+ *
  * Neither the name of Sun Microsystems, Inc. or the names of
  * contributors may be used to endorse or promote products derived
- * from this software without specific prior written permission.  
- * 
+ * from this software without specific prior written permission.
+ *
  * This software is provided "AS IS," without a warranty of any
  * kind. ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND
  * WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY,
@@ -26,13 +26,13 @@
  * EXCLUDED. SUN AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY
  * DAMAGES OR LIABILITIES SUFFERED BY LICENSEE AS A RESULT OF OR
  * RELATING TO USE, MODIFICATION OR DISTRIBUTION OF THIS SOFTWARE OR
- * ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE 
- * FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT,   
- * SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER  
- * CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF 
- * THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS 
+ * ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE
+ * FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT,
+ * SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER
+ * CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF
+ * THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS
  * BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * You acknowledge that this software is not designed, licensed or
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
@@ -41,7 +41,7 @@
 package com.sittinglittleduck.DirBuster.gui.JTableTree;
 
 /**
- * An implementation of MergeSort, needs to be subclassed to provide a 
+ * An implementation of MergeSort, needs to be subclassed to provide a
  * comparator.
  *
  * @version %I% %G%
@@ -49,14 +49,14 @@ package com.sittinglittleduck.DirBuster.gui.JTableTree;
  * @author Scott Violet
  */
 public abstract class MergeSort extends Object {
-    protected Object           toSort[];
-    protected Object           swapSpace[];
+    protected Object[]           toSort;
+    protected Object[]           swapSpace;
 
-    public void sort(Object array[]) {
+    public void sort(Object[] array) {
 	if(array != null && array.length > 1)
 	{
 	    int             maxLength;
-  
+
 	    maxLength = array.length;
 	    swapSpace = new Object[maxLength];
 	    toSort = array;

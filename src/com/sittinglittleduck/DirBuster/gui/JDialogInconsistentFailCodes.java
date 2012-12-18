@@ -1,6 +1,6 @@
 /*
  * JDialogInconsistentFailCodes.java
- * 
+ *
  * Copyright 2008 James Fisher
  *
  * This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ public class JDialogInconsistentFailCodes extends javax.swing.JDialog
         this.response3 = responce3;
         this.url = url;
         initComponents();
-        
+
         jLabelFailURL.setText(url);
 
         jTextAreaResponse1.setText(response1);
@@ -59,9 +59,9 @@ public class JDialogInconsistentFailCodes extends javax.swing.JDialog
         jTextAreaRsponce3.setText(responce3);
         jTextAreaRsponce3.setCaretPosition(0);
 
-        String temp1a[] = response1.split("\r?\n");
-        String temp2a[] = responce2.split("\r?\n");
-        String temp3a[] = responce3.split("\r?\n");
+        String[] temp1a = response1.split("\r?\n");
+        String[] temp2a = responce2.split("\r?\n");
+        String[] temp3a = responce3.split("\r?\n");
 
         Diff d1 = new Diff(temp1a, temp2a);
         Diff d2 = new Diff(temp1a, temp3a);
@@ -292,7 +292,7 @@ private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                         JOptionPane.ERROR_MESSAGE);
         return;
     }
-    
+
     /*
      * check it is a valid regex
      */
@@ -314,11 +314,11 @@ private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     Matcher m1 = regexFindFile.matcher(response1);
     Matcher m2 = regexFindFile.matcher(response2);
     Matcher m3 = regexFindFile.matcher(response3);
-    
+
     boolean test1 = m1.find();
     boolean test2 = m2.find();
     boolean test3 = m3.find();
-    
+
     if(test1 && test2 && test3)
     {
         this.dispose();
@@ -328,22 +328,22 @@ private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         String result1 = "Fail";
         String result2 = "Fail";
         String result3 = "Fail";
-        
+
         if(test1)
         {
             result1 = "Pass";
         }
-        
+
         if(test2)
         {
-            result2 = "Pass";    
+            result2 = "Pass";
         }
-        
+
         if(test3)
         {
             result3 = "Pass";
         }
-        
+
         JOptionPane.showMessageDialog(
                         this,
                         "Test results\n" +
@@ -355,8 +355,8 @@ private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                         JOptionPane.ERROR_MESSAGE);
         return;
     }
-    
-    
+
+
 }//GEN-LAST:event_jButtonOkActionPerformed
 
 private void jButtonTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTestActionPerformed
@@ -373,7 +373,7 @@ private void jButtonTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         JOptionPane.ERROR_MESSAGE);
         return;
     }
-    
+
     /*
      * check it is a valid regex
      */
@@ -395,11 +395,11 @@ private void jButtonTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     Matcher m1 = regexFindFile.matcher(response1);
     Matcher m2 = regexFindFile.matcher(response2);
     Matcher m3 = regexFindFile.matcher(response3);
-    
+
     boolean test1 = m1.find();
     boolean test2 = m2.find();
     boolean test3 = m3.find();
-    
+
     if(test1 && test2 && test3)
     {
         JOptionPane.showMessageDialog(
@@ -418,22 +418,22 @@ private void jButtonTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         String result1 = "Fail";
         String result2 = "Fail";
         String result3 = "Fail";
-        
+
         if(test1)
         {
             result1 = "Pass";
         }
-        
+
         if(test2)
         {
-            result2 = "Pass";    
+            result2 = "Pass";
         }
-        
+
         if(test3)
         {
             result3 = "Pass";
         }
-        
+
         JOptionPane.showMessageDialog(
                         this,
                         "Test results\n" +
@@ -444,8 +444,8 @@ private void jButtonTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
     }
-    
-    
+
+
 }//GEN-LAST:event_jButtonTestActionPerformed
 
 /*

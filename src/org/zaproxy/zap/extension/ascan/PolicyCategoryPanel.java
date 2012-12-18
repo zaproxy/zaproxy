@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -43,7 +43,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	private JScrollPane jScrollPane = null;
 	private CategoryTableModel categoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
     /**
-     * 
+     *
      */
     public PolicyCategoryPanel(int category, List<Plugin> allTest) {
         super();
@@ -68,14 +68,14 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
         gridBagConstraints11.insets = new java.awt.Insets(0,0,0,0);
         gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
         this.add(getJScrollPane(), gridBagConstraints11);
-			
+
 	}
-	private static final int width[] = {300,60};
+	private static final int[] width = {300,60};
 	/**
-	 * This method initializes tableTest	
-	 * 	
-	 * @return javax.swing.JTable	
-	 */    
+	 * This method initializes tableTest
+	 *
+	 * @return javax.swing.JTable
+	 */
 	private JTable getTableTest() {
 		if (tableTest == null) {
 			tableTest = new JTable();
@@ -95,7 +95,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void initParam(Object obj) {
-        
+
     }
 
     /* (non-Javadoc)
@@ -103,7 +103,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void validateParam(Object obj) throws Exception {
-        
+
     }
 
     /* (non-Javadoc)
@@ -111,13 +111,13 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
      */
     @Override
     public void saveParam(Object obj) throws Exception {
-        
+
     }
 	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
+	 * This method initializes jScrollPane
+	 *
+	 * @return javax.swing.JScrollPane
+	 */
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -127,10 +127,10 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 		return jScrollPane;
 	}
 	/**
-	 * This method initializes categoryTableModel	
-	 * 	
-	 * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel	
-	 */    
+	 * This method initializes categoryTableModel
+	 *
+	 * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel
+	 */
 	private CategoryTableModel getCategoryTableModel() {
 		if (categoryTableModel == null) {
 			categoryTableModel = new CategoryTableModel();

@@ -46,7 +46,7 @@ public class ClassLoaderUtil {
     public static void addURL(URL u) throws IOException {
 
         URLClassLoader sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        URL urls[] = sysLoader.getURLs();
+        URL[] urls = sysLoader.getURLs();
         for (int i = 0; i < urls.length; i++) {
             if (StringUtils.equalsIgnoreCase(urls[i].toString(), u.toString())) {
                 if (log.isDebugEnabled()) {

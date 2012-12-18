@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.httppanel.view.hex;
 
@@ -31,21 +31,21 @@ public class HttpPanelHexModel extends AbstractTableModel {
     private final static String[] hexSymbols = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
     private final static int BITS_PER_HEX_DIGIT = 4;
 	private final static int COLUMN_COUNT = 34;
-	
+
 	private static final long serialVersionUID = 1L;
     private List<String[]> listRow = new ArrayList<>();
     private boolean editable = false;
     private boolean changed = false;
-    
-    
+
+
     public boolean isEditable() {
         return editable;
     }
-    
+
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
-    
+
     public HttpPanelHexModel() {
         super();
     }
@@ -73,7 +73,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     public Object getValueAt(int row, int col) {
         return listRow.get(row)[col];
     }
-    
+
     private boolean isHexColumn (int col) {
     	return col > 0 && col <= 16;
     }
@@ -99,13 +99,13 @@ public class HttpPanelHexModel extends AbstractTableModel {
 
         return (hexSymbols[leftSymbol] + hexSymbols[rightSymbol]);
     }
-    
+
     private String [] newRow() {
     	String [] row = new String[COLUMN_COUNT];
     	row[0] = String.format("%08x", (listRow.size() * 16));
     	return row;
     }
-    
+
     private void setHex(String[] row, int index, byte b) {
 		row[index] = toHexFromByte(b);
     	row[index + 17] = String.valueOf((char)b);
@@ -118,7 +118,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
 
     public synchronized void setData(byte[] body) {
     	listRow.clear();
-    	
+
     	if (body.length != 0 || isEditable()) {
 	    	int index = 0;
 	    	int rowIndex = 0;
@@ -135,11 +135,11 @@ public class HttpPanelHexModel extends AbstractTableModel {
 	    		index++;
 	    	}
     	}
-    	
+
     	this.fireTableDataChanged();
     	changed = false;
     }
-    
+
     public synchronized byte[] getData() {
     	// Need to implement if/when edit supported
     	ByteBuilder bb = new ByteBuilder();
@@ -153,7 +153,7 @@ public class HttpPanelHexModel extends AbstractTableModel {
     	}
     	return bb.toByteArray();
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (! isEditable()) {
@@ -167,19 +167,19 @@ public class HttpPanelHexModel extends AbstractTableModel {
     		// Not the last row, so no problem
     		return true;
     	}
-    	
-        String row[] = listRow.get(rowIndex);
+
+        String[] row = listRow.get(rowIndex);
     	if (!isCharColumn(columnIndex)) {
-    		// Previous cell is null - can only edit the first null cell 
+    		// Previous cell is null - can only edit the first null cell
     		return (row[columnIndex-1] != null);
     	} else if (row[columnIndex-1] == null && columnIndex != 18) {
-    		// Previous cell is null and it's not the first text cell 
+    		// Previous cell is null and it's not the first text cell
     		return false;
     	}
-    	
+
     	return true;
     }
-    
+
     @Override
     public void setValueAt(Object value, int row, int col) {
     	String val = (String) value;
@@ -208,9 +208,9 @@ public class HttpPanelHexModel extends AbstractTableModel {
     	} else {
        		setChar(cell, col, charVal);
     	}
- 
+
     	int lastRowChanged = row;
-    	
+
         if ((row == listRow.size() - 1) && cell[16] != null) {
         	// Last cell on last line is used, add a new row
     		listRow.add(newRow());

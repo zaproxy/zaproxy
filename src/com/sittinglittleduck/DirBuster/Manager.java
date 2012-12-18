@@ -160,17 +160,17 @@ public class Manager implements ProcessChecker.ProcessUpdate
      * flag to state if the inconsistent fail case dialog is visable
      */
     private boolean failCaseDialogVisable = false;
-    
+
     /*
      * stores the default number of threads to be used
      */
     private int defaultNoThreads;
-    
+
     /*
      * stores the default list to use
      */
     private String defaultList;
-    
+
     /*
      * stores the default exts to use
      */
@@ -200,14 +200,14 @@ public class Manager implements ProcessChecker.ProcessUpdate
 
     /*
      * stores of information used to transer data to the gui when started with console args
-     * 
+     *
      */
     private URL targetURL = null;
     private String fileLocation = null;
     private String reportLocation = null;
     private String fileExtentions = null;
     private String pointToStartFrom = null;
-    
+
     // ZAP: Changed to public to allow it to be extended
     public Manager()
     {
@@ -238,7 +238,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
          * create the httpclient
          */
         createHttpClient();
-        
+
         // ZAP: Set up manager
         manager = this;
     }
@@ -615,7 +615,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
                 workGenThread = new Thread(workGenBrute);
                 workGenThread.start();
             }
-            //start the 
+            //start the
             else if(urlFuzz)
             {
                 workGenThread = new Thread(workGenFuzz);
@@ -1076,7 +1076,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
             gui.jPanelRunning.jButtonBack.setEnabled(true);
             gui.setStatus("DirBuster Stopped");
         }
-        
+
         /*
          * if we have finished and it's headless just exit, the exit thread will write the report
          */
@@ -1174,7 +1174,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
         /*
          *Convert item queue to an array
          */
-        Object tempArray[] = dirQueue.toArray();
+        Object[] tempArray = dirQueue.toArray();
         DirToCheck dirToCheck = null;
 
         for(int b = 0; b < tempArray.length; b++)
@@ -1469,7 +1469,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
         workGen.skipCurrent();
 
         //remove all items in the current work queue that are no loger required.
-        Object tempArray[] = workQueue.toArray();
+        Object[] tempArray = workQueue.toArray();
         WorkUnit work = null;
         int totalRemoved = 0;
         for(int b = 0; b < tempArray.length; b++)
@@ -1785,7 +1785,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
         this.defaultNoThreads = defaultNoThreads;
         userPrefs.putInt("DefaultNoTreads", defaultNoThreads);
     }
-    
-    
-    
+
+
+
 }

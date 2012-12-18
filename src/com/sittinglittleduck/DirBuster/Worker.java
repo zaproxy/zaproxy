@@ -115,13 +115,13 @@ public class Worker implements Runnable
                 }
             }
 
-            
+
             GetMethod httpget = null;
             HeadMethod httphead = null;
-            
+
             try
             {
-                
+
                 work = (WorkUnit) queue.take();
                 working = true;
                 url = work.getWork();
@@ -235,7 +235,7 @@ public class Worker implements Runnable
                     //save the headers into a string, used in viewing raw responce
                     String rawHeader;
                     rawHeader = httpget.getStatusLine() + "\r\n";
-                    Header headers[] = httpget.getResponseHeaders();
+                    Header[] headers = httpget.getResponseHeaders();
 
                     StringBuffer buf = new StringBuffer();
                     for(int a = 0; a < headers.length; a++)
@@ -468,7 +468,7 @@ public class Worker implements Runnable
                             rawResponce = "";
                             //build a string version of the headers
                             rawResponce = httpget.getStatusLine() + "\r\n";
-                            Header headers[] = httpget.getResponseHeaders();
+                            Header[] headers = httpget.getResponseHeaders();
 
                             StringBuffer buf = new StringBuffer();
                             for(int a = 0; a < headers.length; a++)
@@ -577,7 +577,7 @@ public class Worker implements Runnable
                 {
                     httpget.releaseConnection();
                 }
-                
+
                 if(httphead != null)
                 {
                     httphead.releaseConnection();

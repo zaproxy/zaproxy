@@ -38,7 +38,7 @@ import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 public class JDialogViewResponce extends javax.swing.JDialog
 {
     private BaseCase baseCaseObj;
-    
+
     /** Creates new form JDialogViewResponce */
     public JDialogViewResponce(java.awt.Frame parent, boolean modal, String Responce, String Request, String baseCase, String rawResponce, BaseCase baseCaseObj)
     {
@@ -64,14 +64,14 @@ public class JDialogViewResponce extends javax.swing.JDialog
             jTextAreaResponceCompear.setCaretPosition(0);
             jTextAreaBaseCompear.setText(baseCase);
             jTextAreaBaseCompear.setCaretPosition(0);
-            
-            
-            
-            String temp1a[] = baseCase.split("\r?\n");
-            String temp2a[] = Responce.split("\r?\n");
-            
+
+
+
+            String[] temp1a = baseCase.split("\r?\n");
+            String[] temp2a = Responce.split("\r?\n");
+
             Diff d = new Diff(temp1a, temp2a);
-            
+
             Diff.change script = d.diff_2(false);
             DiffPrint.Base p;
             //p = new DiffPrint.ContextPrint(temp1a, temp2a);
@@ -87,11 +87,11 @@ public class JDialogViewResponce extends javax.swing.JDialog
             jLabelBaseCaseURL.setText(baseCaseObj.getBaseCaseRequestURL().toString());
             jLabelHTTPResponceCode.setText(String.valueOf(baseCaseObj.getFailCode()));
         }
-        
+
         //this.jScrollPane1.setViewport(null);
-        
+
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -233,11 +233,11 @@ public class JDialogViewResponce extends javax.swing.JDialog
         {
             BrowserLauncher launcher = new BrowserLauncher(null);
             launcher.openURLinBrowser(baseCaseObj.getBaseCaseRequestURL().toString());
-        } 
+        }
         catch (UnsupportedOperatingSystemException ex)
         {
             ex.printStackTrace();
-        } 
+        }
         catch (BrowserLaunchingInitializingException ex)
         {
             ex.printStackTrace();
@@ -248,8 +248,8 @@ public class JDialogViewResponce extends javax.swing.JDialog
     {//GEN-HEADEREND:event_jButtonCloseActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButtonCloseActionPerformed
-    
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonClose;
@@ -270,5 +270,5 @@ public class JDialogViewResponce extends javax.swing.JDialog
     private javax.swing.JTextArea jTextAreaResponceCompear;
     private javax.swing.JTextPane jTextPaneDiff;
     // End of variables declaration//GEN-END:variables
-    
+
 }

@@ -33,80 +33,80 @@ import com.sittinglittleduck.DirBuster.HTMLelementToParse;
 public class HTMLParseTableModel extends AbstractTableModel
 {
     String[] columnNames = {new String("HTML Tag"), new String("Attribute")};
-    
-    
+
+
     private Vector tableData;
-    Object data[][];
-    
+    Object[][] data;
+
     /** Creates a new instance of HTTPHeaderTableModel */
     public HTMLParseTableModel(Vector d)
     {
         data = null;
-        
+
         this.tableData = d;
-        
+
         data = new Object[tableData.size()][2];
-        
+
         for(int a = 0; a < tableData.size(); a++)
         {
             HTMLelementToParse element = (HTMLelementToParse) tableData.elementAt(a);
-            
+
             data[a][0] = element.getTag();
             data[a][1] = element.getAttr();
-            
+
         }
     }
-    
+
     public void setColumnName(int index, String name)
     {
         if (index < columnNames.length)
             columnNames[index] = name;
     }
-    
+
     public boolean isCellEditable(int row, int col)
     {
         return false;
     }
-    
-    
+
+
     public int getRowCount()
     {
         return data==null ? 0 : data.length;
     }
-    
+
     public int getColumnCount()
     {
         return columnNames.length;
     }
-    
+
     public String getColumnName(int col)
     {
         return columnNames[col];
     }
-    
-    
+
+
     public Object getValueAt(int row, int col)
     {
         if ( row < 0 || row >= data.length ) return null;
-        
+
         return data[row][col];
-        
+
     }
-    
+
     public void setValueAt(Object value, int row, int col)
     {
         data[row][col] = value;
         fireTableCellUpdated(row, col);
     }
-    
+
     public void clearData()
     {
         data = null;
     }
-    
+
     public Vector getVector()
     {
         return tableData;
     }
-    
+
 }

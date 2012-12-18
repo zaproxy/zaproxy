@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2012 ZAP development team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.autoupdate;
 
@@ -35,18 +35,18 @@ public class Downloader extends Thread {
 	private Date started = null;
 	private Date finished = null;
 	private boolean cancelDownload = false;
-	
+
 	public Downloader(URL url, File targetFile) {
 		this (url, targetFile, 0);
 	}
-	
+
 	public Downloader(URL url, File targetFile, long size) {
 		super();
 		this.url = url;
 		this.targetFile = targetFile;
 		this.size = size;
 	}
-	
+
 	public void run() {
 		this.started = new Date();
     	BufferedInputStream in = null;
@@ -55,14 +55,14 @@ public class Downloader extends Thread {
 	    	/*
 	    	 * The following code may be more efficient, but doesnt give us the option
 	    	 * of cancelling downloads.
-	    	 * 
+	    	 *
 			 * ReadableByteChannel rbc = Channels.newChannel(url.openStream());
 			 * FileOutputStream fos = new FileOutputStream(targetFile);
 			 * fos.getChannel().transferFrom(rbc, 0, 1 << 24);
 	    	 */
 	    	in = new BufferedInputStream(url.openStream());
 	    	out = new FileOutputStream(this.targetFile);
-	        byte data[] = new byte[1024];
+	        byte[] data = new byte[1024];
 	        int count;
 	        while(! cancelDownload && (count = in.read(data,0,1024)) != -1)
 	        {
@@ -88,7 +88,7 @@ public class Downloader extends Thread {
 			this.targetFile.delete();
 		}
 	}
-	
+
 	public void cancelDownload() {
 		this.cancelDownload = true;
 	}
@@ -104,7 +104,7 @@ public class Downloader extends Thread {
 	public File getTargetFile() {
 		return targetFile;
 	}
-	
+
 	public int getProgressPercent() {
 		if (complete) {
 			return 100;
@@ -122,5 +122,5 @@ public class Downloader extends Thread {
 	public Date getFinished() {
 		return finished;
 	}
-	
+
 }
