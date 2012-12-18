@@ -38,6 +38,10 @@ public class ZapOutputWriter extends WriterAppender {
 
 	@Override
 	public void append(LoggingEvent event) {
+		if (! View.isInitialised()) {
+			// Running in daemon mode
+			return;
+		}
 
 		if (event.getLevel().equals(Level.ERROR)) {
 			if (scanStatus != null) {

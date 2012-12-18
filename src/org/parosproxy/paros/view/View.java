@@ -34,6 +34,7 @@
 // ZAP: 2012/08/07 Removed the unused method changeDisplayOption(int)
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
+// ZAP: 2012/12/18 Issue 441: Prevent view being initialised in daemon mode
 
 package org.parosproxy.paros.view;
 
@@ -49,6 +50,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
@@ -74,6 +76,8 @@ public class View implements ViewDelegate {
 	public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
 	
 	private static View view = null;
+	private static boolean daemon = false;
+	
 //	private FindDialog findDialog = null;
 	private SessionDialog sessionDialog = null;
 	private OptionsDialog optionsDialog = null;
@@ -90,6 +94,8 @@ public class View implements ViewDelegate {
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<ContextPanelFactory>();
 
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
+
+    private static final Logger logger = Logger.getLogger(View.class);
 
 	/**
 	 * @return Returns the mainFrame.
@@ -168,8 +174,14 @@ public class View implements ViewDelegate {
 	}
 	
 	// ZAP: FindBugs fix - make method synchronised
-	public static  synchronized View getSingleton() {
+	public static synchronized View getSingleton() {
 		if (view == null) {
+			if (daemon) {
+				Exception e = new Exception("Attempting to initialise View in daemon mode");
+				logger.error(e.getMessage(), e);
+				return null;
+			}
+			logger.info("Initialising View");
 			view = new View();
 			view.init();
 		}
@@ -178,6 +190,10 @@ public class View implements ViewDelegate {
 	
 	public static boolean isInitialised() {
 		return view != null;
+	}
+	
+	public static void setDaemon(boolean daemon) {
+		View.daemon = daemon;
 	}
 	
 //	public void showFindDialog() {

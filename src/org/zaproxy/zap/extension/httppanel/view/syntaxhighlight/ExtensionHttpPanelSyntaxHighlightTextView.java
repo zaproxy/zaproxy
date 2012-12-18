@@ -51,14 +51,16 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
-		
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-		
-		HttpPanelManager.getInstance().addRequestView(RequestAllComponent.NAME, new RequestAllViewFactory());
-		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+        if (getView() != null) {
+			HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
+			HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
+			
+			HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
+			HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
+			
+			HttpPanelManager.getInstance().addRequestView(RequestAllComponent.NAME, new RequestAllViewFactory());
+			HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+        }
 	}
 	
 	private static final class RequestSplitHeaderViewFactory implements HttpPanelViewFactory {

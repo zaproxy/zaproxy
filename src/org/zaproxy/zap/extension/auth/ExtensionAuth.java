@@ -540,8 +540,10 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		// We're not authenticated, so try to login
 
 		if (this.login(ca.getContextId())) {
+			if (View.isInitialised()) {
 			// Let the user know it worked
-			View.getSingleton().getOutputPanel().append(Constant.messages.getString("auth.output.success") + "\n");
+				View.getSingleton().getOutputPanel().append(Constant.messages.getString("auth.output.success") + "\n");
+			}
 			
 			// Logged in, try previous request
 			try {
@@ -549,7 +551,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
-		} else {
+		} else if (View.isInitialised()) {
 			// Let the user know it failed :(
 			View.getSingleton().getOutputPanel().append(Constant.messages.getString("auth.output.failure") + "\n");
 		}

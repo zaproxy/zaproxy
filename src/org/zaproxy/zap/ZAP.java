@@ -376,6 +376,7 @@ public class ZAP {
         final Thread t = new Thread(new Runnable() {
             @Override
 			public void run() {
+            	View.setDaemon(true);	// Prevents the View ever being initialised
         		Control.initSingletonWithoutView(getOverrides());
         		// This is the only non-daemon thread, so should keep running
         		// CoreAPI.handleApiAction uses System.exit to shutdown

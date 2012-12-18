@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2012/12/18 Issue 441: Dont access view in daemon mode
+
 
 package org.parosproxy.paros.extension.option;
 
@@ -556,10 +558,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    if (chkProxyChainPrompt.isSelected()) {
 	    	connectionParam.setProxyChainPrompt(true);
 	    	
-	    	// And prompt now
-			ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
-			dialog.init(Model.getSingleton().getOptionsParam());
-			dialog.setVisible(true);
+	    	if (View.isInitialised()) {
+		    	// And prompt now
+				ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
+				dialog.init(Model.getSingleton().getOptionsParam());
+				dialog.setVisible(true);
+	    	}
 	    	
 	    } else {
 	    	connectionParam.setProxyChainPrompt(false);

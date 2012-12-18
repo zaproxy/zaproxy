@@ -128,7 +128,7 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 	    Context context = session.getContext(this.index);
 
     	String name = getTxtName().getText();
-    	if (! this.getName().equals(name)) {
+    	if (! this.getName().equals(name) && View.isInitialised()) {
     		View.getSingleton().renameContext(context);
     		this.setName(name);
     	}

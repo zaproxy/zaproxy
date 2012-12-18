@@ -50,6 +50,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
@@ -628,7 +629,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	@Override
 	public void sessionChanged(final Session session) {
 		TableWebSocket table = Model.getSingleton().getDb().getTableWebSocket();
-		getWebSocketPanel().setTable(table);
+		if (View.isInitialised()) {
+			getWebSocketPanel().setTable(table);
+		}
 		storage.setTable(table);
 		try {
 			WebSocketProxy.setChannelIdGenerator(table.getMaxChannelId());
@@ -643,9 +646,11 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 
 	@Override
 	public void sessionAboutToChange(Session session) {
-		// Prevent the table from being used
-		getWebSocketPanel().setTable(null);
-		storage.setTable(null);
+		if (View.isInitialised()) {
+			// Prevent the table from being used
+			getWebSocketPanel().setTable(null);
+			storage.setTable(null);
+		}
 		// close existing connections
 		synchronized (wsProxies) {
 			for (WebSocketProxy wsProxy : wsProxies.values()) {
