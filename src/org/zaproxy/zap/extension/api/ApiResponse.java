@@ -15,8 +15,12 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.clientapi.core;
+package org.zaproxy.zap.extension.api;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import net.sf.json.JSON;
 
 public abstract class ApiResponse {
 
@@ -35,6 +39,12 @@ public abstract class ApiResponse {
 		this.name = name;
 	}
 
+	public abstract JSON toJSON();
+
+	public abstract void toXML(Document doc, Element rootElement);
+
+	public abstract void toHTML(StringBuilder sb);
+	
 	public abstract String toString(int indent);
 
 }

@@ -15,13 +15,20 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.clientapi.core;
+package org.zaproxy.zap.extension.api;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.zaproxy.clientapi.core.ClientApiException;
 
 public class ApiResponseList extends ApiResponse {
 	
@@ -90,6 +97,46 @@ public class ApiResponseList extends ApiResponse {
 		return this.list.get(0).getClass();
 	}
 
+	@Override
+	public JSON toJSON() {
+		if (list == null) {
+			return null;
+		}
+		JSONObject jo = new JSONObject();
+		JSONArray array = new JSONArray();
+		for (ApiResponse resp: this.list) {
+			if (resp instanceof ApiResponseElement) {
+				array.add(((ApiResponseElement)resp).getValue());
+			} else {
+				array.add(resp.toJSON());
+			}
+		}
+		jo.put(getName(), array);
+		return jo;
+	}
+
+	@Override
+	public void toXML(Document doc, Element parent) {
+		parent.setAttribute("type", "list");
+		for (ApiResponse resp: this.list) {
+			Element el = doc.createElement(resp.getName());
+			resp.toXML(doc, el);
+			parent.appendChild(el);
+		}
+	}
+
+	@Override
+	public void toHTML(StringBuilder sb) {
+		sb.append("<h2>" + this.getName() + "</h2>\n");
+		sb.append("<table border=\"1\">\n");
+		for (ApiResponse resp: this.list) {
+			sb.append("<tr><td>\n");
+			resp.toHTML(sb);
+			sb.append("</td></tr>\n");
+		}
+		sb.append("</table>\n");
+	}
+	
 	@Override
 	public String toString(int indent) {
 		StringBuilder sb = new StringBuilder();

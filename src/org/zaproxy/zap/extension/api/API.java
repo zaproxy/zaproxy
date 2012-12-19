@@ -44,7 +44,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.zaproxy.clientapi.core.ApiResponse;
 
 
 public class API {

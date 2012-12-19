@@ -15,13 +15,21 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.clientapi.core;
+package org.zaproxy.zap.extension.api;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.zaproxy.clientapi.core.ClientApiException;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseSet extends ApiResponse {
 	
@@ -57,6 +65,43 @@ public class ApiResponseSet extends ApiResponse {
 		return this.values.get(name);
 	}
 
+	@Override
+	public JSON toJSON() {
+		if (values == null) {
+			return null;
+		}
+		JSONObject jo = new JSONObject();
+		for (Entry<String, String> val  : values.entrySet()) {
+			jo.put(val.getKey(), val.getValue());
+		}
+		return jo;
+	}
+
+	@Override
+	public void toXML(Document doc, Element parent) {
+		parent.setAttribute("type", "set");
+		for (Entry<String, String> val  : values.entrySet()) {
+			Element el = doc.createElement(val.getKey());
+			Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(val.getValue()));
+			el.appendChild(text);
+			parent.appendChild(el);
+		}
+	}
+
+	@Override
+	public void toHTML(StringBuilder sb) {
+		sb.append("<h2>" + this.getName() + "</h2>\n");
+		sb.append("<table border=\"1\">\n");
+		for (Entry<String, String> val  : values.entrySet()) {
+			sb.append("<tr><td>\n");
+			sb.append(val.getKey());
+			sb.append("</td><td>\n");
+			sb.append(val.getValue());
+			sb.append("</td></tr>\n");
+		}
+		sb.append("</table>\n");
+	}
+	
 	@Override
 	public String toString(int indent) {
 		StringBuilder sb = new StringBuilder();

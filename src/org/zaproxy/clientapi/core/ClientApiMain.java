@@ -22,6 +22,7 @@ package org.zaproxy.clientapi.core;
 import java.io.File;
 import java.net.ConnectException;
 import java.util.HashMap;
+import java.util.List;
 
 public class ClientApiMain {
 
@@ -33,7 +34,7 @@ public class ClientApiMain {
     private boolean debug = false;
 
     private enum Task{
-        stop, checkAlerts, saveSession, newSession, activeScanUrl
+        stop, showAlerts, checkAlerts, saveSession, newSession, activeScanUrl
     }
 
     public static void main(String[] args){
@@ -84,6 +85,12 @@ public class ClientApiMain {
                             System.exit(1);
                         }
                     }
+                    break;
+                case showAlerts: 
+                	List<Alert> alerts = api.getAlerts(null, -1, -1);
+                	for (Alert alert : alerts) {
+                        System.out.println(alert.toString());
+                	}
                     break;
                 case saveSession:
                     if (params.get("sessionName") == null){
@@ -178,6 +185,7 @@ public class ClientApiMain {
             "Available subcommands:\n"+
                 "\tstop\n"+
                 "\tcheckAlerts\n"+
+                "\tshowAlerts\n"+
                 "\tsaveSession\n"+
                 "\tnewSession\n";
         } else{
@@ -204,6 +212,18 @@ public class ClientApiMain {
                                 "3. Type 'java -jar zap-api.jar checkAlerts alertsFile=\"C:\\Users\\me\\My Documents\\alerts.xml\" outputFile=\"C:\\Users\\me\\My Documents\\report.xml\"' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
                                     "Check alerts ignoring alerts from alertsFile, looking for required alerts from alertsFile. Outputting results to report.xml, using zap listening on 192.168.1.1:7080\n" +
                             "Note: for paths containing spaces ensure path is enclosed in quotes\n\n";
+                    break;
+                case showAlerts:
+                    help = "usage: showAlerts [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                                "1. Type 'java -jar zap-api.jar showAlerts' \n\t\t" +
+                                    "Show alerts, using zap listening on default settings (localhost:8090)\n\t" +
+                                "2. Type 'java -jar zap-api.jar showAlerts zapaddr=192.168.1.1' \n\t\t" +
+                                    "Show alerts, using zap listening on 192.168.1.1:8090\n\t" +
+                                "3. Type 'java -jar zap-api.jar showAlerts zapport=7080' \n\t\t" +
+                                    "Show alerts, using zap listening on localhost:7080\n\t" +
+                                "4. Type 'java -jar zap-api.jar showAlerts zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                                    "Show alerts, using zap listening on 192.168.1.1:7080\n\n";
                     break;
                 case saveSession:
                     help = "usage: saveSession sessionName={PATH} [zapaddr={ip}] [zapport={port}]\n\n" +

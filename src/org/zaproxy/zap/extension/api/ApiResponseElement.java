@@ -15,9 +15,15 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.clientapi.core;
+package org.zaproxy.zap.extension.api;
 
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseElement extends ApiResponse {
 	
@@ -48,6 +54,32 @@ public class ApiResponseElement extends ApiResponse {
 
 	public String getValue() {
 		return value;
+	}
+
+	@Override
+	public JSON toJSON() {
+		if (value == null) {
+			return null;
+		}
+		JSONObject jo = new JSONObject();
+		jo.put(this.getName(), this.value);
+		return jo;
+	}
+
+	@Override
+	public void toXML(Document doc, Element parent) {
+		parent.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.getValue())));
+	}
+
+	@Override
+	public void toHTML(StringBuilder sb) {
+		sb.append("<table border=\"1\">\n");
+		sb.append("<tr><td>\n");
+		sb.append(this.getName());
+		sb.append("</td><td>\n");
+		sb.append(this.getValue());
+		sb.append("</td></tr>\n");
+		sb.append("</table>\n");
 	}
 
 	@Override

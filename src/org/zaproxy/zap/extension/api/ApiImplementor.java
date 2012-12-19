@@ -26,8 +26,6 @@ import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.clientapi.core.ApiResponse;
-import org.zaproxy.clientapi.core.ApiResponseElement;
 
 
 public abstract class ApiImplementor {
