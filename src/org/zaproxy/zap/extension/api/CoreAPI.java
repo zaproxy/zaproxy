@@ -51,6 +51,10 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseElement;
+import org.zaproxy.clientapi.core.ApiResponseList;
+import org.zaproxy.clientapi.core.ApiResponseSet;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
@@ -128,7 +132,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			log.info(Constant.PROGRAM_TITLE + " terminated.");
 			System.exit(0);
 
-		} else if (ACTION_SAVE_SESSION.equals(name)) {
+		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			String sessionName = params.getString(PARAM_SESSION);
 			session.setSessionName(name);
 			if (!sessionName.endsWith(".session")) {
@@ -170,7 +174,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			logger.debug("Can now return after saving session");
 			
 			
-		} else if (ACTION_LOAD_SESSION.equals(name)) {
+		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			String sessionName = params.getString(PARAM_SESSION);
 			if (!sessionName.endsWith(".session")) {
 				sessionName = sessionName + ".session";
@@ -197,7 +201,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						e.getMessage());
 			}
 
-		} else if (ACTION_NEW_SESSION.equals(name)) {
+		} else if (ACTION_NEW_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			String sessionName = params.getString(PARAM_SESSION);
 			if (sessionName == null || sessionName.length() == 0) {
 				// Create a new 'unnamed' session

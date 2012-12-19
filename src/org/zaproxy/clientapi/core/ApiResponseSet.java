@@ -15,18 +15,20 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.api;
+package org.zaproxy.clientapi.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
-import org.zaproxy.zap.utils.XMLStringUtil;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseSet extends ApiResponse {
 	
@@ -43,8 +45,23 @@ public class ApiResponseSet extends ApiResponse {
 		this.values = values;
 	}
 
+	public ApiResponseSet(Node node) throws ClientApiException {
+		super(node.getNodeName());
+		Node child = node.getFirstChild();
+		this.values = new HashMap<String, String>();
+		while (child != null) {
+			ApiResponseElement elem = (ApiResponseElement) ApiResponseFactory.getResponse(child);
+			values.put(elem.getName(), elem.getValue());
+			child = child.getNextSibling();
+		}
+	}
+
 	public String[] getAttributes() {
 		return attributes;
+	}
+	
+	public String getAttribute(String name) {
+		return this.values.get(name);
 	}
 
 	@Override
@@ -61,6 +78,7 @@ public class ApiResponseSet extends ApiResponse {
 
 	@Override
 	public void toXML(Document doc, Element parent) {
+		parent.setAttribute("type", "set");
 		for (Entry<String, String> val  : values.entrySet()) {
 			Element el = doc.createElement(val.getKey());
 			Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(val.getValue()));
@@ -82,5 +100,31 @@ public class ApiResponseSet extends ApiResponse {
 		}
 		sb.append("</table>\n");
 	}
+	
+	@Override
+	public String toString(int indent) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0 ; i < indent; i++) {
+			sb.append("\t");
+		}
+		sb.append("ApiResponseSet ");
+		sb.append(this.getName());
+		sb.append(" : [\n");
+		for (Entry<String, String> val  : values.entrySet()) {
+			for (int i=0 ; i < indent+1; i++) {
+				sb.append("\t");
+			}
+			sb.append(val.getKey());
+			sb.append(" = ");
+			sb.append(val.getValue());
+			sb.append("\n");
+		}
+		for (int i=0 ; i < indent; i++) {
+			sb.append("\t");
+		}
+		sb.append("]\n");
+		return sb.toString();
+	}
+
 	
 }

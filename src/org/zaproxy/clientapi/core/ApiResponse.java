@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.api;
+package org.zaproxy.clientapi.core;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,4 +44,7 @@ public abstract class ApiResponse {
 	public abstract void toXML(Document doc, Element rootElement);
 
 	public abstract void toHTML(StringBuilder sb);
+	
+	public abstract String toString(int indent);
+
 }

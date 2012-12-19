@@ -19,9 +19,6 @@
  */
 package org.zaproxy.clientapi.core;
 
-import net.sf.json.JSONObject;
-
-import java.util.HashMap;
 
 public class Alert {
 
@@ -39,19 +36,6 @@ public class Alert {
     private String reference;
     private String solution;
 	
-	public Alert (JSONObject json) {
-		this(json.get("alert").toString(), 
-				json.get("url").toString(), 
-				Risk.valueOf(json.get("risk").toString()), 
-				Reliability.valueOf(json.get("reliability").toString()), 
-				json.get("param").toString(), 
-				json.get("other").toString(),
-                json.get("attack").toString(),
-                json.get("description").toString(),
-                json.get("reference").toString(),
-                json.get("solution").toString());
-	}
-
     public Alert(String alert, String url, String riskStr, String reliabilityStr,
                  String param, String other) {
         super();

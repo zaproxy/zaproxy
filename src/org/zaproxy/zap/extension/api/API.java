@@ -44,6 +44,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.zaproxy.clientapi.core.ApiResponse;
 
 
 public class API {
@@ -101,6 +102,7 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
+			logger.debug("handleApiRequest Callback: " + url);
 			for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
 				if (url.startsWith(callback.getKey())) {
 					callbackImpl = callback.getValue();
@@ -112,7 +114,8 @@ public class API {
 		if (callbackImpl == null && ! url.startsWith(API_URL)) {
 			return false;
 		}
-		
+		logger.debug("handleApiRequest " + url);
+
 		HttpMessage msg = new HttpMessage();
 		msg.setRequestHeader(requestHeader);
 		String component = null;
@@ -271,9 +274,11 @@ public class API {
 					}
 				}
 			}
+			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (ApiException e) {
 			response =  e.toString(format);
+// 			logger.debug("handleApiRequest error: " + response, e);
 		}
 		
 		if (format == null || ! format.equals(Format.OTHER)) {
@@ -329,7 +334,7 @@ public class API {
 			return sw.toString();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return "";
 	}

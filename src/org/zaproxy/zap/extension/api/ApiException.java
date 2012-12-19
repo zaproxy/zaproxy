@@ -17,10 +17,22 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
+import java.io.StringWriter;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiException extends Exception {
 
@@ -29,32 +41,66 @@ public class ApiException extends Exception {
 	public enum Type {BAD_FORMAT, BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
 		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST};
 	
-	private String detail = null;
+	private final String detail;
+
+    private final Logger logger = Logger.getLogger(this.getClass());
 
 	public ApiException(Type type) {
 		super(type.name().toLowerCase());
+		this.detail = null;
 	}
 
 	public ApiException(Type type, String detail) {
 		super(type.name().toLowerCase());
 		this.detail = detail;
 	}
+	
+	public String toString () {
+		if (detail != null) {
+			return Constant.messages.getString("api.error." + super.getMessage()) +
+				"(" + super.getMessage() + ") : " + detail;
+		}
+		return Constant.messages.getString("api.error." + super.getMessage()) +
+			"(" + super.getMessage() + ")";
+	}
 
 	public String toString(API.Format format) {
 		switch(format) {
 		case HTML:
 		case UI:
-			if (detail != null) {
-				return Constant.messages.getString("api.error." + super.getMessage()) +
-					"(" + super.getMessage() + ") : " + detail;
-			}
-			return Constant.messages.getString("api.error." + super.getMessage()) +
-				"(" + super.getMessage() + ")";
+			return this.toString();
 			
 		case XML:
-			XMLSerializer serializer = new XMLSerializer();
-			serializer.setObjectName("error");
-			return serializer.write(this.toJSON());
+			try {
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+		
+				Document doc = docBuilder.newDocument();
+				Element rootElement = doc.createElement("Exception");
+				doc.appendChild(rootElement);
+				
+				rootElement.setAttribute("type", "exception");
+				rootElement.setAttribute("code", this.getMessage());
+				if (detail != null) {
+					rootElement.setAttribute("detail", XMLStringUtil.escapeControlChrs(this.detail));
+				}
+				
+				rootElement.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.toString())));
+				
+				TransformerFactory transformerFactory = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactory.newTransformer();
+				DOMSource source = new DOMSource(doc);
+				
+				StringWriter sw = new StringWriter();
+				StreamResult result =  new StreamResult(sw);
+				transformer.transform(source, result);
+				
+				return sw.toString();
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			break;
 
 		case JSON:
 			return this.toJSON().toString();

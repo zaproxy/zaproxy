@@ -26,6 +26,8 @@ import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseElement;
 
 
 public abstract class ApiImplementor {
@@ -104,13 +106,10 @@ public abstract class ApiImplementor {
 			name = name.substring(GET_OPTION_PREFIX.length());
 			Method[] methods = param.getClass().getDeclaredMethods();
 			for (Method method : methods) {
-				if ((method.getName().equals("get" + name) ||  method.getName().equals("is" + name)) && method.getParameterTypes().length == 0) {
+				if ((method.getName().equals("get" + name) ||  method.getName().equals("is" + name)) && 
+						method.getParameterTypes().length == 0) {
 					try {
-						//JSONArray result = new JSONArray();
-						Object value = method.invoke(this.param);
-						//result.add(value);
-						//return result;
-						return new ApiResponseElement(name, value.toString());
+						return new ApiResponseElement(name, method.invoke(this.param).toString());
 					} catch (Exception e) {
 						throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 					}

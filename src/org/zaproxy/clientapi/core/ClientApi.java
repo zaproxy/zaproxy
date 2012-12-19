@@ -19,13 +19,13 @@
  */
 package org.zaproxy.clientapi.core;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -33,19 +33,37 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.fail;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-/*
- * TODO - these are more for zap testing :)
- * checkHosts
- * checkSites
- * checkUrls
- */
+import org.w3c.dom.Document;
+import org.zaproxy.clientapi.core.Alert.Reliability;
+import org.zaproxy.clientapi.core.Alert.Risk;
+import org.zaproxy.clientapi.gen.Acsrf;
+import org.zaproxy.clientapi.gen.Ascan;
+import org.zaproxy.clientapi.gen.Auth;
+import org.zaproxy.clientapi.gen.Autoupdate;
+import org.zaproxy.clientapi.gen.Core;
+import org.zaproxy.clientapi.gen.Params;
+import org.zaproxy.clientapi.gen.Search;
+import org.zaproxy.clientapi.gen.Spider;
 
 public class ClientApi {
 	private Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8090));
 	private boolean debug = false;
+	private PrintStream debugStream = System.out;
+	
+	// Note that any new API implementations added have to be added here manually
+	public Acsrf acsrf = new Acsrf(this);
+	public Ascan ascan = new Ascan(this);
+	public Auth auth = new Auth(this);
+	public Autoupdate autoupdate = new Autoupdate(this);
+	public Core core = new Core(this);
+	public Params params = new Params(this);
+	public Search search = new Search(this);
+	public Spider spider = new Spider(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
 		this(zapAddress, zapPort, false);
@@ -56,81 +74,117 @@ public class ClientApi {
 		this.debug = debug;
 	}
 	
-	public void stopZap() throws Exception {
-		accessUrlViaProxy(proxy, "http://zap/json/core/action/shutdown");
-	}
-	
-	public void spiderUrl (String url) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/spider/action/scan/?url=" + url).toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
-		}
-		// Poll until spider finished
-		while ( ! openUrlViaProxy(proxy, "http://zap/json/spider/view/status").toString().equals("[[\"100\"]]")) {
-			Thread.sleep(1000);
-		}
-	}
-	
-	public void activeScanUrl (String url) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/ascan/action/scan_url/?url=" + url).toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
-		}
-		// Poll until spider finished
-		while ( ! openUrlViaProxy(proxy, "http://zap/json/ascan/view/status").toString().equals("[[\"100\"]]")) {
-			Thread.sleep(1000);
-		}
+	public void setDebugStream(PrintStream debugStream) {
+		this.debugStream = debugStream;
 	}
 
-    public void activeScanSite (String url) throws Exception {
-        String result = openUrlViaProxy(proxy, "http://zap/json/ascan/action/scan_site/?url=" + url).toString();
-        if ( ! result.equals("[[\"OK\"]]")) {
-            throw new Exception("Unexpected result: " + result);
-        }
-        // Poll until spider finished
-        while ( ! openUrlViaProxy(proxy, "http://zap/json/ascan/view/status").toString().equals("[[\"100\"]]")) {
-            Thread.sleep(1000);
-        }
-    }
-	
-	public void accessUrl (String url) throws Exception {
+	public void accessUrl (String url) throws ClientApiException {
 		accessUrlViaProxy(proxy, url);
 	}
 
-	public void newSession () throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newSession/?name=").toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
+
+	/*
+	 * These methods are retained for some backwards compatibility
+	 */
+	
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by core.shutdown()
+	 */
+	@Deprecated
+	public void stopZap() throws ClientApiException {
+		core.shutdown();
+	}
+	
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by spider.scan(url) and polling spider.status()
+	 */
+	@Deprecated
+	public void spiderUrl (String url) throws ClientApiException {
+		spider.scan(url);
+		// Poll until spider finished
+		while ( statusToInt(spider.status()) < 100) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}
+	}
+	
+	private int statusToInt(ApiResponse response) {
+		return Integer.parseInt(((ApiResponseElement)response).getValue());
+	}
+	
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by ascan.scan(url, recurse) and polling ascan.status()
+	 */
+	@Deprecated
+	public void activeScanUrl (String url) throws ClientApiException {
+		ascan.scan(url, "false");
+		// Poll until spider finished
+		while ( statusToInt(ascan.status()) < 100) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
 		}
 	}
 
-	public void newSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/newSession/?name=" + name).toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
-		}
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by ascan.scan(url, recurse) and polling ascan.status()
+	 */
+	@Deprecated
+    public void activeScanSite (String url) throws ClientApiException {
+		ascan.scan(url, "true");
+		// Poll until spider finished
+		while ( statusToInt(ascan.status()) < 100) {
+            try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+        }
+    }
+	
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by core.newSession("");
+	 */
+	@Deprecated
+	public void newSession () throws ClientApiException {
+		core.newSession("");
 	}
 
-	public void loadSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/loadSession/?name=" + name).toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
-		}
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by core.newSession(name);
+	 */
+	@Deprecated
+	public void newSession (String name) throws ClientApiException {
+		core.newSession(name);
 	}
 
-	public void saveSession (String name) throws Exception {
-		String result = openUrlViaProxy(proxy, "http://zap/json/core/action/saveSession/?name=" + name).toString();
-		if ( ! result.equals("[[\"OK\"]]")) {
-			throw new Exception("Unexpected result: " + result);
-		}
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by core.loadSession(name);
+	 */
+	@Deprecated
+	public void loadSession (String name) throws ClientApiException {
+		core.loadSession(name);
 	}
 
-	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws Exception {
+	/**
+	 * @deprecated  As of release 2.0.0, replaced by core.saveSession(name);
+	 */
+	@Deprecated
+	public void saveSession (String name) throws ClientApiException {
+		core.saveSession(name);
+	}
+
+	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws ClientApiException {
         HashMap<String,List<Alert>> results = checkForAlerts(ignoreAlerts, requireAlerts);
         verifyAlerts(results.get("requireAlerts"), results.get("reportAlerts"));
 	}
 
-    private void verifyAlerts(List<Alert> requireAlerts, List<Alert> reportAlerts) throws Exception {
+    private void verifyAlerts(List<Alert> requireAlerts, List<Alert> reportAlerts) throws ClientApiException {
         StringBuilder sb = new StringBuilder();
         if (reportAlerts.size() > 0) {
             sb.append("Found ").append(reportAlerts.size()).append(" alerts\n");
@@ -153,63 +207,86 @@ public class ClientApi {
         }
         if (sb.length() > 0) {
             if (debug) {
-                System.out.println("Failed: " + sb.toString());
+                debugStream.println("Failed: " + sb.toString());
             }
-            throw new Exception (sb.toString());
+            throw new ClientApiException (sb.toString());
         }
     }
 
-    public void checkAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts, File outputFile) throws Exception {
+    public void checkAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts, File outputFile) throws ClientApiException {
         HashMap<String,List<Alert>> results = checkForAlerts(ignoreAlerts, requireAlerts);
         int alertsFound = results.get("reportAlerts").size();
         int alertsNotFound = results.get("requireAlerts").size();
         int alertsIgnored = results.get("ignoredAlerts").size();
         String resultsString = String.format("Alerts Found: %d, Alerts required but not found: %d, Alerts ignored: %d", alertsFound, alertsNotFound, alertsIgnored);
-        AlertsFile.saveAlertsToFile(results.get("requireAlerts"), results.get("reportAlerts"), results.get("ignoredAlerts"), outputFile);
+        try {
+			AlertsFile.saveAlertsToFile(results.get("requireAlerts"), results.get("reportAlerts"), results.get("ignoredAlerts"), outputFile);
+		} catch (Exception e) {
+            throw new ClientApiException (e);
+		}
         if (alertsFound>0 || alertsNotFound>0){
             fail("Check Alerts Failed!\n"+resultsString);
         }else{
-            System.out.println("Check Alerts Passed!\n" + resultsString);
+        	if (debug) {
+        		debugStream.println("Check Alerts Passed!\n" + resultsString);
+        	}
         }
     }
+    
+    public List<Alert> getAlerts(String baseUrl, int start, int count) throws ClientApiException {
+    	List<Alert> alerts = new ArrayList<Alert>();
+        ApiResponse response = core.alerts(baseUrl, "" + start, "" + count);
+        if (response != null && response instanceof ApiResponseList) {
+            ApiResponseList alertList = (ApiResponseList)response;
+            for (ApiResponse resp : alertList.getItems()) {
+            	ApiResponseSet alertSet = (ApiResponseSet)resp;
+                alerts.add(new Alert(
+                		alertSet.getAttribute("alert"), 
+                        alertSet.getAttribute("url"),
+                        Risk.valueOf(alertSet.getAttribute("risk")),
+                        Reliability.valueOf(alertSet.getAttribute("reliability")),
+                        alertSet.getAttribute("param"),
+                        alertSet.getAttribute("other"),
+                        alertSet.getAttribute("attack"),
+                        alertSet.getAttribute("description"),
+                        alertSet.getAttribute("reference"),
+                        alertSet.getAttribute("solution")));
+            }
+        }
+    	return alerts;
+    }
 
-    private HashMap<String, List<Alert>> checkForAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws Exception {
+    private HashMap<String, List<Alert>> checkForAlerts(List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws ClientApiException {
         List<Alert> reportAlerts = new ArrayList<>();
         List<Alert> ignoredAlerts = new ArrayList<>();
-        JSONArray response = JSONArray.fromObject(openUrlViaProxy(proxy, "http://zap/json/core/view/alerts").toString());
-        if (response != null && response.size() == 1 && response.get(0) instanceof JSONArray) {
-            JSONArray alerts = (JSONArray)response.get(0);
-            Object[] alertObjs = alerts.toArray();
-            for (Object alertObj : alertObjs) {
-                boolean ignore = false;
-                Alert foundAlert = new Alert((JSONObject) alertObj);
-
-                if (ignoreAlerts != null) {
-                    for (Alert ignoreAlert : ignoreAlerts) {
-                        if (foundAlert.matches(ignoreAlert)) {
-                            if (debug) {
-                                System.out.println("Ignoring alert " + ignoreAlert);
-                            }
-                            ignoredAlerts.add(foundAlert);
-                            ignore = true;
-                            break;
+        List<Alert> alerts = getAlerts(null, -1, -1);
+        for (Alert alert : alerts) {
+            boolean ignore = false;
+            if (ignoreAlerts != null) {
+                for (Alert ignoreAlert : ignoreAlerts) {
+                    if (alert.matches(ignoreAlert)) {
+                        if (debug) {
+                            debugStream.println("Ignoring alert " + ignoreAlert);
                         }
+                        ignoredAlerts.add(alert);
+                        ignore = true;
+                        break;
                     }
                 }
-                if (! ignore) {
-                    reportAlerts.add(foundAlert);
-                }
-                if (requireAlerts != null) {
-                    for (Alert requireAlert : requireAlerts) {
-                        if (foundAlert.matches(requireAlert)) {
-                            if (debug) {
-                                System.out.println("Found alert " + foundAlert);
-                            }
-                            requireAlerts.remove(requireAlert);
-                            // Remove it from the not-ignored list as well
-                            reportAlerts.remove(foundAlert);
-                            break;
+            }
+            if (! ignore) {
+                reportAlerts.add(alert);
+            }
+            if (requireAlerts != null) {
+                for (Alert requireAlert : requireAlerts) {
+                    if (alert.matches(requireAlert)) {
+                        if (debug) {
+                            debugStream.println("Found alert " + alert);
                         }
+                        requireAlerts.remove(requireAlert);
+                        // Remove it from the not-ignored list as well
+                        reportAlerts.remove(alert);
+                        break;
                     }
                 }
             }
@@ -221,55 +298,86 @@ public class ClientApi {
         return results;
     }
 
-    private List<String> openUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
-		List<String> response = new ArrayList<>();
-		URL url = new URL(apiurl);
-		if (debug) {
-			System.out.println("Open URL: " + apiurl);
-		}
-		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
-		uc.connect();
-		
-		BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-		String inputLine;
-
-		while ((inputLine = in.readLine()) != null) {
-			response.add(inputLine);
-			if (debug) {
-				System.out.println(inputLine);
-			}
-		}
-
-		in.close();
-		return response;
-	}
-
-	private void accessUrlViaProxy (Proxy proxy, String apiurl) throws Exception {
-		URL url = new URL(apiurl);
-		if (debug) {
-			System.out.println("Open URL: " + apiurl);
-		}
-		HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
-		uc.connect();
-		
-		BufferedReader in;
+	private void accessUrlViaProxy (Proxy proxy, String apiurl) throws ClientApiException {
 		try {
-			in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-			String inputLine;
-
-			while ((inputLine = in.readLine()) != null) {
+			URL url = new URL(apiurl);
+			if (debug) {
+				debugStream.println("Open URL: " + apiurl);
+			}
+			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
+			uc.connect();
+			
+			BufferedReader in;
+			try {
+				in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+				String inputLine;
+	
+				while ((inputLine = in.readLine()) != null) {
+					if (debug) {
+						debugStream.println(inputLine);
+					}
+				}
+				in.close();
+	
+			} catch (IOException e) {
+				// Ignore
 				if (debug) {
-					System.out.println(inputLine);
+					debugStream.println("Ignoring exception " + e);
 				}
 			}
-			in.close();
-
-		} catch (IOException e) {
-			// Ignore
-			if (debug) {
-				System.out.println("Ignoring exception " + e);
+		} catch (Exception e) {
+			throw new ClientApiException (e);
+		}
+	}
+	
+	public ApiResponse callApi (String component, String type, String method, 
+			Map<String, String> params) throws ClientApiException {
+		Document dom;
+		try {
+			dom = this.callApiDom(component, type, method, params);
+		} catch (Exception e) {
+			throw new ClientApiException(e);
+		}
+		return ApiResponseFactory.getResponse(dom.getFirstChild());
+	}
+	
+	private Document callApiDom (String component, String type, String method, 
+			Map<String, String> params) throws ClientApiException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("http://zap/xml/");
+		sb.append(component);
+		sb.append("/");
+		sb.append(type);
+		sb.append("/");
+		sb.append(method);
+		sb.append("/");
+		if (params != null) {
+			sb.append("?");
+			for (Map.Entry<String, String>p : params.entrySet()) {
+				sb.append(p.getKey());
+				sb.append("=");
+				if (p.getValue() != null) {
+					sb.append(p.getValue());
+				}
+				sb.append("&");
 			}
 		}
-
+		
+		try {
+			URL url = new URL(sb.toString());
+			if (debug) {
+				debugStream.println("Open URL: " + url);
+			}
+			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
+			//get the factory
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			//Using factory get an instance of document builder
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			//parse using builder to get DOM representation of the XML file
+			return db.parse(uc.getInputStream());
+		} catch (Exception e) {
+			throw new ClientApiException(e);
+		}
 	}
+
 }

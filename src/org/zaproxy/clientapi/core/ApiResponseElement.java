@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.api;
+package org.zaproxy.clientapi.core;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseElement extends ApiResponse {
@@ -38,6 +39,17 @@ public class ApiResponseElement extends ApiResponse {
 	public ApiResponseElement(String name, String value) {
 		super(name);
 		this.value = value;
+	}
+
+	public ApiResponseElement(Node node, ApiResponse template) {
+		super(node.getNodeName());
+		this.value = node.getTextContent();
+
+	}
+
+	public ApiResponseElement(Node node) {
+		super(node.getNodeName());
+		this.value = node.getTextContent();
 	}
 
 	public String getValue() {
@@ -70,5 +82,18 @@ public class ApiResponseElement extends ApiResponse {
 		sb.append("</table>\n");
 	}
 
-	
+	@Override
+	public String toString(int indent) {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0 ; i < indent; i++) {
+			sb.append("\t");
+		}
+		sb.append("ApiResponseElement ");
+		sb.append(this.getName());
+		sb.append(" = " );
+		sb.append(this.getValue());
+		sb.append("\n");
+		return sb.toString();
+	}
+
 }

@@ -254,7 +254,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-	    getChkCheckOnStart().setSelected(options.getCheckForUpdatesParam().getCheckOnStart() > 0);
+	    getChkCheckOnStart().setSelected(options.getCheckForUpdatesParam().isCheckOnStart());
 	    getChkDownloadNewRelease().setSelected(options.getCheckForUpdatesParam().isDownloadNewRelease());
 		getChkCheckAddonUpdates().setSelected(options.getCheckForUpdatesParam().isCheckAddonUpdates());
 		getChkInstallAddonUpdates().setSelected(options.getCheckForUpdatesParam().isInstallAddonUpdates());
@@ -274,7 +274,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    options.getCheckForUpdatesParam().setChckOnStart((getChkCheckOnStart().isSelected()) ? 1 : 0);
+	    options.getCheckForUpdatesParam().setCheckOnStart((getChkCheckOnStart().isSelected()) ? 1 : 0);
 	    options.getCheckForUpdatesParam().setDownloadNewRelease(getChkDownloadNewRelease().isSelected());
 		options.getCheckForUpdatesParam().setCheckAddonUpdates(getChkCheckAddonUpdates().isSelected());
 		options.getCheckForUpdatesParam().setInstallAddonUpdates(getChkInstallAddonUpdates().isSelected());

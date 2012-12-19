@@ -76,13 +76,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		reportAlphaAddons = getConfig().getBoolean(REPORT_ALPHA_ADDON, false);
     }
 
-	/**
-	 * @return Returns the skipImage.
-	 */
-	public int getCheckOnStart() {
-		return checkOnStart;
-	}
-	
 	public boolean isCheckOnStartUnset() {
 		return unset;
 	}
@@ -90,7 +83,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	/**
 	 * @param checkOnStart processImages 0 = not to process. Other = process images
 	 */
-	public void setChckOnStart(int checkOnStart) {
+	public void setCheckOnStart(int checkOnStart) {
 		this.checkOnStart = checkOnStart;
 		getConfig().setProperty(CHECK_ON_START, Integer.toString(checkOnStart));
 		if (dayLastChecked.length() == 0) {
