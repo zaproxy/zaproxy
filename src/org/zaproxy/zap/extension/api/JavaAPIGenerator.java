@@ -21,25 +21,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
-import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
-import org.zaproxy.zap.extension.auth.AuthAPI;
-import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
-import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.params.ParamsAPI;
-import org.zaproxy.zap.extension.search.SearchAPI;
-import org.zaproxy.zap.extension.spider.SpiderAPI;
-import org.zaproxy.zap.spider.SpiderParam;
 
 public class JavaAPIGenerator {
-	private List<ApiImplementor> implementors = new ArrayList<ApiImplementor> ();
 	private File dir = new File("src/org/zaproxy/clientapi/gen"); 
 	
 	private final String HEADER = 
@@ -65,13 +52,8 @@ public class JavaAPIGenerator {
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
 
-	public void addImplementor(ApiImplementor imp) {
-		this.implementors.add(imp);
-	}
-	
-
 	public void generateJavaFiles() throws IOException {
-		for (ApiImplementor imp : this.implementors) {
+		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			this.generateJavaComponent(imp);
 		}
 	}
@@ -219,31 +201,6 @@ public class JavaAPIGenerator {
 		// Command for generating a python version of the ZAP API
 		
 		JavaAPIGenerator wapi = new JavaAPIGenerator();
-		ApiImplementor api;
-
-		wapi.addImplementor(new AntiCsrfAPI(null));
-		wapi.addImplementor(new SearchAPI(null));
-
-		api = new AutoUpdateAPI(null);
-		api.addApiOptions(new OptionsParamCheckForUpdates());
-		wapi.addImplementor(api);
-
-		api = new SpiderAPI(null);
-		api.addApiOptions(new SpiderParam());
-		wapi.addImplementor(api);
-
-		api = new CoreAPI();
-        //api.addApiOptions(new ConnectionParam());
-		wapi.addImplementor(api);
-
-		wapi.addImplementor(new ParamsAPI(null));
-		
-		api = new ActiveScanAPI(null);
-		api.addApiOptions(new ScannerParam());
-		wapi.addImplementor(api);
-		
-		wapi.addImplementor(new AuthAPI(null));
-
 		wapi.generateJavaFiles();
 		
 	}

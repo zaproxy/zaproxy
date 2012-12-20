@@ -37,6 +37,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.params.ParamScanner;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
@@ -84,6 +85,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(
                     getOptionsPassiveScan(getPassiveScanThread()));
         }
+        API.getInstance().registerApiImplementor(new PassiveScanAPI(this));
 
 	}
 	
@@ -133,6 +135,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		}
 		return policyPanel;
 	}
+	
+	public int getRecordsToScan() {
+		return this.getPassiveScanThread().getRecordsToScan();
+	}
+
 
 	private PassiveScanThread getPassiveScanThread() {
 		if (pst == null) {

@@ -43,7 +43,6 @@ public class WikiAPIGenerator {
 	/*
 	 * Note that this currently only generates English wiki pages, although the API itself can be internationalized
 	 */
-	private List<ApiImplementor> implementors = new ArrayList<ApiImplementor> ();
 	private String base = "ApiGen_";
 	private String title = "= ZAP 2.0.0 API (work in progress) =\n";
 	private File dir = new File("../zaproxy-wiki"); 
@@ -51,17 +50,13 @@ public class WikiAPIGenerator {
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
 
-	public void addImplementor(ApiImplementor imp) {
-		this.implementors.add(imp);
-	}
-	
 	private void generateWikiIndex() throws IOException {
 		File f = new File(this.dir, base + "Index.wiki");
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(title);
 		out.write("== Components ==\n");
-		for (ApiImplementor imp : this.implementors) {
+		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
 		}
 		out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
@@ -76,7 +71,7 @@ public class WikiAPIGenerator {
 		out.write(title);
 		out.write("== Full List ==\n");
 		out.write("|| _Component_ || _Name_ || _Type_ || _Parameters_ || _Description_ ||\n");
-		for (ApiImplementor imp : this.implementors) {
+		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			for (ApiElement view : imp.getApiViews()) {
 				this.generateWikiElement(view, imp.getPrefix(), "view", out, true);
 			}
@@ -97,7 +92,7 @@ public class WikiAPIGenerator {
 	public void generateWikiFiles() throws IOException {
 		// Generate index first
 		this.generateWikiIndex();
-		for (ApiImplementor imp : this.implementors) {
+		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			this.generateWikiComponent(imp);
 		}
 		this.methods = 0;
@@ -170,31 +165,6 @@ public class WikiAPIGenerator {
 		// Command for generating a wiki version of the ZAP API
 		
 		WikiAPIGenerator wapi = new WikiAPIGenerator();
-		ApiImplementor api;
-
-		wapi.addImplementor(new AntiCsrfAPI(null));
-		wapi.addImplementor(new SearchAPI(null));
-		
-		api = new AutoUpdateAPI(null);
-		api.addApiOptions(new OptionsParamCheckForUpdates());
-		wapi.addImplementor(api);
-		
-		api = new SpiderAPI(null);
-		api.addApiOptions(new SpiderParam());
-		wapi.addImplementor(api);
-		
-		api = new CoreAPI();
-        api.addApiOptions(new ConnectionParam());
-		wapi.addImplementor(api);
-		
-		wapi.addImplementor(new ParamsAPI(null));
-		
-		api = new ActiveScanAPI(null);
-		api.addApiOptions(new ScannerParam());
-		wapi.addImplementor(api);
-		
-		wapi.addImplementor(new AuthAPI(null));
-		
 		wapi.generateWikiFiles();
 		
 	}
