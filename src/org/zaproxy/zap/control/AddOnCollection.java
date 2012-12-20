@@ -189,4 +189,22 @@ public class AddOnCollection {
 	public ZapRelease getZapRelease() {
 		return zapRelease;
 	}
+	
+	public boolean includesAddOn(String id) {
+		boolean inc = false;
+    	for (AddOn addOn : addOns) {
+    		if (addOn.getId().equals(id)) {
+    			return true;
+    		}
+    	}
+		return inc;
+	}
+	
+	public boolean addAddOn(AddOn ao) {
+		if (this.includesAddOn(ao.getId())) {
+			return false;
+		}
+		this.addOns.add(ao);
+		return true;
+	}
 }

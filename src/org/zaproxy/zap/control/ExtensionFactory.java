@@ -59,16 +59,16 @@ public class ExtensionFactory {
     	}
     	return addOnLoader;
     }
-    
+
     public synchronized static void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
-       	List<Extension> listTest = getAddOnLoader().getImplementors("org.zaproxy.zap.extension", Extension.class);
-		listTest.addAll(getAddOnLoader().getImplementors("org.parosproxy.paros.extension", Extension.class));
+       	List<Extension> listExts = getAddOnLoader().getImplementors("org.zaproxy.zap.extension", Extension.class);
+		listExts.addAll(getAddOnLoader().getImplementors("org.parosproxy.paros.extension", Extension.class));
 
         synchronized (mapAllExtension) {
             
             mapAllExtension.clear();
-            for (int i=0; i<listTest.size(); i++) {
-                Extension extension = listTest.get(i);
+            for (int i=0; i<listExts.size(); i++) {
+                Extension extension = listExts.get(i);
                 if (mapAllExtension.containsKey(extension.getName())) {
                 	if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
                 		// Same name, same class so ignore
@@ -126,6 +126,62 @@ public class ExtensionFactory {
             	}
             }
         }
+    }
+
+    public synchronized static List<Extension> loadAddOnExtensions(ExtensionLoader extensionLoader, Configuration config, AddOn addOn) {
+       	List<Extension> listExts = getAddOnLoader().getImplementors(addOn, "org.zaproxy.zap.extension", Extension.class);
+		listExts.addAll(getAddOnLoader().getImplementors(addOn, "org.parosproxy.paros.extension", Extension.class));
+
+        synchronized (mapAllExtension) {
+            
+            for (Extension extension : listExts) {
+                if (mapAllExtension.containsKey(extension.getName())) {
+                	if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
+                		// Same name, same class cant currently replace exts already loaded
+                    	log.debug("Duplicate extension: " + extension.getName() + " " + 
+                    			extension.getClass().getCanonicalName());
+                        extension.setEnabled(false);
+                		continue;
+                	} else {
+                		// Same name but different class, log but still load it
+                    	log.error("Duplicate extension name: " + extension.getName() + " " + 
+                    			extension.getClass().getCanonicalName() +
+                    			" " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
+                	}
+                }
+                if (extension.isDepreciated()) {
+                	log.debug("Depreciated extension " + extension.getName());
+                	continue;
+                }
+                extension.setEnabled(config.getBoolean("ext." + extension.getName(), true));
+                
+                listAllExtension.add(extension);
+                mapAllExtension.put(extension.getName(), extension);
+                // Order actually irrelevant when adding an addon;)
+                int order = extension.getOrder();
+                if (order == 0) {
+                	unorderedExtensions.add(extension);
+                } else if (mapOrderToExtension.containsKey(order)) {
+                	log.error("Duplicate order " + order + " " + 
+                			mapOrderToExtension.get(order).getName() + "/" + mapOrderToExtension.get(order).getClass().getCanonicalName() + 
+                			" already registered, " +
+                			extension.getName() + "/" +extension.getClass().getCanonicalName() +
+                			" will be added as an unordered extension");
+                	unorderedExtensions.add(extension);
+                } else {
+                	mapOrderToExtension.put(order, extension);
+                }
+
+            }
+            for (Extension ext : listExts) {
+            	if (ext.isEnabled()) {
+            		log.debug("Adding new extension " + ext.getName());
+            		extensionLoader.addExtension(ext);
+            		loadMessages(ext);
+            	}
+            }
+        }
+        return listExts;
     }
     
     private static void loadMessages(Extension ext) {

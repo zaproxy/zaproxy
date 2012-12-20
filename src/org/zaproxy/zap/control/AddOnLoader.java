@@ -116,6 +116,16 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
     
+    public void addAddon(AddOn ao) {
+    	if (this.aoc.addAddOn(ao)) {
+            try {
+            	this.addURL(ao.getFile().toURI().toURL());
+			} catch (MalformedURLException e) {
+	    		logger.error(e.getMessage(), e);
+			}
+    	}
+    }
+    
     private <T> List<String> getClassNames (String packageName, Class<T> classType) {
     	List<String> listClassName = new ArrayList<>();
     	
@@ -130,15 +140,24 @@ public class AddOnLoader extends URLClassLoader {
     }
     
 	public <T> List<T> getImplementors (String packageName, Class<T> classType) {
+		return this.getImplementors(null, packageName, classType);
+    }
+
+	public <T> List<T> getImplementors (AddOn ao, String packageName, Class<T> classType) {
         Class<?> cls = null;
         List<T> listClass = new ArrayList<>();
-        List<String> classNames = this.getClassNames(packageName, classType);
+        
+        List<String> classNames;
+        if (ao != null) {
+        	classNames = this.getJarClassNames(ao.getFile(), packageName);
+        } else {
+        	classNames = this.getClassNames(packageName, classType);
+        }
         for (String className : classNames) {
             try {
                 cls = loadClass(className);
                 // abstract class or interface cannot be constructed.
                 if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
-
                     continue;
                 }
                 if (classType.isAssignableFrom(cls)) {
@@ -154,7 +173,7 @@ public class AddOnLoader extends URLClassLoader {
         }
         
         return listClass;
-    }
+	}
 
     /**
      * Check local jar (paros.jar) or related package if any target file is found.

@@ -37,15 +37,16 @@ public class DownloadManager extends Thread {
 	public DownloadManager () {
 	}
 	
-	public void downloadFile (URL url, File targetFile, long size) {
+	public Downloader downloadFile (URL url, File targetFile, long size) {
 		logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
 		Downloader dl = new Downloader(url, targetFile, size);
 		dl.start();
 		this.currentDownloads.add(dl);
+		return dl;
 	}
 	
 	public void run () {
-		while (getCurrentDownlodCount() > 0 || !shutdown) {
+		while (getCurrentDownloadCount() > 0 || !shutdown) {
 			//logger.debug("# downloads " + this.currentDownloads.size() + " shutdown " + shutdown);
 			List<Downloader> finishedDownloads = new ArrayList<Downloader>();
 			for (Downloader dl : this.currentDownloads) {
@@ -64,7 +65,7 @@ public class DownloadManager extends Thread {
 				this.currentDownloads.remove(dl);
 			}
 			try {
-				if (getCurrentDownlodCount() > 0) {
+				if (getCurrentDownloadCount() > 0) {
 					sleep(200);
 				} else {
 					sleep(1000);
@@ -76,7 +77,7 @@ public class DownloadManager extends Thread {
 		logger.debug("Shutdown");
 	}
 	
-	public int getCurrentDownlodCount() {
+	public int getCurrentDownloadCount() {
 		return this.currentDownloads.size();
 	}
 	

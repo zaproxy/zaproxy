@@ -307,6 +307,30 @@ public class ExtensionLoader {
         
     }
     
+    // TODO hacking
+    public void startLifeCycle(Extension ext) {
+    	ext.init();
+    	ext.initModel(model);
+        ext.initXML(model.getSession(), model.getOptionsParam());
+        ext.initView(view);
+        try {
+        	ExtensionHook extHook = new ExtensionHook(model, view);
+			ext.hook(extHook);
+			hookList.add(extHook);
+			
+			if (view != null) {
+			    // no need to hook view if no GUI
+			    hookView(view, extHook);
+			    hookMenu(view, extHook);
+
+			}
+			hookOptions(extHook);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+        ext.start();
+    }
+    
     public void stopAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
             getExtension(i).stop();

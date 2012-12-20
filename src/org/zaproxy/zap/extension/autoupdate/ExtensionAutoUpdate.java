@@ -25,6 +25,7 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -38,8 +39,10 @@ import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.LogPanelCellRenderer;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -65,8 +68,12 @@ import org.zaproxy.zap.view.ScanStatus;
 public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
-    private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
-    private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
+	// TODO
+    //private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
+    //private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
+    private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
+    private static final String ZAP_VERSIONS_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
+    
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
 	private JMenuItem menuItemCheckUpdate = null;
@@ -89,6 +96,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	private AddOnCollection previousVersionInfo = null;
 
     private AutoUpdateAPI api = null;
+
+    // Files currently being downloaded
+	private List<Downloader> downloadFiles = new ArrayList<Downloader>();
 
     /**
      * 
@@ -176,8 +186,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	}
 
 	public void downloadFile (URL url, File targetFile, long size) {
-		
-		this.downloadManager.downloadFile(url, targetFile, size);
+		this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size));
 		if (View.isInitialised()) {
 			// Means we do have a UI
 			if (this.downloadProgressThread != null && ! this.downloadProgressThread.isAlive()) {
@@ -186,8 +195,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			if (this.downloadProgressThread == null) {
 				this.downloadProgressThread = new Thread() {
 					public void run() {
-						while (downloadManager.getCurrentDownlodCount() > 0) {
-							getScanStatus().setScanCount(downloadManager.getCurrentDownlodCount());
+						while (downloadManager.getCurrentDownloadCount() > 0) {
+							getScanStatus().setScanCount(downloadManager.getCurrentDownloadCount());
 							getUpdateDialog().showUpdateProgress();
 							if (addonsDialog != null && addonsDialog.isVisible()) {
 								addonsDialog.showProgress();
@@ -206,11 +215,51 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 							addonsDialog.showProgress();
 						}
 						getScanStatus().setScanCount(0);
+						installNewExtensions();
 					}
 				};
 				this.downloadProgressThread.start();
 			}
 		}
+	}
+	
+	
+	
+	public void installNewExtensions() {
+		List<Downloader> handledFiles = new ArrayList<Downloader>();
+		
+		ExtensionLoader loader = Control.getSingleton().getExtensionLoader();
+		for (Downloader dl : downloadFiles) {
+			if (dl.getFinished() == null) {
+				continue;
+			}
+			handledFiles.add(dl);
+			try {
+				if (AddOn.isAddOn(dl.getTargetFile())) {
+					AddOn ao = new AddOn(dl.getTargetFile());
+					ExtensionFactory.getAddOnLoader().addAddon(ao);
+					// Note that updated extensions will be ignored until ZAP is restarted
+					List<Extension> listExts = ExtensionFactory.loadAddOnExtensions(
+							Control.getSingleton().getExtensionLoader(), 
+							Model.getSingleton().getOptionsParam().getConfig(), ao);
+					
+				   	for (Extension ext : listExts) {
+				   		if (ext.isEnabled()) {
+				   			logger.debug("Starting extension " + ext.getName());
+				   			loader.startLifeCycle(ext);
+				   		}
+				   	}
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		
+		for (Downloader dl : handledFiles) {
+			// Cant remove in loop above as we're iterating through the list
+			this.downloadFiles.remove(dl);
+		}
+		
 	}
 
 	public int getDownloadProgressPercent(URL url) throws Exception {
@@ -218,7 +267,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	}
 	
 	public int getCurrentDownloadCount() {
-		return this.downloadManager.getCurrentDownlodCount();
+		return this.downloadManager.getCurrentDownloadCount();
 	}
 
 	@Override
