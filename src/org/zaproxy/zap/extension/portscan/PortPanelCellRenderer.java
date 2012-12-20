@@ -99,9 +99,9 @@ public class PortPanelCellRenderer extends JPanel implements ListCellRenderer<In
     @Override
     public Component getListCellRendererComponent(JList<? extends Integer> list, Integer port, int index, boolean isSelected, boolean cellHasFocus) {
         
-		String portDesc = Constant.messages.getString("port.unknown");
-		if (Constant.messages.containsKey("port." + port)) {
-			portDesc = Constant.messages.getString("port." + port);
+		String portDesc = Constant.messages.getString("ports.port.unknown");
+		if (Constant.messages.containsKey("ports.port." + port)) {
+			portDesc = Constant.messages.getString("ports.port." + port);
 		}
 
         txtPort.setText(""+port);

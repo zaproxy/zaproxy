@@ -68,6 +68,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
      */
     public ExtensionPortScan() {
         super();
+        this.setI18nPrefix("ports");
         initialize();
     }
 

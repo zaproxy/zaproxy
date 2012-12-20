@@ -11,7 +11,8 @@
     <property name="javadocs.dir" location="../javadocs" />
     <property name="crowdin.dir" location="${build}/crowdin" />
     <property name="lang.dir" value="${src}/lang" />
-    <property name="zap.extensions.src.dir" location="../../zap-extensions/src/" />
+	<!-- TODO really need different targets for alpha, beta and trunk - will require changing Crowdin file structure -->
+    <property name="zap.extensions.src.dir" location="../../zap-extensions-beta/src/" />
     <property name="zap.java.api.version" value="1" />
 
     <!-- mac specific properties -->
@@ -169,13 +170,23 @@
         </manifestclasspath>
 
         <jar jarfile="${dist}/zap.jar" update="true" compress="false">
-            <zipfileset dir="${build}" prefix=""/>
+            <zipfileset dir="${build}" prefix="">
+            	<!-- Exclude all extensions that are build as addons - these are build next -->
+            	<exclude name="org/zaproxy/zap/extension/portscan/**"/>
+            </zipfileset>
             <manifest>
                 <attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
                 <attribute name="Class-Path" value="${dist.manifest.classpath}" />
                 <attribute name="Implementation-Version" value="${version}" />
             </manifest>
         </jar>
+    	<!-- Build the addons zap files -->
+        <jar jarfile="${dist}/plugin/portscan-release-1.zap" update="true" compress="false">
+            <zipfileset dir="${build}" prefix="">
+            	<include name="org/zaproxy/zap/extension/portscan/**"/>
+            </zipfileset>
+        </jar>
+    	
 
         <unjar dest="${dist.lib.exploded.dir}">
             <fileset dir="${dist.lib.dir}" casesensitive="yes">
@@ -300,6 +311,21 @@
         <copy todir="${lang.dir}" overwrite="true">
             <fileset dir="${crowdin.dir}/zaproxy/" casesensitive="yes">
                 <include name="Messages_*.properties" />
+            </fileset>
+            <firstmatchmapper>
+                <!-- Special cases, the name is not the same, so they need to be renamed. -->
+                <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
+                <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
+                <!-- Keep the same name for the other files. -->
+                <identitymapper/>
+            </firstmatchmapper>
+        </copy>
+
+        <!-- Copy all coreaddon translations (project zaproxy) -->
+        <copy todir="${src}/org/zaproxy/zap/extension/" overwrite="true">
+            <fileset dir="${crowdin.dir}/zaproxy/" casesensitive="yes">
+                <include name="**/Messages_*.properties" />
+                <exclude name="Messages_*.properties" />
             </fileset>
             <firstmatchmapper>
                 <!-- Special cases, the name is not the same, so they need to be renamed. -->
