@@ -68,11 +68,8 @@ import org.zaproxy.zap.view.ScanStatus;
 public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
-	// TODO
-    //private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
-    //private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
-    private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
-    private static final String ZAP_VERSIONS_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
+    private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
+    private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
     
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
