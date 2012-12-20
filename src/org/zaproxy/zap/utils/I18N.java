@@ -62,10 +62,10 @@ public class I18N {
     }
 
 	public boolean containsKey(String key) {
-    	if (key.indexOf(".") > 0) {
-    		String prefix = key.substring(0, key.indexOf(".") -1);
+		if (key.indexOf(".") > 0) {
+    		String prefix = key.substring(0, key.indexOf("."));
     		ResourceBundle bundle = this.addonMessages.get(prefix);
-    		if (bundle != null & bundle.containsKey(key)) {
+    		if (bundle != null && bundle.containsKey(key)) {
     			return true;
     		}
     	}
