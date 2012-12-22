@@ -47,6 +47,12 @@ public class CheckForUpdates implements Runnable {
 	 * <changelog>
 	 */
 
+	private static final String RETRY_MESSAGE = "Please try again later";
+	
+	private static final String CHANGELOG_ERROR_MESSAGE = "Sorry it has not been possible to check if this the latest version\n\n"+RETRY_MESSAGE;
+	private static final String BROWSER_ERROR_MESSAGE = "Sorry it has not been possible to open your browser to get the latest version\n\n";
+	private static final String DEFAULT_ERROR_MESSAGE = "Sorry there has been an error while checking for the latest version\n\n";
+	private static final String RETRY_LATER_ERROR_MESSAGE = DEFAULT_ERROR_MESSAGE + RETRY_MESSAGE;
 	/*
 	 * instance of the manager
 	 */
@@ -153,7 +159,7 @@ public class CheckForUpdates implements Runnable {
 										} catch (
 												BrowserLaunchingInitializingException
 												| UnsupportedOperatingSystemException ex) {
-											showErrorMessage("Sorry it has not been possible to open your browser to get the latest version\n\n"
+											showErrorMessage(BROWSER_ERROR_MESSAGE
 													+ ex.getMessage());
 										}
 									}
@@ -164,8 +170,7 @@ public class CheckForUpdates implements Runnable {
 								/*
 								 * error cant find the changelog
 								 */
-								showErrorMessage("Sorry it has not been possible to check for the if this the latest version\n\n"
-										+ "Please try again later");
+								showErrorMessage(CHANGELOG_ERROR_MESSAGE);
 							}
 
 						}
@@ -173,16 +178,14 @@ public class CheckForUpdates implements Runnable {
 						/*
 						 * error can't find the version
 						 */
-						showErrorMessage("Sorry there has been an error while checking for the latest version\n\n"
-								+ "Please try again later");
+						showErrorMessage(RETRY_LATER_ERROR_MESSAGE);
 					}
 
 				} else {
 					/*
 					 * another error!
 					 */
-					showErrorMessage("Sorry there has been an error while checking for the latest version\n\n"
-							+ "Please try again later");
+					showErrorMessage(RETRY_LATER_ERROR_MESSAGE);
 				}
 
 			}
@@ -190,12 +193,10 @@ public class CheckForUpdates implements Runnable {
 			 * there is a problem with the server
 			 */
 			else {
-				showErrorMessage("Sorry there has been an error while checking for the latest version\n\n"
-						+ "Please try again later");
+				showErrorMessage(RETRY_LATER_ERROR_MESSAGE);
 			}
 		} catch (IOException ex) {
-			showErrorMessage("Sorry there has been an error while checking for the latest version\n\n"
-					+ ex.getMessage());
+			showErrorMessage(DEFAULT_ERROR_MESSAGE + ex.getMessage());
 		}
 	}
 
