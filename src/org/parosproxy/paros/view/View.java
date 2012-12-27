@@ -306,7 +306,8 @@ public class View implements ViewDelegate {
     	}
     }
     
-    public void addContextPanelFactory (ContextPanelFactory cpf) {
+    @Override
+    public void addContextPanelFactory(ContextPanelFactory cpf) {
     	this.contextPanelFactories.add(cpf);
     }
     
