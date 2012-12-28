@@ -46,6 +46,7 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.ZapTextField;
 
 /**
@@ -301,7 +302,7 @@ public class AlertPanel extends AbstractPanel {
 				        Object obj = node.getUserObject();
 				        if (obj instanceof Alert) {
 				            Alert alert = (Alert) obj;
-						    setMessage(alert.getMessage());
+						    setMessage(alert.getMessage(), alert.getAttack());
 						    getAlertViewPanel().displayAlert(alert);
 				        } else {
 						    getAlertViewPanel().clearAlert();
@@ -366,7 +367,7 @@ public class AlertPanel extends AbstractPanel {
 		}
 	}
 	
-	private void setMessage(HttpMessage msg) {
+	private void setMessage(HttpMessage msg, String highlight) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
 	    
@@ -383,6 +384,34 @@ public class AlertPanel extends AbstractPanel {
 	    	responsePanel.clearView(false);
 	    } else {
 	        responsePanel.setMessage(newMsg, true);
+
+	        SearchMatch sm = null;
+	        int start;
+	        
+	        // Highlight the 'attack' / evidence
+	        if (highlight == null || highlight.length() == 0) {
+	        	// ignore
+	        } else if ((start = newMsg.getResponseHeader().toString().indexOf(highlight)) >=0) {
+		        sm = new SearchMatch(newMsg, SearchMatch.Location.RESPONSE_HEAD, start, start + highlight.length());
+				responsePanel.highlightHeader(sm);
+				responsePanel.setTabFocus();
+		        
+	        } else if ((start = newMsg.getResponseBody().toString().indexOf(highlight)) >=0) {
+	        	sm = new SearchMatch(newMsg, SearchMatch.Location.RESPONSE_BODY, start, start + highlight.length());
+				responsePanel.highlightBody(sm);
+				responsePanel.setTabFocus();
+
+	        } else if ((start = newMsg.getRequestHeader().toString().indexOf(highlight)) >=0) {
+		        sm = new SearchMatch(newMsg, SearchMatch.Location.REQUEST_HEAD, start, start + highlight.length());
+				requestPanel.highlightHeader(sm);
+				requestPanel.setTabFocus();
+
+	        } else if ((start = newMsg.getRequestBody().toString().indexOf(highlight)) >=0) {
+	        	sm = new SearchMatch(newMsg, SearchMatch.Location.REQUEST_BODY, start, start + highlight.length());
+				requestPanel.highlightBody(sm);
+				requestPanel.setTabFocus();
+	        }
+	        
 	    }
 
 	}
