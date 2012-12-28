@@ -119,4 +119,9 @@ public interface Extension {
 
 	public void setI18nPrefix(String prefix);
 
+	/**
+	 * Called after the options for this extension have been loaded, so that the extension can make use of them.
+	 */
+	public void optionsLoaded();
+
 }

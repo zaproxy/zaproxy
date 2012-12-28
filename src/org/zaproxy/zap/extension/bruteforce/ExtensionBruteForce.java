@@ -53,6 +53,9 @@ public class ExtensionBruteForce extends ExtensionAdaptor
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
 	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
 	
+	public static final String HAMMER_ICON_RESOURCE = "/resource/icon/fugue/hammer.png";
+
+	
 	private BruteForcePanel bruteForcePanel = null;
 	private OptionsBruteForcePanel optionsBruteForcePanel = null;
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
@@ -123,6 +126,11 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		return bruteForcePanel;
 	}
 	
+	@Override
+	public void optionsLoaded() {
+		this.getBruteForcePanel().setDefaultFile(this.getBruteForceParam().getDefaultFile());
+	}
+
 	protected void bruteForceSite (SiteNode siteNode) {
 		this.getBruteForcePanel().bruteForceSite(siteNode);
 	}

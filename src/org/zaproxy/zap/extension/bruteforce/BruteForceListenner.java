@@ -25,9 +25,9 @@ import com.sittinglittleduck.DirBuster.BaseCase;
 
 public interface BruteForceListenner {
 
-	public void scanFinshed(String host);
+	void scanFinshed(String host);
 	
-	public void scanProgress(String host, int port, int done, int todo);
+	void scanProgress(String host, int port, int done, int todo);
 	
-    public void foundDir(URL url, int statusCode, String response, String baseCase, String rawResponse, BaseCase baseCaseObj);
+    void foundDir(URL url, int statusCode, String response, String baseCase, String rawResponse, BaseCase baseCaseObj);
 }

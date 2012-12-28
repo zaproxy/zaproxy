@@ -400,6 +400,7 @@ public class ExtensionLoader {
 
 				}
 				hookOptions(extHook);
+				getExtension(i).optionsLoaded();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

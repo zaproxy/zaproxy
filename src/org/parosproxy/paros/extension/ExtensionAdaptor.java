@@ -219,4 +219,8 @@ public abstract class ExtensionAdaptor implements Extension {
 		this.i18nPrefix = prefix;
 	}
 
+	@Override
+	public void optionsLoaded() {
+	}
+
 }

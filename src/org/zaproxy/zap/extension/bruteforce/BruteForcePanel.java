@@ -138,8 +138,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("bruteforce.panel.title"));
-		//TODO: Find a hammer icon :)
-		this.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/086.png")));	// 'spanner' icon
+		this.setIcon(new ImageIcon(BruteForcePanel.class.getResource(ExtensionBruteForce.HAMMER_ICON_RESOURCE)));
         this.add(getPanelCommand(), getPanelCommand().getName());
         
         // Wont need to do this if/when this class is changed to extend ScanPanel
@@ -879,7 +878,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	@Override
 	public void foundDir(URL url, int statusCode, String responce,
 			String baseCase, String rawResponce, BaseCase baseCaseObj) {
-		
 	}
 
     public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
@@ -909,11 +907,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 		String defaultFile = this.bruteForceParam.getDefaultFile();
 		
-		if (defaultFile == null) {
-			// Wont be set up yet on start up, so nasty direct access ;)
-			defaultFile = Model.getSingleton().getOptionsParam().getBruteForceParam().getDefaultFile();
-		}
-
 		if (defaultFile != null) {
 			fileSelect.setSelectedItem(defaultFile);
 		}
