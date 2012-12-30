@@ -824,4 +824,30 @@ public class HttpMessage implements Message {
 	public boolean isInScope() {
 		return Model.getSingleton().getSession().isInScope(this.getRequestHeader().getURI().toString());
 	}
+
+	/**
+	 * ZAP: New method checking if connection is a Server-Sent Events stream.
+	 * 
+	 * @return
+	 */
+	public boolean isEventStream() {
+		boolean isEventStream = false;
+		if (!getResponseHeader().isEmpty()) {
+			String contentTypeHeader = getResponseHeader().getHeader("content-type");
+			if (contentTypeHeader != null && contentTypeHeader.equals("text/event-stream")) {
+				// response is an SSE stream
+				isEventStream = true;
+			}
+		} else {
+			// response not available
+			// is request for event-stream?
+			String acceptHeader = getRequestHeader().getHeader("Accept");
+			if (acceptHeader != null && acceptHeader.equals("text/event-stream")) {
+				// request is for an SSE stream
+				isEventStream = true;
+			}
+		}
+		
+		return isEventStream;
+	}
 }

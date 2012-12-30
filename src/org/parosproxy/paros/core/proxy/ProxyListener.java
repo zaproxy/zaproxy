@@ -21,7 +21,7 @@
  */
 // ZAP: 2012/03/15 Added the method getProxyListenerOrder.
 // ZAP: 2012/06/17 Documented the interface.
-
+// ZAP: 2012/12/27 Extend from ArrangeableListener.
 package org.parosproxy.paros.core.proxy;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -31,26 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * to the server and when a new response is ready to be forwarded to the client.
  */
 // ZAP: Changed the JavaDoc.
-public interface ProxyListener {
-
-    /**
-     * Gets the order of when this listener should be notified.
-     * 
-     * <p>
-     * The listeners are ordered in a natural order, the greater the order the
-     * later it will be notified.
-     * </p>
-     * 
-     * <p>
-     * <strong>Note:</strong> If two or more listeners have the same order, the
-     * order that those listeners will be notified is undefined.
-     * </p>
-     * 
-     * @return an {@code int} with the value of the order that this listener
-     *         should be notified about
-     */
-    // ZAP: Added the method.
-    public int getProxyListenerOrder();
+public interface ProxyListener extends ArrangeableProxyListener {
 
     /**
      * Notifies the listener that a new request was received from the client and

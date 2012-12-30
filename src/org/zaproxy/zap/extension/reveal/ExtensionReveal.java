@@ -112,7 +112,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 	}
 
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 	

@@ -57,18 +57,20 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
 
     @Override
     public boolean onMessageFrame(int channelId, WebSocketMessage wsMessage) {
+    	boolean continueNotifying = false;
         WebSocketMessageDTO message = wsMessage.getDTO();
 
 		if (!extension.isSafe(message)) {
 			// not safe => do not catch
 			return true;
-		} else {
-			// message is safe => no need to set onlyIfInScope parameter to true
 		}
+		
+		// message is safe => no need to set onlyIfInScope parameter to true
         
         if (message instanceof WebSocketFuzzMessageDTO) {
         	// as this message was sent by some fuzzer, do not catch it
-        	return true;
+        	continueNotifying = true;
+        	return continueNotifying;
         }
     	
         if (!wsMessage.isFinished()) {
@@ -79,12 +81,14 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
             	// prevent forwarding unfinished message when there is a breakpoint
             	// wait until all frames are received, before processing
             	// (showing/saving/etc.)
-        		return false;
+        		continueNotifying = false;
         	} else {
         		// gain performance by allowing each frame to be forwarded
         		// immediately, as this frame is not changed
-        		return true;
+        		continueNotifying = true;
         	}
+        	
+        	return continueNotifying;
         }
 
         if (message.isOutgoing) {
@@ -94,17 +98,17 @@ public class WebSocketProxyListenerBreak implements WebSocketObserver {
                 // Request/Response panels we must set the content to message
                 // here.
             	setPayload(wsMessage, message.payload);
-                return true;
+            	continueNotifying = true;
             }
         } else {
         	// already safe => onlyIfInScope can be false
             if (wsBrkMessageHandler.handleMessageReceivedFromServer(message, false)) {
             	setPayload(wsMessage, message.payload);
-                return true;
+            	continueNotifying = true;
             }
         }
 
-        return false;
+        return continueNotifying;
     }
 
 	@Override

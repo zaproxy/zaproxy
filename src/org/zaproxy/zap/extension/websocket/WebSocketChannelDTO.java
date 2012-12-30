@@ -176,4 +176,26 @@ public class WebSocketChannelDTO implements Comparable<WebSocketChannelDTO> {
 
 		return result;
 	}
+
+	public String getFullUri() {
+    	StringBuilder regex = new StringBuilder();
+    	if (url.matches(".*[^:/]/.*")) {
+    		// place port into regex
+    		String wsUri = url.replaceFirst("([^:/])/", "$1:" + port + "/");
+    		
+    		// transform http/https to ws/wss
+    		wsUri = wsUri.replaceFirst("http(s?://)", "ws$1");
+    		regex.append(wsUri);
+    	} else {
+    		if (port == 80) {
+    			regex.append("ws://");
+    		} else {
+        		regex.append("wss://");
+    		}
+    		regex.append(host);
+    		regex.append(":");
+    		regex.append(port);
+    	}
+		return regex.toString();
+	}
 }

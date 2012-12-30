@@ -484,11 +484,13 @@ public abstract class WebSocketProxy {
 	 * @return opposed socket
 	 */
 	protected Socket getOppositeSocket(Socket socket) {
+		Socket oppositeSocket;
 		if (socket == localSocket) {
-			return remoteSocket;
+			oppositeSocket = remoteSocket;
 		} else {
-			return localSocket;
+			oppositeSocket = localSocket;
 		}
+		return oppositeSocket;
 	}
 
 	/**

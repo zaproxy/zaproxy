@@ -39,6 +39,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  *
@@ -175,7 +176,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	}
 	
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 
@@ -198,6 +199,11 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getBruteForcePanel().nodeSelected(node);
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
     private PopupMenuBruteForceSite getPopupMenuBruteForceSite() {

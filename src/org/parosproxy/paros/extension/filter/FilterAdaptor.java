@@ -25,8 +25,6 @@ package org.parosproxy.paros.extension.filter;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketException;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
 
 /**
@@ -107,11 +105,5 @@ abstract public class FilterAdaptor implements Filter {
     
     public ViewDelegate getView() {
         return view;
-    }
-    
-    // ZAP: Added default implementation.
-    @Override
-    public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException {
-        // default implementation does nothing
     }
 }

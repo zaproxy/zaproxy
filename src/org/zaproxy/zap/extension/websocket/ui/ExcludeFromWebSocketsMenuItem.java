@@ -23,9 +23,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 
@@ -39,10 +40,13 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
 	private static final Logger logger = Logger.getLogger(ExcludeFromWebSocketsMenuItem.class);
     
     private final TableWebSocket table;
+
+	private ExtensionWebSocket extWs;
     
-    public ExcludeFromWebSocketsMenuItem(TableWebSocket table) {
+    public ExcludeFromWebSocketsMenuItem(ExtensionWebSocket extWs, TableWebSocket table) {
         super();
 
+        this.extWs = extWs;
         this.table = table;
     }
 
@@ -55,22 +59,27 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
 	protected void performAction() {
 		String regex = buildRegexForSelectedChannel();
         if (regex != null) {
-        	Session session = Model.getSingleton().getSession();
-            session.getExcludeFromWebSocketRegexs().add(regex);
-            
-            View.getSingleton().showSessionDialog(session, ExcludeFromWebSocketSessionPanel.PANEL_NAME);
+        	List<String> ignoreList = extWs.getChannelIgnoreList();
+        	ignoreList.add(regex);
+            try {
+				extWs.setChannelIgnoreList(ignoreList);
+			} catch (WebSocketException e) {
+				logger.error(e.getMessage(), e);
+			}
+            View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+            		SessionExcludeFromWebSocket.PANEL_NAME);
         }
 	}
 	
 	@Override
 	protected boolean isEnabledExtended() {
-		String regex = buildRegexForSelectedChannel();
-    	if (regex != null) {
-    		// it may or may not be excluded => test if this entry is in list
-    		// if contained, then it is already excluded => disable item
-    		return !Model.getSingleton().getSession().getExcludeFromWebSocketRegexs().contains(regex);
-    	}
-		return true;
+		boolean isEnabled = true;
+		WebSocketChannelDTO channel = getSelectedChannelDTO();
+		if (channel != null && extWs.isChannelIgnored(channel)) {
+			// already ignored, do not enable menu item
+			isEnabled = false;
+		}
+		return isEnabled;
 	}
 	
 	@Override
@@ -83,19 +92,8 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
         if (channel == null) {
         	return null;
         }
-        
-    	StringBuilder regex = new StringBuilder();
-    	regex.append("\\Q");
-    	if (channel.host.matches("[^:]/")) {
-    		regex.append(channel.host.replaceFirst("([^:])/", "$1:" + channel.port + "/"));
-    	} else {
-    		regex.append(channel.host);
-    		regex.append(":");
-    		regex.append(channel.port);
-    	}
-    	regex.append("\\E");
     	
-    	return regex.toString();
+    	return "\\Q" + channel.getFullUri() + "\\E";
 	}
 
 	private WebSocketChannelDTO getSelectedChannelDTO() {
@@ -103,6 +101,7 @@ public class ExcludeFromWebSocketsMenuItem extends WebSocketMessagesPopupMenuIte
 		if (message == null) {
 			return null;
 		}
+		
 		WebSocketChannelDTO channel = new WebSocketChannelDTO();
 		channel.id = message.channel.id;
 		

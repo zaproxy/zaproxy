@@ -28,12 +28,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 
-public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
+public class SessionExcludeFromWebSocket extends AbstractParamPanel {
 	public static final String PANEL_NAME = Constant.messages.getString("websocket.session.exclude.title");
 	private static final long serialVersionUID = -1000465438379563850L;
 
@@ -41,9 +40,12 @@ public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
 	private JTable tableIgnore = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
+	
+	private ExtensionWebSocket extWs;
 
-	public ExcludeFromWebSocketSessionPanel() {
+	public SessionExcludeFromWebSocket(ExtensionWebSocket extWs) {
 		super();
+		this.extWs = extWs;
 		initialize();
 	}
 	
@@ -89,8 +91,7 @@ public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
 
 	@Override
 	public void initParam(Object obj) {
-		Session session = (Session) obj;
-		getModel().setLines(session.getExcludeFromWebSocketRegexs());
+		getModel().setLines(extWs.getChannelIgnoreList());
 	}
 
 	@Override
@@ -105,12 +106,7 @@ public class ExcludeFromWebSocketSessionPanel extends AbstractParamPanel {
 
 	@Override
 	public void saveParam(Object obj) throws Exception {
-		Session session = (Session) obj;
-		session.setExcludeFromWebSocketRegexs(getModel().getLines());
-		// Save session details
-		if (!session.isNewState()) {
-			Control.getSingleton().saveSession(session.getFileName());
-		}
+		extWs.setChannelIgnoreList(getModel().getLines());
 	}
 
 	private JTable getTableIgnore() {

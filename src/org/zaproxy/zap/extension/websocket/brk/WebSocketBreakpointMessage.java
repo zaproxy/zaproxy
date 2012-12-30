@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.websocket.brk;
 
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;

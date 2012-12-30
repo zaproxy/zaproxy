@@ -52,6 +52,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  *
@@ -353,6 +354,11 @@ public class ExtensionParams extends ExtensionAdaptor
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getParamsPanel().nodeSelected(node);
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 	
 	protected void searchForSelectedParam() {

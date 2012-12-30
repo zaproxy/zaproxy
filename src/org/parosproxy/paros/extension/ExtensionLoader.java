@@ -28,11 +28,11 @@
 // are saved in the method Control.shutdown(boolean).
 // ZAP: 2012/04/24 Changed the method destroyAllExtension to catch exceptions.
 // ZAP: 2012/04/25 Added the type argument and removed unnecessary cast.
-// ZAP: 2012/07/09 Added hookWebSocketObserver() method.
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
+// ZAP: 2012/12/27 Added hookPersistentConnectionListener() method.
 
 package org.parosproxy.paros.extension;
 
@@ -58,8 +58,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
-import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
@@ -135,6 +134,24 @@ public class ExtensionLoader {
     	}
     }
     
+    public void hookPersistentConnectionListener(Proxy proxy) {
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    PersistentConnectionListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        proxy.addPersistentConnectionListener(listener);
+                    }
+                } catch (Exception e) {
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
+    }
+    
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
     	Iterator<ExtensionHook> iter = hookList.iterator();
@@ -153,26 +170,6 @@ public class ExtensionLoader {
                 }
             }
         }
-    }
-    
-    // ZAP: Added support for WebSocket listeners
-    public void hookWebSocketObserver(ExtensionWebSocket extWebSocket) {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
-            List<WebSocketObserver> listenerList = hook.getWebSocketObserverList();
-            for (int j=0; j<listenerList.size(); j++) {
-                try {
-                	WebSocketObserver listener = listenerList.get(j);
-                    if (listener != null) {
-                    	extWebSocket.addAllChannelObserver(listener);
-                    }
-                } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
-                }
-            }
-    	}
     }
     
     public void optionsChangedAllPlugin(OptionsParam options) {

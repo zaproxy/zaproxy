@@ -177,7 +177,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 	

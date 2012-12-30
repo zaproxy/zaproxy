@@ -74,7 +74,7 @@ public class TableWebSocket extends AbstractTable {
 
 	private Queue<WebSocketMessageDTO> messagesBuffer = new LinkedList<>();
 	private Queue<WebSocketChannelDTO> channelsBuffer = new LinkedList<>();
-
+	
     /**
      * Create tables if not already available
      */

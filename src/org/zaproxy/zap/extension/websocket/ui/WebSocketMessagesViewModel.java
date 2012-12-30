@@ -190,47 +190,46 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	
 	@Override
 	public Object getWebSocketValueAt(WebSocketMessageDTO message, int columnIndex) {
+		Object value = null;
 		switch (columnIndex) {
 		case 0:
-			return new WebSocketMessagePrimaryKey(message.channel.id, message.id);
-
+			value = new WebSocketMessagePrimaryKey(message.channel.id, message.id);
+			break;
 		case 1:
 			// had problems with ASCII arrows => use icons
 			if (message.isOutgoing) {
-				return outgoingDirection;
+				value = outgoingDirection;
 			} else {
-				return incomingDirection;
+				value = incomingDirection;
 			}
-
+			break;
 		case 2:
-			return message.dateTime;
-
+			value = message.dateTime;
+			break;
 		case 3:
-			return message.opcode + "=" + message.readableOpcode;
-
+			value = message.opcode + "=" + message.readableOpcode;
+			break;
 		case 4:
-			return message.payloadLength;
-
+			value = message.payloadLength;
+			break;
 		case 5:
-			String preview;
 			try {
-				preview = message.getReadablePayload();
+				String preview = message.getReadablePayload();
+				if (preview.length() > PAYLOAD_PREVIEW_LENGTH) {
+					value = preview.substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
+				} else {
+					value = preview;
+				}
 			} catch (InvalidUtf8Exception e) {
 				if (message.opcode.equals(WebSocketMessage.OPCODE_BINARY)) {
-					return emphasize(Constant.messages.getString("websocket.payload.unreadable_binary"));
+					value = emphasize(Constant.messages.getString("websocket.payload.unreadable_binary"));
 				} else {
-					return emphasize(Constant.messages.getString("websocket.payload.invalid_utf8"));
+					value = emphasize(Constant.messages.getString("websocket.payload.invalid_utf8"));
 				}
 			}
-			
-			if (preview.length() > PAYLOAD_PREVIEW_LENGTH) {
-				return preview.substring(0, PAYLOAD_PREVIEW_LENGTH - 1) + "...";
-			} else {
-				return preview;
-			}
+			break;
 		}
-
-		return null;
+		return value;
 	}
 
 	private String emphasize(String message) {

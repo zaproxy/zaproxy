@@ -3,8 +3,6 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
- * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -17,13 +15,28 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.view;
+package org.zaproxy.zap.extension.websocket.filter;
 
-import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.extension.filter.Filter;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
+import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 
-public interface SiteMapListener {
+/**
+ * WebSocket specific {@link Filter} instance, that is called on message
+ * arrival.
+ */
+public interface WebSocketFilter extends Filter {
 
-	public void nodeSelected(SiteNode node);
-
-	public void onReturnNodeRendererComponent(SiteMapTreeCellRenderer component, boolean leaf, SiteNode value);
+    /**
+     * Filter WebSocket communication.
+     * 
+     * @param message
+     * @throws WebSocketException 
+     */
+    public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException;
+    
+    /**
+     * Clean up dialogues or other settings. Call it on session change.
+     */
+    public void reset();
 }

@@ -17,8 +17,6 @@
  */
 package org.zaproxy.zap.extension.websocket.ui.httppanel.models;
 
-import java.nio.charset.Charset;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
 import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;

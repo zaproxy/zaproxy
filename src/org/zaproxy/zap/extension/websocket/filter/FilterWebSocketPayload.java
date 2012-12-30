@@ -34,7 +34,7 @@ import org.zaproxy.zap.extension.websocket.ui.ChannelSortedListModel;
 /**
  * Base class for filtering WebSockets traffic.
  */
-public class FilterWebSocketPayload extends FilterAbstractReplace {
+public class FilterWebSocketPayload extends FilterAbstractReplace implements WebSocketFilter {
 
 	public static final int FILTER_ID = 85;
 	private FilterWebSocketReplaceDialog wsFilterReplaceDialog;
@@ -160,6 +160,7 @@ public class FilterWebSocketPayload extends FilterAbstractReplace {
 	 * After resetting this filter, it is disabled
 	 * and its values are set to default values.
 	 */
+	@Override
 	public void reset() {
 		this.setEnabled(false);
 		shouldApplyOnIncoming = false;

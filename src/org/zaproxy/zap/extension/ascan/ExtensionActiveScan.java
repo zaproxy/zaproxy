@@ -54,6 +54,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 /**
  *
  * To change the template for this generated type comment go to
@@ -322,7 +323,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 	
@@ -345,6 +346,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getActiveScanPanel().nodeSelected(node, true);
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
 	public boolean isScanning(SiteNode node) {
@@ -415,5 +421,4 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public void stopScan (String site) {
 		this.getActiveScanPanel().stopScan(site);
 	}
-
 }

@@ -175,6 +175,7 @@
             	<exclude name="org/zaproxy/zap/extension/bruteforce/**"/>
             	<exclude name="com/sittinglittleduck/DirBuster/**"/>	<!-- Just used for forcedbrowse -->
             	<exclude name="org/zaproxy/zap/extension/portscan/**"/>
+            	<exclude name="org/zaproxy/zap/extension/websocket/**"/>
             </zipfileset>
             <manifest>
                 <attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
@@ -192,6 +193,11 @@
         <jar jarfile="${dist}/plugin/portscan-release-1.zap" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<include name="org/zaproxy/zap/extension/portscan/**"/>
+            </zipfileset>
+        </jar>
+        <jar jarfile="${dist}/plugin/websocket-release-1.zap" update="true" compress="false">
+            <zipfileset dir="${build}" prefix="">
+            	<include name="org/zaproxy/zap/extension/websocket/**"/>
             </zipfileset>
         </jar>
     	

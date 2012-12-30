@@ -47,6 +47,13 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	private int dataOffset = 0;
 	private List<T> data = new ArrayList<>();
 	private SortedSet<Segment> pending = new TreeSet<>();
+	
+	@Override
+    public void fireTableDataChanged() {
+		// clear cached data
+		clear();
+        super.fireTableDataChanged();
+    }
 
 	/**
 	 * Return number of all items. Scrollbar will appear accordingly. 

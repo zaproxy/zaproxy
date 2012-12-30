@@ -117,13 +117,13 @@ public class WebSocketMessagesViewFilterDialog extends AbstractDialog {
 		if (dialogPanel == null) {
 			dialogPanel = new JPanel();
 			dialogPanel.setLayout(new GridBagLayout());
-			dialogPanel.setPreferredSize(new Dimension(wsUiHelper.getDialogWidth(), 260));
+			dialogPanel.setPreferredSize(new Dimension(wsUiHelper.getDialogWidth() + 20, 280));
 			
 			int y = 0;
 			
 			JLabel description = new JLabel(MSG);
-			description.setPreferredSize(new Dimension(wsUiHelper.getDialogWidth() - 20, 40));
-			description.setMaximumSize(new Dimension(wsUiHelper.getDialogWidth() - 20, 80));
+			description.setPreferredSize(new Dimension(wsUiHelper.getDialogWidth() - 20, 60));
+			description.setMaximumSize(new Dimension(wsUiHelper.getDialogWidth() - 20, 100));
 			dialogPanel.add(description, wsUiHelper.getDescriptionConstraints(0, y++));
 			
 			// add opcode selection

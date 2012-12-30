@@ -21,6 +21,7 @@
  */
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
+// ZAP: 2012/12/27 Added method addPersistentConnectionListener(...)
 
 package org.parosproxy.paros.control;
  
@@ -31,6 +32,7 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.proxy.ProxyServerSSL;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.ControlOverrides;
 
 public class Proxy {
@@ -109,7 +111,11 @@ public class Proxy {
 	public void addProxyListener(ProxyListener listener) {
 	    proxyServer.addProxyListener(listener);
 	    proxyServerSSL.addProxyListener(listener);
-
+	}
+	
+	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
+	    proxyServer.addPersistentConnectionListener(listener);
+	    proxyServerSSL.addPersistentConnectionListener(listener);
 	}
 	
 	public void removeProxyListener(ProxyListener listener) {

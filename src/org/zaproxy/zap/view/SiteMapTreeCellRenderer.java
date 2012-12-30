@@ -20,6 +20,7 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
@@ -31,8 +32,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
-import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
-import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 
 /**
  * Custom renderer for {@link SiteMapPanel} to set custom icons
@@ -53,7 +52,11 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
-	private ExtensionWebSocket extWebSocket;
+	private List<SiteMapListener> listeners;
+
+	public SiteMapTreeCellRenderer(List<SiteMapListener> listeners) {
+		this.listeners = listeners;
+	}
 
 	/**
 	 * Sets custom tree node logos.
@@ -69,24 +72,8 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
 		}
-
-		if (leaf && isWebSocketNode(value)) {
-			// WebSocket icon
-			ExtensionWebSocket extWebSocket = getExtWebSocket();
-			if (extWebSocket != null && extWebSocket.isConnected(getHistoryReferenceFromNode(value))) {
-				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-					setIcon(WebSocketPanel.connectTargetIcon);
-				} else {
-					setIcon(WebSocketPanel.connectIcon);
-				}
-			} else {
-				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-					setIcon(WebSocketPanel.disconnectTargetIcon);
-				} else {
-					setIcon(WebSocketPanel.disconnectIcon);
-				}
-			}
-		} else if (node != null) {
+		
+		if (node != null) {
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
 				setIcon(ROOT_ICON);	// 'World' icon
@@ -111,27 +98,14 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 					}
 				}
 			}
+
+			// ZAP: Call SiteMapListeners
+	        for (SiteMapListener listener : listeners) {
+	        	listener.onReturnNodeRendererComponent(this, leaf, node);
+	        }
 		}
 
 		return this;
-	}
-
-	private ExtensionWebSocket getExtWebSocket() {
-		if (extWebSocket == null) {
-			extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
-		}
-		return extWebSocket;
-	}
-
-	/**
-	 * Returns true if the given node is a WebSockets HTTP handshake.
-	 * 
-	 * @param value
-	 * @return
-	 */
-	private boolean isWebSocketNode(Object value) {
-		HistoryReference href = this.getHistoryReferenceFromNode(value);
-		return href != null && href.isWebSocketUpgrade();
 	}
 	
 	/**
@@ -140,7 +114,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @param value
 	 * @return
 	 */
-	private HistoryReference getHistoryReferenceFromNode(Object value) {
+	public HistoryReference getHistoryReferenceFromNode(Object value) {
 		SiteNode node = null;
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;

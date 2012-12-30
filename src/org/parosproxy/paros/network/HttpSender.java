@@ -183,24 +183,33 @@ public class HttpSender {
     }
 
     public int executeMethod(HttpMethod method) throws HttpException, IOException {
+        int responseCode = -1;
+        
         String hostName;
         hostName = method.getURI().getHost();
         method.setDoAuthentication(true);
         
         if (param.isUseProxy(hostName)) {
-            return clientViaProxy.executeMethod(method);
+        	responseCode = clientViaProxy.executeMethod(method);
         } else {
-        	// ZAP: use custom client on upgrade connection
+        	// ZAP: use custom client on upgrade connection and on event-source data type
         	Header connectionHeader = method.getRequestHeader("connection");
-        	if (connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade")) {
+        	boolean isUpgrade = connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade");
+        	
+        	Header acceptHeader = method.getRequestHeader("accept");
+        	boolean isEventStream = false; //acceptHeader != null && acceptHeader.getValue().toLowerCase().contains("text/event-stream"); 
+        	
+        	if (isUpgrade || isEventStream) {
         		// use another client that allows us to expose the socket connection.
         		HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
-        		return upgradeClient.executeMethod(method);
+        		responseCode = upgradeClient.executeMethod(method);
         	} else {
         		// ZAP: in this case apply original handling of ParosProxy
-        		return client.executeMethod(method);
+        		responseCode = client.executeMethod(method);
         	}
         }
+        
+        return responseCode;
     }
     
     public void shutdown() {
@@ -330,7 +339,12 @@ public class HttpSender {
 	        msg.getResponseBody().setCharset(resHeader.getCharset());
 	        // process response for each listner
 	        msg.getResponseBody().setLength(0);
-            msg.getResponseBody().append(method.getResponseBody());
+	        
+	        // ZAP: Do not read response body for Server-Sent Events stream
+	        // FIXME: do not rely on isEventStream
+	        if (!msg.isEventStream()) {
+	        	msg.getResponseBody().append(method.getResponseBody());
+	        }
             
             // ZAP: set method to retrieve upgraded channel later
             if (method instanceof ZapGetMethod) {

@@ -36,7 +36,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
 // ZAP: 2012/12/06 Issue 428: Added exit method to support the marketplace
-
+// ZAP: 2012/12/27 Hook new persistent connection listener.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -94,8 +94,9 @@ public class Control extends AbstractControl implements SessionListener {
 		loadExtension();
 		
 		// ZAP: Start proxy even if no view
-	    getProxy(overrides);
-	    getExtensionLoader().hookProxyListener(getProxy(overrides));
+	    Proxy proxy = getProxy(overrides);
+	    getExtensionLoader().hookProxyListener(proxy);
+	    getExtensionLoader().hookPersistentConnectionListener(proxy);
 		
 		if (view != null) {
 		    // ZAP: Add site map listeners

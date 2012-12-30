@@ -44,17 +44,13 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.WebSocketObserver;
-import org.zaproxy.zap.extension.websocket.WebSocketProxy;
-import org.zaproxy.zap.extension.websocket.WebSocketProxy.State;
 
 /**
  *
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, WebSocketObserver, Runnable {
+public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
 	private static final Logger log = Logger.getLogger(ExtensionFilter.class);
 	
@@ -144,40 +140,12 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuToolsFilter());
 	    }
 	    extensionHook.addProxyListener(this);
-	    extensionHook.addWebSocketObserver(this);
-	}
-
-	// ZAP: Added the method from WebSocketObserver interface.
-	@Override
-	public int getObservingOrder() {
-		return PROXY_LISTENER_ORDER;
-	}
-
-	// ZAP: Added the method from WebSocketObserver interface.
-	@Override
-	public boolean onMessageFrame(int channelId, WebSocketMessage message) {
-		Filter filter = null;
-		for (int i = 0; i < filterFactory.getAllFilter().size(); i++) {
-			filter = filterFactory.getAllFilter().get(i);
-			try {
-				if (filter.isEnabled()) {
-					filter.onWebSocketPayload(message);
-				}
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-		return true;
 	}
 	
-	@Override
-	public void onStateChange(State state, WebSocketProxy proxy) {
-		// no need to react on state change
-	}
 
 	// ZAP: Added the method.
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 

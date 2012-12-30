@@ -105,18 +105,19 @@ public class WebSocketBreakpointMessageHandler extends BreakpointMessageHandler 
 	 * @return True if it should break on given opcode.
 	 */
 	private boolean isBreakOnOpcode(Integer opcode) {
+		boolean shouldBreak = false;
 		if (config.isBreakOnPingPong()) {
 			// break on every message type
-			return true;
+			shouldBreak = true;
 		} else {
 			// break only on non-ping/pong
 			boolean isPing = opcode.equals(WebSocketMessage.OPCODE_PING);
 			boolean isPong = opcode.equals(WebSocketMessage.OPCODE_PONG);
 			
 			if (!isPing && !isPong) {
-				return true;
+				shouldBreak = true;
 			}
 		}
-		return false;
+		return shouldBreak;
 	}
 }

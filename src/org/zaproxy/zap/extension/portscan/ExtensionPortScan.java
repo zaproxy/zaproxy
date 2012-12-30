@@ -43,6 +43,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  *
@@ -158,7 +159,7 @@ public class ExtensionPortScan extends ExtensionAdaptor
     }
 
     @Override
-    public int getProxyListenerOrder() {
+    public int getArrangeableListenerOrder() {
     	return PROXY_LISTENER_ORDER;
     }
     
@@ -180,6 +181,11 @@ public class ExtensionPortScan extends ExtensionAdaptor
         // Event from SiteMapListenner
         this.getPortScanPanel().nodeSelected(node, false);
     }
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
+	}
 
     private PopupMenuPortScan getPopupMenuPortScan() {
         if (popupMenuPortScan == null) {

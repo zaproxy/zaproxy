@@ -30,13 +30,15 @@ import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
@@ -48,9 +50,12 @@ import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.brk.BreakpointMessageHandler;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.fuzz.ExtensionFuzz;
@@ -67,17 +72,19 @@ import org.zaproxy.zap.extension.websocket.brk.WebSocketProxyListenerBreak;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketStorage;
 import org.zaproxy.zap.extension.websocket.filter.FilterWebSocketPayload;
+import org.zaproxy.zap.extension.websocket.filter.WebSocketFilter;
+import org.zaproxy.zap.extension.websocket.filter.WebSocketFilterListener;
 import org.zaproxy.zap.extension.websocket.fuzz.ShowFuzzMessageInWebSocketsTabMenuItem;
 import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
 import org.zaproxy.zap.extension.websocket.manualsend.ManualWebSocketSendEditorDialog;
 import org.zaproxy.zap.extension.websocket.manualsend.WebSocketPanelSender;
-import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketSessionPanel;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.PopupExcludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.PopupIncludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.ResendWebSocketMessageMenuItem;
+import org.zaproxy.zap.extension.websocket.ui.SessionExcludeFromWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.component.WebSocketComponent;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.models.ByteWebSocketPanelViewModel;
@@ -86,11 +93,12 @@ import org.zaproxy.zap.extension.websocket.ui.httppanel.views.WebSocketSyntaxHig
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadUtil;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadView;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargetPayloadViewModel;
-import org.zaproxy.zap.utils.Pair;
 import org.zaproxy.zap.view.HttpPanelManager;
+import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  
 /**
  * The WebSockets-extension takes over after the HTTP based WebSockets handshake
@@ -98,9 +106,12 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
  * 
  * @author Robert Koch
  */
-public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionWebSocket extends ExtensionAdaptor implements
+		PersistentConnectionListener, SessionChangedListener, SiteMapListener {
     
 	private static final Logger logger = Logger.getLogger(ExtensionWebSocket.class);
+	
+	public static final int HANDSHAKE_LISTENER = 10;
 	
 	/**
 	 * Name of this extension.
@@ -119,11 +130,6 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	private Vector<WebSocketObserver> allChannelObservers;
 
 	/**
-	 * Used for setting up all channel observers.
-	 */
-	private boolean hasHookedAllObserver;
-
-	/**
 	 * Contains all proxies with their corresponding handshake message.
 	 */
 	private Map<Integer, WebSocketProxy> wsProxies;
@@ -134,15 +140,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	private WebSocketStorage storage;
 
 	/**
-	 * Replace payload in background.
+	 * List of WebSocket related filters.
 	 */
-	private FilterWebSocketPayload payloadFilter;
-
-	/**
-	 * Messages for those {@link WebSocketProxy} on this list are just
-	 * forwarded, but not stored nor shown in UI.
-	 */
-	private ArrayList<Pair<String, Integer>> storageBlacklist;
+	private WebSocketFilterListener wsFilterListener;
 
 	/**
 	 * Different options in config.xml can change this extension's behavior.
@@ -158,6 +158,17 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * Link to {@link ExtensionFuzz}.
 	 */
 	private WebSocketFuzzerHandler fuzzHandler;
+
+	/**
+	 * Messages for some {@link WebSocketProxy} on this list are just
+	 * forwarded, but not stored nor shown in UI.
+	 */
+	private List<Pattern> preparedIgnoredChannels;
+
+	/**
+	 * Contains raw regex values, as they appear in the sessions dialogue.
+	 */
+	private List<String> ignoredChannelList;
 	
 	public ExtensionWebSocket() {
 		super(NAME);
@@ -172,27 +183,40 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		super.init();
 		
 		allChannelObservers = new Vector<>();
-		hasHookedAllObserver = false;
 		wsProxies = new HashMap<>();
-		storageBlacklist = new ArrayList<>();
 		config = new OptionsParamWebSocket();
 		
 		// setup database
-		storage = new WebSocketStorage(Model.getSingleton().getDb().getTableWebSocket());
+		storage = new WebSocketStorage(createTableWebSocket());
 		addAllChannelObserver(storage);
+		
+		preparedIgnoredChannels = new ArrayList<>();
+		ignoredChannelList = new ArrayList<>();
 	}
 	
+	private TableWebSocket createTableWebSocket() {
+		TableWebSocket table = new TableWebSocket();
+		Database db = Model.getSingleton().getDb();
+		db.addDatabaseListener(table);
+		try {
+			table.databaseOpen(db.getDatabaseServer());
+		} catch (SQLException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		return table;
+	}
+
 	/**
 	 * This method interweaves the WebSocket extension with the rest of ZAP.
 	 * <p>
 	 * It does the following things:
 	 * <ul>
+	 * <li>listens to new WebSocket connections</li>
 	 * <li>installs itself as session listener in order to react on session
 	 * changes</li>
 	 * <li>adds a WebSocket tab to the status panel (information window containing
 	 * e.g.: the History tab)</li>
 	 * <li>adds a WebSocket specific options panel</li>
-	 * <li>adds 'Exclude From WebSockets' to Session Properties</li>
 	 * <li>sets up context menu for WebSockets panel with 'Break' & 'Exclude'</li>
 	 * </ul>
 	 * </p>
@@ -201,10 +225,18 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		
+		extensionHook.addPersistentConnectionListener(this);
+		
 		extensionHook.addSessionListener(this);
 		
 		// setup configuration
 		extensionHook.addOptionsParamSet(config);
+		
+		try {
+			setChannelIgnoreList(Model.getSingleton().getSession().getExcludeFromProxyRegexs());
+		} catch (WebSocketException e) {
+			logger.warn(e.getMessage(), e);
+		}
 		
 		if (getView() != null) {
 			ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
@@ -226,10 +258,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			hookView.addOptionPanel(getOptionsPanel());
 			
 			// add 'Exclude from WebSockets' menu item to WebSocket tab context menu
-			hookMenu.addPopupMenuItem(new ExcludeFromWebSocketsMenuItem(storage.getTable()));
+			hookMenu.addPopupMenuItem(new ExcludeFromWebSocketsMenuItem(this, storage.getTable()));
 
 			// setup Session Properties
-			getView().getSessionDialog().addParamPanel(new String[]{}, new ExcludeFromWebSocketSessionPanel(), false);
+			getView().getSessionDialog().addParamPanel(new String[]{}, new SessionExcludeFromWebSocket(this), false);
 			
 			// setup Breakpoints
 			ExtensionBreak extBreak = (ExtensionBreak) extLoader.getExtension(ExtensionBreak.NAME);
@@ -247,12 +279,9 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			}
 			
 			// setup replace payload filter
-			ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
-			if (extFilter != null) {
-				payloadFilter = new FilterWebSocketPayload(this, wsPanel.getChannelsModel());
-				payloadFilter.initView(getView());
-				extFilter.addFilter(payloadFilter);
-			}
+			wsFilterListener = new WebSocketFilterListener();
+			addAllChannelObserver(wsFilterListener);
+			addWebSocketFilter(new FilterWebSocketPayload(this, wsPanel.getChannelsModel()));
 			
 			// setup fuzzable extension
 			ExtensionFuzz extFuzz = (ExtensionFuzz) extLoader.getExtension(ExtensionFuzz.NAME);
@@ -268,7 +297,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			hookMenu.addPopupMenuItem(new PopupIncludeWebSocketContextMenu());
 			hookMenu.addPopupMenuItem(new PopupExcludeWebSocketContextMenu());
 			
-			// setup Workpanel (window containing Request, Response & Break tab)
+			// setup workpanel (window containing Request, Response & Break tab)
 			initializeWebSocketsForWorkPanel();
 			
 			// setup manualrequest extension
@@ -308,6 +337,52 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	}
 
 	/**
+	 * Add another WebSocket specific filter instance. Listens also to normal
+	 * HTTP communication.
+	 * 
+	 * @param filter Instance receives payloads and is able to change it.
+	 */
+	public void addWebSocketFilter(WebSocketFilter filter) {
+		ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+		ExtensionFilter extFilter = (ExtensionFilter) extLoader.getExtension(ExtensionFilter.NAME);
+		if (extFilter != null) {
+			filter.initView(getView());
+			extFilter.addFilter(filter);
+			
+			wsFilterListener.addFilter(filter);
+		} else {
+			logger.warn("Filter '" + filter.getClass().toString() + "' couldn't be added as the filter extension is not available!");
+		}
+	}
+
+	@Override
+	public int getArrangeableListenerOrder() {
+		return HANDSHAKE_LISTENER;
+	}
+
+	@Override
+	public boolean onHandshakeResponse(HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+		boolean keepSocketOpen = false;
+		
+		if (httpMessage.isWebSocketUpgrade()) {
+			logger.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
+			
+			if (method != null) {
+				Socket outSocket = method.getUpgradedConnection();
+				InputStream outReader = method.getUpgradedInputStream();
+				
+				keepSocketOpen = true;
+				
+				addWebSocketsChannel(httpMessage, inSocket, outSocket, outReader);
+			} else {
+				logger.error("Unable to retrieve upgraded outgoing channel.");
+			}
+		}
+		
+		return keepSocketOpen;
+	}
+
+	/**
 	 * Add an open channel to this extension after
 	 * HTTP handshake has been completed.
 	 * 
@@ -317,14 +392,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * @param remoteReader Current {@link InputStream} of remote connection.
 	 */
 	public void addWebSocketsChannel(HttpMessage handshakeMessage, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
-		try {
-			if (!hasHookedAllObserver) {
-				hasHookedAllObserver = true;
-				// Cannot call this method in own hook() method, as one or another
-				// extension had no chance to add webSocketObserver!
-				Control.getSingleton().getExtensionLoader().hookWebSocketObserver(this);
-			}
-			
+		try {			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
 					+ " port " + localSocket.getPort() + " to "
@@ -354,7 +422,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 				}
 			}
 			wsProxy.setHandshakeReference(handshakeMessage.getHistoryRef());
-			wsProxy.setForwardOnly(isStorageBlacklisted(wsProxy));
+			wsProxy.setForwardOnly(isChannelIgnored(wsProxy.getDTO()));
 			wsProxy.startListeners(getListenerThreadPool(), remoteReader);
 			
 			synchronized (wsProxies) {
@@ -386,7 +454,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 					logger.warn(e.getMessage(), e1);
 				}
 			}
-			logger.error("Adding WebSockets channel failed due to: " + e.getMessage());
+			logger.error("Adding WebSockets channel failed due to: '" + e.getClass() + "' " + e.getMessage());
 			return;
 		}
 	}
@@ -559,39 +627,54 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * will be forwarded, nothing is stored nor can you view the communication
 	 * in the UI.
 	 * 
-	 * @param ignoredStrings
-	 * @throws PatternSyntaxException
+	 * @param ignoreList
+     * @throws WebSocketException 
 	 */
-	public void setStorageBlacklist(List<String> ignoredStrings) throws PatternSyntaxException {
-		synchronized (storageBlacklist) {
-			storageBlacklist.clear();
-			for (String regex : ignoredStrings) {
-				if (regex.trim().length() > 0) {
-					Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
-					
-					Integer port = null;
-					try {
-						port = Integer.parseInt(regex.replaceAll("^.*:([0-9]+).*$", "$1"));
-					} catch (NumberFormatException e) {
-						// safely ignore, null is used as wildcard
-					}
-					
-					String host = regex.replaceAll("^(.*):[0-9]+(.*)$", "$1$2");
-					if (host.isEmpty()) {
-						// special case if ":80" is entered
-						host = null;
-					}
-					
-					storageBlacklist.add(new Pair<>(host, port));
-				}
+	public void setChannelIgnoreList(List<String> ignoreList) throws WebSocketException {
+		preparedIgnoredChannels.clear();
+		
+		List<String> nonEmptyIgnoreList = new ArrayList<>();
+		for (String regex : ignoreList) {
+			if (regex.trim().length() > 0) {
+				nonEmptyIgnoreList.add(regex);
 			}
 		}
 
+		// ensure validity by compiling regular expression
+		// store them for better performance
+		for (String regex : nonEmptyIgnoreList) {
+			if (regex.trim().length() > 0) {
+				preparedIgnoredChannels.add(Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE));
+			}
+		}
+		
+		// save list in database
+		try {
+			Model.getSingleton().getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET, nonEmptyIgnoreList);
+			ignoredChannelList = nonEmptyIgnoreList;
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			
+			ignoredChannelList.clear();
+			preparedIgnoredChannels.clear();
+			
+			throw new WebSocketException("Ignore list could not be applied! Consequently no channel is ignored.");
+		} finally {
+			// apply to existing channels
+			applyChannelIgnoreList();
+		}
+	}
+
+	public List<String> getChannelIgnoreList() {
+		return ignoredChannelList;
+	}
+	
+	private void applyChannelIgnoreList() {
 		synchronized (wsProxies) {
 			for (Entry<Integer, WebSocketProxy> entry : wsProxies.entrySet()) {
 				WebSocketProxy wsProxy = entry.getValue();
 				
-				if (isStorageBlacklisted(wsProxy)) {
+				if (isChannelIgnored(wsProxy.getDTO())) {
 					wsProxy.setForwardOnly(true);
 				} else {
 					wsProxy.setForwardOnly(false);
@@ -607,32 +690,33 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 	 * @param wsProxy
 	 * @return
 	 */
-	private boolean isStorageBlacklisted(WebSocketProxy wsProxy) {
+	public boolean isChannelIgnored(WebSocketChannelDTO channel) {
+		boolean doNotStore = false;
+		
 		if (config.isForwardAll()) {
 			// all channels are blacklisted
-			return true;
-		}
-		
-		WebSocketChannelDTO channel = wsProxy.getDTO();
-		for (Pair<String, Integer> regex : storageBlacklist) {
-			if (regex.first == null || channel.host.matches(regex.first)) {
-				if (regex.second == null || channel.port.equals(regex.second)) {
-					// match found => should go onto storage blacklist
-					return true;
+			doNotStore = true;
+		} else if (!preparedIgnoredChannels.isEmpty()) {
+			for (Pattern p : preparedIgnoredChannels) {
+				Matcher m = p.matcher(channel.getFullUri());
+				if (m.matches()) {
+					doNotStore = true;
+					break;
 				}
 			}
 		}
 		
-		return false;
+		return doNotStore;
 	}
 
 	@Override
 	public void sessionChanged(final Session session) {
-		TableWebSocket table = Model.getSingleton().getDb().getTableWebSocket();
+		TableWebSocket table = createTableWebSocket();
 		if (View.isInitialised()) {
 			getWebSocketPanel().setTable(table);
 		}
 		storage.setTable(table);
+		
 		try {
 			WebSocketProxy.setChannelIdGenerator(table.getMaxChannelId());
 		} catch (SQLException e) {
@@ -641,6 +725,25 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		
 		if (fuzzHandler != null) {
 			fuzzHandler.resume();
+		}
+
+		List<String> ignoredList = new ArrayList<>();
+		try {
+			List<RecordSessionUrl> recordSessionUrls = Model.getSingleton()
+					.getDb().getTableSessionUrl()
+					.getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_WEBSOCKET);
+		
+			for (RecordSessionUrl record  : recordSessionUrls) {
+				ignoredList.add(record.getUrl());
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			try {
+				setChannelIgnoreList(ignoredList);
+			} catch (WebSocketException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -651,6 +754,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			getWebSocketPanel().setTable(null);
 			storage.setTable(null);
 		}
+		
 		// close existing connections
 		synchronized (wsProxies) {
 			for (WebSocketProxy wsProxy : wsProxies.values()) {
@@ -659,15 +763,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 			wsProxies.clear();
 		}
 		
-		synchronized (storageBlacklist) {
-			storageBlacklist.clear();
-			storageBlacklist.trimToSize();
-		}
-		
-		// reset replace payload filter
-		if (payloadFilter != null) {
-			payloadFilter.reset();
-		}
+		wsFilterListener.reset();
 		
 		if (fuzzHandler != null) {
 			fuzzHandler.pause();
@@ -976,5 +1072,36 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements SessionChang
 		ManualWebSocketSendEditorDialog	resendDialog = new ManualWebSocketSendEditorDialog(getWebSocketPanel().getChannelsModel(), sender, true, "websocket.manual_resend");
 		resendDialog.setTitle(Constant.messages.getString("websocket.manual_send.popup"));
 		return resendDialog;
+	}
+
+	@Override
+	public void nodeSelected(SiteNode node) {
+		// do nothing
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(SiteMapTreeCellRenderer component,
+			boolean leaf, SiteNode node) {
+		if (leaf) {
+			HistoryReference href = component.getHistoryReferenceFromNode(node);
+			boolean isWebSocketNode = href != null && href.isWebSocketUpgrade();
+			if (isWebSocketNode) {
+				// WebSocket icon
+			
+				if (isConnected(component.getHistoryReferenceFromNode(node))) {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+						component.setIcon(WebSocketPanel.connectTargetIcon);
+					} else {
+						component.setIcon(WebSocketPanel.connectIcon);
+					}
+				} else {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+						component.setIcon(WebSocketPanel.disconnectTargetIcon);
+					} else {
+						component.setIcon(WebSocketPanel.disconnectIcon);
+					}
+				}
+			}
+		}
 	}
 }

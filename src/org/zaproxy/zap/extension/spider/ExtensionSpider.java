@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  * The ExtensionSpider is the Extension that controls the Spider.
@@ -212,7 +213,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder()
 	 */
 	@Override
-	public int getProxyListenerOrder() {
+	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 
@@ -243,6 +244,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void nodeSelected(SiteNode node) {
 		this.getSpiderPanel().nodeSelected(node, true);
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
 	/**

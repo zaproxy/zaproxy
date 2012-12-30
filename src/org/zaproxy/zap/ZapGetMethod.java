@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
@@ -95,13 +96,7 @@ public class ZapGetMethod extends GetMethod {
             	
 				if (conn instanceof ZapHttpConnection) {
 	            	isUpgrade = true;
-	            	
-	            	// get socket and input stream out of HttpClient
-					ZapHttpConnection zapConn = (ZapHttpConnection) conn;
-	            	upgradedSocket = zapConn.getSocket();
-					inputStream = zapConn.getResponseInputStream();
-					
-	            	// avoid releasing connection by HttpClient
+	            	// avoid connection release of HttpClient library 
 	            	conn.setHttpConnectionManager(null);
 	            }
             } else if ((status >= 100) && (status < 200)) {
@@ -111,6 +106,13 @@ public class ZapGetMethod extends GetMethod {
                 this.statusLine = null;
             }
         }
+
+    	// get socket and input stream out of HttpClient
+		if (conn instanceof ZapHttpConnection) {
+			ZapHttpConnection zapConn = (ZapHttpConnection) conn;
+	    	upgradedSocket = zapConn.getSocket();
+			inputStream = zapConn.getResponseInputStream();
+		}
 		
 		if (!isUpgrade) {
 			// read & process rest of response
@@ -143,4 +145,21 @@ public class ZapGetMethod extends GetMethod {
 	public InputStream getUpgradedInputStream() {
 		return inputStream;
 	}
+	
+	/**
+	 * Avoid releasing connection on event stream that is used in Server-Sent
+	 * Events.
+	 */
+	@Override
+	public void releaseConnection() {
+		Header header = getResponseHeader("content-type");
+		if (header != null) {
+			String contentTypeHeader = header.getValue();
+			if (contentTypeHeader != null && contentTypeHeader.equals("text/event-stream")) {
+				return;
+			}
+		}
+		
+		super.releaseConnection();
+    }
 }

@@ -18,8 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012/06/25 Added support for WebSocket observer
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
+// ZAP: 2012/12/20 Added listener setter for persistentConnectionListenerList.
 package org.parosproxy.paros.extension;
 
 import java.util.Vector;
@@ -27,7 +27,7 @@ import java.util.Vector;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.extension.websocket.WebSocketObserver;
+import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -43,8 +43,7 @@ public class ExtensionHook {
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<>();
-    // ZAP: Added support for WebSocket observer
-    private Vector<WebSocketObserver> webSocketObserverList = new Vector<>();
+    private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
 
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -65,6 +64,7 @@ public class ExtensionHook {
     public void addProxyListener(ProxyListener listener) {
         proxyListenerList.add(listener);
     }
+    
     public void addSessionListener(SessionChangedListener listener) {
         sessionListenerList.add(listener);
     }
@@ -72,13 +72,8 @@ public class ExtensionHook {
     	siteMapListenerList.add(listener);
     }
 
-    /**
-     * The added observer is attached to each new channel.
-     *
-     * @param observer
-     */
-    public void addWebSocketObserver(WebSocketObserver observer) {
-    	webSocketObserverList.add(observer);
+    public void addPersistentConnectionListener(PersistentConnectionListener listener) {
+        persistentConnectionListenerList.add(listener);
     }
 
     public void addCommandLine(CommandLineArgument[] arg) {
@@ -133,10 +128,10 @@ public class ExtensionHook {
         return siteMapListenerList;
     }
 
-    public Vector<WebSocketObserver> getWebSocketObserverList() {
-        return webSocketObserverList;
+    public Vector<PersistentConnectionListener> getPersistentConnectionListener() {
+        return persistentConnectionListenerList;
     }
-
+    
     /**
      * @return Returns the view.
      */

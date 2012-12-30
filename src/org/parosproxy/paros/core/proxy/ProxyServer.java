@@ -24,6 +24,7 @@
 // ZAP: 2011/11/15 Warn the user if the host is unknown
 // ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2012/12/27 Added PersistentConnectionListener list, setter & getter.
 
 package org.parosproxy.paros.core.proxy;
  
@@ -46,6 +47,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.PersistentConnectionListener;
 
 public class ProxyServer implements Runnable {
 	
@@ -57,13 +59,15 @@ public class ProxyServer implements Runnable {
 	protected ProxyParam proxyParam = new ProxyParam();
 	protected ConnectionParam connectionParam = new ConnectionParam();
 	protected Vector<ProxyListener> listenerList = new Vector<>();
+	protected Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
 	// ZAP: Added listenersComparator.
-    private static Comparator<ProxyListener> listenersComparator;
+    private static Comparator<ArrangeableProxyListener> listenersComparator;
 	protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
 
     private List<Pattern> excludeUrls = null;
+
     private static Logger log = Logger.getLogger(ProxyServer.class);
 
     /**
@@ -246,6 +250,19 @@ public class ProxyServer implements Runnable {
 	synchronized List<ProxyListener> getListenerList() {
 		return listenerList;
 	}
+	
+	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
+		persistentConnectionListenerList.add(listener);
+		Collections.sort(persistentConnectionListenerList, getListenersComparator());
+	}
+	
+	public void removeProxyListener(PersistentConnectionListener listener) {
+		persistentConnectionListenerList.remove(listener);
+	}
+
+	synchronized List<PersistentConnectionListener> getPersistentConnectionListenerList() {
+		return persistentConnectionListenerList;
+	}
 
     public boolean isAnyProxyThreadRunning() {
         return ProxyThread.isAnyProxyThreadRunning();
@@ -292,7 +309,7 @@ public class ProxyServer implements Runnable {
 	}
     
 	// ZAP: Added the method.
-	private Comparator<ProxyListener> getListenersComparator() {
+	private Comparator<ArrangeableProxyListener> getListenersComparator() {
 		if(listenersComparator == null) {
 			createListenersComparator();
 		}
@@ -303,12 +320,12 @@ public class ProxyServer implements Runnable {
 	// ZAP: Added the method.
 	synchronized private void createListenersComparator() {
 		if (listenersComparator == null) {
-			listenersComparator = new Comparator<ProxyListener>() {
+			listenersComparator = new Comparator<ArrangeableProxyListener>() {
 				
 				@Override
-				public int compare(ProxyListener o1, ProxyListener o2) {
-					int order1 = o1.getProxyListenerOrder();
-					int order2 = o2.getProxyListenerOrder();
+				public int compare(ArrangeableProxyListener o1, ArrangeableProxyListener o2) {
+					int order1 = o1.getArrangeableListenerOrder();
+					int order2 = o2.getArrangeableListenerOrder();
 					
 					if (order1 < order2) {
 						return -1;

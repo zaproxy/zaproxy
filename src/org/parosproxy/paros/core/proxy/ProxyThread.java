@@ -34,11 +34,12 @@
 // ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
+// ZAP: 2012/12/27 Added support for PersistentConnectionListener
+// (refactored WebSockets)
 
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -49,7 +50,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -62,9 +62,9 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
+import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 
@@ -321,27 +321,16 @@ class ProxyThread implements Runnable {
 			    }
 			}	// release semaphore
 			
-			// ZAP: Add check for connection upgrade and stop if one arrived
-			if (msg.isWebSocketUpgrade()) {
-				log.debug("Got WebSockets upgrade request. Handle socket connection over to WebSockets extension.");
-				
-				ZapGetMethod handshakeMethod = (ZapGetMethod) msg.getUserObject();
-				if (handshakeMethod != null) {
-					Socket outSocket = handshakeMethod.getUpgradedConnection();
-					InputStream outReader = handshakeMethod.getUpgradedInputStream();
-					
-					keepSocketOpen = true;
-					ExtensionWebSocket extWebSocket = (ExtensionWebSocket) Control.getSingleton().getExtensionLoader().getExtension(ExtensionWebSocket.NAME);
-					extWebSocket.addWebSocketsChannel(msg, inSocket, outSocket, outReader);
-				} else {
-					log.error("Was not able to retrieve upgraded outgoing channel.");
-				}
-				break;
+			ZapGetMethod method = (ZapGetMethod) msg.getUserObject();			
+			keepSocketOpen = notifyPersistentConnectionListener(msg, inSocket, method);
+			if (keepSocketOpen) {
+				// do not wait for close
+				break;			
 			}
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
 		
     }
-	
+
 	private boolean isConnectionClose(HttpMessage msg) {
 		
 		if (msg == null || msg.getResponseHeader().isEmpty()) {
@@ -584,6 +573,36 @@ class ProxyThread implements Runnable {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * Go thru each listener and offer him to take over the connection. The
+	 * first observer that returns true gets exclusive rights.
+	 * 
+	 * @param httpMessage Contains HTTP request & response.
+	 * @param inSocket Encapsulates the TCP connection to the browser.
+	 * @param method Provides more power to process response.
+	 * 
+	 * @return Boolean to indicate if socket should be kept open.
+	 */
+	private boolean notifyPersistentConnectionListener(HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+		boolean keepSocketOpen = false;
+		PersistentConnectionListener listener = null;
+		List<PersistentConnectionListener> listenerList = parentServer.getPersistentConnectionListenerList();
+		for (int i=0; i<listenerList.size(); i++) {
+			listener = listenerList.get(i);
+			try {
+			    if (listener.onHandshakeResponse(httpMessage, inSocket, method)) {
+			    	// inform as long as one listener wishes to overtake the connection
+			    	keepSocketOpen = true;
+			    	break;
+			    }
+			} catch (Exception e) {
+				// ZAP: Log exceptions
+				log.warn(e.getMessage(), e);
+			}
+		}
+		return keepSocketOpen;
 	}
 	
 	private boolean isRecursive(HttpRequestHeader header) {

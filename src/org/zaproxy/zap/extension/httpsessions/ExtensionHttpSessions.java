@@ -42,6 +42,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  * The HttpSessions Extension handles the existing http sessions on the existing site. It allows the
@@ -439,6 +440,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
 		this.getHttpSessionsPanel().nodeSelected(node);
+	}
+
+	@Override
+	public void onReturnNodeRendererComponent(
+			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
 	/* (non-Javadoc)

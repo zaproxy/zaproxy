@@ -207,7 +207,7 @@ public class SiteMapPanel extends JPanel {
 			});
 
 			// ZAP: Add custom tree cell renderer.
-	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer();
+	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer(listenners);
 			treeSite.setCellRenderer(renderer);
 		}
 		return treeSite;
