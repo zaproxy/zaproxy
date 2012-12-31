@@ -28,6 +28,7 @@
 // ZAP: 2012/06/30 Added the instance variable databaseParam and the  method
 // getDatabaseParam() and changed the method parse() to also load the database
 // configurations.
+// ZAP: 2012/12/31 Removed brute force options
 
 package org.parosproxy.paros.model;
 
@@ -44,7 +45,6 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.bruteforce.BruteForceParam;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -71,7 +71,6 @@ public class OptionsParam extends AbstractParam {
 	private InvokeParam invokeParam = new InvokeParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
-	private BruteForceParam bruteForceParam = new BruteForceParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	
     /**
@@ -192,7 +191,6 @@ public class OptionsParam extends AbstractParam {
 		getInvokeParam().load(getConfig());
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
-		getBruteForceParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
         getDatabaseParam().load(getConfig());
 		
@@ -265,15 +263,7 @@ public class OptionsParam extends AbstractParam {
 		return experimentalFeatuesParam;
 	}
 
-	public BruteForceParam getBruteForceParam() {
-		return bruteForceParam;
-	}
-
-	public void setBruteForceParam(BruteForceParam bruteForceParam) {
-		this.bruteForceParam = bruteForceParam;
-	}
-
-    /**
+	/**
      * Gets the database configurations.
      *
      * @return the database configurations
