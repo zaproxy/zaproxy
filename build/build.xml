@@ -172,8 +172,9 @@
         <jar jarfile="${dist}/zap.jar" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<!-- Exclude all extensions that are build as addons - these are build next -->
+            	<!-- Not working yet ;)
             	<exclude name="org/zaproxy/zap/extension/bruteforce/**"/>
-            	<exclude name="com/sittinglittleduck/DirBuster/**"/>	<!-- Just used for forcedbrowse -->
+            	<exclude name="com/sittinglittleduck/DirBuster/**"/-->	<!-- Just used for forcedbrowse -->
             	<exclude name="org/zaproxy/zap/extension/portscan/**"/>
             	<exclude name="org/zaproxy/zap/extension/websocket/**"/>
             </zipfileset>
@@ -184,12 +185,12 @@
             </manifest>
         </jar>
     	<!-- Build the addons zap files -->
-        <jar jarfile="${dist}/plugin/forcedbrowse-release-1.zap" update="true" compress="false">
+        <!--jar jarfile="${dist}/plugin/forcedbrowse-release-1.zap" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<include name="org/zaproxy/zap/extension/bruteforce/**"/>
             	<include name="com/sittinglittleduck/DirBuster/**"/>
             </zipfileset>
-        </jar>
+        </jar-->
         <jar jarfile="${dist}/plugin/portscan-release-1.zap" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<include name="org/zaproxy/zap/extension/portscan/**"/>
