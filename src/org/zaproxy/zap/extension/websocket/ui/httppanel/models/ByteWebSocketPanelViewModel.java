@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.websocket.ui.httppanel.models;
 import java.nio.charset.Charset;
 
 import org.zaproxy.zap.extension.websocket.WebSocketMessage;
-import org.zaproxy.zap.extension.websocket.ui.httppanel.models.AbstractWebSocketBytePanelViewModel;
 
 public class ByteWebSocketPanelViewModel extends AbstractWebSocketBytePanelViewModel {
 	

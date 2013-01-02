@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JTable;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -30,7 +31,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 /**
  * Menu Item for a right click menu on the {@link WebSocketMessagesView}.
  */
-abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuItem {
+public abstract class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuItem {
 	private static final long serialVersionUID = 4774753835401981588L;
 
 	private static final Logger logger = Logger.getLogger(WebSocketMessagesPopupMenuItem.class);
@@ -72,20 +73,20 @@ abstract public class WebSocketMessagesPopupMenuItem extends ExtensionPopupMenuI
 	 * 
 	 * @return I18n name of this item.
 	 */
-    abstract protected String getMenuText();
+    protected abstract String getMenuText();
 
     /**
      * What happens if choosen?
      * @throws Exception 
      */
-	abstract protected void performAction() throws Exception;
+	protected abstract void performAction() throws WebServiceException;
 
 	/**
 	 * Which panel is allowed to show this popup item?
 	 * 
 	 * @return Name of caller.
 	 */
-	abstract protected String getInvokerName();
+	protected abstract String getInvokerName();
 	
 	/**
 	 * More fine-grained control about enable-status of this item. Called by

@@ -64,20 +64,7 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer<
 			text = channel.toString();
 			
 			if (channel.id != null) {
-				Boolean isConnected = channel.isConnected();
-				if (isConnected != null && isConnected) {
-					if (channel.isInScope()) {
-						setIcon(WebSocketPanel.connectTargetIcon);
-					} else {
-						setIcon(WebSocketPanel.connectIcon);
-					}
-				} else {
-					if (channel.isInScope()) {
-						setIcon(WebSocketPanel.disconnectTargetIcon);
-					} else {
-						setIcon(WebSocketPanel.disconnectIcon);
-					}
-				}
+				setWebSocketIcon(channel);
 			} else {
 				// unset icon
 				setIcon(null);
@@ -88,5 +75,22 @@ public class ComboBoxChannelRenderer extends JLabel implements ListCellRenderer<
 		setFont(list.getFont());
 
 		return this;
+	}
+
+	private void setWebSocketIcon(WebSocketChannelDTO channel) {
+		Boolean isConnected = channel.isConnected();
+		if (isConnected != null && isConnected) {
+			if (channel.isInScope()) {
+				setIcon(WebSocketPanel.connectTargetIcon);
+			} else {
+				setIcon(WebSocketPanel.connectIcon);
+			}
+		} else {
+			if (channel.isInScope()) {
+				setIcon(WebSocketPanel.disconnectTargetIcon);
+			} else {
+				setIcon(WebSocketPanel.disconnectIcon);
+			}
+		}
 	}
 }

@@ -157,7 +157,7 @@ public abstract class WebSocketMessage {
 
 	// 1015 is another reserved status code
 	
-	public final static int[] OPCODES = {OPCODE_TEXT, OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG };
+	public static final int[] OPCODES = {OPCODE_TEXT, OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG };
 
 	/**
 	 * Indicates the opcode of this message.

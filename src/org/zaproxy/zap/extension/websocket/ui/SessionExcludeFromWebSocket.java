@@ -21,6 +21,7 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ import javax.swing.JTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.websocket.ExtensionWebSocket;
+import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 
 public class SessionExcludeFromWebSocket extends AbstractParamPanel {
@@ -95,7 +97,7 @@ public class SessionExcludeFromWebSocket extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
+	public void validateParam(Object obj) throws PatternSyntaxException {
 		// Check for valid regexs
 		for (String regex : getModel().getLines()) {
 			if (regex.trim().length() > 0) {
@@ -105,7 +107,7 @@ public class SessionExcludeFromWebSocket extends AbstractParamPanel {
 	}
 
 	@Override
-	public void saveParam(Object obj) throws Exception {
+	public void saveParam(Object obj) throws WebSocketException {
 		extWs.setChannelIgnoreList(getModel().getLines());
 	}
 

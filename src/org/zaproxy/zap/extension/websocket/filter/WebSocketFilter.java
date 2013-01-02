@@ -33,10 +33,10 @@ public interface WebSocketFilter extends Filter {
      * @param message
      * @throws WebSocketException 
      */
-    public void onWebSocketPayload(WebSocketMessage message) throws WebSocketException;
+    void onWebSocketPayload(WebSocketMessage message) throws WebSocketException;
     
     /**
      * Clean up dialogues or other settings. Call it on session change.
      */
-    public void reset();
+    void reset();
 }

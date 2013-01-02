@@ -35,8 +35,9 @@ class Utf8StringBuilder
     public void append(byte[] b,int offset, int length)
     {
         int end=offset+length;
-        for (int i=offset; i<end;i++)
+        for (int i=offset; i<end;i++) {
             append(b[i]);
+        }
     }
     
     public void append(byte b)
@@ -50,7 +51,9 @@ class Utf8StringBuilder
                 _bits=0;
             }
             else
+            {
                 _buffer.append((char)(0x7f&b));
+            }
         }
         else if (_more==0)
         {
@@ -108,12 +111,11 @@ class Utf8StringBuilder
                 _bits=0;
                 throw new IllegalArgumentException("!utf8");
             }
-            else
-            {
-                // 10xxxxxx
-                _bits=(_bits<<6)|(b&0x3f);
-                if (--_more==0)
-                    _buffer.append((char)_bits);
+            
+            // 10xxxxxx
+            _bits=(_bits<<6)|(b&0x3f);
+            if (--_more==0) {
+                _buffer.append((char)_bits);
             }
         }
     }
@@ -132,16 +134,18 @@ class Utf8StringBuilder
     
     public StringBuilder getStringBuilder()
     {
-        if (_more!=0)
+        if (_more!=0) {
             throw new IllegalStateException("!utf8");
+        }
         return _buffer;
     }
     
     @Override
     public String toString()
     {
-        if (_more!=0)
+        if (_more!=0) {
             throw new IllegalStateException("!utf8");
+        }
         return _buffer.toString();
     }
 }

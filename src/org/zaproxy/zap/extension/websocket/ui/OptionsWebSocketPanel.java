@@ -132,12 +132,12 @@ public class OptionsWebSocketPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
+    public void validateParam(Object obj) {
     	// no validation needed for these check boxes
     }
 
     @Override
-    public void saveParam(Object obj) throws Exception {
+    public void saveParam(Object obj) {
     	wsParams.setForwardAll(checkBoxForwardAll.isSelected());
     	wsParams.setBreakOnAll(checkBoxBreakOnAll.isSelected());
     	wsParams.setBreakOnPingPong(checkBoxBreakOnPingPong.isSelected());

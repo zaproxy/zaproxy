@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.websocket.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketChannelDTO;
@@ -28,7 +29,7 @@ public class ChannelSortedListModel extends SortedListModel<WebSocketChannelDTO>
 	private static final long serialVersionUID = 83057590716441165L;
 	
 	private boolean isShowJustInScope = false;
-	private ArrayList<WebSocketChannelDTO> hiddenChannels = new ArrayList<>();
+	private List<WebSocketChannelDTO> hiddenChannels = new ArrayList<>();
 
 	public ChannelSortedListModel() {
 		super();

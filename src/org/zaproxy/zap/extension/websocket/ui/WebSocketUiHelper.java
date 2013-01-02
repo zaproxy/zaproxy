@@ -172,7 +172,7 @@ public class WebSocketUiHelper {
 	 */
 	public List<String> getSelectedOpcodes() {
 		boolean isSelectAll = false;
-		ArrayList<String> values = new ArrayList<>();
+		List<String> values = new ArrayList<>();
 		
 		for (String value : opcodeList.getSelectedValuesList()) {
 			if (value.equals(SELECT_ALL_OPCODES)) {
@@ -199,7 +199,7 @@ public class WebSocketUiHelper {
 			return null;
 		}
 		
-		ArrayList<Integer> values = new ArrayList<>();
+		List<Integer> values = new ArrayList<>();
 		for (int opcode : WebSocketMessage.OPCODES) {
 			if (opcodes.contains(WebSocketMessage.opcode2string(opcode))) {
 				values.add(opcode);
@@ -208,7 +208,7 @@ public class WebSocketUiHelper {
 		return values;
 	}
 
-	public void setSelectedOpcodes(ArrayList<String> opcodes) {
+	public void setSelectedOpcodes(List<String> opcodes) {
 		JList<String> opcodesList = getOpcodeList();
 		if (opcodes == null || opcodes.contains(SELECT_ALL_OPCODES)) {
 			opcodesList.setSelectedIndex(0);
@@ -313,7 +313,7 @@ public class WebSocketUiHelper {
 	 */
 	public List<Integer> getSelectedChannelIds() {
 		boolean isSelectAll = false;
-		ArrayList<Integer> values = new ArrayList<>();
+		List<Integer> values = new ArrayList<>();
 		
 		for (WebSocketChannelDTO value : channels.getSelectedValuesList()) {
 			Integer channelId = value.id;
@@ -331,7 +331,7 @@ public class WebSocketUiHelper {
 		return values;
 	}
 
-	public void setSelectedChannelIds(ArrayList<Integer> channelIds) {
+	public void setSelectedChannelIds(List<Integer> channelIds) {
 		JList<WebSocketChannelDTO> channelsList = getChannelsList();
 		if (channelIds == null || channelIds.contains(-1)) {
 			channelsList.setSelectedIndex(0);

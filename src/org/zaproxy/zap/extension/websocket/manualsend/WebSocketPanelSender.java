@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
@@ -52,18 +54,18 @@ public class WebSocketPanelSender implements MessageSender, WebSocketObserver {
      * @see org.parosproxy.paros.extension.manualrequest.MessageSender#sendAndReceiveMessage()
      */
     @Override
-    public void handleSendMessage(Message aMessage) throws Exception {
+    public void handleSendMessage(Message aMessage) throws WebServiceException {
         final WebSocketMessageDTO websocketMessage = (WebSocketMessageDTO)aMessage;
     	
         if (websocketMessage.channel == null || websocketMessage.channel.id == null) {
     		logger.warn("Invalid WebSocket channel selected. Unable to send manual crafted message!");
-    		throw new Exception(Constant.messages.getString("websocket.manual_send.fail.invalid_channel") 
+    		throw new WebServiceException(Constant.messages.getString("websocket.manual_send.fail.invalid_channel") 
     				+ " " + Constant.messages.getString("websocket.manual_send.fail"));
     	}
         
         if (websocketMessage.opcode == null) {
     		logger.warn("Invalid WebSocket opcode selected. Unable to send manual crafted message!");
-    		throw new Exception(Constant.messages.getString("websocket.manual_send.fail.invalid_opcode") 
+    		throw new WebServiceException(Constant.messages.getString("websocket.manual_send.fail.invalid_opcode") 
     				+ " " + Constant.messages.getString("websocket.manual_send.fail"));
     	}
     	
@@ -71,7 +73,7 @@ public class WebSocketPanelSender implements MessageSender, WebSocketObserver {
         	getDelegate(websocketMessage.channel.id).sendAndNotify(websocketMessage);
         } catch (final IOException ioe) {
         	logger.warn(ioe.getMessage(), ioe);
-            throw new Exception("IO error in sending WebSocket message.");
+            throw new WebServiceException("IO error in sending WebSocket message.");
         }
     }
     
@@ -83,10 +85,10 @@ public class WebSocketPanelSender implements MessageSender, WebSocketObserver {
         
     }
     
-    private WebSocketProxy getDelegate(Integer channelId) throws Exception {
+    private WebSocketProxy getDelegate(Integer channelId) throws WebServiceException {
     	if (!connectedProxies.containsKey(channelId)) {
     		logger.warn("Selected WebSocket channel is not connected. Unable to send manual crafted message!");
-    		throw new Exception(Constant.messages.getString("websocket.manual_send.fail.disconnected_channel") 
+    		throw new WebServiceException(Constant.messages.getString("websocket.manual_send.fail.disconnected_channel") 
     				+ " " + Constant.messages.getString("websocket.manual_send.fail"));
     	}
         return connectedProxies.get(channelId);

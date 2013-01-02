@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.websocket.ui;
 
 import java.awt.Component;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 import javax.swing.JTable;
@@ -64,7 +65,7 @@ public class PopupExcludeWebSocketFromContextMenu extends PopupExcludeFromContex
 	    });
     }
     
-	protected void performAction() throws Exception {
+	protected void performAction() throws SQLException {
 		WebSocketMessageDTO message = wsPopupHelper.getSelectedMessage();
 		if (message != null) {
 			String url = Pattern.quote(message.channel.getContextUrl());

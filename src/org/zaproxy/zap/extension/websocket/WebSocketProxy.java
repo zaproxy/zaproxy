@@ -92,7 +92,7 @@ public abstract class WebSocketProxy {
 	 * Non-finished messages are temporarily buffered. WebSocket messages are
 	 * allowed to consist of an arbitrary number of frames.
 	 */
-	protected HashMap<InputStream, WebSocketMessage> unfinishedMessages;
+	protected Map<InputStream, WebSocketMessage> unfinishedMessages;
 
 	/**
 	 * Socket for connection: Browser <-> ZAP
@@ -431,18 +431,7 @@ public abstract class WebSocketProxy {
 					message.readContinuation(in, frameHeader);
 				} else {
 					// no message here that can be continued
-					// => forward in any case, as the endpoint has to close
-					// the connection immediately
-					logger.warn("Got continuation frame, but there is no message to continue - forward frame in any case!");
-					
-					message = createWebSocketMessage(in, frameHeader);
-					if (!isForwardOnly) {
-						if (!notifyMessageObservers(message)) {
-							logger.warn("Ignore observer's wish to skip forwarding as we have received an invalid frame!");
-						}
-					}
-					message.forward(out);
-					
+					handleInvalidContinuation(in, out, frameHeader);					
 					return;
 				}
 			} else {
@@ -462,6 +451,27 @@ public abstract class WebSocketProxy {
 			// skip forwarding only if observer told us to skip this message (frame)
 			message.forward(out);
 		}	
+	}
+
+	/**
+	 * Invalid frame given, forward it in any case, as the endpoint is required
+	 * to close the connection immediately.
+	 * 
+	 * @param frameHeader
+	 * @param in
+	 * @param out
+	 * @throws IOException
+	 */
+	private void handleInvalidContinuation(InputStream in, OutputStream out, byte frameHeader) throws IOException {
+		logger.warn("Got continuation frame, but there is no message to continue - forward frame in any case!");
+		
+		WebSocketMessage message = createWebSocketMessage(in, frameHeader);
+		if (!isForwardOnly) {
+			if (!notifyMessageObservers(message)) {
+				logger.warn("Ignore observer's wish to skip forwarding as we have received an invalid frame!");
+			}
+		}
+		message.forward(out);
 	}
 
 	/**

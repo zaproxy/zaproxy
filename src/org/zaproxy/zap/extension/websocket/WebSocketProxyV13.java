@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -138,7 +139,10 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 				
 				isForwarded = false;
 
-				byte frameHeader = (byte) ((isFinished ? 0x80 : 0x00) | ((this.rsv & 0x07) << 4) | (frameOpcode & 0x0F));
+				byte finishedBits = (byte) (isFinished ? 0x80 : 0x00);
+				byte rsvBits = (byte) ((this.rsv & 0x07) << 4);
+				byte opcodeBits = (byte) (frameOpcode & 0x0F);
+				byte frameHeader = (byte) (finishedBits | rsvBits | opcodeBits);
 				buffer.put(frameHeader);
 				logger.debug("Frame header of newly created WebSocketFrame: " + getByteAsBitString(frameHeader));
 
@@ -243,7 +247,7 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 //			}
 		}
 		
-		private ArrayList<WebSocketFrameV13> receivedFrames = new ArrayList<>();
+		private List<WebSocketFrameV13> receivedFrames = new ArrayList<>();
 		
 		/**
 		 * Temporary buffer that will be added to
@@ -368,10 +372,6 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 		 * @throws IOException
 		 */
 		private void readFrame(InputStream in, byte frameHeader) throws IOException {
-			// TODO: could gain performance in case WebSocketProxy#isForwardOnly is set.
-			// in that case we won't have to dissect each frame, just storing its bytes would suffice
-			// Then I'd have to throw WebSocketExceptions in case a DTO is retrieved.
-			
 			// most significant bit of first byte is FIN flag
 			isFinished = (frameHeader >> 7 & 0x1) == 1;
 			
@@ -385,35 +385,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			
 			// most significant bit of second byte is MASK flag
 			currentFrame.setMasked((payloadByte >> 7 & 0x1) == 1);
-			payloadLength = (payloadByte & 0x7F);
-
-			// multiple bytes for payload length are submitted in network byte order (MSB first)
-			if (payloadLength < PAYLOAD_LENGTH_16) {
-				// payload length is between 0-125 bytes and contained in payloadByte
-			} else {
-				int bytesToRetrieve = 0;
-
-				// we have got PAYLOAD_LENGTH_16 or PAYLOAD_LENGTH_63
-				if (payloadLength == PAYLOAD_LENGTH_16) {
-					// payload length is between 126-65535 bytes represented by 2 bytes.
-					bytesToRetrieve = 2;
-				} else if (payloadLength == PAYLOAD_LENGTH_63) {
-					// payload length is between 65536-2^63 bytes represented by 8 bytes
-					// (most significant bit must be zero)
-					bytesToRetrieve = 8;
-				}
-
-				byte[] extendedPayloadLength = read(in, bytesToRetrieve);
-
-				payloadLength = 0;
-				for (int i = 0; i < bytesToRetrieve; i++) {
-					byte extendedPayload = extendedPayloadLength[i];
-					
-					// shift previous bits left and add next byte
-					payloadLength = (payloadLength << 8) | (extendedPayload & 0xFF);
-				}
-			}
 			
+			payloadLength = determinePayloadLength(in, payloadByte);
 			logger.debug("length of current frame payload is: " + payloadLength + "; first two bytes: " + getByteAsBitString(frameHeader) + " " + getByteAsBitString(payloadByte));
 
 			if (currentFrame.isMasked()) {
@@ -463,6 +436,49 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 			// add currentFrame to frames list
 			currentFrame.seal();
 			receivedFrames.add(currentFrame);
+		}
+
+		/**
+		 * Looks at the payload byte from the WebSockets header and determines
+		 * the packets length. It reads bytes from the extended length field if
+		 * required.
+		 * 
+		 * @param in
+		 * @param payloadByte
+		 * @return
+		 * @throws IOException
+		 */
+		private int determinePayloadLength(InputStream in, byte payloadByte) throws IOException {
+			int length = (payloadByte & 0x7F);
+
+			// multiple bytes for payload length are submitted in network byte order (MSB first)
+			if (length < PAYLOAD_LENGTH_16) {
+				// payload length is between 0-125 bytes and contained in payloadByte
+			} else {
+				int bytesToRetrieve = 0;
+
+				// we have got PAYLOAD_LENGTH_16 or PAYLOAD_LENGTH_63
+				if (length == PAYLOAD_LENGTH_16) {
+					// payload length is between 126-65535 bytes represented by 2 bytes.
+					bytesToRetrieve = 2;
+				} else if (length == PAYLOAD_LENGTH_63) {
+					// payload length is between 65536-2^63 bytes represented by 8 bytes
+					// (most significant bit must be zero)
+					bytesToRetrieve = 8;
+				}
+
+				byte[] extendedPayloadLength = read(in, bytesToRetrieve);
+
+				length = 0;
+				for (int i = 0; i < bytesToRetrieve; i++) {
+					byte extendedPayload = extendedPayloadLength[i];
+					
+					// shift previous bits left and add next byte
+					length = (length << 8) | (extendedPayload & 0xFF);
+				}
+			}
+			
+			return length;
 		}
 
 		/**

@@ -39,7 +39,7 @@ public interface WebSocketObserver {
 	 * 
 	 * @return observing order
 	 */
-	public int getObservingOrder();
+	int getObservingOrder();
 	
 	/**
 	 * Called by the observed class ({@link WebSocketProxy}) when a new part of
@@ -54,7 +54,7 @@ public interface WebSocketObserver {
 	 *            contains message parts received so far
 	 * @return True for continuing to notify and forwarding message
 	 */
-	public boolean onMessageFrame(int channelId, WebSocketMessage message);
+	boolean onMessageFrame(int channelId, WebSocketMessage message);
 	
 	/**
 	 * Called by the observed class ({@link WebSocketProxy}) when its internal
@@ -66,5 +66,5 @@ public interface WebSocketObserver {
 	 * @param state new state
 	 * @param proxy
 	 */
-	public void onStateChange(State state, WebSocketProxy proxy);
+	void onStateChange(State state, WebSocketProxy proxy);
 }

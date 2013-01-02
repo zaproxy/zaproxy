@@ -472,7 +472,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
 	 * @param msg
 	 * @return Map with extension name and parameter string.
 	 */
-	private LinkedHashMap<String, String> parseWebSocketExtensions(HttpMessage msg) {
+	private Map<String, String> parseWebSocketExtensions(HttpMessage msg) {
 		Vector<String> extensionHeaders = msg.getResponseHeader().getHeaders(
 				WebSocketProtocol.HEADER_EXTENSION);
 
@@ -500,7 +500,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
 		 * 			Sec-WebSocket-Extensions: mux; max-channels=4; flow-control, deflate-stream
 		 * 			Sec-WebSocket-Extensions: private-extension
 		 */
-		LinkedHashMap<String, String> wsExtensions = new LinkedHashMap<>();
+		Map<String, String> wsExtensions = new LinkedHashMap<>();
 		for (String extensionHeader : extensionHeaders) {
 			for (String extension : extensionHeader.split(",")) {
 				String key = extension.trim();
@@ -1086,21 +1086,26 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
 			HistoryReference href = component.getHistoryReferenceFromNode(node);
 			boolean isWebSocketNode = href != null && href.isWebSocketUpgrade();
 			if (isWebSocketNode) {
-				// WebSocket icon
-			
-				if (isConnected(component.getHistoryReferenceFromNode(node))) {
-					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						component.setIcon(WebSocketPanel.connectTargetIcon);
-					} else {
-						component.setIcon(WebSocketPanel.connectIcon);
-					}
-				} else {
-					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						component.setIcon(WebSocketPanel.disconnectTargetIcon);
-					} else {
-						component.setIcon(WebSocketPanel.disconnectIcon);
-					}
-				}
+				boolean isConnected = isConnected(component.getHistoryReferenceFromNode(node));
+				boolean isIncluded = node.isIncludedInScope() && !node.isExcludedFromScope();
+				
+				setWebSocketIcon(isConnected, isIncluded, component);
+			}
+		}
+	}
+
+	private void setWebSocketIcon(boolean isConnected, boolean isIncluded, SiteMapTreeCellRenderer component) {
+		if (isConnected) {
+			if (isIncluded) {
+				component.setIcon(WebSocketPanel.connectTargetIcon);
+			} else {
+				component.setIcon(WebSocketPanel.connectIcon);
+			}
+		} else {
+			if (isIncluded) {
+				component.setIcon(WebSocketPanel.disconnectTargetIcon);
+			} else {
+				component.setIcon(WebSocketPanel.disconnectIcon);
 			}
 		}
 	}

@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -77,7 +78,7 @@ public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
         performAction(url);
 	}
 	
-	protected void performAction(String url) throws Exception {
+	protected void performAction(String url) throws SQLException {
         Session session = Model.getSingleton().getSession();
         
         if (context == null) {

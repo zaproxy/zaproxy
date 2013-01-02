@@ -152,7 +152,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 
 	protected List<Integer> getCriterianInScope() {
 		if (filter.getShowJustInScope()) {
-			ArrayList<Integer> inScopeChannelIds = new ArrayList<>();
+			List<Integer> inScopeChannelIds = new ArrayList<>();
 			
 			// iterate through channels, and derive channel-ids in scope
 			try {

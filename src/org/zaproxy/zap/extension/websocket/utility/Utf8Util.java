@@ -27,7 +27,7 @@ import java.nio.charset.Charset;
 /**
  * Encode or decode from byte[] to Utf8 and vice versa.
  */
-public class Utf8Util {
+public abstract class Utf8Util {
 	
 	/**
 	 * Used for en- & decoding from bytes to String and vice versa.

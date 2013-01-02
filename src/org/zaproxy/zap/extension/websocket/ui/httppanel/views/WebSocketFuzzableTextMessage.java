@@ -58,7 +58,7 @@ public class WebSocketFuzzableTextMessage implements FuzzableMessage {
 	}
 
 	@Override
-	public WebSocketFuzzMessageDTO fuzz(String fuzzString) throws Exception {
+	public WebSocketFuzzMessageDTO fuzz(String fuzzString) throws IllegalArgumentException {
 		WebSocketFuzzMessageDTO fuzzedMessage = copyMessage(message);
 	    
 		if (!(fuzzedMessage.payload instanceof String)) {

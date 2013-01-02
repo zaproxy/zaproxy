@@ -209,7 +209,8 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * The compareTo() method sorts first by base position, then by length.
 	 */
 	static final class Segment implements Comparable<Segment> {
-		private int base = 0, length = 1;
+		private int base;
+		private int length;
 
 		public Segment(int base, int length) {
 			this.base = base;
@@ -231,6 +232,11 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 				return hasSameBase && hasSameLength;
 			}
 			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return (41 * (41 + base) + length);
 		}
 
 		@Override
