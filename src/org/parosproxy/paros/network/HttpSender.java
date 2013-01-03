@@ -23,7 +23,10 @@
 // ZAP: 2012/05/08 Use custom http client on "Connection: Upgrade" in executeMethod().
 //                 Retrieve upgraded socket and save for later use in send() method.
 // ZAP: 2012/08/07 Issue 342Support the HttpSenderListener
-
+// ZAP: 2012/12/27 Do not read request body on Server-Sent Event streams.
+// ZAP: 2013/01/03 Resolved Checkstyle issues: removed throws HttpException 
+//                 declaration where IOException already appears, 
+//                 introduced two helper methods for notifying listeners.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -36,7 +39,6 @@ import java.util.List;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
@@ -182,7 +184,7 @@ public class HttpSender {
     	return clientProxy;
     }
 
-    public int executeMethod(HttpMethod method) throws HttpException, IOException {
+    public int executeMethod(HttpMethod method) throws IOException {
         int responseCode = -1;
         
         String hostName;
@@ -196,10 +198,7 @@ public class HttpSender {
         	Header connectionHeader = method.getRequestHeader("connection");
         	boolean isUpgrade = connectionHeader != null && connectionHeader.getValue().toLowerCase().contains("upgrade");
         	
-        	Header acceptHeader = method.getRequestHeader("accept");
-        	boolean isEventStream = false; //acceptHeader != null && acceptHeader.getValue().toLowerCase().contains("text/event-stream"); 
-        	
-        	if (isUpgrade || isEventStream) {
+        	if (isUpgrade) {
         		// use another client that allows us to expose the socket connection.
         		HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
         		responseCode = upgradeClient.executeMethod(method);
@@ -237,9 +236,8 @@ public class HttpSender {
         }
     }
 
-    public void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg) throws IOException {
         sendAndReceive(msg, followRedirect);
-        
     }
     
     /**
@@ -268,28 +266,21 @@ public class HttpSender {
      * @throws HttpException
      * @throws IOException
      */
-    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 
     	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " start");
         msg.setTimeSentMillis(System.currentTimeMillis());
 
         try {
-        	// Notify listeners
-        	for (HttpSenderListener listener : listeners) {
-        		try {
-            		listener.onHttpRequestSend(msg, initiator);
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-        	}
+        	notifyRequestListeners(msg);
             if (!isFollowRedirect || !
                     (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)
                             || msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.PUT))) {
                 send(msg, isFollowRedirect);
                 return;
-            } else {
-                send(msg, false);
             }
+            
+            send(msg, false);
             
             HttpMessage temp = msg.cloneAll();
             // POST/PUT method cannot be redirected by library. Need to follow by code
@@ -315,18 +306,31 @@ public class HttpSender {
             msg.setTimeElapsedMillis((int) (System.currentTimeMillis()-msg.getTimeSentMillis()));
         	log.debug("sendAndReceive " + msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " + msg.getTimeElapsedMillis());
         	
-        	// Notify listeners
-        	for (HttpSenderListener listener : listeners) {
-        		try {
-					listener.onHttpResponseReceive(msg, initiator);
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-        	}
+        	notifyResponseListeners(msg);
         }
     }
+
+	private void notifyRequestListeners(HttpMessage msg) {
+    	for (HttpSenderListener listener : listeners) {
+    		try {
+        		listener.onHttpRequestSend(msg, initiator);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
+    	}
+	}
     
-    private void send(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
+    private void notifyResponseListeners(HttpMessage msg) {
+    	for (HttpSenderListener listener : listeners) {
+    		try {
+    			listener.onHttpResponseReceive(msg, initiator);
+    		} catch (Exception e) {
+    			log.error(e.getMessage(), e);
+    		}
+    	}
+	}
+
+	private void send(HttpMessage msg, boolean isFollowRedirect) throws IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
         
@@ -337,11 +341,10 @@ public class HttpSender {
 	        resHeader.setHeader(HttpHeader.TRANSFER_ENCODING, null);	//	replaceAll("Transfer-Encoding: chunked\r\n", "");
 	        msg.setResponseHeader(resHeader);
 	        msg.getResponseBody().setCharset(resHeader.getCharset());
-	        // process response for each listner
 	        msg.getResponseBody().setLength(0);
 	        
 	        // ZAP: Do not read response body for Server-Sent Events stream
-	        // FIXME: do not rely on isEventStream
+	        // ZAP: Moreover do not set content length to zero
 	        if (!msg.isEventStream()) {
 	        	msg.getResponseBody().append(method.getResponseBody());
 	        }
@@ -355,11 +358,9 @@ public class HttpSender {
 	            method.releaseConnection();
 	        }
         }
-
-        
     }
     
-	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
+	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 		HttpMethod method = null;
 		// no more retry
 		modifyUserAgent(msg);
@@ -558,7 +559,7 @@ public class HttpSender {
 		return listenersComparator;
 	}
 	
-	synchronized private static void createListenersComparator() {
+	private static synchronized void createListenersComparator() {
 		if (listenersComparator == null) {
 			listenersComparator = new Comparator<HttpSenderListener>() {
 				
