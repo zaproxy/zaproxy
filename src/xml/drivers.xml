@@ -37,6 +37,18 @@
 		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
+		<name>Portuguese Cartão de Cidadão - Windows (x64)</name>
+		<path>C:\Windows\SysWOW64\pteidpkcs11.dll</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Portuguese Cartão de Cidadão - Linux</name>
+		<path>/usr/local/lib/libpteidpkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
 		<name>Spanish DNIe - Windows (x86)</name>
 		<path>C:\WINDOWS\System32\UsrPkcs11.dll</path>
 		<slot>1</slot>
