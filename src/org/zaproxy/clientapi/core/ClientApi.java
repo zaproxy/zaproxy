@@ -49,12 +49,13 @@ import org.zaproxy.clientapi.gen.Core;
 import org.zaproxy.clientapi.gen.Params;
 import org.zaproxy.clientapi.gen.Search;
 import org.zaproxy.clientapi.gen.Spider;
+import org.zaproxy.clientapi.gen.Context;
 
 public class ClientApi {
 	private Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8090));
 	private boolean debug = false;
 	private PrintStream debugStream = System.out;
-	
+
 	// Note that any new API implementations added have to be added here manually
 	public Acsrf acsrf = new Acsrf(this);
 	public Ascan ascan = new Ascan(this);
@@ -64,6 +65,7 @@ public class ClientApi {
 	public Params params = new Params(this);
 	public Search search = new Search(this);
 	public Spider spider = new Spider(this);
+    public Context context = new Context(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
 		this(zapAddress, zapPort, false);
@@ -86,7 +88,7 @@ public class ClientApi {
 	/*
 	 * These methods are retained for some backwards compatibility
 	 */
-	
+
 	/**
 	 * @deprecated  As of release 2.0.0, replaced by core.shutdown()
 	 */
@@ -94,7 +96,7 @@ public class ClientApi {
 	public void stopZap() throws ClientApiException {
 		core.shutdown();
 	}
-	
+
 	/**
 	 * @deprecated  As of release 2.0.0, replaced by spider.scan(url) and polling spider.status()
 	 */
@@ -110,17 +112,17 @@ public class ClientApi {
 			}
 		}
 	}
-	
+
 	private int statusToInt(ApiResponse response) {
 		return Integer.parseInt(((ApiResponseElement)response).getValue());
 	}
-	
+
 	/**
 	 * @deprecated  As of release 2.0.0, replaced by ascan.scan(url, recurse) and polling ascan.status()
 	 */
 	@Deprecated
 	public void activeScanUrl (String url) throws ClientApiException {
-		ascan.scan(url, "false");
+		ascan.scan(url, "false", "false");
 		// Poll until spider finished
 		while ( statusToInt(ascan.status()) < 100) {
 			try {
@@ -136,7 +138,7 @@ public class ClientApi {
 	 */
 	@Deprecated
     public void activeScanSite (String url) throws ClientApiException {
-		ascan.scan(url, "true");
+		ascan.scan(url, "true", "false");
 		// Poll until spider finished
 		while ( statusToInt(ascan.status()) < 100) {
             try {
@@ -232,7 +234,7 @@ public class ClientApi {
         	}
         }
     }
-    
+
     public List<Alert> getAlerts(String baseUrl, int start, int count) throws ClientApiException {
     	List<Alert> alerts = new ArrayList<Alert>();
         ApiResponse response = core.alerts(baseUrl, "" + start, "" + count);
@@ -241,7 +243,7 @@ public class ClientApi {
             for (ApiResponse resp : alertList.getItems()) {
             	ApiResponseSet alertSet = (ApiResponseSet)resp;
                 alerts.add(new Alert(
-                		alertSet.getAttribute("alert"), 
+                		alertSet.getAttribute("alert"),
                         alertSet.getAttribute("url"),
                         Risk.valueOf(alertSet.getAttribute("risk")),
                         Reliability.valueOf(alertSet.getAttribute("reliability")),
@@ -306,19 +308,19 @@ public class ClientApi {
 			}
 			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 			uc.connect();
-			
+
 			BufferedReader in;
 			try {
 				in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
 				String inputLine;
-	
+
 				while ((inputLine = in.readLine()) != null) {
 					if (debug) {
 						debugStream.println(inputLine);
 					}
 				}
 				in.close();
-	
+
 			} catch (IOException e) {
 				// Ignore
 				if (debug) {
@@ -329,8 +331,8 @@ public class ClientApi {
 			throw new ClientApiException (e);
 		}
 	}
-	
-	public ApiResponse callApi (String component, String type, String method, 
+
+	public ApiResponse callApi (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
 		Document dom;
 		try {
@@ -340,8 +342,8 @@ public class ClientApi {
 		}
 		return ApiResponseFactory.getResponse(dom.getFirstChild());
 	}
-	
-	private Document callApiDom (String component, String type, String method, 
+
+	private Document callApiDom (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("http://zap/xml/");
@@ -362,7 +364,7 @@ public class ClientApi {
 				sb.append("&");
 			}
 		}
-		
+
 		try {
 			URL url = new URL(sb.toString());
 			if (debug) {
@@ -380,4 +382,60 @@ public class ClientApi {
 		}
 	}
 
+    public void addExcludeFromContext(String contextName, String regex) throws Exception {
+        context.excludeFromContext(contextName, regex);
+    }
+
+    public void addIncludeInContext(String contextName, String regex) throws Exception {
+        context.includeInContext(contextName, regex);
+    }
+
+    public void includeOneMatchingNodeInContext(String contextName, String regex) throws Exception {
+        List<String> sessionUrls = getSessionUrls();
+        boolean foundOneMatch = false;
+        for (String sessionUrl : sessionUrls){
+            if (sessionUrl.matches(regex)){
+                if (foundOneMatch){
+                    addExcludeFromContext(contextName, sessionUrl);
+                } else {
+                    foundOneMatch = true;
+                }
+            }
+        }
+        if(!foundOneMatch){
+            throw new Exception("Unexpected result: No url found in site tree matching regex " + regex);
+        }
+
+    }
+
+    private List<String> getSessionUrls() throws Exception {
+        List<String> sessionUrls = new ArrayList<>();
+        ApiResponse response = core.urls();
+        if (response != null && response instanceof ApiResponseList) {
+            ApiResponseElement urlList = (ApiResponseElement) ((ApiResponseList) response).getItems().get(0);
+            for (ApiResponse element: ((ApiResponseList) response).getItems()){
+                URL url = new URL(((ApiResponseElement)element).getValue());
+                sessionUrls.add(url.getProtocol()+"://"+url.getHost()+url.getPath());
+            }
+            System.out.println(urlList);
+        }
+        return sessionUrls;
+    }
+
+    public void activeScanSiteInScope(String url) throws Exception {
+        ascan.scan(url, "true", "true");
+        // Poll until spider finished
+        int status = 0;
+        while ( status < 100) {
+            status = statusToInt(ascan.status());
+            if(debug){
+                String format = "Scanning %s Progress: %d%%";
+                System.out.println(String.format(format, url, status));
+            }try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
+    }
 }

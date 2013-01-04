@@ -34,7 +34,8 @@ public class ClientApiMain {
     private boolean debug = false;
 
     private enum Task{
-        stop, showAlerts, checkAlerts, saveSession, newSession, activeScanUrl
+        stop, showAlerts, checkAlerts, saveSession, newSession, activeScanUrl, activeScanSiteInScope,
+        addExcludeRegexToContext, addIncludeRegexToContext, addIncludeOneMatchingNodeToContext
     }
 
     public static void main(String[] args){
@@ -86,7 +87,7 @@ public class ClientApiMain {
                         }
                     }
                     break;
-                case showAlerts: 
+                case showAlerts:
                 	List<Alert> alerts = api.getAlerts(null, -1, -1);
                 	for (Alert alert : alerts) {
                         System.out.println(alert.toString());
@@ -116,9 +117,52 @@ public class ClientApiMain {
                         api.activeScanUrl((String)params.get("url"));
                     }
                     break;
+                case activeScanSiteInScope:
+                    checkForUrlParam();
+                    api.activeScanSiteInScope((String)params.get("url"));
+                    break;
+                case addExcludeRegexToContext:
+                    checkForContextNameParam();
+                    checkForRegexParam();
+                    api.addExcludeFromContext((String)params.get("contextName"), (String)params.get("regex"));
+                    break;
+                case addIncludeRegexToContext:
+                    checkForContextNameParam();
+                    checkForRegexParam();
+                    api.addIncludeInContext((String)params.get("contextName"), (String)params.get("regex"));
+                    break;
+                case addIncludeOneMatchingNodeToContext:
+                    checkForContextNameParam();
+                    checkForRegexParam();
+                    api.includeOneMatchingNodeInContext((String)params.get("contextName"), (String)params.get("regex"));
+                    break;
             }
         } catch (ConnectException e){
             System.out.println(e.getMessage()+String.format(": zapaddr=%s, zapport=%d\n", zapaddr, zapport));
+            showHelp();
+            System.exit(1);
+        }
+    }
+
+    private void checkForRegexParam() {
+        if(params.get("regex") == null){
+            System.out.println("No regex supplied\n");
+            showHelp();
+            System.exit(1);
+        }
+    }
+
+    private void checkForContextNameParam() {
+        if (params.get("contextName") == null){
+            System.out.println("No context name supplied\n");
+            showHelp();
+            System.exit(1);
+        }
+    }
+
+    private void checkForUrlParam() {
+        if (params.get("url") == null){
+            System.out.println("No url supplied\n");
             showHelp();
             System.exit(1);
         }
@@ -253,6 +297,30 @@ public class ClientApiMain {
                             "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
                             "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
                             "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
+                    break;
+                case addExcludeRegexToContext:
+                    help = "usage: addExcludeRegexToContext contextName={contextName} regex={regex} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar addExcludeRegexToContext contextName=1 regex=\\Qhttp://example.com/area\\E.* \n\t\t" +
+                            "Urls that match the regex will be excluded from scope using context '1' using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar addExcludeRegexToContext url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Urls that match the regex will be excluded from scope using context '1' using zap listening on 192.168.1.1:7080\n\t";
+                    break;
+                case addIncludeRegexToContext:
+                    help = "usage: addIncludeRegexToContext contextName={contextName} regex={regex} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar addIncludeRegexToContext contextName=1 regex=\\Qhttp://example.com/area\\E.* \n\t\t" +
+                            "Urls that match the regex will be included in scope using context '1' using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar addIncludeRegexToContext url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Urls that match the regex will be included in scope using context '1' using zap listening on 192.168.1.1:7080\n\t";
+                    break;
+                case addIncludeOneMatchingNodeToContext:
+                    help = "usage: addIncludeOneMatchingNodeToContext contextName={contextName} regex={regex} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar addIncludeOneMatchingNodeToContext contextName=1 regex=\\Qhttp://example.com/area\\E.* \n\t\t" +
+                            "The first url from the current session that matches the regex will be included in scope using context '1'. Any other matching url will be excluded from scope using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar addIncludeOneMatchingNodeToContext url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "The first url from the current session that matches the regex will be included in scope using context '1'. Any other matching url will be excluded from scope using context '1' using zap listening on 192.168.1.1:7080\n\t";
                     break;
             }
         }

@@ -48,6 +48,11 @@ public class Ascan {
 		return api.callApi("ascan", "view", "excludedFromScan", map);
 	}
 
+	public ApiResponse optionDelayInMs() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionDelayInMs", map);
+	}
+
 	public ApiResponse optionThreadPerHost() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionThreadPerHost", map);
@@ -56,11 +61,6 @@ public class Ascan {
 	public ApiResponse optionHostPerScan() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionHostPerScan", map);
-	}
-
-	public ApiResponse optionDelayInMs() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionDelayInMs", map);
 	}
 
 	public ApiResponse optionHandleAntiCSRFTokens() throws ClientApiException {
@@ -78,11 +78,12 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionAttackStrength", map);
 	}
 
-	public ApiResponse scan(String url, String recurse) throws ClientApiException {
+	public ApiResponse scan(String url, String recurse, String inscopeonly) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("url", url);
 		map.put("recurse", recurse);
+		map.put("inScopeOnly", inscopeonly);
 		return api.callApi("ascan", "action", "scan", map);
 	}
 
@@ -112,6 +113,13 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionAttackStrength", map);
 	}
 
+	public ApiResponse setOptionDelayInMs(int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionDelayInMs", map);
+	}
+
 	public ApiResponse setOptionThreadPerHost(int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -124,13 +132,6 @@ public class Ascan {
 		map = new HashMap<String, String>();
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("ascan", "action", "setOptionHostPerScan", map);
-	}
-
-	public ApiResponse setOptionDelayInMs(int i) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionDelayInMs", map);
 	}
 
 	public ApiResponse setOptionHandleAntiCSRFTokens(boolean bool) throws ClientApiException {

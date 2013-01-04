@@ -86,6 +86,76 @@ public class Core {
 		return api.callApi("core", "view", "homeDirectory", map);
 	}
 
+	public ApiResponse optionListAuth() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionListAuth", map);
+	}
+
+	public ApiResponse optionHttpState() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionHttpState", map);
+	}
+
+	public ApiResponse optionHttpStateEnabled() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionHttpStateEnabled", map);
+	}
+
+	public ApiResponse optionProxyChainName() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainName", map);
+	}
+
+	public ApiResponse optionProxyChainPort() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainPort", map);
+	}
+
+	public ApiResponse optionProxyChainSkipName() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainSkipName", map);
+	}
+
+	public ApiResponse optionProxyChainRealm() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainRealm", map);
+	}
+
+	public ApiResponse optionProxyChainUserName() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainUserName", map);
+	}
+
+	public ApiResponse optionProxyChainPassword() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainPassword", map);
+	}
+
+	public ApiResponse optionProxyChainPrompt() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionProxyChainPrompt", map);
+	}
+
+	public ApiResponse optionUseProxyChain() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionUseProxyChain", map);
+	}
+
+	public ApiResponse optionListAuthEnabled() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionListAuthEnabled", map);
+	}
+
+	public ApiResponse optionTimeoutInSecs() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionTimeoutInSecs", map);
+	}
+
+	public ApiResponse optionConfirmRemoveAuth() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionConfirmRemoveAuth", map);
+	}
+
 	/**
 	 * Shuts down ZAP
 	 */
@@ -137,6 +207,76 @@ public class Core {
 	public ApiResponse generateRootCA() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "action", "generateRootCA", map);
+	}
+
+	public ApiResponse setOptionProxyChainName(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionProxyChainName", map);
+	}
+
+	public ApiResponse setOptionProxyChainSkipName(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionProxyChainSkipName", map);
+	}
+
+	public ApiResponse setOptionProxyChainRealm(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionProxyChainRealm", map);
+	}
+
+	public ApiResponse setOptionProxyChainUserName(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionProxyChainUserName", map);
+	}
+
+	public ApiResponse setOptionProxyChainPassword(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionProxyChainPassword", map);
+	}
+
+	public ApiResponse setOptionHttpStateEnabled(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("core", "action", "setOptionHttpStateEnabled", map);
+	}
+
+	public ApiResponse setOptionProxyChainPort(int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("core", "action", "setOptionProxyChainPort", map);
+	}
+
+	public ApiResponse setOptionProxyChainPrompt(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("core", "action", "setOptionProxyChainPrompt", map);
+	}
+
+	public ApiResponse setOptionTimeoutInSecs(int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("core", "action", "setOptionTimeoutInSecs", map);
+	}
+
+	public ApiResponse setOptionConfirmRemoveAuth(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("core", "action", "setOptionConfirmRemoveAuth", map);
 	}
 
 }

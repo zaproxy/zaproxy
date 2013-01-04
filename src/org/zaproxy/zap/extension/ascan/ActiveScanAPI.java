@@ -49,7 +49,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
-    
+
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
     
@@ -59,6 +59,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_RECURSE = "recurse";
+    private static final String PARAM_JUST_IN_SCOPE = "inScopeOnly";
 
 	private ExtensionActiveScan extension;
 	private ActiveScan activeScan = null;
@@ -66,7 +67,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	
 	public ActiveScanAPI (ExtensionActiveScan extension) {
 		this.extension = extension;
-        this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE}));
+        this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE}));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
 
@@ -88,7 +89,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			if (url == null || url.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 			}
-		    scanURL(params.getString(PARAM_URL), this.getParam(params, PARAM_RECURSE, true));
+		    scanURL(params.getString(PARAM_URL), this.getParam(params, PARAM_RECURSE, true), this.getParam(params, PARAM_JUST_IN_SCOPE, false));
 
 		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
 			try {
@@ -111,7 +112,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		return ApiResponseElement.OK;
 	}
 
-	private void scanURL(String url, boolean scanChildren) throws ApiException {
+	private void scanURL(String url, boolean scanChildren, boolean scanJustInScope) throws ApiException {
 		
 		if (activeScan != null && ! activeScan.isStopped()) {
 			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
@@ -132,6 +133,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 				extension.getModel().getOptionsParam().getConnectionParam(), null);
 		
 		progress = 0;
+        activeScan.setJustScanInScope(scanJustInScope);
 		activeScan.addScannerListener(this);
 		activeScan.setStartNode(startNode);
         activeScan.setScanChildren(scanChildren);
@@ -144,7 +146,6 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		ApiResponse result;
 
 		if (VIEW_STATUS.equals(name)) {
-			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, "" + progress);
 		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
 			result = new ApiResponseList(name);

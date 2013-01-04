@@ -71,6 +71,9 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
         coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
         API.getInstance().registerApiImplementor(coreApi);
 
+        API.getInstance().registerApiImplementor(new ContextAPI());
+
+
 	}
 
 	private OptionsApiPanel getOptionsAPIPanel() {
