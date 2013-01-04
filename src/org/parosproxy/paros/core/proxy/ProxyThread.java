@@ -36,6 +36,7 @@
 // modified/removed or not.
 // ZAP: 2012/12/27 Added support for PersistentConnectionListener
 // (refactored WebSockets)
+// ZAP: 2013/01/04 Do beginSSL() on HTTP CONNECT only if port requires so.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -132,9 +133,6 @@ class ProxyThread implements Runnable {
 	 * @throws IOException
 	 */
 	private void beginSSL(String targethost) throws IOException {
-
-        boolean isSecure = true;
-        HttpRequestHeader firstHeader = null;
 		// ZAP: added parameter 'targethost'
         try {
 			inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
@@ -147,9 +145,6 @@ class ProxyThread implements Runnable {
         
         httpIn = new HttpInputStream(inSocket);
         httpOut = new HttpOutputStream(inSocket.getOutputStream());
-        
-        firstHeader = httpIn.readRequestHeader(isSecure);
-        processHttp(firstHeader, isSecure);
     }
 	
 	@Override
@@ -171,7 +166,17 @@ class ProxyThread implements Runnable {
 				try {
 					httpOut.write(CONNECT_HTTP_200);
 					httpOut.flush();
-					beginSSL(hostName);
+					
+					Integer targetPort = firstHeader.getHostPort();
+					
+					// ZAP: perform SSL handshake only if port indicates wish for a SSL tunnel
+					if (connectionParam.isPortDemandingSslTunnel(targetPort)) {
+				        isSecure = true;
+						beginSSL(hostName);
+					}
+			        
+			        firstHeader = httpIn.readRequestHeader(isSecure);
+			        processHttp(firstHeader, isSecure);
 				} catch (MissingRootCertificateException e) {
 					// Unluckily Firefox and Internet Explorer will not show this message.
 					// We should find a way to let the browsers display this error message.

@@ -24,11 +24,15 @@
 // unnecessary cast.
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
+// ZAP: 2013/01/04 Added portsForSslTunneling parameter with method
+// isPortDemandingSslTunnel() to indicate HTTP CONNECT behavior.
 
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConversionException;
@@ -64,6 +68,7 @@ public class ConnectionParam extends AbstractParam {
     // ZAP: Added prompt option and timeout
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
+	private static final String SSL_CONNECT_PORTS = CONNECTION_BASE_KEY + ".sslConnectPorts";
     
     private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
 
@@ -83,6 +88,8 @@ public class ConnectionParam extends AbstractParam {
 	private int timeoutInSecs = 120;
 
 	private Pattern	patternSkip = null;
+	
+	private Set<Integer> portsForSslTunneling = new HashSet<>();
 	
 	private boolean confirmRemoveAuth = true;
 
@@ -141,6 +148,14 @@ public class ConnectionParam extends AbstractParam {
         	// ZAP: Log exceptions
         	log.error(e.getMessage(), e);
 		}
+		
+		try {
+			setPortsForSslTunneling(getConfig().getString(SSL_CONNECT_PORTS, "443"));
+		} catch (Exception e) {
+	    	// ZAP: Log exceptions
+	    	log.error(e.getMessage(), e);
+		}
+		
 		try {
 			setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
 		} catch (Exception e) {
@@ -391,4 +406,43 @@ public class ConnectionParam extends AbstractParam {
         this.confirmRemoveAuth = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_AUTH_KEY, Boolean.valueOf(confirmRemoveAuth));
     }
+    
+    /**
+	 * Returns true if a SSL tunnel should be created when the following request
+	 * is issued by the client: "CONNECT url:port HTTP/1.1".
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public boolean isPortDemandingSslTunnel(Integer port) {
+		if (port == null) {
+			// no port defaults to 80
+			port = 80;
+		}
+		return portsForSslTunneling.contains(port);
+	}
+	
+	public String getPortsForSslTunneling() {
+		String ports = "";
+		boolean first = true;
+		for (Integer port : portsForSslTunneling) {
+			if (first) {
+				first = false;
+			} else {
+				ports += ",";
+			}
+			ports += port;
+		}
+		return ports;
+	}
+	
+	public void setPortsForSslTunneling(String ports) {
+		String[] parsedPorts = ports.split(",");
+		
+		portsForSslTunneling.clear();
+		for (String port : parsedPorts) {
+			portsForSslTunneling.add(Integer.valueOf(port));
+		}
+		getConfig().setProperty(SSL_CONNECT_PORTS, getPortsForSslTunneling());
+	}
 }

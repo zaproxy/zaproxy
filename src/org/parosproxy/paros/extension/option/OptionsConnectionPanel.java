@@ -21,7 +21,7 @@
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/18 Issue 441: Dont access view in daemon mode
-
+// ZAP: 2013/01/04 Added field txtSslTunnelingPorts below txtTimeoutInSecs.
 
 package org.parosproxy.paros.extension.option;
 
@@ -68,6 +68,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkProxyChainPrompt = null;
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
+	// ZAP: Added field for ssl ports
+	private ZapTextField txtSslTunnelingPorts;
 	
     public OptionsConnectionPanel() {
         super();
@@ -414,6 +416,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
 	    txtTimeoutInSecs.discardAllEdits();
 	    
+	    this.txtSslTunnelingPorts.setText(connectionParam.getPortsForSslTunneling());
+	    txtSslTunnelingPorts.discardAllEdits();
+	    
 	    // set Proxy Chain parameters
 	    if (connectionParam.getProxyChainName().equals("")) {
 	        chkUseProxyChain.setSelected(false);
@@ -521,6 +526,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         	txtTimeoutInSecs.requestFocus();
             throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
         }
+        
+        validateSslTunnelingPorts(txtSslTunnelingPorts.getText());
 
 	    if (chkUseProxyChain.isSelected()) {
 	    	// ZAP: empty proxy name validation
@@ -539,6 +546,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    int timeout;
+	    String sslPorts;
 
         try {
             timeout = Integer.parseInt(txtTimeoutInSecs.getText());
@@ -546,6 +554,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         	txtTimeoutInSecs.requestFocus();
             throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
         }
+        
+        sslPorts = validateSslTunnelingPorts(txtSslTunnelingPorts.getText());
 
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
 		// ZAP: Do not allow invalid port numbers
@@ -570,8 +580,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
+	    connectionParam.setPortsForSslTunneling(sslPorts);
 	    
 	}
+
 	/**
 	 * This method initializes txtProxyChainRealm	
 	 * 	
@@ -677,16 +689,46 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 			panelGeneral.add(jLabel, gridBagConstraints00);
 			panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
+			
+			// ZAP: Add SSL Ports field below timeout in secs
+			gridBagConstraints00.gridy = 1;
+			gridBagConstraints01.gridy = 1;
+
+			jLabel = new JLabel();
+			jLabel.setText(Constant.messages.getString("conn.options.ssl_ports"));
+			panelGeneral.add(jLabel, gridBagConstraints00);
+			panelGeneral.add(getTxtSslTunnelingPorts(), gridBagConstraints01);
 		}
 		return panelGeneral;
 	}
 
-	
 	private ZapTextField getTxtTimeoutInSecs() {
 		if (txtTimeoutInSecs == null) {
 			txtTimeoutInSecs = new ZapTextField();
 		}
 		return txtTimeoutInSecs;
+	}
+	
+	private ZapTextField getTxtSslTunnelingPorts() {
+		if (txtSslTunnelingPorts == null) {
+			txtSslTunnelingPorts = new ZapTextField();
+		}
+		return txtSslTunnelingPorts;
+	}
+	
+	/**
+	 * Throws an exception when ports is not a comma separated list of integers.
+	 * 
+	 * @param ports
+	 * @return
+	 * @throws Exception
+	 */
+	private String validateSslTunnelingPorts(String ports) throws Exception {
+		if (!ports.matches("^([1-9][0-9]*)?(,[1-9][0-9]*)*$")) {
+			txtSslTunnelingPorts.requestFocus();
+			throw new Exception(Constant.messages.getString("conn.options.ssl_ports.invalid"));
+		}
+		return ports;
 	}
 	
 	@Override
