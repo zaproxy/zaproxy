@@ -37,6 +37,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.websocket.WebSocketException;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
+import org.zaproxy.zap.utils.TableColumnManager;
 
 /**
  * Wraps a {@link JTable} that is used to display WebSocket
@@ -89,6 +90,9 @@ public class WebSocketMessagesView implements Runnable {
 			view.addMouseListener(getMouseListener());
 			
 			view.getSelectionModel().addListSelectionListener(getListSelectionListener());
+			
+			// allows to show/hide columns
+			new TableColumnManager(view);
 			
 			view.revalidate();
 		}

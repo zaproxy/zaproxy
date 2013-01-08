@@ -20,8 +20,6 @@ package org.zaproxy.zap.extension.websocket.fuzz;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.table.TableModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
@@ -96,7 +94,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 	 * Return values of new columns.
 	 */
 	@Override
-	public Object getWebSocketValueAt(WebSocketMessageDTO message, int columnIndex) {
+	public Object getRealValueAt(WebSocketMessageDTO message, int columnIndex) {
 		if (message instanceof WebSocketFuzzMessageDTO) {
 			WebSocketFuzzMessageDTO fuzzMessage = (WebSocketFuzzMessageDTO) message;
 			switch (columnIndex) {
@@ -116,7 +114,7 @@ public class WebSocketFuzzMessagesViewModel extends WebSocketMessagesViewModel {
 		        return fuzzMessage.fuzz;
 			}
 		}
-		return super.getWebSocketValueAt(message, columnIndex);
+		return super.getRealValueAt(message, columnIndex);
 	}
 
 	/**

@@ -34,7 +34,7 @@ import org.zaproxy.zap.extension.websocket.WebSocketMessageDTO;
 import org.zaproxy.zap.extension.websocket.db.TableWebSocket;
 import org.zaproxy.zap.extension.websocket.db.WebSocketMessagePrimaryKey;
 import org.zaproxy.zap.extension.websocket.utility.InvalidUtf8Exception;
-import org.zaproxy.zap.extension.websocket.utility.PagingTableModel;
+import org.zaproxy.zap.utils.PagingTableModel;
 
 /**
  * This model uses the {@link TableWebSocket} instance to load only needed
@@ -189,7 +189,7 @@ public class WebSocketMessagesViewModel extends PagingTableModel<WebSocketMessag
 	}
 	
 	@Override
-	public Object getWebSocketValueAt(WebSocketMessageDTO message, int columnIndex) {
+	public Object getRealValueAt(WebSocketMessageDTO message, int columnIndex) {
 		Object value = null;
 		switch (columnIndex) {
 		case 0:

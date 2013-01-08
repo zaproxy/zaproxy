@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.websocket.utility;
+package org.zaproxy.zap.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * @param columnIndex
 	 * @return value from requested column
 	 */
-	protected abstract Object getWebSocketValueAt(T rowObject, int columnIndex);
+	protected abstract Object getRealValueAt(T rowObject, int columnIndex);
 
 	/**
 	 * @param columnIndex
@@ -99,7 +99,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 			return getPlaceholderValueAt(columnIndex);
 		}
 		
-		return getWebSocketValueAt(rowObject, columnIndex);
+		return getRealValueAt(rowObject, columnIndex);
 	}
 
 	/**
