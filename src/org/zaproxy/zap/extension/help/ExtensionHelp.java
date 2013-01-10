@@ -36,9 +36,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 
 /**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * Loads the core help files and provides GUI elements to access them.
  */
 public class ExtensionHelp extends ExtensionAdaptor {
 
@@ -50,11 +48,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static HelpSet hs = null;
 	private static HelpBroker hb = null;
 
-	private final static Logger logger = Logger.getLogger(ExtensionHelp.class);
+	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
-    /**
-     * 
-     */
     public ExtensionHelp() {
         super();
  		initialize();
@@ -88,7 +83,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
 	}
 	
-	private static HelpBroker getHelpBroker() {
+	public static HelpBroker getHelpBroker() {
 		if (hb == null) {
 			createHelpBroker();
 		}
@@ -185,7 +180,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 						"ui.tabs.response", hs);
 
 			} else {
-				System.out.println("Failed to get helpset url:(");
+				logger.error("Failed to get helpset url");
 			}
 				
 			menuHelpZap.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
