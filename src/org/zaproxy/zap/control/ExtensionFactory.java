@@ -20,6 +20,7 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,11 +28,16 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.help.HelpBroker;
+import javax.help.HelpSet;
+import javax.help.HelpSetException;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public class ExtensionFactory {
 
@@ -115,6 +121,7 @@ public class ExtensionFactory {
             		log.debug("Ordered extension " + order + " " + ext.getName());
             		extensionLoader.addExtension(ext);
             		loadMessages(ext);
+            		intitializeHelpSet(ext);
             	}
             }
             // And then the unordered ones
@@ -123,6 +130,7 @@ public class ExtensionFactory {
             		log.debug("Unordered extension " + ext.getName());
             		extensionLoader.addExtension(ext);
             		loadMessages(ext);
+            		intitializeHelpSet(ext);
             	}
             }
         }
@@ -178,6 +186,7 @@ public class ExtensionFactory {
             		log.debug("Adding new extension " + ext.getName());
             		extensionLoader.addExtension(ext);
             		loadMessages(ext);
+            		intitializeHelpSet(ext);
             	}
             }
         }
@@ -195,6 +204,30 @@ public class ExtensionFactory {
 			// Ignore - it will be using the standard message bundle
 		}
     }
+
+    /**
+	 * If there are help files within the extension, they are loaded and merged
+	 * with existing help files.
+	 */
+    private static void intitializeHelpSet(Extension ext) {
+		// check if there are compiled help files
+		URL helpFileCompiled = ext.getClass().getResource("resource/help/JavaHelpSearch");
+		if (helpFileCompiled != null) {
+			// load the helpset
+			URL helpFile = ext.getClass().getResource("resource/help/helpset.hs");
+			if (helpFile != null) {
+				HelpSet extHs;
+				try {
+					log.info("Load help files for extension '" + ext.getName() + "' and merge with core help.");
+					extHs = new HelpSet(ext.getClass().getClassLoader(), helpFile);
+					HelpBroker hb = ExtensionHelp.getHelpBroker();
+					hb.getHelpSet().add(extHs);
+				} catch (HelpSetException e) {
+					log.error("An error occured while adding help file of extension '" + ext.getName() + "': " + e.getMessage(), e);
+				}
+			}
+		}
+	}
     
 	public static List<Extension> getAllExtensions() {
         return listAllExtension;
