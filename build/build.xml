@@ -196,7 +196,7 @@
             	<include name="org/zaproxy/zap/extension/portscan/**"/>
             </zipfileset>
         </jar>
-        <jar jarfile="${dist}/plugin/websocket-release-1.zap" update="true" compress="false">
+        <jar jarfile="${dist}/plugin/websocket-release-2.zap" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<include name="org/zaproxy/zap/extension/websocket/**"/>
             </zipfileset>
