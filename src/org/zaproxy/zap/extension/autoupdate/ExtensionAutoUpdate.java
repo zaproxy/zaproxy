@@ -145,6 +145,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
         	waitDialog = getView().getWaitMessageDialog(Constant.messages.getString("cfu.check.checking"));
         	// Allow user to close the dialog
         	waitDialog.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        	this.getLatestVersionInfo(false);
         	waitDialog.setVisible(true);
         }
 		
