@@ -151,7 +151,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 		
 		try {
 			if (updateDialog == null) {
-				if (this.getLatestVersionInfo() == null) {
+				if (latestVersionInfo == null) {
 					// Manually cancelled
 					return;
 				}
