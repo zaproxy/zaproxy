@@ -29,6 +29,7 @@
 // getDatabaseParam() and changed the method parse() to also load the database
 // configurations.
 // ZAP: 2012/12/31 Removed brute force options
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 
 package org.parosproxy.paros.model;
 
@@ -153,6 +154,10 @@ public class OptionsParam extends AbstractParam {
         paramSetList.add(paramSet);
 	    paramSet.load(getConfig());
     }
+     
+     public void removeParamSet(AbstractParam paramSet) {
+         paramSetList.remove(paramSet);
+     }
     
     // ZAP: Added type argument.
     public AbstractParam getParamSet(Class<? extends AbstractParam> className) {

@@ -677,6 +677,10 @@ public class ExtensionLoader {
     	}
     	View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
     }
+    
+	public void removeOptionsParamSet(AbstractParam params) {
+		model.getOptionsParam().removeParamSet(params);
+	}
 
     public void removeWorkPanel (AbstractPanel panel) {
     	if (!View.isInitialised()) {
