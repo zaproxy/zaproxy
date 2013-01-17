@@ -38,6 +38,7 @@ import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -48,7 +49,7 @@ import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class ExtensionBruteForce extends ExtensionAdaptor 
-		implements SessionChangedListener, ProxyListener, SiteMapListener {
+		implements SessionChangedListener, ProxyListener, SiteMapListener, AddonFilesChangedListener {
 
     private static final Logger logger = Logger.getLogger(ExtensionBruteForce.class);
     
@@ -95,6 +96,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
         extensionHook.addSiteMapListner(this);
+        extensionHook.addAddonFilesChangedListener(this);
 
         extensionHook.addOptionsParamSet(getBruteForceParam());
 
@@ -123,6 +125,8 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceSite());
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceCopy());
 	    }
+	    Control.getSingleton().getExtensionLoader().removeOptionsParamSet(getBruteForceParam());
+	    // TODO remove listenners
 	}
 	
     @Override
@@ -310,5 +314,15 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		this.getBruteForcePanel().sessionModeChanged(mode);
+	}
+
+	@Override
+	public void filesAdded() {
+		this.refreshFileList();
+	}
+
+	@Override
+	public void filesRemoved() {
+		this.refreshFileList();
 	}
 }
