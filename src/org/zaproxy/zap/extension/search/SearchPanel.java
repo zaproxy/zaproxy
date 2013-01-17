@@ -140,6 +140,9 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 				
 				if(!e.getValueIsAdjusting()) {
 					displayMessage(resultsList.getSelectedValue());
+					
+					// Get the focus back so that the arrow keys work 
+					resultsList.requestFocus();
 				}
 			}
 		});
@@ -558,6 +561,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 	@Override
 	public void searchComplete() {
-		// TODO Ignore
+		// Ignore
 	}
 }
