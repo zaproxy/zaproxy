@@ -20,22 +20,40 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import org.zaproxy.zap.utils.Enableable;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-public class AddOn extends Enableable {
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+public class AddOn  {
 	public enum Status {example, alpha, beta, weekly, release}
 	private String id;
 	private String name;
+	private String description = "";
+	private String author = "";
 	private int version;
 	private Status status;
-	private String changes;
+	private String changes = "";
 	private File file = null;
 	private URL url = null;
 	private long size = 0;
-	private int progress = 0;
-	private boolean failed = false;
+	private boolean hasZapAddOnEntry = false;
+	
+	private List<String> extensions = null;
+	private List<String> ascanrules = null;
+	private List<String> pscanrules = null;
+	private List<String> files = null;
+	
+	private Logger logger = Logger.getLogger(AddOn.class);
 	
 	public static boolean isAddOn(String fileName) {
 		if (! fileName.toLowerCase().endsWith(".zap")) {
@@ -69,6 +87,7 @@ public class AddOn extends Enableable {
 		}
 		String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
 		this.id = strArray[0];
+		this.name = this.id;	// Will be overriden if theres a ZapAddOn.xml file
 		this.status = Status.valueOf(strArray[1]);
 		this.version = Integer.parseInt(strArray[2]);
 	}
@@ -79,18 +98,76 @@ public class AddOn extends Enableable {
 			throw new Exception("Invalid ZAP add-on file " + file.getAbsolutePath());
 		}
 		this.file = file;
+		loadManifestFile();
 	}
 	
-	public AddOn(String id, String name, int version, Status status, 
+	private void loadManifestFile() {
+		if (file.exists()) {
+			// Might not exist in the tests
+			try {
+				ZipFile zip = new ZipFile(file);
+				ZipEntry zapAddOnEntry = zip.getEntry("ZapAddOn.xml");
+				if (zapAddOnEntry != null) {
+					
+					InputStream zis = zip.getInputStream(zapAddOnEntry);
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+					DocumentBuilder db = dbf.newDocumentBuilder();
+					
+					Document dom = db.parse(zis);
+					this.name = this.getTextElementFromDom(dom, "name");
+					this.description = this.getTextElementFromDom(dom, "description");
+					this.changes = this.getTextElementFromDom(dom, "changes");
+					this.author = this.getTextElementFromDom(dom, "author");
+					
+					this.ascanrules = this.getListFromDom(dom, "ascanrule");
+					this.extensions = this.getListFromDom(dom, "extension");
+					this.files = this.getListFromDom(dom, "file");
+					this.pscanrules = this.getListFromDom(dom, "pscanrule");
+					
+					hasZapAddOnEntry = true;
+
+				}
+				zip.close();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		
+	}
+	
+	private String getTextElementFromDom (Document dom, String element) {
+		NodeList nl = dom.getElementsByTagName(element);
+		if (nl.getLength() == 1) {
+			return nl.item(0).getTextContent();
+		}
+		return "";
+	}
+	
+	private List<String> getListFromDom (Document dom, String element) {
+		List<String> list = null;
+		NodeList nl = dom.getElementsByTagName(element);
+		if (nl.getLength() > 0) {
+			list = new ArrayList<String>();
+			for (int i=0; i < nl.getLength(); i++) {
+				list.add(nl.item(i).getTextContent());
+			}
+		}
+		return list;
+	}
+	
+	public AddOn(String id, String name, String description, int version, Status status, 
 			String changes, URL url, File file, long size) {
 		this.id = id;
 		this.name = name;
+		this.description = description;
 		this.version = version;
 		this.status = status;
 		this.changes = changes;
 		this.url = url;
 		this.file = file;
 		this.size = size;
+		
+		loadManifestFile();
 	}
 
 	public String getId() {
@@ -109,6 +186,14 @@ public class AddOn extends Enableable {
 		this.name = name;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	public int getVersion() {
 		return version;
 	}
@@ -157,22 +242,38 @@ public class AddOn extends Enableable {
 		this.size = size;
 	}
 
-	public int getProgress() {
-		return progress;
+	public String getAuthor() {
+		return author;
 	}
-
-	public void setProgress(int progress) {
-		this.progress = progress;
+	
+	public void setAuthor(String author) {
+		this.author = author;
 	}
-
-	public boolean isFailed() {
-		return failed;
+	
+	public boolean hasZapAddOnEntry() {
+		if (! hasZapAddOnEntry) {
+			// Worth trying, as it depends which constructor has been used
+			this.loadManifestFile();
+		}
+		return hasZapAddOnEntry;
 	}
-
-	public void setFailed(boolean failed) {
-		this.failed = failed;
+	
+	public List<String> getExtensions() {
+		return extensions;
 	}
-
+	
+	public List<String> getAscanrules() {
+		return ascanrules;
+	}
+	
+	public List<String> getPscanrules() {
+		return pscanrules;
+	}
+	
+	public List<String> getFiles() {
+		return files;
+	}
+	
 	public boolean isSameAddOn(AddOn addOn) {
 		return this.getId().equals(addOn.getId());
 	}
@@ -187,9 +288,4 @@ public class AddOn extends Enableable {
 		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
 	}
 	
-	public void replaceWith(AddOn ao) {
-		this.version = ao.getVersion();
-		this.status = ao.getStatus();
-		this.file = ao.getFile();
-	}
 }

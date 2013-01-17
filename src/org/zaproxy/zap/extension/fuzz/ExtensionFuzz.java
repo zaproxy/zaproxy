@@ -41,12 +41,13 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerHandler;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchResult;
 
-public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedListener, AddonFilesChangedListener {
 
 	public final static String NAME = "ExtensionFuzz";
 	public final static String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
@@ -86,9 +87,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
         this.setName(NAME);
         this.setOrder(48);
 
-        // Initialise the file based fuzzers
-		addFileFuzzers(new File(Constant.getInstance().FUZZER_DIR), null);
-        Collections.sort(fuzzerCategories);
+        loadFiles();
 	}
 	
 	@Override
@@ -108,7 +107,18 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	    	fuzzableMessageHandlers.put(HttpMessage.class, new HttpFuzzerHandler());
 	    }
         extensionHook.addOptionsParamSet(getFuzzerParam());
+        extensionHook.addAddonFilesChangedListener(this);
 
+	}
+	
+	private void loadFiles() {
+        // (Re)Initialise the file based fuzzers
+		fuzzerCategories = new ArrayList<>();
+		catMap = new HashMap<>();
+		
+		addFileFuzzers(new File(Constant.getInstance().FUZZER_DIR), null);
+		addFileFuzzers(new File(Constant.getZapHome(), Constant.getInstance().FUZZER_DIR), null);
+        Collections.sort(fuzzerCategories);
 	}
     
     public void addFuzzerHandler(Class<? extends Message> clazz, FuzzerHandler handler) {
@@ -371,4 +381,15 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
         }
         
     }
+
+	@Override
+	public void filesAdded() {
+        loadFiles();
+        
+	}
+
+	@Override
+	public void filesRemoved() {
+        loadFiles();
+	}
 }

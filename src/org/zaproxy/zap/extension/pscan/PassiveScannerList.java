@@ -51,4 +51,15 @@ public class PassiveScannerList {
         this.passiveScanners = tempScanners;
     }
 
+	public PassiveScanner removeScanner(String className) {
+		for (PassiveScanner scanner : passiveScanners) {
+			if (scanner.getClass().getName().equals(className)) {
+				scannerNames.remove(scanner.getName());
+				passiveScanners.remove(scanner);
+				return scanner;
+			}
+		}
+		return null;
+	}
+
 }

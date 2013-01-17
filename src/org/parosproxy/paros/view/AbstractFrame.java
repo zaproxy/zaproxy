@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2013/01/16 Minor fix to prevent NPE
+
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -273,8 +275,10 @@ public abstract class AbstractFrame extends JFrame {
 	@Override
 	public void dispose() {
 		super.dispose();
-		this.icons.clear(); // free the bounded resources
-		this.icons = null;
+		if (icons != null) {
+			this.icons.clear(); // free the bounded resources
+			this.icons = null;
+		}
 		try {
 			this.preferences.flush();
 		} catch (final BackingStoreException e) {

@@ -72,6 +72,7 @@ public class AddOnCollection {
         				new AddOn(
         						id, 
         						config.getString("addon_" + id + ".name"), 
+        						config.getString("addon_" + id + ".description"), 
         						config.getInt("addon_" + id + ".version"),
         						AddOn.Status.valueOf(config.getString("addon_" + id + ".status")),
         						config.getString("addon_" + id + ".changes"), 
@@ -117,16 +118,27 @@ public class AddOnCollection {
         	for (File addOnFile : listFile) {
         		if (AddOn.isAddOn(addOnFile)) {
 	            	AddOn ao = new AddOn(addOnFile);
+	            	boolean add = true;
 	            	for (AddOn addOn : addOns) {
-	            		if (ao.isSameAddOn(addOn) && ao.isUpdateTo(addOn)) {
-	            			// Replace in situ so we're not changing a list we're iterating through
-	                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
-	                    			" superceeded by " + ao.getVersion());
-	            			addOn.replaceWith(ao);
+	            		if (ao.isSameAddOn(addOn)) {
+		            		if (ao.isUpdateTo(addOn)) {
+		            			// Replace in situ so we're not changing a list we're iterating through
+		                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
+		                    			" superceeded by " + ao.getVersion());
+		                    	addOns.remove(addOn);
+		            		} else {
+		            			// Same or older version, dont include
+		                    	logger.debug("Addon " + ao.getId() + " version " + ao.getVersion() + 
+		                    			" not latest.");
+		            			add = false;
+		            		}
+	                    	break;
 	            		}
 	            	}
-	            	logger.debug("Found addon " + ao.getId() + " version " + ao.getVersion());
-	            	this.addOns.add(ao);
+	            	if (add) {
+	            		logger.debug("Found addon " + ao.getId() + " version " + ao.getVersion());
+	            		this.addOns.add(ao);
+	            	}
         		}
 	        }
         }
@@ -134,6 +146,15 @@ public class AddOnCollection {
     
     public List <AddOn> getAddOns() {
     	return this.addOns;
+    }
+    
+    public AddOn getAddOn(String id) {
+    	for (AddOn addOn : addOns) {
+    		if (addOn.getId().equals(id)) {
+    			return addOn;
+    		}
+    	}
+    	return null;
     }
 
     /**
@@ -206,5 +227,15 @@ public class AddOnCollection {
 		}
 		this.addOns.add(ao);
 		return true;
+	}
+
+	public boolean removeAddOn(AddOn ao) {
+    	for (AddOn addOn : addOns) {
+    		if (addOn.getId().equals(ao.getId())) {
+    			addOns.remove(addOn);
+    			return true;
+    		}
+    	}
+    	return false;
 	}
 }

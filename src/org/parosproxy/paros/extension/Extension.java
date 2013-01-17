@@ -22,6 +22,7 @@
 // ZAP: 2011/12/14 Support for extension dependencies
 // ZAP: 2012/03/17 Issue 282 Added getAuthor() and getURL();
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 
 package org.parosproxy.paros.extension;
 
@@ -46,82 +47,86 @@ import org.parosproxy.paros.model.Session;
  */
 public interface Extension {
     
-    public String getName();
+    String getName();
     
-    public String getDescription();
+    String getDescription();
     
     /**
      * Initialize plugin during startup.  This phase is carried out before all others.
      */
-    public void init();
+    void init();
 
     /**
      * Initialization of plugin after obtaining data model from core.  Method should not depend
      * on view.
      * @param model
      */
-    public void initModel(Model model);
+    void initModel(Model model);
 
-    public void initView(ViewDelegate view);
+    void initView(ViewDelegate view);
     
-    public Model getModel();
+    Model getModel();
 
-    public ViewDelegate getView();
+    ViewDelegate getView();
     
     /**
      * Start the plugin eg if there is a running server.
      *
      */
-    public void start();
+    void start();
 
     /**
      * stop the plugin eg if there is a running server.
      */
-    public void stop();
+    void stop();
     
     /**
      * Plugin cleanup, finalize etc when program shutdown.  Stop() will be called before shutdown.
      */
-    public void destroy();
+    void destroy();
     
     /**
      * Initialize session and options parameter if required XML node not in either files.
      * @param session
      * @param options
      */
-    public void initXML(Session session, OptionsParam options);
+    void initXML(Session session, OptionsParam options);
     
-    public void hook(ExtensionHook pluginHook);
+    void hook(ExtensionHook pluginHook);
     
-    public boolean isDepreciated ();
+    boolean isDepreciated ();
     
-    public int getOrder();
+    int getOrder();
     
-    public void setOrder(int order);
+    void setOrder(int order);
 
-	public boolean isEnabled();
+	boolean isEnabled();
 	
-	public void setEnabled(boolean enabled);
+	void setEnabled(boolean enabled);
 	
-	public List<Class<?>> getDependencies();
+	List<Class<?>> getDependencies();
 	
-	public boolean isCore ();
+	boolean isCore ();
 	
-	public String getAuthor ();
+	String getAuthor ();
 	
-	public URL getURL ();
+	URL getURL ();
 
-	public ResourceBundle getMessages();
+	ResourceBundle getMessages();
 	
-	public void setMessages(ResourceBundle messages);
+	void setMessages(ResourceBundle messages);
 	
-	public String getI18nPrefix ();
+	String getI18nPrefix ();
 
-	public void setI18nPrefix(String prefix);
+	void setI18nPrefix(String prefix);
 
 	/**
 	 * Called after the options for this extension have been loaded, so that the extension can make use of them.
 	 */
-	public void optionsLoaded();
+	void optionsLoaded();
+	
+	boolean canUnload();
+	
+	void unload();
 
 }

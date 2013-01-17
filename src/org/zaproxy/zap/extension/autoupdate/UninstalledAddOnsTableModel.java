@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 
@@ -32,55 +31,43 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class AddOnUpdatesTableModel extends AbstractMultipleOptionsTableModel<AddOn> {
+public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel<AddOnWrapper> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] COLUMN_NAMES_UPDATE = {
-		Constant.messages.getString("cfu.table.header.id"),
-		Constant.messages.getString("cfu.table.header.name"),
-		Constant.messages.getString("cfu.table.header.version"),
+	private static final String[] COLUMN_NAMES = {
 		Constant.messages.getString("cfu.table.header.status"),
-		Constant.messages.getString("cfu.table.header.progress"),
-		Constant.messages.getString("cfu.table.header.update")};
-    
-	private static final String[] COLUMN_NAMES_BROWSE = {
-		Constant.messages.getString("cfu.table.header.id"),
 		Constant.messages.getString("cfu.table.header.name"),
-		Constant.messages.getString("cfu.table.header.version"),
-		Constant.messages.getString("cfu.table.header.status"),
-		Constant.messages.getString("cfu.table.header.progress"),
-		Constant.messages.getString("cfu.table.header.download")};
+		Constant.messages.getString("cfu.table.header.desc"),
+		Constant.messages.getString("cfu.table.header.update"),
+		""};
     
-	private static final int COLUMN_COUNT = COLUMN_NAMES_UPDATE.length;
+	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
-	private List <AddOn> addOns = new ArrayList<AddOn>();
-	private boolean update;
+	private List <AddOnWrapper> addOns = new ArrayList<AddOnWrapper>();
     
     /**
      * 
      */
-    public AddOnUpdatesTableModel(boolean update) {
+    public UninstalledAddOnsTableModel() {
         super();
-        this.update = update;
     }
 
-    public AddOnUpdatesTableModel(boolean update, List <AddOn> addOns) {
+    public UninstalledAddOnsTableModel(List <AddOnWrapper> addOns) {
         super();
-        this.update = update;
         this.setAddOns(addOns);
     }
 
     /**
      * @param defns
      */
-    public void setAddOns(List <AddOn> addOns) {
+    public void setAddOns(List <AddOnWrapper> addOns) {
     	this.addOns = addOns;
         fireTableDataChanged();
     }
 
     @Override
-    protected List<AddOn> getElements() {
+    protected List<AddOnWrapper> getElements() {
         return addOns;
     }
 
@@ -91,21 +78,20 @@ public class AddOnUpdatesTableModel extends AbstractMultipleOptionsTableModel<Ad
 
     @Override
     public String getColumnName(int col) {
-    	if (update) {
-    		return COLUMN_NAMES_UPDATE[col];
-    	} else {
-    		return COLUMN_NAMES_BROWSE[col];
-    	}
+   		return COLUMN_NAMES[col];
     }
 
     @Override
     public int getRowCount() {
+    	if (addOns == null) {
+    		return 0;
+    	}
         return addOns.size();
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 5) {
+        if (columnIndex == 4) {
             return Boolean.class;
         }
         return String.class;
@@ -115,23 +101,22 @@ public class AddOnUpdatesTableModel extends AbstractMultipleOptionsTableModel<Ad
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
-            return getElement(rowIndex).getId();
+            return Constant.messages.getString("cfu.status." + getElement(rowIndex).getAddOn().getStatus().toString());
         case 1:
-            return getElement(rowIndex).getName();
+            return getElement(rowIndex).getAddOn().getName();
         case 2:
-            return getElement(rowIndex).getVersion();
+            return getElement(rowIndex).getAddOn().getDescription();
         case 3:
-            return Constant.messages.getString("cfu.status." + getElement(rowIndex).getStatus().toString());
-        case 4:
         	int progress = getElement(rowIndex).getProgress();
         	if (getElement(rowIndex).isFailed()) {
         		return Constant.messages.getString("cfu.download.failed");
-        	} else if (progress == 0) {
-        		return "";
-        	} else {
+        	} else if (progress > 0) {
         		return progress + "%";
+        	} else {
+        		// TODO change to date ??
+        		return getElement(rowIndex).getAddOn().getVersion();
         	}
-        case 5:
+        case 4:
             return getElement(rowIndex).isEnabled();
         }
         return null;
@@ -139,20 +124,31 @@ public class AddOnUpdatesTableModel extends AbstractMultipleOptionsTableModel<Ad
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 5) {
+        if (columnIndex == 4) {
             if (aValue instanceof Boolean) {
                 getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                this.fireTableCellUpdated(rowIndex, columnIndex);
             }
         }
     }
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	if (columnIndex == 5 && getElement(rowIndex).getProgress() == 0) {
+    	if (columnIndex == 4 && getElement(rowIndex).getProgress() == 0) {
     		// Its the 'enabled' checkbox, and no download is in progress
     		return true;
     	}
         return false;
     }
+
+	public boolean canIinstallSelected() {
+    	boolean enable = false;
+    	for (AddOnWrapper addon : this.addOns) {
+    		if (addon.isEnabled()) {
+   				return true;
+    		}
+    	}
+    	return enable;
+	}
     
 }

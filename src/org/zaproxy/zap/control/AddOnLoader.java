@@ -22,8 +22,11 @@ package org.zaproxy.zap.control;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -33,12 +36,21 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 /**
  * This class is heavily based on the original Paros class org.parosproxy.paros.common.DynamicLoader
@@ -55,21 +67,34 @@ import org.apache.log4j.Logger;
  */
 public class AddOnLoader extends URLClassLoader {
 
+	private static final String ADDONS_BLOCK_LIST = "addons.block";
+	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
     private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<File>();
+    /**
+     * Addons can be included in the ZAP release, in which case the user might not have permissions to delete the files.
+     * To support the removal of such addons we just maintain a 'block list' in the configs which is a comma separated
+     * list of the addon ids that the user has uninstalled
+     */
+    private List<String> blockList = new ArrayList<String>();
+    /*
+     * Using sub-classloaders means we can unload and reload addons
+     */
+    private Map<String, URLClassLoader> addOnLoaders = new HashMap<String, URLClassLoader>();
 
     public AddOnLoader(File[] dirs) {
         super(new URL[0]);
+        
+        this.loadBlockList();
 
         this.aoc = new AddOnCollection(dirs);
         
         for (AddOn ao : this.aoc.getAddOns()) {
-            try {
-            	this.addURL(ao.getFile().toURI().toURL());
-			} catch (MalformedURLException e) {
-	    		logger.error(e.getMessage(), e);
-			}
+        	// Add, unless its on the block list
+        	if ( ! this.blockList.contains(ao.getId())) {
+        		this.addAddOnFile(ao);
+        	}
         }
 
         if (dirs != null) {
@@ -90,6 +115,33 @@ public class AddOnLoader extends URLClassLoader {
 			}
     	}
     }
+    
+    private void addAddOnFile(AddOn ao) {
+    	try {
+			this.addOnLoaders.put(ao.getId(), new URLClassLoader(new URL[]{ao.getFile().toURI().toURL()}));
+		} catch (MalformedURLException e) {
+    		logger.error(e.getMessage(), e);
+		}
+	}
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        try {
+			return loadClass(name, false);
+		} catch (ClassNotFoundException e) {
+			// Continue for now
+		}
+        for (URLClassLoader loader : addOnLoaders.values()) {
+            try {
+    			return loader.loadClass(name);
+    		} catch (ClassNotFoundException e) {
+    			// Continue for now
+    		}
+        }
+        throw new ClassNotFoundException(name);
+    }
+
+
     
     public AddOnCollection getAddOnCollection() {
     	return this.aoc;
@@ -120,12 +172,239 @@ public class AddOnLoader extends URLClassLoader {
     	if (this.aoc.addAddOn(ao)) {
             try {
             	this.addURL(ao.getFile().toURI().toURL());
+            	
+            	if (this.blockList.contains(ao.getId())) {
+            		// Explicitly being added back, so remove from the block list
+            		this.blockList.remove(ao.getId());
+            		this.saveBlockList();
+            	}
+
+        		if (ao.hasZapAddOnEntry()) {
+        			// Can dynamically install
+	
+	            	// Extensions
+					List<Extension> listExts = ExtensionFactory.loadAddOnExtensions(
+							Control.getSingleton().getExtensionLoader(), 
+							Model.getSingleton().getOptionsParam().getConfig(), ao);
+					
+				   	for (Extension ext : listExts) {
+				   		if (ext.isEnabled()) {
+				   			logger.debug("Starting extension " + ext.getName());
+				   			Control.getSingleton().getExtensionLoader().startLifeCycle(ext);
+				   		}
+				   	}
+	
+	            	// Ascan rules
+	    			List<String> ascanNames = ao.getAscanrules();
+	    			if (ascanNames != null) {
+	    				for (String name : ascanNames) {
+	    					logger.debug("Install ascanrule: " + name);
+	    					if (!PluginFactory.addPlugin(name)) {
+	    						logger.error("Failed to install ascanrule: " + name);
+	    					}
+	    				}
+	    			}
+	
+	    			// Pscan rules
+	    			List<String> pscanNames = ao.getPscanrules();
+	    			ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+	
+	    			if (pscanNames != null && extPscan != null) {
+	    				for (String name : pscanNames) {
+	    					logger.debug("Install pscanrule: " + name);
+	    					if (!extPscan.addPassiveScanner(name)) {
+	    						logger.error("Failed to install pscanrule: " + name);
+	    					}
+	    				}
+	    			}
+
+	    			// Pscan rules
+	    			List<String> fileNames = ao.getFiles();
+
+	    			if (fileNames != null && fileNames != null) {
+	    				for (String name : fileNames) {
+							File outfile = null;
+	    					logger.debug("Install file: " + name);
+	    					try {
+								outfile = new File(Constant.getZapHome(), name);
+								InputStream in = ExtensionFactory.getAddOnLoader().getResourceAsStream(name);
+								if ( ! outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
+		    						logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
+									continue;
+								}
+								OutputStream out = new FileOutputStream(outfile);
+								byte[] buffer = new byte[1024];
+								int bytesRead;
+								while ((bytesRead = in.read(buffer)) != -1) {
+									out.write(buffer, 0, bytesRead);
+								}
+								in.close();
+								out.close();
+							} catch (Exception e) {
+	    						logger.error("Failed to install file " + outfile.getAbsolutePath(), e);
+							}
+	    				}
+	    				Control.getSingleton().getExtensionLoader().addonFilesAdded();
+	    			}
+
+        		}
+
 			} catch (MalformedURLException e) {
 	    		logger.error(e.getMessage(), e);
 			}
     	}
     }
     
+
+	public boolean removeAddOn(AddOn ao) {
+		boolean result = true;
+		
+		if (! ao.hasZapAddOnEntry()) {
+			// Cant dynamically uninstall
+			result = false;
+		} else {
+			List<String> extNames = ao.getExtensions();
+			if (extNames != null) {
+				for (String name : extNames) {
+					Extension ext = Control.getSingleton().getExtensionLoader().getExtensionByClassName(name);
+					if (ext != null && ext.isEnabled()) {
+						if (ext.canUnload()) {
+							logger.debug("Unloading ext: " + ext.getName());
+							ext.unload();
+						} else {
+							logger.debug("Cant dynamically unload ext: " + name);
+							result = false;
+						}
+					}
+				}
+			}
+
+			// Ascan rules
+			List<String> ascanNames = ao.getAscanrules();
+			logger.debug("Uninstall ascanrules: " + ascanNames);
+			if (ascanNames != null) {
+				for (String name : ascanNames) {
+					logger.debug("Uninstall ascanrule: " + name);
+					if (!PluginFactory.removePlugin(name)) {
+						logger.error("Failed to uninstall ascanrule: " + name);
+						result = false;
+					}
+				}
+			}
+
+			// Pscan rules
+			List<String> pscanNames = ao.getPscanrules();
+			ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+			logger.debug("Uninstall pscanrules: " + pscanNames);
+			if (pscanNames != null && extPscan != null) {
+				for (String name : pscanNames) {
+					logger.debug("Uninstall pscanrule: " + name);
+					if (!extPscan.removePassiveScanner(name)) {
+						logger.error("Failed to uninstall pscanrule: " + name);
+						result = false;
+					}
+				}
+			}
+			
+			// Files
+			List<String> fileNames = ao.getFiles();
+			if (fileNames != null && fileNames != null) {
+				File file = null;
+				for (String name : fileNames) {
+					File parent = null;
+					logger.debug("Uninstall file: " + name);
+					try {
+						file = new File(Constant.getZapHome(), name);
+						parent = file.getParentFile();
+						if (!file.delete()) {
+    						logger.error("Failed to delete: " + file.getAbsolutePath());
+    						result = false;
+						}
+						if (parent.list().length == 0) {
+    						logger.debug("Deleting: " + parent.getAbsolutePath());
+							if (!parent.delete()) {
+								// Ignore - check for <= 2 as on *nix '.' and '..' are returned
+	    						logger.debug("Failed to delete: " + parent.getAbsolutePath());
+							}
+						}
+					} catch (Exception e) {
+						logger.error("Failed to uninstall file " + file.getAbsolutePath(), e);
+					}
+				}
+				// Delete any empty dirs up to the ZAP root dir
+				while (file != null && ! file.exists()) {
+					file = file.getParentFile();
+				}
+				String root = new File(Constant.getZapHome()).getAbsolutePath();
+				while (file != null && file.exists()) {
+					if (file.getAbsolutePath().startsWith(root) && file.getAbsolutePath().length() > root.length()) {
+						deleteEmptyDirs(file);
+						file = file.getParentFile();
+					} else {
+						// Gone above the ZAP home dir
+						break;
+					}
+				}
+				Control.getSingleton().getExtensionLoader().addonFilesAdded();
+			}
+		}
+
+		if (! this.aoc.removeAddOn(ao)) {
+			result = false;
+		}
+		this.addOnLoaders.remove(ao.getId());
+		
+		if (ao.getFile() != null && ao.getFile().exists()) {
+			if (!ao.getFile().delete()) {
+				logger.debug("Cant delete " + ao.getFile().getAbsolutePath());
+        		this.blockList.add(ao.getId());
+        		this.saveBlockList();
+			}
+		}
+		
+		return result;
+	}
+	
+	private void loadBlockList() {
+        String blockStr = Model.getSingleton().getOptionsParam().getConfig().getString(ADDONS_BLOCK_LIST, null);
+        if (blockStr != null && blockStr.length() > 0) {
+        	for (String str : blockStr.split(",")) {
+        		this.blockList.add(str);
+        	}
+        }
+	}
+	
+	private void saveBlockList() {
+		StringBuilder sb = new StringBuilder();
+
+		for (String id: this.blockList) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(id);
+		}
+
+        Model.getSingleton().getOptionsParam().getConfig().setProperty(ADDONS_BLOCK_LIST, sb.toString());
+        try {
+			Model.getSingleton().getOptionsParam().getConfig().save();
+		} catch (ConfigurationException e) {
+			logger.error("Failed to save block list: " + sb.toString(), e);
+		}
+	}
+	
+	private void deleteEmptyDirs(File dir) {
+		logger.debug("Deleting dir " + dir.getAbsolutePath());
+		for (File d : dir.listFiles()) {
+			if (d.isDirectory()) {
+				deleteEmptyDirs(d);
+			}
+		}
+		if (! dir.delete()) {
+			logger.debug("Failed to delete: " + dir.getAbsolutePath());
+		}
+	}
+
+
     private <T> List<String> getClassNames (String packageName, Class<T> classType) {
     	List<String> listClassName = new ArrayList<>();
     	
@@ -304,5 +583,4 @@ public class AddOnLoader extends URLClassLoader {
             return false;
         }
     }
-
 }

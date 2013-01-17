@@ -34,22 +34,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.LogPanelCellRenderer;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
-import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
@@ -65,24 +61,27 @@ import org.zaproxy.zap.view.ScanStatus;
  * To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-public class ExtensionAutoUpdate extends ExtensionAdaptor {
+public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
     private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
     private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
-    
+
+	// URLs for use when testing locally ;)
+    //private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
+    //private static final String ZAP_VERSIONS_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
+
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
 	private JMenuItem menuItemCheckUpdate = null;
     
     private Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
     
-    private WaitMessageDialog waitDialog = null;
 	private HttpSender httpSender = null;
 
     private DownloadManager downloadManager = null;
-	private AddOnsDialog addonsDialog = null;
-	private UpdateDialog updateDialog = null;
+	private ManageAddOnsDialog addonsDialog = null;
+	//private UpdateDialog updateDialog = null;
 	private Thread downloadProgressThread = null;
 	private Thread remoteCallThread = null; 
 	private ScanStatus scanStatus = null;
@@ -130,8 +129,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-					showUpdatesDialog(true);
+					getAddOnsDialog().setVisible(true);
+					getAddOnsDialog().checkForUpdates();
 				}
 
 			});
@@ -139,51 +138,36 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 		return menuItemCheckUpdate;
 	}
 
-	public void showUpdatesDialog(boolean manual) {
-        if (manual && latestVersionInfo == null) {
-        	// Could fail to connect and time out
-        	waitDialog = getView().getWaitMessageDialog(Constant.messages.getString("cfu.check.checking"));
-        	// Allow user to close the dialog
-        	waitDialog.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
-        	this.getLatestVersionInfo(false);
-        	waitDialog.setVisible(true);
-        }
+	private List <AddOnWrapper> getInstalledAddOns() {
+		List <AddOnWrapper> list = new ArrayList <AddOnWrapper>();
 		
-		try {
-			if (updateDialog == null) {
-				if (latestVersionInfo == null) {
-					// Manually cancelled
-					return;
-				}
-		        updateDialog = this.getUpdateDialog();
-			} else {
-				updateDialog.setUpdatedAddOns(getUpdatedAddOns());
-			}
-			updateDialog.setVisible(true);
-			
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-        	if (manual) {
-        		getView().showWarningDialog(
-    				Constant.messages.getString("cfu.check.failed"));
-        	}
+		for (AddOn ao : this.getLocalVersionInfo().getAddOns()) {
+			list.add(new AddOnWrapper(ao, AddOnWrapper.Status.installed));
 		}
+		
+		return list;
 	}
 	
-	private synchronized UpdateDialog getUpdateDialog() {
-		if (updateDialog == null) {
-			ZapRelease rel = this.getLatestVersionInfo().getZapRelease();
-			if (rel != null && rel.isNewerThan(this.getCurrentVersion())) {
-				updateDialog = new UpdateDialog(this, rel, getUpdatedAddOns());
-			} else {
-				// Dont supply new version info - its not newer
-				updateDialog = new UpdateDialog(this, null, getUpdatedAddOns());
+
+	private synchronized ManageAddOnsDialog getAddOnsDialog() {
+		if (addonsDialog == null) {
+			addonsDialog = new ManageAddOnsDialog(this, this.getCurrentVersion(), this.getInstalledAddOns());
+			if (this.latestVersionInfo != null) {
+				addonsDialog.setLatestVersionInfo(this.latestVersionInfo);
 			}
 		}
-		return updateDialog;
+		return addonsDialog;
 	}
-
+	
 	public void downloadFile (URL url, File targetFile, long size) {
+		if (View.isInitialised()) {
+			// Report info to the Output tab
+			View.getSingleton().getOutputPanel().append(
+					MessageFormat.format(
+							Constant.messages.getString("cfu.output.downloading") + "\n", 
+							url.toString(),
+							targetFile.getAbsolutePath()));
+		}
 		this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size));
 		if (View.isInitialised()) {
 			// Means we do have a UI
@@ -195,7 +179,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 					public void run() {
 						while (downloadManager.getCurrentDownloadCount() > 0) {
 							getScanStatus().setScanCount(downloadManager.getCurrentDownloadCount());
-							getUpdateDialog().showUpdateProgress();
 							if (addonsDialog != null && addonsDialog.isVisible()) {
 								addonsDialog.showProgress();
 							}
@@ -206,9 +189,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 							}
 						}
 						// Complete download progress
-						if (updateDialog != null) {
-							updateDialog.showUpdateProgress();
-						}
 						if (addonsDialog != null) {
 							addonsDialog.showProgress();
 						}
@@ -221,12 +201,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 		}
 	}
 	
-	
-	
 	public void installNewExtensions() {
 		List<Downloader> handledFiles = new ArrayList<Downloader>();
 		
-		ExtensionLoader loader = Control.getSingleton().getExtensionLoader();
 		for (Downloader dl : downloadFiles) {
 			if (dl.getFinished() == null) {
 				continue;
@@ -235,22 +212,48 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			try {
 				if (AddOn.isAddOn(dl.getTargetFile())) {
 					AddOn ao = new AddOn(dl.getTargetFile());
-					ExtensionFactory.getAddOnLoader().addAddon(ao);
-					// Note that updated extensions will be ignored until ZAP is restarted
-					List<Extension> listExts = ExtensionFactory.loadAddOnExtensions(
-							Control.getSingleton().getExtensionLoader(), 
-							Model.getSingleton().getOptionsParam().getConfig(), ao);
-					
-				   	for (Extension ext : listExts) {
-				   		if (ext.isEnabled()) {
-				   			logger.debug("Starting extension " + ext.getName());
-				   			loader.startLifeCycle(ext);
-				   		}
-				   	}
+					AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
+					if (installedAddOn != null) {
+			   			logger.debug("Trying to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
+			   			if (View.isInitialised()) {
+			   				// Report info to the Output tab
+			   				View.getSingleton().getOutputPanel().append(
+			   						MessageFormat.format(
+			   								Constant.messages.getString("cfu.output.replacing") + "\n", 
+			   								ao.getName(),
+			   								ao.getVersion()));
+			   			}
+						if ( ! uninstall(installedAddOn)) {
+							// Cant uninstall the old version, so dont try to install the new one
+				   			logger.debug("Failed to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
+				   			if (View.isInitialised()) {
+				   				// Report info to the Output tab
+				   				View.getSingleton().getOutputPanel().append(
+				   						MessageFormat.format(
+				   								Constant.messages.getString("cfu.output.replace.failed") + "\n", 
+				   								ao.getName(),
+				   								ao.getVersion()));
+				   			}
+							continue;
+						}
+					}
+		   			logger.debug("Installing new addon " + ao.getId() + " v" + ao.getVersion());
+		   			if (View.isInitialised()) {
+		   				// Report info to the Output tab
+		   				View.getSingleton().getOutputPanel().append(
+		   						MessageFormat.format(
+		   								Constant.messages.getString("cfu.output.installing"), 
+		   								ao.getName(),
+		   								ao.getVersion()));
+		   			}
+
+		   			ExtensionFactory.getAddOnLoader().addAddon(ao);
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
+			// Refresh lists
+			reloadAddOnData();
 		}
 		
 		for (Downloader dl : handledFiles) {
@@ -258,6 +261,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			this.downloadFiles.remove(dl);
 		}
 		
+	}
+	
+	protected void reloadAddOnData() {
+		this.getLocalVersionInfo(true);
+		if (addonsDialog != null) {
+			addonsDialog.setInstalledAddOns(this.getInstalledAddOns());
+		}
 	}
 
 	public int getDownloadProgressPercent(URL url) throws Exception {
@@ -303,7 +313,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			addonsButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					browseAddons();
+					getAddOnsDialog().setVisible(true);
 				}
 			});
 
@@ -311,21 +321,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 		return this.addonsButton;
 	}
 	
-	private void browseAddons() {
-		try {
-			if (addonsDialog == null) {
-				addonsDialog = new AddOnsDialog(this, 
-						this.getUninstalledAddOns(), this.getNewAddOns());
-			}
-			addonsDialog.setVisible(true);
-
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-    		getView().showWarningDialog(
-				Constant.messages.getString("cfu.browse.failed"));
-		}
-	}
-
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -381,89 +376,24 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 			}
 			return;
 		}
-    	
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				// Using a thread as the first call to getLatestVersionInfo() could timeout
-				// and we dont want the ui to hang in the meantime
-				try {
-					ZapRelease rel = getLatestVersionInfo().getZapRelease();
-					if (rel.isNewerThan(getCurrentVersion())) {
-						logger.debug("There is a newer release: " + rel.getVersion());
-						// New ZAP release
-						File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
-						if (f.exists() && f.length() >= rel.getSize()) {
-							// Already downloaded, prompt to install and exit
-							promptToLaunchReleaseAndClose(rel.getVersion(), f);
-						} else if (options.isDownloadNewRelease()) {
-							logger.debug("Auto-downloading release");
-							if (downloadLatestRelease() && View.isInitialised()) {
-								getUpdateDialog().setDownloadingZap();
-							}
-						} else {
-							showUpdatesDialog(false);
-						}
-					} else if (getUpdatedAddOns().size() > 0) {
-						logger.debug("There is are " + getUpdatedAddOns().size() + " newer addons");
-						// Updated addons
-						if (options.isInstallAddonUpdates()) {
-							logger.debug("Auto-downloading addons");
-							// download in the background
-							installUpdatedAddOns();
-							if (View.isInitialised()) {
-								getUpdateDialog().setDownloadingAllUpdates();
-							}
-						} else if (options.isCheckAddonUpdates()) {
-							// just show the updates dialog
-							showUpdatesDialog(false);
-						}
-					} else if (getNewAddOns().size() > 0) {
-						boolean report = false;
-						List<AddOn> addons = getNewAddOns();
-						for (AddOn addon : addons) {
-							switch (addon.getStatus()) {
-							case alpha:
-								if (options.isReportAlphaAddons()) {
-									report = true;
-								}
-								break;
-							case beta:
-								if (options.isReportBetaAddons()) {
-									report = true;
-								}
-								break;
-							case release:
-								if (options.isReportReleaseAddons()) {
-									report = true;
-								}
-								break;
-							default:
-									break;
-							}
-						}
-						if (report) {
-							browseAddons();
-						}
-					}
-				} catch (Exception e) {
-					// Ignore, will be already logged
-				}
-			}
-		};
-		t.start();
+		// Handle the response in a callback
+		this.getLatestVersionInfo(this);
     }
     
     
     private AddOnCollection getLocalVersionInfo () {
-    	if (localVersionInfo == null) {
+    	return this.getLocalVersionInfo(false);
+    }
+    
+    private AddOnCollection getLocalVersionInfo (boolean forceRefresh) {
+    	if (localVersionInfo == null || forceRefresh) {
     		localVersionInfo = ExtensionFactory.getAddOnLoader().getAddOnCollection(); 
     	}
     	return localVersionInfo;
     }
 
     private ZapXmlConfiguration getRemoteConfigurationUrl(String url) throws 
-    		HttpException, IOException, ConfigurationException {
+    		IOException, ConfigurationException {
         HttpMessage msg = new HttpMessage(new URI(url, true));
         getHttpSender().sendAndReceive(msg,true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
@@ -471,6 +401,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
         			" response " + msg.getResponseHeader().getStatusCode());
             throw new IOException();
         }
+        
+    	ZapXmlConfiguration config = new ZapXmlConfiguration();
+    	config.setDelimiterParsingDisabled(true);
+    	config.load(new StringReader(msg.getResponseBody().toString()));
+
         // Save version file so we can report new addons next time
 		File f = new File(Constant.FOLDER_LOCAL_PLUGIN, VERSION_FILE_NAME);
     	FileWriter out = null;
@@ -488,11 +423,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 				// Ignore
 			}
 		}
-        
-    	ZapXmlConfiguration config = new ZapXmlConfiguration();
-    	config.setDelimiterParsingDisabled(true);
-    	config.load(new StringReader(msg.getResponseBody().toString()));
-        return config;
+
+    	
+    	return config;
     }
 
     protected String getLatestVersionNumber() {
@@ -548,10 +481,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
     	return getLocalVersionInfo().getUpdatedAddOns(this.getLatestVersionInfo());
     }
     
-    private List<AddOn> getUninstalledAddOns() {
-    	return getLocalVersionInfo().getNewAddOns(this.getLatestVersionInfo());
-    }
-    
     private List<AddOn> getNewAddOns() {
     	if (this.getPreviousVersionInfo() != null) {
     		return this.getPreviousVersionInfo().getNewAddOns(this.getLatestVersionInfo());
@@ -572,7 +501,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 		return response;
     }
     
-    protected boolean installAddOns(String id) {
+    protected boolean installAddOn(String id) {
     	for (AddOn ao : this.getLatestVersionInfo().getAddOns()) {
     		if (ao.getId().equals(id)) {
     			this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize());
@@ -582,11 +511,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
     	return false;
     }
 
-    private AddOnCollection getLatestVersionInfo () {
-    	return getLatestVersionInfo(true);
+    protected AddOnCollection getLatestVersionInfo () {
+    	return getLatestVersionInfo(null);
     }
     
-    private AddOnCollection getLatestVersionInfo (boolean sync) {
+    protected AddOnCollection getLatestVersionInfo (final CheckForUpdateCallback callback) {
     	if (latestVersionInfo == null) {
     		
     		if (this.remoteCallThread == null) {
@@ -596,9 +525,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 	    			public void run() {
 	    				// Using a thread as the first call could timeout
 	    				// and we dont want the ui to hang in the meantime
+	    				this.setName("ZAP-cfu");
+						logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_SHORT);
 			    		try {
 							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(ZAP_VERSIONS_XML_SHORT), getPlatform());
 						} catch (Exception e1) {
+							logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_FULL);
 							logger.debug("Failed to access " + ZAP_VERSIONS_XML_SHORT, e1);
 				    		try {
 				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(ZAP_VERSIONS_XML_FULL), getPlatform());
@@ -606,25 +538,25 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 								logger.debug("Failed to access " + ZAP_VERSIONS_XML_FULL, e2);
 							}
 						}
-				        if (waitDialog != null) {
-				            waitDialog.setVisible(false);
-				            waitDialog = null;
-				        }
+			    		if (callback != null) {
+							logger.debug("Calling callback with  " + latestVersionInfo);
+			    			callback.gotLatestData(latestVersionInfo);
+			    		}
+						logger.debug("Done");
 	    			}
     			};
     			this.remoteCallThread.start();
-    			
-    			if (!sync) {
-    				return null;
-    			}
     		}
-			while (latestVersionInfo == null && this.remoteCallThread.isAlive()) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// Ignore
+    		if (callback == null) {
+    			// Synchronous
+				while (latestVersionInfo == null && this.remoteCallThread.isAlive()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
 				}
-			}
+    		}
     	}
     	return latestVersionInfo;
     }
@@ -654,6 +586,100 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor {
 						f.getAbsolutePath()));
 		if (ans == JOptionPane.OK_OPTION) {
 			Control.getSingleton().exit(false, f);		
+		}
+	}
+
+	public boolean uninstall(AddOn addOn) {
+		boolean removedDynamically = ExtensionFactory.getAddOnLoader().removeAddOn(addOn);
+		if (View.isInitialised()) {
+			if (removedDynamically) {
+				View.getSingleton().getOutputPanel().append(
+						MessageFormat.format(
+								Constant.messages.getString("cfu.output.uninstalled") + "\n", 
+								addOn.getName(),
+								addOn.getVersion()));
+			} else {
+				View.getSingleton().getOutputPanel().append(
+						MessageFormat.format(
+								Constant.messages.getString("cfu.output.uninstall.failed") + "\n", 
+								addOn.getName(),
+								addOn.getVersion()));
+			}
+		}
+		return removedDynamically;
+	}
+
+	@Override
+	public void gotLatestData(AddOnCollection aoc) {
+		if (aoc == null) {
+			return;
+		}
+		try {
+			ZapRelease rel = aoc.getZapRelease();
+
+	    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+
+			if (rel.isNewerThan(getCurrentVersion())) {
+				logger.debug("There is a newer release: " + rel.getVersion());
+				// New ZAP release
+				File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
+				if (f.exists() && f.length() >= rel.getSize()) {
+					// Already downloaded, prompt to install and exit
+					promptToLaunchReleaseAndClose(rel.getVersion(), f);
+				} else if (options.isDownloadNewRelease()) {
+					logger.debug("Auto-downloading release");
+					if (downloadLatestRelease() && View.isInitialised()) {
+						getAddOnsDialog().setDownloadingZap();
+					}
+				} else {
+					// Just show the dialog
+					getAddOnsDialog().setVisible(true);
+				}
+			} else if (getUpdatedAddOns().size() > 0) {
+				logger.debug("There is are " + getUpdatedAddOns().size() + " newer addons");
+				// Updated addons
+				if (options.isInstallAddonUpdates()) {
+					logger.debug("Auto-downloading addons");
+					// download in the background
+					installUpdatedAddOns();
+					if (View.isInitialised()) {
+						getAddOnsDialog().setDownloadingAllUpdates();
+					}
+				} else if (options.isCheckAddonUpdates()) {
+					// Just show the dialog
+					getAddOnsDialog().setVisible(true);
+				}
+			} else if (getNewAddOns().size() > 0) {
+				boolean report = false;
+				List<AddOn> addons = getNewAddOns();
+				for (AddOn addon : addons) {
+					switch (addon.getStatus()) {
+					case alpha:
+						if (options.isReportAlphaAddons()) {
+							report = true;
+						}
+						break;
+					case beta:
+						if (options.isReportBetaAddons()) {
+							report = true;
+						}
+						break;
+					case release:
+						if (options.isReportReleaseAddons()) {
+							report = true;
+						}
+						break;
+					default:
+							break;
+					}
+				}
+				if (report) {
+					getAddOnsDialog().setVisible(true);
+				}
+			}
+		} catch (Exception e) {
+			// Ignore (well, debug;), will be already logged
+			logger.debug(e.getMessage(), e);
 		}
 	}
 }

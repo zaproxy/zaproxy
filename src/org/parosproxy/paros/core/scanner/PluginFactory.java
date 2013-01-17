@@ -24,6 +24,7 @@
 // ZAP: 2012/04/25 Removed unnecessary casts, changed to use the method
 // Integer.valueOf and added logging of exception.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 
 package org.parosproxy.paros.core.scanner;
 
@@ -36,6 +37,7 @@ import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
@@ -170,6 +172,53 @@ public class PluginFactory {
     
     public static List<Plugin> getAllPlugin() {
         return listAllPlugin;
+    }
+    
+
+	public static boolean addPlugin(String name) {
+		try {
+			Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
+			AbstractPlugin plugin = (AbstractPlugin) c.newInstance();
+			
+        	listAllPlugin.add(plugin);
+            plugin.setConfig(Model.getSingleton().getOptionsParam().getConfig());
+            
+            plugin.createParamIfNotExist();
+            if (!plugin.isVisible()) {
+				log.info("Plugin " + plugin.getName() + " not visible");
+				return false;
+            }
+            if (plugin.isDepreciated()) {
+            	// ZAP: ignore all depreciated plugins
+				log.info("Plugin " + plugin.getName() + " depricated");
+				return false;
+            }
+            log.info("loaded plugin " + plugin.getName());
+            if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
+            	log.error("Duplicate id " + plugin.getName() + " " +
+            			mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+            }
+            mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+            mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+			
+			return true;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+	}
+
+    public static boolean removePlugin(String className) {
+        for (int i=0; i<listAllPlugin.size(); i++) {
+            Plugin plugin = listAllPlugin.get(i);
+            if (plugin.getClass().getName().equals(className)) {
+            	listAllPlugin.remove(plugin);
+            	mapAllPlugin.remove(Integer.valueOf(plugin.getId()));
+                mapAllPluginOrderCodeName.remove(plugin.getCodeName());
+            	return true;
+            }
+        }
+        return false;
     }
     
     public static Plugin getPlugin(int id) {

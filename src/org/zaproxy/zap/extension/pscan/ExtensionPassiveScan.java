@@ -89,6 +89,32 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 	}
 	
+	public boolean addPassiveScanner (String className) {
+		try {
+			Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
+			this.addPassiveScanner((PluginPassiveScanner) c.newInstance());
+			return true;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return false;
+		}
+	}
+	
+	public boolean removePassiveScanner (String className) {
+
+		PassiveScanner scanner = getPassiveScannerList().removeScanner(className);
+		
+		if (scanner != null && View.isInitialised() && scanner instanceof PluginPassiveScanner) {
+			// The method getPolicyPanel() creates view elements
+			// (subsequently initialising the java.awt.Toolkit) that are not
+			// needed when ZAP is running in non GUI mode.
+			getPolicyPanel().getPassiveScanTableModel().removeScanner((PluginPassiveScanner)scanner);
+		}
+		
+		return scanner != null;
+	}
+	
 	private void addPassiveScanner (PluginPassiveScanner scanner) {
 		try {
 			FileConfiguration config = this.getModel().getOptionsParam().getConfig();

@@ -20,14 +20,19 @@
  */
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2012/12/20 Added listener setter for persistentConnectionListenerList.
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+
 package org.parosproxy.paros.extension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -44,7 +49,8 @@ public class ExtensionHook {
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
-
+    private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<AddonFilesChangedListener>(); 
+    
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
 
@@ -78,6 +84,10 @@ public class ExtensionHook {
 
     public void addCommandLine(CommandLineArgument[] arg) {
         this.arg = arg;
+    }
+    
+    public void addAddonFilesChangedListener(AddonFilesChangedListener listener) {
+    	addonFilesChangedListenerList.add(listener);
     }
 
     /**
@@ -142,4 +152,8 @@ public class ExtensionHook {
     public CommandLineArgument[] getCommandLineArgument() {
         return arg;
     }
+
+	public List<AddonFilesChangedListener> getAddonFilesChangedListener() {
+		return addonFilesChangedListenerList;
+	}
 }

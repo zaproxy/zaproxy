@@ -23,6 +23,7 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 
 package org.parosproxy.paros.extension;
 
@@ -46,7 +47,6 @@ public abstract class ExtensionAdaptor implements Extension {
     private String description;
     private Model model = null;
     private ViewDelegate view = null;
-    private ExtensionHook extensionHook = null;
     private int order = 0;
     private boolean enabled = true;
     private ResourceBundle messages = null;
@@ -139,7 +139,6 @@ public abstract class ExtensionAdaptor implements Extension {
 
     @Override
     public void hook(ExtensionHook extensionHook) {
-        this.extensionHook = extensionHook;
     }
 
     @Override
@@ -221,6 +220,15 @@ public abstract class ExtensionAdaptor implements Extension {
 
 	@Override
 	public void optionsLoaded() {
+	}
+	
+    @Override
+	public boolean canUnload() {
+    	return false;
+    }
+	
+    @Override
+	public void unload() {
 	}
 
 }

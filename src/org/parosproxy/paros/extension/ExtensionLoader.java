@@ -33,6 +33,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
 // ZAP: 2012/12/27 Added hookPersistentConnectionListener() method.
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 
 package org.parosproxy.paros.extension;
 
@@ -59,6 +60,7 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
@@ -104,6 +106,34 @@ public class ExtensionLoader {
         for (int i=0; i<extensionList.size(); i++) {
             Extension p = getExtension(i);
             if (p.getName().equalsIgnoreCase(name)) {
+                return p;
+            }
+        }
+        
+        return null;
+    }
+    
+    public Extension getExtensionByClassName(String name) {
+        if (name == null)
+            return null;
+
+        for (int i=0; i<extensionList.size(); i++) {
+            Extension p = getExtension(i);
+            if (p.getClass().getName().equals(name)) {
+                return p;
+            }
+        }
+        
+        return null;
+    }
+    
+    public Extension getExtension(Class<?> c) {
+        if (c == null)
+            return null;
+
+        for (int i=0; i<extensionList.size(); i++) {
+            Extension p = getExtension(i);
+            if (p.getClass().equals(c)) {
                 return p;
             }
         }
@@ -286,6 +316,35 @@ public class ExtensionLoader {
         }
     }
 
+    public void addonFilesAdded() {
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    listenerList.get(j).filesAdded();
+                } catch (Exception e) {
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
+    }
+
+    public void addonFilesRemoved() {
+    	Iterator<ExtensionHook> iter = hookList.iterator();
+    	while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    listenerList.get(j).filesRemoved();
+                } catch (Exception e) {
+                	logger.error(e.getMessage(), e);
+                }
+            }
+    	}
+    }
 
     public void startAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
@@ -304,7 +363,6 @@ public class ExtensionLoader {
         
     }
     
-    // TODO hacking
     public void startLifeCycle(Extension ext) {
     	ext.init();
     	ext.initModel(model);
@@ -604,9 +662,79 @@ public class ExtensionLoader {
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
         
-        
+    }
+
+    public void removeStatusPanel (AbstractPanel panel) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
     }
     
+    public void removeOptionsPanel (AbstractParamPanel panel) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
+    }
+
+    public void removeWorkPanel (AbstractPanel panel) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
+    }
+
+	public void removePopupMenuItem(ExtensionPopupMenuItem popupMenuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getPopupList().remove(popupMenuItem);
+	}
+	
+    public void removeFileMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile().remove(menuItem);
+	}
+
+    public void removeEditMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit().remove(menuItem);
+	}
+
+    public void removeViewMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuView().remove(menuItem);
+	}
+
+    public void removeToolsMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
+	}
+
+    public void removeHelpMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp().remove(menuItem);
+	}
+
+    public void removeReportMenuItem(JMenuItem menuItem) {
+    	if (!View.isInitialised()) {
+    		return;
+    	}
+    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
+	}
+
+
     private void initAllExtension() {
 
         for (int i=0; i<getExtensionCount(); i++) {
@@ -640,4 +768,5 @@ public class ExtensionLoader {
             getExtension(i).initXML(session, options);
         }        
     }
+
 }

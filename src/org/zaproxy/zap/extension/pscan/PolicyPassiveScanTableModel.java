@@ -52,6 +52,11 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         fireTableDataChanged();
     }
     
+    public void removeScanner (PluginPassiveScanner scanner) {
+        listScanners.remove(scanner);
+        fireTableDataChanged();
+    }
+    
     @Override
 	public Class<?> getColumnClass(int c) {
         if (c == 1) {

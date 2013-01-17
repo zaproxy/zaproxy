@@ -35,6 +35,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/12/18 Issue 441: Prevent view being initialised in daemon mode
+// ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons - added helper methods
 
 package org.parosproxy.paros.view;
 
@@ -46,6 +47,7 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
@@ -171,6 +173,22 @@ public class View implements ViewDelegate {
 	@Override
 	public void showMessageDialog(String msg) {
 		JOptionPane.showMessageDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public int showConfirmDialog(JFrame parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+	}
+	
+	public int showYesNoCancelDialog(JFrame parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+	}
+	
+	public void showWarningDialog(JFrame parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+	}
+
+	public void showMessageDialog(JFrame parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	// ZAP: FindBugs fix - make method synchronised
@@ -353,6 +371,13 @@ public class View implements ViewDelegate {
     @Override
     public WaitMessageDialog getWaitMessageDialog(String s) {
         WaitMessageDialog dialog = new WaitMessageDialog(getMainFrame(), true);
+        dialog.setText(s);
+        dialog.centreDialog();
+        return dialog;
+    }
+
+    public WaitMessageDialog getWaitMessageDialog(JFrame parent, String s) {
+        WaitMessageDialog dialog = new WaitMessageDialog(parent, true);
         dialog.setText(s);
         dialog.centreDialog();
         return dialog;
