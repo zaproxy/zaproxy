@@ -242,7 +242,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		   				// Report info to the Output tab
 		   				View.getSingleton().getOutputPanel().append(
 		   						MessageFormat.format(
-		   								Constant.messages.getString("cfu.output.installing"), 
+		   								Constant.messages.getString("cfu.output.installing") + "\n", 
 		   								ao.getName(),
 		   								ao.getVersion()));
 		   			}
