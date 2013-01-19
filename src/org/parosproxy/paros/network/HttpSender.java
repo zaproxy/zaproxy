@@ -22,11 +22,13 @@
 // ZAP: 2012/04/23 Removed unnecessary cast.
 // ZAP: 2012/05/08 Use custom http client on "Connection: Upgrade" in executeMethod().
 //                 Retrieve upgraded socket and save for later use in send() method.
-// ZAP: 2012/08/07 Issue 342Support the HttpSenderListener
+// ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
 // ZAP: 2012/12/27 Do not read request body on Server-Sent Event streams.
 // ZAP: 2013/01/03 Resolved Checkstyle issues: removed throws HttpException 
 //                 declaration where IOException already appears, 
 //                 introduced two helper methods for notifying listeners.
+// ZAP: 2013/01/19 Issue 459: Active scanner locking
+
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -48,7 +50,6 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpSenderListener;
@@ -427,7 +428,9 @@ public class HttpSender {
         mgr.getParams().setSoTimeout(this.param.getTimeoutInSecs() * 1000);
         mgr.getParams().setStaleCheckingEnabled(true);
         
-        mgr.getParams().setDefaultMaxConnectionsPerHost(Constant.MAX_HOST_CONNECTION);
+        // Set to arbitrary large values to prevent locking
+        mgr.getParams().setDefaultMaxConnectionsPerHost(10000);
+        mgr.getParams().setMaxTotalConnections(200000);
 
         // to use for HttpClient 3.0.1
         //mgr.getParams().setDefaultMaxConnectionsPerHost((Constant.MAX_HOST_CONNECTION > 5) ? 15 : 3*Constant.MAX_HOST_CONNECTION);
