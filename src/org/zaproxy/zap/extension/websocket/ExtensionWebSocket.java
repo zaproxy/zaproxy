@@ -79,10 +79,10 @@ import org.zaproxy.zap.extension.websocket.fuzz.WebSocketFuzzerHandler;
 import org.zaproxy.zap.extension.websocket.manualsend.ManualWebSocketSendEditorDialog;
 import org.zaproxy.zap.extension.websocket.manualsend.WebSocketPanelSender;
 import org.zaproxy.zap.extension.websocket.ui.ExcludeFromWebSocketsMenuItem;
-import org.zaproxy.zap.extension.websocket.ui.PopupExcludeWebSocketContextMenu;
-import org.zaproxy.zap.extension.websocket.ui.PopupIncludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.OptionsParamWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.OptionsWebSocketPanel;
+import org.zaproxy.zap.extension.websocket.ui.PopupExcludeWebSocketContextMenu;
+import org.zaproxy.zap.extension.websocket.ui.PopupIncludeWebSocketContextMenu;
 import org.zaproxy.zap.extension.websocket.ui.ResendWebSocketMessageMenuItem;
 import org.zaproxy.zap.extension.websocket.ui.SessionExcludeFromWebSocket;
 import org.zaproxy.zap.extension.websocket.ui.WebSocketPanel;
@@ -94,10 +94,10 @@ import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLar
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargePayloadView;
 import org.zaproxy.zap.extension.websocket.ui.httppanel.views.large.WebSocketLargetPayloadViewModel;
 import org.zaproxy.zap.view.HttpPanelManager;
-import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
+import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  
 /**
@@ -904,7 +904,7 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
         
         @Override
         public HttpPanelView getNewView() {
-            return new HttpPanelHexView(new ByteWebSocketPanelViewModel(), false);
+			return new HttpPanelHexView(new ByteWebSocketPanelViewModel(), false);
         }
 
         @Override
