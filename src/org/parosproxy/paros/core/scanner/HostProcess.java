@@ -33,6 +33,7 @@
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/11/22 Issue 421: Cleanly shut down any active scan threads on shutdown
+// ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,6 +41,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
@@ -332,5 +334,18 @@ public class HostProcess implements Runnable {
 	protected ScannerParam getScannerParam() {
 		return scannerParam;
 	}
+	
+    public Vector<Plugin> getPending() {
+    	return this.getPluginFactory().getPending();
+    }
+
+    public Vector<Plugin> getRunning() {
+    	return this.getPluginFactory().getRunning();
+    }
+
+    public Vector<Plugin> getCompleted() {
+    	return this.getPluginFactory().getCompleted();
+    };
+
 
 }

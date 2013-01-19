@@ -24,6 +24,7 @@
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // 		as introduced with version 3.1 of HttpClient
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
+// ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -66,6 +67,8 @@ public class Scanner implements Runnable {
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
+	
+	private List<HostProcess> hostProcesses = new ArrayList<HostProcess>();
 
     /**
      * 
@@ -125,6 +128,7 @@ public class Scanner implements Runnable {
 	            String hostAndPort = getHostAndPort(child);
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam);
 	            hostProcess.setStartNode(child);
+	            this.hostProcesses.add(hostProcess);
 	            do { 
 	                thread = pool.getFreeThreadAndRun(hostProcess);
 	                if (thread == null) Util.sleep(500);
@@ -138,6 +142,7 @@ public class Scanner implements Runnable {
 
             hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam);
             hostProcess.setStartNode(node);
+            this.hostProcesses.add(hostProcess);
             thread = pool.getFreeThreadAndRun(hostProcess);
             notifyHostNewScan(hostAndPort, hostProcess);
 	        
@@ -286,5 +291,9 @@ public class Scanner implements Runnable {
 	
 	public boolean scanChildren() {
 		return this.scanChildren;
+	}
+	
+	public List<HostProcess> getHostProcesses() {
+		return this.hostProcesses;
 	}
 }

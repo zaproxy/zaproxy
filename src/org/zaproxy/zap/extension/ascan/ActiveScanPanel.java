@@ -46,11 +46,13 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.view.ScanPanel;
@@ -74,9 +76,10 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private HttpPanel responsePanel = null;
 
 	private JButton optionsButton = null;
+	private JButton progressButton = null;
 
     private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
-
+    
     /**
      * @param extension
      */
@@ -90,6 +93,9 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		// Override to add elements into the toolbar
 		if (Location.beforeButtons.equals(loc)) {
 			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
+		}
+		if (Location.beforeProgressBar.equals(loc)) {
+			panelToolbar.add(getProgressButton(), getGBC(x++,0));
 		}
 		return x;
 	}
@@ -109,6 +115,34 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		return optionsButton;
 	}
 
+	private JButton getProgressButton() {
+		if (progressButton == null) {
+			progressButton = new JButton();
+			// TODO For some reason this enabling and disabling of this button doesnt work :(
+			//progressButton.setEnabled(false);
+			progressButton.setToolTipText(Constant.messages.getString("ascan.toolbar.button.progress"));
+			progressButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/system-monitor.png")));
+			progressButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (progressButton.isEnabled()) {
+						// No idea why the button isnt getting disabled in the UI!
+						showScanProgressDialog();
+					}
+				}
+			});
+		}
+		return progressButton;
+	}
+	
+	private void showScanProgressDialog() {
+		ActiveScan scan = (ActiveScan) getScanThread(getCurrentSite());
+		if (scan != null) {
+			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), getCurrentSite());
+			spp.setActiveScan(scan);
+			spp.setVisible(true);
+		}
+	}
 
 	@Override
 	protected JScrollPane getWorkPanel() {
@@ -281,6 +315,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	public void reset() {
 		super.reset();
 		this.resetMessageList();
+		this.getProgressButton().setEnabled(false);
 	}
 
 	public void setExcludeList(List<String> urls) {
@@ -293,5 +328,22 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		}
 	}
 
+	@Override
+	protected void siteSelected(String site, boolean forceRefresh) {
+		super.siteSelected(site, forceRefresh);
+
+		GenericScanner gs = this.getScanThread(this.getCurrentSite());
+		if (gs != null && (gs.isRunning() || gs.isStopped())) {
+			this.getProgressButton().setEnabled(true);
+		} else {
+			this.getProgressButton().setEnabled(false);
+		}
+		this.getProgressButton().repaint();
+	}
+
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext) {
+		super.startScan(startNode, justScanInScope, scanChildren, scanContext);
+		this.getProgressButton().setEnabled(true);
+	}
 
 }

@@ -23,8 +23,11 @@
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/10/03 Issue 388: Added enabling support for technologies
+// ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 
 package org.parosproxy.paros.core.scanner;
+
+import java.util.Date;
 
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
@@ -224,4 +227,10 @@ public interface Plugin extends Runnable {
 	 * @return
 	 */
 	public boolean inScope(Tech tech);
+	
+	void setTimeStarted();
+	Date getTimeStarted();
+
+	void setTimeFinished();
+	Date getTimeFinished();
 }

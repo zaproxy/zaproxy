@@ -25,6 +25,7 @@
 // Integer.valueOf and added logging of exception.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+// ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -281,7 +282,8 @@ public class PluginFactory {
         }
         listPending.remove(plugin);
         listRunning.add(plugin);
-        
+        plugin.setTimeStarted();
+
         return plugin;
     }
     
@@ -316,6 +318,7 @@ public class PluginFactory {
     synchronized void setRunningPluginCompleted(Plugin plugin) {
         listRunning.remove(plugin);
         listCompleted.add(plugin);
+        plugin.setTimeFinished();
     }
     
     int totalPluginToRun() {
@@ -325,4 +328,15 @@ public class PluginFactory {
     int totalPluginCompleted() {
         return listCompleted.size();
     }
+    
+    Vector<Plugin> getPending() {
+    	return this.listPending;
+    }
+    Vector<Plugin> getRunning() {
+    	return this.listRunning;
+    }
+    Vector<Plugin> getCompleted() {
+    	return this.listCompleted;
+    };
+    
 }

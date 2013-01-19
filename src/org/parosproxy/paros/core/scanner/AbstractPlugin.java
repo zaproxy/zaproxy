@@ -27,6 +27,7 @@
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/10/03 Issue 388 Added enabling support for technologies
+// ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,6 +78,8 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	private AttackStrength defaultAttackStrength = AttackStrength.MEDIUM;
 	private static final AttackStrength[] attackStrengthsSupported = new AttackStrength[] { AttackStrength.MEDIUM };
 	private TechSet techSet = null;
+	private Date started = null;
+	private Date finished = null;
     
     public AbstractPlugin() {
     }
@@ -255,12 +259,14 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     public void run() {
         try {
             if (!isStop()) {
+            	this.started = new Date();
                 scan();
             }
         } catch (Exception e) {
             getLog().warn(e.getMessage());
         }
         notifyPluginCompleted(getParent());
+    	this.finished = new Date();
     }
     
     /**
@@ -666,7 +672,21 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	}
 	
 	@Override
-	public void setTechSet(TechSet ts) {
-		this.techSet = ts;
+	public Date getTimeStarted() {
+		return this.started;
 	}
+
+	@Override
+	public Date getTimeFinished() {
+		return this.finished;
+	}
+	
+	public void setTimeStarted() {
+		this.started = new Date();
+	}
+
+	public void setTimeFinished() {
+		this.finished = new Date();
+	}
+
 }
