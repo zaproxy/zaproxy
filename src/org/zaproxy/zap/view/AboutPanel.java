@@ -41,7 +41,7 @@ public class AboutPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final String PRODUCT = Constant.PROGRAM_NAME;
 	private static final String VERSION = "Version " + Constant.PROGRAM_VERSION;
-	private static final String COPYRIGHT = "Copyright (C) 2010-2012 OWASP ZAP Attack Proxy Project";
+	private static final String COPYRIGHT = "Copyright (C) 2010-2013 OWASP ZAP Attack Proxy Project";
 	private static final String LICENSE_DETAIL = "<html><body><p>This program is free software; "
 		+ "you can redistribute it and/or modify it under the terms of the Apache License, "
 		+ "Version 2.0.  This program is distributed in the hope that it will be useful, but "
@@ -59,7 +59,7 @@ public class AboutPanel extends JPanel {
 		+ " also contains BeanShell, which is lisenced unter LGPL.  The Copyrights of these softwares "
 		+ "belong to their respective owners.</p></body></html>";
 	
-	private static final String HOMEPAGE = "<html><body><p><a>http://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project</a></p></body></html>";
+	private static final String HOMEPAGE = "<html><body><p><a>https://www.owasp.org/index.php/ZAP</a></p></body></html>";
 
 
 	public AboutPanel() {
