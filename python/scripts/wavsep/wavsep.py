@@ -48,35 +48,49 @@ zapUrl = 'http://127.0.0.1:8090'
 
 # Dictionary of abbreviation to keep the output a bit shorter
 abbrev = {'Cross Site Scripting' : 'XSS',\
-		'SQL Injection Fingerprinting' : 'SQLfp',\
+		# Old ones - delete?
+		#'SQL Injection Fingerprinting' : 'SQLfp',\
+		#'SQL Injection' : 'SQLi',\
+		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
 		'Cross Site Request Forgery' : 'CSRF',\
+		'HTTP Parameter Override' : 'ParamOver',\
 		'Information disclosure - database error messages' : 'InfoDb',\
-		'SQL Injection' : 'SQLi',\
-		'Password Autocomplete in browser' : 'Auto',\
-		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
-		'X-Content-Type-Options header missing' : 'XContent',\
-		
-		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
-		'HTTP Parameter Override' : 'ParamOverride',\
 		'Information disclosure - debug error messages' : 'InfoDebug',\
+		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
 		'Path Traversal' : 'PathTrav',\
-		'URL Redirector Abuse' : 'UrlRedir',\
 		'None. Warning only.' : 'NoCSRF2',\
+		'Password Autocomplete in browser' : 'Auto',\
 		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyper',\
 		'SQL Injection (MySQL) - Time Based' : 'SqlMySql',\
 		'SQL Injection (Oracle) - Time Based' : 'SqlOracle',\
 		'SQL Injection (PostgreSQL) - Time Based' : 'SqlPostgre',\
+		'URL Redirector Abuse' : 'UrlRedir',\
 		'Viewstate without MAC signature (Unsure)' : 'ViewstateNoMac',\
-
+		'Weak Authentication Method' : 'WeakAuth',\
+		'X-Content-Type-Options header missing' : 'XContent',\
 		'X-Frame-Options header not set' : 'XFrame'}
 
 # The rules to apply:
 # Column 1:	String to match against an alert URL
 # Column 2: Alert abbreviation to match
-# Column 3: pass or fail
+# Column 3: pass, fail, ignore
 # 
 rules = [ \
+		# All these appear to be valid ;)
+		['-', 'InfoDebug', 'ignore'], \
+		['-', 'InfoUrl', 'ignore'], \
+		['-', 'NoCSRF', 'ignore'], \
+		['-', 'NoCSRF2', 'ignore'], \
+		['-', 'ParamOver', 'ignore'], \
+		['-', 'XFrame', 'ignore'], \
+		['-', 'XContent', 'ignore'], \
+		['LFI-', 'XSS', 'ignore'], \
+		['RFI-', 'XSS', 'ignore'], \
+		['LoginBypass', 'Auto', 'ignore'], \
+		['CrlfRemovalInHttpHeader', 'HttpOnly', 'ignore'], \
+		['Tag2HtmlPageScopeValidViewstateRequired', 'ViewstateNoMac', 'ignore'], \
+		#
 		['LFI-Detection-Evaluation', 'PathTrav', 'pass'], \
 		['LFI-FalsePositives', 'PathTrav', 'fail'], \
 		['RXSS-Detection-Evaluation', 'XSS', 'pass'], \
@@ -89,6 +103,13 @@ rules = [ \
 		['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
+		['SInjection-FalsePositives', 'SqlHyper', 'fail'], \
+		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
+		['SInjection-FalsePositives', 'SqlOracle', 'fail'], \
+		['SInjection-FalsePositives', 'SqlPostgre', 'fail'], \
+		['info-cookie-no-httponly', 'HttpOnly', 'pass'], \
+		['session-password-autocomplete', 'Auto', 'pass'], \
+		['weak-authentication-basic', 'WeakAuth', 'pass'], \
 		]
 
 zap = ZAPv2(proxies={'http': zapUrl, 'https': zapUrl})
@@ -98,6 +119,11 @@ uniqueUrls = set([])
 # alertsPerUrl is a disctionary of urlsummary to a dictionary of type to set of alertshortnames ;)
 alertsPerUrl = {}
 plugins = set([])
+
+alertPassCount = {}
+alertFailCount = {}
+alertIgnoreCount = {}
+alertOtherCount = {}
 
 totalAlerts = 0
 offset = 0
@@ -114,22 +140,43 @@ while len(alerts['alerts']) > 0:
 		urlEl = url.split('/')
 		if (len(urlEl) > 6):
 			#print 'URL 4:' + urlEl[4] + ' 6:' + urlEl[6].split('-')[0]
-			if (urlEl[6].split('-')[0][:4] != 'Case'):
+			if (urlEl[3] != 'wavsep'):
+				# print 'Ignoring non wavsep URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
 				continue
-			urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6].split('-')[0]
+				
+			if (urlEl[6].split('-')[0][:9] == 'index.jsp'):
+				#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
+				continue
+			if (urlEl[6] == 'active'):
+				if (urlEl[6].split('-')[0][:4] != 'Case'):
+					#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
+					continue
+				urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6].split('-')[0]
+			else:
+				# Passive URLs have different format
+				urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6]
+				
 			short = abbrev.get(alert.get('alert'))
 			if (short is None):
 				short = 'UNKNOWN'
 				print 'Unknown alert: ' + alert.get('alert')
-			aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
+			aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'ignore' : set([]), 'other' : set([])})
 			added = False
 			for rule in rules:
 				if (rule[0] in urlSummary and rule[1] == short):
 					aDict[rule[2]].add(short)
+					# Counts per alert
+					if (rule[2] == 'pass'):
+						alertPassCount[short] = alertPassCount.get(short, 0) + 1
+					elif (rule[2] == 'fail'):
+						alertFailCount[short] = alertFailCount.get(short, 0) + 1
+					elif (rule[2] == 'ignore'):
+						alertIgnoreCount[short] = alertIgnoreCount.get(short, 0) + 1
 					added = True
 					break
 			if (not added):
 				aDict['other'].add(short)
+				alertOtherCount[short] = alertOtherCount.get(short, 0) + 1
 			alertsPerUrl[urlSummary] = aDict
 			plugins.add(alert.get('alert'))
 		uniqueUrls.add(url)
@@ -146,11 +193,32 @@ reportFile.write("<html><head><title>ZAP Wavsep Report</title></head><body>\n")
 reportFile.write("<h1><img src=\"http://zaproxy.googlecode.com/svn/trunk/src/resource/zap64x64.png\" align=\"middle\">OWASP ZAP wavsep results</h1>\n")
 reportFile.write("Generated: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + "\n")
 
+topResults = []
+thisTop = ['', 0, 0]
+
 groupResults = []
 thisGroup = ['', 0, 0]
 totalPass = 0
 totalFail = 0
 
+# Calculate the top level scores
+for key, value in sorted(alertsPerUrl.iteritems()):
+	top = key.split(' : ')[1]
+	if ('-' in top):
+		top = top.split('-')[0] + '-' + top.split('-')[1]
+		
+	if (top != thisTop[0]):
+		thisTop = [top, 0, 0]	# top, pass, fail
+		topResults.append(thisTop)
+	if (len(value.get('pass')) > 0):
+		thisTop[1] += 1
+	elif (len(value.get('fail')) > 0):
+		thisTop[2] += 1
+	elif ('FalsePositive' in key):
+		thisTop[1] += 1
+	else:
+		thisTop[2] += 1
+		
 # Calculate the group scores
 for key, value in sorted(alertsPerUrl.iteritems()):
 	group = key.split(' : ')[1]
@@ -183,6 +251,50 @@ reportFile.write("</font>")
 total = 100 * totalPass / (totalPass + totalFail)
 reportFile.write(str(total) + "%<br/>")
 
+# Output the top level table
+reportFile.write("<h3>Top Level Scores</h3>\n")
+reportFile.write("<table border=\"1\">\n")
+reportFile.write("<tr><th>Top Level</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th>\n")
+
+for topResult in topResults:
+    #print "%s Pass: %i Fail: %i Score: %i\%" % (topResult[0], topResult[1], topResult[2], (100*topResult[1]/topResult[1]+topResult[2]))
+	reportFile.write("<tr>")
+	reportFile.write("<td>" + topResult[0] + "</td>")
+	reportFile.write("<td align=\"right\">" + str(topResult[1]) + "</td>")
+	reportFile.write("<td align=\"right\">" + str(topResult[2]) + "</td>")
+	score = 100 * topResult[1] / (topResult[1] + topResult[2])
+	reportFile.write("<td align=\"right\">" + str(score) + "%</td>")
+	reportFile.write("<td>")
+	reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
+	for i in range (topResult[1]/4):
+		reportFile.write("&nbsp;")
+	reportFile.write("</font>")
+	reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
+	for i in range (topResult[2]/4):
+		reportFile.write("&nbsp;")
+	reportFile.write("</font>")
+	reportFile.write("</td>")
+	reportFile.write("</tr>\n")
+
+reportFile.write("</table><br/>\n")
+
+reportFile.write("<h3>Alerts</h3>\n")
+reportFile.write("<table border=\"1\">\n")
+reportFile.write("<tr><th>Alert</th><th>Description</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th>\n")
+
+#for key, value in abbrev.items():
+for (k, v) in sorted(abbrev.items(), key=lambda (k,v): v):
+	reportFile.write("<tr>")
+	reportFile.write("<td>" + v + "</td>")
+	reportFile.write("<td>" + k + "</td>")
+	reportFile.write("<td>" + str(alertPassCount.get(v, 0)) +"&nbsp;</td>")
+	reportFile.write("<td>" + str(alertFailCount.get(v, 0)) +"&nbsp;</td>")
+	reportFile.write("<td>" + str(alertIgnoreCount.get(v, 0)) +"&nbsp;</td>")
+	reportFile.write("<td>" + str(alertOtherCount.get(v, 0)) +"&nbsp;</td>")
+	reportFile.write("</tr>\n")
+
+reportFile.write("</table><br/>\n")
+
 # Output the group table
 reportFile.write("<h3>Group Scores</h3>\n")
 reportFile.write("<table border=\"1\">\n")
@@ -213,11 +325,11 @@ reportFile.write("</table><br/>\n")
 # Output the detail table
 reportFile.write("<h3>Detailed Results</h3>\n")
 reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Page</th><th>Result</th><th>Pass</th><th>Fail</th><th>Other</th>\n")
+reportFile.write("<tr><th>Page</th><th>Result</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th>\n")
 
 for key, value in sorted(alertsPerUrl.iteritems()):
 	reportFile.write("<tr>")
-	reportFile.write("<td>" + key + "</td>")
+	reportFile.write("<td>" + key.split(':')[0] + key.split(':')[2] + "</td>")
 	reportFile.write("<td>")
 	if (len(value.get('pass')) > 0):
 		reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">&nbsp;PASS&nbsp</font>")
@@ -240,23 +352,15 @@ for key, value in sorted(alertsPerUrl.iteritems()):
 	reportFile.write("&nbsp;</td>")
 
 	reportFile.write("<td>")
+	if (value.get('ignore') is not None):
+		reportFile.write(" ".join(value.get('ignore')))
+	reportFile.write("&nbsp;</td>")
+
+	reportFile.write("<td>")
 	if (value.get('other') is not None):
 		reportFile.write(" ".join(value.get('other')))
 	reportFile.write("&nbsp;</td>")
 
-	reportFile.write("</tr>\n")
-
-reportFile.write("</table><br/>\n")
-
-reportFile.write("<h3>Alerts Key</h3>\n")
-reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Alert</th><th>Description</th>\n")
-
-#for key, value in abbrev.items():
-for (k, v) in sorted(abbrev.items(), key=lambda (k,v): v):
-	reportFile.write("<tr>")
-	reportFile.write("<td>" + v + "</td>")
-	reportFile.write("<td>" + k + "</td>")
 	reportFile.write("</tr>\n")
 
 reportFile.write("</table><br/>\n")
