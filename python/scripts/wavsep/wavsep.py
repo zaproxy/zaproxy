@@ -22,7 +22,7 @@
 #
 # To this script:
 # * Install the ZAP Python API: 
-#     Use ''pip install python-owasp-zap' or
+#     Use 'pip install python-owasp-zap-v2' or
 #     download from http://code.google.com/p/zaproxy/downloads/list
 # * Start ZAP (as this is for testing purposes you might not want the
 #     'standard' ZAP to be started)
@@ -40,7 +40,7 @@
 # It will be updated to later versions of wavsep asap after their release
 # And it only scores the active vulnerabiolities, not the passive ones.
 
-from zap import ZAP
+from zapv2 import ZAPv2
 import datetime
 
 # Change this if your version of ZAP is running on a different host and/or port:
@@ -56,6 +56,19 @@ abbrev = {'Cross Site Scripting' : 'XSS',\
 		'Password Autocomplete in browser' : 'Auto',\
 		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
 		'X-Content-Type-Options header missing' : 'XContent',\
+		
+		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
+		'HTTP Parameter Override' : 'ParamOverride',\
+		'Information disclosure - debug error messages' : 'InfoDebug',\
+		'Path Traversal' : 'PathTrav',\
+		'URL Redirector Abuse' : 'UrlRedir',\
+		'None. Warning only.' : 'NoCSRF2',\
+		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyper',\
+		'SQL Injection (MySQL) - Time Based' : 'SqlMySql',\
+		'SQL Injection (Oracle) - Time Based' : 'SqlOracle',\
+		'SQL Injection (PostgreSQL) - Time Based' : 'SqlPostgre',\
+		'Viewstate without MAC signature (Unsure)' : 'ViewstateNoMac',\
+
 		'X-Frame-Options header not set' : 'XFrame'}
 
 # The rules to apply:
@@ -64,47 +77,64 @@ abbrev = {'Cross Site Scripting' : 'XSS',\
 # Column 3: pass or fail
 # 
 rules = [ \
+		['LFI-Detection-Evaluation', 'PathTrav', 'pass'], \
+		['LFI-FalsePositives', 'PathTrav', 'fail'], \
 		['RXSS-Detection-Evaluation', 'XSS', 'pass'], \
 		['RXSS-FalsePositives-GET', 'XSS', 'fail'], \
 		['SInjection-Detection-Evaluation', 'SQLfp', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SQLi', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlHyper', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlMySql', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
 		]
 
-zap = ZAP(proxies={'http': zapUrl, 'https': zapUrl})
+zap = ZAPv2(proxies={'http': zapUrl, 'https': zapUrl})
 
-alerts = zap.alerts
 
 uniqueUrls = set([])
 # alertsPerUrl is a disctionary of urlsummary to a dictionary of type to set of alertshortnames ;)
 alertsPerUrl = {}
 plugins = set([])
 
-for alert in alerts:
-	url = alert.get('url')
-	# Grab the url before any '?'
-	url = url.split('?')[0]
-	#print 'URL: ' + url
-	urlEl = url.split('/')
-	if (len(urlEl) > 6):
-		#print 'URL 4:' + urlEl[4] + ' 6:' + urlEl[6].split('-')[0]
-		if (urlEl[6].split('-')[0][:4] != 'Case'):
-			continue
-		urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6].split('-')[0]
-		short = abbrev.get(alert.get('alert'))
-		aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
-		added = False
-		for rule in rules:
-			if (rule[0] in urlSummary and rule[1] == short):
-				aDict[rule[2]].add(short)
-				added = True
-				break
-		if (not added):
-			aDict['other'].add(short)
-		alertsPerUrl[urlSummary] = aDict
-		plugins.add(alert.get('alert'))
-	uniqueUrls.add(url)
+totalAlerts = 0
+offset = 0
+page = 100
+# Page through the alerts as otherwise ZAP can hang...
+alerts = zap.core.alerts('', offset, page)
+while len(alerts['alerts']) > 0:
+	totalAlerts += len(alerts['alerts'])
+	for alert in alerts['alerts']:
+		url = alert.get('url')
+		# Grab the url before any '?'
+		url = url.split('?')[0]
+		#print 'URL: ' + url
+		urlEl = url.split('/')
+		if (len(urlEl) > 6):
+			#print 'URL 4:' + urlEl[4] + ' 6:' + urlEl[6].split('-')[0]
+			if (urlEl[6].split('-')[0][:4] != 'Case'):
+				continue
+			urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6].split('-')[0]
+			short = abbrev.get(alert.get('alert'))
+			if (short is None):
+				short = 'UNKNOWN'
+				print 'Unknown alert: ' + alert.get('alert')
+			aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
+			added = False
+			for rule in rules:
+				if (rule[0] in urlSummary and rule[1] == short):
+					aDict[rule[2]].add(short)
+					added = True
+					break
+			if (not added):
+				aDict['other'].add(short)
+			alertsPerUrl[urlSummary] = aDict
+			plugins.add(alert.get('alert'))
+		uniqueUrls.add(url)
+	offset += page
+	alerts = zap.core.alerts('', offset, page)
 	
 #for key, value in alertsPerUrl.iteritems():
 #	print key, value
@@ -143,11 +173,11 @@ for key, value in sorted(alertsPerUrl.iteritems()):
 # Output the summary
 reportFile.write("<h3>Total Score</h3>\n")
 reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
-for i in range (totalPass):
+for i in range (totalPass/4):
 	reportFile.write("&nbsp;")
 reportFile.write("</font>")
 reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
-for i in range (totalFail):
+for i in range (totalFail/4):
 	reportFile.write("&nbsp;")
 reportFile.write("</font>")
 total = 100 * totalPass / (totalPass + totalFail)
@@ -198,9 +228,22 @@ for key, value in sorted(alertsPerUrl.iteritems()):
 	else:
 		reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">&nbsp;FAIL&nbsp</font>")
 	reportFile.write("</td>")
-	reportFile.write("<td>" + " ".join(value.get('pass')) + "&nbsp;</td>")
-	reportFile.write("<td>" + " ".join(value.get('fail')) + "&nbsp;</td>")
-	reportFile.write("<td>" + " ".join(value.get('other')) + "&nbsp;</td>")
+	
+	reportFile.write("<td>")
+	if (value.get('pass') is not None):
+		reportFile.write(" ".join(value.get('pass')))
+	reportFile.write("&nbsp;</td>")
+
+	reportFile.write("<td>")
+	if (value.get('fail') is not None):
+		reportFile.write(" ".join(value.get('fail')))
+	reportFile.write("&nbsp;</td>")
+
+	reportFile.write("<td>")
+	if (value.get('other') is not None):
+		reportFile.write(" ".join(value.get('other')))
+	reportFile.write("&nbsp;</td>")
+
 	reportFile.write("</tr>\n")
 
 reportFile.write("</table><br/>\n")
@@ -227,7 +270,7 @@ reportFile.close()
 #print ''	
 	
 print ''	
-print 'Got ' + str(len(alerts)) + ' alerts'
+print 'Got ' + str(totalAlerts) + ' alerts'
 print 'Got ' + str(len(uniqueUrls)) + ' unique urls'
 
 
