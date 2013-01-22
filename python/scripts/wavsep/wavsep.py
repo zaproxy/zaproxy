@@ -58,13 +58,15 @@ abbrev = {'Cross Site Scripting' : 'XSS',\
 		'Information disclosure - database error messages' : 'InfoDb',\
 		'Information disclosure - debug error messages' : 'InfoDebug',\
 		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
-		'Path Traversal' : 'PathTrav',\
 		'None. Warning only.' : 'NoCSRF2',\
 		'Password Autocomplete in browser' : 'Auto',\
-		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyper',\
-		'SQL Injection (MySQL) - Time Based' : 'SqlMySql',\
-		'SQL Injection (Oracle) - Time Based' : 'SqlOracle',\
-		'SQL Injection (PostgreSQL) - Time Based' : 'SqlPostgre',\
+		'Path Traversal' : 'PathTrav',\
+		'Remote File Inclusion' : 'RFI',\
+		'SQL Injection - Error Based - MySQL' : 'SqlMySqlE',\
+		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyperT',\
+		'SQL Injection (MySQL) - Time Based' : 'SqlMySqTl',\
+		'SQL Injection (Oracle) - Time Based' : 'SqlOracleT',\
+		'SQL Injection (PostgreSQL) - Time Based' : 'SqlPostgreT',\
 		'URL Redirector Abuse' : 'UrlRedir',\
 		'Viewstate without MAC signature (Unsure)' : 'ViewstateNoMac',\
 		'Weak Authentication Method' : 'WeakAuth',\
@@ -87,20 +89,23 @@ rules = [ \
 		['-', 'XContent', 'ignore'], \
 		['LFI-', 'XSS', 'ignore'], \
 		['RFI-', 'XSS', 'ignore'], \
+		['SInjection-', 'XSS', 'ignore'], \
 		['LoginBypass', 'Auto', 'ignore'], \
 		['CrlfRemovalInHttpHeader', 'HttpOnly', 'ignore'], \
 		['Tag2HtmlPageScopeValidViewstateRequired', 'ViewstateNoMac', 'ignore'], \
 		#
 		['LFI-Detection-Evaluation', 'PathTrav', 'pass'], \
 		['LFI-FalsePositives', 'PathTrav', 'fail'], \
+		['RFI-Detection-Evaluation', 'RFI', 'pass'], \
+		['RFI-FalsePositives', 'RFI', 'fail'], \
 		['RXSS-Detection-Evaluation', 'XSS', 'pass'], \
 		['RXSS-FalsePositives-GET', 'XSS', 'fail'], \
 		['SInjection-Detection-Evaluation', 'SQLfp', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SQLi', 'pass'], \
-		['SInjection-Detection-Evaluation', 'SqlHyper', 'pass'], \
-		['SInjection-Detection-Evaluation', 'SqlMySql', 'pass'], \
-		['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
-		['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
+		#['SInjection-Detection-Evaluation', 'SqlHyper', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlMySqlE', 'pass'], \
+		#['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
+		#['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
 		['SInjection-FalsePositives', 'SqlHyper', 'fail'], \
