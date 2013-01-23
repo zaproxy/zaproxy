@@ -341,6 +341,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		this.getProgressButton().repaint();
 	}
 
+	@Override
 	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext) {
 		super.startScan(startNode, justScanInScope, scanChildren, scanContext);
 		this.getProgressButton().setEnabled(true);

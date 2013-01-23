@@ -63,6 +63,7 @@ public class Tech implements Comparable<Tech> {
 		this.parent = parent;
 		this.name = name;
 	}
+	@Override
 	public String toString() {
 		if (parent == null) {
 			return this.name;

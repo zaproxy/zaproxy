@@ -357,6 +357,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		resultsModel.clear();
 	}
 
+	@Override
 	public void addSearchResult(SearchResult str) {
 		resultsModel.addElement(str);
 		if (resultsModel.size() == 1) {

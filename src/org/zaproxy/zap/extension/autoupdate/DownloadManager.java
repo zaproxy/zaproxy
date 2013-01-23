@@ -45,6 +45,7 @@ public class DownloadManager extends Thread {
 		return dl;
 	}
 	
+	@Override
 	public void run () {
 		while (getCurrentDownloadCount() > 0 || !shutdown) {
 			//logger.debug("# downloads " + this.currentDownloads.size() + " shutdown " + shutdown);

@@ -24,7 +24,6 @@ import java.awt.Component;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 public class ExtensionPopupMenu extends JMenu {

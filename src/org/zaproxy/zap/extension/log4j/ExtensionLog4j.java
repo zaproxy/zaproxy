@@ -97,6 +97,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         	menuGarbageCollect.setText(Constant.messages.getString("log4j.tools.menu.gc"));
 
         	menuGarbageCollect.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                 	Runtime.getRuntime().gc();
                 }

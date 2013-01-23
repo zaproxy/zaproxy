@@ -21,23 +21,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.network.ConnectionParam;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
-import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
-import org.zaproxy.zap.extension.auth.AuthAPI;
-import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
-import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.params.ParamsAPI;
-import org.zaproxy.zap.extension.search.SearchAPI;
-import org.zaproxy.zap.extension.spider.SpiderAPI;
-import org.zaproxy.zap.spider.SpiderParam;
 
 public class WikiAPIGenerator {
 	/*

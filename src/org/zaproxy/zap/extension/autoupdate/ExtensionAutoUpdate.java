@@ -176,6 +176,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			}
 			if (this.downloadProgressThread == null) {
 				this.downloadProgressThread = new Thread() {
+					@Override
 					public void run() {
 						while (downloadManager.getCurrentDownloadCount() > 0) {
 							getScanStatus().setScanCount(downloadManager.getCurrentDownloadCount());

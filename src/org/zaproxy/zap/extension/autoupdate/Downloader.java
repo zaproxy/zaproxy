@@ -47,6 +47,7 @@ public class Downloader extends Thread {
 		this.size = size;
 	}
 
+	@Override
 	public void run() {
 		this.started = new Date();
     	BufferedInputStream in = null;

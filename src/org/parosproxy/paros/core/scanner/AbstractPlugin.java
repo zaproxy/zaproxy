@@ -681,10 +681,12 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 		return this.finished;
 	}
 	
+	@Override
 	public void setTimeStarted() {
 		this.started = new Date();
 	}
 
+	@Override
 	public void setTimeFinished() {
 		this.finished = new Date();
 	}

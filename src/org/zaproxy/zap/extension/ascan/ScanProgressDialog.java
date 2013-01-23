@@ -191,6 +191,7 @@ public class ScanProgressDialog extends AbstractDialog {
 		}
 		
 		Thread thread = new Thread() {
+			@Override
 			public void run() {
 				while (! stopThread) {
 					showProgress();

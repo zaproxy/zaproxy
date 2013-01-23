@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.auth;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.text.MessageFormat;
 
 import javax.swing.JFrame;

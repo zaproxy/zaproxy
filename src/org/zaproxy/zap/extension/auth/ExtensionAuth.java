@@ -684,6 +684,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
         }
 	}
 	
+	@Override
 	public void saveContextData (Context ctx) {
 		this.saveAuthParams(ctx.getIndex());
 	}
@@ -738,6 +739,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		}
 	}
 	
+	@Override
 	public void discardContexts() {
 		authPanelMap.clear();
 		contextAuthMap.clear();

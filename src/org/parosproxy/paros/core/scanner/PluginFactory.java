@@ -116,6 +116,7 @@ public class PluginFactory {
         //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
         final Comparator<AbstractPlugin> riskComparator = 
         		new Comparator<AbstractPlugin>() {
+        	@Override
         	public int compare(AbstractPlugin e1, AbstractPlugin e2) {
         		if (e1.getRisk() > e2.getRisk())  //High Risk alerts are checked before low risk alerts
         			return -1;

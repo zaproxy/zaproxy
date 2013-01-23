@@ -55,6 +55,7 @@ public class ApiException extends Exception {
 		this.detail = detail;
 	}
 	
+	@Override
 	public String toString () {
 		if (detail != null) {
 			return Constant.messages.getString("api.error." + super.getMessage()) +
