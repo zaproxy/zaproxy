@@ -27,7 +27,10 @@ package org.parosproxy.paros.extension.option;
 //TODO: Buttons should be gray
 import java.awt.CardLayout;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.security.KeyStoreException;
+import java.security.ProviderException;
 import java.security.cert.Certificate;
 import java.util.Observable;
 import java.util.Observer;
@@ -42,6 +45,7 @@ import javax.swing.JPasswordField;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXHyperlink;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -49,6 +53,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
+import ch.csnc.extension.httpclient.SunPKCS11Configuration;
 import ch.csnc.extension.ui.AliasTableModel;
 import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
@@ -559,22 +564,23 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	private void addPkcs11ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPkcs11ButtonActionPerformed
 		String name = null;
 		try {
-			name = driverConfig.getNames().get(driverComboBox.getSelectedIndex());;
+			final int indexSelectedDriver = driverComboBox.getSelectedIndex();
+			name = driverConfig.getNames().get(indexSelectedDriver);
 			if (name.equals("")) {
 				return;
 			}
 
-			String library = driverConfig.getPaths().get(driverComboBox.getSelectedIndex());
+			String library = driverConfig.getPaths().get(indexSelectedDriver);
 			if (library.equals("")) {
 				return;
 			}
 			
-			Integer slot = driverConfig.getSlots().get(driverComboBox.getSelectedIndex());
+			Integer slot = driverConfig.getSlots().get(indexSelectedDriver);
 			if (slot < 0) {
 				return;
 			}
 			
-			Integer slotListIndex = driverConfig.getSlotIndexes().get(driverComboBox.getSelectedIndex());
+			Integer slotListIndex = driverConfig.getSlotIndexes().get(indexSelectedDriver);
 			if (slotListIndex < 0) {
 				return;
 			}
@@ -584,29 +590,70 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				kspass = null;
 			}
 			
-			int ksIndex = contextManager.initPKCS11(name, library, slot, slotListIndex, kspass);
+			SunPKCS11Configuration configuration = new SunPKCS11Configuration(name, library);
+			if (usePkcs11ExperimentalSliSupportCheckBox.isSelected()) {
+				configuration.setSlotListIndex(slotListIndex);
+			} else {
+				configuration.setSlotId(slot);
+			}
+			
+			int ksIndex = contextManager.initPKCS11(configuration, kspass);
+			
+			if (ksIndex == -1) {
+				logger.error("The required Sun PKCS#11 provider is not available (sun.security.pkcs11.SunPKCS11).");
+				showErrorMessageSunPkcs11ProviderNotAvailable();
+				return;
+			}
+			
 			// The PCKS11 driver/smartcard was initialized properly: reset login attempts
 			login_attempts = 0;
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 			// Issue 182
 			retry = true;
-		} catch (NullPointerException e) {
-			// Issue 182: Try to instantiate the PKCS11 provider twice if there are
-			// conflicts with other software (eg. Firefox), that is accessing it too.
-			if (retry) {
-				// Try two times only
-				retry = false;
-				addPkcs11ButtonActionPerformed(evt);
+
+			certificatejTabbedPane.setSelectedIndex(0);
+
+			driverComboBox.setSelectedIndex(-1);
+			pkcs11PasswordField.setText("");
+			
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof ProviderException) {
+				if ("Error parsing configuration".equals(e.getCause().getMessage())) {
+					// There was a problem with the configuration provided:
+					//   - Missing library.
+					//   - Malformed configuration.
+					//   - ...
+					showGenericErrorMessagePkcs11CouldNotBeAdded();
+					logger.warn("Couldn't add key from "+name, e.getCause());
+				} else if ("Initialization failed".equals(e.getCause().getMessage())) {
+					// The initialisation may fail because of:
+					//   - no smart card reader or smart card detected.
+					//   - smart card is in use by other application.
+					//   - ...
+					
+					// Issue 182: Try to instantiate the PKCS11 provider twice if there are
+					// conflicts with other software (eg. Firefox), that is accessing it too.
+					if (retry) {
+						// Try two times only
+						retry = false;
+						addPkcs11ButtonActionPerformed(evt);
+					} else {
+						JOptionPane.showMessageDialog(null, new String[] {
+								Constant.messages.getString("options.cert.error"),
+								Constant.messages.getString("options.cert.error.pkcs11")}, 
+								Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+						// Error message changed to explain that user should try to add it again... 
+						retry = true;
+						logger.warn("Couldn't add key from "+name, e);
+					}
+				} else {
+					showGenericErrorMessagePkcs11CouldNotBeAdded();
+					logger.warn("Couldn't add key from "+name, e);
+				}
 			} else {
-				JOptionPane.showMessageDialog(null, new String[] {
-						Constant.messages.getString("options.cert.error"),
-						Constant.messages.getString("options.cert.error.pkcs11")}, 
-						Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
-				// Error message changed to explain that user should try to add it again... 
-				retry = true;
-				logger.warn("Couldn't add key from "+name, e);
+				showGenericErrorMessagePkcs11CouldNotBeAdded();
+				logger.error("Couldn't add key from "+name, e);
 			}
-			return;
 		} catch (java.io.IOException e) {
 			if (e.getMessage().equals("load failed") && e.getCause().getClass().getName().equals("javax.security.auth.login.FailedLoginException")) {
 				// Exception due to a failed login attempt: BAD PIN or password
@@ -628,30 +675,45 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					logger.warn("PKCS#11: Incorrect PIN or password"+attempts+": "+name);
 				}
 			}else{
-				JOptionPane.showMessageDialog(null, new String[] {
-						Constant.messages.getString("options.cert.error"),
-						Constant.messages.getString("options.cert.error.password")}, 
-						Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+				showGenericErrorMessagePkcs11CouldNotBeAdded();
 				logger.warn("Couldn't add key from "+name, e);
 			}
-			return;
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					Constant.messages.getString("options.cert.error"),
-					Constant.messages.getString("options.cert.error.password")}, 
-					Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+		} catch (KeyStoreException e) {
+			showGenericErrorMessagePkcs11CouldNotBeAdded();
 			logger.warn("Couldn't add key from "+name, e);
-			return;
+		} catch (Exception e) {
+			showGenericErrorMessagePkcs11CouldNotBeAdded();
+			logger.error("Couldn't add key from "+name, e);
 		}
-
-		certificatejTabbedPane.setSelectedIndex(0);
-
-		driverComboBox.setSelectedIndex(-1);
-		pkcs11PasswordField.setText("");
 
 
 	}//GEN-LAST:event_addPkcs11ButtonActionPerformed
 
+	private void showErrorMessageSunPkcs11ProviderNotAvailable() {
+		final String reference = Constant.messages.getString("options.cert.error.pkcs11notavailable.hyperlink");
+		Object hyperlink = null;
+		try {
+			JXHyperlink hyperlinkLabel = new JXHyperlink();
+			hyperlinkLabel.setURI(URI.create(reference));
+			hyperlink = hyperlinkLabel;
+		} catch (UnsupportedOperationException e) {
+			// Show plain text instead of a hyperlink if the current platform doesn't support Desktop.
+			hyperlink = reference;
+		}
+		
+		JOptionPane.showMessageDialog(null, new Object[] {
+				Constant.messages.getString("options.cert.error"),
+				Constant.messages.getString("options.cert.error.pkcs11notavailable"), hyperlink},
+				Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void showGenericErrorMessagePkcs11CouldNotBeAdded() {
+		JOptionPane.showMessageDialog(null, new String[] {
+				Constant.messages.getString("options.cert.error"),
+				Constant.messages.getString("options.cert.error.password")}, 
+				Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+	}
+	
 	private void driverButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_driverButtonActionPerformed
 		new JDialog( new DriversView(driverConfig) ,true);
 	}//GEN-LAST:event_driverButtonActionPerformed

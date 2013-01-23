@@ -56,7 +56,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.model.Model;
 
 import ch.csnc.extension.util.Encoding;
 import ch.csnc.extension.util.NullComparator;
@@ -293,7 +292,7 @@ public class SSLContextManager {
 	 * 
 	 * return addKeyStore(ks, "CryptoAPI", null); }
 	 */
-	public int initPKCS11(String name, String library, int slot, int slotListIndex, String kspassword)
+	public int initPKCS11(SunPKCS11Configuration configuration, String kspassword)
 		throws IOException, KeyStoreException,
 			CertificateException, NoSuchAlgorithmException,
 			ClassNotFoundException, SecurityException, NoSuchMethodException,
@@ -303,44 +302,17 @@ public class SSLContextManager {
 		if (!isProviderAvailable("PKCS11")) {
 			return -1;
 		}
-		
-		StringBuffer cardConfig = new StringBuffer();
-        cardConfig.append("name=\"").append(name).append("\"\n");
-        cardConfig.append("library=").append(library).append("\n");
-        // Choose whether to use experimental SlotListIndex support
-		if (Model.getSingleton().getOptionsParam().getExperimentalFeaturesParam().isExerimentalSliSupportEnabled()) {
-			cardConfig.append("slotListIndex=").append(slotListIndex).append("\n");
-		} else {
-			cardConfig.append("slot=").append(slot).append("\n");
-		}
         
-        InputStream is = new ByteArrayInputStream(cardConfig.toString().getBytes());
-        
-		Provider pkcs11 = null;
-        
-        try {
-            Class pkcs11Class = Class.forName("sun.security.pkcs11.SunPKCS11");
-            Constructor c = pkcs11Class.getConstructor(new Class[] { InputStream.class });
-            pkcs11 = (Provider) c.newInstance(new Object[] { is });
-        }catch (InstantiationException e) {
-        	log.error("Error instantiating the PKCS11 provider", e);
-        }catch (IllegalAccessException e) {
-        	log.error("Error illegally accessing the PKCS11 provider", e);
-        }catch (IllegalArgumentException e) {
-        	log.error("Error illegally argumening the PKCS11 provider", e);
-        }catch (InvocationTargetException e){
-        	//log.error("Error in the invocation of the PKCS11 provider", e);
-        	// Issue 182 - OptionsCertificatePanel will try to add the PKCS11 provider again...
-        }catch (Exception e) {
-        	log.error("Error creating the PKCS11 provider", e);
-        }
+        Class<?> pkcs11Class = Class.forName("sun.security.pkcs11.SunPKCS11");
+        Constructor<?> c = pkcs11Class.getConstructor(new Class[] { InputStream.class });
+        Provider pkcs11 = (Provider) c.newInstance(new Object[] { new ByteArrayInputStream(configuration.toString().getBytes()) });
         
         Security.addProvider(pkcs11);
 
 		// init the key store
 		KeyStore ks = KeyStore.getInstance("PKCS11", Security.getProvider(pkcs11.getName()));
 		ks.load(null, kspassword == null ? null : kspassword.toCharArray());
-		return addKeyStore(ks, "PKCS#11: " + name, ""); // do not store pin code
+		return addKeyStore(ks, "PKCS#11: " + configuration.getName(), ""); // do not store pin code
 	}
 
 	public int loadPKCS12Certificate(String filename, String ksPassword)
