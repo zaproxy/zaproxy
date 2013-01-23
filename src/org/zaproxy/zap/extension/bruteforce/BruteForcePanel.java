@@ -642,12 +642,16 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			BruteForce bruteForce = bruteForceMap.get(site);
 			if (bruteForce == null) {
+				final String selectedFile = (String) this.fileSelect.getSelectedItem();
+				if (selectedFile == null) {
+					return;
+				}
 				// Try the 'local' dir first
-				String fileName = this.customFileDirectory + File.separator + this.fileSelect.getSelectedItem();
+				String fileName = this.customFileDirectory + File.separator + selectedFile;
 				File f = new File(fileName);
 				if (! f.exists()) {
 					log.debug("No such file: " + f.getAbsolutePath());
-					fileName = this.fileDirectory + File.separator + this.fileSelect.getSelectedItem();
+					fileName = this.fileDirectory + File.separator + selectedFile;
 					f = new File(fileName);
 				}
 				if (! f.exists()) {
