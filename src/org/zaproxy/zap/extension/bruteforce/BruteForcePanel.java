@@ -655,7 +655,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 					return;
 				}
 				
-				bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam, null);
+				bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam);
 				bruteForceMap.put(site, bruteForce);
 			}
 			if (bruteForce.isAlive()) {
@@ -749,18 +749,31 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
 			try {
 				String dir = node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().getPath();
-				startScan(dir);
+				startScan(dir, false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+    protected void bruteForceDirectoryAndChildren(SiteNode node) {
+        this.setTabFocus();
+        nodeSelected(node);
+        if (currentSite != null && this.getStartScanButton().isEnabled()) {
+            try {
+                String dir = node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().getPath();
+                startScan(dir, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 	private void startScan() {
-		this.startScan(null);
+		this.startScan(null, false);
 	}
 	
-	private void startScan(String directory) {
+	private void startScan(String directory, boolean onlyUnderDirectory) {
 			
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
@@ -782,6 +795,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			return;
 		}
 		BruteForce bruteForce = new BruteForce(currentSite, f.getAbsolutePath(), this, bruteForceParam, directory);
+		if (onlyUnderDirectory) {
+			bruteForce.setOnlyUnderDirectory(onlyUnderDirectory);
+		}
 		bruteForceMap.put(currentSite, bruteForce);
 		
 		bruteForce.start();

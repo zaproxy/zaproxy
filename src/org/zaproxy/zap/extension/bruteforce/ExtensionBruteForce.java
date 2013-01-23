@@ -63,6 +63,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	private OptionsBruteForcePanel optionsBruteForcePanel = null;
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
     private PopupMenuBruteForceDirectory popupMenuBruteForceDirectory = null;
+    private PopupMenuBruteForceDirectoryAndChildren popupMenuBruteForceDirectoryAndChildren = null;
 	private PopupMenuBruteForceCopy popupMenuBruteForceCopy = null;
 
 	private BruteForceParam params = null;
@@ -107,8 +108,8 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	        extensionHook.getHookView().addOptionPanel(getOptionsBruteForcePanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceSite());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceCopy());
-            // Specifying an initial directory doesnt work
-            //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectoryAndChildren());
 
 	        this.getBruteForcePanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 
@@ -124,6 +125,8 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceSite());
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceCopy());
+	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceDirectory());
+            Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceDirectoryAndChildren());
 	    }
 	    Control.getSingleton().getExtensionLoader().removeOptionsParamSet(getBruteForceParam());
 	    // TODO remove listenners
@@ -160,6 +163,10 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	protected void bruteForceDirectory (SiteNode siteNode) {
 		this.getBruteForcePanel().bruteForceDirectory(siteNode);
 	}
+    
+    protected void bruteForceDirectoryAndChildren(SiteNode siteNode) {
+        this.getBruteForcePanel().bruteForceDirectoryAndChildren(siteNode);
+    }
 	
 	@Override
 	public void sessionChanged(final Session session)  {
@@ -235,13 +242,20 @@ public class ExtensionBruteForce extends ExtensionAdaptor
         return popupMenuBruteForceSite;
     }
 
-    @SuppressWarnings("unused")
 	private PopupMenuBruteForceDirectory getPopupMenuBruteForceDirectory() {
         if (popupMenuBruteForceDirectory == null) {
-        	popupMenuBruteForceDirectory = new PopupMenuBruteForceDirectory();
+        	popupMenuBruteForceDirectory = new PopupMenuBruteForceDirectory(Constant.messages.getString("bruteforce.dir.popup"));
         	popupMenuBruteForceDirectory.setExtension(this);
         }
         return popupMenuBruteForceDirectory;
+    }
+
+    private PopupMenuBruteForceDirectoryAndChildren getPopupMenuBruteForceDirectoryAndChildren() {
+        if (popupMenuBruteForceDirectoryAndChildren == null) {
+            popupMenuBruteForceDirectoryAndChildren = new PopupMenuBruteForceDirectoryAndChildren(Constant.messages.getString("bruteforce.dir.and.children.popup"));
+            popupMenuBruteForceDirectoryAndChildren.setExtension(this);
+        }
+        return popupMenuBruteForceDirectoryAndChildren;
     }
 
 	private OptionsBruteForcePanel getOptionsBruteForcePanel() {

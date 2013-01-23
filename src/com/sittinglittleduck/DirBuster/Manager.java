@@ -22,6 +22,7 @@ package com.sittinglittleduck.DirBuster;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -207,6 +208,9 @@ public class Manager implements ProcessChecker.ProcessUpdate
     private String reportLocation = null;
     private String fileExtentions = null;
     private String pointToStartFrom = null;
+
+    // ZAP: Option to control whether only the dirs found under the startPoint should be parsed/fetched.
+    private boolean onlyUnderStartPoint = true;
 
     // ZAP: Changed to public to allow it to be extended
     public Manager()
@@ -613,31 +617,32 @@ public class Manager implements ProcessChecker.ProcessUpdate
             {
                 //start the work generator
                 workGenThread = new Thread(workGenBrute);
-                workGenThread.start();
             }
             //start the
             else if(urlFuzz)
             {
                 workGenThread = new Thread(workGenFuzz);
-                workGenThread.start();
 
             }
             else if(pureBrutefuzz)
             {
                 workGenThread = new Thread(workGenBruteFuzz);
-                workGenThread.start();
             }
             else
             {
                 //start the work generator
                 workGenThread = new Thread(workGen);
-                workGenThread.start();
             }
+
+            workGenThread.setName("DirBuster-WorkerGenerator");
+            workGenThread.start();
 
             //add the worker and parseWorker threads
             for(int i = 0; i < workers.size(); i++)
             {
-                new Thread(((Worker) workers.elementAt(i))).start();
+                Thread workerThread = new Thread(((Worker) workers.elementAt(i)));
+                workerThread.setName("DirBuster-Worker");
+                workerThread.start();
                 ((HTMLparse) parseWorkers.elementAt(i)).start();
             }
 
@@ -725,7 +730,15 @@ public class Manager implements ProcessChecker.ProcessUpdate
                         tempExtToUse.addElement(tempExtToCheck);
                     }
 
-                    dirQueue.put(new DirToCheck(url.getPath(), tempExtToUse));
+                    boolean addToDirQueue = true;
+                    
+                    if (onlyUnderStartPoint) {
+                        addToDirQueue = url.getPath().toLowerCase(Locale.ENGLISH).startsWith(startPoint.toLowerCase(Locale.ENGLISH));
+                    }
+                    
+                    if (addToDirQueue) {
+                        dirQueue.put(new DirToCheck(url.getPath(), tempExtToUse));
+                    }
                     totalDirsFound++;
                 }
 
@@ -753,7 +766,15 @@ public class Manager implements ProcessChecker.ProcessUpdate
                         tempExtToUse.addElement(tempExtToCheck);
                     }
 
-                    dirQueue.put(new DirToCheck(url.getPath(), tempExtToUse));
+                    boolean addToDirQueue = true;
+                    
+                    if (onlyUnderStartPoint) {
+                        addToDirQueue = url.getPath().startsWith(startPoint);
+                    }
+                    
+                    if (addToDirQueue) {
+                        dirQueue.put(new DirToCheck(url.getPath(), tempExtToUse));
+                    }
                     totalDirsFound++;
                 }
             }
@@ -1224,6 +1245,10 @@ public class Manager implements ProcessChecker.ProcessUpdate
 
     public synchronized void addHTMLToParseQueue(HTMLparseWorkUnit parseWorkUnit)
     {
+        if (onlyUnderStartPoint && !parseWorkUnit.getWorkUnit().getWork().getPath().startsWith(startPoint)) {
+            return;
+        }
+        
 //System.out.println("SBSB addHTMLToParseQueue " + parseWorkUnit.toString());
         try
         {
@@ -1413,6 +1438,10 @@ public class Manager implements ProcessChecker.ProcessUpdate
             }
             processedLinks.addElement(link);
 
+            if (onlyUnderStartPoint && !link.toLowerCase(Locale.ENGLISH).startsWith(startPoint.toLowerCase(Locale.ENGLISH))) {
+                addParsedLinksProcessed();
+                return false;
+            }
         }
         else
         /*
@@ -1422,11 +1451,15 @@ public class Manager implements ProcessChecker.ProcessUpdate
             if(!processedLinks.contains(link))
             {
                 processedLinks.addElement(link);
-                return true;
-
+            }
+            
+            if (onlyUnderStartPoint && !link.startsWith(startPoint)) {
+                addParsedLinksProcessed();
+                return false;
             }
         }
-        return false;
+        
+        return true;
     }
 
     public synchronized void addParsedLinksProcessed()
@@ -1786,6 +1819,9 @@ public class Manager implements ProcessChecker.ProcessUpdate
         userPrefs.putInt("DefaultNoTreads", defaultNoThreads);
     }
 
+    public void setOnlyUnderStartPoint(boolean onlyUnderStartPoint) {
+        this.onlyUnderStartPoint = onlyUnderStartPoint;
+    }
 
 
 }

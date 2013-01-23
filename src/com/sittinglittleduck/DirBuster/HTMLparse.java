@@ -46,7 +46,7 @@ public class HTMLparse extends Thread
     /** Creates a new instance of HTMLparse */
     public HTMLparse()
     {
-
+        super("DirBuster-HTMLparse");
         manager = Manager.getInstance();
     }
 

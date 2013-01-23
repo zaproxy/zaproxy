@@ -46,7 +46,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private String site;
 	private String fileName;
 	private int port = 80;
-	private String directory = null;
+	private String directory;
 	private SortedListModel<BruteForceItem> list;
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
@@ -57,15 +57,19 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private boolean recursive = BruteForceParam.DEFAULT_RECURSIVE;
 	private DirBusterManager manager = null;
 	
+	private boolean onlyUnderDirectory;
+	
     private static Logger log = Logger.getLogger(BruteForce.class);
 
-	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
+	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
 		this.site = site;
 		this.fileName = fileName;
-		this.directory = directory;
+		this.directory = null;
 		this.listenner = listenner;
 		this.threads = bruteForceParam.getThreadPerScan();
 		this.recursive = bruteForceParam.getRecursive();
+		
+		this.onlyUnderDirectory = false;
 
 		this.list = new SortedListModel<>();
 		log.info("BruteForce : " + site + "/" + directory + " threads: " + threads);
@@ -99,7 +103,21 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	    }
 
 	}
-	
+
+    public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
+        this(site, fileName, listenner, bruteForceParam);
+        this.directory = directory;
+        
+        if (this.directory != null) {
+            this.recursive = false;
+            this.onlyUnderDirectory = true;
+            
+            if (!this.directory.endsWith("/")) {
+                this.directory += "/";
+            }
+        }
+    }
+    
 	@Override
 	public void run() {
         try {
@@ -117,6 +135,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
+			manager.setOnlyUnderStartPoint(onlyUnderDirectory);
+			
 			Vector<ExtToCheck> extsVector = new Vector<>();
 			String exts = "php";
 			String startPoint = "/";
@@ -290,6 +310,14 @@ public class BruteForce extends Thread implements BruteForceListenner {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	
+	public void setOnlyUnderDirectory(boolean onlyUnderDirectory) {
+	    this.onlyUnderDirectory = onlyUnderDirectory;
+	    
+	    if (onlyUnderDirectory) {
+	        this.recursive = true;
+	    }
 	}
 
 }
