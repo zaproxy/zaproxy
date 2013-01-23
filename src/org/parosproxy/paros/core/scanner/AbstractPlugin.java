@@ -672,6 +672,11 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	}
 	
 	@Override
+	public void setTechSet(TechSet ts) {
+		this.techSet = ts;
+	}
+	
+	@Override
 	public Date getTimeStarted() {
 		return this.started;
 	}
