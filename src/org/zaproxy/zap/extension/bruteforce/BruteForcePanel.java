@@ -79,6 +79,8 @@ import com.sittinglittleduck.DirBuster.BaseCase;
 public class BruteForcePanel extends AbstractPanel implements BruteForceListenner {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger logger = Logger.getLogger(BruteForcePanel.class);
 
 	public static final String PANEL_NAME = "bruteforce";
 	
@@ -755,7 +757,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				String dir = node.getHistoryReference().getHttpMessage().getRequestHeader().getURI().getPath();
 				startScan(dir, false);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}

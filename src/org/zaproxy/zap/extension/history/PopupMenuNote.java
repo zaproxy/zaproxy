@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 import javax.swing.JList;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -40,6 +41,9 @@ import org.parosproxy.paros.network.HttpMessage;
 public class PopupMenuNote extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger logger = Logger.getLogger(PopupMenuNote.class);
+	
 	private ExtensionHistory extension = null;
     
     /**
@@ -66,7 +70,7 @@ public class PopupMenuNote extends ExtensionPopupMenuItem {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
+        	public void actionPerformed(java.awt.event.ActionEvent evt) {
         	    
         	    HistoryReference ref = extension.getSelectedHistoryReference();
         	    HttpMessage msg = null;
@@ -74,10 +78,8 @@ public class PopupMenuNote extends ExtensionPopupMenuItem {
                     msg = ref.getHttpMessage();
             	    extension.showNotesAddDialog(ref, msg.getNote());
             	    
-                } catch (HttpMalformedHeaderException e1) {
-                    e1.printStackTrace();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                } catch (HttpMalformedHeaderException | SQLException e) {
+                    logger.error(e.getMessage(), e);
                 }
         	}
         });

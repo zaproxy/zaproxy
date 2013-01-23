@@ -278,7 +278,6 @@ public class MenuFileControl implements SessionListener {
             //view.getMainFrame().setTitle(file.getName().replaceAll(".session\\z","") + " - " + Constant.PROGRAM_NAME);
         } else {
 		    view.showWarningDialog(Constant.messages.getString("menu.file.savingSession.error"));	// ZAP: i18n
-		    e.printStackTrace();
     	    log.error("error saving session file " + model.getSession().getFileName(), e);
             log.error(e.getMessage(), e);
 

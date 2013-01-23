@@ -30,6 +30,7 @@
 // configurations.
 // ZAP: 2012/12/31 Removed brute force options
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.model;
 
@@ -37,6 +38,7 @@ import java.io.File;
 import java.util.Vector;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.DatabaseParam;
@@ -58,6 +60,8 @@ import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class OptionsParam extends AbstractParam {
+	
+	private static final Logger logger = Logger.getLogger(OptionsParam.class);
 	
 //	private static final String ROOT = "Options";
 	// ZAP: User directory now stored in the config file
@@ -168,14 +172,9 @@ public class OptionsParam extends AbstractParam {
             // abstractParam. 
             AbstractParam abstractParam = paramSetList.get(i);
             if (abstractParam.getClass().equals(className)) {
-                try {
-                    // ZAP: Removed the cast.
-                    result = abstractParam;
-                    break;
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                // ZAP: Removed the cast.
+                result = abstractParam;
+                break;
             }
         }
         return result;
@@ -213,7 +212,7 @@ public class OptionsParam extends AbstractParam {
 					this.userDirectory = file;
 				}
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				logger.error(e1.getMessage(), e1);
 			}
 		}
 		
@@ -248,7 +247,7 @@ public class OptionsParam extends AbstractParam {
         try {
 			getConfig().save();
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
     }
 

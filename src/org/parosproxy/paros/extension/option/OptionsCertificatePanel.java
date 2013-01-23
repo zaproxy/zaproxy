@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate methods.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.extension.option;
 
@@ -544,7 +545,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			JOptionPane.showMessageDialog(null, new String[] {
 					Constant.messages.getString("options.cert.error"), e.toString()}, 
 					Constant.messages.getString("options.cert.error.accesskeystore"), JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}//GEN-LAST:event_keyStoreListMouseClicked
 
@@ -678,7 +679,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					Constant.messages.getString("options.cert.error.accesskeystore"), 
 					Constant.messages.getString("options.cert.error.password")}, 
 					Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			return;
 		}
 
@@ -776,7 +777,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				certParam.setActiveCertificate();
 
 			} catch (KeyStoreException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			certificateTextField.setText(contextManager.getDefaultKey());
 		}

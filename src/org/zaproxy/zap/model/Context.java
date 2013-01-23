@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.model;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -266,7 +265,7 @@ public class Context {
         addExcludeFromContextRegex(this.getPatternFromNode(sn, recurse));
 	}
 	
-	public void addIncludeInContextRegex(String includeRegex) throws SQLException {
+	public void addIncludeInContextRegex(String includeRegex) {
 		Pattern p = Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE);
 		includeInPatterns.add(p);
 		includeInRegexs.add(includeRegex);
@@ -306,7 +305,7 @@ public class Context {
 	    }
 	}
 
-	public void addExcludeFromContextRegex(String excludeRegex) throws SQLException {
+	public void addExcludeFromContextRegex(String excludeRegex) {
 		Pattern p = Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE);
 		excludeFromPatterns.add(p);
 		excludeFromRegexs.add(excludeRegex);

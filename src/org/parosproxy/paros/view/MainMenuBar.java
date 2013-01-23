@@ -21,6 +21,7 @@
 // ZAP: 2012/03/03 Moved popups to stdmenus extension
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.view;
 
@@ -28,6 +29,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.MenuFileControl;
@@ -38,6 +40,8 @@ import org.zaproxy.zap.view.AboutDialog;
 public class MainMenuBar extends JMenuBar {
 
 	private static final long serialVersionUID = 8580116506279095244L;
+	
+	private static final Logger logger = Logger.getLogger(MainMenuBar.class);
 
 	private javax.swing.JMenu menuEdit = null;
 	private javax.swing.JMenu menuTools = null;
@@ -209,7 +213,7 @@ public class MainMenuBar extends JMenuBar {
                         getMenuFileSave().setEnabled(false);
                     } catch (Exception e1) {
                         View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.newSession.error")); // ZAP: i18n
-                        e1.printStackTrace();
+                        logger.error(e1.getMessage(), e1);
                     }
 				}
 			});

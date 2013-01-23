@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
@@ -28,6 +29,8 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 
+    private static final Logger logger = Logger.getLogger(HttpBreakpointMessage.class);
+    
     private static final String TYPE = "HTTP";
     
 	private String url;
@@ -68,10 +71,8 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                 	}
                 }
                 return pattern.matcher(uri.getURI()).find();
-            } catch (CloneNotSupportedException e1) {
-                e1.printStackTrace();
-            } catch (URIException e) {
-                e.printStackTrace();
+            } catch (CloneNotSupportedException | URIException e) {
+                logger.error(e.getMessage(), e);
             }
 	    }
 	    

@@ -12,11 +12,8 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
-import java.io.IOException;
-
 import javax.swing.text.Segment;
 
-import org.fife.ui.rsyntaxtextarea.DefaultToken;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
 
@@ -54,6 +51,9 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
  *   <li>You should NOT call <code>yylex()</code> on the generated scanner
  *       directly; rather, you should use <code>getTokenList</code> as you would
  *       with any other <code>TokenMaker</code> instance.</li>
+ *   <li>You should remove the "throws" clause of the method <code>yylex</code> (also 
+ *       remove from the JavaDoc), as the exception is not thrown.</li>
+ *   <li>Move the array brackets from variable name to type.</li>
  * </ul>
  */
 public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
@@ -305,14 +305,9 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 		// Start off in the proper state.
 		s = text;
-		try {
-			yyreset(zzReader);
-			yybegin(YYINITIAL);
-			return yylex();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			return new DefaultToken();
-		}
+		yyreset(zzReader);
+		yybegin(YYINITIAL);
+		return yylex();
 	}
 
 
@@ -475,9 +470,8 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
    * the end of input is encountered or an I/O-Error occurs.
    *
    * @return      the next token
-   * @exception   java.io.IOException  if any I/O-Error occurs
    */
-  public org.fife.ui.rsyntaxtextarea.Token yylex() throws java.io.IOException {
+  public org.fife.ui.rsyntaxtextarea.Token yylex() {
     int zzInput;
     int zzAction;
 

@@ -23,11 +23,13 @@
 // ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 
@@ -40,6 +42,8 @@ import org.parosproxy.paros.common.AbstractParam;
 public class ProxyParam extends AbstractParam {
 
 //	private static final String PROXY = "proxy";
+	
+	private static final Logger logger = Logger.getLogger(ProxyParam.class);
 	
 	private static final String PROXY_IP = "proxy.ip";
 	private static final String PROXY_PORT = "proxy.port";
@@ -91,7 +95,7 @@ public class ProxyParam extends AbstractParam {
                 reverseProxyIp = InetAddress.getLocalHost().getHostAddress();
 
             } catch (UnknownHostException e1) {
-                e1.printStackTrace();
+                logger.error(e1.getMessage(), e1);
             }
 		}
 		

@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added type argument to generic type and added @Override
 // annotation to all appropriate methods.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -44,6 +45,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -51,6 +53,9 @@ import org.parosproxy.paros.model.Model;
 public class BrowserDialog extends AbstractDialog {
 
     private static final String TITLE = "View in Browser: ";
+    
+    private static final Logger logger = Logger.getLogger(BrowserDialog.class);
+    
 	private JPanel jContentPane = null;
 	private JPanel jPanelBottom = null;
 	private JLabel jLabel = null;
@@ -237,7 +242,7 @@ public class BrowserDialog extends AbstractDialog {
 	        if (file!=null)
 	            ImageIO.write(screencapture, "png", file);
 	    } catch (Exception e) {
-	        e.printStackTrace();
+	        logger.error(e.getMessage(), e);
 	    }
 //			 this.setAlwaysOnTop(false);
 

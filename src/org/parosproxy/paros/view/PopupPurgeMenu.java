@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/01 Issue 310 prevent infinite loop when deleting nodes
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.view;
 
@@ -34,6 +35,7 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -46,6 +48,8 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = -1140641989210953086L;
+
+	private static final Logger logger = Logger.getLogger(PopupPurgeMenu.class);
 
 	private Component invoker = null;
     
@@ -119,7 +123,7 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
                     child = (SiteNode) node.getChildAt(0);
                     purge(map, child);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
             }
             

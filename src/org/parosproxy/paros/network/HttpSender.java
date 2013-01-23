@@ -28,6 +28,7 @@
 //                 declaration where IOException already appears, 
 //                 introduced two helper methods for notifying listeners.
 // ZAP: 2013/01/19 Issue 459: Active scanner locking
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.network;
 
@@ -232,7 +233,7 @@ public class HttpSender {
                 credentials = new NTCredentials(auth.getUserName(), auth.getPassword(), InetAddress.getLocalHost().getCanonicalHostName(), auth.getHostName());
                 client.getState().setCredentials(authScope, credentials);
             } catch (UnknownHostException e1) {
-                e1.printStackTrace();
+                log.error(e1.getMessage(), e1);
             }
         }
     }

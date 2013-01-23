@@ -21,6 +21,7 @@
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -29,10 +30,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 
 abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
+    
+    private static final Logger logger = Logger.getLogger(AbstractDefaultFilePlugin.class);
     
 	private static final Pattern patternItems = Pattern.compile(",");
 	private static final String[]	SPECIAL_TAG_LIST = {"@cgibin"};
@@ -76,7 +80,7 @@ abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

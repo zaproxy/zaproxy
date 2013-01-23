@@ -4,11 +4,13 @@
  * Used the provided error messages in the file Messages.properties:
  *  - base64.decode.badinput
  *  - base64.decode.invalidlenght
+ * Changed to log the exception instead of print the exception stack trace.
  */
 package org.parosproxy.paros.extension.encoder;
 
 import java.text.MessageFormat;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 
@@ -206,6 +208,7 @@ public class Base64
     
 /* ********  P R I V A T E   F I E L D S  ******** */  
     
+    private static final Logger logger = Logger.getLogger(Base64.class);
     
     /** Maximum line length (76) of Base64 output. */
     private final static int MAX_LINE_LENGTH = 76;
@@ -1295,7 +1298,7 @@ public class Base64
 
                 }   // end try
                 catch( java.io.IOException e ) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                     // Just return originally-decoded bytes
                 }   // end catch
                 finally {

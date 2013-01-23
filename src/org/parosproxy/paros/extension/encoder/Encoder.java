@@ -22,6 +22,7 @@
 //      encoding of the Base64. Changed to use the updated Base64 class. Changed to use 
 //      StringBuilder instead of StringBuffer. Replaced some string concatenations with calls to the 
 //      method append of the class StringBuilder.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.extension.encoder;
 
@@ -32,6 +33,9 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.log4j.Logger;
+
+
 /**
  *
  * To change the template for this generated type comment go to
@@ -39,6 +43,8 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Encoder {
     
+	private static final Logger logger = Logger.getLogger(Encoder.class);
+
 	private int base64EncodeOptions;
 	private String base64Charset;
 
@@ -53,7 +59,7 @@ public class Encoder {
         try {
             result = URLEncoder.encode(msg, "UTF8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         return result;
     }
@@ -63,7 +69,7 @@ public class Encoder {
         try {
             result = URLDecoder.decode(msg, "UTF8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         return result;
 	}
@@ -99,7 +105,9 @@ public class Encoder {
 	    byte[] result = null;
 	    try {
 	        result = buf.getBytes(base64Charset);
-	    } catch (UnsupportedEncodingException e) { e.printStackTrace(); }
+	    } catch (UnsupportedEncodingException e) { 
+            logger.error(e.getMessage(), e);
+        }
 	    return result;
 	}
 	

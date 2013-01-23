@@ -20,11 +20,13 @@
  */
 // ZAP: 2012/03/15 Changed the method options to notify all OptionsChangedListener that the
 //      options have changed.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.control;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.OptionsDialog;
 import org.parosproxy.paros.view.View;
@@ -37,6 +39,8 @@ import org.parosproxy.paros.view.View;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class MenuToolsControl {
+	
+	private static final Logger logger = Logger.getLogger(MenuToolsControl.class);
 	
 	private View view = null;
 	private Model model = null;
@@ -70,7 +74,7 @@ public class MenuToolsControl {
 		    try {
                 model.getOptionsParam().getConfig().save();
             } catch (ConfigurationException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
                 view.showWarningDialog("Error saving options.");
                 return;
             }

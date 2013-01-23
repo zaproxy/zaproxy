@@ -102,23 +102,14 @@ public class ContextAPI extends ApiImplementor {
         return regex;
     }
 
-    private void addExcludeToContext(Context context, String regex) throws ApiException {
-        try {
-            context.addExcludeFromContextRegex(regex);
-            Model.getSingleton().getSession().saveContext(context);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new ApiException(ApiException.Type.BAD_ACTION);
-        }
+    private void addExcludeToContext(Context context, String regex) {
+        context.addExcludeFromContextRegex(regex);
+        Model.getSingleton().getSession().saveContext(context);
     }
 
-    private void addIncludeToContext(Context context, String regex) throws ApiException {
-        try {
-            context.addIncludeInContextRegex(regex);
-            Model.getSingleton().getSession().saveContext(context);
-        } catch (SQLException e) {
-            throw new ApiException(ApiException.Type.BAD_ACTION);
-        }
+    private void addIncludeToContext(Context context, String regex) {
+        context.addIncludeInContextRegex(regex);
+        Model.getSingleton().getSession().saveContext(context);
     }
 
     @Override

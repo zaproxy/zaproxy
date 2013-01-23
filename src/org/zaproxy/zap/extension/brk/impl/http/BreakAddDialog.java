@@ -30,6 +30,7 @@ import javax.swing.JScrollPane;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.network.HttpMessage;
@@ -38,6 +39,8 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class BreakAddDialog extends AbstractDialog {
 	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(BreakAddDialog.class);
 	
 	private JPanel jPanel = null;
 	private ZapTextField txtDisplay = null;
@@ -61,8 +64,7 @@ public class BreakAddDialog extends AbstractDialog {
         try {
             url = uri.getURI();
         } catch (URIException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         getTxtDisplay().setText(url);
         getTxtDisplay().discardAllEdits();

@@ -21,10 +21,12 @@
 // ZAP: 2011/05/27 Catch any exception when loading the config file 
 // ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations
 //      removed duplicated method calls and removed an unnecessary method (load())
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.common;
 
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
@@ -34,6 +36,8 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 abstract public class AbstractParam {
 
+    private static final Logger logger = Logger.getLogger(AbstractParam.class);
+    
     private FileConfiguration config = null;
     /**
      * Load this param from config
@@ -45,7 +49,7 @@ abstract public class AbstractParam {
         try {
             parse();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
     
@@ -54,7 +58,7 @@ abstract public class AbstractParam {
             config = new ZapXmlConfiguration(fileName);
             parse();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
     

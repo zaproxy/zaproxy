@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -38,6 +39,8 @@ import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
+
+	private static final Logger logger = Logger.getLogger(PopupExcludeFromProxyMenu.class);
 
 	/**
 	 * This method initializes 
@@ -55,7 +58,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuSiteNode {
                    child = (SiteNode) node.getChildAt(0);
                    purge(map, child);
                } catch (Exception e) {
-                   e.printStackTrace();
+                   logger.error(e.getMessage(), e);
                }
            }
            

@@ -50,6 +50,9 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
  *   <li>You should NOT call <code>yylex()</code> on the generated scanner
  *       directly; rather, you should use <code>getTokenList</code> as you would
  *       with any other <code>TokenMaker</code> instance.</li>
+ *   <li>You should remove the "throws" clause of the method <code>yylex</code> (and 
+ *       remove from the JavaDoc), as the exception is not thrown.</li>
+ *   <li>Move the array brackets from variable name to type.</li>
  * </ul>
  *
  */
@@ -153,14 +156,9 @@ import org.fife.ui.rsyntaxtextarea.modes.AbstractMarkupTokenMaker;
 
 		// Start off in the proper state.
 		s = text;
-		try {
-			yyreset(zzReader);
-			yybegin(YYINITIAL);
-			return yylex();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			return new DefaultToken();
-		}
+		yyreset(zzReader);
+		yybegin(YYINITIAL);
+		return yylex();
 	}
 
 

@@ -5,7 +5,12 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import org.apache.log4j.Logger;
+
 public class ByteBuilder {
+	
+	private static final Logger logger = Logger.getLogger(ByteBuilder.class);
+	
 	private byte[] array;
 	private int size;
 	
@@ -189,12 +194,14 @@ public class ByteBuilder {
 			Method bytem = value.getClass().getMethod("toByteStructure", (Class<?>[])null);
 			byte[] array = (byte[]) bytem.invoke(value);
 			return this.append(array);
-		} 
-		catch (SecurityException e) { e.printStackTrace(); } //shouldn't happen 
-		catch (IllegalArgumentException e) { e.printStackTrace(); } //shouldn't happen 
-		catch (IllegalAccessException e) { e.printStackTrace(); } //shouldn't happen 
-		catch (InvocationTargetException e) { e.printStackTrace(); } //shouldn't happen 
-		catch (NoSuchMethodException e) { } //will happen, a lot
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			// shouldn't happen but in case it does log it.
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(), e);
+			}
+		} catch (NoSuchMethodException e) {
+			// will happen, a lot
+		}
 		
 		//if the above did not work, instead append the result of the toString() method.
 		return this.append(value.toString());

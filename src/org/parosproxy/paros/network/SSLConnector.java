@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -167,7 +168,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			HttpsURLConnection.setDefaultSSLSocketFactory(clientSSLSockFactory);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 
 		return clientSSLSockFactory;

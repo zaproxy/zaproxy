@@ -22,6 +22,7 @@
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.extension.history;
 
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 
 import javax.swing.JList;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
@@ -46,6 +48,8 @@ import org.parosproxy.paros.network.HttpMessage;
 public class PopupMenuResend extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 2598282233227430069L;
+	
+	private static final Logger logger = Logger.getLogger(PopupMenuResend.class);
 	
 	private ExtensionHistory extension = null;
     
@@ -67,7 +71,7 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
+        	public void actionPerformed(java.awt.event.ActionEvent evt) {
         	    ManualRequestEditorDialog dialog = extension.getResendDialog();
         	    
         	    HistoryReference ref = extension.getSelectedHistoryReference();
@@ -76,10 +80,8 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
                     msg = ref.getHttpMessage().cloneRequest();
                     dialog.setMessage(msg);
                     dialog.setVisible(true);
-                } catch (HttpMalformedHeaderException e1) {
-                    e1.printStackTrace();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                } catch (HttpMalformedHeaderException | SQLException e) {
+                    logger.error(e.getMessage(), e);
                 }
         	}
         });

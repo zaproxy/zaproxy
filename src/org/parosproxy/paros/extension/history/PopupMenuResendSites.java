@@ -20,6 +20,7 @@
 // ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -27,6 +28,7 @@ import java.sql.SQLException;
 
 import javax.swing.JTree;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
@@ -44,6 +46,8 @@ import org.parosproxy.paros.network.HttpMessage;
 public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(PopupMenuResendSites.class);
 
 	private JTree treeSite = null;
     
@@ -77,7 +81,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
+        	public void actionPerformed(java.awt.event.ActionEvent evt) {    
 
                 if (treeSite != null) {
         		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
@@ -89,10 +93,8 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
                         msg = ref.getHttpMessage().cloneRequest();
                         dialog.setMessage(msg);
                         dialog.setVisible(true);
-                    } catch (HttpMalformedHeaderException e1) {
-                        e1.printStackTrace();
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                    } catch (HttpMalformedHeaderException | SQLException e) {
+                        logger.error(e.getMessage(), e);
                     }
                 }
         	}

@@ -25,6 +25,7 @@
 // 		as introduced with version 3.1 of HttpClient
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -37,6 +38,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
@@ -52,6 +54,8 @@ import org.parosproxy.paros.network.HttpStatusCode;
  */
 public class Analyser {
 	
+    private static final Logger logger = Logger.getLogger(Analyser.class);
+    
 	/** remove HTML HEAD as this may contain expiry time which dynamic changes */
 	private static final String p_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
 	private static final Pattern patternNotFound = Pattern.compile("(\\bnot\\b(found|exist))|(\\b404\\berror\\b)|(\\berror\\b404\\b)", Pattern.CASE_INSENSITIVE|Pattern.MULTILINE);
@@ -304,7 +308,7 @@ public class Analyser {
 				tmp = (SiteNode) node.getChildAt(i);
 				inOrderAnalyse(tmp);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage() ,e);
 			}
 		}
 	}
@@ -372,7 +376,7 @@ public class Analyser {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage() ,e);
 			}
 			return true;
 		}
@@ -410,7 +414,7 @@ public class Analyser {
 				return true;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage() ,e);
 
 		}
 

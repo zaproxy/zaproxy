@@ -21,12 +21,14 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added type arguments to generic type, removed unused
 // variable and added @Override annotation to all appropriate methods.
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.extension.filter;
 
 import java.util.Hashtable;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -38,6 +40,8 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class FilterLogPostQuery extends FilterLogGetQuery {
+
+    private static final Logger logger = Logger.getLogger(FilterLogPostQuery.class);
 
     /* (non-Javadoc)
      * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
@@ -94,8 +98,8 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
                     
                     
                     
-                }catch(Exception aa){
-                    aa.printStackTrace();
+                }catch(Exception e){
+                    logger.error(e.getMessage(), e);
                 }
             }
             

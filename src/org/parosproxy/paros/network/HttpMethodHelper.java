@@ -22,6 +22,7 @@
 // ZAP: 2012/01/12 Changed the method createRequestMethod to always use CRLF
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer
 // ZAP: 2012/05/04 Changed to use the class ZapGetMethod instead of org.apache.commons.httpclient.methods.GetMethod
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -40,9 +41,12 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.TraceMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 
 public class HttpMethodHelper {
+
+	private static final Logger logger = Logger.getLogger(HttpMethodHelper.class);
 
 	private static final String OPTIONS	= "OPTIONS";
 	private static final String GET		= "GET";
@@ -171,7 +175,7 @@ public class HttpMethodHelper {
 		try {
 			httpMethod.setURI(uri);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage(), e1);
 		}
 		
 		HttpMethodParams httpParams = httpMethod.getParams();
@@ -378,7 +382,7 @@ public class HttpMethodHelper {
 	    try {
             req.setMessage(sb.toString());
         } catch (HttpMalformedHeaderException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 	}
 	

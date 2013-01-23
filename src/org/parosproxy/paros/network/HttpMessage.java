@@ -30,6 +30,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/09 Added HttpSession field 
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 
 package org.parosproxy.paros.network;
 
@@ -646,7 +647,7 @@ public class HttpMessage implements Message {
             try {
                 newMsg.getRequestHeader().setMessage(this.getRequestHeader().toString());
             } catch (HttpMalformedHeaderException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
             newMsg.setRequestBody(this.getRequestBody().getBytes());
         }

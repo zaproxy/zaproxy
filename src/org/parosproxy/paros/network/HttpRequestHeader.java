@@ -33,6 +33,7 @@
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 // ZAP: 2012/10/08 Issue 361: getHostPort on HttpRequestHeader for HTTPS CONNECT
 // requests returns the wrong port
+// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -144,7 +145,7 @@ public class HttpRequestHeader extends HttpHeader {
         try {
             setHeader(HOST, uri.getHost() + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
         } catch (URIException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         setHeader(USER_AGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)");
         setHeader(PRAGMA, "no-cache");
@@ -450,7 +451,7 @@ public class HttpRequestHeader extends HttpHeader {
                 return (patternImage.matcher(path).find());
             }
         } catch (URIException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         return false;
     }
