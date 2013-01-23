@@ -47,7 +47,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -56,11 +55,18 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class DynamicSSLPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final int MIN_CERT_LENGTH = 10;
+	
+	private static final String OWASP_ZAP_ROOT_CA_NAME = "owasp_zap_root_ca";
+	private static final String OWASP_ZAP_ROOT_CA_FILE_EXT = ".cer";
+	private static final String OWASP_ZAP_ROOT_CA_FILENAME = OWASP_ZAP_ROOT_CA_NAME + OWASP_ZAP_ROOT_CA_FILE_EXT;
+	
+	private static final String CONFIGURATION_FILENAME = Constant.FILE_CONFIG_NAME;
 
 	private ZapTextArea txt_PubCert;
 	private JButton bt_view;
@@ -93,16 +99,18 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		txt_PubCert.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				checkAndEnableViewButton();
-				checkAndEnableSaveButton();
+				checkAndEnableButtons();
 			}
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				checkAndEnableViewButton();
-				checkAndEnableSaveButton();
+				checkAndEnableButtons();
 			}
 			@Override
 			public void changedUpdate(DocumentEvent e) {
+				checkAndEnableButtons();
+			}
+			
+			private void checkAndEnableButtons() {
 				checkAndEnableViewButton();
 				checkAndEnableSaveButton();
 			}
@@ -224,10 +232,10 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		if (rootca != null) {
 			try {
 				final Certificate cert = rootca.getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
-				final PemWriter pw = new PemWriter(sw);
-				pw.writeObject(new MiscPEMGenerator(cert));
-				pw.flush();
-				pw.close();
+				try (final PemWriter pw = new PemWriter(sw)) {
+					pw.writeObject(new MiscPEMGenerator(cert));
+					pw.flush();
+				}
 			} catch (final Exception e) {
 				logger.error("Error while extracting public part from generated Root CA certificate.", e);
 			}
@@ -271,15 +279,15 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		final JFileChooser fc = new JFileChooser(System.getProperty("user.home"));
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setMultiSelectionEnabled(false);
-		fc.setSelectedFile(new File("config.xml"));
+		fc.setSelectedFile(new File(CONFIGURATION_FILENAME));
 		fc.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
-				return "config.xml";
+				return CONFIGURATION_FILENAME;
 			}
 			@Override
 			public boolean accept(File f) {
-				return f.getName().toLowerCase().endsWith("config.xml") || f.isDirectory();
+				return f.getName().toLowerCase().endsWith(CONFIGURATION_FILENAME) || f.isDirectory();
 			}
 		});
 		final int result = fc.showOpenDialog(this);
@@ -290,7 +298,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			}
 			KeyStore ks = null;
 			try {
-				final XMLConfiguration conf = new XMLConfiguration(f);
+				final ZapXmlConfiguration conf = new ZapXmlConfiguration(f);
 				final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
 				ks = SslCertificateUtils.string2Keystore(rootcastr);
 			} catch (final Exception e) {
@@ -321,20 +329,24 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		final JFileChooser fc = new JFileChooser(System.getProperty("user.home"));
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fc.setMultiSelectionEnabled(false);
-		fc.setSelectedFile(new File("owasp_zap_root_ca.cer"));
+		fc.setSelectedFile(new File(OWASP_ZAP_ROOT_CA_FILENAME));
 		if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			final File f = fc.getSelectedFile();
 			if (logger.isInfoEnabled()) {
 				logger.info("Saving Root CA certificate to " + f);
 			}
 			try {
-				final OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(f), "ASCII");
-				osw.write(txt_PubCert.getDocument().getText(0, txt_PubCert.getDocument().getLength()));
-				osw.close();
+				writePubCertificateToFile(f);
 			} catch (final Exception e) {
 				logger.error("Error while writing certificate data to file " + f, e);
 			}
 		}
+	}
+	
+	private void writePubCertificateToFile(File file) throws IOException {
+		try (final OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), "ASCII")) {
+			osw.write(txt_PubCert.getText());
+		} 
 	}
 
 	/**
@@ -385,10 +397,8 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		boolean written = false;
 		File tmpfile = null;
 		try {
-			tmpfile = File.createTempFile("owasp_root_ca", ".cer");
-			final OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tmpfile), "ASCII");
-			osw.write(txt_PubCert.getDocument().getText(0, txt_PubCert.getDocument().getLength()));
-			osw.close();
+			tmpfile = File.createTempFile(OWASP_ZAP_ROOT_CA_NAME, OWASP_ZAP_ROOT_CA_FILE_EXT);
+			writePubCertificateToFile(tmpfile);
 			written = true;
 		} catch (final Exception e) {
 			logger.error("Error while writing certificate data into temporary file.", e);
