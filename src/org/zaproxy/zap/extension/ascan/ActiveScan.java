@@ -2,6 +2,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -33,6 +34,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private DefaultListModel<HistoryReference> list = new DefaultListModel<>();
 	private SiteNode startNode = null;
 	private Context startContext = null;
+	private int totalRequests = 0;
+	private Date timeStarted = null;
+	private Date timeFinished = null;
+	
 	
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
@@ -88,6 +93,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void start() {
 		isAlive = true;
+		this.timeStarted = new Date();
 		if (startNode == null) {
 			SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
 			if (this.getJustScanInScope()) {
@@ -152,6 +158,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void scannerComplete() {
+		this.timeFinished = new Date();
 	}
 
 	@Override
@@ -163,6 +170,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void notifyNewMessage(final HttpMessage msg) {
 	    synchronized (list) {
 	        HistoryReference hRef = msg.getHistoryRef();
+        	this.totalRequests++;
             if (hRef == null) {
                 try {
                     hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
@@ -221,6 +229,18 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void setScanContext(Context context) {
 		this.startContext=context;		
 		//TODO: Use this context to start the active scan only on Nodes in scope
+	}
+
+	public int getTotalRequests() {
+		return totalRequests;
+	}
+
+	public Date getTimeStarted() {
+		return timeStarted;
+	}
+
+	public Date getTimeFinished() {
+		return timeFinished;
 	}
 
 }

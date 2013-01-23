@@ -176,6 +176,14 @@ public class ScanProgressDialog extends AbstractDialog {
 					completed = false;
 				}
 			}
+			// Special case - total elapsed time a and request count
+			values.add(new String[] {"", "", ""});	// Blank line, just to separate the totals
+			values.add(new String[] {Constant.messages.getString("ascan.progress.label.totalTime"), "", 
+					this.getElapsedTime(this.scan.getTimeStarted(), this.scan.getTimeFinished())});
+			values.add(new String[] {Constant.messages.getString("ascan.progress.label.requests"), "", 
+					"" + this.scan.getTotalRequests()});
+			
+			
 			model.setValues(values);
 			if (completed) {
 				this.stopThread = true;

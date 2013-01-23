@@ -282,8 +282,8 @@ public class PluginFactory {
             return null;
         }
         listPending.remove(plugin);
-        listRunning.add(plugin);
         plugin.setTimeStarted();
+        listRunning.add(plugin);
 
         return plugin;
     }
