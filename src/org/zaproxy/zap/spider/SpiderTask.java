@@ -99,18 +99,20 @@ public class SpiderTask implements Runnable {
 
 		// Log the new task
 		if (log.isDebugEnabled()) {
-			if (cookies != null && cookies.size() > 0)
+			if (cookies != null && cookies.size() > 0) {
 				log.debug("New task submitted for uri: " + uri + " with cookies: " + cookies);
-			else
+			} else {
 				log.debug("New task submitted for uri: " + uri + " without cookies.");
+			}
 		}
 
 		// Create a new HttpMessage that will be used for the request, add the cookies (if any) and
 		// persist it in the database using HistoryReference
 		try {
 			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
-			if (cookies != null)
+			if (cookies != null) {
 				msg.setCookies(cookies);
+			}
 			if (requestBody != null) {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
@@ -143,9 +145,6 @@ public class SpiderTask implements Runnable {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see java.lang.Runnable#run() */
 	@Override
 	public void run() {
 
@@ -198,14 +197,16 @@ public class SpiderTask implements Runnable {
 
 		// Check the parse filters to see if the resource should be skipped from parsing
 		boolean isFiltered = false;
-		for (ParseFilter filter : parent.getController().getParseFilters())
+		for (ParseFilter filter : parent.getController().getParseFilters()) {
 			if (filter.isFiltered(msg)) {
-				if (log.isInfoEnabled())
+				if (log.isInfoEnabled()) {
 					log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: "
 							+ msg.getRequestHeader().getURI());
+				}
 				isFiltered = true;
 				break;
 			}
+		}
 
 		// Check if the should stop
 		if (parent.isStopped()) {
@@ -217,8 +218,9 @@ public class SpiderTask implements Runnable {
 		parent.checkPauseAndWait();
 
 		// Process resource, if this is not the maximum depth
-		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth())
+		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth()) {
 			processResource(msg);
+		}
 
 		// Update the progress and check if the spidering process should stop
 		parent.postTaskExecution();
@@ -243,16 +245,18 @@ public class SpiderTask implements Runnable {
 				} catch (URISyntaxException e1) {
 					log.error("Error while building URI for cookie adding", e1);
 				}
-				for (HttpCookie c : cookies)
+				for (HttpCookie c : cookies){
 					store.add(uri, c);
+				}
 			}
 		}
 
 		// Parse the resource
 		List<SpiderParser> parsers = parent.getController().getParsers(msg);
 		Source source = new Source(msg.getResponseBody().toString());
-		for (SpiderParser parser : parsers)
+		for (SpiderParser parser : parsers){
 			parser.parseResource(msg, source, depth);
+		}
 	}
 
 	/**
@@ -278,12 +282,14 @@ public class SpiderTask implements Runnable {
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
 
 		// Check if there is a custom user agent
-		if (parent.getSpiderParam().getUserAgent() != null)
+		if (parent.getSpiderParam().getUserAgent() != null) {
 			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
+		}
 
 		// Fetch the page
-		if (parent.getHttpSender() != null)
+		if (parent.getHttpSender() != null) {
 			parent.getHttpSender().sendAndReceive(msg);
+		}
 
 		return msg;
 

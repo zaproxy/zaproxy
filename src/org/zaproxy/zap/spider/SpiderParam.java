@@ -154,10 +154,6 @@ public class SpiderParam extends AbstractParam {
 	public SpiderParam() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.parosproxy.paros.common.FileXML#parse()
-	 */
 	@Override
 	protected void parse() {
 		// Use try/catch for every parameter so if the parsing of one fails, it's continued for the

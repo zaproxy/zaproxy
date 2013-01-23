@@ -20,6 +20,7 @@ package org.zaproxy.zap.spider;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.htmlparser.jericho.Config;
 
@@ -63,10 +64,10 @@ public class SpiderController implements SpiderParserListener {
 	private Spider spider;
 
 	/** The resources visited using GET method. */
-	private HashSet<String> visitedGet;
+	private Set<String> visitedGet;
 
 	/** The resources visited using POST method. */
-	private HashSet<String> visitedPost;
+	private Set<String> visitedPost;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderController.class);
@@ -200,15 +201,16 @@ public class SpiderController implements SpiderParserListener {
 				log.info("Parsing a robots.txt resource...");
 				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
 				parser.addSpiderParserListener(this);
-				LinkedList<SpiderParser> robotsParsers = new LinkedList<>();
+				List<SpiderParser> robotsParsers = new LinkedList<>();
 				robotsParsers.add(parser);
 				return robotsParsers;
 			}
 		}
 
 		// If it reached this point, it is definitely text
-		if (message.getResponseHeader().isHtml())
+		if (message.getResponseHeader().isHtml()){
 			return htmlParsers;
+		}
 		else {
 			// Parsing non-HTML text resource.
 			return txtParsers;
@@ -219,13 +221,15 @@ public class SpiderController implements SpiderParserListener {
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.debug("New resource found: " + uri);
 
-		if (uri == null)
+		if (uri == null){
 			return;
+		}
 
 		// Create the uri
 		URI uriV = createURI(uri);
-		if (uriV == null)
+		if (uriV == null) {
 			return;
+		}
 
 		// Check if the uri was processed already
 		String visitedURI;
@@ -237,7 +241,7 @@ public class SpiderController implements SpiderParserListener {
 		}
 		synchronized (visitedGet) {
 			if (visitedGet.contains(visitedURI)) {
-				//log.debug("URI already visited: " + visitedURI);
+				// log.debug("URI already visited: " + visitedURI);
 				return;
 			} else {
 				visitedGet.add(visitedURI);
@@ -294,8 +298,9 @@ public class SpiderController implements SpiderParserListener {
 
 		// Create the uri
 		URI uriV = createURI(uri);
-		if (uriV == null)
+		if (uriV == null) {
 			return;
+		}
 
 		// Check if any of the filters disallows this uri
 		for (FetchFilter f : fetchFilters) {

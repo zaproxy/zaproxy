@@ -47,15 +47,17 @@ public class DefaultParseFilter extends ParseFilter {
 
 		// Check response body size
 		if (responseMessage.getResponseBody().length() > MAX_RESPONSE_BODY_SIZE) {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
+			}
 			return true;
 		}
 
 		// Check response type
 		if (!responseMessage.getResponseHeader().isText()) {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Resource is not text: " + responseMessage.getRequestHeader().getURI());
+			}
 			return true;
 		}
 

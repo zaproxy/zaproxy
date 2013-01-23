@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -44,18 +45,23 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * Note: some parts of the code are adapted from: <a
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
  */
-public class URLCanonicalizer {
+public final class URLCanonicalizer {
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
 
 	/** The Constant IRRELEVANT_PARAMETERS defining the parameter names which are ignored in the URL. */
-	private static final HashSet<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
+	private static final Set<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
 	static {
 		IRRELEVANT_PARAMETERS.add("jsessionid");
 		IRRELEVANT_PARAMETERS.add("phpsessid");
 		IRRELEVANT_PARAMETERS.add("aspsessionid");
 	}
+	
+	/**
+	 * Private constructor to avoid initialization of object.
+	 */
+	private URLCanonicalizer(){}
 
 	/**
 	 * Gets the canonical url.
@@ -83,11 +89,13 @@ public class URLCanonicalizer {
 			URI canonicalURI = new URI(resolvedURL);
 
 			/* Some checking. */
-			if (canonicalURI.getScheme() == null)
+			if (canonicalURI.getScheme() == null) {
 				throw new MalformedURLException("Protocol could not be reliably evaluated from uri: " + canonicalURI
 						+ " and base url: " + baseURL);
-			if (canonicalURI.getHost() == null)
+			}
+			if (canonicalURI.getHost() == null) {
 				throw new MalformedURLException("Host could not be reliably evaluated from: " + canonicalURI);
+			}
 
 			/*
 			 * Normalize: no empty segments (i.e., "//"), no segments equal to ".", and no segments equal to
@@ -165,17 +173,20 @@ public class URLCanonicalizer {
 	public static String buildCleanedParametersURIRepresentation(org.apache.commons.httpclient.URI uri,
 			SpiderParam.HandleParametersOption handleParameters) throws URIException {
 		// If the option is set to use all the information, just use the default string representation
-		if (handleParameters.equals(HandleParametersOption.USE_ALL))
+		if (handleParameters.equals(HandleParametersOption.USE_ALL)) {
 			return uri.toString();
+		}
 
 		// If the option is set to ignore parameters completely, ignore the query completely
 		if (handleParameters.equals(HandleParametersOption.IGNORE_COMPLETELY)) {
 			StringBuilder retVal = new StringBuilder();
 			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
-			if (uri.getPort() != -1)
+			if (uri.getPort() != -1) {
 				retVal.append(':').append(uri.getPort());
-			if (uri.getPath() != null)
+			}
+			if (uri.getPath() != null) {
 				retVal.append(uri.getPath());
+			}
 			return retVal.toString();
 		}
 
@@ -184,10 +195,12 @@ public class URLCanonicalizer {
 		if (handleParameters.equals(HandleParametersOption.IGNORE_VALUE)) {
 			StringBuilder retVal = new StringBuilder();
 			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
-			if (uri.getPort() != -1)
+			if (uri.getPort() != -1) {
 				retVal.append(':').append(uri.getPort());
-			if (uri.getPath() != null)
+			}
+			if (uri.getPath() != null) {
 				retVal.append(uri.getPath());
+			}
 
 			// Get the parameters' names
 			SortedMap<String, String> params = createParameterMap(uri.getQuery());
@@ -205,8 +218,9 @@ public class URLCanonicalizer {
 				}
 			}
 			// Add the parameters' names to the uri representation. 
-			if(sb.length()>0)
+			if(sb.length()>0) {
 				retVal.append("?").append(sb);
+			}
 
 			return retVal.toString();
 		}

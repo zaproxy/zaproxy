@@ -25,6 +25,11 @@ package org.zaproxy.zap.spider;
 public final class URLResolver {
 
 	/**
+	 * Private constructor to avoid initialization of object.
+	 */
+	private URLResolver(){}
+	
+	/**
 	 * Resolves a given relative URL against a base URL. See <a
 	 * href="http://www.faqs.org/rfcs/rfc1808.html">RFC1808</a> Section 4 for more details.
 	 * 

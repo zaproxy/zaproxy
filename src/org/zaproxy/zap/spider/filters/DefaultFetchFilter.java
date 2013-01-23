@@ -25,8 +25,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 
 /**
- * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering
- * process. Its filter rules are the following:<br/>
+ * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering process. Its
+ * filter rules are the following:<br/>
  * <ul>
  * <li>the resource protocol/scheme must be 'HTTP' or 'HTTPs'.</li>
  * <li>the resource must be found in the scope (domain) of the spidering process.</li>
@@ -42,37 +42,38 @@ public class DefaultFetchFilter extends FetchFilter {
 	/** The exclude list. */
 	private List<String> excludeList = null;
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.filters.FetchFilter#checkFilter(org.apache.commons.httpclient.URI) */
 	@Override
 	public FetchStatus checkFilter(URI uri) {
 
 		log.info("Checking: " + uri);
 		// Protocol check
 		String scheme = uri.getScheme();
-		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))
+		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
 			return FetchStatus.ILLEGAL_PROTOCOL;
+		}
 
 		try {
 			// Scope check
 			boolean ok = false;
 			String host = uri.getHost();
-			for (String scope : scopes)
+			for (String scope : scopes) {
 				if (host.matches(scope)) {
 					ok = true;
 					break;
 				}
-			if (!ok)
+			}
+			if (!ok) {
 				return FetchStatus.OUT_OF_SCOPE;
+			}
 
 			// Check if any of the exclusion regexes match.
 			if (excludeList != null) {
 				String uriS = uri.toString();
-				for (String ex : excludeList)
-					if (uriS.matches(ex))
+				for (String ex : excludeList) {
+					if (uriS.matches(ex)) {
 						return FetchStatus.USER_RULES;
+					}
+				}
 			}
 
 		} catch (URIException e) {

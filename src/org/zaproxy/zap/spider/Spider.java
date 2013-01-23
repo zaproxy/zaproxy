@@ -56,7 +56,7 @@ public class Spider {
 	private Model model;
 
 	/** The listeners for Spider related events. */
-	private LinkedList<SpiderListener> listeners;
+	private List<SpiderListener> listeners;
 
 	/** If the spider is currently paused. */
 	private volatile boolean paused;
@@ -71,19 +71,19 @@ public class Spider {
 	private SpiderController controller;
 
 	/**
-	 * The condition that is used for the threads in the pool to wait on, when the Spider crawling
-	 * is paused. When the Spider is resumed, all the waiting threads are awakened.
+	 * The condition that is used for the threads in the pool to wait on, when the Spider crawling is paused.
+	 * When the Spider is resumed, all the waiting threads are awakened.
 	 */
 	private Condition pausedCondition = pauseLock.newCondition();
 
 	/** The thread pool for spider workers. */
-	ExecutorService threadPool;
+	private ExecutorService threadPool;
 
 	/** The default fetch filter. */
-	DefaultFetchFilter defaultFetchFilter;
+	private DefaultFetchFilter defaultFetchFilter;
 
 	/** The seed list. */
-	ArrayList<URI> seedList;
+	private List<URI> seedList;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(Spider.class);
@@ -101,9 +101,8 @@ public class Spider {
 	private CookieManager cookieManager;
 
 	/**
-	 * The initialized marks if the spidering process is completely started. It solves the problem
-	 * when the first task is processed and the process is finished before the other seeds are
-	 * added.
+	 * The initialized marks if the spidering process is completely started. It solves the problem when the
+	 * first task is processed and the process is finished before the other seeds are added.
 	 */
 	private boolean initialized;
 
@@ -186,10 +185,11 @@ public class Spider {
 				// Build the URI of the robots.txt file
 				URI robotsUri;
 				// If the port is not 80 or 443, add it to the URI
-				if (uri.getPort() == 80 || uri.getPort() == 443)
+				if (uri.getPort() == 80 || uri.getPort() == 443) {
 					robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
-				else
+				} else {
 					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt", true);
+				}
 				this.seedList.add(robotsUri);
 			} catch (Exception e) {
 				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
@@ -199,8 +199,7 @@ public class Spider {
 	}
 
 	/**
-	 * Sets the exclude list which contains a List of strings, defining the uris that should be
-	 * excluded.
+	 * Sets the exclude list which contains a List of strings, defining the uris that should be excluded.
 	 * 
 	 * @param excludeList the new exclude list
 	 */
@@ -323,8 +322,9 @@ public class Spider {
 
 		// Add the seeds
 		for (URI uri : seedList) {
-			if (log.isInfoEnabled())
+			if (log.isInfoEnabled()) {
 				log.info("Adding seed for spider: " + uri);
+			}
 			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
 		// Mark the process as completely initialized
@@ -337,7 +337,7 @@ public class Spider {
 	public void stop() {
 		log.info("Stopping spidering process by request.");
 		// Issue the shutdown command
-		if (this.stopped == false) {
+		if (!this.stopped) {
 			this.threadPool.shutdownNow();
 		}
 		this.stopped = true;
@@ -373,8 +373,9 @@ public class Spider {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (threadPool != null)
+				if (threadPool != null) {
 					threadPool.shutdownNow();
+				}
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
 				controller.reset();
@@ -410,23 +411,24 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
-	 * it checks if the Spidering process is paused and, if it is, it waits on the corresponding
-	 * condition for the process to be resumed. Called from the SpiderTask.
+	 * This method is run by each thread in the Thread Pool before the task execution. Particularly, it checks
+	 * if the Spidering process is paused and, if it is, it waits on the corresponding condition for the
+	 * process to be resumed. Called from the SpiderTask.
 	 */
 	protected void preTaskExecution() {
 		checkPauseAndWait();
 	}
 
 	/**
-	 * This method is run by Threads in the ThreadPool and checks if the scan is paused and, if it
-	 * is, waits until it's unpaused.
+	 * This method is run by Threads in the ThreadPool and checks if the scan is paused and, if it is, waits
+	 * until it's unpaused.
 	 */
 	protected void checkPauseAndWait() {
 		pauseLock.lock();
 		try {
-			while (paused)
+			while (paused) {
 				pausedCondition.await();
+			}
 		} catch (InterruptedException e) {
 		} finally {
 			pauseLock.unlock();
@@ -434,20 +436,20 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
-	 * it notifies the listeners of the progress and checks if the scan is complete. Called from the
-	 * SpiderTask.
+	 * This method is run by each thread in the Thread Pool before the task execution. Particularly, it
+	 * notifies the listeners of the progress and checks if the scan is complete. Called from the SpiderTask.
 	 */
 	protected void postTaskExecution() {
 		int done = this.tasksDoneCount.incrementAndGet();
 		int total = this.tasksTotalCount.get();
 
 		// Compute the progress and notify the listeners
-		this.notifyListenersSpiderProgress(done*100 / total, done, total - done);
+		this.notifyListenersSpiderProgress(done * 100 / total, done, total - done);
 
 		// Check for ending conditions
-		if (done == total && initialized == true)
+		if (done == total && initialized) {
 			this.complete();
+		}
 	}
 
 	/**
@@ -506,8 +508,9 @@ public class Spider {
 	 */
 	protected synchronized void notifyListenersSpiderProgress(int percentageComplete, int numberCrawled,
 			int numberToCrawl) {
-		for (SpiderListener l : listeners)
+		for (SpiderListener l : listeners) {
 			l.spiderProgress(percentageComplete, numberCrawled, numberToCrawl);
+		}
 	}
 
 	/**
@@ -515,30 +518,33 @@ public class Spider {
 	 * 
 	 * @param uri the uri
 	 * @param method the method used for fetching the resource
-	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
-	 *            stating the reason of the filtering
+	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not, stating the
+	 *        reason of the filtering
 	 */
 	protected synchronized void notifyListenersFoundURI(String uri, String method, FetchStatus status) {
-		for (SpiderListener l : listeners)
+		for (SpiderListener l : listeners) {
 			l.foundURI(uri, method, status);
+		}
 	}
 
 	/**
 	 * Notifies the listeners regarding a read uri.
 	 * 
-	 * @param msg the msg
+	 * @param msg the message
 	 */
 	protected synchronized void notifyListenersReadURI(HttpMessage msg) {
-		for (SpiderListener l : listeners)
+		for (SpiderListener l : listeners) {
 			l.readURI(msg);
+		}
 	}
 
 	/**
 	 * Notifies the listeners that the spider is complete.
 	 */
 	protected synchronized void notifyListenersSpiderComplete(boolean successful) {
-		for (SpiderListener l : listeners)
+		for (SpiderListener l : listeners) {
 			l.spiderComplete(successful);
+		}
 	}
 
 }

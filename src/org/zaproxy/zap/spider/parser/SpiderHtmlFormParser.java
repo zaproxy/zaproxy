@@ -68,36 +68,41 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		this.param = param;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
-	 * , net.htmlparser.jericho.Source, int) */
+	/*
+	 * (non-Javadoc)
+	 * @see org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
+	 * , net.htmlparser.jericho.Source, int)
+	 */
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
 
 		// If form processing is disabled, don't parse anything
-		if (!param.isProcessForm())
+		if (!param.isProcessForm()) {
 			return;
+		}
 
 		// Prepare the source, if not provided
-		if (source == null)
+		if (source == null) {
 			source = new Source(message.getResponseBody().toString());
+		}
 
 		// Get the context (base url)
 		String baseURL;
-		if (message == null)
+		if (message == null) {
 			baseURL = "";
-		else
+		} else {
 			baseURL = message.getRequestHeader().getURI().toString();
+		}
 
 		// Try to see if there's any BASE tag that could change the base URL
 		Element base = source.getFirstElement(HTMLElementName.BASE);
 		if (base != null) {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
-			if (base.getAttributeValue("href") != null)
+			}
+			if (base.getAttributeValue("href") != null) {
 				baseURL = base.getAttributeValue("href");
+			}
 		}
 
 		// Go through the forms
@@ -128,8 +133,10 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
 				String query = "";
 
-				/* Ignore encoding, as we will not POST files anyway, so using
-				 * "application/x-www-form-urlencoded" is adequate */
+				/*
+				 * Ignore encoding, as we will not POST files anyway, so using
+				 * "application/x-www-form-urlencoded" is adequate
+				 */
 				// String encoding = form.getAttributeValue("enctype");
 				// if (encoding != null && encoding.equals("multipart/form-data"))
 				query = buildEncodedUrlQuery(formDataSet);
@@ -138,8 +145,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 				// Build the absolute canonical URL
 				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
-				if (fullURL == null)
+				if (fullURL == null) {
 					return;
+				}
 
 				log.debug("Canonical URL constructed using '" + action + "': " + fullURL);
 				notifyListenersPostResourceFound(message, depth + 1, fullURL, query);
@@ -150,10 +158,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				log.debug("Submiting form with GET method and query with form parameters: " + query);
 
 				if (action.contains("?")) {
-					if (action.endsWith("?"))
+					if (action.endsWith("?")) {
 						processURL(message, depth, action + query, baseURL);
-					else
+					} else {
 						processURL(message, depth, action + "&" + query, baseURL);
+					}
 				} else {
 					processURL(message, depth, action + "?" + query, baseURL);
 				}
@@ -168,8 +177,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * constructed from successful controls, which will be sent with a GET/POST request for a form.
 	 * 
 	 * <br/>
-	 * Also see:
-	 * http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
+	 * Also see: http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
 	 * html
 	 * 
 	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set
@@ -183,13 +191,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		Iterator<FormField> it = form.iterator();
 		while (it.hasNext()) {
 			FormField field = it.next();
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("New form field: " + field.getDebugInfo());
+			}
 
 			// Get its value(s)
 			List<String> values = field.getValues();
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Existing values: " + values);
+			}
 
 			// If there are no values at all or only an empty value
 			if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
@@ -204,14 +214,18 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 					// If there are more values, don't use the first, as it usually is a "No select"
 					// item
-					if (iterator.hasNext())
+					if (iterator.hasNext()) {
 						finalValue = iterator.next();
+					}
 				} else {
-					/* In all cases, according to Jericho documentation, the only left option is for
-					 * it to be a TEXT field, without any predefined value. We check if it has only
-					 * one userValueCount, and, if so, fill it with a default value. */
-					if (field.getUserValueCount() > 0)
+					/*
+					 * In all cases, according to Jericho documentation, the only left option is for it to be
+					 * a TEXT field, without any predefined value. We check if it has only one userValueCount,
+					 * and, if so, fill it with a default value.
+					 */
+					if (field.getUserValueCount() > 0) {
 						finalValue = getDefaultTextValue(field);
+					}
 				}
 
 				// Save the finalValue in the FormDataSet
@@ -220,12 +234,13 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				formDataSet.add(p);
 			}
 			// If there are preselected values for the fields, use them
-			else
+			else {
 				for (String v : values) {
 					// Save the finalValue in the FormDataSet
 					HtmlParameter p = new HtmlParameter(Type.form, field.getName(), v);
 					formDataSet.add(p);
 				}
+			}
 		}
 
 		return formDataSet;
@@ -238,8 +253,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * Generates accurate field values for following types:
 	 * <ul>
 	 * <li>Text/Password/Search - DEFAULT_TEXT_VALUE</li>
-	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max
-	 * otherwise DEFAULT_NUMBER_VALUE;</li>
+	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max otherwise
+	 * DEFAULT_NUMBER_VALUE;</li>
 	 * <li>url - http://www.example.com</li>
 	 * <li>email - contact@example.com</li>
 	 * <li>color - #000000</li>
@@ -257,30 +272,37 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			// If the control type was reduced to a TEXT type by the Jericho library, check the
 			// HTML5 type and use proper values
 			String type = fc.getAttributesMap().get(ATTR_TYPE);
-			if (type == null || type.equalsIgnoreCase("text"))
+			if (type == null || type.equalsIgnoreCase("text")) {
 				return DEFAULT_TEXT_VALUE;
+			}
 
 			if (type.equalsIgnoreCase("number") || type.equalsIgnoreCase("range")) {
 				String min = fc.getAttributesMap().get("min");
-				if (min != null)
+				if (min != null) {
 					return min;
+				}
 				String max = fc.getAttributesMap().get("min");
-				if (max != null)
+				if (max != null) {
 					return max;
+				}
 				return DEFAULT_NUMBER_VALUE;
 			}
 
-			if (type.equalsIgnoreCase("url"))
+			if (type.equalsIgnoreCase("url")) {
 				return "http://www.example.com";
+			}
 
-			if (type.equalsIgnoreCase("email"))
+			if (type.equalsIgnoreCase("email")) {
 				return "foo-bar@example.com";
+			}
 
-			if (type.equalsIgnoreCase("color"))
+			if (type.equalsIgnoreCase("color")) {
 				return "#ffffff";
+			}
 
-			if (type.equalsIgnoreCase("tel"))
+			if (type.equalsIgnoreCase("tel")) {
 				return "9999999999";
+			}
 
 			if (type.equalsIgnoreCase("datetime")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -339,8 +361,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			request.append("&");
 		}
 		// Delete the last ampersand
-		if (request.length() > 0)
+		if (request.length() > 0) {
 			request.deleteCharAt(request.length() - 1);
+		}
 
 		return request.toString();
 	}

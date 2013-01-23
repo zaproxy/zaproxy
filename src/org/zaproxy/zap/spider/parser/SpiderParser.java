@@ -18,6 +18,7 @@
 package org.zaproxy.zap.spider.parser;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import net.htmlparser.jericho.Source;
 
@@ -26,14 +27,13 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
- * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of
- * these Parsers is to find links (uris) to resources in the provided content. Uses the Jericho
- * Library for parsing.
+ * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of these
+ * Parsers is to find links (uris) to resources in the provided content. Uses the Jericho Library for parsing.
  */
 public abstract class SpiderParser {
 
 	/** The listeners to spider parsing events. */
-	private LinkedList<SpiderParserListener> listeners = new LinkedList<>();
+	private List<SpiderParserListener> listeners = new LinkedList<>();
 
 	/** The Constant log. */
 	protected static final Logger log = Logger.getLogger(SpiderParser.class);
@@ -64,8 +64,9 @@ public abstract class SpiderParser {
 	 * @param uri the uri
 	 */
 	protected void notifyListenersResourceFound(HttpMessage message, int depth, String uri) {
-		for (SpiderParserListener l : listeners)
+		for (SpiderParserListener l : listeners) {
 			l.resourceURIFound(message, depth, uri);
+		}
 	}
 
 	/**
@@ -78,8 +79,9 @@ public abstract class SpiderParser {
 	 * @param requestBody the request body
 	 */
 	protected void notifyListenersPostResourceFound(HttpMessage message, int depth, String uri, String requestBody) {
-		for (SpiderParserListener l : listeners)
+		for (SpiderParserListener l : listeners) {
 			l.resourcePostURIFound(message, depth, uri, requestBody);
+		}
 	}
 
 	/**
@@ -93,20 +95,21 @@ public abstract class SpiderParser {
 	protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
 		// Build the absolute canonical URL
 		String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
-		if (fullURL == null)
+		if (fullURL == null) {
 			return;
+		}
 
 		log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
 		notifyListenersResourceFound(message, depth + 1, fullURL);
 	}
 
 	/**
-	 * Parses the resource. The HTTP message containing the request and the response is given. Also,
-	 * if possible, a Jericho source with the Response Body is provided.
+	 * Parses the resource. The HTTP message containing the request and the response is given. Also, if
+	 * possible, a Jericho source with the Response Body is provided.
 	 * 
 	 * @param message the full http message containing the request and the response
-	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter
-	 *            can be {@code null}, in which case the parser implementation should ignore it.
+	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter can be
+	 *        {@code null}, in which case the parser implementation should ignore it.
 	 * @param depth the depth of this resource
 	 */
 	public abstract void parseResource(final HttpMessage message, Source source, int depth);

@@ -54,8 +54,9 @@ public class SpiderRobotstxtParser extends SpiderParser {
 
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
-		if (message == null || params.isParseRobotsTxt() == false)
+		if (message == null || !params.isParseRobotsTxt()) {
 			return;
+		}
 
 		// Get the response content
 		String content = message.getResponseBody().toString();

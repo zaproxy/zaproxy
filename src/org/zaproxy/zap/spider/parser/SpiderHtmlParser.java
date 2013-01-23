@@ -65,23 +65,27 @@ public class SpiderHtmlParser extends SpiderParser {
 	public void parseResource(HttpMessage message, Source source, int depth) {
 
 		// Prepare the source, if not provided
-		if (source == null)
+		if (source == null) {
 			source = new Source(message.getResponseBody().toString());
+		}
 
 		// Get the context (base url)
 		String baseURL;
-		if (message == null)
+		if (message == null) {
 			baseURL = "";
-		else
+		} else {
 			baseURL = message.getRequestHeader().getURI().toString();
+		}
 
 		// Try to see if there's any BASE tag that could change the base URL
 		Element base = source.getFirstElement(HTMLElementName.BASE);
 		if (base != null) {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
-			if (base.getAttributeValue("href") != null)
+			}
+			if (base.getAttributeValue("href") != null) {
 				baseURL = base.getAttributeValue("href");
+			}
 		}
 
 		// Parse the source
@@ -185,8 +189,9 @@ public class SpiderHtmlParser extends SpiderParser {
 			String attributeName) {
 		// The URL as written in the attribute (can be relative or absolute)
 		String localURL = element.getAttributeValue(attributeName);
-		if (localURL == null)
+		if (localURL == null) {
 			return;
+		}
 
 		processURL(message, depth, localURL, baseURL);
 	}
