@@ -27,6 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -51,7 +52,7 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
     private static final String PASSWORD_FIELD_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.field.label.password");
     private static final String REALM_FIELD_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.field.label.realm");
     private static final String ENABLED_FIELD_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.field.label.enabled");
-
+    private static final String MASKED_PASSWORD_FIELD_LABEL = Constant.messages.getString("options.auth.dialog.hostAuth.field.label.maskpassword");
     private static final String TITLE_NAME_REPEATED_DIALOG = Constant.messages.getString("options.auth.dialog.hostAuth.warning.name.repeated.title");
     private static final String TEXT_NAME_REPEATED_DIALOG = Constant.messages.getString("options.auth.dialog.hostAuth.warning.name.repeated.text");
 
@@ -60,9 +61,10 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
     private ZapTextField hostTextField;
     private ZapPortNumberSpinner portNumberSpinner;
     private ZapTextField userNameTextField;
-    private ZapTextField passwordTextField;
     private ZapTextField realmTextField;
     private JCheckBox enabledCheckBox;
+    private JCheckBox maskPasswordCheckBox;
+    private JPasswordField passwordTextField;
     
     protected HostAuthentication hostAuthentication;
     private List<HostAuthentication> auths;
@@ -93,6 +95,7 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         JLabel passwordLabel = new JLabel(PASSWORD_FIELD_LABEL);
         JLabel realmLabel = new JLabel(REALM_FIELD_LABEL);
         JLabel enabledLabel = new JLabel(ENABLED_FIELD_LABEL);
+        JLabel maskPasswordLabel = new JLabel(MASKED_PASSWORD_FIELD_LABEL);
         
         layout.setHorizontalGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
@@ -102,7 +105,8 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
                 .addComponent(userNameLabel)
                 .addComponent(passwordLabel)
                 .addComponent(realmLabel)
-                .addComponent(enabledLabel))
+                .addComponent(enabledLabel)
+                .addComponent(maskPasswordLabel))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addComponent(getNameTextField())
                 .addComponent(getHostTextField())
@@ -110,7 +114,8 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
                 .addComponent(getUserNameTextField())
                 .addComponent(getPasswordTextField())
                 .addComponent(getRealmTextField())
-                .addComponent(getEnabledCheckBox()))
+                .addComponent(getEnabledCheckBox())
+                .addComponent(getMaskPasswordCheckBox()))
         );
         
         layout.setVerticalGroup(layout.createSequentialGroup()
@@ -135,6 +140,9 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(enabledLabel)
                 .addComponent(getEnabledCheckBox()))
+            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addComponent(maskPasswordLabel)
+                .addComponent(getMaskPasswordCheckBox()))
         );
         
         return fieldsPanel;
@@ -154,7 +162,8 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         getPasswordTextField().setText("");
         getRealmTextField().setText("");
         getEnabledCheckBox().setSelected(true);
-        
+        getMaskPasswordCheckBox().setSelected(true);
+        setPasswordMasking();
         hostAuthentication = null;
     }
 
@@ -181,9 +190,10 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
                 getHostTextField().getText(),
                 getPortNumberSpinner().getValue().intValue(),
                 getUserNameTextField().getText(),
-                getPasswordTextField().getText(),
+                new String(getPasswordTextField().getPassword()),
                 getRealmTextField().getText());
         hostAuthentication.setEnabled(getEnabledCheckBox().isSelected());
+        hostAuthentication.setMasked(getMaskPasswordCheckBox().isSelected());
     }
     
     @Override
@@ -194,8 +204,7 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         getHostTextField().discardAllEdits();
         getUserNameTextField().setText(""); 
         getUserNameTextField().discardAllEdits();
-        getPasswordTextField().setText(""); 
-        getPasswordTextField().discardAllEdits();
+        getPasswordTextField().setText("");
         getRealmTextField().setText(""); 
         getRealmTextField().discardAllEdits();
     }
@@ -238,12 +247,13 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         return userNameTextField;
     }
     
-    protected ZapTextField getPasswordTextField() {
-        if (passwordTextField == null) {
-            passwordTextField = new ZapTextField(25);
-        }
-        
-        return passwordTextField;
+    protected JPasswordField getPasswordTextField() {
+    	if(passwordTextField == null){
+    		passwordTextField = new JPasswordField(25);
+    		passwordTextField.setEchoChar('*');
+    	}
+    	
+    	return passwordTextField;
     }
     
     protected ZapTextField getRealmTextField() {
@@ -261,6 +271,28 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         
         return enabledCheckBox;
     }
+    
+    protected JCheckBox getMaskPasswordCheckBox(){
+    	if(maskPasswordCheckBox == null){
+    		maskPasswordCheckBox = new JCheckBox();
+    		maskPasswordCheckBox.addActionListener(new java.awt.event.ActionListener() {
+    			@Override
+        		public void actionPerformed(java.awt.event.ActionEvent evt) {
+    				
+    		        boolean selected = maskPasswordCheckBox.isSelected();
+    		        if (!selected) {
+    					JOptionPane.showMessageDialog(null, new String[] {
+    							Constant.messages.getString("options.auth.dialog.hostAuth.disablemaskpassword.text")}, 
+    							Constant.messages.getString("options.auth.dialog.hostAuth.disablemaskpassword.title"), JOptionPane.WARNING_MESSAGE);
+    					setPasswordUnmasking();	
+    				} else {
+    					setPasswordMasking();
+    				}
+    			}
+    		});
+    	}
+    	return maskPasswordCheckBox;
+    }
 
     public void setAuthentications(List<HostAuthentication> auths) {
         this.auths = auths;
@@ -270,7 +302,15 @@ class DialogAddHostAuthentication extends AbstractFormDialog {
         this.auths =  null;
         this.hostAuthentication = null;
     }
-
+    
+    public void setPasswordMasking(){
+    	getPasswordTextField().setEchoChar('*');
+    }
+    
+    public void setPasswordUnmasking(){
+    	getPasswordTextField().setEchoChar('\u0000');
+    }
+    
     private ConfirmButtonValidatorDocListener getConfirmButtonValidatorDocListener() {
         if (confirmButtonValidatorDocListener == null) {
             confirmButtonValidatorDocListener = new ConfirmButtonValidatorDocListener(); 
