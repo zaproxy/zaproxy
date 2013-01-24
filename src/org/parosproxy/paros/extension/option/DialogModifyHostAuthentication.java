@@ -66,13 +66,22 @@ class DialogModifyHostAuthentication extends DialogAddHostAuthentication {
         getUserNameTextField().setText(hostAuthentication.getUserName());
         getUserNameTextField().discardAllEdits();
         
-        getPasswordTextField().setText(hostAuthentication.getPassword());
-        getPasswordTextField().discardAllEdits();
-        
         getRealmTextField().setText(hostAuthentication.getRealm());
         getRealmTextField().discardAllEdits();
         
         getEnabledCheckBox().setSelected(hostAuthentication.isEnabled());
+       
+        getMaskPasswordCheckBox().setSelected(hostAuthentication.isMasked());
+        
+        if(hostAuthentication.isMasked()){
+        	setPasswordMasking();
+        }else{
+        	setPasswordUnmasking();
+        }
+       	
+        getPasswordTextField().setText(hostAuthentication.getPassword());
+        
+        
     }
 
 }
