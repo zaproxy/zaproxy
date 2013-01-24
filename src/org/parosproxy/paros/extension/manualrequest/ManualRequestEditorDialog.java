@@ -60,7 +60,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 
 /**
- * Send custom crafted messages via HTTP, WebSockets, etc. 
+ * Send custom crafted messages via HTTP or other TCP based protocols. 
  */
 public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
 	private static final long serialVersionUID = 1L;

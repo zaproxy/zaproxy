@@ -175,7 +175,6 @@
             	<!-- Not working yet ;)
             	<exclude name="org/zaproxy/zap/extension/bruteforce/**"/>
             	<exclude name="com/sittinglittleduck/DirBuster/**"/-->	<!-- Just used for forcedbrowse -->
-            	<exclude name="org/zaproxy/zap/extension/websocket/**"/>
             </zipfileset>
             <manifest>
                 <attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
@@ -190,11 +189,6 @@
             	<include name="com/sittinglittleduck/DirBuster/**"/>
             </zipfileset>
         </jar-->
-        <jar jarfile="${dist}/plugin/websocket-release-2.zap" update="true" compress="false">
-            <zipfileset dir="${build}" prefix="">
-            	<include name="org/zaproxy/zap/extension/websocket/**"/>
-            </zipfileset>
-        </jar>
     	
 
         <unjar dest="${dist.lib.exploded.dir}">

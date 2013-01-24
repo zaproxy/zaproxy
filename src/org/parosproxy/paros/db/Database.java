@@ -62,7 +62,6 @@ public class Database {
 	private TableSessionUrl tableSessionUrl = null;
 	// ZAP: Added TableParam.
 	private TableParam tableParam = null;
-	// ZAP: Added TableWebSocket.
 	private TableContext tableContext = null;
 	// ZAP: Added Logger.
     private static final Logger log = Logger.getLogger(Database.class);

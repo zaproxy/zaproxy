@@ -26,16 +26,13 @@
 // Replaced the class HttpBody with the new class HttpRequestBody and replaced the method 
 // call from readBody to readRequestBody of the class HttpInputStream. 
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
-// ZAP: 2012/05/06 Handle over socket connection to WebSockets extension in
-// method processHttp().
 // ZAP: 2012/05/11 Do not close connections in final clause of run() method,
 // if boolean attribute keepSocketOpen is set to true.
 // ZAP: 2012/08/07 Issue 342 Support the HttpSenderListener
 // ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
-// ZAP: 2012/12/27 Added support for PersistentConnectionListener
-// (refactored WebSockets)
+// ZAP: 2012/12/27 Added support for PersistentConnectionListener.
 // ZAP: 2013/01/04 Do beginSSL() on HTTP CONNECT only if port requires so.
 
 package org.parosproxy.paros.core.proxy;
