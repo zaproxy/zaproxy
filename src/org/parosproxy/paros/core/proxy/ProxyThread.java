@@ -140,7 +140,7 @@ class ProxyThread implements Runnable {
         	throw new MissingRootCertificateException(e); // throw again, cause will be catched later.
 		} catch (Exception e) {
 			// ZAP: transform for further processing 
-			throw new IOException("Error while establishing SSL connection!", e);
+			throw new IOException("Error while establishing SSL connection for '" + targethost + "'!", e);
 		}
         
         httpIn = new HttpInputStream(inSocket);
