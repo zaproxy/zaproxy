@@ -587,7 +587,11 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 	     * @see WebSocketMessage#forward(OutputStream)
 	     */
 		@Override
-		public void forward(OutputStream out) throws IOException {
+		public boolean forward(OutputStream out) throws IOException {
+			if (out == null) {
+				return false;
+			}
+			
 			logger.debug("forward message#" + getMessageId());
 			
 			if (hasChanged) {
@@ -633,6 +637,8 @@ public class WebSocketProxyV13 extends WebSocketProxy {
 					}
 				}
 			}
+			
+			return true;
 		}
 
 		/**

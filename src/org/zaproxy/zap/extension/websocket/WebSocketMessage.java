@@ -198,9 +198,10 @@ public abstract class WebSocketMessage {
 	 * Write all frames of this message to given stream.
 	 * 
 	 * @param out
+	 * @return True if successfully forwarded.
 	 * @throws IOException
 	 */
-	public abstract void forward(OutputStream out) throws IOException;
+	public abstract boolean forward(OutputStream out) throws IOException;
 
 	/**
 	 * Read further frame for non-control message.

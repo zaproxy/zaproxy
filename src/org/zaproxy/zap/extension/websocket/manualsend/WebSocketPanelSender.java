@@ -70,7 +70,13 @@ public class WebSocketPanelSender implements MessageSender, WebSocketObserver {
     	}
     	
         try {
-        	getDelegate(websocketMessage.channel.id).sendAndNotify(websocketMessage);
+        	WebSocketProxy wsProxy = getDelegate(websocketMessage.channel.id);
+        	if (websocketMessage.isOutgoing == false && wsProxy.isClientMode()) {
+        		logger.warn("Invalid WebSocket direction 'incoming' selected for Proxy in Client Mode. Unable to send manual crafted message!");
+        		throw new WebServiceException(Constant.messages.getString("websocket.manual_send.fail.invalid_direction_client_mode") 
+        				+ " " + Constant.messages.getString("websocket.manual_send.fail"));
+        	}
+        	wsProxy.sendAndNotify(websocketMessage);
         } catch (final IOException ioe) {
         	logger.warn(ioe.getMessage(), ioe);
             throw new WebServiceException("IO error in sending WebSocket message.");

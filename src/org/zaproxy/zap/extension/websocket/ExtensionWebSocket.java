@@ -47,6 +47,8 @@ import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.filter.ExtensionFilter;
 import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
+import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
+import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -313,6 +315,14 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
 				
 				// add 'Resend Message' menu item to WebSocket tab context menu
 				hookMenu.addPopupMenuItem(new ResendWebSocketMessageMenuItem(createReSendDialog(sender)));
+				
+				
+				// setup persistent connection listener for http manual send editor
+				ManualRequestEditorDialog sendEditor = extManReqEdit.getManualSendEditor(HttpMessage.class);
+				if (sendEditor != null) {
+					ManualHttpRequestEditorDialog httpSendEditor = (ManualHttpRequestEditorDialog) sendEditor;
+					httpSendEditor.addPersistentConnectionListener(this);
+				}
 			}
 		}
 	}
@@ -394,10 +404,10 @@ public class ExtensionWebSocket extends ExtensionAdaptor implements
 	public void addWebSocketsChannel(HttpMessage handshakeMessage, Socket localSocket, Socket remoteSocket, InputStream remoteReader) {
 		try {			
 			if (logger.isDebugEnabled()) {
-				logger.debug("Got WebSockets channel from " + localSocket.getInetAddress()
-					+ " port " + localSocket.getPort() + " to "
-					+ remoteSocket.getInetAddress() + " port "
-					+ remoteSocket.getPort());
+				String source = (localSocket != null) ? localSocket.getInetAddress().toString() + ":" + localSocket.getPort() : "ZAP";
+				String destination = remoteSocket.getInetAddress() + ":" + remoteSocket.getPort();
+				
+				logger.debug("Got WebSockets channel from " + source + " to " + destination);
 			}
 			
 			// parse HTTP handshake

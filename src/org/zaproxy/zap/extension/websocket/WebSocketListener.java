@@ -82,10 +82,12 @@ public class WebSocketListener implements Runnable {
 		Thread.currentThread().setName(name);
 		
 		try {
-			byte[] buffer = new byte[1];
-			while (in.read(buffer) != -1) {
-				// there is something to read => process in WebSockets version specific message
-				wsProxy.processRead(in, out, buffer[0]);
+			if (in != null) {
+				byte[] buffer = new byte[1];
+				while (in.read(buffer) != -1) {
+					// there is something to read => process in WebSockets version specific message
+					wsProxy.processRead(in, out, buffer[0]);
+				}
 			}
 		} catch (IOException e) {
 			// includes SocketException
@@ -105,7 +107,9 @@ public class WebSocketListener implements Runnable {
 	 */
 	private void closeReaderStream() {
 		try {
-			in.close();
+			if (in != null) {
+				in.close();
+			}
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}
@@ -116,7 +120,9 @@ public class WebSocketListener implements Runnable {
 	 */
 	private void closeWriterStream() {
 		try {
-			out.close();
+			if (out != null) {
+				out.close();
+			}
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}

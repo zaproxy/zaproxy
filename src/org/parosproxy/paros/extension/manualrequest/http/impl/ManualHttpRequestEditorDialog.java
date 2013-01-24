@@ -27,6 +27,8 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -51,6 +53,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -530,5 +533,9 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 			
 			return splitPane;
 		}
+	}
+	
+	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
+		((HttpPanelSender) getMessageSender()).addPersistentConnectionListener(listener);
 	}
 }

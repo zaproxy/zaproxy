@@ -88,6 +88,16 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	public void addManualSendEditor(ManualRequestEditorDialog dialogue) {
 		dialogues.put(dialogue.getMessageType(), dialogue);
 	}
+	
+	/**
+	 * Get special manual send editor to add listeners, etc.
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public ManualRequestEditorDialog getManualSendEditor(Class<? extends Message> type) {
+		return dialogues.get(type);
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

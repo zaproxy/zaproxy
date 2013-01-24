@@ -47,6 +47,9 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
  * support when switching from Sockets to SocketChannels in this class.
  * Therefore each instance has got two threads that listen on each side for new
  * messages (these are blocking reads).
+ * <p>
+ * Is able to act as WebSocket client (i.e.: the WebSocket connection is set-up
+ * between ZAP and the server, without the browser).
  */
 public abstract class WebSocketProxy {
 	
@@ -150,6 +153,11 @@ public abstract class WebSocketProxy {
 	private boolean isForwardOnly;
 	
 	/**
+	 * In client mode there is no connection Browser <-> ZAP, but only ZAP <-> Server.
+	 */
+	private boolean isClientMode;
+	
+	/**
 	 * After loading another session, the channelCount should be initialized.
 	 * 
 	 * @param currentChannelCount
@@ -201,6 +209,12 @@ public abstract class WebSocketProxy {
 	 * @param remoteSocket Channel from ZAP to remote machine.
 	 */
 	public WebSocketProxy(Socket localSocket, Socket remoteSocket) {
+		if (localSocket == null) {
+			isClientMode = true;
+		} else {
+			isClientMode = false;
+		}
+		
 		this.localSocket = localSocket;
 		this.remoteSocket = remoteSocket;
 		
@@ -256,7 +270,7 @@ public abstract class WebSocketProxy {
 		setState(State.CONNECTING);
 		
 		// check if both sockets are open, otherwise no need for listening
-		if (localSocket.isClosed() || !localSocket.isConnected()) {
+		if (localSocket != null && (localSocket.isClosed() || !localSocket.isConnected())) {
 			throw new WebSocketException("local socket is closed or not connected");
 		}
 		
@@ -266,9 +280,11 @@ public abstract class WebSocketProxy {
 		
 		// ensure right settings are used for our sockets
 		try {
-			localSocket.setSoTimeout(0); // infinite timeout
-			localSocket.setTcpNoDelay(true);
-			localSocket.setKeepAlive(true);
+			if (localSocket != null) {
+				localSocket.setSoTimeout(0); // infinite timeout
+				localSocket.setTcpNoDelay(true);
+				localSocket.setKeepAlive(true);
+			}
 			
 			remoteSocket.setSoTimeout(0);
 			remoteSocket.setTcpNoDelay(true);
@@ -313,7 +329,12 @@ public abstract class WebSocketProxy {
 	 */
 	private WebSocketListener createListener(Socket readEnd, InputStream reader, String side) throws WebSocketException {
 		try {
-			OutputStream writer = getOppositeSocket(readEnd).getOutputStream();
+			OutputStream writer = null;
+			Socket writeSocket = getOppositeSocket(readEnd);
+			if (writeSocket != null) {
+				writer = writeSocket.getOutputStream();
+			}
+
 			String name = "ZAP-WS-Listener (" + side + ") '" + toString() + "'";
 			
 			return new WebSocketListener(this, reader, writer, name);
@@ -334,7 +355,10 @@ public abstract class WebSocketProxy {
 	 */
 	private WebSocketListener createListener(Socket readEnd, String side) throws WebSocketException {
 		try {
-			InputStream reader = new BufferedInputStream(readEnd.getInputStream());
+			InputStream reader = null;
+			if (readEnd != null) {
+				reader = new BufferedInputStream(readEnd.getInputStream());
+			}
 			
 			return createListener(readEnd, reader, side);
 		} catch (IOException e) {
@@ -346,6 +370,11 @@ public abstract class WebSocketProxy {
 	 * Stop listening & close all resources, i.e.: threads, streams & sockets
 	 */
 	public void shutdown() {
+		if (isClientMode && localListener.isFinished() && !remoteListener.isFinished()) {
+			// in client mode closing shutdown should be prevented
+			return;
+		}
+		
 		setState(State.CLOSING);
 		
 		int closedCount = 0;
@@ -369,7 +398,9 @@ public abstract class WebSocketProxy {
 			logger.debug("close WebSockets");
 			
 			try {
-				localSocket.close();
+				if (localSocket != null) {
+					localSocket.close();
+				}
 			} catch (IOException e) {
 				logger.warn(e.getMessage(), e);
 			}
@@ -695,8 +726,13 @@ public abstract class WebSocketProxy {
 			// an incoming message is caught by the remote listener
 			out = remoteListener.getOutputStream();
 		}
-		message.forward(out);
-		
-		notifyMessageObservers(message);
+	
+		if (message.forward(out)) {
+			notifyMessageObservers(message);
+		}
+	}
+
+	public boolean isClientMode() {
+		return isClientMode;
 	}
 }
