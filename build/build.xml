@@ -11,8 +11,9 @@
     <property name="javadocs.dir" location="../javadocs" />
     <property name="crowdin.dir" location="${build}/crowdin" />
     <property name="lang.dir" value="${src}/lang" />
-	<!-- TODO really need different targets for alpha, beta and trunk - will require changing Crowdin file structure -->
-    <property name="zap.extensions.src.dir" location="../../zap-extensions-beta/src/" />
+    <property name="zap.extensions.alpha.src.dir" location="../../zap-extensions-alpha/src/" />
+    <property name="zap.extensions.beta.src.dir" location="../../zap-extensions-beta/src/" />
+    <property name="zap.extensions.trunk.src.dir" location="../../zap-extensions-trunk/src/" />
     <property name="zap.java.api.version" value="1" />
 
     <!-- mac specific properties -->
@@ -349,9 +350,37 @@
           and then expand it into the ${crowdin.dir} directory.
           -->
 
-        <!-- Copy all extensions translations (project zap-extensions) -->
-        <copy todir="${zap.extensions.src.dir}/org/zaproxy/zap/extension/" overwrite="true">
-            <fileset dir="${crowdin.dir}/zap-extensions/" casesensitive="yes">
+        <!-- Copy all alpha extensions translations (project zap-extensions) -->
+        <copy todir="${zap.extensions.alpha.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+            <fileset dir="${crowdin.dir}/zap-extensions/alpha/" casesensitive="yes">
+                <include name="**/Messages_*.properties" />
+            </fileset>
+            <firstmatchmapper>
+                <!-- Special cases, the name is not the same, so they need to be renamed. -->
+                <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
+                <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
+                <!-- Keep the same name for the other files. -->
+                <identitymapper/>
+            </firstmatchmapper>
+        </copy>
+    	
+        <!-- Copy all beta extensions translations (project zap-extensions) -->
+        <copy todir="${zap.extensions.beta.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+            <fileset dir="${crowdin.dir}/zap-extensions/beta/" casesensitive="yes">
+                <include name="**/Messages_*.properties" />
+            </fileset>
+            <firstmatchmapper>
+                <!-- Special cases, the name is not the same, so they need to be renamed. -->
+                <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
+                <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
+                <!-- Keep the same name for the other files. -->
+                <identitymapper/>
+            </firstmatchmapper>
+        </copy>
+
+        <!-- Copy all release (trunk) extensions translations (project zap-extensions) -->
+        <copy todir="${zap.extensions.trunk.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+            <fileset dir="${crowdin.dir}/zap-extensions/trunk" casesensitive="yes">
                 <include name="**/Messages_*.properties" />
             </fileset>
             <firstmatchmapper>
