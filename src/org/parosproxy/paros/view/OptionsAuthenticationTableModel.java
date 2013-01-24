@@ -25,11 +25,14 @@
 // method Integer.valueOf.
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
+// ZAP: 2012/11/27 Issue 376: Masking the passwords provided for Authentication
 
 package org.parosproxy.paros.view;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HostAuthentication;
@@ -41,6 +44,7 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
 
 	private static final String[] COLUMN_NAMES = {
 		Constant.messages.getString("options.auth.table.header.enabled"),
+		Constant.messages.getString("options.auth.table.header.masked"),
 		Constant.messages.getString("options.auth.table.header.name"),
 		Constant.messages.getString("options.auth.table.header.host"),
 		Constant.messages.getString("options.auth.table.header.port"),
@@ -76,7 +80,7 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return (columnIndex == 0);
+        return (columnIndex == 0 || columnIndex == 1);
     }
 
     @Override
@@ -85,16 +89,20 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
         case 0:
             return Boolean.valueOf(getElement(rowIndex).isEnabled());
         case 1:
-            return getElement(rowIndex).getName();
+        	  return getElement(rowIndex).isMasked();
         case 2:
-            return getElement(rowIndex).getHostName();
+            return getElement(rowIndex).getName();
         case 3:
-            return Integer.valueOf(getElement(rowIndex).getPort());
+            return getElement(rowIndex).getHostName();
         case 4:
-            return getElement(rowIndex).getUserName();
+            return Integer.valueOf(getElement(rowIndex).getPort());
         case 5:
-            return getElement(rowIndex).getPassword();
+            return getElement(rowIndex).getUserName();
         case 6:
+        	if(getElement(rowIndex).isMasked())
+        		return "**********";
+        	return getElement(rowIndex).getPassword();         
+        case 7:
             return getElement(rowIndex).getRealm();
         }
         return null;
@@ -106,13 +114,22 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
             if (aValue instanceof Boolean) {
                 listAuth.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
             }
+        }else if(columnIndex == 1) {
+        	if(aValue instanceof Boolean){
+        		if(!((Boolean) aValue).booleanValue()){
+        			JOptionPane.showMessageDialog(null, new String[] {
+							Constant.messages.getString("options.auth.dialog.hostAuth.disablemaskpassword.text")}, 
+							Constant.messages.getString("options.auth.dialog.hostAuth.disablemaskpassword.title"), JOptionPane.WARNING_MESSAGE);
+        		}
+        		listAuth.get(rowIndex).setMasked(((Boolean) aValue).booleanValue());
+        	}
         }
     }
     
     @Override
     // ZAP: Added type argument.
     public Class<?> getColumnClass(int c) {
-        if (c == 0) {
+        if (c == 0 || c == 1) {
             return Boolean.class;
         } else if (c == 3) {
             return Integer.class;
