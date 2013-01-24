@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
+
+// ZAP: 2012/11/27 Issue 376: Masking the passwords provided for Authentication
 package org.parosproxy.paros.network;
 
 import org.zaproxy.zap.utils.Enableable;
@@ -37,7 +39,8 @@ public class HostAuthentication extends Enableable {
     private String	userName = "";
     private String	password = "";
     private String	realm	= "";
-    
+	private boolean maskedPassword;
+
     public HostAuthentication() {
         
     }
@@ -54,7 +57,7 @@ public class HostAuthentication extends Enableable {
     
     public HostAuthentication(HostAuthentication auth) {
         this(auth.name, auth.hostName, auth.port, auth.userName, auth.password, auth.realm);
-        
+        setMasked(auth.isMasked());
         setEnabled(auth.isEnabled());
     }
     
@@ -137,6 +140,7 @@ public class HostAuthentication extends Enableable {
         result = prime * result + port;
         result = prime * result + ((realm == null) ? 0 : realm.hashCode());
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + (Boolean.valueOf(maskedPassword).hashCode());
         return result;
     }
 
@@ -189,7 +193,18 @@ public class HostAuthentication extends Enableable {
             }
         } else if (!userName.equals(other.userName)) {
             return false;
+        } 
+        if(other.maskedPassword != maskedPassword){
+        	return false;
         }
         return true;
     }
+
+	public boolean isMasked() {
+		return maskedPassword;
+	}
+
+	public void setMasked(boolean selected) {
+		maskedPassword = selected;
+	}
 }
