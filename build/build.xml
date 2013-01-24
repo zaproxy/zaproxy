@@ -236,6 +236,9 @@
                 <attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
             </manifest>
         </jar>
+        
+        <!-- Delete the libraries files, "unjared" previously, as they are no longer needed. -->
+        <delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
     </target>
 
     <target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
