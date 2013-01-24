@@ -32,6 +32,8 @@ public abstract class ApiImplementor {
 	
 	private static final String GET_OPTION_PREFIX = "option";
 	private static final String SET_OPTION_PREFIX = "setOption";
+	private static final String ADD_OPTION_PREFIX = "addOption";
+	private static final String REMOVE_OPTION_PREFIX = "removeOption";
 
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
@@ -75,8 +77,22 @@ public abstract class ApiImplementor {
 			if (method.getName().startsWith("is") && method.getParameterTypes().length == 0) {
 				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(2)));
 			}
-			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && method.getParameterTypes()[0].equals(String.class)) {
-				this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"String"}));
+			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && 
+					method.getParameterTypes()[0].equals(String.class)) {
+				this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), 
+						new String[]{"String"}));
+				addedActions.add(method.getName());
+			}
+			if (method.getName().startsWith("add") && method.getParameterTypes().length == 1 && 
+					method.getParameterTypes()[0].equals(String.class)) {
+				this.addApiAction(new ApiAction(ADD_OPTION_PREFIX + method.getName().substring(3), 
+						new String[]{"String"}));
+				addedActions.add(method.getName());
+			}
+			if (method.getName().startsWith("remove") && method.getParameterTypes().length == 1 && 
+					method.getParameterTypes()[0].equals(String.class)) {
+				this.addApiAction(new ApiAction(REMOVE_OPTION_PREFIX + method.getName().substring(6), 
+						new String[]{"String"}));
 				addedActions.add(method.getName());
 			}
 		}
@@ -122,12 +138,24 @@ public abstract class ApiImplementor {
 		if (this.param == null) {
 			return null;
 		}
+		boolean isApiOption = false;
+
 		if (name.startsWith(SET_OPTION_PREFIX)) {
+			name = "set" + name.substring(SET_OPTION_PREFIX.length());
+			isApiOption = true;
+		} else if (name.startsWith(ADD_OPTION_PREFIX)) {
+			name = "add" + name.substring(ADD_OPTION_PREFIX.length());
+			isApiOption = true;
+		} else if (name.startsWith(REMOVE_OPTION_PREFIX)) {
+			name = "remove" + name.substring(REMOVE_OPTION_PREFIX.length());
+			isApiOption = true;
+		}
+
+		if (isApiOption) {
 			try {
-				name = name.substring(SET_OPTION_PREFIX.length());
 				Method[] methods = param.getClass().getDeclaredMethods();
 				for (Method method : methods) {
-					if (method.getName().equals("set" + name) && method.getParameterTypes().length == 1) {
+					if (method.getName().equals(name) && method.getParameterTypes().length == 1) {
 						Object val = null;
 						if (method.getParameterTypes()[0].equals(String.class)) {
 							val = params.getString("String");

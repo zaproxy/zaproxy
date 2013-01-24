@@ -120,13 +120,13 @@ public class AntiCsrfParam extends AbstractParam {
         this.enabledTokensNames = enabledTokens;
     }
 
-    protected void addToken(String name) {
+    public void addToken(String name) {
         this.tokens.add(new AntiCsrfParamToken(name));
         
         this.enabledTokensNames.add(name);
     }
 
-    protected void removeToken(String name) {
+    public void removeToken(String name) {
         this.tokens.remove(new AntiCsrfParamToken(name));
         
         this.enabledTokensNames.remove(name);

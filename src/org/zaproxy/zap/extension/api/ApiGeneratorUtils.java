@@ -23,6 +23,7 @@ import java.util.List;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.auth.AuthAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
@@ -50,7 +51,10 @@ public class ApiGeneratorUtils {
 		
 		ApiImplementor api;
 
-		imps.add(new AntiCsrfAPI(null));
+		api = new AntiCsrfAPI(null);
+		api.addApiOptions(new AntiCsrfParam());
+		imps.add(api);
+		
 		imps.add(new PassiveScanAPI(null));
 		imps.add(new SearchAPI(null));
 

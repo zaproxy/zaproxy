@@ -90,7 +90,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	        extensionHook.getHookMenu().addPopupMenuItem(this.getPopupMenuGenerateForm());
 	    }
 
-        API.getInstance().registerApiImplementor(new AntiCsrfAPI(this));
+	    AntiCsrfAPI api = new AntiCsrfAPI(this);
+        api.addApiOptions(getParam());
+        API.getInstance().registerApiImplementor(api);
 
 	}
 	
