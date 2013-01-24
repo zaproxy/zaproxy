@@ -402,7 +402,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		if (labelThreadsPerHostValue == null) {
 			labelThreadsPerHostValue = new JLabel();
 		}
-		labelThreadsPerHostValue.setText(""+value);
+		labelThreadsPerHostValue.setText(String.valueOf(value));
 	}
 
 	private JLabel getLabelThreadsPerHostValue() {

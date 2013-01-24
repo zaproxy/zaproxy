@@ -71,8 +71,8 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 		host = uri.getHost();
 		site = uri.getScheme() + "://" + uri.getHost();
 		if (uri.getPort() > 0) {
-			site = site + ":" + uri.getPort() + "/";
-			port = "" + uri.getPort();
+			port = String.valueOf(uri.getPort());
+			site = site + ":" + port + "/";
 		} else {
 			if (uri.getScheme().equalsIgnoreCase("http")) {
 				port = "80";

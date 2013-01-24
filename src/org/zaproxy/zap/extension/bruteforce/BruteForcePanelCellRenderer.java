@@ -120,7 +120,7 @@ public class BruteForcePanelCellRenderer extends JPanel implements ListCellRende
     public Component getListCellRendererComponent(JList<? extends BruteForceItem> list, BruteForceItem item, int index, boolean isSelected, boolean cellHasFocus) {
         
         txtUrl.setText(item.getUrl());
-        txtCode.setText(""+item.getStatusCode());
+        txtCode.setText(String.valueOf(item.getStatusCode()));
         txtReason.setText(item.getReason());
         
         if (isSelected) {

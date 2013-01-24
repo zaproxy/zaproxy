@@ -181,7 +181,7 @@ public class ScanProgressDialog extends AbstractDialog {
 			values.add(new String[] {Constant.messages.getString("ascan.progress.label.totalTime"), "", 
 					this.getElapsedTime(this.scan.getTimeStarted(), this.scan.getTimeFinished())});
 			values.add(new String[] {Constant.messages.getString("ascan.progress.label.requests"), "", 
-					"" + this.scan.getTotalRequests()});
+					String.valueOf(this.scan.getTotalRequests())});
 			
 			
 			model.setValues(values);

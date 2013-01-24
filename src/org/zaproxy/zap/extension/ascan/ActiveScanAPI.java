@@ -146,7 +146,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		ApiResponse result;
 
 		if (VIEW_STATUS.equals(name)) {
-			result = new ApiResponseElement(name, "" + progress);
+			result = new ApiResponseElement(name, String.valueOf(progress));
 		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
 			result = new ApiResponseList(name);
 			Session session = Model.getSingleton().getSession();

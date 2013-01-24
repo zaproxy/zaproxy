@@ -51,7 +51,7 @@ public class Context {
     public Context(Session session, int index) {
     	this.session = session;
     	this.index = index;
-    	this.name = "" + index;
+    	this.name = String.valueOf(index);
     }
 
 	public boolean isIncludedInScope(SiteNode sn) {

@@ -259,7 +259,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	private JLabel getActiveScansValueLabel() {
 		if (foundCountNameLabel == null) {
 			foundCountNameLabel = new javax.swing.JLabel();
-			foundCountNameLabel.setText(""+activeScans.size());
+			foundCountNameLabel.setText(String.valueOf(activeScans.size()));
 		}
 		return foundCountNameLabel;
 	}
@@ -282,7 +282,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	private void setActiveScanLabelsEventHandler() {
-		getActiveScansValueLabel().setText(""+activeScans.size());
+		getActiveScansValueLabel().setText(String.valueOf(activeScans.size()));
 		StringBuilder sb = new StringBuilder();
 		Iterator <String> iter = activeScans.iterator();
 		sb.append("<html>");

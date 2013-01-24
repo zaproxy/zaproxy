@@ -369,7 +369,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private ApiResponseSet alertToSet(Alert alert) {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("id", "" + alert.getAlertId());
+		map.put("id", String.valueOf(alert.getAlertId()));
 		map.put("alert", alert.getAlert());
 		map.put("description", alert.getDescription());
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
@@ -381,7 +381,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("reference", alert.getReference());
 		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
-			map.put("messageId", "" + alert.getHistoryRef().getHistoryId());
+			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));
 		}
 		return new ApiResponseSet("alert", map);
 	}
@@ -393,7 +393,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	 */
 	private ApiResponseSet httpMessageToSet(HttpMessage msg) {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("id", "" + msg.getHistoryRef().getHistoryId());
+		map.put("id", String.valueOf(msg.getHistoryRef().getHistoryId()));
 		map.put("cookieParams", XMLStringUtil.escapeControlChrs(msg.getCookieParamsAsString()));
 		map.put("note", msg.getNote());
 		map.put("requestHeader", XMLStringUtil.escapeControlChrs(msg.getRequestHeader().toString()));

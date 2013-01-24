@@ -237,7 +237,7 @@ public class ClientApi {
 
     public List<Alert> getAlerts(String baseUrl, int start, int count) throws ClientApiException {
     	List<Alert> alerts = new ArrayList<Alert>();
-        ApiResponse response = core.alerts(baseUrl, "" + start, "" + count);
+        ApiResponse response = core.alerts(baseUrl, String.valueOf(start), String.valueOf(count));
         if (response != null && response instanceof ApiResponseList) {
             ApiResponseList alertList = (ApiResponseList)response;
             for (ApiResponse resp : alertList.getItems()) {

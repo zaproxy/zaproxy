@@ -52,7 +52,7 @@ public class PassiveScanAPI extends ApiImplementor {
 
 		if (VIEW_RECORDS_TO_SCAN.equals(name)) {
 			result = new ApiResponseList(name);
-			result = new ApiResponseElement(name, "" + extension.getRecordsToScan());
+			result = new ApiResponseElement(name, String.valueOf(extension.getRecordsToScan()));
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

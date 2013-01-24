@@ -254,7 +254,7 @@ public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<His
         try {
             txtMethod.setText(ref.getMethod());
             txtURI.setText(ref.getURI().toString());
-            txtStatus.setText(""+ref.getStatusCode());
+            txtStatus.setText(String.valueOf(ref.getStatusCode()));
             txtReason.setText(ref.getReason());
             txtRTT.setText(ref.getRtt()+"ms");
             // ZAP: Support for multiple tags

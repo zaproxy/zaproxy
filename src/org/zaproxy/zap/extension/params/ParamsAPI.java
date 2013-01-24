@@ -66,7 +66,7 @@ public class ParamsAPI extends ApiImplementor {
 					map.put("site", param.getSite());
 					map.put("name", param.getName());
 					map.put("type", param.getType().name());
-					map.put("timesUsed", ""+param.getTimesUsed());
+					map.put("timesUsed", String.valueOf(param.getTimesUsed()));
 					stats.addItem(new ApiResponseSet("Stats", map));
 					
 					ApiResponseList flags = new ApiResponseList("Flags");

@@ -281,7 +281,7 @@ public class Session extends FileXML {
 	    	}
 	    	switch (data.getType()) {
 	    		case RecordContext.TYPE_NAME:			ctx.setName(data.getData());
-	    												if (View.isInitialised() && !ctx.getName().equals(""+ctx.getIndex())) {
+	    												if (View.isInitialised() && !ctx.getName().equals(String.valueOf(ctx.getIndex()))) {
 	    													View.getSingleton().renameContext(ctx);
 	    												}
 	    												break;

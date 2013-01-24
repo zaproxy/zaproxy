@@ -112,12 +112,12 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 
 			for (SearchResult sr : this.results) {
 				Map<String, String> map = new HashMap<String, String>();
-				map.put("id", "" + sr.getMessage().getHistoryRef().getHistoryId());
-				map.put("type", "" + sr.getMessage().getHistoryRef().getHistoryType());
-				map.put("method", "" + sr.getMessage().getRequestHeader().getMethod());
-				map.put("url", "" + sr.getMessage().getRequestHeader().getURI().toString());
-				map.put("code", "" + sr.getMessage().getResponseHeader().getStatusCode());
-				map.put("time", "" + sr.getMessage().getTimeElapsedMillis());
+				map.put("id", String.valueOf(sr.getMessage().getHistoryRef().getHistoryId()));
+				map.put("type", String.valueOf(sr.getMessage().getHistoryRef().getHistoryType()));
+				map.put("method", sr.getMessage().getRequestHeader().getMethod());
+				map.put("url", sr.getMessage().getRequestHeader().getURI().toString());
+				map.put("code", String.valueOf(sr.getMessage().getResponseHeader().getStatusCode()));
+				map.put("time", String.valueOf(sr.getMessage().getTimeElapsedMillis()));
 				result.addItem(new ApiResponseSet(name, map));
 			}
 			

@@ -315,13 +315,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel getActiveScansValueLabel() {
 		if (activeScansValueLabel == null) {
 			activeScansValueLabel = new javax.swing.JLabel();
-			activeScansValueLabel.setText(""+activeScans.size());
+			activeScansValueLabel.setText(String.valueOf(activeScans.size()));
 		}
 		return activeScansValueLabel;
 	}
 	
 	private void setActiveScanLabels() {
-		getActiveScansValueLabel().setText(""+activeScans.size());
+		getActiveScansValueLabel().setText(String.valueOf(activeScans.size()));
 		StringBuilder sb = new StringBuilder();
 		Iterator <String> iter = activeScans.iterator();
 		sb.append("<html>");
