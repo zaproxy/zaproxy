@@ -26,6 +26,7 @@
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
+// ZAP: 2013/01/25 Catch any exceptions thrown when loading plugins to allow ZAP to still start
 
 package org.parosproxy.paros.core.scanner;
 
@@ -143,26 +144,30 @@ public class PluginFactory {
             mapAllPlugin.clear();
             for (int i=0; i<listTest.size(); i++) {
                 // ZAP: Removed unnecessary cast.
-                Plugin plugin = listTest.get(i);
-                plugin.setConfig(config);
-                plugin.createParamIfNotExist();
-                if (!plugin.isVisible()) {
-					log.info("Plugin " + plugin.getName() + " not visible");
-                    continue;
-                }
-                if (plugin.isDepreciated()) {
-                	// ZAP: ignore all depreciated plugins
-					log.info("Plugin " + plugin.getName() + " depricated");
-                	continue;
-                }
-                log.info("loaded plugin " + plugin.getName());
-                if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-                	log.error("Duplicate id " + plugin.getName() + " " +
-                			mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
-                }
-                // ZAP: Changed to use the method Integer.valueOf.
-                mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-                mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+                try {
+					Plugin plugin = listTest.get(i);
+					plugin.setConfig(config);
+					plugin.createParamIfNotExist();
+					if (!plugin.isVisible()) {
+						log.info("Plugin " + plugin.getName() + " not visible");
+					    continue;
+					}
+					if (plugin.isDepreciated()) {
+						// ZAP: ignore all depreciated plugins
+						log.info("Plugin " + plugin.getName() + " depricated");
+						continue;
+					}
+					log.info("loaded plugin " + plugin.getName());
+					if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
+						log.error("Duplicate id " + plugin.getName() + " " +
+								mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+					}
+					// ZAP: Changed to use the method Integer.valueOf.
+					mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+					mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
             }
             Iterator<Plugin> iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
