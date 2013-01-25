@@ -36,6 +36,7 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/25 Added removeExtension(...) method and further helper methods
 // to remove listeners, menu items, etc.
+// ZAP: 2013/01/25 Refactored hookMenu(). Resolved some Checkstyle issues.
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -103,44 +104,38 @@ public class ExtensionLoader {
     }
     
     public Extension getExtension(String name) {
-        if (name == null)
-            return null;
-
-        for (int i=0; i<extensionList.size(); i++) {
-            Extension p = getExtension(i);
-            if (p.getName().equalsIgnoreCase(name)) {
-                return p;
-            }
+        if (name != null) {
+	        for (int i=0; i<extensionList.size(); i++) {
+	            Extension p = getExtension(i);
+	            if (p.getName().equalsIgnoreCase(name)) {
+	                return p;
+	            }
+	        }
         }
-        
         return null;
     }
     
     public Extension getExtensionByClassName(String name) {
-        if (name == null)
-            return null;
-
-        for (int i=0; i<extensionList.size(); i++) {
-            Extension p = getExtension(i);
-            if (p.getClass().getName().equals(name)) {
-                return p;
-            }
+        if (name != null) {
+        	for (int i=0; i<extensionList.size(); i++) {
+	            Extension p = getExtension(i);
+	            if (p.getClass().getName().equals(name)) {
+	                return p;
+	            }
+	        }
         }
-        
         return null;
     }
     
     public Extension getExtension(Class<?> c) {
-        if (c == null)
-            return null;
-
-        for (int i=0; i<extensionList.size(); i++) {
-            Extension p = getExtension(i);
-            if (p.getClass().equals(c)) {
-                return p;
-            }
+        if (c != null) {
+	        for (int i=0; i<extensionList.size(); i++) {
+	            Extension p = getExtension(i);
+	            if (p.getClass().equals(c)) {
+	                return p;
+	            }
+	        }
         }
-        
         return null;
     }
     
@@ -506,7 +501,7 @@ public class ExtensionLoader {
                 panel = panelList.get(i);
                 tab.remove(panel);
 
-                //FIXME: Do I need to call removeTab() also?
+                //Do I need to call removeTab() also?
             } catch (Exception e) {
             	logger.error(e.getMessage(), e);
             }
@@ -559,150 +554,66 @@ public class ExtensionLoader {
     }
     
     private void hookMenu(View view, ExtensionHook hook) {
-
         if (view == null) {
             return;
         }
-        
-        if (hook.getHookMenu() == null) {
+
+        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        if (hookMenu == null) {
             return;
         }
         
-        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        MainMenuBar menuBar = view.getMainFrame().getMainMenuBar();
         
-        // init menus
-        List<JMenuItem> list = null;
-        JMenuItem item = null;
-        JMenu menu = null;
-        JMenu menuFile = view.getMainFrame().getMainMenuBar().getMenuFile();
-        JMenu menuEdit = view.getMainFrame().getMainMenuBar().getMenuEdit();
-        JMenu menuView = view.getMainFrame().getMainMenuBar().getMenuView();
-        JMenu menuAnalyse = view.getMainFrame().getMainMenuBar().getMenuAnalyse();
-        JMenu menuTools = view.getMainFrame().getMainMenuBar().getMenuTools();
-        JMenu menuHelp = view.getMainFrame().getMainMenuBar().getMenuHelp();
-        JMenu menuReport = view.getMainFrame().getMainMenuBar().getMenuReport();
+        // 2 menus at the back (Tools/Help)
+        addMenuHelper(menuBar, hookMenu.getNewMenus(), 2);
+
+        addMenuHelper(menuBar.getMenuFile(), hookMenu.getFile(), 2);
+        addMenuHelper(menuBar.getMenuTools(), hookMenu.getTools(), 2);
+        addMenuHelper(menuBar.getMenuEdit(), hookMenu.getEdit());
+        addMenuHelper(menuBar.getMenuView(), hookMenu.getView());
+        addMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
+        addMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
+        addMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
+        addMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         
-        // process new menus
-
-        JMenuBar bar = view.getMainFrame().getMainMenuBar();
-        list = hookMenu.getNewMenus();
-        for (int i=0; i<list.size(); i++) {
-            menu = (JMenu) list.get(i);
-            bar.add(menu, bar.getMenuCount()-2);	// 2 menus at the back (Tools/Help)
-        }
-
-        // process menu - File
-        list = hookMenu.getFile();
-        int existingCount = 2;
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuFile.addSeparator();
-                continue;
-            }
-
-            menuFile.add(item, menuFile.getItemCount()-existingCount);
-        }
-
-        
-        // process menu - Tools
-        list = hookMenu.getTools();
-        existingCount = 2;
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuTools.addSeparator();
-                continue;
-            }
-
-            menuTools.add(item, menuTools.getItemCount()-existingCount);
-        }
-
-        // process Edit menu
-        list = hookMenu.getEdit();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuEdit.addSeparator();
-                continue;
-            }
-            menuEdit.add(item, menuEdit.getItemCount());
-        }
-
-        // process View menu
-        list = hookMenu.getView();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuView.addSeparator();
-                continue;
-            }
-
-            menuView.add(item, menuView.getItemCount());
-        }
-
-        // process Analyse menu
-        list = hookMenu.getAnalyse();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuAnalyse.addSeparator();
-                continue;
-            }
-
-            menuAnalyse.add(item, menuAnalyse.getItemCount());
-        }
-        
-        // process popup menus
-        
-        list = hookMenu.getPopupMenus();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-
-            view.getPopupList().add(item);
-        }
-
-        // ZAP: process Help menu
-        list = hookMenu.getHelpMenus();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuHelp.addSeparator();
-                continue;
-            }
-
-            menuHelp.add(item, menuHelp.getItemCount());
-        }
-        // ZAP: process Report menu
-        list = hookMenu.getReportMenus();
-        
-        for (int i=0; i<list.size(); i++) {
-            item = list.get(i);
-            if (item == null) continue;
-            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-                menuReport.addSeparator();
-                continue;
-            }
-
-            menuReport.add(item, menuReport.getItemCount());
-        }
+        addMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
     }
     
-    private void removeMenu(View view, ExtensionHook hook) {
+    private void addMenuHelper(JMenu menu, List<JMenuItem> items) {
+    	addMenuHelper(menu, items, 0);
+    }
+
+	private void addMenuHelper(JMenuBar menuBar, List<JMenuItem> items, int existingCount) {
+		for (JMenuItem item : items) {
+            if (item != null) {
+            	menuBar.add(item, menuBar.getMenuCount() - existingCount);
+            }
+        }
+	}
+    
+    private void addMenuHelper(JMenu menu, List<JMenuItem> items, int existingCount) {
+        for (JMenuItem item : items) {
+            if (item != null) {
+	            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
+	                menu.addSeparator();
+	                continue;
+	            }
+	
+	            menu.add(item, menu.getItemCount() - existingCount);
+            }
+        }
+	}
+    
+    private void addMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+    	for (JMenuItem item : items) {
+            if (item != null) {
+            	menuList.add(item);
+            }
+        }
+	}
+
+	private void removeMenu(View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
@@ -892,25 +803,19 @@ public class ExtensionLoader {
     	View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
 	}
 
-
     private void initAllExtension() {
-
         for (int i=0; i<getExtensionCount(); i++) {
             getExtension(i).init();
         }
     }
-    
 
-    
     private void initModelAllExtension(Model model) {
         for (int i=0; i<getExtensionCount(); i++) {
             getExtension(i).initModel(model);
         }
-        
     }
 
     private void initViewAllExtension(View view) {
-
         if (view == null) {
             return;
         }
@@ -918,7 +823,6 @@ public class ExtensionLoader {
         for (int i=0; i<getExtensionCount(); i++) {
             getExtension(i).initView(view);
         }
-
     }
 
     private void initXMLAllExtension(Session session, OptionsParam options) {
