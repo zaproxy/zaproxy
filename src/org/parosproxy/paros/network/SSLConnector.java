@@ -21,6 +21,8 @@
  */
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/01/25 Issue 462: SSLSocketFactory with TLS enabled and default Cipher options
+
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -115,8 +117,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			socket = (SSLSocket) clientSSLSockFactory.createSocket(hostName,
 					hostPort);
 		}
-		socket.setEnabledProtocols(new String[] {"SSLv3"});
-		socket.setEnabledCipherSuites(new String[] {"SSL_RSA_WITH_DES_CBC_SHA"});
+		socket.setEnabledProtocols(new String[] {"SSLv3", "TLSv1"});
+		//socket.setEnabledCipherSuites(new String[] {"SSL_RSA_WITH_DES_CBC_SHA"});
 		
 		return socket;
 	}
