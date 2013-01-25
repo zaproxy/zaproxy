@@ -50,9 +50,6 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 
 	private Map<String, KeyStore> cache = new HashMap<>();
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.security.SslCertificateService#createCertForHost(java.lang.String)
-	 */
 	@Override
 	public synchronized final KeyStore createCertForHost(String hostname)
 			throws NoSuchAlgorithmException, InvalidKeyException,

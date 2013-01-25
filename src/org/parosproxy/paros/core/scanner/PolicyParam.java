@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary cast.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
@@ -43,9 +44,6 @@ public class PolicyParam extends FileXML {
         super(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
     protected void parse() throws Exception {
         parseEnabledTest();

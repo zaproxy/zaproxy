@@ -34,11 +34,6 @@ public class SpiderTextParser extends SpiderParser {
 	/** The Constant urlPattern defining the pattern for an url. */
 	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
-	 * , net.htmlparser.jericho.Source) */
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
 		log.info("Parsing non-HTML text resource.");

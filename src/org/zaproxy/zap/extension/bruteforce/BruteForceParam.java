@@ -43,9 +43,6 @@ public class BruteForceParam extends AbstractParam {
     public BruteForceParam() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
     protected void parse(){
 		try {

@@ -23,6 +23,7 @@
 // with calls to the method append of the class StringBuilder. Reworked some code.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Removed incorrect (and unused) init method 
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -51,33 +52,21 @@ public class FilterDetectSetCookie extends FilterAdaptor {
     private	Pattern pattern = Pattern.compile("^ *"+ "Set-[Cc]ookie" + " *: *([^\\r\\n]*)" + "\\r\\n", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
-     */
     @Override
     public int getId() {
         return 110;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.setcookie.name");
         
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage msg) {
        }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpResponseReceive(HttpMessage msg) {
         HttpResponseHeader resHeader = msg.getResponseHeader();

@@ -26,6 +26,7 @@
 // a view. 
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.state;
 
@@ -137,9 +138,6 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 		return menuResetSessionState;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
-     */
     @Override
     public void sessionChanged(Session session) {
         getModel().getOptionsParam().getConnectionParam().setHttpState(new HttpState());        

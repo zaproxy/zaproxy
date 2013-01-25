@@ -78,30 +78,17 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 				spiderScanParam);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.view.ScanPanel#newScanThread(java.lang.String,
-	 * org.parosproxy.paros.common.AbstractParam)
-	 */
 	@Override
 	protected ScanThread newScanThread(String site, AbstractParam params) {
 		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
 		return st;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.view.ScanPanel#getSiteNode(java.lang.String)
-	 */
 	@Override
 	protected SiteNode getSiteNode(String site) {
 		return super.getSiteNode(site);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.view.ScanPanel#switchView(java.lang.String)
-	 */
 	@Override
 	protected void switchView(String site) {
 		this.updateCurrentScanResultsModel(site);
@@ -223,11 +210,6 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 		return foundCountValueLabel;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.view.ScanPanel#addToolBarElements(javax.swing.JToolBar,
-	 * org.zaproxy.zap.view.ScanPanel.Location, int)
-	 */
 	@Override
 	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
 		if (ScanPanel.Location.afterProgressBar == location) {

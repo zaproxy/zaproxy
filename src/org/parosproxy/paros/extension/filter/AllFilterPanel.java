@@ -21,6 +21,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -117,25 +118,16 @@ public class AllFilterPanel extends AbstractParamPanel {
 		return tableFilter;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
-     */
     @Override
     public void initParam(Object obj) {
         
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
-     */
     @Override
     public void validateParam(Object obj) throws Exception {
         
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
         

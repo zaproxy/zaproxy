@@ -104,9 +104,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.setName(NAME);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook)
-	 */
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
@@ -156,20 +153,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		return spiderPanel;
 	}
 	
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionAboutToChange(org.parosproxy
-	 * .paros.model.Session) */
 	@Override
 	public void sessionAboutToChange(Session session) {
 		// Shut all of the scans down
 		this.getSpiderPanel().reset();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros.model.Session)
-	 */
 	@Override
 	public void sessionChanged(final Session session) {
 		if (EventQueue.isDispatchThread()) {
@@ -209,17 +198,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.core.proxy.ProxyListener#getProxyListenerOrder()
-	 */
 	@Override
 	public int getArrangeableListenerOrder() {
 		return PROXY_LISTENER_ORDER;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 		// The panel will handle duplicates
@@ -229,18 +212,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-	 */
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
 		// Do nothing
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.zaproxy.zap.view.SiteMapListener#nodeSelected(org.parosproxy.paros.model.SiteNode)
-	 */
 	@Override
 	public void nodeSelected(SiteNode node) {
 		this.getSpiderPanel().nodeSelected(node, true);
@@ -303,25 +280,16 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.Extension#getAuthor() */
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDescription() */
 	@Override
 	public String getDescription() {
 		return Constant.messages.getString("spider.desc");
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getURL() */
 	@Override
 	public URL getURL() {
 		try {
@@ -331,21 +299,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionScopeChanged(org.parosproxy
-	 * .paros.model.Session) */
 	@Override
 	public void sessionScopeChanged(Session session) {
 		this.getSpiderPanel().sessionScopeChanged(session);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionModeChanged(org.parosproxy.
-	 * paros.control.Control.Mode) */
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		this.getSpiderPanel().sessionModeChanged(mode);

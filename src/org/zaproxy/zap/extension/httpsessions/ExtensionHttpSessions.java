@@ -116,25 +116,16 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		this.setOrder(68);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.Extension#getAuthor() */
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getDescription() */
 	@Override
 	public String getDescription() {
 		return Constant.messages.getString("httpsessions.desc");
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#getURL() */
 	@Override
 	public URL getURL() {
 		try {
@@ -144,20 +135,12 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionAdaptor#init() */
 	@Override
 	public void init() {
 		super.init();
 		this.sessionTokens = new HashMap<>();
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.ExtensionAdaptor#hook(org.parosproxy.paros.extension.ExtensionHook
-	 * ) */
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
@@ -433,9 +416,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return hss;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.zaproxy.zap.view.SiteMapListener#nodeSelected(org.parosproxy.paros.model.SiteNode) */
 	@Override
 	public void nodeSelected(SiteNode node) {
 		// Event from SiteMapListenner
@@ -447,55 +427,27 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionChanged(org.parosproxy.paros
-	 * .model.Session) */
 	@Override
 	public void sessionChanged(Session session) {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionAboutToChange(org.parosproxy
-	 * .paros.model.Session) */
 	@Override
 	public void sessionAboutToChange(Session session) {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionScopeChanged(org.parosproxy
-	 * .paros.model.Session) */
 	@Override
 	public void sessionScopeChanged(Session session) {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.SessionChangedListener#sessionModeChanged(org.parosproxy.
-	 * paros.control.Control.Mode) */
 	@Override
 	public void sessionModeChanged(Mode mode) {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.zaproxy.zap.network.HttpSenderListener#getListenerOrder() */
 	@Override
 	public int getListenerOrder() {
 		return 1;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.network.HttpSenderListener#onHttpRequestSend(org.parosproxy.paros.network
-	 * .HttpMessage, int) */
 	@Override
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
@@ -522,11 +474,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		session.processHttpRequestMessage(msg);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.network.HttpSenderListener#onHttpResponseReceive(org.parosproxy.paros.network
-	 * .HttpMessage, int) */
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
 		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR) {

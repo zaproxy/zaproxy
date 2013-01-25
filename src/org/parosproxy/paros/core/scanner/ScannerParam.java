@@ -24,6 +24,7 @@
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -62,9 +63,6 @@ public class ScannerParam extends AbstractParam {
     public ScannerParam() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
     protected void parse(){
         

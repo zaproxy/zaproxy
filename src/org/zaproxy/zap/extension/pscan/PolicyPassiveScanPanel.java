@@ -90,25 +90,16 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 		return tableTest;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
-     */
     @Override
     public void initParam(Object obj) {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
-     */
     @Override
     public void validateParam(Object obj) throws Exception {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
     }

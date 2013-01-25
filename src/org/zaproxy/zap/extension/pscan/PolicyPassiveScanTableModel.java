@@ -97,9 +97,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
     @Override
     public int getRowCount() {
     	if (listScanners == null) {
@@ -108,9 +105,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         return listScanners.size();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
     @Override
     public Object getValueAt(int row, int col) {
     	PassiveScanner test = listScanners.get(row);

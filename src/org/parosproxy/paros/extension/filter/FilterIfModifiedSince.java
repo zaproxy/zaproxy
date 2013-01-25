@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.Constant;
@@ -33,26 +34,17 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  */
 public class FilterIfModifiedSince extends FilterAdaptor {
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
-     */
     @Override
     public int getId() {
         return 10;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.nocache.name");
         
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
         HttpRequestHeader reqHeader = httpMessage.getRequestHeader();
@@ -70,9 +62,6 @@ public class FilterIfModifiedSince extends FilterAdaptor {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
 

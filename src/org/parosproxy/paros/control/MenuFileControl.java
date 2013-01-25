@@ -30,6 +30,7 @@
 // exit().
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 // ZAP: 2012/12/06 Issue 428: Moved exit code to control to support the marketplace
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.control;
  
@@ -240,9 +241,6 @@ public class MenuFileControl implements SessionListener {
 //		view.getMainFrame().setTitle(Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " - " + model.getSession().getSessionName());
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.model.SessionListener#sessionOpened(java.lang.Exception)
-     */
     @Override
     public void sessionOpened(File file, Exception e) {
         if (e == null) {
@@ -265,9 +263,6 @@ public class MenuFileControl implements SessionListener {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.model.SessionListener#sessionSaved(java.lang.Exception)
-     */
     @Override
     public void sessionSaved(Exception e) {
         if (e == null) {

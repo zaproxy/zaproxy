@@ -108,9 +108,6 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.security.SslCertificateService#createCertForHost(java.lang.String)
-	 */
     @Override
 	public KeyStore createCertForHost(String hostname) throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, NoSuchProviderException, SignatureException, KeyStoreException, IOException, UnrecoverableKeyException {
 

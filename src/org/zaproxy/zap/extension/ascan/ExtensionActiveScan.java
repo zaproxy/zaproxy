@@ -209,21 +209,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}					
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.ScannerListener#ScannerProgress(java.lang.String, org.parosproxy.paros.network.HttpMessage, int)
-     */
     public void hostProgress(String hostAndPort, String msg, int percentage) {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.ScannerListener#HostComplete(java.lang.String)
-     */
     public void hostComplete(String hostAndPort) {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.ScannerListener#hostNewScan(java.lang.String)
-     */
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
     
@@ -291,9 +282,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return scannerParam;
 	}
 	
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
-     */
 	// TODO
     @Override
     public void execute(CommandLineArgument[] args) {

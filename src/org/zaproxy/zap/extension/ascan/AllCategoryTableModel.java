@@ -101,17 +101,11 @@ public class AllCategoryTableModel extends DefaultTableModel {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
     @Override
     public int getRowCount() {
         return Category.length();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
     @Override
     public Object getValueAt(int row, int col) {
         Object result = null;

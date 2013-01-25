@@ -55,9 +55,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     public OptionsParamCheckForUpdates() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
     protected void parse() {
         

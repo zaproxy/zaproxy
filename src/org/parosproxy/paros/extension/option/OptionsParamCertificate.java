@@ -19,6 +19,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.option;
 
@@ -49,9 +50,6 @@ public class OptionsParamCertificate extends AbstractParam {
     public OptionsParamCertificate() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
     protected void parse() {
 

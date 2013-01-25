@@ -157,11 +157,6 @@ public class HttpPanelSender implements MessageSender {
 		return extension;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.manualrequest.MessageSender#cleanup()
-	 */
 	@Override
 	public void cleanup() {
 		if (delegate != null) {

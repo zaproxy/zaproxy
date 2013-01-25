@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension;
 
@@ -74,17 +75,11 @@ public abstract class ExtensionAdaptor implements Extension {
         this.name = name;
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.plugin.Plugin#initPlugin()
-     */
     @Override
     public void init() {
       
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.plugin.Plugin#initModel(org.parosproxy.paros.model.Model)
-     */
     @Override
     public void initModel(Model model) {
         this.model = model;
@@ -99,16 +94,10 @@ public abstract class ExtensionAdaptor implements Extension {
     public void initXML(Session session, OptionsParam options) {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.plugin.Plugin#getPluginView(org.parosproxy.paros.view.View)
-     */
     public ExtensionHookView getExtensionView() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.plugin.Plugin#initMenu()
-     */
     public ExtensionHookMenu getExtensionMenu() {
         return null;
     }

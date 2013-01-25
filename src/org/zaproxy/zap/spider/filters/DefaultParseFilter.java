@@ -37,11 +37,6 @@ public class DefaultParseFilter extends ParseFilter {
 	 */
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.zaproxy.zap.spider.filters.ParseFilter#isFiltered(org.parosproxy.paros.network.HttpMessage
-	 * ) */
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
 

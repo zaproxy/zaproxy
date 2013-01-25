@@ -22,6 +22,7 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.report;
 
@@ -125,9 +126,6 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 		return menuItemXmlReport;
 	}
 	
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute(org.parosproxy.paros.extension.CommandLineArgument[])
-     */
     @Override
     public void execute(CommandLineArgument[] args) {
 

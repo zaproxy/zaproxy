@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/11/15 Issue 416: Normalise how multiple related options are managed
 // throughout ZAP and enhance the usability of some options.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.option;
 
@@ -83,9 +84,6 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
         this.add(authsOptionsPanel, gbc);
 	}
 	
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
-     */
     @Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
@@ -94,17 +92,11 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 	    authsOptionsPanel.setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveAuth());
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
-     */
     @Override
     public void validateParam(Object obj) throws Exception {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;

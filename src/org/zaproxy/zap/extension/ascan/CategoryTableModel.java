@@ -104,17 +104,11 @@ public class CategoryTableModel extends DefaultTableModel {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
     @Override
     public int getRowCount() {
         return getTestList().size();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
     @Override
     public Object getValueAt(int row, int col) {
         Plugin test = listTestCategory.get(row);

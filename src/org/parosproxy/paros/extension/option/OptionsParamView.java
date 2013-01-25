@@ -21,6 +21,7 @@
 // ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
 // ZAP: 2012/03/15 Removed the options of the http panels.
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.option;
 
@@ -65,9 +66,6 @@ public class OptionsParamView extends AbstractParam {
     public OptionsParamView() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.FileXML#parse()
-     */
     @Override
 	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.

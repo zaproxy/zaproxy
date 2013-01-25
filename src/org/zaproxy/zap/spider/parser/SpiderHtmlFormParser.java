@@ -68,11 +68,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		this.param = param;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.parser.SpiderParser#parseResource(org.parosproxy.paros.network.HttpMessage
-	 * , net.htmlparser.jericho.Source, int)
-	 */
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
 

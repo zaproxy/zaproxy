@@ -28,6 +28,7 @@
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/10/03 Issue 388 Added enabling support for technologies
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -84,15 +85,9 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     public AbstractPlugin() {
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getId()
-     */
     @Override
     abstract public int getId();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getName()
-     */
     @Override
     abstract public String getName();
     
@@ -106,39 +101,21 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
         return result;
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getDependency()
-     */
     @Override
     abstract public String[] getDependency();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getDescription()
-     */
     @Override
     abstract public String getDescription();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getCategory()
-     */
     @Override
     abstract public int getCategory();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getSolution()
-     */
     @Override
     abstract public String getSolution();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#getReference()
-     */
     @Override
     abstract public String getReference();
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#init(org.parosproxy.paros.network.HttpMessage, org.parosproxy.paros.core.scanner.HostProcess)
-     */
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
@@ -558,9 +535,6 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	    return parent;
 	}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.scanner.Plugin#notifyPluginCompleted(org.parosproxy.paros.core.scanner.HostProcess)
-     */
     @Override
     abstract public void notifyPluginCompleted(HostProcess parent);
 

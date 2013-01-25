@@ -23,6 +23,7 @@
 // instead of StringBuffer. Added the method getProxyListenerOrder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.history;
  
@@ -72,9 +73,6 @@ public class ProxyListenerLog implements ProxyListener {
 		return PROXY_LISTENER_ORDER;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpRequestReceived(org.apache.commons.httpclient.HttpMethod)
-	 */
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
 //	    if (msg.getRequestHeader().isImage()) {
@@ -102,9 +100,6 @@ public class ProxyListenerLog implements ProxyListener {
 		return true;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.proxy.ProxyHandler#onHttpResponseSend(org.apache.commons.httpclient.HttpMethod, org.parosproxy.paros.proxy.HttpMessage)
-	 */
 	@Override
 	public boolean onHttpResponseReceive(final HttpMessage msg) {
 

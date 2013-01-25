@@ -49,25 +49,16 @@ public class FilterZapRequestId extends FilterAdaptor {
 		this.model = model;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getId()
-	 */
 	@Override
 	public int getId() {
 		return getName().hashCode();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getName()
-	 */
 	@Override
 	public String getName() {
 		return Constant.messages.getString("filter.request.header.send.id");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-	 */
 	@Override
 	public void onHttpRequestSend(HttpMessage httpMessage) {
 		HttpRequestHeader rhead = httpMessage.getRequestHeader();
@@ -82,9 +73,6 @@ public class FilterZapRequestId extends FilterAdaptor {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-	 */
 	@Override
 	public void onHttpResponseReceive(HttpMessage httpMessage) {
 		// nothing to do

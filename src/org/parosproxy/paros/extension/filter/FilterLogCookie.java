@@ -23,6 +23,7 @@
 // variable and added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // as introduced with version 3.1 of HttpClient
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -46,17 +47,11 @@ public class FilterLogCookie extends FilterAdaptor {
     // ZAP: Added type argument.
     private Vector<String> cookieList = null;
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
-     */
     @Override
     public int getId() {
         return 100;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.logcookies.name");
@@ -69,9 +64,6 @@ public class FilterLogCookie extends FilterAdaptor {
      	
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage msg) {
         HttpRequestHeader header = msg.getRequestHeader();
@@ -102,9 +94,6 @@ public class FilterLogCookie extends FilterAdaptor {
 		}
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
         

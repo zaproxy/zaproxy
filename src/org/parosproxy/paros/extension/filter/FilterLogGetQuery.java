@@ -23,6 +23,7 @@
 // casts, removed unused variable and added @Override annotation to all
 // appropriate methods.
 // ZAP: 2012/07/29 Corrected init method and log errors
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -60,17 +61,11 @@ public class FilterLogGetQuery extends FilterAdaptor {
     
     private static final Logger logger = Logger.getLogger(FilterLogGetQuery.class);
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
-     */
     @Override
     public int getId() {
         return 20;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.loggets.name") + getLogFileName();
@@ -86,9 +81,6 @@ public class FilterLogGetQuery extends FilterAdaptor {
         return "filter/get.xls";
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
@@ -125,9 +117,6 @@ public class FilterLogGetQuery extends FilterAdaptor {
         
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpResponseReceive(HttpMessage httpMessage) {
         

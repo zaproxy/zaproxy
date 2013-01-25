@@ -24,6 +24,7 @@
 // ZAP: 2012/05/03 Changed the method isCellEditable(int, int) to use directly
 // the returning value of Filter.isPropertyExists(). Moved a statement in the
 // method setValueAt(Object, int , int).
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -120,17 +121,11 @@ public class AllFilterTableModel extends DefaultTableModel {
         return 3;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
     @Override
     public int getRowCount() {
         return getAllFilters().size();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
     @Override
     public Object getValueAt(int row, int col) {
         Object result = null;

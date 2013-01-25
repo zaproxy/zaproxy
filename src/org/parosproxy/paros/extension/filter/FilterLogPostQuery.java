@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added type arguments to generic type, removed unused
 // variable and added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -43,17 +44,11 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
 
     private static final Logger logger = Logger.getLogger(FilterLogPostQuery.class);
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getId()
-     */
     @Override
     public int getId() {
         return 30;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.AbstractFilter#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.logposts.name") + getLogFileName();
@@ -65,9 +60,6 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
         return "filter/post.xls";
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 

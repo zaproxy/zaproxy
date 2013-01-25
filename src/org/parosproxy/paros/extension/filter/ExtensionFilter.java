@@ -28,6 +28,7 @@
 // allows to add some custom filter to the FilterFactory (e.g.: by third
 // party extensions).
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -150,9 +151,6 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	}
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public boolean onHttpRequestSend(HttpMessage httpMessage) {
         Filter filter = null;
@@ -184,9 +182,6 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 
 
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.core.proxy.ProxyListener#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public boolean onHttpResponseReceive(HttpMessage httpMessage) {
         Filter filter = null;

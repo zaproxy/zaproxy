@@ -20,6 +20,7 @@
  */
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -36,24 +37,15 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class FilterReplaceRequestBody extends FilterAbstractReplace {
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getId()
-     */
     @Override
     public int getId() {
         return 60;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#getName()
-     */
     @Override
     public String getName() {
         return Constant.messages.getString("filter.replacereqbody.name");
     }
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpRequestSend(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpRequestSend(HttpMessage msg) {
 
@@ -70,9 +62,6 @@ public class FilterReplaceRequestBody extends FilterAbstractReplace {
                    
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.extension.filter.FilterAdaptor#onHttpResponseReceive(org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public void onHttpResponseReceive(HttpMessage msg) {
  

@@ -74,11 +74,6 @@ public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see
-	 * org.parosproxy.paros.extension.ExtensionPopupMenuItem#isEnableForComponent(java.awt.Component
-	 * ) */
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
 		// Only enable it for the HttpSessionsPanel and for the entries that are not already active
@@ -94,9 +89,6 @@ public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.extension.ExtensionPopupMenuItem#isSafe() */
 	@Override
 	public boolean isSafe() {
 		return true;

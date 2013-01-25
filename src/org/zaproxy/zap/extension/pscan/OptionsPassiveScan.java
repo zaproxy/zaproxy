@@ -86,9 +86,6 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 //		return ratsList;
 //	}
 	
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#initParam(java.lang.Object)
-     */
     @Override
     public void initParam(Object obj) {
         OptionsParam optionsParam = (OptionsParam) obj;
@@ -97,17 +94,11 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         scannersOptionsPanel.setRemoveWithoutConfirmation(!passiveScanParam.isConfirmRemoveAutoTagScanner());
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#validateParam(java.lang.Object)
-     */
     @Override
     public void validateParam(Object obj) throws Exception {
 
     }
     
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.view.AbstractParamPanel#saveParam(java.lang.Object)
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam optionsParam = (OptionsParam) obj;

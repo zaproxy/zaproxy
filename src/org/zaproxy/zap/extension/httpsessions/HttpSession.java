@@ -150,9 +150,6 @@ public class HttpSession {
 		tokenValues.remove(tokenName);
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString() */
 	@Override
 	public String toString() {
 		return "HttpSession [name=" + name + ", active=" + active + ", tokenValues='" + getTokenValuesString() + "']";
@@ -176,9 +173,6 @@ public class HttpSession {
 
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode() */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -187,9 +181,6 @@ public class HttpSession {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object) */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

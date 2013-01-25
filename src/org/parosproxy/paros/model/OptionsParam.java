@@ -31,6 +31,7 @@
 // ZAP: 2012/12/31 Removed brute force options
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.model;
 
@@ -182,9 +183,6 @@ public class OptionsParam extends AbstractParam {
     
     // ZAP: Removed the method getConfig().
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.common.AbstractParam#parse()
-     */
     @Override
     protected void parse() {
 		getConnectionParam().load(getConfig());

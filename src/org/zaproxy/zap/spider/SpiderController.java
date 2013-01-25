@@ -272,11 +272,6 @@ public class SpiderController implements SpiderParserListener {
 		spider.submitTask(task);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.parser.SpiderParserListener#resourceFound(org.parosproxy.paros.network
-	 * .HttpMessage, java.lang.String)
-	 */
 	@Override
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
 		resourceURIFound(responseMessage, depth, uri, false);

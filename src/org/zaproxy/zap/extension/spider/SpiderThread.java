@@ -100,10 +100,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Thread#run()
-	 */
 	@Override
 	public void run() {
 		runScan();
@@ -121,10 +117,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.isAlive = true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#stopScan()
-	 */
 	@Override
 	public void stopScan() {
 		if (spider != null) {
@@ -135,38 +127,22 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.listenner.scanFinshed(site);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#isStopped()
-	 */
 	@Override
 	public boolean isStopped() {
 		return stopScan;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#isRunning()
-	 */
 	@Override
 	public boolean isRunning() {
 		return isAlive;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#getList()
-	 */
 	@Override
 	public DefaultListModel<?> getList() {
 		// Not used, as the SpiderPanel is relying on a TableModel
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#pauseScan()
-	 */
 	@Override
 	public void pauseScan() {
 		if (spider != null) {
@@ -175,10 +151,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.isPaused = true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#resumeScan()
-	 */
 	@Override
 	public void resumeScan() {
 		if (spider != null) {
@@ -187,19 +159,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.isPaused = false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#isPaused()
-	 */
 	@Override
 	public boolean isPaused() {
 		return this.isPaused;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#getMaximum()
-	 */
 	@Override
 	public int getMaximum() {
 		return this.spiderDone + this.spiderTodo;
@@ -307,10 +271,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.SpiderListener#spiderComplete(boolean)
-	 */
 	@Override
 	public void spiderComplete(boolean successful) {
 		log.warn("Spider scanning complete: " + successful);
@@ -319,11 +279,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.listenner.scanFinshed(site);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.SpiderListener#foundURI(java.lang.String,
-	 * org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus)
-	 */
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
 		if (extension.getView() != null) {
@@ -343,10 +298,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.SpiderListener#readURI(org.parosproxy.paros.network.HttpMessage)
-	 */
 	@Override
 	public void readURI(HttpMessage msg) {
 		// Add the read message to the Site Tree
@@ -364,10 +315,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.spider.SpiderListener#spiderProgress(int, int, int)
-	 */
 	@Override
 	public void spiderProgress(final int percentageComplete, final int numberCrawled, final int numberToCrawl) {
 		this.spiderDone = numberCrawled;
@@ -375,28 +322,16 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.scanProgress(site, numberCrawled, numberCrawled + numberToCrawl);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#getStartNode()
-	 */
 	@Override
 	public SiteNode getStartNode() {
 		return startNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#setStartNode(org.parosproxy.paros.model.SiteNode)
-	 */
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#reset()
-	 */
 	@Override
 	public void reset() {
 		this.resultsModel.removeAllElements();
@@ -414,37 +349,21 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			this.pendingSpiderListeners.add(listener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#setJustScanInScope(boolean)
-	 */
 	@Override
 	public void setJustScanInScope(boolean scanInScope) {
 		this.justScanInScope = scanInScope;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#getJustScanInScope()
-	 */
 	@Override
 	public boolean getJustScanInScope() {
 		return justScanInScope;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#setScanChildren(boolean)
-	 */
 	@Override
 	public void setScanChildren(boolean scanChildren) {
 		this.scanChildren = scanChildren;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.ScanThread#getProgress()
-	 */
 	@Override
 	public int getProgress() {
 		return this.progress;
@@ -459,10 +378,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		return this.resultsModel;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.zaproxy.zap.model.GenericScanner#setScanContext(org.zaproxy.zap.model.Context)
-	 */
 	@Override
 	public void setScanContext(Context context) {
 		this.scanContext = context;

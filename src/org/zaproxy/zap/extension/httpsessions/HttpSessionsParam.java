@@ -72,9 +72,6 @@ public class HttpSessionsParam extends AbstractParam {
 	public HttpSessionsParam() {
 	}
 
-	/* (non-Javadoc)
-	 * 
-	 * @see org.parosproxy.paros.common.FileXML#parse() */
 	@Override
 	protected void parse() {
 		// Parse the default token names

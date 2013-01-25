@@ -61,12 +61,6 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 		return extension;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see
-	 * org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemHolder#getPopupContextMenu(org.zaproxy.zap.model
-	 * .Context, java.lang.String)
-	 */
 	@Override
 	public ExtensionPopupMenuItem getPopupContextMenu(Context context, String parentName) {
 		return new PopupContextMenu(context, parentName, context.getName()) {
