@@ -573,7 +573,6 @@ public class ExtensionLoader {
         addMenuHelper(menuBar.getMenuEdit(), hookMenu.getEdit());
         addMenuHelper(menuBar.getMenuView(), hookMenu.getView());
         addMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
-        addMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
         addMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         addMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         
