@@ -255,7 +255,7 @@ public class ProxyServer implements Runnable {
 		Collections.sort(persistentConnectionListenerList, getListenersComparator());
 	}
 	
-	public void removeProxyListener(PersistentConnectionListener listener) {
+	public void removePersistentConnectionListener(PersistentConnectionListener listener) {
 		persistentConnectionListenerList.remove(listener);
 	}
 

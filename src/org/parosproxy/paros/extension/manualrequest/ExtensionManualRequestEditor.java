@@ -31,6 +31,7 @@
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
+// ZAP: 2013/01/25 Added method removeManualSendEditor().
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -87,6 +88,10 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	 */
 	public void addManualSendEditor(ManualRequestEditorDialog dialogue) {
 		dialogues.put(dialogue.getMessageType(), dialogue);
+	}
+	
+	public void removeManualSendEditor(Class<? extends Message> messageType) {
+		dialogues.remove(messageType);
 	}
 	
 	/**

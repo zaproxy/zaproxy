@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+// ZAP: 2013/01/25 Added field hook and use it for unloading.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
@@ -52,6 +54,7 @@ public abstract class ExtensionAdaptor implements Extension {
     private boolean enabled = true;
     private ResourceBundle messages = null;
     private String i18nPrefix = null;
+	private ExtensionHook hook = null;
     
     public ExtensionAdaptor() {
     }
@@ -128,6 +131,7 @@ public abstract class ExtensionAdaptor implements Extension {
 
     @Override
     public void hook(ExtensionHook extensionHook) {
+    	this.hook  = extensionHook;
     }
 
     @Override
@@ -216,8 +220,16 @@ public abstract class ExtensionAdaptor implements Extension {
     	return false;
     }
 	
+    /**
+	 * Removes extension from ZAP. Override to undo things setup in
+	 * {@link #hook(ExtensionHook)} method.
+	 */
     @Override
 	public void unload() {
+		Control control = Control.getSingleton();
+		ExtensionLoader extLoader = control.getExtensionLoader();
+
+		extLoader.removeExtension(this, hook);
 	}
 
 }

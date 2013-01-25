@@ -34,7 +34,8 @@
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
 // ZAP: 2012/12/27 Added hookPersistentConnectionListener() method.
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
-
+// ZAP: 2013/01/25 Added removeExtension(...) method and further helper methods
+// to remove listeners, menu items, etc.
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -48,6 +49,7 @@ import javax.swing.JMenuItem;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -56,6 +58,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.MainMenuBar;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
@@ -164,6 +167,21 @@ public class ExtensionLoader {
     	}
     }
     
+    private void removeProxyListener(ExtensionHook hook) {
+		Proxy proxy = Control.getSingleton().getProxy();
+        List<ProxyListener> listenerList = hook.getProxyListenerList();
+        for (int j=0; j<listenerList.size(); j++) {
+            try {
+                ProxyListener listener = listenerList.get(j);
+                if (listener != null) {
+                    proxy.removeProxyListener(listener);
+                }
+            } catch (Exception e) {
+            	logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
     public void hookPersistentConnectionListener(Proxy proxy) {
     	Iterator<ExtensionHook> iter = hookList.iterator();
     	while (iter.hasNext()) {
@@ -181,6 +199,21 @@ public class ExtensionLoader {
             }
     	}
     }
+
+	private void removePersistentConnectionListener(ExtensionHook hook) {
+		Proxy proxy = Control.getSingleton().getProxy();
+        List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
+        for (int j=0; j<listenerList.size(); j++) {
+            try {
+                PersistentConnectionListener listener = listenerList.get(j);
+                if (listener != null) {
+                    proxy.removePersistentConnectionListener(listener);
+                }
+            } catch (Exception e) {
+            	logger.error(e.getMessage(), e);
+            }
+    	}
+	}
     
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
@@ -192,7 +225,7 @@ public class ExtensionLoader {
                 try {
                 	SiteMapListener listener = listenerList.get(j);
                     if (listener != null) {
-                    	siteMapPanel.addSiteMapListenner(listener);
+                    	siteMapPanel.addSiteMapListener(listener);
                     }
                 } catch (Exception e) {
                 	// ZAP: Log the exception
@@ -200,6 +233,23 @@ public class ExtensionLoader {
                 }
             }
         }
+    }
+    
+    private void removeSiteMapListener(ExtensionHook hook) {
+		if (view != null) {
+			SiteMapPanel siteMapPanel = view.getSiteTreePanel();
+	        List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
+	        for (int j=0; j<listenerList.size(); j++) {
+	            try {
+	            	SiteMapListener listener = listenerList.get(j);
+	                if (listener != null) {
+	                	siteMapPanel.removeSiteMapListener(listener);
+	                }
+	            } catch (Exception e) {
+	            	logger.error(e.getMessage(), e);
+	            }
+	        }
+		}
     }
     
     public void optionsChangedAllPlugin(OptionsParam options) {
@@ -410,6 +460,18 @@ public class ExtensionLoader {
         
     }
     
+    private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
+        AbstractParamPanel panel = null;
+        for (int i=0; i<panelList.size(); i++) {
+            try {
+                panel = panelList.get(i);
+                dialog.removeParamPanel(panel);
+            } catch (Exception e) {
+            	logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
     private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel tab) {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
@@ -436,9 +498,20 @@ public class ExtensionLoader {
             }
         }
     }
-
-
     
+    private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel tab) {
+        AbstractPanel panel = null;
+        for (int i=0; i<panelList.size(); i++) {
+            try {
+                panel = panelList.get(i);
+                tab.remove(panel);
+
+                //FIXME: Do I need to call removeTab() also?
+            } catch (Exception e) {
+            	logger.error(e.getMessage(), e);
+            }
+        }
+    }    
     
     private void hookAllExtension() {
         ExtensionHook extHook = null;
@@ -629,7 +702,57 @@ public class ExtensionLoader {
         }
     }
     
-    private void hookOptions(ExtensionHook hook) {
+    private void removeMenu(View view, ExtensionHook hook) {
+        if (view == null) {
+            return;
+        }
+        
+        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        if (hookMenu == null) {
+            return;
+        }
+        
+        MainMenuBar menuBar = view.getMainFrame().getMainMenuBar();
+        
+        // clear up various menus
+        removeMenuHelper(menuBar, hookMenu.getNewMenus());
+        
+        removeMenuHelper(menuBar.getMenuFile(),hookMenu.getFile());
+        removeMenuHelper(menuBar.getMenuTools(), hookMenu.getTools());
+        removeMenuHelper(menuBar.getMenuEdit(), hookMenu.getEdit());
+        removeMenuHelper(menuBar.getMenuView(), hookMenu.getView());
+        removeMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
+        removeMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
+        removeMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
+        
+        removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
+    }
+
+	private void removeMenuHelper(JMenuBar menuBar, List<JMenuItem> items) {
+		for (JMenuItem item : items) {
+            if (item != null) {
+            	menuBar.remove(item);
+            }
+        }
+	}
+
+	private void removeMenuHelper(JMenu menu, List<JMenuItem> items) {
+    	for (JMenuItem item : items) {
+            if (item != null) {
+	            menu.remove(item);
+            }
+        }
+	}
+    
+    private void removeMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+    	for (JMenuItem item : items) {
+            if (item != null) {
+            	menuList.remove(item);
+            }
+        }
+	}
+
+	private void hookOptions(ExtensionHook hook) {
         Vector<AbstractParam> list = hook.getOptionsParamSetList();
         for (int i=0; i<list.size(); i++) {
             try {
@@ -641,6 +764,19 @@ public class ExtensionLoader {
             }
         }
     }
+
+	private void unloadOptions(ExtensionHook hook) {
+		Vector<AbstractParam> list = hook.getOptionsParamSetList();
+        for (int i=0; i<list.size(); i++) {
+            try {
+                AbstractParam paramSet = list.get(i);
+                model.getOptionsParam().removeParamSet(paramSet);
+            } catch (Exception e) {
+            	// ZAP: Log the exception
+            	logger.error(e.getMessage(), e);
+            }
+        }
+	}
 
 
     
@@ -661,7 +797,25 @@ public class ExtensionLoader {
         // ZAP: removed session dialog parameter
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
+    }
+    
+    private void removeView(View view, ExtensionHook hook) {
+    	if (view == null) {
+            return;
+        }
         
+        ExtensionHookView pv = hook.getHookView();
+        if (pv == null) {
+            return;
+        }
+        
+        removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
+        removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
+        removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+ 
+        // ZAP: removed session dialog parameter
+        removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
+        removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
 
     public void removeStatusPanel (AbstractPanel panel) {
@@ -772,5 +926,34 @@ public class ExtensionLoader {
             getExtension(i).initXML(session, options);
         }        
     }
+
+    /**
+	 * Removes an extension from internal list. As a result listeners added via
+	 * the {@link ExtensionHook} object are unregistered.
+	 * 
+	 * @param extension
+	 * @param hook
+	 */
+	public void removeExtension(Extension extension, ExtensionHook hook) {
+		extensionList.remove(extension);
+		
+		// by removing the ExtensionHook object,
+		// the following listeners are no longer informed:
+		// 		* SessionListeners
+		// 		* OptionsChangedListeners
+		hookList.remove(hook);
+		
+		unloadOptions(hook);
+		
+		removePersistentConnectionListener(hook);
+		
+		removeProxyListener(hook);
+		
+		removeSiteMapListener(hook);
+		
+		removeView(view, hook);
+		
+		removeMenu(view, hook);
+	}
 
 }

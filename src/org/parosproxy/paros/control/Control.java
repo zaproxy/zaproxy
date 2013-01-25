@@ -103,7 +103,7 @@ public class Control extends AbstractControl implements SessionListener {
 		    getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
 		}
 		
-		getProxy(overrides).startServer();
+		proxy.startServer();
     }
 
     public Proxy getProxy() {

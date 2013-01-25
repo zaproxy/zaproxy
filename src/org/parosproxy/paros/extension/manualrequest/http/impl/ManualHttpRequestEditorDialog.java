@@ -27,8 +27,6 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -537,5 +535,9 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	
 	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
 		((HttpPanelSender) getMessageSender()).addPersistentConnectionListener(listener);
+	}
+
+	public void removePersistentConnectionListener(PersistentConnectionListener listener) {
+		((HttpPanelSender) getMessageSender()).removePersistentConnectionListener(listener);
 	}
 }

@@ -23,6 +23,7 @@
 // clear the http panels when the root node is selected.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/13 Added custom tree cell renderer to treeSite in getTreeSite().
+// ZAP: 2013/01/25 Added method for removing listener.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -62,7 +63,7 @@ public class SiteMapPanel extends JPanel {
 	private View view = null;
 	
 	// ZAP: Added SiteMapListenners
-	private List<SiteMapListener> listenners = new ArrayList<>();
+	private List<SiteMapListener> listeners = new ArrayList<>();
 	
 	/**
 	 * This is the default constructor
@@ -194,7 +195,7 @@ public class SiteMapPanel extends JPanel {
 				        }
 
 			        	// ZAP: Call SiteMapListenners
-			            for (SiteMapListener listener : listenners) {
+			            for (SiteMapListener listener : listeners) {
 			            	listener.nodeSelected(node);
 			            }
 				    } else {
@@ -207,7 +208,7 @@ public class SiteMapPanel extends JPanel {
 			});
 
 			// ZAP: Add custom tree cell renderer.
-	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer(listenners);
+	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer(listeners);
 			treeSite.setCellRenderer(renderer);
 		}
 		return treeSite;
@@ -237,8 +238,12 @@ public class SiteMapPanel extends JPanel {
 	}
 	
 	// ZAP: Added addSiteMapListenners
-	public void addSiteMapListenner (SiteMapListener listenner) {
-		this.listenners.add(listenner);
+	public void addSiteMapListener(SiteMapListener listenner) {
+		this.listeners.add(listenner);
+	}
+
+	public void removeSiteMapListener(SiteMapListener listener) {
+		this.listeners.remove(listener);
 	}
 	
 	public void showInSites (SiteNode node) {

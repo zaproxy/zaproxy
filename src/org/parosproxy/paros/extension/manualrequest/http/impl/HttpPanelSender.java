@@ -205,8 +205,10 @@ public class HttpPanelSender implements MessageSender {
 	}
 
 	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
-		synchronized (persistentConnectionListener) {
-			persistentConnectionListener.add(listener);
-		}
+		persistentConnectionListener.add(listener);
+	}
+
+	public void removePersistentConnectionListener(PersistentConnectionListener listener) {
+		persistentConnectionListener.remove(listener);
 	}
 }

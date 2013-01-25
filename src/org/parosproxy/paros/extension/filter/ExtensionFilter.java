@@ -28,6 +28,7 @@
 // allows to add some custom filter to the FilterFactory (e.g.: by third
 // party extensions).
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2013/01/25 Added method removeFilter().
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 
 package org.parosproxy.paros.extension.filter;
@@ -273,6 +274,11 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 		} else {
 			filters.add(index, filter);
 		}
+	}
+
+	public void removeFilter(Filter filter) {
+		List<Filter> filters = filterFactory.getAllFilter();
+		filters.remove(filter);
 	}
 	
 	/**

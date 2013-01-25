@@ -125,6 +125,10 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
         fuzzableMessageHandlers.put(clazz, handler);
     }
 
+	public void removeFuzzerHandler(Class<? extends Message> clazz) {
+		fuzzableMessageHandlers.remove(clazz);
+	}
+
 	private FuzzerPanel getFuzzerPanel() {
 		if (fuzzerPanel == null) {
 			fuzzerPanel = new FuzzerPanel(this);
