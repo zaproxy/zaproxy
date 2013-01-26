@@ -230,7 +230,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/**
 	 * Checks if a particular token is part of the default session tokens set by the user using the
 	 * options panel. The default session tokens are valid for all sites. The check is being
-	 * performed in a lower-case manner, as session tokens are case-insensitive.
+	 * performed in a lower-case manner, as default session tokens are case-insensitive.
 	 * 
 	 * @param token the token
 	 * @return true, if it is a default session token
@@ -243,8 +243,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/**
 	 * Checks if a particular default session token was removed by an user as a session token for a
-	 * site. The check is being performed in a lower-case manner, as session tokens are
-	 * case-insensitive.
+	 * site.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
 	 *            {@link ExtensionHttpSessions} class documentation.
@@ -255,7 +254,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (removedDefaultTokens == null)
 			return false;
 		HashSet<String> removed = removedDefaultTokens.get(site);
-		if (removed == null || !removed.contains(token.toLowerCase(Locale.ENGLISH)))
+		if (removed == null || !removed.contains(token))
 			return false;
 		return true;
 	}
@@ -275,14 +274,15 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			removedSet = new HashSet<>(1);
 			removedDefaultTokens.put(site, removedSet);
 		}
-		removedSet.add(token.toLowerCase(Locale.ENGLISH));
+		removedSet.add(token);
 	}
 
 	/**
 	 * Unmarks a default session token as removed for a particular site.
 	 * 
-	 * @param site the site. This parameter has to be formed as defined in the
-	 * @param token the token {@link ExtensionHttpSessions} class documentation.
+	 * @param site the site. This parameter has to be formed as defined in the 
+	 * 		{@link ExtensionHttpSessions} class documentation.
+	 * @param token the token 
 	 */
 	private void unmarkRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
@@ -290,12 +290,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		HashSet<String> removed = removedDefaultTokens.get(site);
 		if (removed == null)
 			return;
-		removed.remove(token.toLowerCase(Locale.ENGLISH));
+		removed.remove(token);
 	}
 
 	/**
-	 * Checks if a particular token is a session token name for a particular site. The check is
-	 * being performed in a lower-case manner, as session tokens are case-insensitive.
+	 * Checks if a particular token is a session token name for a particular site.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
 	 *            {@link ExtensionHttpSessions} class documentation.
@@ -306,12 +305,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null)
 			return false;
-		return siteTokens.contains(token.toLowerCase(Locale.ENGLISH));
+		return siteTokens.contains(token);
 	}
 
 	/**
-	 * Adds a new session token for a particular site. The session tokens are case-insensitive, so
-	 * this token will be added lower cased.
+	 * Adds a new session token for a particular site.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
 	 *            {@link ExtensionHttpSessions} class documentation.
@@ -324,7 +322,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			sessionTokens.put(site, siteTokens);
 		}
 		log.info("Added new session token for site '" + site + "': " + token);
-		siteTokens.add(token.toLowerCase(Locale.ENGLISH));
+		siteTokens.add(token);
 		// If the session token is a default token and was previously marked as remove, undo that
 		unmarkRemovedDefaultSessionToken(site, token);
 	}
@@ -346,7 +344,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @param token the token
 	 */
 	public void removeHttpSessionToken(String site, String token) {
-		token = token.toLowerCase(Locale.ENGLISH);
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens != null) {
 			// Remove the tokens from the tokens associated with the site
@@ -364,8 +361,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
-	 * Gets the set of session tokens for a particular site. The session tokens are case-insensitive
-	 * and are returned lower-cased.
+	 * Gets the set of session tokens for a particular site. 
 	 * <p>
 	 * The set of session tokens returned is read-only view of the internal session tokens and any
 	 * modifications will result in {@link UnsupportedOperationException}. The current

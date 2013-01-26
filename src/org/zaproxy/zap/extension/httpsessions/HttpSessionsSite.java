@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -183,7 +182,6 @@ public class HttpSessionsSite {
 	 * Creates a new empty session.
 	 */
 	public void createEmptySession() {
-		// TODO: Allow the user to specify it?
 		HttpSession session = new HttpSession(MessageFormat.format(
 				Constant.messages.getString("httpsessions.session.defaultName"),
 				Integer.valueOf(lastGeneratedSessionID++)));
@@ -231,7 +229,7 @@ public class HttpSessionsSite {
 			Iterator<HttpCookie> it = requestCookies.iterator();
 			while (it.hasNext()) {
 				HttpCookie cookie = it.next();
-				String cookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
+				String cookieName = cookie.getName();
 
 				// If the cookie is a token
 				if (tokensSet.contains(cookieName)) {
@@ -298,7 +296,7 @@ public class HttpSessionsSite {
 		// Get new values for tokens, if any
 		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
 		for (HttpCookie cookie : cookiesToSet) {
-			final String lcCookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
+			final String lcCookieName = cookie.getName();
 			if (tokensSet.contains(lcCookieName))
 				tokenValues.put(lcCookieName, cookie.getValue());
 		}
@@ -329,7 +327,7 @@ public class HttpSessionsSite {
 			// Add all the existing tokens from the request, if they don't replace one in the
 			// response
 			for (HttpCookie cookie : requestCookies) {
-				String cookieName = cookie.getName().toLowerCase(Locale.ENGLISH);
+				String cookieName = cookie.getName();
 				if (tokensSet.contains(cookieName))
 					if (!tokenValues.containsKey(cookieName))
 						tokenValues.put(cookieName, cookie.getValue());
@@ -369,7 +367,7 @@ public class HttpSessionsSite {
 			// Get the corresponding cookie from the cookies list
 			HttpCookie matchingCookie = null;
 			for (HttpCookie cookie : cookies)
-				if (cookie.getName().equalsIgnoreCase(token)) {
+				if (cookie.getName().equals(token)) {
 					matchingCookie = cookie;
 					break;
 				}
