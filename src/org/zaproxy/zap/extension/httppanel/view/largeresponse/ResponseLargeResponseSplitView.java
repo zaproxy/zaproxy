@@ -32,7 +32,7 @@ import org.zaproxy.zap.extension.httppanel.view.ImmutableHttpPanelViewModel;
 
 public class ResponseLargeResponseSplitView implements HttpPanelView {
 
-	public static final String CONFIG_NAME = "largeResponseSplit";
+	public static final String NAME = "ResponseLargeResponseSplitView";
 	
 	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
 	
@@ -56,17 +56,22 @@ public class ResponseLargeResponseSplitView implements HttpPanelView {
 
 	@Override
 	public String getName() {
+		return NAME;
+	}
+
+	@Override
+	public String getCaptionName() {
 		return CAPTION_NAME;
+	}
+	
+	@Override
+	public String getTargetViewName() {
+		return "";
 	}
 	
 	@Override
 	public int getPosition() {
 		return 1;
-	}
-
-	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
 	}
 
 	@Override

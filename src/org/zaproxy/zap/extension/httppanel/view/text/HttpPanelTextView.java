@@ -40,7 +40,7 @@ import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
 
 public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewModelListener, SearchableHttpPanelView {
 
-	public static final String CONFIG_NAME = "text";
+	public static final String NAME = "HttpPanelTextView";
 	
 	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.text.name");
 	
@@ -90,12 +90,17 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	
 	@Override
 	public String getName() {
+		return NAME;
+	}
+	
+	@Override
+	public String getCaptionName() {
 		return CAPTION_NAME;
 	}
-
+	
 	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
+	public String getTargetViewName() {
+		return "";
 	}
 	
 	@Override

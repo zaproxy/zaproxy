@@ -347,6 +347,21 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
 
     
     private void switchEmptyComponent() {
+        if (this.currentComponent != null) {
+            currentComponent.setSelected(false);
+            currentComponent.clearView();
+            
+            if (currentComponent.getOptionsPanel() != null) {
+                componentOptions.remove(0);
+            }
+            
+            if (currentComponent.getMoreOptionsPanel() != null) {
+                moreOptionsComponent.remove(0);
+            }
+            
+            currentComponent = null;
+        }
+        
         if (noComponentsPanel == null) {
             noComponentsPanel = new JPanel(new BorderLayout(5, 5));
             noComponentsPanel.add(new JLabel("No suitable component has been found to display the message."));
@@ -444,6 +459,20 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         synchronized (components) {
             HttpPanelComponentInterface component = components.get(componentName);
             if (component != null) {
+                if (component.isEnabled(message)) {
+                    disableComponent(component);
+                }
+                
+                if (enabledComponents.size() > 0) {
+                    switchComponent(enabledComponents.get(0).getName());
+                } else {
+                    switchEmptyComponent();
+                }
+
+                components.remove(componentName);
+                panelContent.remove(component.getMainPanel());
+                
+                this.validate();
             }
         }
     }

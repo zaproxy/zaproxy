@@ -39,16 +39,59 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-	    if (getView() != null) {
-    		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
-    		
-    		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
-    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
-	    }
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseLargeResponseSplitViewFactory());
+			panelManager.addResponseDefaultViewSelectorFactory(ResponseSplitComponent.NAME, new LargeResponseDefaultSplitViewSelectorFactory());
+			
+			panelManager.addResponseViewFactory(ResponseAllComponent.NAME, new ResponseLargeResponseAllViewFactory());
+			panelManager.addResponseDefaultViewSelectorFactory(ResponseAllComponent.NAME, new LargeResponseDefaultAllViewSelectorFactory());
+		}
 	}
 	
-	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseLargeResponseSplitViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					ResponseLargeResponseSplitView.NAME,
+					ResponseSplitComponent.ViewComponent.BODY);
+			panelManager.removeResponseDefaultViewSelectorFactory(
+					ResponseSplitComponent.NAME,
+					LargeResponseDefaultSplitViewSelectorFactory.NAME);
+			panelManager.removeResponseDefaultViewSelectors(
+					ResponseSplitComponent.NAME,
+					LargeResponseDefaultSplitViewSelector.NAME,
+					ResponseSplitComponent.ViewComponent.BODY);
+
+			panelManager.removeResponseViewFactory(ResponseAllComponent.NAME, ResponseLargeResponseAllViewFactory.NAME);
+			panelManager.removeResponseViews(ResponseAllComponent.NAME, ResponseLargeResponseAllView.NAME, null);
+			panelManager.removeResponseDefaultViewSelectorFactory(
+					ResponseAllComponent.NAME,
+					LargeResponseDefaultAllViewSelectorFactory.NAME);
+			panelManager.removeResponseDefaultViewSelectors(
+					ResponseAllComponent.NAME,
+					LargeResponseDefaultAllViewSelector.NAME,
+					null);
+		}
+	}
+	
+	private static final class ResponseLargeResponseSplitViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseLargeResponseSplitViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -63,19 +106,21 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 	private static final class LargeResponseDefaultSplitViewSelector implements HttpPanelDefaultViewSelector {
 
+		public static final String NAME = "LargeResponseDefaultSplitViewSelector";
+		
 		@Override
 		public String getName() {
-			return "LargeResponseDefaultSplitViewSelector";
+			return NAME;
 		}
 		
 		@Override
 		public boolean matchToDefaultView(Message aMessage) {
-		    return LargeResponseUtil.isLargeResponse(aMessage);
+			return LargeResponseUtil.isLargeResponse(aMessage);
 		}
 
 		@Override
 		public String getViewName() {
-			return ResponseLargeResponseSplitView.CONFIG_NAME;
+			return ResponseLargeResponseSplitView.NAME;
 		}
 		
 		@Override
@@ -84,7 +129,14 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
+	private static final class ResponseLargeResponseAllViewFactory implements HttpPanelViewFactory {
+
+		public static final String NAME = "ResponseLargeResponseAllViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -99,19 +151,21 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 	private static final class LargeResponseDefaultAllViewSelector implements HttpPanelDefaultViewSelector {
 
+		public static final String NAME = "LargeResponseDefaultAllViewSelector";
+		
 		@Override
 		public String getName() {
-			return "LargeResponseDefaultAllViewSelector";
+			return NAME;
 		}
 		
 		@Override
 		public boolean matchToDefaultView(Message aMessage) {
-		    return LargeResponseUtil.isLargeResponse(aMessage);
+			return LargeResponseUtil.isLargeResponse(aMessage);
 		}
 
 		@Override
 		public String getViewName() {
-			return ResponseLargeResponseAllView.CONFIG_NAME;
+			return ResponseLargeResponseAllView.NAME;
 		}
 		
 		@Override
@@ -135,6 +189,13 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 			if (defaultViewSelector == null) {
 				defaultViewSelector = new LargeResponseDefaultSplitViewSelector();
 			}
+		}
+		
+		public static final String NAME = "LargeResponseDefaultSplitViewSelectorFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
 		}
 		
 		@Override
@@ -163,6 +224,13 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 			if (defaultViewSelector == null) {
 				defaultViewSelector = new LargeResponseDefaultAllViewSelector();
 			}
+		}
+		
+		public static final String NAME = "LargeResponseDefaultAllViewSelectorFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
 		}
 		
 		@Override

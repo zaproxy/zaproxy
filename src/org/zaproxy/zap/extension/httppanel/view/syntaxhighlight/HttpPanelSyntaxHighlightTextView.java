@@ -42,7 +42,7 @@ import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
 
 public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView, HttpPanelViewModelListener, SearchableHttpPanelView {
 
-	public static final String CONFIG_NAME = HttpPanelTextView.CONFIG_NAME;
+	public static final String NAME = "HttpPanelSyntaxHighlightTextView";
 	
 	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.text.name");
 	
@@ -97,17 +97,22 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 			httpPanelTextArea.requestFocusInWindow();
 		}
 	}
-	
-	@Override
-	public String getName() {
-		return CAPTION_NAME;
-	}
 
 	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
+	public String getName() {
+		return NAME;
 	}
 	
+	@Override
+	public String getCaptionName() {
+		return CAPTION_NAME;
+	}
+	
+	@Override
+	public String getTargetViewName() {
+		return HttpPanelTextView.NAME;
+	}
+
 	@Override
 	public int getPosition() {
 		return Integer.MIN_VALUE;
@@ -179,7 +184,7 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 	
 	@Override
 	public void setParentConfigurationKey(String configurationKey) {
-		this.configurationKey = configurationKey + CONFIG_NAME + ".";
+		this.configurationKey = configurationKey + NAME + ".";
 	}
 	
 	@Override

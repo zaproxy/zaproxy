@@ -147,11 +147,13 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     
     
     public void setSelected(boolean selected) {
-        currentView.setSelected(selected);
+        if (currentView != null) {
+            currentView.setSelected(selected);
+        }
     }
     
     private void switchView(final String name) {
-        if (this.currentView != null && this.currentView.getName().equals(name)) {
+        if (this.currentView != null && this.currentView.getCaptionName().equals(name)) {
             currentView.setSelected(true);
             return ;
         }
@@ -188,12 +190,12 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         String defaultViewName = getDefaultEnabledViewName();
         
         if (defaultViewName != null) {
-            if (defaultViewName.equals(currentView.getConfigName())) {
+            if (defaultViewName.equals(currentView.getName())) {
                 currentView.getModel().setMessage(message);
             } else {
                 switchView(defaultViewName);
             }
-        } else if (!enabledViews.contains(viewItems.get(currentView.getConfigName()))) {
+        } else if (!enabledViews.contains(viewItems.get(currentView.getName()))) {
             switchView(enabledViews.get(0).getConfigName());
         } else {
             currentView.getModel().setMessage(message);
@@ -206,7 +208,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         while (it.hasNext()) {
             HttpPanelView view = it.next().getValue();
             
-            ViewItem viewItem = viewItems.get(view.getConfigName());
+            ViewItem viewItem = viewItems.get(view.getName());
             
             if (!view.isEnabled(message)) {
                 if (enabledViews.contains(viewItem)) {
@@ -254,7 +256,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
             
             ViewItem item = (ViewItem) comboBoxModel.getSelectedItem();
             
-            if (item == null || item.getConfigName().equals(currentView.getConfigName())) {
+            if (item == null || item.getConfigName().equals(currentView.getName())) {
                 return;
             }
             
@@ -276,14 +278,16 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     }
     
     public void addView(HttpPanelView view) {
-        final String viewConfigName = view.getConfigName();
-        if (views.containsKey(viewConfigName)) {
-            removeView(viewConfigName);
+        final String targetViewName = view.getTargetViewName();
+        if (!"".equals(targetViewName) && views.containsKey(targetViewName)) {
+            removeView(targetViewName);
         }
+        
+        final String viewConfigName = view.getName();
         
         views.put(viewConfigName, view);
         
-        ViewItem viewItem = new ViewItem(viewConfigName, view.getName(), view.getPosition());
+        ViewItem viewItem = new ViewItem(viewConfigName, view.getCaptionName(), view.getPosition());
         viewItems.put(viewConfigName, viewItem);
         
         panelViews.add(view.getPane(), viewConfigName);
@@ -344,9 +348,9 @@ public class HttpPanelComponentViewsManager implements ItemListener {
             disableView(viewItem);
         }
         
-        viewItems.remove(view.getConfigName());
+        viewItems.remove(view.getName());
         
-        if (viewName.equals(currentView.getConfigName())) {
+        if (viewName.equals(currentView.getName())) {
             if (enabledViews.size() > 0) {
                 switchView(enabledViews.get(0).getConfigName());
             } else {
@@ -356,8 +360,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     }
     
     public void clearView() {
-        currentView.getModel().clear();
-        setMessage(null);
+        if (currentView != null) {
+            currentView.getModel().clear();
+            setMessage(null);
+        }
     }
     
     public void clearView(boolean enableViewSelect) {
@@ -423,7 +429,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
 
     public void saveConfig(FileConfiguration fileConfiguration) {
         if (currentView != null) {
-            fileConfiguration.setProperty(configurationKey + DEFAULT_VIEW_KEY, currentView.getConfigName());
+            fileConfiguration.setProperty(configurationKey + DEFAULT_VIEW_KEY, currentView.getName());
         }
         
         Iterator<HttpPanelView> it = views.values().iterator();
@@ -449,7 +455,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         } else {
             SearchableHttpPanelView searchableView = findSearchableView();
             if (currentView != null) {
-                switchView(((HttpPanelView)searchableView).getConfigName());
+                switchView(((HttpPanelView)searchableView).getName());
                 searchableView.highlight(sm);
             }
         }

@@ -35,7 +35,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 
 public class RequestPostTableView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String CONFIG_NAME = "Table";
+	public static final String NAME = "RequestPostTableView";
 	
 	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.table.name");
 	
@@ -71,17 +71,22 @@ public class RequestPostTableView implements HttpPanelView, HttpPanelViewModelLi
 	
 	@Override
 	public String getName() {
+		return NAME;
+	}
+	
+	@Override
+	public String getCaptionName() {
 		return CAPTION_NAME;
+	}
+	
+	@Override
+	public String getTargetViewName() {
+		return "";
 	}
 	
 	@Override
 	public int getPosition() {
 		return 10;
-	}
-	
-	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
 	}
 
 	@Override

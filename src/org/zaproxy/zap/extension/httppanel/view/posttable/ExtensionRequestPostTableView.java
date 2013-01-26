@@ -36,11 +36,34 @@ public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
+		if (getView() != null) {
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestPostTableViewFactory());
+		}
 	}
 	
-	private static final class RequestSplitBodyViewFactory implements HttpPanelViewFactory {
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestPostTableViewFactory.NAME);
+			panelManager.removeRequestViews(RequestSplitComponent.NAME, RequestPostTableView.NAME, RequestSplitComponent.ViewComponent.BODY);
+		}
+	}
+	
+	private static final class RequestPostTableViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "RequestPostTableViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {

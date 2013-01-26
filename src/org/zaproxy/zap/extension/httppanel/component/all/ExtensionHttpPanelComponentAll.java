@@ -36,13 +36,39 @@ public class ExtensionHttpPanelComponentAll extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-		HttpPanelManager.getInstance().addRequestComponent(new RequestAllComponentFactory());
-		
-		HttpPanelManager.getInstance().addResponseComponent(new ResponseAllComponentFactory());
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.addRequestComponentFactory(new RequestAllComponentFactory());
+			panelManager.addResponseComponentFactory(new ResponseAllComponentFactory());
+		}
+	}
+	
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestComponentFactory(RequestAllComponentFactory.NAME);
+			panelManager.removeRequestComponents(RequestAllComponent.NAME);
+			
+			panelManager.removeResponseComponentFactory(ResponseAllComponentFactory.NAME);
+			panelManager.removeResponseComponents(ResponseAllComponent.NAME);
+		}
 	}
 
 	private static final class ResponseAllComponentFactory implements HttpPanelComponentFactory {
+		
+		public static final String NAME = "ResponseAllComponentFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelComponentInterface getNewComponent() {
@@ -56,6 +82,13 @@ public class ExtensionHttpPanelComponentAll extends ExtensionAdaptor {
 	}
 
 	private static final class RequestAllComponentFactory implements HttpPanelComponentFactory {
+		
+		public static final String NAME = "RequestAllComponentFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelComponentInterface getNewComponent() {

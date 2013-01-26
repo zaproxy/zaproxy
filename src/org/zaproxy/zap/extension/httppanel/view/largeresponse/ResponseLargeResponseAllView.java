@@ -23,7 +23,7 @@ import org.zaproxy.zap.extension.httppanel.component.all.response.HttpResponseAl
 
 public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 
-	public static final String CONFIG_NAME = "largeResponseAll";
+	public static final String NAME = "ResponseLargeResponseAllView";
 	
 	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
 	
@@ -33,12 +33,12 @@ public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 	
 	@Override
 	public String getName() {
-		return CAPTION_NAME;
+		return NAME;
 	}
 	
 	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
+	public String getCaptionName() {
+		return CAPTION_NAME;
 	}
 
 	@Override

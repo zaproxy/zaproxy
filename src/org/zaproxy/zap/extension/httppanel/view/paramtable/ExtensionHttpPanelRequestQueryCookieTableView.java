@@ -43,11 +43,34 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
+		if (getView() != null) {
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new HttpPanelQueryCookieParamTableViewFactory());
+		}
 	}
 	
-	private static final class RequestSplitHeaderViewFactory implements HttpPanelViewFactory {
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, HttpPanelQueryCookieParamTableViewFactory.NAME);
+			panelManager.removeRequestViews(RequestSplitComponent.NAME, HttpPanelQueryCookieParamTableView.NAME, RequestSplitComponent.ViewComponent.HEADER);
+		}
+	}
+	
+	private static final class HttpPanelQueryCookieParamTableViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "HttpPanelQueryCookieParamTableViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -64,6 +87,11 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 
 		public HttpPanelQueryCookieParamTableView(HttpPanelViewModel model, HttpPanelParamTableModel tableModel) {
 			super(model, tableModel);
+		}
+
+		@Override
+		public String getTargetViewName() {
+			return "";
 		}
 
 		@Override

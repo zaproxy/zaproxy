@@ -50,20 +50,66 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-        if (getView() != null) {
-			HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
-			HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
+			panelManager.addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
 			
-			HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
-			HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
+			panelManager.addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
+			panelManager.addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
 			
-			HttpPanelManager.getInstance().addRequestView(RequestAllComponent.NAME, new RequestAllViewFactory());
-			HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
-        }
+			panelManager.addRequestViewFactory(RequestAllComponent.NAME, new RequestAllViewFactory());
+			panelManager.addResponseViewFactory(ResponseAllComponent.NAME, new ResponseAllViewFactory());
+		}
+	}
+	
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestSplitHeaderViewFactory.NAME);
+			panelManager.removeRequestViews(
+					RequestSplitComponent.NAME,
+					HttpRequestHeaderPanelSyntaxHighlightTextView.NAME,
+					RequestSplitComponent.ViewComponent.HEADER);
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestSplitBodyViewFactory.NAME);
+			panelManager.removeRequestViews(
+					RequestSplitComponent.NAME,
+					HttpRequestBodyPanelSyntaxHighlightTextView.NAME,
+					RequestSplitComponent.ViewComponent.BODY);
+			
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseSplitHeaderViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					HttpResponseHeaderPanelSyntaxHighlightTextView.NAME,
+					ResponseSplitComponent.ViewComponent.HEADER);
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseSplitBodyViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					HttpResponseBodyPanelSyntaxHighlightTextView.NAME,
+					ResponseSplitComponent.ViewComponent.BODY);
+
+			panelManager.removeRequestViewFactory(RequestAllComponent.NAME, RequestAllViewFactory.NAME);
+			panelManager.removeRequestViews(RequestAllComponent.NAME, HttpRequestAllPanelSyntaxHighlightTextView.NAME, null);
+			panelManager.removeResponseViewFactory(ResponseAllComponent.NAME, ResponseAllViewFactory.NAME);
+			panelManager.removeResponseViews(ResponseAllComponent.NAME, HttpResponseAllPanelSyntaxHighlightTextView.NAME, null);
+		}
 	}
 	
 	private static final class RequestSplitHeaderViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "RequestSplitHeaderViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -78,6 +124,13 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	
 	private static final class RequestSplitBodyViewFactory implements HttpPanelViewFactory {
 		
+		public static final String NAME = "RequestSplitBodyViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
+		
 		@Override
 		public HttpPanelView getNewView() {
 			return new HttpRequestBodyPanelSyntaxHighlightTextView(new RequestBodyStringHttpPanelViewModel());
@@ -90,6 +143,13 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	}
 	
 	private static final class ResponseSplitHeaderViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseSplitHeaderViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -104,6 +164,13 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	
 	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
 		
+		public static final String NAME = "ResponseSplitBodyViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
+		
 		@Override
 		public HttpPanelView getNewView() {
 			return new HttpResponseBodyPanelSyntaxHighlightTextView(new ResponseBodyStringHttpPanelViewModel());
@@ -117,6 +184,13 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	
 	private static final class RequestAllViewFactory implements HttpPanelViewFactory {
 		
+		public static final String NAME = "RequestAllViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
+		
 		@Override
 		public HttpPanelView getNewView() {
 			return new HttpRequestAllPanelSyntaxHighlightTextView(new RequestStringHttpPanelViewModel());
@@ -129,6 +203,13 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	}
 	
 	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseAllViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {

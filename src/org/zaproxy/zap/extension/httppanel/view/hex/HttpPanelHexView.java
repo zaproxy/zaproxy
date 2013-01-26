@@ -34,7 +34,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 
 public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String CONFIG_NAME = "Hex";
+	public static final String NAME = "HttpPanelHexView";
 	
 	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.hex.name");
 	
@@ -54,17 +54,22 @@ public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListen
 	
 	@Override
 	public String getName() {
+		return NAME;
+	}
+	
+	@Override
+	public String getCaptionName() {
 		return CAPTION_NAME;
+	}
+	
+	@Override
+	public String getTargetViewName() {
+		return "";
 	}
 	
 	@Override
 	public int getPosition() {
 		return 0;
-	}
-	
-	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
 	}
 
 	@Override

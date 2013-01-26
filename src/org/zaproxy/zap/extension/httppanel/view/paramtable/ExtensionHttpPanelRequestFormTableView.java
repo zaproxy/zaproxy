@@ -13,6 +13,7 @@ import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitC
 import org.zaproxy.zap.extension.httppanel.view.DefaultHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 
@@ -26,11 +27,34 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
+		if (getView() != null) {
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new HttpPanelFormParamTableViewFactory());
+		}
 	}
 	
-	private static final class RequestSplitBodyViewFactory implements HttpPanelViewFactory {
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, HttpPanelFormParamTableViewFactory.NAME);
+			panelManager.removeRequestViews(RequestSplitComponent.NAME, HttpPanelFormParamTableView.NAME, RequestSplitComponent.ViewComponent.BODY);
+		}
+	}
+	
+	private static final class HttpPanelFormParamTableViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "HttpPanelFormParamTableViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -47,6 +71,11 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 
 		public HttpPanelFormParamTableView(HttpPanelViewModel model, HttpPanelParamTableModel tableModel) {
 			super(model, tableModel);
+		}
+
+		@Override
+		public String getTargetViewName() {
+			return RequestPostTableView.NAME;
 		}
 
 		@Override

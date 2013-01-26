@@ -39,14 +39,44 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-	    if (getView() != null) {
-    		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-    		
-    		HttpPanelManager.getInstance().addResponseDefaultView(ResponseSplitComponent.NAME, new ImageDefaultViewSelectorFactory());
-	    }
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseImageViewFactory());
+			panelManager.addResponseDefaultViewSelectorFactory(ResponseSplitComponent.NAME, new ResponseImageViewDefaultViewSelectorFactory());
+		}
 	}
 	
-	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseImageViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					ResponseImageView.NAME,
+					ResponseSplitComponent.ViewComponent.BODY);
+
+			panelManager.removeResponseDefaultViewSelectorFactory(
+					ResponseSplitComponent.NAME,
+					ResponseImageViewDefaultViewSelectorFactory.NAME);
+			panelManager.removeResponseDefaultViewSelectors(ResponseSplitComponent.NAME, ResponseImageViewDefaultViewSelector.NAME, ResponseSplitComponent.ViewComponent.BODY);
+		}
+	}
+	
+	private static final class ResponseImageViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseImageViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -59,11 +89,13 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ImageDefaultViewSelector implements HttpPanelDefaultViewSelector {
+	private static final class ResponseImageViewDefaultViewSelector implements HttpPanelDefaultViewSelector {
 
+		public static final String NAME = "ResponseImageViewDefaultViewSelector";
+		
 		@Override
 		public String getName() {
-			return "ImageDefaultViewSelector";
+			return NAME;
 		}
 		
 		@Override
@@ -73,7 +105,7 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 
 		@Override
 		public String getViewName() {
-			return ResponseImageView.CONFIG_NAME;
+			return ResponseImageView.NAME;
 		}
 		
 		@Override
@@ -82,7 +114,7 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ImageDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+	private static final class ResponseImageViewDefaultViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
 		
 		private static HttpPanelDefaultViewSelector defaultViewSelector = null;
 		
@@ -95,8 +127,15 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 		
 		private synchronized void createViewSelector() {
 			if (defaultViewSelector == null) {
-				defaultViewSelector = new ImageDefaultViewSelector();
+				defaultViewSelector = new ResponseImageViewDefaultViewSelector();
 			}
+		}
+		
+		public static final String NAME = "ResponseImageViewDefaultViewSelectorFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
 		}
 		
 		@Override

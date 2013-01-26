@@ -29,9 +29,11 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public interface HttpPanelView {
 
     
-    public String getConfigName();
-
     public String getName();
+
+    public String getCaptionName();
+    
+    public String getTargetViewName();
 
     public int getPosition();
 

@@ -48,7 +48,7 @@ import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinUrle
 
 public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String CONFIG_NAME = "Table";
+	public static final String NAME = "HttpPanelParamTableView";
 	
 	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.table.name");
 	private static final String ADD_INS = Constant.messages.getString("http.panel.view.tableparam.addins");
@@ -142,20 +142,20 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 			table.requestFocusInWindow();
 		}
 	}
-	
+
 	@Override
 	public String getName() {
+		return NAME;
+	}
+	
+	@Override
+	public String getCaptionName() {
 		return CAPTION_NAME;
 	}
 	
 	@Override
 	public int getPosition() {
 		return 10;
-	}
-
-	@Override
-	public String getConfigName() {
-		return CONFIG_NAME;
 	}
 
 	@Override

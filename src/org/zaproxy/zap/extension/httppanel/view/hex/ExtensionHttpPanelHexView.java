@@ -44,20 +44,66 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());
-		HttpPanelManager.getInstance().addRequestView(RequestSplitComponent.NAME, new RequestSplitBodyViewFactory());
-		
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitHeaderViewFactory());
-		HttpPanelManager.getInstance().addResponseView(ResponseSplitComponent.NAME, new ResponseSplitBodyViewFactory());
-		
-		
-		HttpPanelManager.getInstance().addRequestView(RequestAllComponent.NAME, new RequestAllViewFactory());
-		HttpPanelManager.getInstance().addResponseView(ResponseAllComponent.NAME, new ResponseAllViewFactory());
-		
+		if (getView() != null) {
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitHeaderHexViewFactory());
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitBodyHexViewFactory());
+			
+			HttpPanelManager.getInstance().addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseSplitHeaderHexViewFactory());
+			HttpPanelManager.getInstance().addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseSplitBodyHexViewFactory());
+			
+			
+			HttpPanelManager.getInstance().addRequestViewFactory(RequestAllComponent.NAME, new RequestAllHexViewFactory());
+			HttpPanelManager.getInstance().addResponseViewFactory(ResponseAllComponent.NAME, new ResponseAllHexViewFactory());
+		}
+	}
+	
+	@Override
+	public boolean canUnload() {
+		// Do not allow the unload until moved to an add-on.
+		return false;
+	}
+	
+	@Override
+	public void unload() {
+		if (getView() != null) {
+			HttpPanelManager panelManager = HttpPanelManager.getInstance();
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestSplitHeaderHexViewFactory.NAME);
+			panelManager.removeRequestViews(
+					RequestSplitComponent.NAME,
+					HttpPanelHexView.NAME,
+					RequestSplitComponent.ViewComponent.HEADER);
+			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestSplitBodyHexViewFactory.NAME);
+			panelManager.removeRequestViews(
+					RequestSplitComponent.NAME,
+					HttpPanelHexView.NAME,
+					RequestSplitComponent.ViewComponent.BODY);
+
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseSplitHeaderHexViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					HttpPanelHexView.NAME,
+					ResponseSplitComponent.ViewComponent.HEADER);
+			panelManager.removeResponseViewFactory(ResponseSplitComponent.NAME, ResponseSplitBodyHexViewFactory.NAME);
+			panelManager.removeResponseViews(
+					ResponseSplitComponent.NAME,
+					HttpPanelHexView.NAME,
+					ResponseSplitComponent.ViewComponent.BODY);
+
+			panelManager.removeRequestViewFactory(RequestAllComponent.NAME, RequestAllHexViewFactory.NAME);
+			panelManager.removeRequestViews(RequestAllComponent.NAME, HttpPanelHexView.NAME, null);
+			panelManager.removeResponseViewFactory(ResponseAllComponent.NAME, ResponseAllHexViewFactory.NAME);
+			panelManager.removeResponseViews(ResponseAllComponent.NAME, HttpPanelHexView.NAME, null);
+		}
 	}
 
-	private static final class RequestSplitHeaderViewFactory implements HttpPanelViewFactory {
+	private static final class RequestSplitHeaderHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "RequestSplitHeaderHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -70,7 +116,14 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class RequestSplitBodyViewFactory implements HttpPanelViewFactory {
+	private static final class RequestSplitBodyHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "RequestSplitBodyHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -83,7 +136,14 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ResponseSplitHeaderViewFactory implements HttpPanelViewFactory {
+	private static final class ResponseSplitHeaderHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseSplitHeaderHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -96,7 +156,14 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class ResponseSplitBodyViewFactory implements HttpPanelViewFactory {
+	private static final class ResponseSplitBodyHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseSplitBodyHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -109,7 +176,14 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 
-	private static final class RequestAllViewFactory implements HttpPanelViewFactory {
+	private static final class RequestAllHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "RequestAllHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
@@ -122,7 +196,14 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 		}
 	}
 	
-	private static final class ResponseAllViewFactory implements HttpPanelViewFactory {
+	private static final class ResponseAllHexViewFactory implements HttpPanelViewFactory {
+		
+		public static final String NAME = "ResponseAllHexViewFactory";
+		
+		@Override
+		public String getName() {
+			return NAME;
+		}
 		
 		@Override
 		public HttpPanelView getNewView() {
