@@ -30,8 +30,10 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
@@ -74,6 +76,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
 	private JMenuItem menuItemCheckUpdate = null;
+	private JMenuItem menuItemLoadAddOn = null;
     
     private Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
     
@@ -136,6 +139,51 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			});
 		}
 		return menuItemCheckUpdate;
+	}
+
+	private JMenuItem getMenuItemLoadAddOn() {
+		if (menuItemLoadAddOn == null) {
+			menuItemLoadAddOn = new JMenuItem();
+			menuItemLoadAddOn.setText(Constant.messages.getString("cfu.file.menu.loadaddon"));
+			menuItemLoadAddOn.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+						File file = null;
+						chooser.setFileFilter(new FileFilter() {
+						       @Override
+						       public boolean accept(File file) {
+						            if (file.isDirectory()) {
+						                return true;
+						            } else if (file.isFile() && file.getName().endsWith(".zap")) {
+						                return true;
+						            }
+						            return false;
+						        }
+						       @Override
+						       public String getDescription() {
+						           return Constant.messages.getString("file.format.zap.addon");
+						       }
+						});
+						int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
+						if(rc == JFileChooser.APPROVE_OPTION) {
+							file = chooser.getSelectedFile();
+							if (file == null) {
+								return;
+							}
+							if (AddOn.isAddOn(file)) {
+								install(new AddOn(file));
+							}
+						}
+					} catch (Exception e1) {
+						logger.error(e1.getMessage(), e1);
+					}
+				}
+			});
+		}
+		return menuItemLoadAddOn;
 	}
 
 	private List <AddOnWrapper> getInstalledAddOns() {
@@ -213,42 +261,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			try {
 				if (AddOn.isAddOn(dl.getTargetFile())) {
 					AddOn ao = new AddOn(dl.getTargetFile());
-					AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
-					if (installedAddOn != null) {
-			   			logger.debug("Trying to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
-			   			if (View.isInitialised()) {
-			   				// Report info to the Output tab
-			   				View.getSingleton().getOutputPanel().append(
-			   						MessageFormat.format(
-			   								Constant.messages.getString("cfu.output.replacing") + "\n", 
-			   								ao.getName(),
-			   								ao.getVersion()));
-			   			}
-						if ( ! uninstall(installedAddOn)) {
-							// Cant uninstall the old version, so dont try to install the new one
-				   			logger.debug("Failed to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
-				   			if (View.isInitialised()) {
-				   				// Report info to the Output tab
-				   				View.getSingleton().getOutputPanel().append(
-				   						MessageFormat.format(
-				   								Constant.messages.getString("cfu.output.replace.failed") + "\n", 
-				   								ao.getName(),
-				   								ao.getVersion()));
-				   			}
-							continue;
-						}
-					}
-		   			logger.debug("Installing new addon " + ao.getId() + " v" + ao.getVersion());
-		   			if (View.isInitialised()) {
-		   				// Report info to the Output tab
-		   				View.getSingleton().getOutputPanel().append(
-		   						MessageFormat.format(
-		   								Constant.messages.getString("cfu.output.installing") + "\n", 
-		   								ao.getName(),
-		   								ao.getVersion()));
-		   			}
-
-		   			ExtensionFactory.getAddOnLoader().addAddon(ao);
+					install(ao);
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -284,6 +297,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    super.hook(extensionHook);
 	    if (getView() != null) {
 	        extensionHook.getHookMenu().addHelpMenuItem(getMenuItemCheckUpdate());
+	        extensionHook.getHookMenu().addFileMenuItem(getMenuItemLoadAddOn());
 	        
 			View.getSingleton().addMainToolbarButton(getAddonsButton());
 
@@ -588,6 +602,46 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		if (ans == JOptionPane.OK_OPTION) {
 			Control.getSingleton().exit(false, f);		
 		}
+	}
+	
+	public boolean install(AddOn ao) {
+		AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
+		if (installedAddOn != null) {
+   			logger.debug("Trying to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
+   			if (View.isInitialised()) {
+   				// Report info to the Output tab
+   				View.getSingleton().getOutputPanel().append(
+   						MessageFormat.format(
+   								Constant.messages.getString("cfu.output.replacing") + "\n", 
+   								ao.getName(),
+   								ao.getVersion()));
+   			}
+			if ( ! uninstall(installedAddOn)) {
+				// Cant uninstall the old version, so dont try to install the new one
+	   			logger.debug("Failed to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
+	   			if (View.isInitialised()) {
+	   				// Report info to the Output tab
+	   				View.getSingleton().getOutputPanel().append(
+	   						MessageFormat.format(
+	   								Constant.messages.getString("cfu.output.replace.failed") + "\n", 
+	   								ao.getName(),
+	   								ao.getVersion()));
+	   			}
+				return false;
+			}
+		}
+		logger.debug("Installing new addon " + ao.getId() + " v" + ao.getVersion());
+		if (View.isInitialised()) {
+			// Report info to the Output tab
+			View.getSingleton().getOutputPanel().append(
+					MessageFormat.format(
+							Constant.messages.getString("cfu.output.installing") + "\n", 
+							ao.getName(),
+							ao.getVersion()));
+		}
+
+		ExtensionFactory.getAddOnLoader().addAddon(ao);
+		return true;
 	}
 
 	public boolean uninstall(AddOn addOn) {
