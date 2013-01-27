@@ -51,9 +51,6 @@ public class SpiderParam extends AbstractParam {
 	/** The Constant SPIDER_REQUEST_WAIT. */
 	private static final String SPIDER_REQUEST_WAIT = "spider.requestwait";
 
-	/** The Constant SPIDER_SEND_COOKIES. */
-	private static final String SPIDER_SEND_COOKIES = "spider.sendCookies";
-
 	/** The Constant SPIDER_PARSE_COMMENTS. */
 	private static final String SPIDER_PARSE_COMMENTS = "spider.parseComments";
 
@@ -133,8 +130,6 @@ public class SpiderParam extends AbstractParam {
 	private String scopeRegex = null;
 	/** The user agent string, if different than the default one. */
 	private String userAgent = null;
-	/** Whether the spider sends back the cookies received from the server. */
-	private boolean sendCookies = false;
 	/** The handle parameters visited. */
 	private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
 
@@ -193,12 +188,6 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
-
-		try {
-			this.sendCookies = getConfig().getBoolean(SPIDER_SEND_COOKIES, true);
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -454,25 +443,6 @@ public class SpiderParam extends AbstractParam {
 	 */
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
-	}
-
-	/**
-	 * Checks if the spider should send cookies.
-	 * 
-	 * @return true, if is send cookies
-	 */
-	public boolean isSendCookies() {
-		return sendCookies;
-	}
-
-	/**
-	 * Sets whether to send cookies with the requests or not.
-	 * 
-	 * @param sendCookies the new send cookies value
-	 */
-	public void setSendCookies(boolean sendCookies) {
-		this.sendCookies = sendCookies;
-		getConfig().setProperty(SPIDER_SEND_COOKIES, Boolean.toString(sendCookies));
 	}
 
 	/**

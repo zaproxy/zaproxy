@@ -64,7 +64,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JScrollPane scrollPaneDomainScope = null;
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
-	private JCheckBox useCookies = null;
 	private JCheckBox parseComments = null;
 	private JCheckBox parseRobotsTxt = null;
 	private JComboBox<HandleParametersOption> handleParameters = null;
@@ -234,7 +233,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getDomainsScrollPane(), domainsScrollPaneGridBag);
 			panelSpider.add(getChkProcessForm(), processFormGridBag);
 			panelSpider.add(getChkPostForm(), postFormGridBag);
-			panelSpider.add(getChkUseCookies(), useCookiesGridBag);
 			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
 			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
 			panelSpider.add(handleParametersLabel, handleParametersLabelGridBag);
@@ -254,7 +252,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getDomainScopeTextArea().discardAllEdits();
 		getChkProcessForm().setSelected(param.isProcessForm());
 		getChkPostForm().setSelected(param.isPostForm());
-		getChkUseCookies().setSelected(param.isSendCookies());
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
 		getComboHandleParameters().setSelectedItem(param.getHandleParameters());
@@ -275,7 +272,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setScopeString(getDomainScopeTextArea().getText());
 		param.setProcessForm(getChkProcessForm().isSelected());
 		param.setPostForm(getChkPostForm().isSelected());
-		param.setSendCookies(getChkUseCookies().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
 		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
 		param.setHandleParameters((HandleParametersOption) getComboHandleParameters().getSelectedItem());
@@ -402,19 +398,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			});
 		}
 		return chkProcessForm;
-	}
-
-	/**
-	 * This method initializes the Use Cookies checkbox.
-	 * 
-	 * @return javax.swing.JCheckBox
-	 */
-	private JCheckBox getChkUseCookies() {
-		if (useCookies == null) {
-			useCookies = new JCheckBox();
-			useCookies.setText(Constant.messages.getString("spider.options.label.cookies"));
-		}
-		return useCookies;
 	}
 
 	/**

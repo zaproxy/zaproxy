@@ -18,9 +18,6 @@
 package org.zaproxy.zap.spider;
 
 import java.io.IOException;
-import java.net.CookieStore;
-import java.net.HttpCookie;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -46,8 +43,8 @@ public class SpiderTask implements Runnable {
 	private Spider parent;
 
 	/**
-	 * The history reference to the database record where the request message has been partially
-	 * filled in. Cannot be null.
+	 * The history reference to the database record where the request message has been partially filled in.
+	 * Cannot be null.
 	 */
 	private HistoryReference reference;
 
@@ -58,9 +55,8 @@ public class SpiderTask implements Runnable {
 	private static final Logger log = Logger.getLogger(SpiderTask.class);
 
 	/**
-	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-	 * given uri, using the provided method, find any other uris in the fetched resource and create
-	 * other tasks.
+	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the given
+	 * uri, using the provided method, find any other uris in the fetched resource and create other tasks.
 	 * 
 	 * 
 	 * @param parent the spider controlling the crawling process
@@ -74,13 +70,12 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
-	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-	 * given uri, using the provided method, find any other uris in the fetched resource and create
-	 * other tasks.
+	 * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the given
+	 * uri, using the provided method, find any other uris in the fetched resource and create other tasks.
 	 * 
 	 * <p>
-	 * The body of the request message is also provided in the {@literal requestBody} parameter and
-	 * will be used when fetching the resource from the specified uri.
+	 * The body of the request message is also provided in the {@literal requestBody} parameter and will be
+	 * used when fetching the resource from the specified uri.
 	 * </p>
 	 * 
 	 * @param parent the spider controlling the crawling process
@@ -94,25 +89,15 @@ public class SpiderTask implements Runnable {
 		this.parent = parent;
 		this.depth = depth;
 
-		// Check if cookies should be added
-		List<HttpCookie> cookies = prepareCookies(uri.toString());
-
 		// Log the new task
 		if (log.isDebugEnabled()) {
-			if (cookies != null && cookies.size() > 0) {
-				log.debug("New task submitted for uri: " + uri + " with cookies: " + cookies);
-			} else {
-				log.debug("New task submitted for uri: " + uri + " without cookies.");
-			}
+			log.debug("New task submitted for uri: " + uri);
 		}
 
-		// Create a new HttpMessage that will be used for the request, add the cookies (if any) and
-		// persist it in the database using HistoryReference
+		// Create a new HttpMessage that will be used for the request and persist it in the database using
+		// HistoryReference
 		try {
 			HttpMessage msg = new HttpMessage(new HttpRequestHeader(method, uri, HttpHeader.HTTP11));
-			if (cookies != null) {
-				msg.setCookies(cookies);
-			}
 			if (requestBody != null) {
 				msg.getRequestHeader().setContentLength(requestBody.length());
 				msg.setRequestBody(requestBody);
@@ -126,25 +111,6 @@ public class SpiderTask implements Runnable {
 		}
 	}
 
-	/**
-	 * Prepare the list of the cookies that should be sent in the request message for the given uri.
-	 * 
-	 * @param uriS the uri
-	 * @return the list of cookies to send with the request, or null if no cookies should be sent
-	 */
-	private List<HttpCookie> prepareCookies(String uriS) {
-		if (parent.getSpiderParam().isSendCookies()) {
-			java.net.URI uri = null;
-			try {
-				uri = new java.net.URI(uriS);
-			} catch (URISyntaxException e) {
-				log.error("Error while preparing cookies. ", e);
-			}
-			return parent.getCookieManager().getCookieStore().get(uri);
-		}
-		return null;
-	}
-
 	@Override
 	public void run() {
 
@@ -152,8 +118,7 @@ public class SpiderTask implements Runnable {
 		if (log.isDebugEnabled()) {
 			try {
 				log.debug("Spider Task Started. Processing uri at depth " + depth
-						+ " using already constructed message:  "
-						+ reference.getURI());
+						+ " using already constructed message:  " + reference.getURI());
 			} catch (Exception e1) { // Ignore it
 			}
 		}
@@ -228,33 +193,16 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
-	 * Process a resource, adding the cookies & searching for links (uris) to other resources.
+	 * Process a resource, searching for links (uris) to other resources.
 	 * 
 	 * @param msg the HTTP Message
 	 */
 	private void processResource(HttpMessage msg) {
-		// Add the cookies
-		if (parent.getSpiderParam().isSendCookies()) {
-
-			List<HttpCookie> cookies = msg.getResponseHeader().getHttpCookies();
-			if (!cookies.isEmpty()) {
-				CookieStore store = parent.getCookieManager().getCookieStore();
-				java.net.URI uri = null;
-				try {
-					uri = new java.net.URI(msg.getRequestHeader().getURI().toString());
-				} catch (URISyntaxException e1) {
-					log.error("Error while building URI for cookie adding", e1);
-				}
-				for (HttpCookie c : cookies){
-					store.add(uri, c);
-				}
-			}
-		}
 
 		// Parse the resource
 		List<SpiderParser> parsers = parent.getController().getParsers(msg);
 		Source source = new Source(msg.getResponseBody().toString());
-		for (SpiderParser parser : parsers){
+		for (SpiderParser parser : parsers) {
 			parser.parseResource(msg, source, depth);
 		}
 	}
@@ -277,7 +225,7 @@ public class SpiderTask implements Runnable {
 			// Remove the history reference from the database, as it's not used anymore
 			reference.delete();
 		}
-		
+
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
 		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
 
