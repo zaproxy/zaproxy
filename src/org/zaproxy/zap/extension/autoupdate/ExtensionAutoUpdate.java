@@ -70,7 +70,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
 
 	// URLs for use when testing locally ;)
-    //private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
+	//private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
     //private static final String ZAP_VERSIONS_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
 
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
@@ -174,7 +174,16 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 								return;
 							}
 							if (AddOn.isAddOn(file)) {
-								install(new AddOn(file));
+								AddOn ao = new AddOn(file);
+								if (ao.canLoad()) {
+									install(ao);
+								} else {
+									View.getSingleton().showWarningDialog(
+											MessageFormat.format(
+													Constant.messages.getString("cfu.warn.cantload"), 
+													ao.getNotBeforeVersion(),
+													ao.getNotFromVersion()));
+								}
 							}
 						}
 					} catch (Exception e1) {
@@ -261,7 +270,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			try {
 				if (AddOn.isAddOn(dl.getTargetFile())) {
 					AddOn ao = new AddOn(dl.getTargetFile());
-					install(ao);
+					if (ao.canLoad()) {
+						install(ao);
+					} else {
+			    		logger.info("Cant load add-on " + ao.getName() + 
+			    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
+			    				" Version=" + Constant.PROGRAM_VERSION);
+					}
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -605,6 +620,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	public boolean install(AddOn ao) {
+		if (! ao.canLoad()) {
+    		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
+    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
+    				" Version=" + Constant.PROGRAM_VERSION);
+		}
+		
 		AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
 		if (installedAddOn != null) {
    			logger.debug("Trying to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());

@@ -22,17 +22,12 @@ package org.zaproxy.zap.control;
 
 import java.net.URL;
 
-import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-
 public class ZapRelease {
 	private String version;
 	private URL url;
 	private String fileName;
 	private long size;
 	private String releaseNotes;
-
-    private static final Logger logger = Logger.getLogger(ZapRelease.class);
 
 	public ZapRelease() {
 	}
@@ -91,58 +86,12 @@ public class ZapRelease {
 	}
 	
 	public boolean isNewerThan (String otherVersion) {
-		boolean newerVersion = false;
-		if (Constant.isDevBuild(this.version)) {
-			// A dev build is always treated as the most recent 
-			return true;
-		} else if (Constant.isDevBuild(otherVersion)) {
-			return false;
-		} else if (Constant.isDailyBuild(otherVersion)) {
-        	// Will just be a 'dated' version, which we can just use a string compare on
-			return otherVersion.compareTo(this.version) < 0;
-		} else if (otherVersion == null) {
-			return true;
-        } else {
-	    	// Compare the versions
-	    	String [] versionArray = this.version.split("\\.");
-	    	String [] otherArray = otherVersion.split("\\.");
-	    	//boolean newerVersion = false;
-	    	for (int i = 0; i < versionArray.length; i++) {
-	    		if (Constant.ALPHA_VERSION.equals(otherArray[i]) ||
-	    				Constant.BETA_VERSION.equals(otherArray[i])) {
-	    			// Alpha and beta versions should only ever appear in the otherVersion,
-	    			// everything has matched up to now so its a newer 'release' quality version
-	    			newerVersion = true;
-	    			break;
-	    		} else if (i < otherArray.length) {
-    				int versionElement;
-    				int otherElement;
-					try {
-						versionElement = Integer.parseInt(versionArray[i]);
-						otherElement = Integer.parseInt(otherArray[i]);
-						if (versionArray[i].equals(otherArray[i])) {
-							// this element is the same, keep going
-							continue;
-						} else if ( versionElement > otherElement) {
-							// Previous elements were the same, latest element newer
-        					newerVersion = true;
-        					break;
-        				} else {
-							// Previous elements were the same, latest element older
-        					// This can happen for alpha & beta releases
-        					break;
-        				}
-					} catch (NumberFormatException e) {
-						logger.error("Invalid release number: " + this.version + " / " + otherVersion, e);
-	    			}
-	    		}
-	    	}
-	    	if (!newerVersion  && this.version.startsWith(otherVersion) 
-	    			&& otherArray.length > versionArray.length) {
-	    		// All matched up to the progVersion, but the latestVersion is longer and therefore newer
-				newerVersion = true;
-	    	}
-		}
-		return newerVersion;
+		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+		return zrc.compare(this, new ZapRelease(otherVersion)) > 0;
+	}
+	
+	public boolean isOlderThan (String otherVersion) {
+		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+		return zrc.compare(this, new ZapRelease(otherVersion)) < 0;
 	}
 }

@@ -478,6 +478,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		sb.append(ao.getVersion());
 		sb.append("</td></tr>");
 
+		sb.append("<tr><td><i>");
+		sb.append(Constant.messages.getString("cfu.table.header.notbefore"));
+		sb.append("</i></td><td>");
+		sb.append(ao.getNotBeforeVersion());
+		sb.append("</td></tr>");
+
+		sb.append("<tr><td><i>");
+		sb.append(Constant.messages.getString("cfu.table.header.notfrom"));
+		sb.append("</i></td><td>");
+		sb.append(ao.getNotFromVersion());
+		sb.append("</td></tr>");
+
 		sb.append("</table>");
 		sb.append("</html>");
 		

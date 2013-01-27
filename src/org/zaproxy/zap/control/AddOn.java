@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -47,6 +48,8 @@ public class AddOn  {
 	private URL url = null;
 	private long size = 0;
 	private boolean hasZapAddOnEntry = false;
+	private String notBeforeVersion = null;
+	private String notFromVersion = null;
 	
 	private List<String> extensions = null;
 	private List<String> ascanrules = null;
@@ -118,6 +121,8 @@ public class AddOn  {
 					this.description = this.getTextElementFromDom(dom, "description");
 					this.changes = this.getTextElementFromDom(dom, "changes");
 					this.author = this.getTextElementFromDom(dom, "author");
+					this.notBeforeVersion = this.getTextElementFromDom(dom, "not-before-version");
+					this.notFromVersion = this.getTextElementFromDom(dom, "not-from-version");
 					
 					this.ascanrules = this.getListFromDom(dom, "ascanrule");
 					this.extensions = this.getListFromDom(dom, "extension");
@@ -156,7 +161,7 @@ public class AddOn  {
 	}
 	
 	public AddOn(String id, String name, String description, int version, Status status, 
-			String changes, URL url, File file, long size) {
+			String changes, URL url, File file, long size, String notBeforeVersion, String notFromVersion) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -166,6 +171,8 @@ public class AddOn  {
 		this.url = url;
 		this.file = file;
 		this.size = size;
+		this.notBeforeVersion = notBeforeVersion;
+		this.notFromVersion = notFromVersion;
 		
 		loadManifestFile();
 	}
@@ -278,14 +285,50 @@ public class AddOn  {
 		return this.getId().equals(addOn.getId());
 	}
 
-	public boolean isUpdateTo(AddOn addOn) throws Exception {
+	public boolean isUpdateTo(AddOn addOn) throws IllegalArgumentException {
 		if (! this.isSameAddOn(addOn)) {
-			throw new Exception("Different addons: " + this.getId() + " != " + addOn.getId());
+			throw new IllegalArgumentException("Different addons: " + this.getId() + " != " + addOn.getId());
 		}
 		if (this.getVersion() > addOn.getVersion()) {
 			return true;
 		}
 		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
+	}
+	
+	public boolean canLoad() {
+		return this.canLoadInVersion(Constant.PROGRAM_VERSION);
+	}
+	
+	public boolean canLoadInVersion(String version) {
+		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+		ZapRelease zr = new ZapRelease(version);
+		if (this.notBeforeVersion != null && this.notBeforeVersion.length() > 0) {
+			ZapRelease notBeforeRelease = new ZapRelease(this.notBeforeVersion);
+			if (zrc.compare(zr, notBeforeRelease) < 0) {
+				return false;
+			}
+		}
+		if (this.notFromVersion != null && this.notFromVersion.length() > 0) {
+			ZapRelease notFromRelease = new ZapRelease(this.notFromVersion);
+			return zrc.compare(zr, notFromRelease) < 0;
+		}
+		return true;
+	}
+	
+	public void setNotBeforeVersion(String notBeforeVersion) {
+		this.notBeforeVersion = notBeforeVersion;
+	}
+	
+	public void setNotFromVersion(String notFromVersion) {
+		this.notFromVersion = notFromVersion;
+	}
+	
+	public String getNotBeforeVersion() {
+		return notBeforeVersion;
+	}
+	
+	public String getNotFromVersion() {
+		return notFromVersion;
 	}
 	
 }

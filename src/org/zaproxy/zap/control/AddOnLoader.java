@@ -169,6 +169,11 @@ public class AddOnLoader extends URLClassLoader {
     }
     
     public void addAddon(AddOn ao) {
+    	if (! ao.canLoad()) {
+    		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
+    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
+    				" Version=" + Constant.PROGRAM_VERSION);
+    	}
     	if (this.aoc.addAddOn(ao)) {
             try {
             	this.addURL(ao.getFile().toURI().toURL());
@@ -271,6 +276,8 @@ public class AddOnLoader extends URLClassLoader {
 						if (ext.canUnload()) {
 							logger.debug("Unloading ext: " + ext.getName());
 							ext.unload();
+							// TODO should remove from extension loader here to prevent duplicate name warning
+							// Control.getSingleton().getExtensionLoader().
 						} else {
 							logger.debug("Cant dynamically unload ext: " + name);
 							result = false;
