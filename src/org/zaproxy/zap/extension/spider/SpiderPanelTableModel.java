@@ -86,10 +86,11 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		SpiderScanResult result = scanResults.get(row);
 		switch (col) {
 		case 0:
-			if (result.skipped)
+			if (result.skipped) {
 				return skippedIcon;
-			else
+			} else {
 				return notSkippedIcon;
+			}
 		case 1:
 			return result.method;
 		case 2:

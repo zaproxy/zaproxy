@@ -131,8 +131,9 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 			scanURL(url);
 		} else if (ACTION_STOP_SCAN.equals(name)) {
 			// The action is to stop a pending scan
-			if (spiderThread != null)
+			if (spiderThread != null){
 				spiderThread.stopScan();
+			}
 		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
 			try {
 				Session session = Model.getSingleton().getSession();

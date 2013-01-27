@@ -370,8 +370,9 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			chkPostForm = new JCheckBox();
 			chkPostForm.setText(Constant.messages.getString("spider.options.label.post"));
 
-			if (!getChkProcessForm().isSelected())
+			if (!getChkProcessForm().isSelected()){
 				chkPostForm.setEnabled(false);
+			}
 		}
 		return chkPostForm;
 	}
@@ -390,10 +391,11 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			chkProcessForm.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent ev) {
-					if (chkProcessForm.isSelected())
+					if (chkProcessForm.isSelected()) {
 						chkPostForm.setEnabled(true);
-					else
+					} else {
 						chkPostForm.setEnabled(false);
+					}
 				}
 			});
 		}

@@ -195,8 +195,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.addSpiderListener(this);
 
 			// Add the pending listeners
-			for (SpiderListener l : pendingSpiderListeners)
+			for (SpiderListener l : pendingSpiderListeners) {
 				spider.addSpiderListener(l);
+			}
 
 			// Add the list of excluded uris (added through the Exclude from Spider Popup Menu)
 			spider.setExcludeList(extension.getExcludeList());
@@ -206,7 +207,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		}
 
 		// Set the Spider Panel as the focused one
-		extension.getSpiderPanel().setTabFocus();
+		if (extension.getView() != null) {
+			extension.getSpiderPanel().setTabFocus();
+		}
 
 		// Start the spider
 		spider.start();
@@ -231,15 +234,14 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 				nodesInScope = Model.getSingleton().getSession().getNodesInContextFromSiteTree(scanContext);
 			}
 			try {
-				for (SiteNode nodeInScope : nodesInScope)
+				for (SiteNode nodeInScope : nodesInScope) {
 					if (!nodeInScope.isRoot() && nodeInScope.getHistoryReference() != null) {
 						HttpMessage msg = nodeInScope.getHistoryReference().getHttpMessage();
-						if (msg != null) {
-							if (!msg.getResponseHeader().isImage()) {
-								spider.addSeed(msg);
-							}
+						if (msg != null && !msg.getResponseHeader().isImage()) {
+							spider.addSeed(msg);
 						}
 					}
+				}
 			} catch (Exception e) {
 				log.error("Error while adding seeds for Spider scan: " + e.getMessage(), e);
 			}
@@ -343,10 +345,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @param listener the listener
 	 */
 	public void addSpiderListener(SpiderListener listener) {
-		if (spider != null)
+		if (spider != null) {
 			this.spider.addSpiderListener(listener);
-		else
+		} else {
 			this.pendingSpiderListeners.add(listener);
+		}
 	}
 
 	@Override
