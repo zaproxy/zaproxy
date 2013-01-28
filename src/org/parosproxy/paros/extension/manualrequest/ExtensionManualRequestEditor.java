@@ -40,9 +40,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.Session;
@@ -77,7 +79,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         ManualRequestEditorDialog httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual");
         httpSendEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));
         
-        dialogues.put(httpSendEditorDialog.getMessageType(), httpSendEditorDialog);
+        addManualSendEditor(httpSendEditorDialog);
 	}
 	
 	/**
@@ -91,7 +93,20 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	}
 	
 	public void removeManualSendEditor(Class<? extends Message> messageType) {
-		dialogues.remove(messageType);
+		// remove from list
+		ManualRequestEditorDialog dialogue = dialogues.remove(messageType);
+		
+		// remove from GUI
+		dialogue.clear();
+		dialogue.setVisible(false);
+		dialogue.setEnabled(false);
+		dialogue.getParent().remove(dialogue);
+
+		if (getView() != null) {
+			// unload menu items
+			ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+			extLoader.removeToolsMenuItem(dialogue.getMenuItem());
+		}
 	}
 	
 	/**
