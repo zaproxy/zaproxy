@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -37,15 +38,20 @@ public class HttpFuzzTableModel extends AbstractTableModel {
     private static final Logger logger = Logger.getLogger(HttpFuzzTableModel.class);
     
     private static final String[] COLUMN_NAMES = {
-        "Method", // Constant.messages.getString("")
-        "URI",
-        "Status",
-        "Reason",
-        "RTT (ms)",
-        "Size",
-        "State",
-        "Fuzz"
+        Constant.messages.getString("fuzz.http.table.header.method"),
+        Constant.messages.getString("fuzz.http.table.header.uri"),
+        Constant.messages.getString("fuzz.http.table.header.status"),
+        Constant.messages.getString("fuzz.http.table.header.reason"),
+        Constant.messages.getString("fuzz.http.table.header.rtt"),
+        Constant.messages.getString("fuzz.http.table.header.size"),
+        Constant.messages.getString("fuzz.http.table.header.state"),
+        Constant.messages.getString("fuzz.http.table.header.fuzz")
     };
+    
+    private static final String STATE_ERROR_LABEL = Constant.messages.getString("fuzz.http.table.field.state.error");
+    private static final String STATE_REFLECTED_LABEL = Constant.messages.getString("fuzz.http.table.field.state.reflected");
+    private static final String STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL = Constant.messages.getString("fuzz.http.table.field.state.antiCsrfTokenRequest");
+    private static final String STATE_SUCCESSFUL_LABEL = Constant.messages.getString("fuzz.http.table.field.state.successful");
     
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
@@ -117,20 +123,20 @@ public class HttpFuzzTableModel extends AbstractTableModel {
             
             switch (state) {
             case ERROR:
-            	status = "Error occured.";
+            	status = STATE_ERROR_LABEL;
                 icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/150.png"));
                 break;
             case REFLECTED:
-            	status = "Reflected";
+            	status = STATE_REFLECTED_LABEL;
                 icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/099.png")); // Yellow fuzzy circle
                 break;
             case ANTI_CRSF_TOKEN:
-            	status = "Anti CSRF Token Request";
+            	status = STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL;
                 icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/183.png"));
                 break;
             case SUCCESSFUL:
             default:
-            	status = "Successful";
+            	status = STATE_SUCCESSFUL_LABEL;
             	icon = null;
             }
             

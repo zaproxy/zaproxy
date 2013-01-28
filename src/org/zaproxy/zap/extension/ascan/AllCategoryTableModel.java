@@ -28,6 +28,7 @@ import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.Plugin;
 
@@ -40,7 +41,9 @@ import org.parosproxy.paros.core.scanner.Plugin;
 public class AllCategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
-	private static final String[] columnNames = {"Category", "Enabled"};
+	private static final String[] columnNames = {
+            Constant.messages.getString("ascan.policy.table.category"),
+            Constant.messages.getString("ascan.policy.table.enabled") };
     private List<Plugin> allPlugins = new Vector<>();
     
     /**

@@ -42,6 +42,7 @@ import javax.swing.JToolBar;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
@@ -57,6 +58,8 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     private static final long serialVersionUID = 5221591643257366570L;
 
     private static final Logger logger = Logger.getLogger(HttpPanel.class);
+    
+    private static final String NO_SUITABLE_COMPONENT_FOUND_LABEL = Constant.messages.getString("http.panel.noSuitableComponentFound");
     
     private static final String HTTP_PANEL_KEY = "httppanel.";
     private static final String COMPONENTS_KEY = "components.";
@@ -364,7 +367,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         
         if (noComponentsPanel == null) {
             noComponentsPanel = new JPanel(new BorderLayout(5, 5));
-            noComponentsPanel.add(new JLabel("No suitable component has been found to display the message."));
+            noComponentsPanel.add(new JLabel(NO_SUITABLE_COMPONENT_FOUND_LABEL));
             getPanelContent().add(new JScrollPane(noComponentsPanel), "");
         }
         componentOptions.removeAll();

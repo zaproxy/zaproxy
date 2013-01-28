@@ -35,8 +35,8 @@ public class BreakpointsTableModel extends AbstractTableModel {
 	
 	private static final String[] columnNames = {
         Constant.messages.getString("brk.table.header.enabled"),
-        "Type",//Constant.messages.getString("brk.table.header.type"),
-	    "Breakpoint"//Constant.messages.getString("brk.table.header.url")
+        Constant.messages.getString("brk.table.header.type"),
+	    Constant.messages.getString("brk.table.header.condition")
 	};
 	
 	private List<BreakpointMessageInterface> breakpoints;

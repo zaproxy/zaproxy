@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.OptionsDialog;
 import org.parosproxy.paros.view.View;
@@ -66,7 +67,7 @@ public class MenuToolsControl {
 	
 	// ZAP: added ability to select panel
 	public void options(String panel) {
-	    OptionsDialog dialog = view.getOptionsDialog("Options");
+	    OptionsDialog dialog = view.getOptionsDialog(Constant.messages.getString("options.dialog.title"));
 	    dialog.initParam(model.getOptionsParam());
 
 	    int result = dialog.showDialog(false, panel);
@@ -75,7 +76,7 @@ public class MenuToolsControl {
                 model.getOptionsParam().getConfig().save();
             } catch (ConfigurationException e) {
                 logger.error(e.getMessage(), e);
-                view.showWarningDialog("Error saving options.");
+                view.showWarningDialog(Constant.messages.getString("menu.tools.options.errorSavingOptions"));
                 return;
             }
 		    // ZAP: Notify all OptionsChangedListener.

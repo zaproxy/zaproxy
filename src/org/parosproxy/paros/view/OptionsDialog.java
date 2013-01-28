@@ -23,6 +23,8 @@ package org.parosproxy.paros.view;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
+import org.parosproxy.paros.Constant;
+
 public class OptionsDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = -4374132178769109917L;
@@ -39,7 +41,7 @@ public class OptionsDialog extends AbstractParamDialog {
      */
     public OptionsDialog(Frame parent, boolean modal, String title)
             throws HeadlessException {
-        super(parent, modal, title, "Options");
+        super(parent, modal, title, Constant.messages.getString("options.dialog.rootName"));
         initialize();
     }
 	/**

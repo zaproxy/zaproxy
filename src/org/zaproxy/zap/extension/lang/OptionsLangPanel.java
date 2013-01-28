@@ -205,7 +205,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		fc.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
-				return "Zap language file";
+				return Constant.messages.getString("options.lang.file.chooser.description");
 			}
 
 			@Override
