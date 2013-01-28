@@ -54,9 +54,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	private BreakpointsPanel breakpointsPanel = null;
 
-	private PopupMenuAddBreakSites popupMenuAddBreakSites = null;
-    private PopupMenuAddBreakHistory popupMenuAddBreakHistory = null;
-
     private PopupMenuEditBreak popupMenuEditBreak = null;
 	private PopupMenuRemove popupMenuRemove = null;
 	
@@ -109,15 +106,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	        extensionHook.getHookView().addStatusPanel(getBreakpointsPanel());
 
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakSites());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEdit());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDelete());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddBreakHistory());
             
             mapBreakpointUiManager = new HashMap<>();
             mapMessageUiManager = new HashMap<>();
             
-            addBreakpointsUiManager(new HttpBreakpointsUiManagerInterface(this));
+            addBreakpointsUiManager(new HttpBreakpointsUiManagerInterface(extensionHook.getHookMenu(), this));
             
             extensionHook.addProxyListener(getProxyListenerBreak());
             
@@ -204,22 +199,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         }
         return proxyListener;
 	}
-
-	private PopupMenuAddBreakSites getPopupMenuAddBreakSites() {
-		if (popupMenuAddBreakSites == null) {
-			popupMenuAddBreakSites = new PopupMenuAddBreakSites();
-			popupMenuAddBreakSites.setExtension(this);
-		}
-		return popupMenuAddBreakSites;
-	}
-	
-    private PopupMenuAddBreakHistory getPopupMenuAddBreakHistory() {
-        if (popupMenuAddBreakHistory == null) {
-        	popupMenuAddBreakHistory = new PopupMenuAddBreakHistory();
-        	popupMenuAddBreakHistory.setExtension(this);
-        }
-        return popupMenuAddBreakHistory;
-    }
 
 	private PopupMenuEditBreak getPopupMenuEdit() {
 		if (popupMenuEditBreak == null) {

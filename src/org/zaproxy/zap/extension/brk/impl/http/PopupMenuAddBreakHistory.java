@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.brk;
+package org.zaproxy.zap.extension.brk.impl.http;
 
 import java.awt.Component;
 import java.util.List;
@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.brk.ExtensionBreak;
 
 
 

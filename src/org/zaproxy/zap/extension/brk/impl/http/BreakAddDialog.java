@@ -69,6 +69,11 @@ public class BreakAddDialog extends AbstractDialog {
         getTxtDisplay().setText(url);
         getTxtDisplay().discardAllEdits();
     }
+    
+    public void setUrl(String url) {
+        getTxtDisplay().setText(url);
+        getTxtDisplay().discardAllEdits();
+    }
 	
 	private void initialize() {
         this.setTitle(Constant.messages.getString("brk.add.title"));

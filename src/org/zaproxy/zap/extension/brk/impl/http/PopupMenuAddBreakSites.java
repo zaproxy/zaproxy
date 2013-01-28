@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.brk;
+package org.zaproxy.zap.extension.brk.impl.http;
 
 import java.awt.Component;
 
@@ -26,6 +26,7 @@ import javax.swing.JTree;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.extension.brk.ExtensionBreak;
 
 
 
@@ -36,10 +37,15 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
 	private JTree treeSite = null;
     
     private ExtensionBreak extension;
+    private HttpBreakpointsUiManagerInterface uiManager;
     
 	
-    public PopupMenuAddBreakSites() {
+    public PopupMenuAddBreakSites(ExtensionBreak extension, HttpBreakpointsUiManagerInterface uiManager) {
         super();
+        
+        this.extension = extension;
+        this.uiManager = uiManager;
+        
  		initialize();
     }
 
@@ -48,11 +54,6 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
         super(label);
     }
 
-	public void setExtension(ExtensionBreak extension) {
-		this.extension = extension;
-	}
-
-    
 	private void initialize() {
         this.setText(Constant.messages.getString("brk.add.popup"));
 
@@ -70,8 +71,7 @@ public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
                     if (! node.isLeaf()) {
                     	url += "/*";
                     }
-                    // FIXME 
-                    //extension.showBreakAddDialog(url);
+                    uiManager.handleAddBreakpoint(url);
                 }
         	}
         });

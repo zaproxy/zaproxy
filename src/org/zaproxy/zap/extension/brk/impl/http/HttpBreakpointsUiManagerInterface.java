@@ -1,6 +1,7 @@
 
 package org.zaproxy.zap.extension.brk.impl.http;
 
+import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
@@ -14,9 +15,15 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     private BreakEditDialog editDialog = null;
     
     private ExtensionBreak extensionBreak;
+
+    private PopupMenuAddBreakSites popupMenuAddBreakSites = null;
+    private PopupMenuAddBreakHistory popupMenuAddBreakHistory = null;
     
-    public HttpBreakpointsUiManagerInterface(ExtensionBreak extensionBreak) {
+    public HttpBreakpointsUiManagerInterface(ExtensionHookMenu hookMenu, ExtensionBreak extensionBreak) {
         this.extensionBreak = extensionBreak;
+        
+        hookMenu.addPopupMenuItem(getPopupMenuAddBreakSites());
+        hookMenu.addPopupMenuItem(getPopupMenuAddBreakHistory());
     }
     
     @Override
@@ -38,6 +45,11 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     public void handleAddBreakpoint(Message aMessage) {
         extensionBreak.dialogShown(ExtensionBreak.DialogType.ADD);
         showAddDialog(aMessage);
+    }
+    
+    public void handleAddBreakpoint(String url) {
+        extensionBreak.dialogShown(ExtensionBreak.DialogType.ADD);
+        showAddDialog(url);
     }
 
     void addBreakpoint(HttpBreakpointMessage breakpoint) {
@@ -61,12 +73,16 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
 
     @Override
     public void reset() {
-        // TODO Auto-generated method stub
     }
     
     
     private void populateAddDialogAndSetVisible(Message aMessage) {
         addDialog.setMessage((HttpMessage)aMessage);
+        addDialog.setVisible(true);
+    }
+    
+    private void populateAddDialogAndSetVisible(String url) {
+        addDialog.setUrl(url);
         addDialog.setVisible(true);
     }
     
@@ -76,6 +92,15 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
             populateAddDialogAndSetVisible(aMessage);
         } else if (!addDialog.isVisible()) {
             populateAddDialogAndSetVisible(aMessage);
+        }
+    }
+    
+    private void showAddDialog(String url) {
+        if (addDialog == null) {
+            addDialog = new BreakAddDialog(this);
+            populateAddDialogAndSetVisible(url);
+        } else if (!addDialog.isVisible()) {
+            populateAddDialogAndSetVisible(url);
         }
     }
 
@@ -101,6 +126,21 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     void hideEditDialog() {
         editDialog.dispose();
         extensionBreak.dialogClosed();
+    }
+
+    private PopupMenuAddBreakSites getPopupMenuAddBreakSites() {
+        if (popupMenuAddBreakSites == null) {
+            popupMenuAddBreakSites = new PopupMenuAddBreakSites(extensionBreak, this);
+        }
+        return popupMenuAddBreakSites;
+    }
+    
+    private PopupMenuAddBreakHistory getPopupMenuAddBreakHistory() {
+        if (popupMenuAddBreakHistory == null) {
+            popupMenuAddBreakHistory = new PopupMenuAddBreakHistory();
+            popupMenuAddBreakHistory.setExtension(extensionBreak);
+        }
+        return popupMenuAddBreakHistory;
     }
     
 }
