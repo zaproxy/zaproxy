@@ -548,7 +548,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     protected AddOnCollection getLatestVersionInfo (final CheckForUpdateCallback callback) {
     	if (latestVersionInfo == null) {
     		
-    		if (this.remoteCallThread == null) {
+    		if (this.remoteCallThread == null || !this.remoteCallThread.isAlive()) {
     			this.remoteCallThread = new Thread() {
     			
 	    			@Override

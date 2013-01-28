@@ -513,7 +513,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			coreNotesButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					sb.append("<html>");
 					sb.append(MessageFormat.format(
 							Constant.messages.getString("cfu.title.relnotes"), latestInfo.getZapRelease().getVersion()));
@@ -591,8 +591,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     	// Allow user to close the dialog
     	waitDialog.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
 
-		extension.getLatestVersionInfo(this);
-		waitDialog.setVisible(true);
+		if (extension.getLatestVersionInfo(this) == null) {
+			waitDialog.setVisible(true);
+		} else {
+			disposeWaitDialog();
+		}
 	}
 
 	private JButton getDownloadZapButton() {
@@ -839,15 +842,20 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	public void gotLatestData(AddOnCollection aoc) {
 		// Callback
 		logger.debug("gotLatestData(AddOnCollection " + aoc);
-		if (waitDialog != null) {
-			waitDialog.setVisible(false);
-			waitDialog.dispose();
-		}
+		disposeWaitDialog();
+		
 		if (aoc != null) {
 			setLatestVersionInfo(aoc);
 			getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
 		} else {
 			View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.check.failed"));
+		}
+	}
+	
+	private void disposeWaitDialog() {
+		if (waitDialog != null) {
+			waitDialog.dispose();
+			waitDialog = null;
 		}
 	}
 }
