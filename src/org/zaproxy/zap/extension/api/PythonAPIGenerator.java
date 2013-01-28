@@ -34,7 +34,7 @@ public class PythonAPIGenerator {
 			"#\n" +
 			"# ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			"#\n" +
-			"# Copyright 2012 ZAP development team\n" +
+			"# Copyright 2013 ZAP development team\n" +
 			"#\n" +
 			"# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			"# you may not use this file except in compliance with the License.\n" +
@@ -65,19 +65,25 @@ public class PythonAPIGenerator {
 	}
 	private void generatePythonElement(ApiElement element, String component, 
 			String type, Writer out, boolean incComponentCol) throws IOException {
-		boolean hasParams = false;
-		out.write("\tdef " + element.getName() + "(self");
+		
+		boolean hasParams = (element.getMandatoryParamNames() != null && 
+								element.getMandatoryParamNames().size() > 0) ||
+							(element.getOptionalParamNames() != null &&
+								element.getOptionalParamNames().size() > 0);
+				
+		if (! hasParams) {
+			out.write("    @property\n");
+		}
+		out.write("    def " + camelCaseToLcUnderscores(element.getName()) + "(self");
 
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
 				out.write(", " + param.toLowerCase());
-				hasParams = true;
 			}
 		}
 		if (element.getOptionalParamNames() != null) {
 			for (String param : element.getOptionalParamNames()) {
 				out.write(", " + param.toLowerCase() + "=''");
-				hasParams = true;
 			}
 		}
 		out.write("):\n");
@@ -90,15 +96,15 @@ public class PythonAPIGenerator {
 		}
 		try {
 			String desc = msgs.getString(descTag);
-			out.write("\t\t\"\"\"\n");
-			out.write("\t\t" + desc + "\n");
-			out.write("\t\t\"\"\"\n");
+			out.write("        \"\"\"\n");
+			out.write("        " + desc + "\n");
+			out.write("        \"\"\"\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
 		}
 
-		out.write("\t\treturn self.zap._request(self.zap.base + '" + 
+		out.write("        return self.zap._request(self.zap.base + '" + 
 				component + "/" + type + "/" + element.getName() + "/'");
 		
 		// , {'url': url}))
@@ -136,9 +142,9 @@ public class PythonAPIGenerator {
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(HEADER);
-		out.write("class " + imp.getPrefix() + "(object):\n\n");
-		out.write("\tdef __init__(self, zap):\n");
-		out.write("\t\tself.zap = zap\n");
+		out.write("class " + camelCaseToLcUnderscores(imp.getPrefix()) + "(object):\n\n");
+		out.write("    def __init__(self, zap):\n");
+		out.write("        self.zap = zap\n");
 		out.write("\n");
 		
 		for (ApiElement view : imp.getApiViews()) {
@@ -153,12 +159,24 @@ public class PythonAPIGenerator {
 		out.write("\n");
 		out.close();
 	}
+	
+	public static String camelCaseToLcUnderscores(String s) {
+		// Ripped off / inspired by http://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
+		return s.replaceAll(
+			      String.format("%s|%s|%s",
+			         "(?<=[A-Z])(?=[A-Z][a-z])",
+			         "(?<=[^A-Z])(?=[A-Z])",
+			         "(?<=[A-Za-z])(?=[^A-Za-z])"),
+			      "_").toLowerCase();
+	}
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a python version of the ZAP API
 		
 		PythonAPIGenerator wapi = new PythonAPIGenerator();
 		wapi.generatePythonFiles();
+		
+		//System.out.println(camelCaseToLcUnderscores("TestCase"));
 		
 	}
 
