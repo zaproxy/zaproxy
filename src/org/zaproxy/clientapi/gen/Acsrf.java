@@ -38,6 +38,42 @@ public class Acsrf {
 		this.api = api;
 	}
 
+	public ApiResponse optionTokens() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("acsrf", "view", "optionTokens", map);
+	}
+
+	public ApiResponse optionTokensNames() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("acsrf", "view", "optionTokensNames", map);
+	}
+
+	public ApiResponse optionConfirmRemoveToken() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("acsrf", "view", "optionConfirmRemoveToken", map);
+	}
+
+	public ApiResponse addOptionToken(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("acsrf", "action", "addOptionToken", map);
+	}
+
+	public ApiResponse removeOptionToken(String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("acsrf", "action", "removeOptionToken", map);
+	}
+
+	public ApiResponse setOptionConfirmRemoveToken(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("acsrf", "action", "setOptionConfirmRemoveToken", map);
+	}
+
 	/**
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
