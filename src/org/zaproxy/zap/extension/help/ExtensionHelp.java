@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.view.View;
 
 /**
  * Loads the core help files and provides GUI elements to access them.
@@ -67,7 +68,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 */
 	private void initialize() {
         this.setName("ExtensionHelp");
-        this.setOrder(42);
+        this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
 	@Override
@@ -77,7 +78,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	    if (getView() != null) {	        
 	        extensionHook.getHookMenu().addHelpMenuItem(getMenuHelpZapUserGuide());
 
-	        //View.getSingleton().addMainToolbarButton(this.getHelpButton());
+	        View.getSingleton().addMainToolbarSeparator();
+	        View.getSingleton().addMainToolbarButton(this.getHelpButton());
 
 	    }
 
@@ -135,18 +137,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * @param helpindex
 	 */
 	public static void showHelp(String helpindex) {
-		// TODO this breaks the context sensitive help :((
-		//new CSH.DisplayHelpFromSource(hb);
-		/*
-		getHelpBroker();
-		try {
-			Robot robot = new Robot();
-			robot.keyPress(java.awt.event.KeyEvent.VK_F1);
-			robot.keyRelease(java.awt.event.KeyEvent.VK_F1);
-		} catch (AWTException e1) {
-			e1.printStackTrace();
-		}
-		*/
 		try {
 			getHelpBroker().showID(helpindex, "javax.help.SecondaryWindow", null);
 		} catch (Exception e) {
@@ -190,13 +180,10 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		return menuHelpZap;
 	}
 	
-	@SuppressWarnings("unused")
 	private JButton getHelpButton() {
 		if (helpButton == null) {
 			helpButton = new JButton();
-			helpButton.setText("Help");
-			helpButton.setToolTipText("Help");
-			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png"))); // TODO: doesn't work?
+			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
 			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
