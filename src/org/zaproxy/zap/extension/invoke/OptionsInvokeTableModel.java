@@ -127,6 +127,7 @@ public class OptionsInvokeTableModel extends AbstractMultipleOptionsTableModel<I
         if (columnIndex == 0) {
             if (aValue instanceof Boolean) {
                 getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                fireTableCellUpdated(rowIndex, columnIndex);
             }
         }
     }

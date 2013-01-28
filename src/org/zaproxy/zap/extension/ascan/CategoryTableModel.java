@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/03/14 Changed to use the internationalised strings.
 // ZAP: 2012/04/25 Changed to use the method Boolean.valueOf.
+// ZAP: 2013/01/27 Changed to only notify the listeners if the value was really changed.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -94,9 +95,9 @@ public class CategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	break;
         	case 1: test.setEnabled(((Boolean) value).booleanValue());
+                    fireTableCellUpdated(row, col);
         			break;
         }
-        fireTableCellUpdated(row, col);
     }
 
     @Override

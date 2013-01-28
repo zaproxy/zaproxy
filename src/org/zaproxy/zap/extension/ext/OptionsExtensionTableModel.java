@@ -127,10 +127,10 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
     	if (col == 0) {
     		getExtension(row).setEnabled((Boolean) value);
+            fireTableCellUpdated(row, col);
     		// En/Disable dependencies
     		enableDependants(getExtension(row), (Boolean) value);
     	}
-        fireTableCellUpdated(row, col);
     }
 
     private void enableDependants(Extension extension, Boolean enabled) {

@@ -113,6 +113,7 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
         if (columnIndex == 0) {
             if (aValue instanceof Boolean) {
                 listAuth.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                fireTableCellUpdated(rowIndex, columnIndex);
             }
         }else if(columnIndex == 1) {
         	if(aValue instanceof Boolean){
@@ -122,6 +123,7 @@ public class OptionsAuthenticationTableModel extends AbstractMultipleOptionsTabl
 							Constant.messages.getString("options.auth.dialog.hostAuth.disablemaskpassword.title"), JOptionPane.WARNING_MESSAGE);
         		}
         		listAuth.get(rowIndex).setMasked(((Boolean) aValue).booleanValue());
+        		fireTableCellUpdated(rowIndex, columnIndex);
         	}
         }
     }

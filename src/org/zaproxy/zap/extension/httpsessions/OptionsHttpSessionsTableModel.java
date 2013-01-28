@@ -115,6 +115,7 @@ public class OptionsHttpSessionsTableModel extends AbstractMultipleOptionsTableM
 		if (columnIndex == 0) {
 			if (aValue instanceof Boolean) {
 				tokens.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+				fireTableCellUpdated(rowIndex, columnIndex);
 			}
 		}
 	}

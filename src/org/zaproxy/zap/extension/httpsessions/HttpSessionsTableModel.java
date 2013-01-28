@@ -156,6 +156,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		// Allow change only for the name column
 		if (columnIndex == 1) {
 			sessions.get(rowIndex).setName((String) aValue);
+			fireTableCellUpdated(rowIndex, columnIndex);
 		}
 	}
 

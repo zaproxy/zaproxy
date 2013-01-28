@@ -87,9 +87,9 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         	case 0:	break;
         	case 1: test.setEnabled(((Boolean) value).booleanValue());
         			test.save();
+        			fireTableCellUpdated(row, col);
         			break;
         }
-        fireTableCellUpdated(row, col);
     }
     
     @Override
