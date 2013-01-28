@@ -27,6 +27,7 @@ from acsrf import acsrf
 from ascan import ascan
 from auth import auth
 from autoupdate import autoupdate
+from context import context
 from core import core
 from params import params
 from search import search
@@ -64,6 +65,7 @@ class ZAPv2(object):
         self.ascan = ascan(self)
         self.auth = auth(self)
         self.autoupdate = autoupdate(self)
+        self.context = context(self)
         self.core = core(self)
         self.params = params(self)
         self.search = search(self)

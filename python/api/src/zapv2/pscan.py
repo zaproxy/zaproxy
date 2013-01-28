@@ -19,15 +19,16 @@
 This file was automatically generated.
 """
 
-class params(object):
+class pscan(object):
 
     def __init__(self, zap):
         self.zap = zap
 
-    def params(self, site=''):
+    @property
+    def records_to_scan(self):
         """
-        Shows the parameters for the specified site, or for all sites if the site is not specified
+        The number of records the passive scanner still has to scan
         """
-        return self.zap._request(self.zap.base + 'params/view/params/', {'site' : site})
+        return self.zap._request(self.zap.base + 'pscan/view/recordsToScan/')
 
 

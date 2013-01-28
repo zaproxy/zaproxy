@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2012 ZAP development team
+# Copyright 2013 ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,70 +21,79 @@ This file was automatically generated.
 
 class autoupdate(object):
 
-	def __init__(self, zap):
-		self.zap = zap
+    def __init__(self, zap):
+        self.zap = zap
 
-	def latestVersionNumber(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/latestVersionNumber/')
+    @property
+    def latest_version_number(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/latestVersionNumber/')
 
-	def isLatestVersion(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/')
+    @property
+    def is_latest_version(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/')
 
-	def optionCheckOnStart(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStart/')
+    @property
+    def option_check_on_start_unset(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStartUnset/')
 
-	def optionCheckOnStartUnset(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStartUnset/')
+    @property
+    def option_check_on_start(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStart/')
 
-	def optionCheckOnStart(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStart/')
+    @property
+    def option_download_new_release(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionDownloadNewRelease/')
 
-	def optionDownloadNewRelease(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionDownloadNewRelease/')
+    @property
+    def option_check_addon_updates(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckAddonUpdates/')
 
-	def optionCheckAddonUpdates(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckAddonUpdates/')
+    @property
+    def option_install_addon_updates(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallAddonUpdates/')
 
-	def optionInstallAddonUpdates(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallAddonUpdates/')
+    @property
+    def option_install_scanner_rules(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallScannerRules/')
 
-	def optionInstallScannerRules(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallScannerRules/')
+    @property
+    def option_report_release_addons(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportReleaseAddons/')
 
-	def optionReportReleaseAddons(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionReportReleaseAddons/')
+    @property
+    def option_report_beta_addons(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportBetaAddons/')
 
-	def optionReportBetaAddons(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionReportBetaAddons/')
+    @property
+    def option_report_alpha_addons(self):
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/')
 
-	def optionReportAlphaAddons(self):
-		return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/')
+    @property
+    def download_latest_release(self):
+        return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/')
 
-	def downloadLatestRelease(self):
-		return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/')
+    def set_option_check_on_start(self, integer):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Integer' : integer})
 
-	def setOptionChckOnStart(self, integer):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionChckOnStart/', {'Integer' : integer})
+    def set_option_download_new_release(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean})
 
-	def setOptionDownloadNewRelease(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean})
+    def set_option_check_addon_updates(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean})
 
-	def setOptionCheckAddonUpdates(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean})
+    def set_option_install_addon_updates(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean})
 
-	def setOptionInstallAddonUpdates(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean})
+    def set_option_install_scanner_rules(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean})
 
-	def setOptionInstallScannerRules(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean})
+    def set_option_report_release_addons(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean})
 
-	def setOptionReportReleaseAddons(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean})
+    def set_option_report_beta_addons(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean})
 
-	def setOptionReportBetaAddons(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean})
-
-	def setOptionReportAlphaAddons(self, boolean):
-		return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean})
+    def set_option_report_alpha_addons(self, boolean):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean})
 
 

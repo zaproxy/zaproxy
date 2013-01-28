@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2012 ZAP development team
+# Copyright 2013 ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,34 @@ This file was automatically generated.
 
 class acsrf(object):
 
-	def __init__(self, zap):
-		self.zap = zap
+    def __init__(self, zap):
+        self.zap = zap
 
-	def genForm(self, hrefid):
-		"""
-		Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
-		"""
-		return self.zap._request(self.zap.base + 'acsrf/other/genForm/', {'hrefId' : hrefid})
+    @property
+    def option_tokens(self):
+        return self.zap._request(self.zap.base + 'acsrf/view/optionTokens/')
+
+    @property
+    def option_tokens_names(self):
+        return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/')
+
+    @property
+    def option_confirm_remove_token(self):
+        return self.zap._request(self.zap.base + 'acsrf/view/optionConfirmRemoveToken/')
+
+    def add_option_token(self, string):
+        return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string})
+
+    def remove_option_token(self, string):
+        return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string})
+
+    def set_option_confirm_remove_token(self, boolean):
+        return self.zap._request(self.zap.base + 'acsrf/action/setOptionConfirmRemoveToken/', {'Boolean' : boolean})
+
+    def gen_form(self, hrefid):
+        """
+        Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
+        """
+        return self.zap._request(self.zap.base + 'acsrf/other/genForm/', {'hrefId' : hrefid})
 
 

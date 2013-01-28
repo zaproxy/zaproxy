@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2012 ZAP development team
+# Copyright 2013 ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@ This file was automatically generated.
 
 class search(object):
 
-	def __init__(self, zap):
-		self.zap = zap
+    def __init__(self, zap):
+        self.zap = zap
 
-	def urlsByUrlRegex(self, regex, baseurl='', start='', count=''):
-		return self.zap._request(self.zap.base + 'search/view/urlsByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+    def urls_by_url_regex(self, regex, baseurl='', start='', count=''):
+        return self.zap._request(self.zap.base + 'search/view/urlsByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
 
-	def urlsByRequestRegex(self, regex, baseurl='', start='', count=''):
-		return self.zap._request(self.zap.base + 'search/view/urlsByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+    def urls_by_request_regex(self, regex, baseurl='', start='', count=''):
+        return self.zap._request(self.zap.base + 'search/view/urlsByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
 
-	def urlsByResponseRegex(self, regex, baseurl='', start='', count=''):
-		return self.zap._request(self.zap.base + 'search/view/urlsByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+    def urls_by_response_regex(self, regex, baseurl='', start='', count=''):
+        return self.zap._request(self.zap.base + 'search/view/urlsByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
 
-	def urlsByHeaderRegex(self, regex, baseurl='', start='', count=''):
-		return self.zap._request(self.zap.base + 'search/view/urlsByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+    def urls_by_header_regex(self, regex, baseurl='', start='', count=''):
+        return self.zap._request(self.zap.base + 'search/view/urlsByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
 
 
