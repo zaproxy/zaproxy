@@ -122,7 +122,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void activeScanUrl (String url) throws ClientApiException {
-		ascan.scan(url, "false", "false");
+		ascan.scan(url, "true", "false");
 		// Poll until spider finished
 		while ( statusToInt(ascan.status()) < 100) {
 			try {
