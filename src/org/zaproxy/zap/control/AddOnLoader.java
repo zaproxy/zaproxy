@@ -359,6 +359,11 @@ public class AddOnLoader extends URLClassLoader {
 		if (! this.aoc.removeAddOn(ao)) {
 			result = false;
 		}
+		try {
+			this.addOnLoaders.get(ao.getId()).close();
+		} catch (Exception e) {
+			logger.error("Failure while removing add-on " + ao.getId(), e);
+		}
 		this.addOnLoaders.remove(ao.getId());
 		
 		if (ao.getFile() != null && ao.getFile().exists()) {
