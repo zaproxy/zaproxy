@@ -28,6 +28,7 @@
 // ZAP: 2012/07/03 Issue 320: AScan can miss subtrees if invoked via the API
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
+// ZAP: 2013/01/29 Handle structural nodes in findNode
 
 package org.parosproxy.paros.model;
 
@@ -209,6 +210,11 @@ public class SiteMap extends DefaultTreeModel {
     }
 
     public synchronized SiteNode findNode(URI uri) {
+    	// Look for 'structural' nodes first
+    	SiteNode node = this.findNode(uri, null, null);
+    	if (node != null) {
+    		return node;
+    	}
     	return this.findNode(uri, "GET", null);
     }
     
@@ -517,7 +523,7 @@ public class SiteMap extends DefaultTreeModel {
         leafName = leafName + getQueryParamString(getParamNameSet(query));
 
         // also handle POST method query in body
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
+        if (method != null && method.equalsIgnoreCase(HttpRequestHeader.POST)) {
             leafName = leafName + getQueryParamString(getParamNameSet(postData));
         }
         return leafName;
