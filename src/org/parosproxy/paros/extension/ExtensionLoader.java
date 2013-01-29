@@ -37,6 +37,8 @@
 // ZAP: 2013/01/25 Added removeExtension(...) method and further helper methods
 // to remove listeners, menu items, etc.
 // ZAP: 2013/01/25 Refactored hookMenu(). Resolved some Checkstyle issues.
+// ZAP: 2013/01/29 Catch Errors thrown by out of date extensions as well as Exceptions
+
 package org.parosproxy.paros.extension;
 
 import java.util.Iterator;
@@ -524,7 +526,8 @@ public class ExtensionLoader {
 				}
 				hookOptions(extHook);
 				getExtension(i).optionsLoaded();
-			} catch (Exception e) {
+			} catch (Throwable e) {
+				// Catch Errors thrown by out of date extensions as well as Exceptions
 				logger.error(e.getMessage(), e);
 			}
         }
