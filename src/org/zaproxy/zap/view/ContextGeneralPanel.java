@@ -142,8 +142,7 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		// ZAP: added help index support
-		return "ui.dialogs.sessprop";
+		return "ui.dialogs.contexts";
 	}
 	
 	public int getContextIndex() {

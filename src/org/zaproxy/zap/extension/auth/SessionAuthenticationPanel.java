@@ -182,7 +182,7 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.sessauth";
+		return "ui.dialogs.contexts";
 	}
 
 	public void setLoginURL(String string) {

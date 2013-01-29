@@ -184,11 +184,9 @@ public class ContextListPanel extends AbstractParamPanel {
 		}
 	}
 
-
 	@Override
 	public String getHelpIndex() {
-		// ZAP: added help index support
-		return "ui.dialogs.sessprop";
+		return "ui.dialogs.contexts";
 	}
 	
 }

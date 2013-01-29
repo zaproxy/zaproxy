@@ -241,6 +241,6 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.sessprop";
+		return "ui.dialogs.contexts";
 	}
 }
