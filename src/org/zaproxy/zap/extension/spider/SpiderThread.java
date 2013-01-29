@@ -275,7 +275,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	@Override
 	public void spiderComplete(boolean successful) {
-		log.warn("Spider scanning complete: " + successful);
+		log.info("Spider scanning complete: " + successful);
 		stopScan = true;
 		this.isAlive = false;
 		this.listenner.scanFinshed(site);
@@ -313,7 +313,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 			siteTree.addPath(historyRef, msg);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 	}
 

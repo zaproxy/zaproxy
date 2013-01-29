@@ -164,8 +164,8 @@ public class SpiderTask implements Runnable {
 		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters()) {
 			if (filter.isFiltered(msg)) {
-				if (log.isInfoEnabled()) {
-					log.info("Resource fetched, but will not be parsed due to a ParseFilter rule: "
+				if (log.isDebugEnabled()) {
+					log.debug("Resource fetched, but will not be parsed due to a ParseFilter rule: "
 							+ msg.getRequestHeader().getURI());
 				}
 				isFiltered = true;

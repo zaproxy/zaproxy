@@ -36,7 +36,7 @@ public class SpiderTextParser extends SpiderParser {
 
 	@Override
 	public void parseResource(HttpMessage message, Source source, int depth) {
-		log.info("Parsing non-HTML text resource.");
+		log.debug("Parsing non-HTML text resource.");
 
 		// Use a simple pattern matcher to find urls
 		if (message.getResponseBody() != null) {

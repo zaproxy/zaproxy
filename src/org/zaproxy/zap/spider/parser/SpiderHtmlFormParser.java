@@ -107,17 +107,17 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			// Get method and action
 			String method = form.getAttributeValue("method");
 			String action = form.getAttributeValue("action");
-			log.info("Found new form with method: '" + method + "' and action: " + action);
+			log.debug("Found new form with method: '" + method + "' and action: " + action);
 
 			// If no action, skip the form
 			if (action == null) {
-				log.info("No form 'action' defined. Using base URL: " + baseURL);
+				log.debug("No form 'action' defined. Using base URL: " + baseURL);
 				action = baseURL;
 			}
 
 			// If POSTing forms is not enabled, skip processing of forms with POST method
 			if (!param.isPostForm() && method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
-				log.info("Skipping form with POST method because of user settings.");
+				log.debug("Skipping form with POST method because of user settings.");
 				continue;
 			}
 
