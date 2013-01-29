@@ -190,12 +190,20 @@ class AlertTreeModel extends DefaultTreeModel {
             insertNodeInto(newNode, parent, pos);
             result = newNode;
             result.setUserObject(alert);
-        	this.nodeChanged(newNode);
+        	this.nodesChanged(newNode);
         }
         recalcAlertCounts();
         return result;
     }
-
+    
+    private void nodesChanged(AlertNode node) {
+    	// Loop up as parent node names include counts which might have changed
+    	this.nodeChanged(node);
+    	AlertNode parent = (AlertNode) node.getParent();
+    	if (parent != null) {
+    		nodesChanged(parent);
+    	}
+    }
     
     private AlertNode findChild(AlertNode parent, String nodeName) {
         for (int i=0; i<parent.getChildCount(); i++) {
