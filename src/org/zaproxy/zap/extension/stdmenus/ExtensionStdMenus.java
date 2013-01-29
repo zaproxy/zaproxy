@@ -58,7 +58,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(37);
+		this.setOrder(31);
 	}
 
 	@Override
