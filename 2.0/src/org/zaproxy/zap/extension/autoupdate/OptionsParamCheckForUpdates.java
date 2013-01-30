@@ -88,7 +88,11 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 			getConfig().setProperty(DAY_LAST_CHECKED, dayLastChecked);
 		}
 	}
-	
+
+	public boolean getCheckOnStart() {
+		return checkOnStart != 0;
+	}
+
 	public boolean isCheckOnStart() {
 		if (checkOnStart == 0) {
 			log.debug("isCheckForStart - false");

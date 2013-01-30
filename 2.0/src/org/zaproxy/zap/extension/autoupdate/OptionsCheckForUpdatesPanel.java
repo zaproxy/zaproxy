@@ -100,8 +100,10 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 			
 			updPanel.add(getChkCheckAddonUpdates(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			updPanel.add(getChkInstallAddonUpdates(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
-			updPanel.add(getChkInstallScannerRules(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
+			// Not implemented yet
+			//updPanel.add(getChkInstallScannerRules(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
 			
+			/* Not implemented yet
 			JPanel newPanel = new JPanel();
 			newPanel.setLayout(new GridBagLayout());
 			newPanel.setBorder(
@@ -114,11 +116,12 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 			newPanel.add(getChkReportReleaseAddons(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			newPanel.add(getChkReportBetaAddons(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
 			newPanel.add(getChkReportAlphaAddons(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
+			*/
 
 			panelMisc.add(getChkCheckOnStart(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			panelMisc.add(zapPanel, LayoutHelper.getGBC(0, 1, 1, 1.0D));
 			panelMisc.add(updPanel, LayoutHelper.getGBC(0, 2, 1, 1.0D));
-			panelMisc.add(newPanel, LayoutHelper.getGBC(0, 3, 1, 1.0D));
+			//panelMisc.add(newPanel, LayoutHelper.getGBC(0, 3, 1, 1.0D));
 			panelMisc.add(new JLabel(""), LayoutHelper.getGBC(0, 4, 1, 1.0D, 1.0D));	// Padding
 
 		}
@@ -254,7 +257,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-	    getChkCheckOnStart().setSelected(options.getCheckForUpdatesParam().isCheckOnStart());
+	    getChkCheckOnStart().setSelected(options.getCheckForUpdatesParam().getCheckOnStart());
 	    getChkDownloadNewRelease().setSelected(options.getCheckForUpdatesParam().isDownloadNewRelease());
 		getChkCheckAddonUpdates().setSelected(options.getCheckForUpdatesParam().isCheckAddonUpdates());
 		getChkInstallAddonUpdates().setSelected(options.getCheckForUpdatesParam().isInstallAddonUpdates());
