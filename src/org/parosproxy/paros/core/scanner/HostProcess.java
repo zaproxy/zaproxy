@@ -123,7 +123,8 @@ public class HostProcess implements Runnable {
     }
     
     private void processPlugin(Plugin plugin) {
-        log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + " level " + plugin.getAlertThreshold());
+        log.info("start host " + hostAndPort + " | " + plugin.getCodeName() + 
+        		" strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         mapPluginStartTime.put(Long.valueOf(plugin.getId()), Long.valueOf(System.currentTimeMillis()));
         if (plugin instanceof AbstractHostPlugin) {
             scanSingleNode(plugin, startNode);
