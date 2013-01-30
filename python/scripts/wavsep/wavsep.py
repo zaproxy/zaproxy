@@ -47,10 +47,7 @@ import datetime
 zapUrl = 'http://127.0.0.1:8090'
 
 # Dictionary of abbreviation to keep the output a bit shorter
-abbrev = {'Cross Site Scripting' : 'XSS',\
-		# Old ones - delete?
-		#'SQL Injection Fingerprinting' : 'SQLfp',\
-		#'SQL Injection' : 'SQLi',\
+abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
 		'Cross Site Request Forgery' : 'CSRF',\
@@ -62,7 +59,9 @@ abbrev = {'Cross Site Scripting' : 'XSS',\
 		'Password Autocomplete in browser' : 'Auto',\
 		'Path Traversal' : 'PathTrav',\
 		'Remote File Inclusion' : 'RFI',\
+		'SQL Injection - Boolean Based' : 'SqlBool',\
 		'SQL Injection - Error Based - MySQL' : 'SqlMySqlE',\
+		'SQL Injection - Error Based - Java' : 'SqlJavaE',\
 		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyperT',\
 		'SQL Injection (MySQL) - Time Based' : 'SqlMySqTl',\
 		'SQL Injection (Oracle) - Time Based' : 'SqlOracleT',\
@@ -87,9 +86,9 @@ rules = [ \
 		['-', 'ParamOver', 'ignore'], \
 		['-', 'XFrame', 'ignore'], \
 		['-', 'XContent', 'ignore'], \
-		['LFI-', 'XSS', 'ignore'], \
-		['RFI-', 'XSS', 'ignore'], \
-		['SInjection-', 'XSS', 'ignore'], \
+		['LFI-', 'RXSS', 'ignore'], \
+		['RFI-', 'RXSS', 'ignore'], \
+		['SInjection-', 'RXSS', 'ignore'], \
 		['LoginBypass', 'Auto', 'ignore'], \
 		['CrlfRemovalInHttpHeader', 'HttpOnly', 'ignore'], \
 		['Tag2HtmlPageScopeValidViewstateRequired', 'ViewstateNoMac', 'ignore'], \
@@ -98,20 +97,25 @@ rules = [ \
 		['LFI-FalsePositives', 'PathTrav', 'fail'], \
 		['RFI-Detection-Evaluation', 'RFI', 'pass'], \
 		['RFI-FalsePositives', 'RFI', 'fail'], \
-		['RXSS-Detection-Evaluation', 'XSS', 'pass'], \
-		['RXSS-FalsePositives-GET', 'XSS', 'fail'], \
+		['RXSS-Detection-Evaluation', 'RXSS', 'pass'], \
+		['RXSS-FalsePositives-GET', 'RXSS', 'fail'], \
+		
 		['SInjection-Detection-Evaluation', 'SQLfp', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SQLi', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlHyper', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlBool', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SqlMySqlE', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
+		['SInjection-FalsePositives', 'SqlBool', 'fail'], \
+		['SInjection-FalsePositives', 'SqlMySqlE', 'fail'], \
 		['SInjection-FalsePositives', 'SqlHyper', 'fail'], \
 		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
 		['SInjection-FalsePositives', 'SqlOracle', 'fail'], \
 		['SInjection-FalsePositives', 'SqlPostgre', 'fail'], \
+		
 		['info-cookie-no-httponly', 'HttpOnly', 'pass'], \
 		['session-password-autocomplete', 'Auto', 'pass'], \
 		['weak-authentication-basic', 'WeakAuth', 'pass'], \
