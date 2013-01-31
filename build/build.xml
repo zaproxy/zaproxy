@@ -465,14 +465,14 @@
 
         <!-- SVN destroys the JRE directory, therefore we have to use this ugly fix in order to include a proper JRE -->
         <exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
-            <arg line=" 1.7.0u.jre.zip" />
+            <arg line=" jdk1.7.0_11.jre.zip" />
         </exec>
-        <delete file="${app.plugins}/1.7.0u.jre.zip" />
+        <delete file="${app.plugins}/jdk1.7.0_11.jre.zip" />
 
         <replace dir="${app.bundle}" summary="true" encoding="UTF-8">
             <include name="**/Info.plist" />
             <replacefilter token="_SHORT_VERSION_STRING_" value="${version}" />
-            <replacefilter token="_VERSION_STRING_" value="1" />
+            <replacefilter token="_VERSION_STRING_" value="2" />
         </replace>
 
         <echo message="Creating ZIP archive for the Mac OS X release..." />
