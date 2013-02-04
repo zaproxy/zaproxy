@@ -54,11 +54,6 @@
 		<parseRobotsTxt>false</parseRobotsTxt>
 	</spider>
 
-	<trap>
-		<inclusiveFilter></inclusiveFilter>
-		<exclusiveFilter></exclusiveFilter>
-	</trap>
-	
 	<scanner>
 		<hostPerScan>2</hostPerScan>
 		<threadPerHost>2</threadPerHost>
