@@ -178,17 +178,27 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 		if (categoryField == null) {
 			categoryField = new JComboBox<>();
 			
-			for (String category : extension.getFileFuzzerCategories()) {
-				categoryField.addItem(category);
-			}
-			
-			for (String category : extension.getJBroFuzzCategories()) {
-				categoryField.addItem(category);
-			}
-			
-			categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
+			addAvailableFuzzCategoriesToDefaultCategoryComboBox();
 		}
 		return categoryField;
+	}
+	
+	private void addAvailableFuzzCategoriesToDefaultCategoryComboBox() {
+		for (String category : extension.getFileFuzzerCategories()) {
+			categoryField.addItem(category);
+		}
+		
+		for (String category : extension.getJBroFuzzCategories()) {
+			categoryField.addItem(category);
+		}
+		
+		categoryField.addItem(Constant.messages.getString("fuzz.category.custom"));
+	}
+	
+	void updateFuzzCategories() {
+		categoryField.removeAllItems();
+		
+		addAvailableFuzzCategoriesToDefaultCategoryComboBox();
 	}
 	
 	@Override

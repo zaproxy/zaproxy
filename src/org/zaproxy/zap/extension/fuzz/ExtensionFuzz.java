@@ -389,11 +389,16 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	@Override
 	public void filesAdded() {
         loadFiles();
-        
+        if (getView() != null) {
+            getOptionsFuzzerPanel().updateFuzzCategories();
+        }
 	}
 
 	@Override
 	public void filesRemoved() {
         loadFiles();
+        if (getView() != null) {
+            getOptionsFuzzerPanel().updateFuzzCategories();
+        }
 	}
 }
