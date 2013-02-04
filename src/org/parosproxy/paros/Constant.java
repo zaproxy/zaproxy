@@ -394,8 +394,6 @@ public final class Constant {
 	            	if (ver <= V_1_3_1_TAG) {
 	            		// Nothing to do
 	            	}
-					// TODO: If a new version is released before the release of the spider, this
-					// final version has to be updated below.
 	            	if (ver <= V_1_4_1_TAG) {
 	            		upgradeFrom1_4_1(config);
 	            	}
