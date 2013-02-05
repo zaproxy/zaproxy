@@ -378,8 +378,9 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 				method = HttpRequestHeader.POST;
 			}
 			URI uri = new URI(url, true);
+			// Note the findNode just checks the parameter names, not their values
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-			if (sn != null) {
+			if (sn != null && sn.getHistoryReference().getHttpMessage().getRequestBody().toString().equals(postData)) {
 				this.setLoginRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem
@@ -439,8 +440,9 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 				method = HttpRequestHeader.POST;
 			}
 			URI uri = new URI(url, true);
+			// Note the findNode just checks the parameter names, not their values
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-			if (sn != null) {
+			if (sn != null && sn.getHistoryReference().getHttpMessage().getRequestBody().toString().equals(postData)) {
 				this.setLogoutRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem
@@ -506,7 +508,8 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
-		if (! reauthenticate || msg.getResponseBody() == null || msg.getRequestHeader().isImage() || initiator != HttpSender.ACTIVE_SCANNER_INITIATOR) {
+		if (! reauthenticate || msg.getResponseBody() == null || msg.getRequestHeader().isImage() || 
+				(initiator == HttpSender.AUTHENTICATION_INITIATOR)) {
 			// Not relevant
 			return;
 		}
@@ -661,7 +664,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	}
 
 	protected void saveAuthParams(int contextId) {
-        if (session != null) {
+		if (session != null) {
     		ContextAuth ca = this.getContextAuth(contextId);
     		try {
     			if (ca.getLoginMsg() != null) {
