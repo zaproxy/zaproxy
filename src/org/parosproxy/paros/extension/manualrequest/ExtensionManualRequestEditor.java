@@ -32,6 +32,8 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/01/25 Added method removeManualSendEditor().
+// ZAP: 2013/02/06 Issue 499: NullPointerException while uninstalling an add-on
+// with a manual request editor
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -98,9 +100,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 		
 		// remove from GUI
 		dialogue.clear();
-		dialogue.setVisible(false);
-		dialogue.setEnabled(false);
-		dialogue.getParent().remove(dialogue);
+		dialogue.dispose();
 
 		if (getView() != null) {
 			// unload menu items
