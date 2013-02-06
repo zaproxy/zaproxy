@@ -176,6 +176,7 @@ public class AddOnLoader extends URLClassLoader {
     	}
     	if (this.aoc.addAddOn(ao)) {
             try {
+                addAddOnFile(ao);
             	this.addURL(ao.getFile().toURI().toURL());
             	
             	if (this.blockList.contains(ao.getId())) {
