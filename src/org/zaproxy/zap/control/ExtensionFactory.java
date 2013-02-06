@@ -238,4 +238,22 @@ public class ExtensionFactory {
         return test;
     }
     
+    public static void unloadAddOnExtension(Extension extension) {
+        synchronized (mapAllExtension) {
+            mapAllExtension.remove(extension.getName());
+            listAllExtension.remove(extension);
+            boolean isUnordered = true;
+            for (Iterator<Extension> it = mapOrderToExtension.values().iterator(); it.hasNext();) {
+                if (it.next() == extension) {
+                    it.remove();
+                    isUnordered = false;
+                    break;
+                }
+            }
+            if (isUnordered) {
+                unorderedExtensions.remove(extension);
+            }
+        }
+    }
+    
 }

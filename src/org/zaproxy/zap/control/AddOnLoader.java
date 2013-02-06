@@ -277,6 +277,7 @@ public class AddOnLoader extends URLClassLoader {
 						if (ext.canUnload()) {
 							logger.debug("Unloading ext: " + ext.getName());
 							ext.unload();
+							ExtensionFactory.unloadAddOnExtension(ext);
 							// TODO should remove from extension loader here to prevent duplicate name warning
 							// Control.getSingleton().getExtensionLoader().
 						} else {
