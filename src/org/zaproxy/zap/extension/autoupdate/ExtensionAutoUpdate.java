@@ -43,6 +43,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.history.LogPanelCellRenderer;
+import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -176,7 +177,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							if (AddOn.isAddOn(file)) {
 								AddOn ao = new AddOn(file);
 								if (ao.canLoad()) {
-									install(ao);
+									if (install(ao)) {
+										File targetFile = new File(Constant.FOLDER_LOCAL_PLUGIN, file.getName());
+										if (!targetFile.exists()) {
+											FileCopier fileCopier = new FileCopier();
+											fileCopier.copy(file, targetFile);
+										}
+									}
 								} else {
 									View.getSingleton().showWarningDialog(
 											MessageFormat.format(
