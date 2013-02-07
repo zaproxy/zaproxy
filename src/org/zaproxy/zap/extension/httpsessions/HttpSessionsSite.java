@@ -70,7 +70,7 @@ public class HttpSessionsSite {
 		this.extension = extension;
 		this.site = site;
 		this.sessions = new LinkedHashSet<>();
-		this.model = new HttpSessionsTableModel();
+		this.model = new HttpSessionsTableModel(this);
 		this.activeSession = null;
 	}
 
@@ -183,9 +183,13 @@ public class HttpSessionsSite {
 	 * Creates a new empty session.
 	 */
 	public void createEmptySession() {
-		HttpSession session = new HttpSession(MessageFormat.format(
-				Constant.messages.getString("httpsessions.session.defaultName"),
-				Integer.valueOf(lastGeneratedSessionID++)));
+		// Generate unique
+		String name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
+				Integer.valueOf(lastGeneratedSessionID++));
+		while (this.getHttpSession(name) != null)
+			name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
+					Integer.valueOf(lastGeneratedSessionID++));
+		HttpSession session = new HttpSession(name);
 		this.addHttpSession(session);
 		this.setActiveSession(session);
 	}
@@ -476,5 +480,52 @@ public class HttpSessionsSite {
 	 */
 	protected Set<HttpSession> getHttpSessions() {
 		return Collections.unmodifiableSet(sessions);
+	}
+
+	/**
+	 * Gets the http session with a particular name, if any, or {@code null} otherwise.
+	 * 
+	 * @param name the name
+	 * @return the http session with a given name, or null, if no such session exists
+	 */
+	protected HttpSession getHttpSession(String name) {
+		for (HttpSession session : sessions) {
+			if (session.getName().equals(name)) {
+				return session;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Renames a http session, making sure the new name is unique for the site.
+	 * 
+	 * @param oldName the old name
+	 * @param newName the new name
+	 * @return true, if successful
+	 */
+	public boolean renameHttpSession(String oldName, String newName) {
+		// Check new name validity
+		if (newName == null || newName.isEmpty()) {
+			log.warn("Trying to rename session from " + oldName + " illegal name: " + newName);
+			return false;
+		}
+
+		// Check existing old name
+		HttpSession session = getHttpSession(oldName);
+		if (session == null)
+			return false;
+
+		// Check new name uniqueness
+		if (getHttpSession(newName) != null) {
+			log.warn("Trying to rename session from " + oldName + " to already existing: " + newName);
+			return false;
+		}
+
+		// Rename the session and notify model
+		session.setName(newName);
+		this.model.fireHttpSessionUpdated(session);
+
+		return true;
 	}
 }

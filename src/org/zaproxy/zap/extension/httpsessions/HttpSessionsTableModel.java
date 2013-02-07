@@ -45,6 +45,9 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	/** The http sessions. */
 	private List<HttpSession> sessions;
 
+	/** The site. */
+	private HttpSessionsSite site;
+
 	/** The Constant activeIcon defining the image used for marking the active session. */
 	private static final ImageIcon activeIcon;
 	static {
@@ -54,9 +57,10 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	/**
 	 * Instantiates a new http sessions table model.
 	 */
-	public HttpSessionsTableModel() {
+	public HttpSessionsTableModel(HttpSessionsSite site) {
 		super();
 
+		this.site = site;
 		sessions = createEmptySessionsList();
 	}
 
@@ -155,8 +159,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		// Allow change only for the name column
 		if (columnIndex == 1) {
-			sessions.get(rowIndex).setName((String) aValue);
-			fireTableCellUpdated(rowIndex, columnIndex);
+			site.renameHttpSession(sessions.get(rowIndex).getName(), (String) aValue);
 		}
 	}
 

@@ -74,7 +74,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 
 	/** The sessions model. */
-	private HttpSessionsTableModel sessionsModel = new HttpSessionsTableModel();
+	private HttpSessionsTableModel sessionsModel = new HttpSessionsTableModel(null);
 
 	/**
 	 * Instantiates a new http session panel.
