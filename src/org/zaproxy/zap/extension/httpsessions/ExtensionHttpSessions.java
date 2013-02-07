@@ -146,7 +146,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 
-		//Register the parameters
+		// Register the parameters
 		extensionHook.addOptionsParamSet(getParam());
 
 		extensionHook.addSessionListener(this);
@@ -164,9 +164,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuUnsetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 		}
-		
-		//Register as an API implementor
-		HttpSessionsAPI httpSessionsApi=new HttpSessionsAPI(this);
+
+		// Register as an API implementor
+		HttpSessionsAPI httpSessionsApi = new HttpSessionsAPI(this);
 		API.getInstance().registerApiImplementor(httpSessionsApi);
 	}
 
@@ -286,9 +286,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/**
 	 * Unmarks a default session token as removed for a particular site.
 	 * 
-	 * @param site the site. This parameter has to be formed as defined in the 
-	 * 		{@link ExtensionHttpSessions} class documentation.
-	 * @param token the token 
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
+	 * @param token the token
 	 */
 	private void unmarkRemovedDefaultSessionToken(String site, String token) {
 		if (removedDefaultTokens == null)
@@ -367,7 +367,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
-	 * Gets the set of session tokens for a particular site. 
+	 * Gets the set of session tokens for a particular site.
 	 * <p>
 	 * The set of session tokens returned is read-only view of the internal session tokens and any
 	 * modifications will result in {@link UnsupportedOperationException}. The current
@@ -407,11 +407,31 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @return the http sessions site container
 	 */
 	protected HttpSessionsSite getHttpSessionsSite(String site) {
+		return getHttpSessionsSite(site, true);
+	}
+
+	/**
+	 * Gets the http sessions for a particular site. The behaviour when a {@link HttpSessionsSite}
+	 * does not exist is defined by the {@code createIfNeeded} parameter.
+	 * 
+	 * @param site the site. This parameter has to be formed as defined in the
+	 *            {@link ExtensionHttpSessions} class documentation.
+	 * @param createIfNeeded whether a new {@link HttpSessionsSite} object is created if one does
+	 *            not exist
+	 * @return the http sessions site container, or null one does not exist and createIfNeeded is
+	 *         false
+	 * 
+	 */
+	protected HttpSessionsSite getHttpSessionsSite(String site, boolean createIfNeeded) {
 		if (sessions == null) {
+			if (!createIfNeeded)
+				return null;
 			sessions = new HashMap<>();
 		}
 		HttpSessionsSite hss = sessions.get(site);
 		if (hss == null) {
+			if (!createIfNeeded)
+				return null;
 			hss = new HttpSessionsSite(this, site);
 			sessions.put(site, hss);
 		}
@@ -425,8 +445,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	@Override
-	public void onReturnNodeRendererComponent(
-			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
+	public void onReturnNodeRendererComponent(SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
 	@Override
@@ -482,7 +501,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			// Not a session we care about
 			return;
 		}
-		
+
 		// Check if we know the site and add it otherwise
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
