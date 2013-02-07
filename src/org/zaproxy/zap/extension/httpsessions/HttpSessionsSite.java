@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -465,5 +466,15 @@ public class HttpSessionsSite {
 			sessions.remove(ses);
 			model.removeHttpSession(ses);
 		}
+	}
+
+	/**
+	 * Gets an unmodifiable set of the http sessions. Attempts to modify the returned set, whether
+	 * direct or via its iterator, result in an UnsupportedOperationException.
+	 * 
+	 * @return the http sessions
+	 */
+	protected Set<HttpSession> getHttpSessions() {
+		return Collections.unmodifiableSet(sessions);
 	}
 }

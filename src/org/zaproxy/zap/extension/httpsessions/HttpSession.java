@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -221,6 +222,17 @@ public class HttpSession {
 	 */
 	public int getTokenValuesCount() {
 		return this.tokenValues.size();
+	}
+
+	/**
+	 * Gets an unmodifiable view of the token values map. . Query operations on the returned map
+	 * "read through" to the specified map, and attempts to modify the returned map, whether direct
+	 * or via its collection views, result in an {@link UnsupportedOperationException}.
+	 * 
+	 * @return the token values unmodifiable map
+	 */
+	public Map<String, String> getTokenValuesUnmodifiableMap() {
+		return Collections.unmodifiableMap(tokenValues);
 	}
 
 	/**

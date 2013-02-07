@@ -39,6 +39,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -145,6 +146,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 
+		//Register the parameters
 		extensionHook.addOptionsParamSet(getParam());
 
 		extensionHook.addSessionListener(this);
@@ -162,6 +164,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuUnsetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 		}
+		
+		//Register as an API implementor
+		HttpSessionsAPI httpSessionsApi=new HttpSessionsAPI(this);
+		API.getInstance().registerApiImplementor(httpSessionsApi);
 	}
 
 	/**
