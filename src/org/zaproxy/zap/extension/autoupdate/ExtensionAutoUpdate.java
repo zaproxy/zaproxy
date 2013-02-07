@@ -183,6 +183,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 											FileCopier fileCopier = new FileCopier();
 											fileCopier.copy(file, targetFile);
 										}
+										// Refresh lists
+										reloadAddOnData();
 									}
 								} else {
 									View.getSingleton().showWarningDialog(
