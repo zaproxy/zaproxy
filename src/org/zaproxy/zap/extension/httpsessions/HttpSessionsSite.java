@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -50,8 +51,8 @@ public class HttpSessionsSite {
 	/** The site. */
 	private String site;
 
-	/** The sessions. */
-	private LinkedHashSet<HttpSession> sessions;
+	/** The sessions as a LinkedHashSet. */
+	private Set<HttpSession> sessions;
 
 	/** The active session. */
 	private HttpSession activeSession;
@@ -90,8 +91,9 @@ public class HttpSessionsSite {
 	 * @param session the session
 	 */
 	public void removeHttpSession(HttpSession session) {
-		if (session == activeSession)
+		if (session == activeSession) {
 			activeSession = null;
+		}
 		this.sessions.remove(session);
 		this.model.removeHttpSession(session);
 		session.invalidate();
@@ -134,24 +136,28 @@ public class HttpSessionsSite {
 	 * @throws IllegalArgumentException If the session provided as parameter is null.
 	 */
 	public void setActiveSession(HttpSession activeSession) {
-		if (log.isInfoEnabled())
+		if (log.isInfoEnabled()) {
 			log.info("Setting new active session for site '" + site + "': " + activeSession);
-		if (activeSession == null)
+		}
+		if (activeSession == null) {
 			throw new IllegalArgumentException(
 					"When settting an active session, a non-null session has to be provided.");
+		}
 
-		if (this.activeSession == activeSession)
+		if (this.activeSession == activeSession) {
 			return;
+		}
 
 		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
 			// If the active session was one with no tokens, delete it, as it will probably not
 			// match anything from this point forward
-			if (this.activeSession.getTokenValuesCount() == 0)
+			if (this.activeSession.getTokenValuesCount() == 0) {
 				this.removeHttpSession(this.activeSession);
-			else
+			} else {
 				// Notify the model that the session is updated
 				model.fireHttpSessionUpdated(this.activeSession);
+			}
 		}
 		this.activeSession = activeSession;
 		activeSession.setActive(true);
@@ -165,18 +171,20 @@ public class HttpSessionsSite {
 	 * @see #setActiveSession(HttpSession)
 	 */
 	public void unsetActiveSession() {
-		if (log.isInfoEnabled())
+		if (log.isInfoEnabled()) {
 			log.info("Setting no active session for site '" + site + "'.");
+		}
 
 		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
 			// If the active session was one with no tokens, delete it, at it will probably not
 			// match anything from this point forward
-			if (this.activeSession.getTokenValuesCount() == 0)
+			if (this.activeSession.getTokenValuesCount() == 0) {
 				this.removeHttpSession(this.activeSession);
-			else
+			} else {
 				// Notify the model that the session is updated
 				model.fireHttpSessionUpdated(this.activeSession);
+			}
 
 			this.activeSession = null;
 		}
@@ -189,9 +197,10 @@ public class HttpSessionsSite {
 		// Generate unique
 		String name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
 				Integer.valueOf(lastGeneratedSessionID++));
-		while (this.getHttpSession(name) != null)
+		while (this.getHttpSession(name) != null) {
 			name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
 					Integer.valueOf(lastGeneratedSessionID++));
+		}
 		HttpSession session = new HttpSession(name);
 		this.addHttpSession(session);
 		this.setActiveSession(session);
@@ -224,8 +233,9 @@ public class HttpSessionsSite {
 		// Get the matching session, based on the request header
 		List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
 		HttpSession session = getMatchingHttpSession(requestCookies, tokensSet);
-		if (log.isDebugEnabled())
+		if (log.isDebugEnabled()) {
 			log.debug("Matching session for request message (for site " + getSite() + "): " + session);
+		}
 
 		// If any session is active (forced), change the necessary cookies
 		if (activeSession != null && activeSession != session) {
@@ -245,11 +255,13 @@ public class HttpSessionsSite {
 					log.debug("Changing value of token '" + cookieName + "' to: " + tokenValue);
 
 					// Change it's value to the one in the active session, if any
-					if (tokenValue != null)
+					if (tokenValue != null) {
 						cookie.setValue(tokenValue);
-					// Or delete it, if the active session does not have a token value
-					else
+
+					}// Or delete it, if the active session does not have a token value
+					else {
 						it.remove();
+					}
 					// Remove the token from the token set so we know what tokens still have to be
 					// added
 					tokensSet.remove(cookieName);
@@ -273,10 +285,11 @@ public class HttpSessionsSite {
 			// Update the cookies in the message
 			message.getRequestHeader().setCookies(requestCookies);
 		} else {
-			if (activeSession == session)
+			if (activeSession == session) {
 				log.debug("Session of request message is the same as the active session, so no request changes needed.");
-			else
+			} else {
 				log.debug("No active session is selected.");
+			}
 
 			// Store the session in the HttpMessage for caching purpose
 			message.setHttpSession(session);
@@ -299,14 +312,15 @@ public class HttpSessionsSite {
 			return;
 		}
 		// Create an auxiliary map of token values and insert keys for every token
-		HashMap<String, String> tokenValues = new HashMap<>();
+		Map<String, String> tokenValues = new HashMap<>();
 
 		// Get new values for tokens, if any
 		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
 		for (HttpCookie cookie : cookiesToSet) {
 			final String lcCookieName = cookie.getName();
-			if (tokensSet.contains(lcCookieName))
+			if (tokensSet.contains(lcCookieName)) {
 				tokenValues.put(lcCookieName, cookie.getValue());
+			}
 		}
 
 		// Get the cookies present in the request
@@ -320,11 +334,13 @@ public class HttpSessionsSite {
 		HttpSession session = message.getHttpSession();
 		if (session == null || !session.isValid()) {
 			session = getMatchingHttpSession(requestCookies, tokensSet);
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Matching session for response message (from site " + getSite() + "): " + session);
+			}
 		} else {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Matching cached session for response message (from site " + getSite() + "): " + session);
+			}
 		}
 
 		// If the session didn't exist, create it now
@@ -336,9 +352,11 @@ public class HttpSessionsSite {
 			// response
 			for (HttpCookie cookie : requestCookies) {
 				String cookieName = cookie.getName();
-				if (tokensSet.contains(cookieName))
-					if (!tokenValues.containsKey(cookieName))
+				if (tokensSet.contains(cookieName)) {
+					if (!tokenValues.containsKey(cookieName)) {
 						tokenValues.put(cookieName, cookie.getValue());
+					}
+				}
 			}
 			log.info("Created a new session as no match was found: " + session);
 		}
@@ -367,24 +385,26 @@ public class HttpSessionsSite {
 	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final Set<String> tokens) {
 
 		// Pre-checks
-		if (sessions.isEmpty())
+		if (sessions.isEmpty()) {
 			return null;
+		}
 
-		LinkedList<HttpSession> matchingSessions = new LinkedList<>(sessions);
+		List<HttpSession> matchingSessions = new LinkedList<>(sessions);
 		for (String token : tokens) {
 			// Get the corresponding cookie from the cookies list
 			HttpCookie matchingCookie = null;
-			for (HttpCookie cookie : cookies)
+			for (HttpCookie cookie : cookies) {
 				if (cookie.getName().equals(token)) {
 					matchingCookie = cookie;
 					break;
 				}
-
+			}
 			// Filter the sessions that do not match the cookie value
 			Iterator<HttpSession> it = matchingSessions.iterator();
 			while (it.hasNext()) {
-				if (!it.next().matchesToken(token, matchingCookie))
+				if (!it.next().matchesToken(token, matchingCookie)) {
 					it.remove();
+				}
 			}
 		}
 
@@ -394,7 +414,7 @@ public class HttpSessionsSite {
 				log.warn("Multiple sessions matching the cookies from response for site: " + getSite()
 						+ ". Using first one.");
 			}
-			return matchingSessions.getFirst();
+			return matchingSessions.get(0);
 		}
 		return null;
 
@@ -412,19 +432,22 @@ public class HttpSessionsSite {
 	 */
 	protected void cleanupSessionToken(String token) {
 		// Empty check
-		if (sessions.isEmpty())
+		if (sessions.isEmpty()) {
 			return;
+		}
 
-		if (log.isDebugEnabled())
+		if (log.isDebugEnabled()) {
 			log.debug("Removing duplicates and cleaning up sessions for site - token: " + site + " - " + token);
+		}
 
 		// If there are no more session tokens, delete all sessions
 		Set<String> siteTokens = extension.getHttpSessionTokens(site);
 		if (siteTokens == null) {
 			log.info("No more session tokens. Removing all sessions...");
 			// Invalidate all sessions
-			for (HttpSession session : this.sessions)
+			for (HttpSession session : this.sessions) {
 				session.invalidate();
+			}
 
 			// Remove all sessions
 			this.sessions.clear();
@@ -434,16 +457,17 @@ public class HttpSessionsSite {
 		}
 
 		// Iterate through all the sessions, eliminate the given token and eliminate any duplicates
-		HashMap<String, HttpSession> uniqueSession = new HashMap<>(sessions.size());
-		LinkedList<HttpSession> toDelete = new LinkedList<>();
+		Map<String, HttpSession> uniqueSession = new HashMap<>(sessions.size());
+		List<HttpSession> toDelete = new LinkedList<>();
 		for (HttpSession session : this.sessions) {
 			// Eliminate the token
 			session.removeToken(token);
 			if (session.getTokenValuesCount() == 0 && !session.isActive()) {
 				toDelete.add(session);
 				continue;
-			} else
+			} else {
 				model.fireHttpSessionUpdated(session);
+			}
 
 			// If there is already a session with these tokens, mark one of them for deletion
 			if (uniqueSession.containsKey(session.getTokenValuesString())) {
@@ -464,8 +488,9 @@ public class HttpSessionsSite {
 		}
 
 		// Delete the duplicate sessions
-		if (log.isInfoEnabled())
+		if (log.isInfoEnabled()) {
 			log.info("Removing duplicate or empty sessions: " + toDelete);
+		}
 		Iterator<HttpSession> it = toDelete.iterator();
 		while (it.hasNext()) {
 			HttpSession ses = it.next();
@@ -516,8 +541,9 @@ public class HttpSessionsSite {
 
 		// Check existing old name
 		HttpSession session = getHttpSession(oldName);
-		if (session == null)
+		if (session == null) {
 			return false;
+		}
 
 		// Check new name uniqueness
 		if (getHttpSession(newName) != null) {

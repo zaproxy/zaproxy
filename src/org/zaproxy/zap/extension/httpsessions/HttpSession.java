@@ -38,7 +38,7 @@ public class HttpSession {
 	private boolean active;
 
 	/** The session tokens' values for this session. */
-	private HashMap<String, String> tokenValues;
+	private Map<String, String> tokenValues;
 
 	/** Whether this session is valid. */
 	private boolean valid;
@@ -104,10 +104,11 @@ public class HttpSession {
 	 * @param value the new value of the token, or null, if the token has to be deleted
 	 */
 	public void setTokenValue(String tokenName, String value) {
-		if (value == null)
+		if (value == null) {
 			tokenValues.remove(tokenName);
-		else
+		} else {
 			tokenValues.put(tokenName, value);
+		}
 	}
 
 	/**
@@ -137,8 +138,9 @@ public class HttpSession {
 
 		// Check the value of the token from the cookie
 		String tokenValue = tokenValues.get(tokenName);
-		if (tokenValue != null && tokenValue.equals(cookie.getValue()))
+		if (tokenValue != null && tokenValue.equals(cookie.getValue())) {
 			return true;
+		}
 		return false;
 	}
 
@@ -162,12 +164,14 @@ public class HttpSession {
 	 * @return the token values string
 	 */
 	public String getTokenValuesString() {
-		if (tokenValues.isEmpty())
+		if (tokenValues.isEmpty()) {
 			return "";
+		}
 		StringBuilder buf = new StringBuilder();
 
-		for (Map.Entry<String, String> entry : tokenValues.entrySet())
+		for (Map.Entry<String, String> entry : tokenValues.entrySet()) {
 			buf.append(entry.getKey()).append('=').append(entry.getValue()).append(';');
+		}
 		buf.deleteCharAt(buf.length() - 1);
 
 		return buf.toString();
@@ -184,18 +188,23 @@ public class HttpSession {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		HttpSession other = (HttpSession) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.name != null) {
 				return false;
-		} else if (!name.equals(other.name))
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
+		}
 		return true;
 	}
 

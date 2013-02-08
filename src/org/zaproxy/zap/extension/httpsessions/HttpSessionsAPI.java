@@ -154,11 +154,12 @@ public class HttpSessionsAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
 			String sname = params.getString(ACTION_PARAM_SESSION);
-			for (HttpSession session : site.getHttpSessions())
+			for (HttpSession session : site.getHttpSessions()) {
 				if (session.getName().equals(sname)) {
 					site.setActiveSession(session);
 					return ApiResponseElement.OK;
 				}
+			}
 			// At this point, the given name does not match any session name
 			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
 		case ACTION_UNSET_ACTIVE_SESSION:
@@ -193,8 +194,8 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
-			if (site.renameHttpSession(params.getString(ACTION_PARAM_SESSION_OLD_NAME),
-					params.getString(ACTION_PARAM_SESSION_NEW_NAME)) == false) {
+			if (!site.renameHttpSession(params.getString(ACTION_PARAM_SESSION_OLD_NAME),
+					params.getString(ACTION_PARAM_SESSION_NEW_NAME))) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						Constant.messages.getString("httpsessions.api.error.rename"));
 			}
@@ -261,10 +262,11 @@ public class HttpSessionsAPI extends ApiImplementor {
 				log.debug("API View for active session for " + params.getString(VIEW_PARAM_SITE) + ": " + site);
 			}
 
-			if (site.getActiveSession() != null)
+			if (site.getActiveSession() != null) {
 				return new ApiResponseElement("active_session", site.getActiveSession().getName());
-			else
+			} else {
 				return new ApiResponseElement("active_session", "");
+			}
 		case VIEW_SESSION_TOKENS:
 			// Get session tokens
 			Set<String> tokens = extension.getHttpSessionTokens(params.getString(VIEW_PARAM_SITE));

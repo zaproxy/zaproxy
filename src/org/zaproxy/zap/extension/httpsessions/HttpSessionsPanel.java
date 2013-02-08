@@ -171,8 +171,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					HttpSessionsSite site = getCurrentHttpSessionSite();
-					if (site != null)
+					if (site != null) {
 						site.createEmptySession();
+					}
 				}
 			});
 
@@ -413,8 +414,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 * @return the current http session site, or null if no HttpSessionSite is selected
 	 */
 	public HttpSessionsSite getCurrentHttpSessionSite() {
-		if (currentSite == null)
+		if (currentSite == null) {
 			return null;
+		}
 		return extension.getHttpSessionsSite(currentSite);
 	}
 
