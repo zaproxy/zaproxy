@@ -124,9 +124,21 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		Session session = Model.getSingleton().getSession();
 
 		if (ACTION_SHUTDOWN.equals(name)) {
-			Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-			log.info(Constant.PROGRAM_TITLE + " terminated.");
-			System.exit(0);
+			Thread thread = new Thread() {
+				@Override
+				public void run() {
+					try {
+						// Give the API a chance to return
+						sleep(1000);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+					Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+					log.info(Constant.PROGRAM_TITLE + " terminated.");
+					System.exit(0);
+				}
+			};
+			thread.start();
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			String sessionName = params.getString(PARAM_SESSION);
