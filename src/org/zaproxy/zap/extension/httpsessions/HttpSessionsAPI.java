@@ -29,6 +29,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 	/** The action of creating a new empty session for a site and turns it active. */
 	private static final String ACTION_CREATE_EMPTY_SESSION = "createEmptySession";
 
+	/** The action of deleting an existing session. */
+	private static final String ACTION_REMOVE_SESSION = "removeSession";
+
 	/** The action of setting a new active session for a site. */
 	private static final String ACTION_SET_ACTIVE_SESSION = "setActiveSession";
 
@@ -94,6 +97,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 		// Register the actions
 		this.addApiAction(new ApiAction(ACTION_CREATE_EMPTY_SESSION, new String[] { ACTION_PARAM_SITE }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_SESSION, new String[] { ACTION_PARAM_SITE, ACTION_PARAM_SESSION }));
 		this.addApiAction(new ApiAction(ACTION_SET_ACTIVE_SESSION, new String[] { ACTION_PARAM_SITE,
 				ACTION_PARAM_SESSION }));
 		this.addApiAction(new ApiAction(ACTION_UNSET_ACTIVE_SESSION, new String[] { ACTION_PARAM_SITE }));
@@ -132,6 +136,17 @@ public class HttpSessionsAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
 			site.createEmptySession();
+			return ApiResponseElement.OK;
+		case ACTION_REMOVE_SESSION:
+			site = extension.getHttpSessionsSite(params.getString(ACTION_PARAM_SITE), false);
+			if (site == null) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
+			}
+			HttpSession sessionRS = site.getHttpSession(params.getString(ACTION_PARAM_SESSION));
+			if (sessionRS == null) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
+			}
+			site.removeHttpSession(sessionRS);
 			return ApiResponseElement.OK;
 		case ACTION_SET_ACTIVE_SESSION:
 			site = extension.getHttpSessionsSite(params.getString(ACTION_PARAM_SITE), false);
