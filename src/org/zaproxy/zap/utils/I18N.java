@@ -36,6 +36,15 @@ public class I18N {
     	addonMessages.put(prefix, bundle);
     }
     
+    public void removeMessageBundle(String prefix) {
+        logger.debug("Removing message bundle with prefix: " + prefix);
+        if (addonMessages.containsKey(prefix)) {
+            addonMessages.remove(prefix);
+        } else {
+            logger.debug("Message bundle not found, prefix: " + prefix);
+        }
+    }
+    
     public ResourceBundle getMessageBundle(String prefix) {
     	return this.addonMessages.get(prefix);
     }

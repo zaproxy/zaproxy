@@ -240,6 +240,8 @@ public class ExtensionFactory {
     
     public static void unloadAddOnExtension(Extension extension) {
         synchronized (mapAllExtension) {
+            unloadMessages(extension);
+            
             mapAllExtension.remove(extension.getName());
             listAllExtension.remove(extension);
             boolean isUnordered = true;
@@ -253,6 +255,13 @@ public class ExtensionFactory {
             if (isUnordered) {
                 unorderedExtensions.remove(extension);
             }
+        }
+    }
+    
+    private static void unloadMessages(Extension extension) {
+        ResourceBundle msg = extension.getMessages();
+        if (msg != null) {
+            Constant.messages.removeMessageBundle(extension.getI18nPrefix());
         }
     }
     
