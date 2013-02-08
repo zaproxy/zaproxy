@@ -22,6 +22,7 @@ package org.zaproxy.zap.control;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -210,24 +211,23 @@ public class ExtensionFactory {
 	 * with existing help files.
 	 */
     private static void intitializeHelpSet(Extension ext) {
-		// check if there are compiled help files
-		URL helpFileCompiled = ext.getClass().getResource("resource/help/JavaHelpSearch");
-		if (helpFileCompiled != null) {
-			// load the helpset
-			URL helpFile = ext.getClass().getResource("resource/help/helpset.hs");
-			if (helpFile != null) {
-				HelpSet extHs;
-				try {
-					log.info("Load help files for extension '" + ext.getName() + "' and merge with core help.");
-					extHs = new HelpSet(ext.getClass().getClassLoader(), helpFile);
-					HelpBroker hb = ExtensionHelp.getHelpBroker();
-					hb.getHelpSet().add(extHs);
-				} catch (HelpSetException e) {
-					log.error("An error occured while adding help file of extension '" + ext.getName() + "': " + e.getMessage(), e);
-				}
+		URL helpSetUrl = getExtensionHelpSetUrl(ext);
+		if (helpSetUrl != null) {
+			try {
+				log.debug("Load help files for extension '" + ext.getName() + "' and merge with core help.");
+				HelpSet extHs = new HelpSet(ext.getClass().getClassLoader(), helpSetUrl);
+				HelpBroker hb = ExtensionHelp.getHelpBroker();
+				hb.getHelpSet().add(extHs);
+			} catch (HelpSetException e) {
+				log.error("An error occured while adding help file of extension '" + ext.getName() + "': " + e.getMessage(), e);
 			}
 		}
 	}
+    
+    private static URL getExtensionHelpSetUrl(Extension extension) {
+        String helpSetLocation = extension.getClass().getPackage().getName().replaceAll("\\.", "/") + "/resource/help/helpset.hs";
+        return HelpSet.findHelpSet(extension.getClass().getClassLoader(), helpSetLocation);
+    }
     
 	public static List<Extension> getAllExtensions() {
         return listAllExtension;
@@ -241,6 +241,7 @@ public class ExtensionFactory {
     public static void unloadAddOnExtension(Extension extension) {
         synchronized (mapAllExtension) {
             unloadMessages(extension);
+            unloadHelpSet(extension);
             
             mapAllExtension.remove(extension.getName());
             listAllExtension.remove(extension);
@@ -262,6 +263,21 @@ public class ExtensionFactory {
         ResourceBundle msg = extension.getMessages();
         if (msg != null) {
             Constant.messages.removeMessageBundle(extension.getI18nPrefix());
+        }
+    }
+    
+    private static void unloadHelpSet(Extension ext) {
+        URL helpSetUrl = getExtensionHelpSetUrl(ext);
+        if (helpSetUrl != null) {
+            HelpSet baseHelpSet = ExtensionHelp.getHelpBroker().getHelpSet();
+            Enumeration<?> helpSets = baseHelpSet.getHelpSets();
+            while (helpSets.hasMoreElements()) {
+                HelpSet extensionHelpSet = (HelpSet) helpSets.nextElement();
+                if (helpSetUrl.equals(extensionHelpSet.getHelpSetURL())) {
+                    baseHelpSet.remove(extensionHelpSet);
+                    break;
+                }
+            }
         }
     }
     
