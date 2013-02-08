@@ -303,11 +303,16 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Checks if a particular token is a session token name for a particular site.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @param token the token
 	 * @return true, if it is session token
 	 */
 	public boolean isSessionToken(String site, String token) {
+		// Add a default port
+		if (!site.contains(":")) {
+			site = site + (":80");
+		}
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null)
 			return false;
@@ -318,10 +323,15 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Adds a new session token for a particular site.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @param token the token
 	 */
 	public void addHttpSessionToken(String site, String token) {
+		// Add a default port
+		if (!site.contains(":")) {
+			site = site + (":80");
+		}
 		LinkedHashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens == null) {
 			siteTokens = new LinkedHashSet<>();
@@ -346,13 +356,18 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * </p>
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @param token the token
 	 */
 	public void removeHttpSessionToken(String site, String token) {
+		// Add a default port
+		if (!site.contains(":")) {
+			site = site + (":80");
+		}
 		HashSet<String> siteTokens = sessionTokens.get(site);
 		if (siteTokens != null) {
-			// Remove the tokens from the tokens associated with the site
+			// Remove the token from the tokens associated with the site
 			siteTokens.remove(token);
 			if (siteTokens.isEmpty())
 				sessionTokens.remove(site);
@@ -376,11 +391,16 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * </p>
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @return the read-only session tokens set, if any have been set, or null, if there are no
 	 *         session tokens for this site
 	 */
 	public final Set<String> getHttpSessionTokens(String site) {
+		// Add a default port
+		if (!site.contains(":")) {
+			site = site + (":80");
+		}
 		Set<String> internalSet = sessionTokens.get(site);
 		if (internalSet == null)
 			return null;
@@ -403,7 +423,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * Gets the http sessions for a particular site. If it doesn't exist, it is created.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @return the http sessions site container
 	 */
 	protected HttpSessionsSite getHttpSessionsSite(String site) {
@@ -415,7 +436,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * does not exist is defined by the {@code createIfNeeded} parameter.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
-	 *            {@link ExtensionHttpSessions} class documentation.
+	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
+	 *            missing, a default protocol of 80 is used.
 	 * @param createIfNeeded whether a new {@link HttpSessionsSite} object is created if one does
 	 *            not exist
 	 * @return the http sessions site container, or null one does not exist and createIfNeeded is
@@ -427,6 +449,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			if (!createIfNeeded)
 				return null;
 			sessions = new HashMap<>();
+		}
+		// Add a default port
+		if (!site.contains(":")) {
+			site = site + (":80");
 		}
 		HttpSessionsSite hss = sessions.get(site);
 		if (hss == null) {
