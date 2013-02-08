@@ -24,28 +24,28 @@ public class HttpSessionsAPI extends ApiImplementor {
 	private static final Logger log = Logger.getLogger(HttpSessionsAPI.class);
 
 	/** The Constant PREFIX defining the name/prefix of the api. */
-	private static final String PREFIX = "http_sessions";
+	private static final String PREFIX = "httpSessions";
 
 	/** The action of creating a new empty session for a site and turns it active. */
-	private static final String ACTION_CREATE_EMPTY_SESSION = "create_empty_session";
+	private static final String ACTION_CREATE_EMPTY_SESSION = "createEmptySession";
 
 	/** The action of setting a new active session for a site. */
-	private static final String ACTION_SET_ACTIVE_SESSION = "set_active_session";
+	private static final String ACTION_SET_ACTIVE_SESSION = "setActiveSession";
 
 	/** The action of adding a new session token for a site. */
-	private static final String ACTION_ADD_SESSION_TOKEN = "add_session_token";
+	private static final String ACTION_ADD_SESSION_TOKEN = "addSessionToken";
 
 	/** The action of removing session token for a site. */
-	private static final String ACTION_REMOVE_SESSION_TOKEN = "remove_session_token";
+	private static final String ACTION_REMOVE_SESSION_TOKEN = "removeSessionToken";
 
 	/** The action of unsetting a session as active for a site. */
-	private static final String ACTION_UNSET_ACTIVE_SESSION = "unset_active_session";
+	private static final String ACTION_UNSET_ACTIVE_SESSION = "unsetActiveSession";
 
 	/** The action of setting the value for a session token for a particular session. */
-	private static final String ACTION_SET_SESSION_TOKEN = "set_session_token_value";
+	private static final String ACTION_SET_SESSION_TOKEN = "setSessionTokenValue";
 
 	/** The action of renaming a session. */
-	private static final String ACTION_RENAME_SESSION = "rename_session";
+	private static final String ACTION_RENAME_SESSION = "renameSession";
 
 	/** The mandatory parameter required for identifying a site to which an action refers. */
 	private static final String ACTION_PARAM_SITE = "site";
@@ -54,25 +54,25 @@ public class HttpSessionsAPI extends ApiImplementor {
 	private static final String ACTION_PARAM_SESSION = "session";
 
 	/** The mandatory parameter required for identifying a session for renaming. */
-	private static final String ACTION_PARAM_SESSION_OLD_NAME = "old_session_name";
+	private static final String ACTION_PARAM_SESSION_OLD_NAME = "oldSessionName";
 
 	/** The mandatory parameter required for renaming a session. */
-	private static final String ACTION_PARAM_SESSION_NEW_NAME = "new_session_name";
+	private static final String ACTION_PARAM_SESSION_NEW_NAME = "newSessionName";
 
 	/** The mandatory parameter required for identifying a session token to which an action refers. */
-	private static final String ACTION_PARAM_TOKEN_NAME = "session_token";
+	private static final String ACTION_PARAM_TOKEN_NAME = "sessionToken";
 
 	/** The mandatory parameter required for setting the value of a session token. */
-	private static final String ACTION_PARAM_TOKEN_VALUE = "token_value";
+	private static final String ACTION_PARAM_TOKEN_VALUE = "tokenValue";
 
 	/** The view which describes the current existing sessions for a site. */
 	private static final String VIEW_SESSIONS = "sessions";
 
 	/** The view which describes the current active session for a site. */
-	private static final String VIEW_ACTIVE_SESSION = "active_session";
+	private static final String VIEW_ACTIVE_SESSION = "activeSession";
 
 	/** The view which describes which are the session tokens for a particular site. */
-	private static final String VIEW_SESSION_TOKENS = "session_tokens";
+	private static final String VIEW_SESSION_TOKENS = "sessionTokens";
 
 	/** The mandatory parameter required for viewing data regarding a particular site. */
 	private static final String VIEW_PARAM_SITE = "site";
@@ -247,9 +247,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 			}
 
 			if (site.getActiveSession() != null)
-				return new ApiResponseElement("active_sesion", site.getActiveSession().getName());
+				return new ApiResponseElement("active_session", site.getActiveSession().getName());
 			else
-				return new ApiResponseElement("active_sesion", "");
+				return new ApiResponseElement("active_session", "");
 		case VIEW_SESSION_TOKENS:
 			// Get session tokens
 			Set<String> tokens = extension.getHttpSessionTokens(params.getString(VIEW_PARAM_SITE));

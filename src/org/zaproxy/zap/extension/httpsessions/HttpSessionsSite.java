@@ -140,6 +140,9 @@ public class HttpSessionsSite {
 			throw new IllegalArgumentException(
 					"When settting an active session, a non-null session has to be provided.");
 
+		if (this.activeSession == activeSession)
+			return;
+
 		if (this.activeSession != null) {
 			this.activeSession.setActive(false);
 			// If the active session was one with no tokens, delete it, as it will probably not
