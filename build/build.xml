@@ -465,9 +465,9 @@
 
         <!-- SVN destroys the JRE directory, therefore we have to use this ugly fix in order to include a proper JRE -->
         <exec dir="${app.plugins}" executable="unzip" spawn="false" failonerror="true">
-            <arg line=" jdk1.7.0_11.jre.zip" />
+            <arg line=" jdk1.7.0_13.jre.zip" />
         </exec>
-        <delete file="${app.plugins}/jdk1.7.0_11.jre.zip" />
+        <delete file="${app.plugins}/jdk1.7.0_13.jre.zip" />
 
         <replace dir="${app.bundle}" summary="true" encoding="UTF-8">
             <include name="**/Info.plist" />
