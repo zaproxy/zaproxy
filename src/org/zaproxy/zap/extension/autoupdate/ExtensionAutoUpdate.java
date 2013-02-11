@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -174,26 +175,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							if (file == null) {
 								return;
 							}
-							if (AddOn.isAddOn(file)) {
-								AddOn ao = new AddOn(file);
-								if (ao.canLoad()) {
-									if (install(ao)) {
-										File targetFile = new File(Constant.FOLDER_LOCAL_PLUGIN, file.getName());
-										if (!targetFile.exists()) {
-											FileCopier fileCopier = new FileCopier();
-											fileCopier.copy(file, targetFile);
-										}
-										// Refresh lists
-										reloadAddOnData();
-									}
-								} else {
-									View.getSingleton().showWarningDialog(
-											MessageFormat.format(
-													Constant.messages.getString("cfu.warn.cantload"), 
-													ao.getNotBeforeVersion(),
-													ao.getNotFromVersion()));
-								}
-							}
+							installLocalAddOn(file);
 						}
 					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
@@ -202,6 +184,86 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			});
 		}
 		return menuItemLoadAddOn;
+	}
+	
+	private void installLocalAddOn(File file) throws Exception {
+		if (!AddOn.isAddOn(file)) {
+			showWarningMessageInvalidAddOnFile();
+			return;
+		}
+
+		AddOn ao = new AddOn(file);
+		if (!ao.canLoad()) {
+			showWarningMessageCantLoadAddOn(ao);
+			return;
+		}
+
+		File addOnFile = file;
+		try {
+			addOnFile = copyAddOnFileToLocalPluginFolder(file);
+		} catch (FileAlreadyExistsException e) {
+			showWarningMessageAddOnFileAlreadyExists(e.getFile(), e.getOtherFile());
+			logger.warn("Unable to copy add-on, a file with the same name already exists.", e);
+			return;
+		} catch (IOException e) {
+			showWarningMessageUnableToCopyAddOnFile();
+			logger.warn("Unable to copy add-on to local plugin folder.", e);
+			return;
+		}
+
+		ao.setFile(addOnFile);
+
+		if (install(ao)) {
+			// Refresh lists
+			reloadAddOnData();
+		}
+	}
+
+	private void showWarningMessageInvalidAddOnFile() {
+		View.getSingleton().showWarningDialog(Constant.messages.getString("cfu.warn.invalidAddOn"));
+	}
+
+	private void showWarningMessageCantLoadAddOn(AddOn ao) {
+		String message = MessageFormat.format(
+				Constant.messages.getString("cfu.warn.cantload"),
+				ao.getNotBeforeVersion(),
+				ao.getNotFromVersion());
+		View.getSingleton().showWarningDialog(message);
+	}
+
+	private File copyAddOnFileToLocalPluginFolder(File file) throws IOException {
+		if (isFileInLocalPluginFolder(file)) {
+			return file;
+		}
+
+		File targetFile = new File(Constant.FOLDER_LOCAL_PLUGIN, file.getName());
+		if (targetFile.exists()) {
+			throw new FileAlreadyExistsException(file.getAbsolutePath(), targetFile.getAbsolutePath(), "");
+		}
+
+		FileCopier fileCopier = new FileCopier();
+		fileCopier.copy(file, targetFile);
+
+		return targetFile;
+	}
+
+	private boolean isFileInLocalPluginFolder(File file) {
+		File fileLocalPluginFolder = new File(Constant.FOLDER_LOCAL_PLUGIN, file.getName());
+		if (fileLocalPluginFolder.getAbsolutePath().equals(file.getAbsolutePath())) {
+			return true;
+		}
+		return false;
+	}
+
+	private void showWarningMessageAddOnFileAlreadyExists(String file, String targetFile) {
+		String message = MessageFormat.format(Constant.messages.getString("cfu.warn.addOnAlreadExists"), file, targetFile);
+		View.getSingleton().showWarningDialog(message);
+	}
+
+	private void showWarningMessageUnableToCopyAddOnFile() {
+		String pathPluginFolder = new File(Constant.FOLDER_LOCAL_PLUGIN).getAbsolutePath();
+		String message = MessageFormat.format(Constant.messages.getString("cfu.warn.unableToCopyAddOn"), pathPluginFolder);
+		View.getSingleton().showWarningDialog(message);
 	}
 
 	private List <AddOnWrapper> getInstalledAddOns() {
