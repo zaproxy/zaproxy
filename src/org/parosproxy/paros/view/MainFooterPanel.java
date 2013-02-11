@@ -221,6 +221,10 @@ public class MainFooterPanel extends JPanel {
     	this.footerToolbarRight.add(label);
     }
     
+    public void removeFooterToolbarRightLabel (JLabel label) {
+        this.footerToolbarRight.remove(label);
+    }
+    
     //FIXME Still needed?
     public void addFooterSeparator () {
         this.footerToolbarRight.addSeparator();
