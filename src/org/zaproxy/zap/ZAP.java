@@ -205,6 +205,8 @@ public class ZAP {
 
 		if (isGUI) {
 
+			View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
+
 		    // Prompt for language if not set
 			String locale = Model.getSingleton().getOptionsParam().getViewParam().getConfigLocale();
 		    if (locale == null || locale.length() == 0) {
@@ -229,7 +231,6 @@ public class ZAP {
 				dialog.setVisible(true);
 		    }
 
-		    View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 		    runGUI();
 		    
 
