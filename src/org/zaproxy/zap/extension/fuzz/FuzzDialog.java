@@ -59,6 +59,8 @@ public abstract class FuzzDialog extends AbstractDialog {
 
     private JList<String> fuzzersField = null;
     
+    private JLabel fuzzDescriptionLabel = null;
+    private JLabel fuzzTargetLabel = null;
 	private JLabel selectionField = null;
 
     private JButton cancelButton = null;
@@ -102,7 +104,9 @@ public abstract class FuzzDialog extends AbstractDialog {
 			
 			int currentRow = 0;
 			
-			jPanel.add(new JLabel(Constant.messages.getString("fuzz.label.selection")), getGBC(0, currentRow, 1, 0.25D));
+			jPanel.add(getFuzzDescriptionLabel(), getGBC(0, currentRow, GridBagConstraints.REMAINDER, 1.0D));
+			currentRow++;
+			jPanel.add(getFuzzTargetLabel(), getGBC(0, currentRow, 1, 0.25D));
 			jPanel.add(getSelectionField(), getGBC(1, currentRow, 3, 0.0D));
 			currentRow++;
 			
@@ -228,6 +232,20 @@ public abstract class FuzzDialog extends AbstractDialog {
 		}
 	}
 	
+	private JLabel getFuzzTargetLabel() {
+		if (fuzzTargetLabel == null) {
+			fuzzTargetLabel = new JLabel();
+		}
+		return fuzzTargetLabel;
+	}
+	
+	private JLabel getFuzzDescriptionLabel() {
+		if (fuzzDescriptionLabel == null) {
+			fuzzDescriptionLabel = new JLabel();
+		}
+		return fuzzDescriptionLabel;
+	}
+	
 	private JLabel getSelectionField() {
 		if (selectionField == null) {
 			selectionField = new JLabel();
@@ -252,10 +270,19 @@ public abstract class FuzzDialog extends AbstractDialog {
 	}
 
 	protected void setSelection(String fuzzTarget) {
-        if (fuzzTarget.length() > selectionFieldLength) {
-            getSelectionField().setText(fuzzTarget.substring(0, selectionFieldLength) + "...");
+        final int length = fuzzTarget.length();
+        if (length == 0) {
+            getSelectionField().setText("");
+            getFuzzTargetLabel().setText("");
+            getFuzzDescriptionLabel().setText(Constant.messages.getString("fuzz.label.insertFuzzStrings"));
         } else {
-            getSelectionField().setText(fuzzTarget);
+            getFuzzDescriptionLabel().setText("");
+            getFuzzTargetLabel().setText(Constant.messages.getString("fuzz.label.selection"));
+            if (length > selectionFieldLength) {
+                getSelectionField().setText(fuzzTarget.substring(0, selectionFieldLength) + "...");
+            } else {
+                getSelectionField().setText(fuzzTarget);
+            }
         }
 	}
 	

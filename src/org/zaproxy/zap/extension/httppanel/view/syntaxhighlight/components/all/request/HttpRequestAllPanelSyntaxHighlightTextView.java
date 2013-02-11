@@ -32,6 +32,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.Request
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
+import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
@@ -57,8 +58,19 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 		
 		private static RequestAllTokenMakerFactory tokenMakerFactory = null;
 
+		private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
+		
 		public HttpRequestAllPanelSyntaxHighlightTextArea() {
 			//addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
+		
+			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+		}
+		
+		@Override
+		public void setMessage(Message aMessage) {
+			super.setMessage(aMessage);
+			
+			caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
 		}
 		
 	    @Override
@@ -118,22 +130,21 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 
 		@Override
 		public boolean canFuzz() {
+			if (getMessage() == null) {
+				return false;
+			}
+			
 			//Currently do not allow to fuzz if the text area is editable, because the HttpMessage used is not updated with the changes.
-			if (isEditable()) {
-				return false;
-			}
-			
-			final String selectedText = getSelectedText();
-			if (selectedText == null || selectedText.isEmpty()) {
-				return false;
-			}
-			
-			return true;
+			return !isEditable();
 		}
 		
 		@Override
 		public String getFuzzTarget() {
-			return getSelectedText();
+			final String selectedText = getSelectedText();
+			if (selectedText != null) {
+				return selectedText;
+			}
+			return "";
 		}
 		
 		@Override
