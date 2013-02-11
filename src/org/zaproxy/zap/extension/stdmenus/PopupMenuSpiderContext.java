@@ -26,7 +26,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class PopupMenuSpiderContext.
  */
