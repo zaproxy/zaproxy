@@ -837,6 +837,12 @@ public abstract class ScanPanel extends AbstractPanel {
 		return this.currentSite;
 	}
 
+	protected void unload() {
+		if (View.isInitialised()) {
+			View.getSingleton().getMainFrame().getMainFooterPanel().removeFooterToolbarRightLabel(scanStatus.getCountLabel());
+		}
+	}
+
     protected abstract Component getWorkPanel();
 	
 	protected abstract void switchView (String site);
