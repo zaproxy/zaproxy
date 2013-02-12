@@ -219,10 +219,12 @@ public class MainFooterPanel extends JPanel {
 	// Support for dynamic scanning results in the footer
     public void addFooterToolbarRightLabel (JLabel label) {
     	this.footerToolbarRight.add(label);
+    	this.validate();
     }
     
     public void removeFooterToolbarRightLabel (JLabel label) {
         this.footerToolbarRight.remove(label);
+        this.validate();
     }
     
     //FIXME Still needed?
