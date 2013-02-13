@@ -146,7 +146,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         // Wont need to do this if/when this class is changed to extend ScanPanel
         scanStatus = new ScanStatus(
         				new ImageIcon(
-        					BruteForcePanel.class.getResource("/resource/icon/16/086.png")),
+        					BruteForcePanel.class.getResource(ExtensionBruteForce.HAMMER_ICON_RESOURCE)),
         					Constant.messages.getString("bruteforce.panel.title"));
        
         if (View.isInitialised()) {
