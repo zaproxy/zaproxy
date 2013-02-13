@@ -1,0 +1,36 @@
+table {
+	border-width: 2px;
+	border-spacing: 0px;
+	border-style: solid;
+	border-color: gray;
+	border-collapse: collapse;
+	background-color: white;
+}
+table th {
+	border-width: 1px;
+	padding: 5px;
+	border-style: dashed;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+	font-weight: bold;
+}
+table td {
+	border-width: 1px;
+	padding: 5px;
+	border-style: dashed;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table td.passed {
+	color: green;
+	font-weight: bold;
+}
+table td.failed {
+	color: red;
+	font-weight: bold;
+}
+table th.tname {
+	width: 600px;
+}
