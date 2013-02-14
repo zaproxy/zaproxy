@@ -175,9 +175,7 @@ public class AddOnLoader extends URLClassLoader {
     				" Version=" + Constant.PROGRAM_VERSION);
     	}
     	if (this.aoc.addAddOn(ao)) {
-            try {
                 addAddOnFile(ao);
-            	this.addURL(ao.getFile().toURI().toURL());
             	
             	if (this.blockList.contains(ao.getId())) {
             		// Explicitly being added back, so remove from the block list
@@ -228,12 +226,13 @@ public class AddOnLoader extends URLClassLoader {
 	    			List<String> fileNames = ao.getFiles();
 
 	    			if (fileNames != null && fileNames != null) {
+	    				URLClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
 	    				for (String name : fileNames) {
 							File outfile = null;
 	    					logger.debug("Install file: " + name);
 	    					try {
 								outfile = new File(Constant.getZapHome(), name);
-								InputStream in = ExtensionFactory.getAddOnLoader().getResourceAsStream(name);
+								InputStream in = addOnClassLoader.getResourceAsStream(name);
 								if ( ! outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
 		    						logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
 									continue;
@@ -255,9 +254,6 @@ public class AddOnLoader extends URLClassLoader {
 
         		}
 
-			} catch (MalformedURLException e) {
-	    		logger.error(e.getMessage(), e);
-			}
     	}
     }
     
