@@ -106,7 +106,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
                 } catch (Exception e1) {
                 	log.warn(e1.getStackTrace(), e1);
-                    extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
+                    extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath());
                 } finally {
             	    try {
             	        fw.close();
@@ -129,25 +129,27 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
             return;
         }
         try {
-        	HttpMessage msg = node.getHistoryReference().getHttpMessage();
         	if (node.getHistoryReference() != null &&
         			(node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_MANUAL ||
-        					node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER) &&
-        			msg != null && msg.getRequestHeader() != null &&
+        					node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER)) {
+        		
+        	 	HttpMessage msg = node.getHistoryReference().getHttpMessage();
+    			if (msg != null && msg.getRequestHeader() != null &&
         			msg.getRequestHeader().getURI() != null) {
 
-        		writer.write(msg.getRequestHeader().getMethod());
-        		writer.write("\t");
-        		if (html) {
-            		writer.write("<a href=\"");
-        			writer.write(msg.getRequestHeader().getURI().toString());
-            		writer.write("\">");
-        			writer.write(msg.getRequestHeader().getURI().toString());
-            		writer.write("</a><br>");
-        		} else {
-        			writer.write(msg.getRequestHeader().getURI().toString());
-        		}
-        		writer.write(CRLF);
+            		writer.write(msg.getRequestHeader().getMethod());
+            		writer.write("\t");
+            		if (html) {
+                		writer.write("<a href=\"");
+            			writer.write(msg.getRequestHeader().getURI().toString());
+                		writer.write("\">");
+            			writer.write(msg.getRequestHeader().getURI().toString());
+                		writer.write("</a><br>");
+            		} else {
+            			writer.write(msg.getRequestHeader().getURI().toString());
+            		}
+            		writer.write(CRLF);
+    			}
         	}
 			
 		} catch (HttpMalformedHeaderException e) {
