@@ -52,16 +52,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private JPanel panelContent;
 	private BreakPanelToolbarFactory breakToolbarFactory;
 
-	public BreakPanel() {
+	public BreakPanel(BreakpointsParam breakpointsParams) {
 		super();
-		initialize();
-	}
-	
-	private void initialize() {
+		
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new BorderLayout());
 
-		breakToolbarFactory = new BreakPanelToolbarFactory(this);
+		breakToolbarFactory = new BreakPanelToolbarFactory(breakpointsParams, this);
 
 		panelContent = new JPanel(new CardLayout());
 		this.add(panelContent, BorderLayout.CENTER);

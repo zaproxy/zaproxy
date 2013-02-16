@@ -6,11 +6,14 @@ import java.util.LinkedList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
+import org.parosproxy.paros.view.View;
 
 // Button notes
 // BreakRequest button, if set all requests trapped
@@ -38,13 +41,13 @@ public class BreakPanelToolbarFactory {
 	private boolean isBreakResponse = false;
 	
 	private BreakPanel breakPanel = null;
-
 	
-	public BreakPanelToolbarFactory() {
+	private BreakpointsParam breakpointsParams;
 
-	}
+	public BreakPanelToolbarFactory(BreakpointsParam breakpointsParams, BreakPanel breakPanel) {
+		super();
 
-	public BreakPanelToolbarFactory(BreakPanel breakPanel) {
+		this.breakpointsParams = breakpointsParams;
 		this.breakPanel = breakPanel;
 	}
 
@@ -129,6 +132,9 @@ public class BreakPanelToolbarFactory {
 		btnDrop.addActionListener(new ActionListener() { 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (breakpointsParams.isConfirmDropMessage() && askForDropConfirmation() != JOptionPane.OK_OPTION) {
+					return;
+				}
 				toBeDropped = true;
 				setContinue(true);
 			}
@@ -141,7 +147,25 @@ public class BreakPanelToolbarFactory {
 		return btnDrop;
 	}
 	
-	    
+	private int askForDropConfirmation() {
+		String title = Constant.messages.getString("brk.dialogue.confirmDropMessage.title");
+		String message = Constant.messages.getString("brk.dialogue.confirmDropMessage.message");
+		JCheckBox checkBox = new JCheckBox(Constant.messages.getString("brk.dialogue.confirmDropMessage.option.dontAskAgain"));
+		String confirmButtonLabel = Constant.messages.getString("brk.dialogue.confirmDropMessage.button.confirm.label");
+		String cancelButtonLabel = Constant.messages.getString("brk.dialogue.confirmDropMessage.button.cancel.label");
+		
+		int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(),
+				new Object[]  {message, " ", checkBox}, title,
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, new String[] { confirmButtonLabel, cancelButtonLabel}, null);
+		
+		if (checkBox.isSelected()) {
+			breakpointsParams.setConfirmDropMessage(false);
+		}
+		
+		return option;
+	}
+	
 	public JToggleButton getBtnBreakRequest() {
 		JToggleButton btnBreakRequest;
 

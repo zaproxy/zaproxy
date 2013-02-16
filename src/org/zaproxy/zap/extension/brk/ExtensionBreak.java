@@ -67,6 +67,10 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     
 	private Mode mode = Control.getSingleton().getMode();
 	
+	private BreakpointsParam breakpointsParams;
+	
+	private BreakpointsOptionsPanel breakpointsOptionsPanel;
+	
     public ExtensionBreak() {
         super();
  		initialize();
@@ -86,7 +90,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	    
 	public BreakPanel getBreakPanel() {
 		if (breakPanel == null) {
-		    breakPanel = new BreakPanel();
+		    breakPanel = new BreakPanel(getOptionsParam());
 		    breakPanel.setName(Constant.messages.getString("tab.break"));
 		}
 		return breakPanel;
@@ -95,12 +99,16 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+	    
+	    extensionHook.addOptionsParamSet(getOptionsParam());
+	    
 	    if (getView() != null) {
 	        breakpointMessageHandler = new BreakpointMessageHandler(getBreakPanel());
 	        breakpointMessageHandler.setEnabledBreakpoints(getBreakpointsModel().getBreakpointsEnabledList());
 	        
 	        ExtensionHookView pv = extensionHook.getHookView();
 	        pv.addWorkPanel(getBreakPanel());
+	        pv.addOptionPanel(getOptionsPanel());
 	        
             extensionHook.getHookMenu().addAnalyseMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 
@@ -122,6 +130,20 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
 	    	ExtensionHelp.enableHelpKey(getBreakpointsPanel(), "ui.tabs.breakpoints");
 	    }
+	}
+	
+	private BreakpointsParam getOptionsParam() {
+		if (breakpointsParams == null) {
+			breakpointsParams = new BreakpointsParam();
+		}
+		return breakpointsParams;
+	}
+	
+	private BreakpointsOptionsPanel getOptionsPanel() {
+		if (breakpointsOptionsPanel == null) {
+			breakpointsOptionsPanel = new BreakpointsOptionsPanel();
+		}
+		return breakpointsOptionsPanel;
 	}
 	
 	private BreakpointsPanel getBreakpointsPanel() {
