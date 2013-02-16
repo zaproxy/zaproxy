@@ -330,7 +330,7 @@ public class ConnectionParam extends AbstractParam {
         
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_AUTHS_KEY);
         
-        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(listAuth);
+        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(listAuth.size());
         for (int i = 0, size = listAuth.size(); i < size; ++i) {
             String elementBaseKey = ALL_AUTHS_KEY + "(" + i + ").";
             HostAuthentication auth = listAuth.get(i);
