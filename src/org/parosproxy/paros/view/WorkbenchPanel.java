@@ -19,10 +19,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/05/31 Added option to dynamically change the display
-// ZAP: 2011/07/25 Added automatically save/restore of divider locations  
+// ZAP: 2011/07/25 Added automatically save/restore of divider locations
+// ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
+// time in the main window
 package org.parosproxy.paros.view;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -38,6 +40,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.extension.AbstractPanel;
 
 /**
  * 
@@ -187,9 +190,9 @@ public class WorkbenchPanel extends JPanel {
 	private JPanel getPaneStatus() {
 		if (paneStatus == null) {
 			paneStatus = new JPanel();
-			paneStatus.setLayout(new CardLayout());
+			paneStatus.setLayout(new BorderLayout(0,0));
 			paneStatus.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-			paneStatus.add(getTabbedStatus(), getTabbedStatus().getName());
+			paneStatus.add(getTabbedStatus());
 		}
 		return paneStatus;
 	}
@@ -202,9 +205,9 @@ public class WorkbenchPanel extends JPanel {
 	private JPanel getPaneSelect() {
 		if (paneSelect == null) {
 			paneSelect = new JPanel();
-			paneSelect.setLayout(new CardLayout());
+			paneSelect.setLayout(new BorderLayout(0,0));
 			paneSelect.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-			paneSelect.add(getTabbedSelect(), getTabbedSelect().getName());
+			paneSelect.add(getTabbedSelect());
 		}
 		return paneSelect;
 	}
@@ -217,12 +220,43 @@ public class WorkbenchPanel extends JPanel {
 	private JPanel getPaneWork() {
 		if (paneWork == null) {
 			paneWork = new JPanel();
-			paneWork.setLayout(new CardLayout());
+			paneWork.setLayout(new BorderLayout(0,0));
 			paneWork.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			paneWork.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			paneWork.add(getTabbedWork(), getTabbedWork().getName());
+			paneWork.add(getTabbedWork());
 		}
 		return paneWork;
+	}
+
+	public void splitPaneWorkWithAbstractPanel(AbstractPanel panel, int orientation) {
+		getPaneWork().removeAll();
+
+		TabbedPanel tabbedPane = new TabbedPanel();
+		tabbedPane.addTab(panel.getName(), panel.getIcon(), panel);
+		tabbedPane.setAlternativeParent(View.getSingleton().getMainFrame().getPaneDisplay());
+
+		JPanel tabbedPanel = new JPanel(new BorderLayout(0, 0));
+		tabbedPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		tabbedPanel.add(tabbedPane);
+
+		JSplitPane split = new JSplitPane(orientation);
+		split.setDividerSize(3);
+		split.setResizeWeight(0.5D);
+		split.setContinuousLayout(false);
+		split.setDoubleBuffered(true);
+		split.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+		split.setRightComponent(tabbedPanel);
+		split.setLeftComponent(getTabbedWork());
+
+		getPaneWork().add(split);
+		getPaneWork().validate();
+	}
+	
+	public void removeSplitPaneWork() {
+		getPaneWork().removeAll();
+		getPaneWork().add(getTabbedWork());
+		getPaneWork().validate();
 	}
 
 	/**

@@ -19,6 +19,8 @@
  */
 // ZAP: 2011/06/02 Warn the first time the user double clicks on a tab
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
+// time in the main window
 
 package org.parosproxy.paros.view;
 
@@ -97,11 +99,11 @@ public class TabbedPanel extends JTabbedPane {
 	        originalParent.remove(this);
 	        backupChild = alternativeParent.getComponent(0);
 	        alternativeParent.remove(backupChild);
-	        alternativeParent.add(this, "");
+	        alternativeParent.add(this);
 	    } else {
 	        alternativeParent.remove(this);
-	        alternativeParent.add(backupChild, "");
-	        originalParent.add(this, "");
+	        alternativeParent.add(backupChild);
+	        originalParent.add(this);
 	    }
         originalParent.validate();
         alternativeParent.validate();

@@ -36,6 +36,8 @@
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/12/18 Issue 441: Prevent view being initialised in daemon mode
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons - added helper methods
+// ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
+// time in the main window
 
 package org.parosproxy.paros.view;
 
@@ -68,6 +70,7 @@ import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.ContextListPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.ContextTechnologyPanel;
+import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
@@ -98,6 +101,8 @@ public class View implements ViewDelegate {
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 
     private static final Logger logger = Logger.getLogger(View.class);
+
+    private MessagePanelsPositionController messagePanelsPositionController;
 
 	/**
 	 * @return Returns the mainFrame.
@@ -148,11 +153,16 @@ public class View implements ViewDelegate {
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
 
+		messagePanelsPositionController = new MessagePanelsPositionController(
+		        requestPanel,
+		        responsePanel,
+		        mainFrame.getMainToolbarPanel(),
+		        getWorkbench());
 	}
 	
 	public void postInit() {
 	    getWorkbench().getTabbedStatus().add(outputPanel);
-	    
+	    messagePanelsPositionController.restoreState();
 	}
 	
 	@Override
