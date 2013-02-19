@@ -29,6 +29,7 @@
 // ZAP: 2012/10/03 Issue 388 Added enabling support for technologies
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/02/19 Issue 528 Scan progress dialog can show negative progress times
 
 package org.parosproxy.paros.core.scanner;
 
@@ -663,6 +664,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	@Override
 	public void setTimeStarted() {
 		this.started = new Date();
+		this.finished = null;
 	}
 
 	@Override
