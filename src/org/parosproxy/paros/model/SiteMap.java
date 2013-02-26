@@ -86,22 +86,14 @@ public class SiteMap extends DefaultTreeModel {
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        String scheme = null;
-        String host = null;
         String path = null;
-        int port = 80;
         SiteNode parent = (SiteNode) getRoot();
         StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
             
-            scheme = uri.getScheme();
-            host = scheme + "://" + uri.getHost();
-            port = uri.getPort();
-            if (port != -1) {
-                host = host + ":" + port;
-            }
+            String host = getHostName(uri);
             
             // no host yet
             parent = findChild(parent, host);
@@ -157,23 +149,15 @@ public class SiteMap extends DefaultTreeModel {
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        String scheme = null;
-        String host = null;
         String path = null;
-        int port = 80;
         SiteNode parent = (SiteNode) getRoot();
         StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
             
-            scheme = uri.getScheme();
-            host = scheme + "://" + uri.getHost();
-            port = uri.getPort();
-            if (port != -1) {
-                host = host + ":" + port;
-            }
-            
+        	String host = getHostName(uri);
+        	
             // no host yet
             parent = findChild(parent, host);
             if (parent == null) {
@@ -221,21 +205,13 @@ public class SiteMap extends DefaultTreeModel {
     public synchronized SiteNode findNode(URI uri, String method, String postData) {
         SiteNode resultNode = null;
         
-        String scheme = null;
-        String host = null;
         String path = null;
-        int port = 80;
         StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
             
-            scheme = uri.getScheme();
-            host = scheme + "://" + uri.getHost();
-            port = uri.getPort();
-            if (port != -1) {
-                host = host + ":" + port;
-            }
+        	String host = getHostName(uri);
             
             // no host yet
             resultNode = findChild((SiteNode) getRoot(), host);
@@ -304,10 +280,7 @@ public class SiteMap extends DefaultTreeModel {
         URI uri = msg.getRequestHeader().getURI();
         log.debug("addPath " + uri.toString());
         
-        String scheme = null;
-        String host = null;
         String path = null;
-        int port = 80;
         SiteNode parent = (SiteNode) getRoot();
         SiteNode leaf = null;
         StringTokenizer tokenizer = null;
@@ -315,12 +288,7 @@ public class SiteMap extends DefaultTreeModel {
         
         try {
             
-            scheme = uri.getScheme();
-            host = scheme + "://" + uri.getHost();
-            port = uri.getPort();
-            if (port != -1) {
-                host = host + ":" + port;
-            }
+        	String host = getHostName(uri);
             
             // add host
             parent = findAndAddChild(parent, host, ref, msg);
@@ -617,4 +585,19 @@ public class SiteMap extends DefaultTreeModel {
     public SiteNode getSiteNode (int href) {
     	return hrefMap.get(href);
     }
+    
+    // returns a representation of the host name in the site map
+	private String getHostName(URI uri) throws URIException {
+		String scheme = uri.getScheme();
+		String host = scheme + "://" + uri.getHost();       
+		int port = uri.getPort();
+		
+		if (port != -1 &&
+				((port == 80 && !"http".equals(scheme)) ||
+				(port == 443 && !"https".equals(scheme)))) {
+			host = host + ":" + port;
+		}
+		
+		return host;
+	}    
 }
