@@ -27,6 +27,7 @@
 // ZAP: 2012/06/13 Optimized alerts related code
 // ZAP: 2012/08/07 Deleted some not used Spider Related constants
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2012/02/26 Cache the response body length as part of Issue 539
 
 package org.parosproxy.paros.model;
 
@@ -71,6 +72,7 @@ public class HistoryReference {
    public static final int TYPE_SPIDER_TASK = 9;
    // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
    public static final int TYPE_SPIDER_AJAX = 10;
+   public static final int TYPE_RESERVED_11 = 11;	// Reserved by Psiinon
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
@@ -98,8 +100,9 @@ public class HistoryReference {
 	private int rtt = -1;
 	private String reason = null;
 	private List<String> tags = new ArrayList<String>();
-	boolean hasNote = false;
+	private boolean hasNote = false;
 	private Boolean webSocketUpgrade = null;	// Deliberately a Boolean so we can initialise it from the msg
+	private int responseBodyLength = -1;
 
     private static Logger log = Logger.getLogger(HistoryReference.class);
 
@@ -198,6 +201,7 @@ public class HistoryReference {
         this.reason = msg.getResponseHeader().getReasonPhrase();
         this.rtt = msg.getTimeElapsedMillis();
         this.hasNote = msg.getNote() != null && msg.getNote().length() > 0;
+        this.responseBodyLength = msg.getResponseBody().toString().length();
 
 	}
 	
@@ -486,5 +490,10 @@ public class HistoryReference {
 			}
 		}
 		return webSocketUpgrade;
+	}
+
+	public int getResponseBodyLength() {
+		return responseBodyLength;
 	} 
+	
 }

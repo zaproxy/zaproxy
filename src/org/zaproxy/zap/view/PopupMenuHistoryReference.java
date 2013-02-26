@@ -47,11 +47,12 @@ import org.zaproxy.zap.extension.search.SearchResult;
 
 public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
-	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce};
+	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce, hreftable};
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
     private JList<?> listInvoker = null;
+    private HistoryReferenceTable hrefTableInvoker = null;
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
 
@@ -155,6 +156,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     	    	BruteForceItem bfi = (BruteForceItem) listInvoker.getSelectedValue();
     	    	ref = new HistoryReference(bfi.getHistoryId());
 				break;
+    		case hreftable:
+    			ref = hrefTableInvoker.getSelectedValue();
+    			break;
     		}
 		} catch (Exception e2) {
 			log.error(e2.getMessage(), e2);
@@ -224,6 +228,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    	}
         	    }
 				break;
+    		case hreftable:
+    			refs = hrefTableInvoker.getSelectedValues();
+    			break;
     		}
 		} catch (Exception e2) {
 			log.error(e2.getMessage(), e2);
@@ -285,6 +292,11 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         } else if (invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
             this.listInvoker = (JList<?>) invoker;
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
+            display = true;
+        } else if (invoker instanceof HistoryReferenceTable) {
+        	this.lastInvoker = Invoker.hreftable;
+            this.hrefTableInvoker = (HistoryReferenceTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else {
