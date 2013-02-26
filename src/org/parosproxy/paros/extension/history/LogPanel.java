@@ -24,6 +24,7 @@
 // ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
 // class at runtime, to get the resource.
 // ZAP: 2012/07/29 Issue 43: added Scope support
+// ZAP: 2013/02/26 Issue 538: Allow non sequential lines to be selected in the history log
 
 package org.parosproxy.paros.extension.history;
 
@@ -257,7 +258,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog = new javax.swing.JList<>();
 			listLog.setDoubleBuffered(true);
             listLog.setCellRenderer(getLogPanelCellRenderer());
-			listLog.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+			listLog.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			listLog.setName("ListLog");
 			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
