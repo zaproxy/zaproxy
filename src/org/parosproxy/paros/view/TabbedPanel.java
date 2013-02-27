@@ -21,6 +21,8 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
 // time in the main window
+// ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
+// position changed
 
 package org.parosproxy.paros.view;
 
@@ -75,7 +77,11 @@ public class TabbedPanel extends JTabbedPane {
 	
 	private boolean isAlternative = true;
 	
-	private void alternateParent() {
+	public boolean isInAlternativeParent() {
+		return !isAlternative;
+	}
+	
+	public void alternateParent() {
 	    if (alternativeParent == null) return;
 
 		if (Model.getSingleton().getOptionsParam().getViewParam().getWarnOnTabDoubleClick()) {

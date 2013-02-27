@@ -38,6 +38,8 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons - added helper methods
 // ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
 // time in the main window
+// ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
+// position changed
 
 package org.parosproxy.paros.view;
 
@@ -156,7 +158,7 @@ public class View implements ViewDelegate {
 		messagePanelsPositionController = new MessagePanelsPositionController(
 		        requestPanel,
 		        responsePanel,
-		        mainFrame.getMainToolbarPanel(),
+		        mainFrame,
 		        getWorkbench());
 	}
 	

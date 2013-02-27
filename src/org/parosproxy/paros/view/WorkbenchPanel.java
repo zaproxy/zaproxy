@@ -22,6 +22,8 @@
 // ZAP: 2011/07/25 Added automatically save/restore of divider locations
 // ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
 // time in the main window
+// ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
+// position changed
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -40,7 +42,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.extension.AbstractPanel;
 
 /**
  * 
@@ -228,16 +229,8 @@ public class WorkbenchPanel extends JPanel {
 		return paneWork;
 	}
 
-	public void splitPaneWorkWithAbstractPanel(AbstractPanel panel, int orientation) {
+	public void splitPaneWorkWithTabbedPanel(TabbedPanel tabbedPanel, int orientation) {
 		getPaneWork().removeAll();
-
-		TabbedPanel tabbedPane = new TabbedPanel();
-		tabbedPane.addTab(panel.getName(), panel.getIcon(), panel);
-		tabbedPane.setAlternativeParent(View.getSingleton().getMainFrame().getPaneDisplay());
-
-		JPanel tabbedPanel = new JPanel(new BorderLayout(0, 0));
-		tabbedPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-		tabbedPanel.add(tabbedPane);
 
 		JSplitPane split = new JSplitPane(orientation);
 		split.setDividerSize(3);

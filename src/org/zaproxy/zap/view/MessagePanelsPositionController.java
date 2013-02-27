@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.net.URL;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
@@ -32,6 +33,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -63,15 +65,20 @@ public class MessagePanelsPositionController {
     private JToggleButton aboveButtonView;
     private JToggleButton sideBySideButtonView;
 
+    private TabbedPanel splitTabbedPanel;
+
+    private MessagePanelsPosition currentPosition;
+
     public MessagePanelsPositionController(
             HttpPanelRequest requestPanel,
             HttpPanelResponse responsePanel,
-            MainToolbarPanel toolbar,
+            MainFrame mainFrame,
             WorkbenchPanel workbenchPanel) {
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
         this.workbenchPanel = workbenchPanel;
         this.tabbedWork = workbenchPanel.getTabbedWork();
+        this.currentPosition = MessagePanelsPosition.TABS_SIDE_BY_SIDE;
 
         tabsButtonView = new JToggleButton(new ChangeMessagePanelsPositionAction(
                 MessagePanelsPositionController.class.getResource("/resource/icon/layout_tabbed.png"),
@@ -95,32 +102,76 @@ public class MessagePanelsPositionController {
 
         tabsButtonView.setSelected(true);
 
+        MainToolbarPanel toolbar = mainFrame.getMainToolbarPanel();
+        
         toolbar.addButton(tabsButtonView);
         toolbar.addButton(aboveButtonView);
         toolbar.addButton(sideBySideButtonView);
 
         toolbar.addSeparator();
+
+        splitTabbedPanel = new TabbedPanel();
+        splitTabbedPanel.setAlternativeParent(mainFrame.getPaneDisplay());
+        splitTabbedPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
     }
 
     private void changeMessageTabsPosition(MessagePanelsPosition position) {
+        if (currentPosition == position) {
+            return;
+        }
+
+        currentPosition = position;
+
+        TabbedPanel tabbedPanel = restoreOriginalParentTabbedPanel();
+
         switch (position) {
         case PANEL_ABOVE:
-            workbenchPanel.splitPaneWorkWithAbstractPanel(responsePanel, JSplitPane.VERTICAL_SPLIT);
+            splitResponsePanelWithWorkTabbedPanel(JSplitPane.VERTICAL_SPLIT);
             break;
         case PANELS_SIDE_BY_SIDE:
-            workbenchPanel.splitPaneWorkWithAbstractPanel(responsePanel, JSplitPane.HORIZONTAL_SPLIT);
+            splitResponsePanelWithWorkTabbedPanel(JSplitPane.HORIZONTAL_SPLIT);
             break;
         case TABS_SIDE_BY_SIDE:
         default:
+            if (tabbedPanel == splitTabbedPanel) {
+                tabbedPanel = tabbedWork;
+            }
             tabbedWork.insertTab(
                     responsePanel.getName(),
                     responsePanel.getIcon(),
                     responsePanel,
-                    "",
+                    null,
                     tabbedWork.indexOfComponent(requestPanel) + 1);
             workbenchPanel.removeSplitPaneWork();
         }
+
+        restoreAlternativeParentTabbedPanel(tabbedPanel);
+
         saveState(position);
+    }
+
+    private void splitResponsePanelWithWorkTabbedPanel(int orientation) {
+        splitTabbedPanel.removeAll();
+        splitTabbedPanel.addTab(responsePanel.getName(), responsePanel.getIcon(), responsePanel);
+
+        workbenchPanel.splitPaneWorkWithTabbedPanel(splitTabbedPanel, orientation);
+    }
+
+    private TabbedPanel restoreOriginalParentTabbedPanel() {
+        if (tabbedWork.isInAlternativeParent()) {
+            tabbedWork.alternateParent();
+            return tabbedWork;
+        } else if (splitTabbedPanel.isInAlternativeParent()) {
+            splitTabbedPanel.alternateParent();
+            return splitTabbedPanel;
+        }
+        return null;
+    }
+
+    private void restoreAlternativeParentTabbedPanel(TabbedPanel tabbedPanel) {
+        if (tabbedPanel != null) {
+            tabbedPanel.alternateParent();
+        }
     }
 
     public void restoreState() {
