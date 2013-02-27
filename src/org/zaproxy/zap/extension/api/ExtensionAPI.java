@@ -21,12 +21,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
@@ -93,11 +95,24 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (API.getInstance().isEnabled()) {
-						DesktopUtils.openUrlInBrowser(API_URL);
-					} else {
-						View.getSingleton().showWarningDialog(Constant.messages.getString("api.warning.enable"));
+					if (!API.getInstance().isEnabled()) {
+						String title = Constant.messages.getString("api.dialogue.browseApiNotEnabled.title");
+						String message = Constant.messages.getString("api.dialogue.browseApiNotEnabled.message");
+						String confirmButtonLabel = Constant.messages.getString("api.dialogue.browseApiNotEnabled.button.confirm.label");
+						String cancelButtonLabel = Constant.messages.getString("api.dialogue.browseApiNotEnabled.button.cancel.label");
+						
+						int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(),
+								message, title,
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+								null, new String[] { confirmButtonLabel, cancelButtonLabel}, null);
+						
+						if (option != JOptionPane.YES_OPTION) {
+							return;
+						}
+						Model.getSingleton().getOptionsParam().getApiParam().setEnabled(true);
 					}
+
+					DesktopUtils.openUrlInBrowser(API_URL);
 				}
 			});
 
