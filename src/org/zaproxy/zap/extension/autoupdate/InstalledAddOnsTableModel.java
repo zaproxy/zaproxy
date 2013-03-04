@@ -27,11 +27,6 @@ import org.zaproxy.zap.extension.autoupdate.AddOnWrapper.Status;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class InstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel<AddOnWrapper> {
 
 	private static final long serialVersionUID = 1L;

@@ -21,11 +21,6 @@ package org.zaproxy.zap.extension.alert;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class AlertNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 	private String nodeName = null;

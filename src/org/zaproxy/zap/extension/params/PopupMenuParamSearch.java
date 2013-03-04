@@ -25,11 +25,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;

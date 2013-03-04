@@ -21,11 +21,6 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class BruteForceParam extends AbstractParam {
 
 	private static final String THREAD_PER_SCAN = "bruteforce.threadPerHost";

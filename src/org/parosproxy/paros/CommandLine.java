@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Removed unnecessary castings from methods parse, getArgument and getHelp.
 //      Changed to use the class StringBuilder instead of the class StringBuffer in the method getHelp.
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros;
 
@@ -32,11 +33,6 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.network.HttpSender;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class CommandLine {
 
 	// ZAP: Made public

@@ -19,17 +19,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate method.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class VariantFormQuery extends VariantAbstractQuery {
 
     //private static final String APP_URL_ENCODED = "application/x-www-form-urlencoded";

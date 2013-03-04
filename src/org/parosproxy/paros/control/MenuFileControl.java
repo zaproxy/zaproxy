@@ -31,6 +31,7 @@
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 // ZAP: 2012/12/06 Issue 428: Moved exit code to control to support the marketplace
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.control;
  
@@ -50,11 +51,6 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class MenuFileControl implements SessionListener {
 
     private static Logger log = Logger.getLogger(MenuFileControl.class);

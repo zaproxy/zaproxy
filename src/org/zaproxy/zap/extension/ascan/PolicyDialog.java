@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/14 Changed to use the internationalised string.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Frame;
@@ -33,11 +34,6 @@ import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PolicyDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 1L;

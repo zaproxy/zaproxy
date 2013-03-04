@@ -22,6 +22,7 @@
 // ExtensionPopupMenuItem.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.history;
 
@@ -40,11 +41,6 @@ import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;

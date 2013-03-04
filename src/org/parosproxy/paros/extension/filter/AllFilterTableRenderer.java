@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -29,11 +30,6 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 class AllFilterTableRenderer extends JComponent implements TableCellRenderer {
 	private static final long serialVersionUID = 1L;
 	

@@ -22,6 +22,7 @@
 // ZAP: 2011/11/15 Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations
 //      removed duplicated method calls and removed an unnecessary method (load())
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.common;
 
@@ -29,11 +30,6 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class AbstractParam {
 
     private static final Logger logger = Logger.getLogger(AbstractParam.class);

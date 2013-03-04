@@ -30,6 +30,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2013/01/25 Added method removeFilter().
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -47,11 +48,6 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
 	private static final Logger log = Logger.getLogger(ExtensionFilter.class);

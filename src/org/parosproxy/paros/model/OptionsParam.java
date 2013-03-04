@@ -32,6 +32,7 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.model;
 
@@ -55,11 +56,6 @@ import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsParam extends AbstractParam {
 	
 	private static final Logger logger = Logger.getLogger(OptionsParam.class);

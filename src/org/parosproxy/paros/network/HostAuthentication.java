@@ -22,15 +22,11 @@
 // throughout ZAP and enhance the usability of some options.
 
 // ZAP: 2012/11/27 Issue 376: Masking the passwords provided for Authentication
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.network;
 
 import org.zaproxy.zap.utils.Enableable;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HostAuthentication extends Enableable {
 
     private String  name = "";

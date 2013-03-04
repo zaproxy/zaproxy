@@ -24,6 +24,7 @@
 // time in the main window
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -43,11 +44,6 @@ import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
 
-/**
- * 
- * To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Generation - Code and Comments
- */
 public class WorkbenchPanel extends JPanel {
 
 	private static final long serialVersionUID = -4610792807151921550L;

@@ -25,6 +25,7 @@
 // 		as introduced with version 3.1 of HttpClient
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,11 +44,6 @@ import org.parosproxy.paros.network.HttpMessage;
 
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Scanner implements Runnable {
 
     private static Logger log = Logger.getLogger(Scanner.class);

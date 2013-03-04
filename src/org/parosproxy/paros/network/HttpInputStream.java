@@ -21,6 +21,7 @@
  */
 // ZAP: 2012/03/15 Changed to use the classes HttpRequestBody and HttpResponseBody
 //      Added @Override annotation where appropriate.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.network;
 
@@ -35,11 +36,6 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class HttpInputStream extends BufferedInputStream {
 	private static Logger log = Logger.getLogger(HttpInputStream.class);
 

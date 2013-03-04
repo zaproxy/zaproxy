@@ -37,6 +37,7 @@
 // ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
 // ZAP: 2012/12/06 Issue 428: Added exit method to support the marketplace
 // ZAP: 2012/12/27 Hook new persistent connection listener.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -61,7 +62,6 @@ import org.zaproxy.zap.control.ExtensionFactory;
 /**
  *
  * Overall control with interaction on model and view.
- * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class Control extends AbstractControl implements SessionListener {
 

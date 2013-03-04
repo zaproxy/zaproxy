@@ -30,11 +30,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;

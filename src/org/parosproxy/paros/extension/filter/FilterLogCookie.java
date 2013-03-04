@@ -24,6 +24,7 @@
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 // as introduced with version 3.1 of HttpClient
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -35,11 +36,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FilterLogCookie extends FilterAdaptor {
 
     private static final String DELIM = "\t";

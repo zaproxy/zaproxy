@@ -26,6 +26,7 @@
 // Database.close(boolean, boolean).
 // ZAP: 2012/08/08 Check if file exist.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.model;
 
@@ -44,11 +45,6 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Model {
 
     private static Model model = null;

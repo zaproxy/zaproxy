@@ -23,6 +23,7 @@
 //      StringBuilder instead of StringBuffer. Replaced some string concatenations with calls to the 
 //      method append of the class StringBuilder.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.encoder;
 
@@ -36,11 +37,6 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.log4j.Logger;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Encoder {
     
 	private static final Logger logger = Logger.getLogger(Encoder.class);

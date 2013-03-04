@@ -33,11 +33,6 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsConnectionPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;

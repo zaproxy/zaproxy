@@ -23,6 +23,7 @@
 // variable and added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -35,11 +36,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FilterLogPostQuery extends FilterLogGetQuery {
 
     private static final Logger logger = Logger.getLogger(FilterLogPostQuery.class);

@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Changed the methods getAlertXML and generate to use the class 
 // StringBuilder instead of StringBuffer.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.report;
 
@@ -53,11 +54,6 @@ import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
 
-/**
- *
- * To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Generation - Code and Comments
- */
 public class ReportLastScan {
 
     private Logger logger = Logger.getLogger(ReportLastScan.class);

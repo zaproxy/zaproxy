@@ -38,11 +38,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class ParamsPanel extends AbstractPanel{
 	
 	private static final long serialVersionUID = 1L;

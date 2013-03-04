@@ -23,6 +23,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.report;
 
@@ -35,11 +36,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;

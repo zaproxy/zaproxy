@@ -55,11 +55,6 @@ import org.parosproxy.paros.view.View;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionCompare extends ExtensionAdaptor implements SessionChangedListener, SessionListener {
 
 	private static final String CRLF = "\r\n";

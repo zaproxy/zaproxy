@@ -56,11 +56,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.view.ScanPanel;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
 	
 	private static final long serialVersionUID = 1L;

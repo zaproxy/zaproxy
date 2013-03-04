@@ -21,6 +21,7 @@
 // ZAP: 2012/05/31 Changed to log the exceptions and one message in the method
 // getNewConnection().
 // ZAP: 2012/08/16 SHUTDOWN COMPACT old databases.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.db;
 
@@ -38,11 +39,6 @@ import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;

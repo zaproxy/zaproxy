@@ -42,11 +42,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 	
 	public static final String PANEL_NAME = "fuzzpanel";

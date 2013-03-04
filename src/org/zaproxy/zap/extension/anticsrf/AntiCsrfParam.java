@@ -27,11 +27,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- *
- * To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Generation - Code and Comments
- */
 public class AntiCsrfParam extends AbstractParam {
 
     private static final Logger logger = Logger.getLogger(AntiCsrfParam.class);

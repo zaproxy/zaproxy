@@ -21,17 +21,13 @@
 // ZAP: 2012/02/18 Rationalised session handling
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Session;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public interface SessionChangedListener {
     /**
      * Called just after the session has changed.

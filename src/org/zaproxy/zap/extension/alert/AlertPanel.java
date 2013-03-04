@@ -49,11 +49,6 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class AlertPanel extends AbstractPanel {
 	
 	public static final String ALERT_TREE_PANEL_NAME = "treeAlert";

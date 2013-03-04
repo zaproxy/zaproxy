@@ -21,6 +21,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.option;
 
@@ -59,11 +60,6 @@ import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
 import ch.csnc.extension.util.DriverConfiguration;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsCertificatePanel extends AbstractParamPanel implements Observer{
 
 	private static final long serialVersionUID = 4350957038174673492L;

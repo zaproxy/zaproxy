@@ -27,11 +27,6 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
 
 	private static final long serialVersionUID = 1L;

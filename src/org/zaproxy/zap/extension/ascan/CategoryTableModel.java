@@ -21,6 +21,7 @@
 // ZAP: 2012/03/14 Changed to use the internationalised strings.
 // ZAP: 2012/04/25 Changed to use the method Boolean.valueOf.
 // ZAP: 2013/01/27 Changed to only notify the listeners if the value was really changed.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -32,11 +33,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class CategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;

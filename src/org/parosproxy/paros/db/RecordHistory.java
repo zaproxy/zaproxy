@@ -20,6 +20,7 @@
 */
 // ZAP: 2012/03/15 Changed the RecordHistory constructor to receive a byte[]
 //      instead of String in the parameters reqBody and resBody.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 
 package org.parosproxy.paros.db;
@@ -29,11 +30,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class RecordHistory {
     
     private int historyId = 0;

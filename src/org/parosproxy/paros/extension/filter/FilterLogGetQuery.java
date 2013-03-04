@@ -24,6 +24,7 @@
 // appropriate methods.
 // ZAP: 2012/07/29 Corrected init method and log errors
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -44,11 +45,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FilterLogGetQuery extends FilterAdaptor {
 
     private static final String delim = "\t";   

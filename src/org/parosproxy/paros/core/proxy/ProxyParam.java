@@ -24,6 +24,7 @@
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -34,11 +35,6 @@ import org.parosproxy.paros.common.AbstractParam;
 
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ProxyParam extends AbstractParam {
 
 //	private static final String PROXY = "proxy";

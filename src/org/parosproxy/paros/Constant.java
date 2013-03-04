@@ -42,6 +42,7 @@
 // throughout ZAP and enhance the usability of some options.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2012/12/08 Issue 428: Changed to use I18N for messages, to support the marketplace
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros;
 
@@ -67,11 +68,6 @@ import org.parosproxy.paros.model.FileCopier;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public final class Constant {
 	// ZAP: rebrand
     public static final String PROGRAM_NAME     		= "OWASP ZAP";

@@ -21,11 +21,6 @@ package org.zaproxy.zap.extension.fuzz;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FuzzerParam extends AbstractParam {
 
 	private static final String DEFAULT_CATEGORY = "fuzzer.defaultCategory";

@@ -25,6 +25,7 @@
 // the returning value of Filter.isPropertyExists(). Moved a statement in the
 // method setValueAt(Object, int , int).
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -35,11 +36,6 @@ import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class AllFilterTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 1L;
 	

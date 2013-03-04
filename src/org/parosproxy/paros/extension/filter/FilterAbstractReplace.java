@@ -22,6 +22,7 @@
 // ZAP: 2012/06/25 Changed visibility of getFilterReplaceDialog() from private
 // to protected to ease inheritance. Created processFilterReplaceDialog() method
 // to ease extensibility and moved code from getFilterReplaceDialog() there.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.extension.filter;
 
 import java.util.regex.Pattern;
@@ -29,11 +30,6 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 abstract public class FilterAbstractReplace extends FilterAdaptor {
     
     private FilterReplaceDialog filterReplaceDialog = null;

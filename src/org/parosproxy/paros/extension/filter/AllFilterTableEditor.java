@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
 // ZAP: 2012/07/09 Update row in UI after editing its properties.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -30,11 +31,6 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor {
 	private static final long serialVersionUID = 1L;
     

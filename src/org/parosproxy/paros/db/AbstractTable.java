@@ -19,17 +19,13 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
  public abstract class AbstractTable implements DatabaseListener {
 
     private Connection connection = null;

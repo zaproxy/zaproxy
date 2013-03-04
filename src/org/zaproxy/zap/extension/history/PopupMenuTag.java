@@ -29,11 +29,6 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupMenuTag extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;

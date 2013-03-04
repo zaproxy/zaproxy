@@ -30,6 +30,7 @@
 // method close(boolean, boolean).
 // ZAP: 2012/07/16 Removed unused setters.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.db;
 
@@ -40,11 +41,6 @@ import org.apache.log4j.Logger;
 
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Database {
 	
 

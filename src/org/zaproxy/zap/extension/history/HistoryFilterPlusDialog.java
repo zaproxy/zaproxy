@@ -52,11 +52,7 @@ import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;

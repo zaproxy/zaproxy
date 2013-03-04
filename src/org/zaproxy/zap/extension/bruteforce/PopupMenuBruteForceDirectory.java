@@ -22,11 +22,6 @@ package org.zaproxy.zap.extension.bruteforce;
 import org.parosproxy.paros.model.SiteNode;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupMenuBruteForceDirectory extends PopupMenuBruteForceSite {
 
 	private static final long serialVersionUID = 1L;

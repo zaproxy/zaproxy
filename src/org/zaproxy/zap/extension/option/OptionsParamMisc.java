@@ -22,11 +22,6 @@ package org.zaproxy.zap.extension.option;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsParamMisc extends AbstractParam {
 
 	private static final String SAVE_DIR = "misc.saveDir";

@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/02/21 Added logging
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.core.scanner;
 
@@ -28,11 +29,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class VariantURLQuery extends VariantAbstractQuery {
 
     private static Logger log = Logger.getLogger(VariantURLQuery.class);

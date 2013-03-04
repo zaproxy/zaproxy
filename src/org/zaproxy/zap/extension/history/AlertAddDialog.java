@@ -40,11 +40,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertViewPanel;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class AlertAddDialog extends AbstractDialog {
 
     private static final Logger logger = Logger.getLogger(AlertAddDialog.class);

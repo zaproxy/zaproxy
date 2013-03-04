@@ -26,6 +26,7 @@
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.core.scanner;
 
@@ -47,11 +48,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class Analyser {
 	
     private static final Logger logger = Logger.getLogger(Analyser.class);

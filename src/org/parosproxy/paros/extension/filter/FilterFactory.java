@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added type arguments to the generic types, removed an 
 // unnecessary cast and changed to use the method Integer.valueOf.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.filter;
 
@@ -33,11 +34,6 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class FilterFactory {
 
     private static Logger log = Logger.getLogger(FilterFactory.class);

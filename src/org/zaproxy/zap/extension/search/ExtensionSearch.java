@@ -35,11 +35,6 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionSearch2"; 

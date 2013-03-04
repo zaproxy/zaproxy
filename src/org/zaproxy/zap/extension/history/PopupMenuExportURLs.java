@@ -41,11 +41,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;

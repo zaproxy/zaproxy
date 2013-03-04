@@ -20,6 +20,7 @@
 */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.option;
 
@@ -32,11 +33,6 @@ import org.parosproxy.paros.network.SSLConnector;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class OptionsParamCertificate extends AbstractParam {
 
    

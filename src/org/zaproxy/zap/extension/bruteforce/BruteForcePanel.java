@@ -71,11 +71,7 @@ import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.ScanStatus;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
+
 public class BruteForcePanel extends AbstractPanel implements BruteForceListenner {
 	
 	private static final long serialVersionUID = 1L;

@@ -19,16 +19,12 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // ZAP: 2012/01/02 Separate param and attack
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 
 package org.parosproxy.paros.db;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class RecordAlert {
     
     private int alertId = -1;

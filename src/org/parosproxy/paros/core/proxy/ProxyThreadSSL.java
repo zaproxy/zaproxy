@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 package org.parosproxy.paros.core.proxy;
 
 import java.net.Socket;
@@ -27,11 +28,6 @@ import java.net.Socket;
 //import org.parosproxy.paros.network.HttpUtil;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ProxyThreadSSL extends ProxyThread {
 	ProxyThreadSSL(ProxyServerSSL server, Socket socket) {
 		super(server, socket);

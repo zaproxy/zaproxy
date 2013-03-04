@@ -25,6 +25,7 @@
 // class at runtime, to get the resource.
 // ZAP: 2012/07/29 Issue 43: added Scope support
 // ZAP: 2013/02/26 Issue 538: Allow non sequential lines to be selected in the history log
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.history;
 
@@ -49,11 +50,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class LogPanel extends AbstractPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
 	// ZAP: Added logger.

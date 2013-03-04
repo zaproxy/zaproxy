@@ -27,11 +27,6 @@ import javax.swing.table.DefaultTableModel;
 import org.parosproxy.paros.Constant;
 
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;

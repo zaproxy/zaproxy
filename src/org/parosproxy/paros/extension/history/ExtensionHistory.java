@@ -39,6 +39,7 @@
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event and removed access to some UI elements
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 
 package org.parosproxy.paros.extension.history;
 
@@ -75,11 +76,6 @@ import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
-/**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionHistory";
