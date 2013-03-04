@@ -32,6 +32,7 @@
 // ZAP: 2012/12/06 Issue 428: Moved exit code to control to support the marketplace
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.control;
  
@@ -262,7 +263,6 @@ public class MenuFileControl implements SessionListener {
     @Override
     public void sessionSaved(Exception e) {
         if (e == null) {
-            view.getMainFrame().getMainMenuBar().getMenuFileSave().setEnabled(true);
             // ZAP: Set the title consistently
             setTitle();
             //File file = new File(model.getSession().getFileName());

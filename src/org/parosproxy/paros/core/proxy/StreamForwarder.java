@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -28,6 +29,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class StreamForwarder extends Thread {
 
     private Socket inSocket = null;

@@ -23,6 +23,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.extension.history;
 
@@ -41,6 +42,10 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.PopupDeleteMenu;
 
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class PopupMenuDeleteHistory extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;

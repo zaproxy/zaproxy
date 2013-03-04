@@ -19,12 +19,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/23 Removed unnecessary cast.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.model;
 
 import java.util.Vector;
 
 import org.parosproxy.paros.network.HttpMessage;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class HttpMessageList {
 
     private Vector<HttpMessage> list = new Vector<>();

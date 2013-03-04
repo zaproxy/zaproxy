@@ -34,6 +34,7 @@
 // modified/removed or not.
 // ZAP: 2012/12/27 Added support for PersistentConnectionListener.
 // ZAP: 2013/01/04 Do beginSSL() on HTTP CONNECT only if port requires so.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.core.proxy;
 
@@ -87,16 +88,12 @@ class ProxyThread implements Runnable {
 	protected ProxyThread originProcess = this;
 	
 	private HttpSender 		httpSender = null;
-//	private BufferedOutputStream forwardOut = null;
-//	private BufferedInputStream forwardIn = null;
-//	private boolean disconnect = false;
 	private Object semaphore = this;
 	
 	// ZAP: New attribute to allow for skipping disconnect
 	private boolean keepSocketOpen = false;
 	
 	private static Object semaphoreSingleton = new Object();
-//	private Thread forwardThread = null;
     
     private static Vector<Thread> proxyThreadList = new Vector<>();
     
@@ -382,150 +379,6 @@ class ProxyThread implements Runnable {
         }
 
 	}
-	
-//	private void processForwardPort() {
-//	    StreamForwarder forwarder = null;
-//	    
-//	    setDisconnect(false);
-//	    
-//	    try {
-//	        
-//	        synchronized (processForwardList) {
-//	            outSocket = new Socket(proxyParam.getProxyIp(), parentServer.getForwardPort());
-//	            outSocket.setTcpNoDelay(true);
-//	            processForwardList.add(this);
-//	            forwardOut = new BufferedOutputStream(outSocket.getOutputStream());
-//	            forwardIn = new BufferedInputStream(outSocket.getInputStream());
-//	        }
-//	        
-//	        forwarder = new StreamForwarder(inSocket, httpIn, forwardOut);
-//	        forwarder.start();
-//	        
-//	        byte[] buffer = new byte[BUFFEREDSTREAM_SIZE*2];
-//	        int len = -1;
-//	        long startTime = System.currentTimeMillis();
-//	        int continuousCount = 0;
-//	        
-//            outSocket.setSoTimeout(150);
-//
-//	        do {
-//	            try {
-//	                len = forwardIn.read(buffer);
-//	                
-//	                if (len > 0) {
-//	                    httpOut.write(buffer, 0, len);
-//	                    httpOut.flush();
-//	                    startTime = System.currentTimeMillis();
-//	                    continuousCount++;
-//	                    if (continuousCount % 10 == 9) Thread.yield(); // time slice to avoid same thread occupy all CPU time.
-//	                }
-//	            } catch (SocketTimeoutException ex) {
-//		            len = 0;
-//		            continuousCount = 0;
-//	            }
-//
-//	            if (len > 0) {
-//	                continue;
-//	            } else {
-//	                
-//	                if (forwardIn.available() == 0) {
-//	                    setForwardInputBufferEmpty(true);
-//	                    if (System.currentTimeMillis() - startTime > TIME_OUT) {
-//	                        break;
-//	                    }
-//	                }
-//	            }
-//
-//	        } while (!isDisconnect());
-//	        
-//	    } catch (Exception e) {
-//	        //showErrMessage("Error connecting to internal SSL proxy.");
-//	    } finally {
-//	        
-//	        if (forwardThread != null) {
-//	            forwardThread.interrupt();
-//	        }
-//	        if (forwarder != null) {
-//	            forwarder.setStop(true);
-//	        }
-//	        removeFromList();	// end forward port processing
-//	        
-//	        HttpUtil.closeInputStream(forwardIn);
-//	        HttpUtil.closeOutputStream(forwardOut);
-//	        HttpUtil.closeSocket(outSocket);
-//	        
-//	    }
-//	    
-//	}
-	
-
-
-//	protected void removeFromList() {
-//		synchronized (processForwardList) {
-//			processForwardList.remove(this);
-//		}
-//	}
-//
-//	protected synchronized boolean isDisconnect() {
-//		return disconnect;
-//	}
-//
-//	protected synchronized void setDisconnect(boolean flag) {
-//		disconnect = flag;
-//	}
-//	
-//	private boolean isForwardInputBufferEmpty = true;	
-//
-//	/**
-//	Set if tunnel buffer empty.
-//	@param	bufferEmpty true if tunnel buffer is empty
-//	*/
-//	protected synchronized void setForwardInputBufferEmpty(boolean bufferEmpty) {
-//		this.isForwardInputBufferEmpty = bufferEmpty;
-//	}
-//
-//	/**
-//	Check if tunnel buffer empty here
-//	@return	true = tunnel buffer is empty
-//	*/
-//	protected synchronized boolean isForwardInputBufferEmpty() {
-//		try {
-//			if (forwardIn.available() > 0) {
-//				setForwardInputBufferEmpty(false);
-//			}
-//		} catch (Exception e) {
-//		}
-//
-//		return isForwardInputBufferEmpty;
-//	}
-
-//	protected static ProxyThread getOriginatingProcess (int remotePortUsing) {
-//		ProxyThread process = null;
-//		synchronized (processForwardList) {
-//			for (int i=0;i<processForwardList.size();i++) {
-//				process = (ProxyThread) processForwardList.get(i);
-//				if (process.outSocket.getLocalPort() == remotePortUsing) {
-//					return process;
-//				}
-//			}
-//		}
-//		return null;
-//	}
-//	
-//	public Thread getThread() {
-//		return thread;
-//	}
-//	
-//	private void notifyWrittenToForwardProxy() {
-//	    if (originProcess == null) {
-//	        return;
-//	    }
-//	    
-//		synchronized (originProcess) {
-//			originProcess.setForwardInputBufferEmpty(false);
-//			originProcess.notify();
-//		}
-//	}
 
 	/**
 	 * Go through each observers to process a request in each observers.
@@ -718,8 +571,5 @@ class ProxyThread implements Runnable {
         
     }
     
-//	protected void setForwardThread(Thread forwardThread) {
-//	    this.forwardThread = forwardThread;
-//	}
 
 }

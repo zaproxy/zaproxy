@@ -19,8 +19,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.network;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class ByteVector {
 
     private static final int INITIAL_SIZE = 4096;

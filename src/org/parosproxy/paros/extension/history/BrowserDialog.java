@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added type argument to generic type and added @Override
 // annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -50,6 +51,10 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class BrowserDialog extends AbstractDialog {
 
     private static final String TITLE = "View in Browser: ";

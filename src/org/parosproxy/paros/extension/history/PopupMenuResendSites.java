@@ -38,6 +38,10 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;

@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods and
 // removed unnecessary cast.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.core.scanner;
 
@@ -33,7 +34,10 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
-
+/**
+ * @deprecated No longer used/needed (FilePlugins were replaced with Forced Browse). It will be removed in a future release.
+ */
+@Deprecated
 abstract public class AbstractDefaultFilePlugin extends AbstractHostPlugin {
     
     private static final Logger logger = Logger.getLogger(AbstractDefaultFilePlugin.class);

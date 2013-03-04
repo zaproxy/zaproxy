@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Frame;
@@ -44,6 +45,10 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class HistoryFilterDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 7613537948142149634L;

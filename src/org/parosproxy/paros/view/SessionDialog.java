@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/08/29 Issue 250 Support for authentication management (enlarged window size)
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.view;
 
@@ -36,11 +37,10 @@ public class SessionDialog extends AbstractParamDialog {
  		initialize();
    }
     /**
-     * @param parent
-     * @param modal
-     * @param title
-     * @throws HeadlessException
+     * @deprecated No longer used/needed. It will be removed in a future release. Use the constructor
+     *             {@link #SessionDialog(Frame parent, boolean modal, String title, String rootName)} instead.
      */
+    @Deprecated
     public SessionDialog(Frame parent, boolean modal, String title)
             throws HeadlessException {
         super(parent, modal, title, "Session");

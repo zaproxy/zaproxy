@@ -26,6 +26,7 @@
 // ZAP: 2012/07/29 Issue 43: added Scope support
 // ZAP: 2013/02/26 Issue 538: Allow non sequential lines to be selected in the history log
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.extension.history;
 
@@ -376,17 +377,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
     private void readAndDisplay(final HistoryReference historyRef) {
 
         synchronized(displayQueue) {
-        	/*
-        	// ZAP: Disabled the platform specific browser
-            if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
-                // truncate queue if browser dialog is displayed to have better response
-                if (displayQueue.size()>0) {
-                    // replace all display queue because the newest display overrides all previous one
-                    // pending to be rendered.
-                    displayQueue.clear();
-                }
-            }
-            */
             if (displayQueue.size() > 0) {
                 displayQueue.clear();
             }
@@ -450,7 +440,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
                     @Override
                     public void run() {
                         displayMessage(msg);
-                        checkAndShowBrowser(finalRef, msg);
                         listLog.requestFocus();
 
                     }
@@ -470,16 +459,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
         
     }
     
-    private void checkAndShowBrowser(HistoryReference ref, HttpMessage msg) {
-    	// TODO reenable??
-    	/*
-        // ZAP: Disabled the platform specific browser
-        if (!ExtensionHistory.isEnableForNativePlatform() || !extension.getBrowserDialog().isVisible()) {
-            return;
-        }
-        extension.browserDisplay(ref, msg);
-        */
-    }
     /**
      * This method initializes logPanelCellRenderer	
      * 	

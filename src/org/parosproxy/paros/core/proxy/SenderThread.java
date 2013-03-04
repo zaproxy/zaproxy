@@ -22,6 +22,7 @@
 // unnecessary cast.
 // ZAP: 2012/05/02 Changed the "listenerList" to List, changed the
 // initialisation from Vector to ArrayList and set the initial capacity.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.core.proxy;
 
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ import java.util.List;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class SenderThread implements Runnable {
     
     private HttpMessage msg = null;

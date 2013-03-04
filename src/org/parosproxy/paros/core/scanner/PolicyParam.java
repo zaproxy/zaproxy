@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary cast.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
@@ -28,6 +29,10 @@ import java.util.List;
 import org.parosproxy.paros.common.FileXML;
 import org.w3c.dom.Element;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class PolicyParam extends FileXML {
 
 	private static final String POLICY = "policy";

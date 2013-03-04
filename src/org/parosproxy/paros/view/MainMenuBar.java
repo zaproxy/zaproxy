@@ -22,6 +22,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.view;
 
@@ -180,8 +181,6 @@ public class MainMenuBar extends JMenuBar {
 			menuFile.add(getMenuFileNewSession());
 			menuFile.add(getMenuFileOpen());
 			menuFile.addSeparator();
-			// ZAP: Removed the Save option, as it doesnt really do anything now
-			//menuFile.add(getMenuFileSave());
 			menuFile.add(getMenuFileSaveAs());
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileProperties());
@@ -210,7 +209,6 @@ public class MainMenuBar extends JMenuBar {
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					try {
                         getMenuFileControl().newSession(true);
-                        getMenuFileSave().setEnabled(false);
                     } catch (Exception e1) {
                         View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.newSession.error")); // ZAP: i18n
                         logger.error(e1.getMessage(), e1);
@@ -243,7 +241,6 @@ public class MainMenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					getMenuFileControl().openSession();
-			        getMenuFileSave().setEnabled(true);
 
 
 				}
@@ -349,10 +346,9 @@ public class MainMenuBar extends JMenuBar {
 	
 
 	/**
-	 * This method initializes menuFileSave	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
+	 * @deprecated No longer used/needed. It will be removed in a future release.
+	 */
+	@Deprecated
 	public JMenuItem getMenuFileSave() {
 		if (menuFileSave == null) {
 			menuFileSave = new JMenuItem();

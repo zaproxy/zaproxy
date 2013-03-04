@@ -5,6 +5,10 @@ import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class RequestUtils {
 
 	/*

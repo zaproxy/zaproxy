@@ -40,6 +40,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 
 package org.parosproxy.paros.extension.history;
 
@@ -87,7 +88,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
 	
-	//private PopupMenuDeleteHistory popupMenuDeleteHistory = null;
 	private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
 	private ManualRequestEditorDialog resendDialog = null;
 	
@@ -184,7 +184,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
 
-	        //extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuDeleteHistory());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
 	        // same as PopupMenuExport but for File menu
@@ -192,13 +191,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
-            
-            /*
-            if (isEnableForNativePlatform()) {
-                // preload for faster loading
-                getBrowserDialog();
-            }
-            */
 	    }
 
 	}
@@ -436,20 +428,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return result;
 	}
 	
-	/**
-	 * This method initializes popupMenuDeleteHistory	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.PopupMenuDeleteHistory	
-	 */
-	/*
-	private PopupMenuDeleteHistory getPopupMenuDeleteHistory() {
-		if (popupMenuDeleteHistory == null) {
-			popupMenuDeleteHistory = new PopupMenuDeleteHistory();
-			popupMenuDeleteHistory.setExtension(this);
-		}
-		return popupMenuDeleteHistory;
-	}
-	*/
 	/**
 	 * This method initializes popupMenuPurgeHistory	
 	 * 	
