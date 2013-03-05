@@ -588,16 +588,18 @@ public class SiteMap extends DefaultTreeModel {
     
     // returns a representation of the host name in the site map
 	private String getHostName(URI uri) throws URIException {
-		String scheme = uri.getScheme();
-		String host = scheme + "://" + uri.getHost();       
-		int port = uri.getPort();
+		StringBuilder host = new StringBuilder(); 				
 		
+		String scheme = uri.getScheme();
+		host.append(scheme).append("://").append(uri.getHost());
+		
+		int port = uri.getPort();		
 		if (port != -1 &&
 				((port == 80 && !"http".equals(scheme)) ||
 				(port == 443 && !"https".equals(scheme)))) {
-			host = host + ":" + port;
+			host.append(":").append(port);
 		}
 		
-		return host;
+		return host.toString();
 	}    
 }
