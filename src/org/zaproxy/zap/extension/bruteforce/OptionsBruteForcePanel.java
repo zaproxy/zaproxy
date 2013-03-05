@@ -41,6 +41,7 @@ import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapTextField;
 
 public class OptionsBruteForcePanel extends AbstractParamPanel {
 
@@ -50,6 +51,8 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	private JCheckBox checkBoxRecursive = null;
 	private JComboBox<String> defaultFileList = null;
 	private JButton addFileButton = null;
+	private JCheckBox checkBoxBrowseFiles = null;
+	private ZapTextField txtFileExtensions = null;
 
 	public OptionsBruteForcePanel(ExtensionBruteForce extension) {
         super();
@@ -81,6 +84,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			JLabel jLabel2 = new JLabel();
 			JLabel jLabel3 = new JLabel();
 			JLabel jLabelx = new JLabel();
+			JLabel jLabelExtensions = new JLabel();
 
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
@@ -89,6 +93,9 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			GridBagConstraints gridBagConstraints6a = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6b = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsBrowseFiles = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsFileExtensionsLabel = new GridBagConstraints();
+			GridBagConstraints gridBagConstraintsFileExtensionsList = new GridBagConstraints();
 
 			GridBagConstraints checkBoxGridBagConstraints = new GridBagConstraints();
 
@@ -98,6 +105,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			jLabel1.setText(Constant.messages.getString("bruteforce.options.label.threads"));
 			jLabel2.setText(Constant.messages.getString("bruteforce.options.label.defaultfile"));
 			jLabel3.setText(Constant.messages.getString("bruteforce.options.label.addfile"));
+			jLabelExtensions.setText(Constant.messages.getString("bruteforce.options.label.fileextensions"));
 		
 			gridBagConstraints3.gridx = 0;
 			gridBagConstraints3.gridy = 2;
@@ -169,6 +177,36 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			gridBagConstraints6b.insets = new Insets(2,2,2,2);
 			gridBagConstraints6b.gridwidth = 1;
 			
+			gridBagConstraintsBrowseFiles.gridx = 0;
+			gridBagConstraintsBrowseFiles.gridy = 7;
+			gridBagConstraintsBrowseFiles.weightx = 1.0;
+			gridBagConstraintsBrowseFiles.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraintsBrowseFiles.ipadx = 0;
+			gridBagConstraintsBrowseFiles.ipady = 0;
+			gridBagConstraintsBrowseFiles.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraintsBrowseFiles.insets = new Insets(2,2,2,2);
+			gridBagConstraintsBrowseFiles.gridwidth = 2;
+			
+			gridBagConstraintsFileExtensionsLabel.gridx = 0;
+			gridBagConstraintsFileExtensionsLabel.gridy = 8;
+			gridBagConstraintsFileExtensionsLabel.weightx = 1.0;
+			gridBagConstraintsFileExtensionsLabel.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraintsFileExtensionsLabel.ipadx = 0;
+			gridBagConstraintsFileExtensionsLabel.ipady = 0;
+			gridBagConstraintsFileExtensionsLabel.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraintsFileExtensionsLabel.insets = new Insets(2,2,2,2);
+			gridBagConstraintsFileExtensionsLabel.gridwidth = 1;
+			
+			gridBagConstraintsFileExtensionsList.gridx = 1;
+			gridBagConstraintsFileExtensionsList.gridy = 8;
+			gridBagConstraintsFileExtensionsList.weightx = 1.0;
+			gridBagConstraintsFileExtensionsList.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraintsFileExtensionsList.ipadx = 0;
+			gridBagConstraintsFileExtensionsList.ipady = 0;
+			gridBagConstraintsFileExtensionsList.anchor = GridBagConstraints.NORTHWEST;
+			gridBagConstraintsFileExtensionsList.insets = new Insets(2,2,2,2);
+			gridBagConstraintsFileExtensionsList.gridwidth = 1;			
+			
 			gridBagConstraintsX.gridx = 0;
 			gridBagConstraintsX.gridy = 10;
 			gridBagConstraintsX.anchor = GridBagConstraints.NORTHWEST;
@@ -186,6 +224,9 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 			panelPortScan.add(getDefaultFileList(), gridBagConstraints5b);
 			panelPortScan.add(jLabel3, gridBagConstraints6a);
 			panelPortScan.add(getAddFileButton(), gridBagConstraints6b);
+			panelPortScan.add(getCheckBoxBrowseFiles(), gridBagConstraintsBrowseFiles);
+			panelPortScan.add(jLabelExtensions, gridBagConstraintsFileExtensionsLabel);
+			panelPortScan.add(getTxtFileExtensions(), gridBagConstraintsFileExtensionsList);
 			panelPortScan.add(jLabelx, gridBagConstraintsX);
 		}
 		return panelPortScan;
@@ -229,11 +270,18 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    if (param == null) {
 		    getSliderThreadsPerScan().setValue(BruteForceParam.DEFAULT_THREAD_PER_SCAN);
 		    getCheckBoxRecursive().setSelected(BruteForceParam.DEFAULT_RECURSIVE);
+		    getCheckBoxBrowseFiles().setSelected(BruteForceParam.DEFAULT_BROWSE_FILES);
+		    getTxtFileExtensions().setEnabled(BruteForceParam.DEFAULT_BROWSE_FILES);		    
 	    } else {
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
 		    getCheckBoxRecursive().setSelected(param.getRecursive());
 		    getDefaultFileList().setSelectedItem(param.getDefaultFile());
+		    getCheckBoxBrowseFiles().setSelected(param.isBrowseFiles());
+		    getTxtFileExtensions().setEnabled(param.isBrowseFiles());
+		    getTxtFileExtensions().setText(param.getFileExtensions());		    
 	    }
+	    
+	    getTxtFileExtensions().discardAllEdits();
 	}
 	
 	@Override
@@ -252,6 +300,12 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
 	   	param.setRecursive(getCheckBoxRecursive().isSelected());
 	   	param.setDefaultFile((String)getDefaultFileList().getSelectedItem());
+	   	param.setBrowseFiles(getCheckBoxBrowseFiles().isSelected());
+	   	if (getTxtFileExtensions().getText() != null) {
+	   		param.setFileExtensions(getTxtFileExtensions().getText());
+	   	} else {
+	   		param.setFileExtensions(BruteForceParam.EMPTY_STRING);
+	   	}
 	   	
 	   	extension.setDefaultFile((String)getDefaultFileList().getSelectedItem());
 	}
@@ -329,6 +383,29 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		}
 		return addFileButton;
 	}
+	
+	private JCheckBox getCheckBoxBrowseFiles() {
+		if (checkBoxBrowseFiles == null) {
+			checkBoxBrowseFiles = new JCheckBox();
+			checkBoxBrowseFiles.setText(Constant.messages.getString("bruteforce.options.label.browsefiles"));
+			checkBoxBrowseFiles.setSelected(BruteForceParam.DEFAULT_BROWSE_FILES);
+			checkBoxBrowseFiles.addActionListener(new java.awt.event.ActionListener() { 
+				
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					txtFileExtensions.setEnabled(checkBoxBrowseFiles.isSelected());
+				}
+			});
+		}
+		return checkBoxBrowseFiles;
+	}
+	
+	private ZapTextField getTxtFileExtensions() {
+		if (txtFileExtensions == null) {
+			txtFileExtensions = new ZapTextField();
+		}
+		return txtFileExtensions;
+	}	
 
 	
     public int getThreadPerScan() {

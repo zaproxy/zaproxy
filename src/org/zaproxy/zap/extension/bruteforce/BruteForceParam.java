@@ -19,6 +19,10 @@
  */
 package org.zaproxy.zap.extension.bruteforce;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.parosproxy.paros.common.AbstractParam;
 
 public class BruteForceParam extends AbstractParam {
@@ -26,24 +30,32 @@ public class BruteForceParam extends AbstractParam {
 	private static final String THREAD_PER_SCAN = "bruteforce.threadPerHost";
 	private static final String DEFAULT_FILE = "bruteforce.defaultFile";
 	private static final String RECURSIVE = "bruteforce.recursive";
+	private static final String BROWSE_FILES = "bruteforce.browsefiles";
+	private static final String FILE_EXTENSIONS = "bruteforce.fileextensions";
 	
 	public static final int DEFAULT_THREAD_PER_SCAN = 10;
 	public static final boolean DEFAULT_RECURSIVE = true;
+	public static final boolean DEFAULT_BROWSE_FILES = false;
 	public static final String EMPTY_STRING = "";
 		
 	private int threadPerScan = DEFAULT_THREAD_PER_SCAN;
 	private boolean recursive = DEFAULT_RECURSIVE;
 	private String defaultFile = null;
+	private boolean browseFiles = DEFAULT_BROWSE_FILES;
+	// can't be null
+	private String fileExtensions = EMPTY_STRING;
 	
     public BruteForceParam() {
     }
 
     @Override
-    protected void parse(){
+    protected void parse() {
 		try {
 			this.threadPerScan = getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN);
 			this.recursive = getConfig().getBoolean(RECURSIVE, DEFAULT_RECURSIVE);
 			this.defaultFile = getConfig().getString(DEFAULT_FILE, null);
+			this.browseFiles = getConfig().getBoolean(BROWSE_FILES, DEFAULT_BROWSE_FILES);
+			this.fileExtensions = getConfig().getString(FILE_EXTENSIONS, EMPTY_STRING);
 		} catch (Exception e) {}
     }
 
@@ -76,5 +88,66 @@ public class BruteForceParam extends AbstractParam {
         getConfig().setProperty(DEFAULT_FILE, defaultFile);
 	}
 
+	public boolean isBrowseFiles() {
+		return browseFiles;
+	}
 
+	public void setBrowseFiles(boolean browseFiles) {
+		this.browseFiles = browseFiles;
+		getConfig().setProperty(BROWSE_FILES, browseFiles);
+	}
+
+	/**
+	 * Define a comma-separated list of file extensions for 
+	 * resources to be brute forced.
+	 * 
+	 * <p>
+	 * 
+	 * This method returns an empty string if extensions haven't
+	 * been defined
+	 * 
+	 * @return comma-separated list of file extensions.
+	 */
+	public String getFileExtensions() {
+		return fileExtensions;
+	}
+
+	/**
+	 * Define a comma-separated list of file extensions for 
+	 * resources to be brute forced
+	 * 
+	 * @param fileExtensions file extensions string
+	 * @throws IllegalArgumentException if {@code fileExtensions} is
+	 * {@code null}
+	 */
+	public void setFileExtensions(String fileExtensions) {
+		if (fileExtensions == null) {			
+			throw new IllegalArgumentException("fileExtensions is null");
+		} 
+		
+		this.fileExtensions = fileExtensions;
+		getConfig().setProperty(FILE_EXTENSIONS, fileExtensions);
+	}
+
+	/**
+	 * Returns a list of file extensions to be force browsed
+	 * 
+	 * @return list of force browse file extensions, or an empty list
+	 * in case no extensions have been defined.
+	 */
+	public List<String> getFileExtensionsList() {
+	    if (fileExtensions.trim().equals(EMPTY_STRING)) {
+	    	return Collections.emptyList();
+	    }
+	    
+	    List<String> fileExtensionsList = new ArrayList<String>();
+	    for (String fileExtension: fileExtensions.replaceAll("\\s", 
+	    		EMPTY_STRING).split(",")) {
+	    	if (!fileExtension.equals(EMPTY_STRING)) {
+	    		fileExtensionsList.add(fileExtension);
+	    	}
+	    }
+	    
+    	return fileExtensionsList;	    
+	}
 }

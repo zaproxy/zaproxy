@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.bruteforce;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
@@ -56,6 +58,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private int threads = 0;
 	private boolean recursive = BruteForceParam.DEFAULT_RECURSIVE;
 	private DirBusterManager manager = null;
+	private List<String> extensions = null;
 	
 	private boolean onlyUnderDirectory;
 	
@@ -101,7 +104,12 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	    	manager.setUseProxyAuth(true);
 			log.debug("BruteForce : set proxy to " + manager.getProxyHost() + ":" + manager.getProxyPort());
 	    }
-
+	    
+	    if (bruteForceParam.isBrowseFiles()) {
+	    	extensions = bruteForceParam.getFileExtensionsList();
+	    } else {
+	    	extensions = Collections.emptyList();
+	    }
 	}
 
     public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
@@ -137,7 +145,12 @@ public class BruteForce extends Thread implements BruteForceListenner {
             
 			manager.setOnlyUnderStartPoint(onlyUnderDirectory);
 			
-			Vector<ExtToCheck> extsVector = new Vector<>();
+			
+			Vector<ExtToCheck> extsVector = new Vector<>(extensions.size());
+			for (String ext: extensions) {
+				extsVector.add(new ExtToCheck(ext, true));
+			}
+			
 			String exts = "php";
 			String startPoint = "/";
 			if (directory != null) {
