@@ -40,10 +40,10 @@ public class ZapNumberSpinner extends JSpinner {
 	private int defaultValue;
 
 	public ZapNumberSpinner() {
-		this (0, Integer.MAX_VALUE, 0);
+		this (0, 0, Integer.MAX_VALUE);
 	}
 	
-	public ZapNumberSpinner(int minValue, int maxValue, int defaultValue) {
+	public ZapNumberSpinner(int minValue, int defaultValue, int maxValue) {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		if (defaultValue < minValue || defaultValue > maxValue) {

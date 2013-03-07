@@ -28,6 +28,6 @@ public class ZapPortNumberSpinner extends ZapNumberSpinner {
 	private static final int MAX_PORT = 65535;
 
 	public ZapPortNumberSpinner(int defaultPortNumber) {
-		super(defaultPortNumber, MIN_PORT, MAX_PORT);
+		super(MIN_PORT, defaultPortNumber, MAX_PORT);
 	}
 }
