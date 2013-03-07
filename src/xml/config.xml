@@ -196,6 +196,10 @@
 				<enabled>true</enabled>
 				<name>__RequestVerificationToken</name>
 			</token>
+			<token>
+				<enabled>true</enabled>
+				<name>csrfmiddlewaretoken</name>
+			</token>
 		</tokens>
 	</anticsrf>
 

@@ -41,7 +41,7 @@ public class AntiCsrfParam extends AbstractParam {
     private static final String CONFIRM_REMOVE_TOKEN_KEY = ANTI_CSRF_BASE_KEY + ".confirmRemoveToken";
     
     private static final String[] DEFAULT_TOKENS_NAMES = { "anticsrf",
-            "CSRFToken", "__RequestVerificationToken" };
+            "CSRFToken", "__RequestVerificationToken", "csrfmiddlewaretoken" };
 
     private List<AntiCsrfParamToken> tokens = null;
     private List<String> enabledTokensNames = null;
