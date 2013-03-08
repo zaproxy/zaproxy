@@ -31,7 +31,7 @@ public class WikiAPIGenerator {
 	 * Note that this currently only generates English wiki pages, although the API itself can be internationalized
 	 */
 	private String base = "ApiGen_";
-	private String title = "= ZAP 2.0.0 API (work in progress) =\n";
+	private String title = "= ZAP 2.0.0 API =\n";
 	private File dir = new File("../zaproxy-wiki"); 
 	private int methods = 0;
 
