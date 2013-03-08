@@ -29,97 +29,101 @@ class core(object):
 
     @property
     def hosts(self):
-        return self.zap._request(self.zap.base + 'core/view/hosts/')
+        return self.zap._request(self.zap.base + 'core/view/hosts/').get('hosts')
 
     @property
     def sites(self):
-        return self.zap._request(self.zap.base + 'core/view/sites/')
+        return self.zap._request(self.zap.base + 'core/view/sites/').get('sites')
 
     @property
     def urls(self):
-        return self.zap._request(self.zap.base + 'core/view/urls/')
+        return self.zap._request(self.zap.base + 'core/view/urls/').get('urls')
 
     def messages(self, baseurl='', start='', count=''):
         return self.zap._request(self.zap.base + 'core/view/messages/', {'baseurl' : baseurl, 'start' : start, 'count' : count})
 
     @property
     def version(self):
-        return self.zap._request(self.zap.base + 'core/view/version/')
+        return self.zap._request(self.zap.base + 'core/view/version/').get('version')
 
     @property
     def excluded_from_proxy(self):
-        return self.zap._request(self.zap.base + 'core/view/excludedFromProxy/')
+        return self.zap._request(self.zap.base + 'core/view/excludedFromProxy/').get('excluded_from_proxy')
 
     @property
     def home_directory(self):
-        return self.zap._request(self.zap.base + 'core/view/homeDirectory/')
+        return self.zap._request(self.zap.base + 'core/view/homeDirectory/').get('home_directory')
 
     @property
     def option_http_state_enabled(self):
-        return self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/')
+        return self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/').get('option_http_state_enabled')
 
     @property
     def option_proxy_chain_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainName/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainName/').get('option_proxy_chain_name')
 
     @property
     def option_proxy_chain_port(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/').get('option_proxy_chain_port')
 
     @property
     def option_proxy_chain_skip_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/').get('option_proxy_chain_skip_name')
 
     @property
     def option_proxy_chain_realm(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/').get('option_proxy_chain_realm')
 
     @property
     def option_proxy_chain_user_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/').get('option_proxy_chain_user_name')
 
     @property
     def option_proxy_chain_password(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/').get('option_proxy_chain_password')
 
     @property
     def option_proxy_chain_prompt(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').get('option_proxy_chain_prompt')
 
     @property
     def option_use_proxy_chain(self):
-        return self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/')
+        return self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/').get('option_use_proxy_chain')
 
     @property
     def option_list_auth(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuth/')
+        return self.zap._request(self.zap.base + 'core/view/optionListAuth/').get('option_list_auth')
 
     @property
     def option_list_auth_enabled(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuthEnabled/')
+        return self.zap._request(self.zap.base + 'core/view/optionListAuthEnabled/').get('option_list_auth_enabled')
 
     @property
     def option_http_state(self):
-        return self.zap._request(self.zap.base + 'core/view/optionHttpState/')
+        return self.zap._request(self.zap.base + 'core/view/optionHttpState/').get('option_http_state')
 
     @property
     def option_timeout_in_secs(self):
-        return self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/')
+        return self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/').get('option_timeout_in_secs')
 
     @property
     def option_confirm_remove_auth(self):
-        return self.zap._request(self.zap.base + 'core/view/optionConfirmRemoveAuth/')
+        return self.zap._request(self.zap.base + 'core/view/optionConfirmRemoveAuth/').get('option_confirm_remove_auth')
 
     @property
     def option_ports_for_ssl_tunneling(self):
-        return self.zap._request(self.zap.base + 'core/view/optionPortsForSslTunneling/')
+        return self.zap._request(self.zap.base + 'core/view/optionPortsForSslTunneling/').get('option_ports_for_ssl_tunneling')
+
+    @property
+    def option_single_cookie_request_header(self):
+        return self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').get('option_single_cookie_request_header')
 
     @property
     def shutdown(self):
         """
         Shuts down ZAP
         """
-        return self.zap._request(self.zap.base + 'core/action/shutdown/')
+        return self.zap._request(self.zap.base + 'core/action/shutdown/').get('shutdown')
 
     def new_session(self, name=''):
         return self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name})
@@ -132,7 +136,7 @@ class core(object):
 
     @property
     def clear_excluded_from_proxy(self):
-        return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/')
+        return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/').get('clear_excluded_from_proxy')
 
     def exclude_from_proxy(self, regex):
         return self.zap._request(self.zap.base + 'core/action/excludeFromProxy/', {'regex' : regex})
@@ -142,7 +146,7 @@ class core(object):
 
     @property
     def generate_root_ca(self):
-        return self.zap._request(self.zap.base + 'core/action/generateRootCA/')
+        return self.zap._request(self.zap.base + 'core/action/generateRootCA/').get('generate_root_ca')
 
     def set_option_proxy_chain_name(self, string):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string})
@@ -176,5 +180,8 @@ class core(object):
 
     def set_option_confirm_remove_auth(self, boolean):
         return self.zap._request(self.zap.base + 'core/action/setOptionConfirmRemoveAuth/', {'Boolean' : boolean})
+
+    def set_option_single_cookie_request_header(self, boolean):
+        return self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean})
 
 

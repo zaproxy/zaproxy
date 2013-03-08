@@ -29,6 +29,6 @@ class pscan(object):
         """
         The number of records the passive scanner still has to scan
         """
-        return self.zap._request(self.zap.base + 'pscan/view/recordsToScan/')
+        return self.zap._request(self.zap.base + 'pscan/view/recordsToScan/').get('records_to_scan')
 
 

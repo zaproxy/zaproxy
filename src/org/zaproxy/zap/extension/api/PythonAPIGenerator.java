@@ -131,9 +131,11 @@ public class PythonAPIGenerator {
 					out.write("'" + param + "' : " + param.toLowerCase());
 				}
 			}
-			out.write("}");
+			out.write("})");
+		} else {
+			out.write(").get('" + camelCaseToLcUnderscores(element.getName()) + "')");
 		}
-		out.write(")\n\n");
+		out.write("\n\n");
 		
 	}
 

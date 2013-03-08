@@ -26,78 +26,74 @@ class spider(object):
 
     @property
     def status(self):
-        return self.zap._request(self.zap.base + 'spider/view/status/')
+        return self.zap._request(self.zap.base + 'spider/view/status/').get('status')
 
     @property
     def results(self):
-        return self.zap._request(self.zap.base + 'spider/view/results/')
+        return self.zap._request(self.zap.base + 'spider/view/results/').get('results')
 
     @property
     def excluded_from_scan(self):
-        return self.zap._request(self.zap.base + 'spider/view/excludedFromScan/')
+        return self.zap._request(self.zap.base + 'spider/view/excludedFromScan/').get('excluded_from_scan')
 
     @property
     def option_max_depth(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionMaxDepth/')
+        return self.zap._request(self.zap.base + 'spider/view/optionMaxDepth/').get('option_max_depth')
 
     @property
     def option_scope_text(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionScopeText/')
+        return self.zap._request(self.zap.base + 'spider/view/optionScopeText/').get('option_scope_text')
 
     @property
     def option_scope(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionScope/')
+        return self.zap._request(self.zap.base + 'spider/view/optionScope/').get('option_scope')
 
     @property
     def option_thread_count(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionThreadCount/')
+        return self.zap._request(self.zap.base + 'spider/view/optionThreadCount/').get('option_thread_count')
 
     @property
     def option_post_form(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionPostForm/')
+        return self.zap._request(self.zap.base + 'spider/view/optionPostForm/').get('option_post_form')
 
     @property
     def option_process_form(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionProcessForm/')
+        return self.zap._request(self.zap.base + 'spider/view/optionProcessForm/').get('option_process_form')
 
     @property
     def option_skip_url_string(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionSkipURLString/')
+        return self.zap._request(self.zap.base + 'spider/view/optionSkipURLString/').get('option_skip_url_string')
 
     @property
     def option_request_wait_time(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionRequestWaitTime/')
+        return self.zap._request(self.zap.base + 'spider/view/optionRequestWaitTime/').get('option_request_wait_time')
 
     @property
     def option_user_agent(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionUserAgent/')
-
-    @property
-    def option_send_cookies(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionSendCookies/')
+        return self.zap._request(self.zap.base + 'spider/view/optionUserAgent/').get('option_user_agent')
 
     @property
     def option_parse_comments(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionParseComments/')
+        return self.zap._request(self.zap.base + 'spider/view/optionParseComments/').get('option_parse_comments')
 
     @property
     def option_parse_robots_txt(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionParseRobotsTxt/')
+        return self.zap._request(self.zap.base + 'spider/view/optionParseRobotsTxt/').get('option_parse_robots_txt')
 
     @property
     def option_handle_parameters(self):
-        return self.zap._request(self.zap.base + 'spider/view/optionHandleParameters/')
+        return self.zap._request(self.zap.base + 'spider/view/optionHandleParameters/').get('option_handle_parameters')
 
     def scan(self, url):
         return self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url})
 
     @property
     def stop(self):
-        return self.zap._request(self.zap.base + 'spider/action/stop/')
+        return self.zap._request(self.zap.base + 'spider/action/stop/').get('stop')
 
     @property
     def clear_excluded_from_scan(self):
-        return self.zap._request(self.zap.base + 'spider/action/clearExcludedFromScan/')
+        return self.zap._request(self.zap.base + 'spider/action/clearExcludedFromScan/').get('clear_excluded_from_scan')
 
     def exclude_from_scan(self, regex):
         return self.zap._request(self.zap.base + 'spider/action/excludeFromScan/', {'regex' : regex})
@@ -125,9 +121,6 @@ class spider(object):
 
     def set_option_request_wait_time(self, integer):
         return self.zap._request(self.zap.base + 'spider/action/setOptionRequestWaitTime/', {'Integer' : integer})
-
-    def set_option_send_cookies(self, boolean):
-        return self.zap._request(self.zap.base + 'spider/action/setOptionSendCookies/', {'Boolean' : boolean})
 
     def set_option_parse_comments(self, boolean):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseComments/', {'Boolean' : boolean})

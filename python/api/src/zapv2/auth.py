@@ -50,11 +50,11 @@ class auth(object):
 
     @property
     def auto_reauth_on(self):
-        return self.zap._request(self.zap.base + 'auth/action/autoReauthOn/')
+        return self.zap._request(self.zap.base + 'auth/action/autoReauthOn/').get('auto_reauth_on')
 
     @property
     def auto_reauth_off(self):
-        return self.zap._request(self.zap.base + 'auth/action/autoReauthOff/')
+        return self.zap._request(self.zap.base + 'auth/action/autoReauthOff/').get('auto_reauth_off')
 
     def set_login_url(self, contextid, url, postdata=''):
         return self.zap._request(self.zap.base + 'auth/action/setLoginUrl/', {'contextId' : contextid, 'url' : url, 'postData' : postdata})
