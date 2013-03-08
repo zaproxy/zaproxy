@@ -24,12 +24,14 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
@@ -44,10 +46,11 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
-import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class AlertPanel extends AbstractPanel {
 	
@@ -66,16 +69,18 @@ public class AlertPanel extends AbstractPanel {
 	private JToolBar panelToolbar = null;
 	private JSplitPane splitPane = null;
 	private AlertViewPanel alertViewPanel = null;
-	private ZapTextField regEx = null;
+	private JToggleButton scopeButton = null;
 
+	private ExtensionAlert extension = null;
 	private ExtensionHistory extHist = null; 
 
 	
     /**
      * 
      */
-    public AlertPanel() {
+    public AlertPanel(ExtensionAlert extension) {
         super();
+        this.extension = extension;
  		initialize();
     }
 
@@ -88,20 +93,10 @@ public class AlertPanel extends AbstractPanel {
         this.setName(Constant.messages.getString("alerts.panel.title"));
 		this.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/071.png")));	// 'flag' icon
 
-        //this.add(getSplitPane(), getSplitPane().getName());
         this.add(getPanelCommand(), getPanelCommand().getName());
 			
 	}
 	
-	private GridBagConstraints newGBC (int gridx) {
-		GridBagConstraints gridBagConstraints = new GridBagConstraints();
-		gridBagConstraints.gridx = gridx;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.insets = new java.awt.Insets(0,0,0,0);
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-		return gridBagConstraints;
-	}
-
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -127,15 +122,12 @@ public class AlertPanel extends AbstractPanel {
 			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			
-			// TODO Work in progress
-			//panelCommand.add(this.getPanelToolbar(), gridBagConstraints1);
 			panelCommand.add(getSplitPane(), gridBagConstraints2);
 
 		}
 		return panelCommand;
 	}
 
-	@SuppressWarnings("unused")
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
 			
@@ -148,31 +140,8 @@ public class AlertPanel extends AbstractPanel {
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("AlertToolbar");
 			
-			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
-			gridBagConstraintsX.gridx = 6;
-			gridBagConstraintsX.gridy = 0;
-			gridBagConstraintsX.weightx = 1.0;
-			gridBagConstraintsX.weighty = 1.0;
-			gridBagConstraintsX.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraintsX.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraintsX.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-			JLabel t1 = new JLabel();
-
-			panelToolbar.add(getRegExField(), newGBC(0));
-			panelToolbar.add(t1, gridBagConstraintsX);
-/*
-			JLabel inverseTooltip = new JLabel(Constant.messages.getString("search.toolbar.label.inverse"));
-			inverseTooltip.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.inverse"));
-
-			panelToolbar.add(getRegExField(), newGBC(0));
-			panelToolbar.add(getSearchType(), newGBC(1));
-			panelToolbar.add(inverseTooltip, newGBC(2));
-			panelToolbar.add(getChkInverse(), newGBC(3));
-			panelToolbar.add(getBtnSearch(), newGBC(4));
-			panelToolbar.add(getBtnNext(), newGBC(5));
-			panelToolbar.add(getBtnPrev(), newGBC(6));
-			*/
+			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(0, 0, 1, 0.0D));
+			panelToolbar.add(new JLabel(), LayoutHelper.getGBC(20, 0, 1, 1.0D));	// Spacer
 		}
 		return panelToolbar;
 	}
@@ -184,10 +153,15 @@ public class AlertPanel extends AbstractPanel {
 			splitPane.setDividerSize(3);
 			splitPane.setDividerLocation(400);
 			splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-			splitPane.setLeftComponent(getPaneScroll());
-			//splitPane.setRightComponent(getJScrollPaneRight());
+			// Add toolbar
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridBagLayout());
+			panel.add(this.getPanelToolbar(), LayoutHelper.getGBC(0, 0, 1, 0.0D));
+			panel.add(getPaneScroll(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 1.0D));
+			
+			splitPane.setLeftComponent(panel);
+			
 			splitPane.setRightComponent(getAlertViewPanel());
-			//splitPane.setResizeWeight(0.5D);
 			splitPane.setPreferredSize(new Dimension(100,200));
 		}
 		return splitPane;
@@ -200,28 +174,28 @@ public class AlertPanel extends AbstractPanel {
 		return alertViewPanel;
 	}
 	
-	protected ZapTextField getRegExField () {
-		if (regEx == null) {
-			regEx = new ZapTextField();
-			regEx.setHorizontalAlignment(ZapTextField.LEFT);
-			regEx.setAlignmentX(0.0F);
-			regEx.setPreferredSize(new java.awt.Dimension(250,25));
-			regEx.setText("");
-			regEx.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.regex"));
-			regEx.setMinimumSize(new java.awt.Dimension(250,25));
-			
-			regEx.addActionListener(new java.awt.event.ActionListener() { 
+	private JToggleButton getScopeButton() {
+		if (scopeButton == null) {
+			scopeButton = new JToggleButton();
+			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+
+			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
+
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					doSearch();
+					extension.setShowJustInScope(scopeButton.isSelected());
+					if (scopeButton.isSelected()) {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
+					} else {
+						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+					}
 				}
 			});
-
 		}
-		return regEx;
-	}
-
-	private void doSearch() {
+		return scopeButton;
 	}
 
 	/**

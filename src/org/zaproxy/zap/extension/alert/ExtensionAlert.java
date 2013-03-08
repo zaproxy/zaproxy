@@ -48,6 +48,7 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.MainFooterPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -56,7 +57,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     public static final String NAME = "ExtensionAlert";
     private List<HistoryReference> hrefs = new ArrayList<>();
-    private AlertTreeModel treeAlert = null;
+    private AlertTreeModel treeModel = null;
+    private AlertTreeModel filteredTreeModel = null;
     private AlertPanel alertPanel = null;
     private RecordScan recordScan = null;
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
@@ -64,6 +66,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
+    private boolean inScope = false;
 
     /**
      *
@@ -167,12 +170,21 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             }
         }
     }
+    
+    private boolean isInFilter(Alert alert) {
+    	// Just support scope for now
+    	return this.getModel().getSession().isInScope(alert.getHistoryRef());
+    }
 
     private void addAlertToDisplayEventHandler(Alert alert, HistoryReference ref, HttpMessage msg) {
 
-        synchronized (treeAlert) {
-            treeAlert.addPath(alert);
+        synchronized (this.getTreeModel()) {
+        	this.getTreeModel().addPath(alert);
+        	if (isInFilter(alert)) {
+	        	this.getFilteredTreeModel().addPath(alert);
+        	}
             getAlertPanel().expandRoot();
+            this.recalcAlerts();
         }
 
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
@@ -196,7 +208,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
      */
     AlertPanel getAlertPanel() {
         if (alertPanel == null) {
-            alertPanel = new AlertPanel();
+            alertPanel = new AlertPanel(this);
             alertPanel.setView(getView());
             alertPanel.setSize(345, 122);
             alertPanel.getTreeAlert().setModel(getTreeModel());
@@ -213,10 +225,17 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     // ZAP: Changed return type for getTreeModel
     private AlertTreeModel getTreeModel() {
-        if (treeAlert == null) {
-            treeAlert = new AlertTreeModel();
+        if (treeModel == null) {
+            treeModel = new AlertTreeModel();
         }
-        return treeAlert;
+        return treeModel;
+    }
+
+    private AlertTreeModel getFilteredTreeModel() {
+        if (filteredTreeModel == null) {
+        	filteredTreeModel = new AlertTreeModel();
+        }
+        return filteredTreeModel;
     }
 
     private void writeAlertToDB(Alert alert, HistoryReference ref) throws HttpMalformedHeaderException, SQLException {
@@ -260,6 +279,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     public void updateAlertInTree(Alert originalAlert, Alert alert) {
         this.getTreeModel().updatePath(originalAlert, alert);
+    	if (isInFilter(alert)) {
+    		this.getFilteredTreeModel().updatePath(originalAlert, alert);
+    	}
+    	this.recalcAlerts();
     }
 
     @Override
@@ -270,7 +293,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         } else {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
-
                     @Override
                     public void run() {
                         sessionChangedEventHandler(session);
@@ -283,23 +305,18 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void sessionChangedEventHandler(Session session) {
-        AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
-
+        AlertTreeModel tree = this.getTreeModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
 
         while (root.getChildCount() > 0) {
             tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
         
-        // Check if ZAP is in GUI mode.
-        // tree.recalcAlertCounts() calls View.getSingleton() that creates the
-        // View, if a View exists and the API was not enabled (through
-        // configuration) the API becomes disabled everywhere (including daemon
-        // mode).
-        // Note: the API needs to be enabled all the time in daemon mode.
-        if (View.isInitialised()) {
-            // ZAP: Reset the alert counts
-            tree.recalcAlertCounts();
+        tree = this.getFilteredTreeModel();
+        root = (DefaultMutableTreeNode) tree.getRoot();
+
+        while (root.getChildCount() > 0) {
+            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
         
         hrefs = new ArrayList<>();
@@ -316,7 +333,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
-
+        this.recalcAlerts();
     }
 
     private void refreshAlert(Session session) throws SQLException {
@@ -414,8 +431,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             siteNodeChanged(node);
         }
 
-        synchronized (treeAlert) {
-            treeAlert.deletePath(alert);
+        synchronized (this.getTreeModel()) {
+        	this.getTreeModel().deletePath(alert);
+        	this.getFilteredTreeModel().deletePath(alert);
             List<HistoryReference> toDelete = new ArrayList<>();
             for (HistoryReference href : hrefs) {
                 if (href.getAlerts().contains(alert)) {
@@ -441,8 +459,43 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             }
         }
 
-        AlertTreeModel tree = (AlertTreeModel) getAlertPanel().getTreeAlert().getModel();
-        tree.recalcAlertCounts();
+        this.recalcAlerts();
+    }
+    
+    private void recalcAlerts() {
+    	if (View.isInitialised()) {
+            if (inScope) {
+            	this.recalcAlerts(getFilteredTreeModel());
+            } else {
+            	this.recalcAlerts(getTreeModel());
+            }
+    	}
+    }
+    
+    private void recalcAlerts(AlertTreeModel tree) {
+    	// Must only be called when View is initialised
+    	int totalInfo = 0;
+    	int totalLow = 0;
+    	int totalMedium = 0;
+    	int totalHigh = 0;
+
+    	AlertNode parent = (AlertNode) tree.getRoot();
+    	if (parent != null) {
+            for (int i=0; i<parent.getChildCount(); i++) {
+                AlertNode child = (AlertNode) parent.getChildAt(i);
+            	switch (child.getRisk()) {
+            	case Alert.RISK_INFO:	totalInfo++;	break;
+            	case Alert.RISK_LOW:	totalLow++;		break;
+            	case Alert.RISK_MEDIUM:	totalMedium++;	break;
+            	case Alert.RISK_HIGH:	totalHigh++;	break;
+            	}
+            }
+    	}
+    	MainFooterPanel footer = View.getSingleton().getMainFrame().getMainFooterPanel();
+        footer.setAlertInfo(totalInfo);
+        footer.setAlertLow(totalLow);
+        footer.setAlertMedium(totalMedium);
+        footer.setAlertHigh(totalHigh);
     }
 
     public List<Alert> getAllAlerts() {
@@ -507,8 +560,29 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+		// Have to recheck all alerts to see if they are in scope
+		synchronized (this.getTreeModel()) {
+			((AlertNode)this.getFilteredTreeModel().getRoot()).removeAllChildren();
+			AlertNode root = (AlertNode)this.getTreeModel().getRoot();
+			filterTree(root);
+			this.getFilteredTreeModel().nodeStructureChanged(root);
+		}
+		
+		this.recalcAlerts();
 	}
 	
+	private void filterTree(AlertNode node) {
+		if (node.getUserObject() != null && node.getUserObject() instanceof Alert) {
+			Alert alert = (Alert) node.getUserObject();
+			if (this.isInFilter(alert)) {
+				this.getFilteredTreeModel().addPath(alert);
+			}
+		}
+		for (int i=0; i < node.getChildCount(); i++) {
+			this.filterTree((AlertNode)node.getChildAt(i));
+		}
+	}
+
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
@@ -516,5 +590,15 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
 	public void setAlertTabFocus() {
 		this.getAlertPanel().setTabFocus();
+	}
+
+	public void setShowJustInScope(boolean inScope) {
+		this.inScope = inScope;
+		if (inScope) {
+			this.getAlertPanel().getTreeAlert().setModel(this.getFilteredTreeModel());
+		} else {
+			this.getAlertPanel().getTreeAlert().setModel(this.getTreeModel());
+		}
+		this.recalcAlerts();
 	}
 }

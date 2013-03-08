@@ -23,51 +23,14 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.view.View;
 
 
 class AlertTreeModel extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 1L;
-	private int totalInfo = 0;
-	private int totalLow = 0;
-	private int totalMedium = 0;
-	private int totalHigh = 0;
 	
     AlertTreeModel() {
         super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));
-    }
-    
-    public void recalcAlertCounts() {
-    	AlertNode parent = (AlertNode) getRoot();
-    	totalInfo = 0;
-    	totalLow = 0;
-    	totalMedium = 0;
-    	totalHigh = 0;
-    	if (parent != null) {
-            for (int i=0; i<parent.getChildCount(); i++) {
-                AlertNode child = (AlertNode) parent.getChildAt(i);
-                
-            	switch (child.getRisk()) {
-            	case Alert.RISK_INFO:
-                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(++totalInfo);
-                    break;
-            	case Alert.RISK_LOW:
-                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(++totalLow);
-                    break;
-            	case Alert.RISK_MEDIUM:
-                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(++totalMedium);
-                    break;
-            	case Alert.RISK_HIGH:
-                    View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(++totalHigh);
-                    break;
-            	}
-            }
-    	}
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertInfo(totalInfo);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertLow(totalLow);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertMedium(totalMedium);
-        View.getSingleton().getMainFrame().getMainFooterPanel().setAlertHigh(totalHigh);
     }
     
     private String getRiskString (Alert alert) {
@@ -136,7 +99,6 @@ class AlertTreeModel extends DefaultTreeModel {
         }
         // Add it back in again
         this.addPath(alert);
-        recalcAlertCounts();
     }
     
  
@@ -187,7 +149,6 @@ class AlertTreeModel extends DefaultTreeModel {
             result.setUserObject(alert);
         	this.nodesChanged(newNode);
         }
-        recalcAlertCounts();
         return result;
     }
     
@@ -245,7 +206,6 @@ class AlertTreeModel extends DefaultTreeModel {
                 nodeStructureChanged((AlertNode) this.getRoot());
         	}
         }
-        recalcAlertCounts();
     }
     
 }
