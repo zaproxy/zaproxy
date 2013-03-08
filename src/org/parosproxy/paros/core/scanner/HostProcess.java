@@ -34,6 +34,7 @@
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/11/22 Issue 421: Cleanly shut down any active scan threads on shutdown
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
+// ZAP: 2013/03/08 Added some debug logging
 
 package org.parosproxy.paros.core.scanner;
 
@@ -99,6 +100,7 @@ public class HostProcess implements Runnable {
     
     @Override
     public void run() {
+    	log.debug("HostProcess.run");
 
         hostProcessStartTime = System.currentTimeMillis();
         getAnalyser().start(startNode);
@@ -149,7 +151,7 @@ public class HostProcess implements Runnable {
     }
     
     private void traverse(Plugin plugin, SiteNode node, boolean incRelatedSiblings) {
-    	//log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
+    	log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
         
         if (node == null || plugin == null) {
             return;
@@ -208,6 +210,7 @@ public class HostProcess implements Runnable {
      * @param node.  If node == null, run for server level plugin
      */
     private void scanSingleNode(Plugin plugin, SiteNode node) {
+    	log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node);
         Thread thread = null;
         Plugin test = null;
         HttpMessage msg = null;
@@ -217,15 +220,18 @@ public class HostProcess implements Runnable {
 
         try {
             if (node == null || node.getHistoryReference() == null) {
+            	log.debug("scanSingleNode node or href null, returning: node=" + node);
                 return;
             }
             if (! nodeInScope(node)) {
+            	log.debug("scanSingleNode node not in scope");
 				return;
             }
             msg = node.getHistoryReference().getHttpMessage();
             
             if (msg == null) {
             	// Likely to be a temporary node
+            	log.debug("scanSingleNode msg null");
             	return;
             }
 

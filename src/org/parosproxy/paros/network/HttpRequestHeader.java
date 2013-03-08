@@ -34,11 +34,14 @@
 // ZAP: 2012/10/08 Issue 361: getHostPort on HttpRequestHeader for HTTPS CONNECT
 // requests returns the wrong port
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/03/08 Improved parse error reporting
+
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -172,22 +175,19 @@ public class HttpRequestHeader extends HttpHeader {
      */
     public void setMessage(String data, boolean isSecure) throws HttpMalformedHeaderException {
         super.setMessage(data);
-        try {
-            if (!parse(isSecure)) {
-                mMalformedHeader = true;
+		try {
+        	parse(isSecure);
+    	} catch (HttpMalformedHeaderException e) {
+        	mMalformedHeader = true;
+            if (log.isDebugEnabled()) {
+                log.debug("Malformed header: " + data, e);
             }
+        	throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             mMalformedHeader = true;
-        }
-
-        if (mMalformedHeader) {
-            if (log.isDebugEnabled()) {
-                log.debug("Malformed header: " + data);
-            }
-            throw new HttpMalformedHeaderException();
-        }
-
+            throw new HttpMalformedHeaderException(e.getMessage());
+    	}
     }
 
     /**
@@ -316,14 +316,13 @@ public class HttpRequestHeader extends HttpHeader {
      * @throws URIException
      * @throws NullPointerException
      */
-    protected boolean parse(boolean isSecure) throws URIException, NullPointerException {
-        //throws Exception {
+    private void parse(boolean isSecure) throws URIException, HttpMalformedHeaderException {
 
         mIsSecure = isSecure;
         Matcher matcher = patternRequestLine.matcher(mStartLine);
         if (!matcher.find()) {
             mMalformedHeader = true;
-            return false;
+            throw new HttpMalformedHeaderException("Failed to find pattern: " + patternRequestLine);
         }
 
         mMethod = matcher.group(1);
@@ -333,7 +332,7 @@ public class HttpRequestHeader extends HttpHeader {
 
         if (!mVersion.equalsIgnoreCase(HTTP09) && !mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
             mMalformedHeader = true;
-            return false;
+			throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
 
         mUri = parseURI(sUri);
@@ -358,7 +357,6 @@ public class HttpRequestHeader extends HttpHeader {
             mHostName = mUri.getHost();
             setHostPort(mUri.getPort());
         }
-        return true;
     }
 
     private void parseHostName(String hostHeader) {
@@ -674,26 +672,15 @@ public class HttpRequestHeader extends HttpHeader {
 	 */
 	public List<HttpCookie> getHttpCookies() {
 		List<HttpCookie> cookies = new LinkedList<>();
-
-		// Process each "Cookie: " header line
-		Vector<String> cookiesS = getHeaders(HttpHeader.COOKIE);
-		if (cookiesS != null)
-			for (String cookieLine : cookiesS) {
-				String[] array = cookieLine.split(";");
-				for (String cookieString : array) {
-					int eqOffset = cookieString.indexOf("=");
-					if (eqOffset <= 0) {
-						throw new IllegalArgumentException(
-								"Wrong format for cookie line. '=' not found or cookie name not found: " + cookieLine);
-					}
-					String name = cookieString.substring(0, eqOffset).trim();
-					String value = cookieString.substring(eqOffset + 1).trim();
-					HttpCookie cookie = new HttpCookie(name, value);
-					cookies.add(cookie);
-				}
+		// Use getCookieParams to reduce the places we parse cookies
+		TreeSet<HtmlParameter> ts = getCookieParams();
+		Iterator<HtmlParameter> it = ts.iterator();
+		while (it.hasNext()) {
+			HtmlParameter htmlParameter = it.next();
+			if(!htmlParameter.getName().isEmpty()) {
+				cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
 			}
-
+		}
 		return cookies;
-
 	}
 }

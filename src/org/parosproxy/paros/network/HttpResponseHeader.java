@@ -24,6 +24,8 @@
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 // ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
 // ZAP: 2012/08/06 Modified isText() to also consider javascript as text 
+// ZAP: 2013/03/08 Improved parse error reporting
+
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -77,16 +79,11 @@ public class HttpResponseHeader extends HttpHeader {
 	public void setMessage(String data) throws HttpMalformedHeaderException {
 		super.setMessage(data);
 		try {
-        	if (!parse())
-        		mMalformedHeader = true;
-    	} catch (Exception e) {
+        	parse();
+    	} catch (HttpMalformedHeaderException e) {
         	mMalformedHeader = true;
+        	throw e;
     	}
-
-    	if (mMalformedHeader) {
-    		throw new HttpMalformedHeaderException();
-    	}
-
 	}
 	
     @Override
@@ -102,12 +99,12 @@ public class HttpResponseHeader extends HttpHeader {
         return mReasonPhrase;
     }
 
-    public boolean parse() throws Exception {
+    private void parse() throws HttpMalformedHeaderException {
 
 		Matcher matcher = patternStatusLine.matcher(mStartLine);
 		if (!matcher.find()) {
 			mMalformedHeader = true;
-			return false;
+			throw new HttpMalformedHeaderException("Failed to find pattern: " + patternStatusLine);
 		}
 		
 		mVersion 			= matcher.group(1);
@@ -120,16 +117,16 @@ public class HttpResponseHeader extends HttpHeader {
 		 
         if (!mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
 			mMalformedHeader = true;
-			return false;
+			throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
+			//return false;
 		}
 
     	try {
     		mStatusCode = Integer.parseInt(mStatusCodeString);
      	} catch (NumberFormatException e) {
      		mMalformedHeader = true;
-     		return false;
+			throw new HttpMalformedHeaderException("Unexpected status code: " + mStatusCodeString);
      	}
-        return true;
     }
 
     @Override
@@ -225,14 +222,18 @@ public class HttpResponseHeader extends HttpHeader {
 		List<HttpCookie> cookies = new LinkedList<>();
 
 		Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
-		if (cookiesS != null)
-			for (String c : cookiesS)
+		if (cookiesS != null) {
+			for (String c : cookiesS) {
 				cookies.addAll(HttpCookie.parse(c));
+			}
+		}
 
 		cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
-		if (cookiesS != null)
-			for (String c : cookiesS)
+		if (cookiesS != null) {
+			for (String c : cookiesS) {
 				cookies.addAll(HttpCookie.parse(c));
+			}
+		}
 
 		return cookies;
 
