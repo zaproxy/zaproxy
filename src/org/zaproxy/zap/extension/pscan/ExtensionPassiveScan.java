@@ -39,6 +39,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.params.ParamScanner;
+import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -89,6 +90,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 	}
 	
+	@Override
+	public void optionsLoaded() {
+		PassiveScanParam ps = getPassiveScanParam();
+		for (RegexAutoTagScanner ats : ps.getAutoTagScanners()) {
+			this.addPassiveScanner(ats);
+		}
+	}
+
 	public boolean addPassiveScanner (String className) {
 		try {
 			Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
