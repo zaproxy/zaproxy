@@ -596,7 +596,8 @@ public class SiteMap extends DefaultTreeModel {
 		int port = uri.getPort();		
 		if (port != -1 &&
 				((port == 80 && !"http".equals(scheme)) ||
-				(port == 443 && !"https".equals(scheme)))) {
+				(port == 443 && !"https".equals(scheme) ||
+				(port != 80 && port != 443)))) {
 			host.append(":").append(port);
 		}
 		
