@@ -31,6 +31,18 @@
 		<slotIndex>0</slotIndex>
 	</driver>
 	<driver>
+		<name>Belgium eID - Linux (x86)</name>
+		<path>/usr/lib/libbeidpkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
+		<name>Belgium eID - Linux (x64)</name>
+		<path>/usr/lib64/libbeidpkcs11.so</path>
+		<slot>0</slot>
+		<slotIndex>0</slotIndex>
+	</driver>
+	<driver>
 		<name>Portuguese Cartão de Cidadão - Windows (x86)</name>
 		<path>C:\Windows\System32\pteidpkcs11.dll</path>
 		<slot>0</slot>
