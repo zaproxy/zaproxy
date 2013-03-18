@@ -27,6 +27,7 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/01/25 Catch any exceptions thrown when loading plugins to allow ZAP to still start
+// ZAP: 2013/03/18 Issue 564: Active scanner can hang if dependencies used
 
 package org.parosproxy.paros.core.scanner;
 
@@ -264,7 +265,7 @@ public class PluginFactory {
     private Plugin probeNextPlugin() {
         Plugin plugin = null;
         int i=0;
-        while (plugin == null && i<listPending.size()) {
+        while (i<listPending.size()) {
             // ZAP: Removed unnecessary cast.
             plugin = listPending.get(i);
             if (isAllDependencyCompleted(plugin)) {
