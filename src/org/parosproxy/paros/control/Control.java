@@ -38,6 +38,8 @@
 // ZAP: 2012/12/06 Issue 428: Added exit method to support the marketplace
 // ZAP: 2012/12/27 Hook new persistent connection listener.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
+
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -223,6 +225,11 @@ public class Control extends AbstractControl implements SessionListener {
         control = new Control();
 	}
 
+    
+    public void runCommandLine() throws Exception {
+	    log.debug("runCommand");
+		getExtensionLoader().runCommandLine();
+	}
     
     public void runCommandLineNewSession(String fileName) throws Exception {
 	    log.debug("runCommandLineNewSession " + fileName);

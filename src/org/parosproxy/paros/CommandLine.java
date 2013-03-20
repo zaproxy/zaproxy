@@ -23,6 +23,7 @@
 //      Changed to use the class StringBuilder instead of the class StringBuffer in the method getHelp.
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 
 package org.parosproxy.paros;
 
@@ -44,6 +45,7 @@ public class CommandLine {
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
     public static final String PORT = "-port";
+    public static final String CMD = "-cmd";
     
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -180,6 +182,9 @@ public class CommandLine {
         } else if (checkSwitch(args, SP, i)) {
             Constant.setSP(true);
             result = true;
+        } else if (checkSwitch(args, CMD, i)) {
+        	setDaemon(false);
+            setGUI(false);
         } else if (checkSwitch(args, DAEMON, i)) {
         	setDaemon(true);
             setGUI(false);
@@ -251,26 +256,35 @@ public class CommandLine {
 
     // ZAP: Made public and rebranded
 	public static String getHelpGeneral() {
-		String CRLF = "\r\n";
-		String help =
-			"GUI usage:" + CRLF +
-			"\tjavaw zap.jar" + CRLF +
-			"\tjava -jar zap.jar {-dir directory}" + CRLF +
-			"see java -jar zap.jar {-h|-help} for detail.\r\n\r\n";
-		return help;
+    	StringBuilder sb = new StringBuilder();        
+		sb.append("GUI usage:\n");
+    	if (Constant.isWindows()) {
+            sb.append("\tzap.bat ");
+        } else {
+            sb.append("\tzap.sh ");
+        }
+		sb.append("[-dir directory]\n\n");
+		return sb.toString();
 	}
 	
 	// ZAP: Rebranded
     public String getHelp() {
     	StringBuilder sb = new StringBuilder(getHelpGeneral());        
-        sb.append("Command line usage:\r\n");
-        sb.append("java -jar zap.jar {-h|-help} {-newsession session_file_path} {options} {-dir directory} {-port port} {-daemon} {-version}\r\n");
-        sb.append("options:\r\n\r\n");
+        sb.append("Command line usage:\n");
+        if (Constant.isWindows()) {
+            sb.append("\tzap.bat ");
+        } else {
+            sb.append("\tzap.sh ");
+        }
+        sb.append("[-h |-help] [-newsession session_file_path] [options] [-dir directory]\n" +
+        		"\t\t[-port port] [-daemon] [-cmd] [-version]\n");
+        sb.append("options:\n");
 
         for (int i=0; i<commandList.size(); i++) {
 	        CommandLineArgument[] extArg = commandList.get(i);
 	        for (int j=0; j<extArg.length; j++) {
-	            sb.append(extArg[j].getHelpMessage()).append("\r\n");
+	            sb.append("\t");
+	            sb.append(extArg[j].getHelpMessage()).append("\n");
 	        }
         }
         

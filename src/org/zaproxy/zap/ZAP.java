@@ -339,8 +339,7 @@ public class ZAP {
 	        } else if (cmdLine.isReportVersion()) {
 	            System.out.println(Constant.PROGRAM_VERSION);
 	        } else {
-
-	            control.runCommandLineNewSession(cmdLine.getArgument(CommandLine.NEW_SESSION));
+	            control.runCommandLine();
 
 	            try {
 	                Thread.sleep(1000);
