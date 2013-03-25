@@ -24,6 +24,7 @@
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
 // ZAP: 2012/07/11 Added method to check if response type is text/html (isHtml())
 // ZAP: 2012/08/06 Modified isText() to also consider javascript as text 
+// ZAP: 2013/02/12 Modified isText() to also consider atom+xml as text
 // ZAP: 2013/03/08 Improved parse error reporting
 
 package org.parosproxy.paros.network;
@@ -46,7 +47,8 @@ public class HttpResponseHeader extends HttpHeader {
 	private static final String _CONTENT_TYPE_TEXT = "text";
 	private static final String _CONTENT_TYPE_HTML = "html";
 	private static final String _CONTENT_TYPE_JAVASCRIPT = "javascript";
-	
+	private static final String _CONTENT_TYPE_XML = "xml"; 
+
 	
 	static final Pattern patternStatusLine
 		= Pattern.compile(p_VERSION + p_SP + p_STATUS_CODE + " *" + p_REASON_PHRASE, Pattern.CASE_INSENSITIVE);
@@ -176,7 +178,10 @@ public class HttpResponseHeader extends HttpHeader {
 				return true;
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
 				return true;
+			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_XML) > -1) { 
+				return true; 
 			}
+
 		}
 		return false;
 	}
@@ -192,6 +197,20 @@ public class HttpResponseHeader extends HttpHeader {
 		return false;
 		
 	}
+	
+	// ZAP: Added method
+	public boolean isXml() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_XML) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
 	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());

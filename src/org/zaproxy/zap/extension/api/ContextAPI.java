@@ -17,14 +17,14 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.model.Context;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContextAPI extends ApiImplementor {
 

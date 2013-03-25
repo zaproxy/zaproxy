@@ -66,6 +66,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
 	private JCheckBox parseRobotsTxt = null;
+	private JCheckBox handleODataSpecificParameters = null;
+
 	private JComboBox<HandleParametersOption> handleParameters = null;
 
 	/**
@@ -100,7 +102,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider = new JPanel();
 			panelSpider.setLayout(new GridBagLayout());
 			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-				panelSpider.setSize(114, 132);
+				//panelSpider.setSize(114, 132);
+				panelSpider.setSize(114, 150);
 			}
 			panelSpider.setName("");
 
@@ -116,6 +119,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
 			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
 			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
+			GridBagConstraints handleODataSpecificParametersGridBag = new GridBagConstraints();
+			
 			GridBagConstraints handleParametersGridBag = new GridBagConstraints();
 			GridBagConstraints handleParametersLabelGridBag = new GridBagConstraints();
 
@@ -212,6 +217,15 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseRobotsTxtGridBag.fill = GridBagConstraints.HORIZONTAL;
 			parseRobotsTxtGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseRobotsTxtGridBag.insets = new Insets(2, 2, 2, 2);
+			
+			handleODataSpecificParametersGridBag.gridx = 0;
+			handleODataSpecificParametersGridBag.gridy = 13;
+			handleODataSpecificParametersGridBag.weightx = 1.0;
+			handleODataSpecificParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
+			handleODataSpecificParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
+			handleODataSpecificParametersGridBag.insets = new Insets(2, 2, 2, 2);
+
+			
 
 			// Prepare the necessary labels
 			JLabel domainsLabel = new JLabel();
@@ -237,6 +251,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
 			panelSpider.add(handleParametersLabel, handleParametersLabelGridBag);
 			panelSpider.add(getComboHandleParameters(), handleParametersGridBag);
+			panelSpider.add(getHandleODataSpecificParameters(), handleODataSpecificParametersGridBag);
+
 		}
 		return panelSpider;
 	}
@@ -255,6 +271,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
 		getComboHandleParameters().setSelectedItem(param.getHandleParameters());
+		getHandleODataSpecificParameters().setSelected(param.isHandleODataParametersVisited());
 
 	}
 
@@ -275,6 +292,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setParseComments(getChkParseComments().isSelected());
 		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
 		param.setHandleParameters((HandleParametersOption) getComboHandleParameters().getSelectedItem());
+		param.setHandleODataParametersVisited(getHandleODataSpecificParameters().isSelected());
 	}
 
 	/**
@@ -428,6 +446,20 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		return parseRobotsTxt;
 	}
 
+	/**
+	 * This method initializes the Handle OData-specific parameters checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getHandleODataSpecificParameters() {
+		if (handleODataSpecificParameters == null) {
+			handleODataSpecificParameters = new JCheckBox();
+			handleODataSpecificParameters.setText(Constant.messages.getString("spider.options.label.handlehodataparameters"));
+		}
+		return handleODataSpecificParameters;
+	}
+	
+	
 	/**
 	 * This method initializes the combobox for HandleParameters option.
 	 * 

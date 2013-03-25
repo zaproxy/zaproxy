@@ -59,6 +59,9 @@ public class SpiderParam extends AbstractParam {
 
 	/** The Constant SPIDER_HANDLE_PARAMETERS. */
 	private static final String SPIDER_HANDLE_PARAMETERS = "spider.handleParameters";
+	
+	/** The Constant SPIDER_HANDLE_ODATA_URL. */
+	private static final String SPIDER_HANDLE_ODATA_PARAMETERS = "spider.handleODataParameters";
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -132,7 +135,9 @@ public class SpiderParam extends AbstractParam {
 	private String userAgent = null;
 	/** The handle parameters visited. */
 	private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
-
+	/** Defines if we take care of OData specific parameters during the visit in orer to identify known URL **/
+	private boolean handleODataParametersVisited = false;
+	
 	/**
 	 * The simple scope text used just for caching the get for the scope. the scopeRegex is the 'regexed'
 	 * version of this variable's value.
@@ -222,6 +227,13 @@ public class SpiderParam extends AbstractParam {
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
+		
+		try {
+			setHandleODataParametersVisited(getConfig().getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false));
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
 	}
 
 	/**
@@ -502,4 +514,24 @@ public class SpiderParam extends AbstractParam {
 		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, handleParametersVisited.toValue());
 	}
 
+	/**
+	 * Check if the spider should take into account OData-specific parameters (i.e : resource identifiers)
+	 * in order to identify already visited URL
+	 * @return true, for handling OData parameters
+	 */
+	public boolean isHandleODataParametersVisited() {
+		return handleODataParametersVisited;
+	}
+
+	/**
+	 * Defines if the spider should handle OData specific parameters (i.e : resource identifiers)
+	 * To identify already visited URL
+	 * @param handleODataParametersVisited the new value for handleODataParametersVisited
+	 */
+	public void setHandleODataParametersVisited(boolean handleODataParametersVisited) {
+		this.handleODataParametersVisited = handleODataParametersVisited;
+		getConfig().setProperty(SPIDER_HANDLE_ODATA_PARAMETERS, Boolean.toString(handleODataParametersVisited));
+	}
+	
+	
 }

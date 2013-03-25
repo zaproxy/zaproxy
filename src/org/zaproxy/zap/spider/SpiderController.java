@@ -34,6 +34,7 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
+import org.zaproxy.zap.spider.parser.SpiderODataAtomParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
 import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
@@ -59,6 +60,9 @@ public class SpiderController implements SpiderParserListener {
 
 	/** The text parsers. Initialized dynamically, only if needed. */
 	private List<SpiderParser> txtParsers;
+	
+	/** The parsers for xml files (i.e. OData Atom content) */	
+	private List<SpiderParser> xmlParsers; 
 
 	/** The spider. */
 	private Spider spider;
@@ -103,7 +107,12 @@ public class SpiderController implements SpiderParserListener {
 		parser = new SpiderTextParser();
 		parser.addSpiderParserListener(this);
 		this.txtParsers.add(parser);
-
+		
+		// Prepare the parsers for OData ATOM files
+		this.xmlParsers = new LinkedList<>();
+		parser = new SpiderODataAtomParser();
+		parser.addSpiderParserListener(this);
+		this.xmlParsers.add(parser);
 	}
 
 	/**
@@ -116,8 +125,9 @@ public class SpiderController implements SpiderParserListener {
 		// Check if the uri was processed already
 		String visitedURI;
 		try {
-			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uri, spider.getSpiderParam()
-					.getHandleParameters());
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uri, 
+																				  spider.getSpiderParam().getHandleParameters(),
+																				  spider.getSpiderParam().isHandleODataParametersVisited());
 		} catch (URIException e) {
 			return;
 		}
@@ -210,8 +220,9 @@ public class SpiderController implements SpiderParserListener {
 		// If it reached this point, it is definitely text
 		if (message.getResponseHeader().isHtml()){
 			return htmlParsers;
-		}
-		else {
+		} else if (message.getResponseHeader().isXml()) {
+			return xmlParsers; 
+		} else {
 			// Parsing non-HTML text resource.
 			return txtParsers;
 		}
@@ -234,8 +245,9 @@ public class SpiderController implements SpiderParserListener {
 		// Check if the uri was processed already
 		String visitedURI;
 		try {
-			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uriV, spider.getSpiderParam()
-					.getHandleParameters());
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uriV, 
+																				  spider.getSpiderParam().getHandleParameters(),
+																				  spider.getSpiderParam().isHandleODataParametersVisited());
 		} catch (URIException e) {
 			return;
 		}

@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -44,6 +46,8 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * 
  * Note: some parts of the code are adapted from: <a
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
+ * 
+ * Added support for OData URLs
  */
 public final class URLCanonicalizer {
 
@@ -57,6 +61,28 @@ public final class URLCanonicalizer {
 		IRRELEVANT_PARAMETERS.add("phpsessid");
 		IRRELEVANT_PARAMETERS.add("aspsessionid");
 	}
+	
+	
+	/** 
+	 *	OData support
+	 *	Extract the ID of a resource including the surrounding quote
+	 *  First group is the resource_name
+	 *  Second group is the ID (quote will be taken as part of the value)
+	 */
+	private static final Pattern patternResourceIdentifierUnquoted  = Pattern.compile("\\/(\\w*)\\(([\\w\\']*)\\)");
+
+	/** 
+	 * OData support
+	 * Detect a section containing a composite IDs 
+	 */
+	private static final Pattern patternResourceMultipleIdentifier  = Pattern.compile("\\/\\w*\\((.*)\\)");
+
+	/** 
+	 * OData support
+	 * Extract the detail of the multiples IDs
+	 */
+	private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("(\\w*)=([\\w\\']*)");
+
 	
 	/**
 	 * Private constructor to avoid initialization of object.
@@ -167,11 +193,12 @@ public final class URLCanonicalizer {
 	 * 
 	 * @param uri the uri
 	 * @param handleParameters the handle parameters option
+	 * @param handleODataParametersVisited Should we ahndle specific OData parameters
 	 * @return the string representation of the URI
 	 * @throws URIException the URI exception
 	 */
 	public static String buildCleanedParametersURIRepresentation(org.apache.commons.httpclient.URI uri,
-			SpiderParam.HandleParametersOption handleParameters) throws URIException {
+			SpiderParam.HandleParametersOption handleParameters, boolean handleODataParametersVisited) throws URIException {
 		// If the option is set to use all the information, just use the default string representation
 		if (handleParameters.equals(HandleParametersOption.USE_ALL)) {
 			return uri.toString();
@@ -185,7 +212,16 @@ public final class URLCanonicalizer {
 				retVal.append(':').append(uri.getPort());
 			}
 			if (uri.getPath() != null) {
-				retVal.append(uri.getPath());
+				
+				String cleanedPath;
+				if (handleODataParametersVisited){
+					String path = uri.getPath();
+					cleanedPath = cleanODataPath(path,handleParameters);
+				} else {
+					cleanedPath = uri.getPath();
+				}
+
+				retVal.append(cleanedPath);
 			}
 			return retVal.toString();
 		}
@@ -199,7 +235,17 @@ public final class URLCanonicalizer {
 				retVal.append(':').append(uri.getPort());
 			}
 			if (uri.getPath() != null) {
-				retVal.append(uri.getPath());
+				
+				String cleanedPath;
+				if (handleODataParametersVisited){
+					String path = uri.getPath();
+					cleanedPath = cleanODataPath(path,handleParameters);
+				} else {
+					cleanedPath = uri.getPath();
+				}
+								
+				retVal.append(cleanedPath);
+
 			}
 
 			// Get the parameters' names
@@ -227,6 +273,84 @@ public final class URLCanonicalizer {
 
 		// Should not be reached
 		return uri.toString();
+	}
+
+	/**
+	 * Clean the path in the case of an OData Uri containing a resource identifier (simple or multiple)
+	 * 
+	 * @param path The path to clean
+	 * @param handleParameters tThe cleaning mode
+	 * @return A cleaned path
+	 */
+	private static String cleanODataPath(String path, HandleParametersOption handleParameters) {
+		String cleanedPath = path;
+		
+		if (HandleParametersOption.USE_ALL.equals(handleParameters) ) {
+			cleanedPath = path;
+		} else {
+
+			// check for single ID (unnamed)
+			Matcher matcher = patternResourceIdentifierUnquoted.matcher(path);
+			if (matcher.find()) {
+				String resourceName =  matcher.group(1); 
+				String resourceID   =  matcher.group(2);
+			
+				String subString = resourceName + "(" + resourceID + ")";
+				int begin = path.indexOf(subString);
+				int end   = begin + subString.length();
+				
+				String beforeSubstring = path.substring(0,begin);
+				String afterSubstring  = path.substring(end);
+				
+	
+				if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters) ||
+				    HandleParametersOption.IGNORE_VALUE.equals(handleParameters)	     ) {
+					
+					StringBuilder sb = new StringBuilder(beforeSubstring);
+					sb.append(resourceName).append("()").append(afterSubstring);
+					cleanedPath = sb.toString();
+				} 
+							
+			} else {
+				
+				matcher = patternResourceMultipleIdentifier.matcher(path);
+				if (matcher.find()) {
+					// We've found a composite identifier. i.e: /Resource(field1=a,field2=3)
+					
+					String multipleIdentifierSection =   matcher.group(1); 
+					
+					int begin = path.indexOf(multipleIdentifierSection);
+					int end   = begin + multipleIdentifierSection.length();
+	
+					String beforeSubstring = path.substring(0,begin);
+					String afterSubstring  = path.substring(end);
+
+					if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters) ) {
+							cleanedPath = beforeSubstring + afterSubstring;
+					} else {
+						StringBuilder sb = new StringBuilder(beforeSubstring);
+						
+						matcher = patternResourceMultipleIdentifierDetail.matcher(multipleIdentifierSection);
+						int i = 1;
+						while (matcher.find()) {
+							
+							if (i >  1) {
+								sb.append(",");
+							}
+							String paramName       = matcher.group(1);
+							sb.append(paramName);
+							i++;
+						}
+					
+						sb.append(afterSubstring);
+						cleanedPath = sb.toString();
+					}
+							
+				} 
+			}		
+		}
+		
+		return cleanedPath;
 	}
 
 	/**

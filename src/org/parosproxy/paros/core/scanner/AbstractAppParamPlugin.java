@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
 // unnecessary casts.
 // ZAP: 2012/08/31 Added support for AttackStrength
+// ZAP: 2013/02/12 Added variant handling the parameters of OData urls
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,6 +41,10 @@ abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
     public void scan() {
 		listVariant.add(new VariantURLQuery());
 		listVariant.add(new VariantFormQuery());
+		// ZAP: To handle parameters in OData urls
+		listVariant.add(new VariantODataIdQuery()); 
+		listVariant.add(new VariantODataFilterQuery());
+		
     	/* Work in progress
     	if (this.getParent().getScannerParam().isTargetParamsUrl()) {
     		listVariant.add(new VariantURLQuery());
