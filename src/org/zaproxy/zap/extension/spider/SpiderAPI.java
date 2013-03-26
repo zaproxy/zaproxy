@@ -28,7 +28,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -76,7 +75,6 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
 
-
 	/** The spider extension. */
 	private ExtensionSpider extension;
 
@@ -98,10 +96,10 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		this.extension = extension;
 		this.foundURIs = new ArrayList<>();
 		// Register the actions
-		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] {PARAM_URL}));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
-		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] { PARAM_REGEX }));
 
 		// Register the views
 		this.addApiView(new ApiView(VIEW_STATUS));
@@ -131,7 +129,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 			scanURL(url);
 		} else if (ACTION_STOP_SCAN.equals(name)) {
 			// The action is to stop a pending scan
-			if (spiderThread != null){
+			if (spiderThread != null) {
 				spiderThread.stopScan();
 			}
 		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
@@ -171,15 +169,15 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
 		}
 
-		// Try to find node, if any
-		SiteNode startNode;
+		// Try to build uri
+		URI startURI;
 		try {
-			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true));
-			if (startNode == null) {
-				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
-			}
+			startURI = new URI(url, true);
+			String scheme = startURI.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))
+				throw new ApiException(ApiException.Type.BAD_FORMAT);
 		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			throw new ApiException(ApiException.Type.BAD_FORMAT);
 		}
 
 		// Start the scan
@@ -187,7 +185,7 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		this.progress = 0;
 
 		spiderThread = new SpiderThread(extension, "API", this);
-		spiderThread.setStartNode(startNode);
+		spiderThread.setStartURI(startURI);
 		spiderThread.addSpiderListener(this);
 		spiderThread.start();
 
@@ -201,14 +199,14 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		} else if (VIEW_RESULTS.equals(name)) {
 			result = new ApiResponseList(name);
 			for (String s : foundURIs) {
-				((ApiResponseList)result).addItem(new ApiResponseElement("url", s));
+				((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
 			}
 		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
 			result = new ApiResponseList(name);
 			Session session = Model.getSingleton().getSession();
 			List<String> regexs = session.getExcludeFromSpiderRegexs();
 			for (String regex : regexs) {
-				((ApiResponseList)result).addItem(new ApiResponseElement("regex", regex));
+				((ApiResponseList) result).addItem(new ApiResponseElement("regex", regex));
 			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);

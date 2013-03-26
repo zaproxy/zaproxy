@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -39,8 +40,9 @@ import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /**
- * The Class SpiderThread that controls the spidering process on a particular site. Being a ScanThread, it
- * also handles the update of the graphical UI and any other "extension-level" required actions.
+ * The Class SpiderThread that controls the spidering process on a particular site. Being a
+ * ScanThread, it also handles the update of the graphical UI and any other "extension-level"
+ * required actions.
  */
 public class SpiderThread extends ScanThread implements SpiderListener {
 
@@ -82,6 +84,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	/** The results model. */
 	private SpiderPanelTableModel resultsModel;
+
+	/** The start uri. */
+	private URI startURI = null;
 
 	/**
 	 * Instantiates a new spider thread.
@@ -177,12 +182,16 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		// If the start node was not selected, try to find it in the Site Tree
 		if (startNode == null && !getJustScanInScope()) {
 			startNode = extension.getSpiderPanel().getSiteNode(site);
-			// If the site was not found, don't start
+			// If the site was not found and no start uri is set, don't start
 			if (startNode == null) {
-				log.error("Spider cannot start - No start node set for site " + site);
-				return;
+				if (startURI == null) {
+					log.error("Spider cannot start - No start node set for site " + site);
+					return;
+				}
+				log.info("Using start URI: " + startURI);
+			} else {
+				log.debug("Start node automatically found for site: " + site);
 			}
-			log.debug("Start node automatically found for site: " + site);
 		}
 
 		// If the spider hasn't been initialized, do it now
@@ -203,7 +212,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.setExcludeList(extension.getExcludeList());
 
 			// Add seeds accordingly
-			addSeeds(spider, startNode);
+			if (startNode != null)
+				addSeeds(spider, startNode);
+			else
+				spider.addSeed(startURI);
 		}
 
 		// Set the Spider Panel as the focused one
@@ -332,6 +344,15 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
+	}
+
+	/**
+	 * Sets the start uri. This will be used if no startNode is identified.
+	 * 
+	 * @param startURI the new start uri
+	 */
+	public void setStartURI(URI startURI) {
+		this.startURI = startURI;
 	}
 
 	@Override
