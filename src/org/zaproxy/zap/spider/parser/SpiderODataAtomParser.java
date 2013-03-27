@@ -26,14 +26,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Used to parse OData content in Atom format
- * It's derived from the SpiderTextParser
+ * Used to parse OData content in Atom format<br/>
+ * It's derived from the SpiderTextParser</br>
  * Even if the format of the file is XML  we will process it as a simple text file
  */
 public class SpiderODataAtomParser extends SpiderParser {
 
 	/** The Constant urlPattern defining the pattern for an url. */
-	private static final Pattern patternURL  = Pattern.compile("href=\\\"([\\w\\(\\);&_'\\/0-9,=\\-]*)\\\"");
+	private static final Pattern patternURL  = Pattern.compile("href=\\\"([\\w();&'/,=\\-]*)\\\"");
 	
 	/** the Constant patternBase defines the pattern for a base url */
 	private static final Pattern patternBase = Pattern.compile("base=\"(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
@@ -44,36 +44,30 @@ public class SpiderODataAtomParser extends SpiderParser {
 		log.debug("Parsing OData Atom resource.");
 		
 		// Get the context (base url)
-		String baseURL;
-		if (message == null) {
-			baseURL = "";
-		} else {
-			baseURL = message.getRequestHeader().getURI().toString();
-		}
-
+		String baseURL = message.getRequestHeader().getURI().toString();
+		
 		// Use a simple pattern matcher to find urls (absolute and relative)
-		if (message.getResponseBody() != null) {
-			String bodyAsStr = message.getResponseBody().toString();
-			
-			
-			// Handle base tag if any
-			// xml:base="http://myserver:8001/remoting/myapp.svc/"
-			
-			Matcher matcher = patternBase.matcher(bodyAsStr);
-			if (matcher.find()) {
-				baseURL =  matcher.group(1); 
-			}
-			
-			matcher = patternURL.matcher(bodyAsStr);
-			while (matcher.find()) {
-				String s = matcher.group(1);
-				s = StringEscapeUtils.unescapeXml(s);
-								
-				processURL(message, depth, s,baseURL);
-			}
-				
+		
+		String bodyAsStr = message.getResponseBody().toString();
+		
+		
+		// Handle base tag if any
+		// xml:base="http://myserver:8001/remoting/myapp.svc/"
+		
+		Matcher matcher = patternBase.matcher(bodyAsStr);
+		if (matcher.find()) {
+			baseURL =  matcher.group(1); 
 		}
-
+		
+		matcher = patternURL.matcher(bodyAsStr);
+		while (matcher.find()) {
+			String s = matcher.group(1);
+			s = StringEscapeUtils.unescapeXml(s);
+			baseURL = StringEscapeUtils.unescapeXml(baseURL);
+							
+			processURL(message, depth, s,baseURL);
+		}
+				
 	}
 
 }

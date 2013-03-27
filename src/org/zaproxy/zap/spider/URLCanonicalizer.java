@@ -69,19 +69,19 @@ public final class URLCanonicalizer {
 	 *  First group is the resource_name
 	 *  Second group is the ID (quote will be taken as part of the value)
 	 */
-	private static final Pattern patternResourceIdentifierUnquoted  = Pattern.compile("\\/(\\w*)\\(([\\w\\']*)\\)");
+	private static final Pattern patternResourceIdentifierUnquoted  = Pattern.compile("/(\\w*)\\(([\\w']*)\\)");
 
 	/** 
 	 * OData support
 	 * Detect a section containing a composite IDs 
 	 */
-	private static final Pattern patternResourceMultipleIdentifier  = Pattern.compile("\\/\\w*\\((.*)\\)");
+	private static final Pattern patternResourceMultipleIdentifier  = Pattern.compile("/\\w*\\((.*)\\)");
 
 	/** 
 	 * OData support
 	 * Extract the detail of the multiples IDs
 	 */
-	private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("(\\w*)=([\\w\\']*)");
+	private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("(\\w*)=([\\w']*)");
 
 	
 	/**
@@ -193,7 +193,7 @@ public final class URLCanonicalizer {
 	 * 
 	 * @param uri the uri
 	 * @param handleParameters the handle parameters option
-	 * @param handleODataParametersVisited Should we ahndle specific OData parameters
+	 * @param handleODataParametersVisited Should we handle specific OData parameters
 	 * @return the string representation of the URI
 	 * @throws URIException the URI exception
 	 */
@@ -335,7 +335,7 @@ public final class URLCanonicalizer {
 						while (matcher.find()) {
 							
 							if (i >  1) {
-								sb.append(",");
+								sb.append(',');
 							}
 							String paramName       = matcher.group(1);
 							sb.append(paramName);

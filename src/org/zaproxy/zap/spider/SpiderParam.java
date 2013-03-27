@@ -60,7 +60,7 @@ public class SpiderParam extends AbstractParam {
 	/** The Constant SPIDER_HANDLE_PARAMETERS. */
 	private static final String SPIDER_HANDLE_PARAMETERS = "spider.handleParameters";
 	
-	/** The Constant SPIDER_HANDLE_ODATA_URL. */
+	/** The Constant SPIDER_HANDLE_ODATA_PARAMETERS. */
 	private static final String SPIDER_HANDLE_ODATA_PARAMETERS = "spider.handleODataParameters";
 
 	/**
@@ -135,7 +135,7 @@ public class SpiderParam extends AbstractParam {
 	private String userAgent = null;
 	/** The handle parameters visited. */
 	private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
-	/** Defines if we take care of OData specific parameters during the visit in orer to identify known URL **/
+	/** Defines if we take care of OData specific parameters during the visit in order to identify known URL **/
 	private boolean handleODataParametersVisited = false;
 	
 	/**
@@ -229,7 +229,7 @@ public class SpiderParam extends AbstractParam {
 		}
 		
 		try {
-			setHandleODataParametersVisited(getConfig().getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false));
+			this.handleODataParametersVisited = getConfig().getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false);
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}

@@ -102,7 +102,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider = new JPanel();
 			panelSpider.setLayout(new GridBagLayout());
 			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-				//panelSpider.setSize(114, 132);
 				panelSpider.setSize(114, 150);
 			}
 			panelSpider.setName("");

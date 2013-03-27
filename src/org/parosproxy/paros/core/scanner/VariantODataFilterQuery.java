@@ -1,26 +1,23 @@
 /*
- *
- * Paros and its related class files.
+ * Zed Attack Proxy (ZAP) and its related class files.
  * 
- * Paros is an HTTP/HTTPS proxy for assessing web application security.
- * Copyright (C) 2003-2004 Chinotec Technologies Company
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Clarified Artistic License
- * as published by the Free Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * Clarified Artistic License for more details.
- * 
- * You should have received a copy of the Clarified Artistic License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
  */
-// ZAP: 2013/02/12 New class 
 package org.parosproxy.paros.core.scanner;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -33,29 +30,31 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Specialized variant able to handles the filter parameters of OData URIs
+ * Specialized variant able to handles the filter parameters of OData URIs<p/>
+ * It's focused on OData v2
  * 
- * Example of query:
+ * Example of query:<br/>
  * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo') and price lt 10
- *
- * Reference: 
- * http://www.odata.org/documentation/uri-conventions
- * http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter
- * 
- * TODO:
- * - Properly handle escaped vs. unescaped parameters
- * - Handle OData functions (startwith, substringof, ...)
+ * <p/>
+ * Reference: <br/>
+ * http://www.odata.org/documentation/uri-conventions<br/>
+ * http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter<br/>
+ * <p/>
+ * TODO:<br/>
+ * - Properly handle escaped vs. unescaped parameters<br/>
+ * - Handle OData functions (startwith, substringof, ...)<br/>
  * 
  */
 public class VariantODataFilterQuery implements Variant {
 	
-    private static Logger log = Logger.getLogger(VariantODataFilterQuery.class);
+    private static final Logger log = Logger.getLogger(VariantODataFilterQuery.class);
 
 	// Extract the content of the $filter parameter
-	private static final Pattern patternFilterParameters  = Pattern.compile("\\$filter\\=([\\w\\s\\(\\)\\', ]*)");
+	private static final Pattern patternFilterParameters  = Pattern.compile("\\$filter[ ]*=[ ]*([\\w\\s()',./\\-:]*)");
 
 	// Extract the effective parameters from the $filter string
-	private static final Pattern patternParameters = Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w\'\\/]+)");
+	// TODO: Support complex expressions 
+	private static final Pattern patternParameters = Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w'/]+)");
 
 	
 	// Store the URI parts located before and after the filter expression 
@@ -65,7 +64,7 @@ public class VariantODataFilterQuery implements Variant {
 	/**
 	 * Storage for the operation parameters
 	 */
-	private Map<String,OperationParameter> mapParameters = null;
+	private Map<String,OperationParameter> mapParameters = Collections.emptyMap();
 	
 	@Override
 	public void setMessage(HttpMessage msg) {
@@ -75,22 +74,23 @@ public class VariantODataFilterQuery implements Variant {
 
 	private void parse(URI uri) {
 		try {
-			String uriAsStr = uri.getURI();
+			String query = uri.getQuery();
 				
 			// Detection of a filter statement if any
 			
-			String filterExpression = "";
-			
-			Matcher matcher = patternFilterParameters.matcher(uriAsStr);
+						
+			Matcher matcher = patternFilterParameters.matcher(query);
 			if (matcher.find()) {
+				String filterExpression = "";
+				
 				filterExpression =  matcher.group(1); 
 			
 				
-				int begin = uriAsStr.indexOf(filterExpression);
+				int begin = query.indexOf(filterExpression);
 				int end   = begin + filterExpression.length();
 				
-				beforeFilterExpression = uriAsStr.substring(0,begin);
-				afterFilterExpression  = uriAsStr.substring(end);
+				beforeFilterExpression = query.substring(0,begin);
+				afterFilterExpression  = query.substring(end);
 							
 				// Now scan the expression in order to identify all parameters 
 				mapParameters = new HashMap<>();
@@ -119,7 +119,7 @@ public class VariantODataFilterQuery implements Variant {
 			else {
 				beforeFilterExpression = null;
 				afterFilterExpression  = null;
-				mapParameters = null;
+				mapParameters = Collections.emptyMap();
 			}
 			
 		
@@ -131,7 +131,7 @@ public class VariantODataFilterQuery implements Variant {
 
 	@Override
 	public Vector<NameValuePair> getParamList() {
-		Vector<NameValuePair> out = new Vector<>();
+		Vector<NameValuePair> out = new Vector<>(mapParameters.values().size());
 		
 		int i=1;
 		for (OperationParameter opParam:mapParameters.values()){
@@ -145,26 +145,19 @@ public class VariantODataFilterQuery implements Variant {
 	public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
 		// TODO: Implement correctly escaped / non-escaped params 
 
-		if (mapParameters != null) {
+		OperationParameter opParam = mapParameters.get(param);
+		if (opParam != null) {
+			String newfilter = opParam.getModifiedFilter(value);
+			String modifiedQuery = beforeFilterExpression + newfilter + afterFilterExpression;
 		
-			OperationParameter opParam = mapParameters.get(param);
-			if (opParam != null) {
-				String newfilter = opParam.getModifiedFilter(value);
-				String modifiedUri = beforeFilterExpression + newfilter + afterFilterExpression;
-			
-				try {
-					msg.getRequestHeader().setURI(new URI(modifiedUri));
-				} catch (URIException e) {
-					log.error("Exception with uri "+modifiedUri,e);
-				} catch (NullPointerException e) {
-					log.error("Exception with uri "+modifiedUri,e);
-				}
-				return newfilter;
+			try {
+				msg.getRequestHeader().getURI().setQuery(modifiedQuery);
+			} catch (URIException | NullPointerException e) {
+				log.error("Exception with the modified query "+modifiedQuery,e);
 			}
-			
-			
+			return newfilter;
 		}
-		
+			
 		return null;
 	}
 
@@ -212,19 +205,14 @@ public class VariantODataFilterQuery implements Variant {
 		public String getParameterName() {
 			return this.paramName;
 		}
-		
-		public String getQuery(String newValue) {
-			return newValue;
-		}
-		
-		
+			
 		public String getModifiedFilter(String newIdValue) {
 			StringBuilder builder = new StringBuilder();
 			builder.append(this.stringBeforeOperation)
 			       .append(this.paramName)
-			       .append(" ")
+			       .append(' ')
 			       .append(this.operator)
-			       .append(" ")
+			       .append(' ')
 			       .append(newIdValue)
 			       .append(this.stringAfterOperation);
 			return builder.toString();
