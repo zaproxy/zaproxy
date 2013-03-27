@@ -53,6 +53,10 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 
 	private PassiveScanThread parent = null;
 
+	public RegexAutoTagScanner() {
+		// Null constructor to prevent error being logged;)
+	}
+
 	public RegexAutoTagScanner(String name, TYPE type, String config) {
 		super();
 		this.name = name;
