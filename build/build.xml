@@ -68,7 +68,7 @@
 
         <!-- Compile the java code from ${src} into ${build} -->
         <!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-        <javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}">
+        <javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
             <classpath>
                 <fileset dir="${dist.lib.dir}">
                     <include name="**/*.jar" />
@@ -403,6 +403,7 @@
 
         <javadoc packagenames="org.*"
                  sourcepath="${src}"
+                 encoding="UTF-8"
                  destdir="${javadocs.dir}"
                  windowTitle="OWASP Zed Attack Proxy"
                  classpathref="dist.classpath"
