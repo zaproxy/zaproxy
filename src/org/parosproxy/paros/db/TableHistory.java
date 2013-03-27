@@ -158,7 +158,7 @@ public class TableHistory extends AbstractTable {
 
         // Add the NOTE column to the db if necessary
         if (!DbUtils.hasColumn(connection, TABLE_NAME, NOTE)) {
-            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+NOTE+" VARCHAR(32768) DEFAULT ''"));
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+NOTE+" VARCHAR(1048576) DEFAULT ''"));
         }
         
         if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY) != Types.SQL_VARBINARY) {
