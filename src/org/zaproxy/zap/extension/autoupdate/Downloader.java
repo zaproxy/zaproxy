@@ -23,11 +23,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
 
 public class Downloader extends Thread {
 	private URL url;
+	private Proxy proxy;
 	private File targetFile;
 	private Exception exception = null;
 	private long size = 0;
@@ -36,13 +38,14 @@ public class Downloader extends Thread {
 	private Date finished = null;
 	private boolean cancelDownload = false;
 
-	public Downloader(URL url, File targetFile) {
-		this (url, targetFile, 0);
+	public Downloader(URL url, Proxy proxy, File targetFile) {
+		this (url, proxy, targetFile, 0);
 	}
 
-	public Downloader(URL url, File targetFile, long size) {
+	public Downloader(URL url, Proxy proxy, File targetFile, long size) {
 		super();
 		this.url = url;
+		this.proxy = proxy;
 		this.targetFile = targetFile;
 		this.size = size;
 	}
@@ -61,7 +64,14 @@ public class Downloader extends Thread {
 			 * FileOutputStream fos = new FileOutputStream(targetFile);
 			 * fos.getChannel().transferFrom(rbc, 0, 1 << 24);
 	    	 */
-	    	in = new BufferedInputStream(url.openStream());
+
+			// XXX Change to use HttpClient instead of URL to download the file. The java.net.Authenticator is shared by all
+			// the URLConnection, it may be changed by 3rd party add-ons/libraries and it can't be set on a single connection
+			// (see bug 4941958 [1]) in which case the authentication will not succeed (hence the file will not be downloaded).
+			//
+			// [1] http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4941958
+			
+	    	in = new BufferedInputStream(url.openConnection(proxy).getInputStream());
 	    	out = new FileOutputStream(this.targetFile);
 	        byte[] data = new byte[1024];
 	        int count;

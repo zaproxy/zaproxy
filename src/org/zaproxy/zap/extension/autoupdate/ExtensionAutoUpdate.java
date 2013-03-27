@@ -110,7 +110,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private void initialize() {
         this.setName("ExtensionAutoUpdate");
         this.setOrder(40);
-        this.downloadManager = new DownloadManager();
+        this.downloadManager = new DownloadManager(Model.getSingleton().getOptionsParam().getConnectionParam());
         this.downloadManager.start();
         // Do this before it can get overwritten by the latest one
         this.getPreviousVersionInfo();

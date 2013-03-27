@@ -21,11 +21,16 @@
 package org.zaproxy.zap.extension.autoupdate;
 
 import java.io.File;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.ConnectionParam;
 
 public class DownloadManager extends Thread {
 	private Logger logger = Logger.getLogger(DownloadManager.class);
@@ -33,13 +38,27 @@ public class DownloadManager extends Thread {
 	private List<Downloader> completedDownloads = new ArrayList<Downloader>();
 	private boolean shutdown = false;
 	private boolean cancelDownloads = false;
+	private ConnectionParam connectionParam;
 
-	public DownloadManager () {
+	public DownloadManager (ConnectionParam connectionParam) {
+		this.connectionParam = connectionParam;
+		
+		// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
+		Authenticator.setDefault(new ZapProxyAuthenticator());
 	}
 	
 	public Downloader downloadFile (URL url, File targetFile, long size) {
 		logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
-		Downloader dl = new Downloader(url, targetFile, size);
+		
+		Proxy proxy;
+		if (connectionParam.isUseProxy(url.getHost())) {
+			InetSocketAddress scoketAddress = new InetSocketAddress(connectionParam.getProxyChainName(), connectionParam.getProxyChainPort());
+			proxy = new Proxy(Proxy.Type.HTTP, scoketAddress);
+		} else {
+			proxy = Proxy.NO_PROXY;
+		}
+		
+		Downloader dl = new Downloader(url, proxy, targetFile, size);
 		dl.start();
 		this.currentDownloads.add(dl);
 		return dl;
@@ -118,4 +137,33 @@ public class DownloadManager extends Thread {
 		return allDownloads;
 	}
 
+	// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
+	private final class ZapProxyAuthenticator extends Authenticator {
+
+		@Override
+		protected PasswordAuthentication getPasswordAuthentication() {
+			if (getRequestorType() != RequestorType.PROXY) {
+				return null;
+			}
+
+			if (getRequestingURL() == null) {
+				return null;
+			}
+
+			if (!connectionParam.isUseProxy(getRequestingURL().getHost())) {
+				return null;
+			}
+
+			if (connectionParam.getProxyChainPort() != getRequestingPort()) {
+				return null;
+			}
+
+			if (!connectionParam.getProxyChainName().equals(getRequestingHost())) {
+				return null;
+			}
+
+			return new PasswordAuthentication(connectionParam.getProxyChainUserName(), connectionParam.getProxyChainPassword()
+					.toCharArray());
+		}
+	}
 }
