@@ -36,7 +36,7 @@ public class SpiderODataAtomParser extends SpiderParser {
 	private static final Pattern patternURL  = Pattern.compile("href=\\\"([\\w();&'/,=\\-]*)\\\"");
 	
 	/** the Constant patternBase defines the pattern for a base url */
-	private static final Pattern patternBase = Pattern.compile("base=\"(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
+	private static final Pattern patternBase = Pattern.compile("base=\"(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)\"");
 
 
 	@Override
@@ -56,15 +56,15 @@ public class SpiderODataAtomParser extends SpiderParser {
 		
 		Matcher matcher = patternBase.matcher(bodyAsStr);
 		if (matcher.find()) {
-			baseURL =  matcher.group(1); 
+			baseURL =  matcher.group(1);
+			baseURL = StringEscapeUtils.unescapeXml(baseURL);
 		}
 		
 		matcher = patternURL.matcher(bodyAsStr);
 		while (matcher.find()) {
 			String s = matcher.group(1);
 			s = StringEscapeUtils.unescapeXml(s);
-			baseURL = StringEscapeUtils.unescapeXml(baseURL);
-							
+				
 			processURL(message, depth, s,baseURL);
 		}
 				
