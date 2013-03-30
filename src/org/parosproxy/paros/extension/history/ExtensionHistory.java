@@ -634,7 +634,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public void sessionScopeChanged(Session session) {
-	    searchHistory(getFilterPlusDialog().getFilter());
+		if (getView() != null) {
+			searchHistory(getFilterPlusDialog().getFilter());
+		} else {
+			searchHistory(null);
+		}
 	}
 
 	@Override
