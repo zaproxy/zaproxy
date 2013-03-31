@@ -1,13 +1,15 @@
 package org.zaproxy.zap.extension.importLogFiles;
 
-import java.awt.PopupMenu;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,22 +26,23 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
+import org.jwall.web.audit.AuditEvent;
+import org.jwall.web.audit.io.ModSecurity2AuditReader;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.view.View;
-import org.parosproxy.paros.model.*;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
-
-import org.jwall.web.audit.AuditEvent;
-import org.jwall.web.audit.ModSecurity;
-import org.jwall.web.audit.io.ModSecurity2AuditReader;
-import org.jwall.web.audit.io.ModSecurityAuditReader;
 
 public class ExtensionImportLogFiles extends ExtensionAdaptor
 {
@@ -48,25 +51,15 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 
 	private static Logger log = Logger.getLogger(ExtensionImportLogFiles.class);
 
-	/**
-	 * 
-	 */
 	public ExtensionImportLogFiles() {
 		super();
 		initialize();
 	}
 
-	/**
-	 * @param name
-	 */
 	public ExtensionImportLogFiles(String name) {
 		super(name);
 	}
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
 	private void initialize() {
 		this.setName("ExtensionImportLogFiles");
 		// Load extension specific language files - these are held in the extension jar
@@ -77,7 +70,8 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
-
+		ImportLogAPI test = new ImportLogAPI(null);
+		API.getInstance().registerApiImplementor(test);
 		if (getView() != null) {
 			// Register our top menu item, as long as we're not running as a daemon
 			// Use one of the other methods to add to a different menu list
@@ -86,7 +80,9 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 
 	}
 
-	//Log options.
+	/**
+	 * Logging options for the import
+	 */
 	public static final String[] logType = { "ZAP Logs", "ModSecurity2 Logs" };
 
 	private JMenuItem getImportOption() {
@@ -126,19 +122,46 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 		return menuExample;
 	}
 
-
-	public synchronized List<HttpMessage> ReadModSecLogs(File newFile) throws IOException
+	public List<HttpMessage> ReadModSecAuditEvent(InputStream stream)
 	{
-		List<HttpMessage> messages = new ArrayList<HttpMessage>();
 		ModSecurity2AuditReader reader = null;
 		try 
 		{
-			reader = new ModSecurity2AuditReader(newFile);
+			reader = new ModSecurity2AuditReader(stream);
+			return ReadModSecLogs(reader);
 		} 
 		catch (Exception e) {
 
 			log.error(e.getMessage(), e);
 		}
+		return null;
+	}
+	
+	/**
+	 * For reading logs that are exported from the ModSecurity application
+	 * @param newFile java.io.File object referring to the ModSecurity text log file
+	 * @return List of HttpMessages containing Request Header and Body and Response Header and Body
+	 * @throws IOException
+	 */
+	public List<HttpMessage> ReadModSecLogsFromFile(File newFile)
+	{
+		ModSecurity2AuditReader reader = null;
+		try 
+		{
+			reader = new ModSecurity2AuditReader(newFile);
+			return ReadModSecLogs(reader);
+		} 
+		catch (Exception e) {
+
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	private synchronized List<HttpMessage> ReadModSecLogs(ModSecurity2AuditReader reader) throws IOException
+	{
+		List<HttpMessage> messages = new ArrayList<HttpMessage>();
+		
 
 		while(reader.bytesRead() < reader.bytesAvailable())
 		{
@@ -166,8 +189,31 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 			return messages;
 
 	}
+	
+	/**
+	 * Updates the UI view with the newly added HttpMessages
+	 * This method needs to be public as it can be called internally and by the API
+	 * @param historyList List of History References returned from adding HttpMessages to the ZAP database
+	 */
+	public void AddToTree(List<HistoryReference> historyList)
+	{
+		SiteMap currentTree = Model.getSingleton().getSession().getSiteTree();
 
-	private void ProcessInput(File newFile, String logChoice)
+		for(HistoryReference historyref: historyList)
+		{
+			currentTree.addPath(historyref);
+		}
+
+		currentTree.reload();
+		///Need to refresh history tabs for details and alerts refresh
+	}
+	
+	/**
+	 * Switch method called by the entry point for the log imports to choose path to take based on the log type selected by the user 
+	 * @param newFile java.IO.File representation of the logfile, called from both the UI and from the API
+	 * @param logChoice type of logfile being imported 
+	 */
+	public void ProcessInput(File newFile, String logChoice)
 	{
 		//ZAP log choice
 		if(logChoice != null && logChoice == logType[0])
@@ -177,35 +223,28 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 			{	
 				List<HttpMessage> messages = getHttpMessages(parsedText);
 				List<HistoryReference> history = getHistoryRefs(messages);
-				SiteMap currentTree = Model.getSingleton().getSession().getSiteTree();
-
-				for(HistoryReference historyref: history)
-				{
-					currentTree.addPath(historyref);
-				}
-				///Need to expand tree view after loading and also refresh history tabs for details.
-				//currentTree.reload();
+				AddToTree(history);
 			} 
 			catch (HttpMalformedHeaderException e) 
 			{
 				log.error(e.getMessage(), e);
 			}
 		}
-		
+
 		//ModSecurity2 Choice
 		else if(logChoice != null && logChoice == logType[1])
 		{
 			try 
 			{
-				List<HttpMessage> messages = ReadModSecLogs(newFile);
+				List<HttpMessage> messages = ReadModSecLogsFromFile(newFile);
 				List<HistoryReference> history = getHistoryRefs(messages);
 				SiteMap currentTree = Model.getSingleton().getSession().getSiteTree();
 				for(HistoryReference historyref: history)
 				{
 					currentTree.addPath(historyref);
 				}
-				///Need to expand tree view after loading and also refresh history tabs for details.
-				//currentTree.reload();
+				currentTree.reload();
+				///Need to refresh history tabs for details.
 			} 
 			catch (IOException e) 
 			{
@@ -218,12 +257,16 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 		}
 	}
 
-
-	private List<String> ReadFile(File file)
+	List<String> ReadFile(File file)
+	{
+		return ReadFileFromPath(Paths.get(file.getPath()));
+	}
+	
+	List<String> ReadFileFromPath(Path filePath)
 	{
 		List<String> parsed = new ArrayList<String>();
 		Charset charset = Charset.forName("US-ASCII");
-		try (BufferedReader reader = Files.newBufferedReader(file.toPath(), charset)) 
+		try (BufferedReader reader = Files.newBufferedReader(filePath, charset)) 
 		{
 			Scanner sc = new Scanner(reader);
 			sc.useDelimiter(Pattern.compile("====\\s[0-9]*\\s=========="));
@@ -242,6 +285,21 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 		return null;
 	}
 
+	/**
+	 * Called exclusively by the REST API to get the HttpMessage ZAP object representation of the request response pair.
+	 * @param request HttpRequest string
+	 * @param response HttpRespones string
+	 * @return List of the HttpMessage objects
+	 * @throws HttpMalformedHeaderException
+	 */
+	public List<HttpMessage> getHttpMessageFromPair(String request,String response) throws HttpMalformedHeaderException
+	{
+		List<String> reqResp = new ArrayList<String>(2);
+		reqResp.add(request);
+		reqResp.add(response);
+		return getHttpMessages(reqResp);
+	}
+	
 	private List<HttpMessage> getHttpMessages(List<String> parsedrequestandresponse) throws HttpMalformedHeaderException
 	{
 		//http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html
@@ -302,7 +360,7 @@ public class ExtensionImportLogFiles extends ExtensionAdaptor
 		return messages;
 	}
 
-	private List<HistoryReference> getHistoryRefs(List<HttpMessage> messages) throws HttpMalformedHeaderException
+	public List<HistoryReference> getHistoryRefs(List<HttpMessage> messages) throws HttpMalformedHeaderException
 	{
 		//Initialise list at total parsed message count for performance.
 		List<HistoryReference> historyRefs = new ArrayList<HistoryReference>(messages.size());
