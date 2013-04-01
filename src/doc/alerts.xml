@@ -65,6 +65,11 @@ This list the alerts
 10025	Information disclosure - sensitive informations on HTTP Referrer header
 10026	HTTP Parameter Override
 10027	Information disclosure - suspicious comments
+10028   Open redirect
+10029   Cookie poisoning
+10030   User controllable charset
+10031   User controllable HTML element attribute (potential XSS)
+
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
