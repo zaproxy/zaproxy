@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -170,25 +171,31 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 		}
 
 		// Try to build uri
-		URI startURI;
 		try {
-			startURI = new URI(url, true);
+			URI startURI = new URI(url, true);
+			SiteNode startNode = Model.getSingleton().getSession().getSiteTree().findNode(startURI);
 			String scheme = startURI.getScheme();
-			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")))
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
 				throw new ApiException(ApiException.Type.BAD_FORMAT);
+			}
+
+			spiderThread = new SpiderThread(extension, "API", this);
+
+			if (startNode != null) {
+				spiderThread.setStartNode(startNode);
+			} else {
+				spiderThread.setStartURI(startURI);
+			}
+		
+			// Start the scan
+			this.foundURIs.clear();
+			this.progress = 0;
+			spiderThread.addSpiderListener(this);
+			spiderThread.start();
+		
 		} catch (URIException e) {
 			throw new ApiException(ApiException.Type.BAD_FORMAT);
 		}
-
-		// Start the scan
-		this.foundURIs.clear();
-		this.progress = 0;
-
-		spiderThread = new SpiderThread(extension, "API", this);
-		spiderThread.setStartURI(startURI);
-		spiderThread.addSpiderListener(this);
-		spiderThread.start();
-
 	}
 
 	@Override
@@ -217,13 +224,12 @@ public class SpiderAPI extends ApiImplementor implements ScanListenner, SpiderLi
 	@Override
 	public void scanFinshed(String host) {
 		// Do nothing
-		// TODO: should remove scan listenner
+		// TODO: should remove scan listener
 	}
 
 	@Override
 	public void scanProgress(String host, int progress, int maximum) {
 		// Do nothing
-		// TODO: should remove scan listenner
 	}
 
 	@Override
