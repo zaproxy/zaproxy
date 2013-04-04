@@ -46,6 +46,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
 	private PopupContextIncludeMenu popupContextIncludeMenu = null;
 	private PopupContextExcludeMenu popupContextExcludeMenu = null;
+	private PopupMenuCopyUrls popupMenuCopyUrls = null;
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
@@ -85,6 +86,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(6)); // on purpose ;)
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(7));
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(8));
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
 		}
@@ -161,6 +163,15 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			popupMenuOpenUrlInBrowser.setMenuIndex(menuIndex);
 		}
 		return popupMenuOpenUrlInBrowser;
+	}
+	
+	private PopupMenuCopyUrls getPopupMenuCopyUrls(int menuIndex) {
+		if (popupMenuCopyUrls == null) {
+			popupMenuCopyUrls = new PopupMenuCopyUrls(
+					Constant.messages.getString("stdexts.copyurls.popup"));
+			popupMenuCopyUrls.setMenuIndex(menuIndex);
+		}
+		return popupMenuCopyUrls;
 	}
 
 	/*
