@@ -29,11 +29,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import org.owasp.jbrofuzz.core.Database;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
+import org.owasp.jbrofuzz.version.JBroFuzzPrefs;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -58,7 +60,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
     private FuzzerPanel fuzzerPanel = null;
     private OptionsFuzzerPanel optionsFuzzerPanel = null;
     private boolean fuzzing = false;
-    private Database jbroFuzzDB = new Database();
+    private Database jbroFuzzDB = null;
 	private List <String> fuzzerCategories = new ArrayList<>();
 	private Map<String, DirCategory> catMap = new HashMap<>();
     
@@ -87,6 +89,11 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
         this.setName(NAME);
         this.setOrder(48);
 
+		// Force JBroFuzz to use the ZAP user directory
+		Preferences PREFS = Preferences.userRoot().node("owasp/jbrofuzz");
+		PREFS.putBoolean(JBroFuzzPrefs.DIRS[1].getId(), true);
+		PREFS.put(JBroFuzzPrefs.DIRS[0].getId(), Constant.getZapHome());
+		
         loadFiles();
 	}
 	
@@ -110,6 +117,13 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
         extensionHook.addAddonFilesChangedListener(this);
 
 	}
+	
+    private Database getDB() {
+    	if (jbroFuzzDB == null) {
+    		jbroFuzzDB = new Database();
+    	}
+    	return jbroFuzzDB;
+    }
 	
 	private void loadFiles() {
         // (Re)Initialise the file based fuzzers
@@ -300,7 +314,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	}
 
 	public List<String> getJBroFuzzCategories() {
-		String[] allCats = jbroFuzzDB.getAllCategories();
+		String[] allCats = getDB().getAllCategories();
 		Arrays.sort(allCats);
 		List <String> categories = new ArrayList<>(allCats.length);
 		for (String category : allCats) {
@@ -311,7 +325,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 
 	public List <String> getJBroFuzzFuzzerNames(String category) {
 		String jbfCategory = category.substring(ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX.length());
-		String [] fuzzers = jbroFuzzDB.getPrototypeNamesInCategory(jbfCategory);
+		String [] fuzzers = getDB().getPrototypeNamesInCategory(jbfCategory);
 		Arrays.sort(fuzzers);
 		List <String> fuzzerNames = new ArrayList<>(fuzzers.length);
 		for (String fuzzer : fuzzers) {
@@ -321,7 +335,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	}
 
 	public Fuzzer getJBroFuzzer(String name) throws NoSuchFuzzerException {
-		return jbroFuzzDB.createFuzzer(jbroFuzzDB.getIdFromName(name), 1);
+		return getDB().createFuzzer(getDB().getIdFromName(name), 1);
 	}
 	
 	@Override
