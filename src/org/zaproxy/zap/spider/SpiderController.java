@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -37,12 +38,13 @@ import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderODataAtomParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
+import org.zaproxy.zap.spider.parser.SpiderRedirectParser;
 import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
 import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
- * The SpiderController is used to manage the crawling process and interacts directly with the Spider Task
- * threads.
+ * The SpiderController is used to manage the crawling process and interacts directly with the
+ * Spider Task threads.
  */
 public class SpiderController implements SpiderParserListener {
 
@@ -50,8 +52,8 @@ public class SpiderController implements SpiderParserListener {
 	private LinkedList<FetchFilter> fetchFilters;
 
 	/**
-	 * The parse filters used by the spider to filter the resources which were fetched, but should not be
-	 * parsed.
+	 * The parse filters used by the spider to filter the resources which were fetched, but should
+	 * not be parsed.
 	 */
 	private LinkedList<ParseFilter> parseFilters;
 
@@ -60,9 +62,9 @@ public class SpiderController implements SpiderParserListener {
 
 	/** The text parsers. Initialized dynamically, only if needed. */
 	private List<SpiderParser> txtParsers;
-	
-	/** The parsers for xml files (i.e. OData Atom content) */	
-	private List<SpiderParser> xmlParsers; 
+
+	/** The parsers for xml files (i.e. OData Atom content) */
+	private List<SpiderParser> xmlParsers;
 
 	/** The spider. */
 	private Spider spider;
@@ -107,7 +109,7 @@ public class SpiderController implements SpiderParserListener {
 		parser = new SpiderTextParser();
 		parser.addSpiderParserListener(this);
 		this.txtParsers.add(parser);
-		
+
 		// Prepare the parsers for OData ATOM files
 		this.xmlParsers = new LinkedList<>();
 		parser = new SpiderODataAtomParser();
@@ -125,9 +127,8 @@ public class SpiderController implements SpiderParserListener {
 		// Check if the uri was processed already
 		String visitedURI;
 		try {
-			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uri, 
-																				  spider.getSpiderParam().getHandleParameters(),
-																				  spider.getSpiderParam().isHandleODataParametersVisited());
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uri, spider.getSpiderParam()
+					.getHandleParameters(), spider.getSpiderParam().isHandleODataParametersVisited());
 		} catch (URIException e) {
 			return;
 		}
@@ -217,11 +218,21 @@ public class SpiderController implements SpiderParserListener {
 			}
 		}
 
+		// If the response is a HTTP redirect message
+		if (HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode())) {
+			log.info("Parsing a HTTP Redirect message...");
+			SpiderRedirectParser parser = new SpiderRedirectParser();
+			parser.addSpiderParserListener(this);
+			List<SpiderParser> redirectParsers = new LinkedList<>();
+			redirectParsers.add(parser);
+			return redirectParsers;
+		}
+
 		// If it reached this point, it is definitely text
-		if (message.getResponseHeader().isHtml()){
+		if (message.getResponseHeader().isHtml()) {
 			return htmlParsers;
 		} else if (message.getResponseHeader().isXml()) {
-			return xmlParsers; 
+			return xmlParsers;
 		} else {
 			// Parsing non-HTML text resource.
 			return txtParsers;
@@ -232,7 +243,7 @@ public class SpiderController implements SpiderParserListener {
 	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
 		log.debug("New resource found: " + uri);
 
-		if (uri == null){
+		if (uri == null) {
 			return;
 		}
 
@@ -245,9 +256,8 @@ public class SpiderController implements SpiderParserListener {
 		// Check if the uri was processed already
 		String visitedURI;
 		try {
-			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uriV, 
-																				  spider.getSpiderParam().getHandleParameters(),
-																				  spider.getSpiderParam().isHandleODataParametersVisited());
+			visitedURI = URLCanonicalizer.buildCleanedParametersURIRepresentation(uriV, spider.getSpiderParam()
+					.getHandleParameters(), spider.getSpiderParam().isHandleODataParametersVisited());
 		} catch (URIException e) {
 			return;
 		}
@@ -328,8 +338,9 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	/**
-	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a String
-	 * considering it's already encoded and, if it fails, tries to create it considering it's not encoded.
+	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a
+	 * String considering it's already encoded and, if it fails, tries to create it considering it's
+	 * not encoded.
 	 * 
 	 * @param uri the string of the uri
 	 * @return the URI, or null if an error occured and the URI could not be constructed.
