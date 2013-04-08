@@ -26,6 +26,8 @@
 // ZAP: 2012/10/04 Changed to initialise the instance variable mVersion with a 
 // valid version (HttpHeader.HTTP10).
 // ZAP: 2012/11/01 Issue 410: charset wrapped in quotation marks
+// ZAP: 2013/04/08 Issue 605: Force intercepts via header
+
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -59,6 +61,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	public static final String PRAGMA			= "Pragma";
 	public static final String REFERER			= "Referer";
 	public static final String X_ZAP_REQUESTID  = "X-ZAP-RequestID";
+	public static final String X_SECURITY_PROXY  = "X-Security-Proxy";
 	// ZAP: Added cookie headers
 	public static final String COOKIE			= "Cookie";
 	public static final String SET_COOKIE		= "Set-Cookie";
@@ -80,6 +83,9 @@ abstract public class HttpHeader implements java.io.Serializable{
 	public static final String HTTPS			= "https";
 
 	public static final String GZIP				= "gzip";
+
+	public static final String SEC_PROXY_INTERCEPT	= "intercept";
+	public static final String SEC_PROXY_RECORD		= "record";
 
 	public static final Pattern patternCRLF			= Pattern.compile("\\r\\n", Pattern.MULTILINE);
 	public static final Pattern patternLF				= Pattern.compile("\\n", Pattern.MULTILINE);

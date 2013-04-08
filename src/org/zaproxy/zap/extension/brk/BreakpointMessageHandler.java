@@ -161,6 +161,11 @@ public class BreakpointMessageHandler {
      * @return True if a breakpoint for given message exists.
      */
     public boolean isBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+    	if (aMessage.isForceIntercept()) {
+			// The browser told us to do it Your Honour
+			return true;
+    	}
+    	
     	if (onlyIfInScope && ! aMessage.isInScope()) {
     		return false;
     	}

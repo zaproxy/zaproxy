@@ -31,6 +31,7 @@
 // ZAP: 2012/08/09 Added HttpSession field 
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/04/08 Issue 605: Force intercepts via header
 
 package org.parosproxy.paros.network;
 
@@ -850,5 +851,19 @@ public class HttpMessage implements Message {
 		}
 		
 		return isEventStream;
+	}
+
+	@Override
+	public boolean isForceIntercept() {
+		String vals = this.getRequestHeader().getHeader(HttpHeader.X_SECURITY_PROXY);
+		if (vals != null) {
+			for (String val : vals.split(",")) {
+				if (HttpHeader.SEC_PROXY_INTERCEPT.equalsIgnoreCase(val.trim())) {
+					// The browser told us to do it Your Honour
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
