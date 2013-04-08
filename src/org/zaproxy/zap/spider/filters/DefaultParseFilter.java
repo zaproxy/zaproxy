@@ -18,6 +18,7 @@
 package org.zaproxy.zap.spider.filters;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
@@ -47,6 +48,10 @@ public class DefaultParseFilter extends ParseFilter {
 			}
 			return true;
 		}
+
+		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
+		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
+			return false;
 
 		// Check response type
 		if (!responseMessage.getResponseHeader().isText()) {
