@@ -31,9 +31,16 @@ public class SpiderRedirectParser extends SpiderParser {
 	public void parseResource(HttpMessage message, Source source, int depth) {
 		log.debug("Parsing HTTP redirection resource.");
 
+		if (message == null || message.getResponseHeader() == null) {
+			return;
+		}
+
 		String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
 		if (location != null && !location.isEmpty()) {
-			processURL(message, depth, location, "");
+			// Include the base url as well as some applications send relative URLs instead of
+			// absolute ones
+			String baseURL = message.getRequestHeader().getURI().toString();
+			processURL(message, depth, location, baseURL);
 		}
 	}
 }
