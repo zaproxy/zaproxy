@@ -152,14 +152,23 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				String query = buildEncodedUrlQuery(formDataSet);
 				log.debug("Submiting form with GET method and query with form parameters: " + query);
 
+				// Get the fragment, if any
+				String fragment = "";
+				if (action.contains("#")) {
+					int fs = action.lastIndexOf("#");
+					fragment = action.substring(fs);
+					action = action.substring(0, fs);
+				}
+
+				// Process the final URL
 				if (action.contains("?")) {
 					if (action.endsWith("?")) {
-						processURL(message, depth, action + query, baseURL);
+						processURL(message, depth, action + query + fragment, baseURL);
 					} else {
-						processURL(message, depth, action + "&" + query, baseURL);
+						processURL(message, depth, action + "&" + query + fragment, baseURL);
 					}
 				} else {
-					processURL(message, depth, action + "?" + query, baseURL);
+					processURL(message, depth, action + "?" + query + fragment, baseURL);
 				}
 			}
 
@@ -172,7 +181,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * constructed from successful controls, which will be sent with a GET/POST request for a form.
 	 * 
 	 * <br/>
-	 * Also see: http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
+	 * Also see:
+	 * http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
 	 * html
 	 * 
 	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set
@@ -214,9 +224,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 					}
 				} else {
 					/*
-					 * In all cases, according to Jericho documentation, the only left option is for it to be
-					 * a TEXT field, without any predefined value. We check if it has only one userValueCount,
-					 * and, if so, fill it with a default value.
+					 * In all cases, according to Jericho documentation, the only left option is for
+					 * it to be a TEXT field, without any predefined value. We check if it has only
+					 * one userValueCount, and, if so, fill it with a default value.
 					 */
 					if (field.getUserValueCount() > 0) {
 						finalValue = getDefaultTextValue(field);
@@ -248,8 +258,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * Generates accurate field values for following types:
 	 * <ul>
 	 * <li>Text/Password/Search - DEFAULT_TEXT_VALUE</li>
-	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max otherwise
-	 * DEFAULT_NUMBER_VALUE;</li>
+	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max
+	 * otherwise DEFAULT_NUMBER_VALUE;</li>
 	 * <li>url - http://www.example.com</li>
 	 * <li>email - contact@example.com</li>
 	 * <li>color - #000000</li>
