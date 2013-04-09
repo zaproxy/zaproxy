@@ -90,54 +90,57 @@ public class VariantODataIdQuery implements Variant {
 
 			String path = uri.getPath();
 				
-			// Detection of the resource and resource id (if any)
+			if (path != null) {
 			
-			String resourceName = "";
-			String resourceID   ;
-			
-			// check for single ID (unnamed)
-			Matcher matcher = patternResourceIdentifierUnquoted.matcher(path);
-			if (matcher.find()) {
-				resourceName =  matcher.group(1); 
-				resourceID   =  matcher.group(2);
-			
-				String subString = resourceName + "(" + resourceID + ")";
-				int begin = path.indexOf(subString);
-				int end   = begin + subString.length();
+				// Detection of the resource and resource id (if any)
 				
-				String beforeSubstring = path.substring(0,begin);
-				String afterSubstring  = path.substring(end);
+				String resourceName = "";
+				String resourceID   ;
 				
-				resourceParameter = new ResourceParameter(resourceName, resourceID, beforeSubstring, afterSubstring );
-											
-			} else {
-				
-				matcher = patternResourceMultipleIdentifier.matcher(path);
+				// check for single ID (unnamed)
+				Matcher matcher = patternResourceIdentifierUnquoted.matcher(path);
 				if (matcher.find()) {
-					// We've found a composite identifier. i.e: /Resource(field1=a,field2=3)
+					resourceName =  matcher.group(1); 
+					resourceID   =  matcher.group(2);
+				
+					String subString = resourceName + "(" + resourceID + ")";
+					int begin = path.indexOf(subString);
+					int end   = begin + subString.length();
 					
-					String multipleIdentifierSection =   matcher.group(1); 
+					String beforeSubstring = path.substring(0,begin);
+					String afterSubstring  = path.substring(end);
 					
-					int begin = path.indexOf(multipleIdentifierSection);
-					int end   = begin + multipleIdentifierSection.length();
-
-					beforeMultipleIDs = path.substring(0,begin);
-					afterMultipleIDs  = path.substring(end);
-
-					listParams = new ArrayList<>();
-
-					matcher = patternResourceMultipleIdentifierDetail.matcher(multipleIdentifierSection);
-					int i = 1;
-					while (matcher.find()) {
+					resourceParameter = new ResourceParameter(resourceName, resourceID, beforeSubstring, afterSubstring );
+												
+				} else {
+					
+					matcher = patternResourceMultipleIdentifier.matcher(path);
+					if (matcher.find()) {
+						// We've found a composite identifier. i.e: /Resource(field1=a,field2=3)
 						
-						String paramName       = matcher.group(1);
-						String value           = matcher.group(2);
-					
-						NameValuePair vp = new NameValuePair(paramName,value,i++);
-						listParams.add(vp);
-					}
+						String multipleIdentifierSection =   matcher.group(1); 
+						
+						int begin = path.indexOf(multipleIdentifierSection);
+						int end   = begin + multipleIdentifierSection.length();
+	
+						beforeMultipleIDs = path.substring(0,begin);
+						afterMultipleIDs  = path.substring(end);
+	
+						listParams = new ArrayList<>();
+	
+						matcher = patternResourceMultipleIdentifierDetail.matcher(multipleIdentifierSection);
+						int i = 1;
+						while (matcher.find()) {
 							
-				} 
+							String paramName       = matcher.group(1);
+							String value           = matcher.group(2);
+						
+							NameValuePair vp = new NameValuePair(paramName,value,i++);
+							listParams.add(vp);
+						}
+								
+					} 
+				}
 			}
 			
 		

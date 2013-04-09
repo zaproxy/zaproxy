@@ -78,50 +78,56 @@ public class VariantODataFilterQuery implements Variant {
 				
 			// Detection of a filter statement if any
 			
+			if (query != null) {
 						
-			Matcher matcher = patternFilterParameters.matcher(query);
-			if (matcher.find()) {
-				String filterExpression = "";
+				Matcher matcher = patternFilterParameters.matcher(query);
+				if (matcher.find()) {
+					String filterExpression = "";
+					
+					filterExpression =  matcher.group(1); 
 				
-				filterExpression =  matcher.group(1); 
+					
+					int begin = query.indexOf(filterExpression);
+					int end   = begin + filterExpression.length();
+					
+					beforeFilterExpression = query.substring(0,begin);
+					afterFilterExpression  = query.substring(end);
+								
+					// Now scan the expression in order to identify all parameters 
+					mapParameters = new HashMap<>();
+					
+					Matcher matcherParameters = patternParameters.matcher(filterExpression);
+					while (matcherParameters.find()){
+						
+						String nameOpAndValue = matcherParameters.group(0);
+						String paramName  = matcherParameters.group(1);
+						String operator   = matcherParameters.group(2);
+						String paramValue = matcherParameters.group(3); 
+						
+						begin = filterExpression.indexOf(nameOpAndValue);
+						end   = begin + nameOpAndValue.length();
+	
+						String before = filterExpression.substring(0,begin);
+						String after  = filterExpression.substring(end);
+						
+						OperationParameter opParam = new OperationParameter(paramName, operator, paramValue, before, after);
+						mapParameters.put(opParam.getParameterName(), opParam);
+						
+					} 
+						
+				
+				}
+				else {
+					beforeFilterExpression = null;
+					afterFilterExpression  = null;
+					mapParameters = Collections.emptyMap();
+				}
 			
-				
-				int begin = query.indexOf(filterExpression);
-				int end   = begin + filterExpression.length();
-				
-				beforeFilterExpression = query.substring(0,begin);
-				afterFilterExpression  = query.substring(end);
-							
-				// Now scan the expression in order to identify all parameters 
-				mapParameters = new HashMap<>();
-				
-				Matcher matcherParameters = patternParameters.matcher(filterExpression);
-				while (matcherParameters.find()){
-					
-					String nameOpAndValue = matcherParameters.group(0);
-					String paramName  = matcherParameters.group(1);
-					String operator   = matcherParameters.group(2);
-					String paramValue = matcherParameters.group(3); 
-					
-					begin = filterExpression.indexOf(nameOpAndValue);
-					end   = begin + nameOpAndValue.length();
-
-					String before = filterExpression.substring(0,begin);
-					String after  = filterExpression.substring(end);
-					
-					OperationParameter opParam = new OperationParameter(paramName, operator, paramValue, before, after);
-					mapParameters.put(opParam.getParameterName(), opParam);
-					
-				} 
-					
-			
-			}
-			else {
+			} else {
 				beforeFilterExpression = null;
 				afterFilterExpression  = null;
-				mapParameters = Collections.emptyMap();
+				mapParameters = Collections.emptyMap();				
 			}
-			
 		
 		} catch (URIException e) {
 			log.error(e.getMessage() + uri, e);
