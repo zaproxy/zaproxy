@@ -212,7 +212,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.setExcludeList(extension.getExcludeList());
 
 			// Add seeds accordingly
-			if (startNode != null)
+			if (startNode != null || justScanInScope)
 				addSeeds(spider, startNode);
 			else
 				spider.addSeed(startURI);
