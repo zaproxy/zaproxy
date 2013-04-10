@@ -152,23 +152,21 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				String query = buildEncodedUrlQuery(formDataSet);
 				log.debug("Submiting form with GET method and query with form parameters: " + query);
 
-				// Get the fragment, if any
-				String fragment = "";
+				// Clear the fragment, if any, as it does not have any relevance for the server
 				if (action.contains("#")) {
 					int fs = action.lastIndexOf("#");
-					fragment = action.substring(fs);
 					action = action.substring(0, fs);
 				}
 
 				// Process the final URL
 				if (action.contains("?")) {
 					if (action.endsWith("?")) {
-						processURL(message, depth, action + query + fragment, baseURL);
+						processURL(message, depth, action + query, baseURL);
 					} else {
-						processURL(message, depth, action + "&" + query + fragment, baseURL);
+						processURL(message, depth, action + "&" + query, baseURL);
 					}
 				} else {
-					processURL(message, depth, action + "?" + query + fragment, baseURL);
+					processURL(message, depth, action + "?" + query, baseURL);
 				}
 			}
 
