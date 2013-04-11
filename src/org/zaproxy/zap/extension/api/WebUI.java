@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.api.API.Format;
 import org.zaproxy.zap.extension.api.API.RequestType;
@@ -87,7 +88,7 @@ public class WebUI {
 			List<String> optionalParams = element.getOptionalParamNames();
 			sb.append("<tr>");
 			sb.append("<td>");
-			sb.append("<a href=\"http://zap/");
+			sb.append("<a href=\"/");
 			sb.append(Format.UI.name());
 			sb.append('/');
 			sb.append(component);
@@ -139,7 +140,6 @@ public class WebUI {
 	public String handleRequest(String component, ApiImplementor impl,
 			RequestType reqType, String name) throws ApiException {
 		// Generate HTML UI
-		//contentType = "text/html";
 		StringBuilder sb = new StringBuilder();
 		sb.append("<head>\n");
 		sb.append("<title>");
@@ -151,7 +151,7 @@ public class WebUI {
 			sb.append("<script>\n");
 			sb.append("function submitScript() {\n");
 			sb.append("var format = document.getElementById('zapapiformat').value\n");
-			sb.append("var url = 'http://zap/' + format + '/" + component + "/" + reqType.name() + "/" + name + "/'\n");
+			sb.append("var url = '/' + format + '/" + component + "/" + reqType.name() + "/" + name + "/'\n");
 			sb.append("var form=document.getElementById('zapform');\n");
 			sb.append("form.action = url;\n");
 			sb.append("form.submit();\n");
@@ -159,7 +159,7 @@ public class WebUI {
 			sb.append("</script>\n");
 		}
 		sb.append("<h1>");
-		sb.append("<a href=\"http://zap/");
+		sb.append("<a href=\"/");
 		sb.append(Format.UI.name());
 		sb.append("/\">");
 		sb.append(Constant.messages.getString("api.html.title"));
@@ -168,7 +168,7 @@ public class WebUI {
 		
 		if (impl != null) {
 			sb.append("<h2>");
-			sb.append("<a href=\"http://zap/");
+			sb.append("<a href=\"/");
 			sb.append(Format.UI.name());
 			sb.append("/");
 			sb.append(component);
@@ -296,7 +296,7 @@ public class WebUI {
 			for (String cmp : components) {
 				sb.append("<tr>");
 				sb.append("<td>");
-				sb.append("<a href=\"http://zap/");
+				sb.append("<a href=\"/");
 				sb.append(Format.UI.name());
 				sb.append('/');
 				sb.append(cmp);
@@ -314,4 +314,20 @@ public class WebUI {
 		
 	}
 
+	public String handleRequest(URI uri) {
+		// Right now just generate a basic home page
+		StringBuilder sb = new StringBuilder();
+		sb.append("<head>\n");
+		sb.append("<title>");
+		sb.append(Constant.messages.getString("api.html.title"));
+		sb.append("</title>\n");
+		sb.append("</head>\n");
+		sb.append("<body>\n");
+		sb.append(Constant.messages.getString("api.home.topmsg"));
+		sb.append(Constant.messages.getString("api.home.proxypac"));
+		sb.append(Constant.messages.getString("api.home.links"));
+		sb.append("</body>\n");
+		
+		return sb.toString();
+	}
 }

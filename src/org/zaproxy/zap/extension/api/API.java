@@ -92,11 +92,17 @@ public class API {
 		}
 		return true;
 	}
-	
+
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
+		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
+	}
+
+	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
+			HttpOutputStream httpOut, boolean force) throws IOException {
+		
 		String url = requestHeader.getURI().toString();
-		Format format = Format.UI;
+		Format format = Format.OTHER;
 		ApiImplementor callbackImpl = null;
 		
 		// Check for callbacks
@@ -110,7 +116,7 @@ public class API {
 			}
 		}
 		
-		if (callbackImpl == null && ! url.startsWith(API_URL)) {
+		if (callbackImpl == null && ! url.startsWith(API_URL) && ! force) {
 			return false;
 		}
 		logger.debug("handleApiRequest " + url);
@@ -177,6 +183,9 @@ public class API {
 				}
 				if (elements.length > 6) {
 					name = elements[6];
+					if (name != null && name.indexOf("?") > 0) {
+						name = name.substring(0, name.indexOf("?"));
+					}
 				}
 				
 				if (format.equals(Format.UI)) {
@@ -249,7 +258,7 @@ public class API {
 									break;
 						case XML:	response = this.responseToXml(name, res);
 									break;
-						case HTML:	response = this.responseToHtml(name, res);;
+						case HTML:	response = this.responseToHtml(name, res);
 									break;
 						default:
 									break;
@@ -271,13 +280,18 @@ public class API {
 						}
 						msg = impl.handleApiOther(msg, name, params);
 					}
+				} else {
+					// Handle default front page
+					response = webUI.handleRequest(requestHeader.getURI());
+					format = Format.UI;
+					contentType = "text/html";
 				}
 			}
 			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (ApiException e) {
 			response =  e.toString(format);
-// 			logger.debug("handleApiRequest error: " + response, e);
+ 			logger.debug("handleApiRequest error: " + response, e);
 		}
 		
 		if (format == null || ! format.equals(Format.OTHER)) {
@@ -356,7 +370,9 @@ public class API {
 				value = keyValue[i].substring(pos+1);
 				jp.put(key, value);
 			} else {
-				throw new ApiException(ApiException.Type.BAD_FORMAT);
+				// Carry on anyway
+				Exception e = new ApiException(ApiException.Type.BAD_FORMAT, params);
+				logger.error(e.getMessage(), e);
 			}
 		}
 		return jp;

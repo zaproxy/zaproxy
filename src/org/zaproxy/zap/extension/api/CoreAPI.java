@@ -79,6 +79,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 
+	private static final String OTHER_PROXY_PAC = "proxy.pac";
+
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
 	private static final String PARAM_DIR = "dir";
@@ -110,6 +112,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
+		
+		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC));
 	}
 
 	@Override
@@ -361,6 +365,45 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return result;
 	}
 	
+	@Override
+	public HttpMessage handleApiOther(HttpMessage msg, String name,
+			JSONObject params) throws ApiException {
+
+		if (OTHER_PROXY_PAC.equals(name)) {
+			String response;
+			try {
+				response = this.getPacFile(msg.getRequestHeader().getURI().getHost(), msg.getRequestHeader().getURI().getPort());
+				msg.setResponseHeader(
+						"HTTP/1.1 200 OK\r\n" +
+						"Pragma: no-cache\r\n" +
+						"Cache-Control: no-cache\r\n" + 
+						"Access-Control-Allow-Origin: *\r\n" + 
+						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+						"Content-Length: " + response.length() + 
+						"\r\nContent-Type: text/html;");
+				
+		    	msg.setResponseBody(response);
+		    	
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			return msg;
+		} else {
+			throw new ApiException(ApiException.Type.BAD_OTHER);
+		}
+	}
+
+	private String getPacFile(String host, int port) {
+		// Could put in 'ignore urls'?
+		StringBuilder sb = new StringBuilder();
+		sb.append("function FindProxyForURL(url, host) {\n");
+		sb.append("  return \"PROXY " + host + ":" + port + "\";\n");
+		sb.append("} // End of function\n");
+		
+		return sb.toString();
+	}
+
 	private void getURLs(SiteNode parent, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = parent.children();
@@ -515,12 +558,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			logger.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}
-	}
-
-	@Override
-	public HttpMessage handleApiOther(HttpMessage msg, String name,
-			JSONObject params) throws ApiException {
-		throw new ApiException(ApiException.Type.BAD_OTHER);
 	}
 
 	@Override

@@ -35,6 +35,7 @@
 // ZAP: 2012/12/27 Added support for PersistentConnectionListener.
 // ZAP: 2013/01/04 Do beginSSL() on HTTP CONNECT only if port requires so.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2013/04/11 Issue 621: Handle requests to the proxy URL
 
 package org.parosproxy.paros.core.proxy;
 
@@ -218,13 +219,9 @@ class ProxyThread implements Runnable {
 		boolean isFirstRequest = true;
 		HttpMessage msg = null;
         
-        if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut)) {
+        if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
         	// It was an API request
         	return;
-        }
-
-        if (isRecursive(requestHeader)) {
-            throw new IOException("Recursive request to proxy itself stopped.");
         }
         
         // reduce socket timeout after first read
