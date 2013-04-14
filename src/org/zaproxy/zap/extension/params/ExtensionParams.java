@@ -100,7 +100,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
-        extensionHook.addSiteMapListner(this);
+        extensionHook.addSiteMapListener(this);
 	    
 	    if (getView() != null) {
 	        @SuppressWarnings("unused")

@@ -126,7 +126,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    }
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
-        extensionHook.addSiteMapListner(this);
+        extensionHook.addSiteMapListener(this);
 
         extensionHook.addOptionsParamSet(getScannerParam());
         extensionHook.addCommandLine(getCommandLineArguments());

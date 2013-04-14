@@ -91,7 +91,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    super.hook(extensionHook);
 	    extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
-        extensionHook.addSiteMapListner(this);
+        extensionHook.addSiteMapListener(this);
         extensionHook.addAddonFilesChangedListener(this);
 
         extensionHook.addOptionsParamSet(getBruteForceParam());

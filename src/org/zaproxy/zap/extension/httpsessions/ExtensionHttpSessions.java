@@ -150,7 +150,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		extensionHook.addOptionsParamSet(getParam());
 
 		extensionHook.addSessionListener(this);
-		extensionHook.addSiteMapListner(this);
+		extensionHook.addSiteMapListener(this);
 		HttpSender.addListener(this);
 
 		if (getView() != null) {

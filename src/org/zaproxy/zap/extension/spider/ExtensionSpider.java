@@ -110,7 +110,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		// Register for listeners
 		extensionHook.addSessionListener(this);
 		extensionHook.addProxyListener(this);
-		extensionHook.addSiteMapListner(this);
+		extensionHook.addSiteMapListener(this);
 
 		// Initialize views
 		if (getView() != null) {
