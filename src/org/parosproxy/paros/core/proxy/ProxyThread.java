@@ -36,10 +36,12 @@
 // ZAP: 2013/01/04 Do beginSSL() on HTTP CONNECT only if port requires so.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/11 Issue 621: Handle requests to the proxy URL
+// ZAP: 2013/04/14 Issue 622: Local proxy unable to correctly detect requests to itself
 
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -48,7 +50,6 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
@@ -460,9 +461,8 @@ class ProxyThread implements Runnable {
 	private boolean isRecursive(HttpRequestHeader header) {
         boolean isRecursive = false;
         try {
-            URI uri = header.getURI();
-            if (uri.getHost().equals(proxyParam.getProxyIp())) {
-                if (uri.getPort() == proxyParam.getProxyPort()) {
+            if (header.getHostPort() == inSocket.getLocalPort()) {
+                if (InetAddress.getByName(header.getHostName()).equals(inSocket.getLocalAddress())) {
                     isRecursive = true;
                 }
             }
