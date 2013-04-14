@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.split.request;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
 		private static final String X_WWW_FORM_URLENCODED = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xWwwFormUrlencoded");
 		private static final String JAVASCRIPT = Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
+		private static final String JSON = Constant.messages.getString("http.panel.view.syntaxtext.syntax.json");
 		private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
 		
 		private static final String SYNTAX_STYLE_X_WWW_FORM = "application/x-www-form-urlencoded";
@@ -64,6 +66,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		public HttpRequestBodyPanelSyntaxHighlightTextArea() {
 			addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
 			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+			addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
 			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 			
 			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
@@ -133,12 +136,20 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 			if (httpMessage != null && httpMessage.getRequestHeader() != null) {
 				String contentType = httpMessage.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
 				if(contentType != null && !contentType.isEmpty()) {
-					contentType = contentType.toLowerCase();
+					contentType = contentType.toLowerCase(Locale.ENGLISH);
 					final int pos = contentType.indexOf(';');
 					if (pos != -1) {
 						contentType = contentType.substring(0, pos).trim();
 					}
-					syntax = contentType;
+					if (contentType.contains("javascript")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
+					} else if(contentType.contains("json")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
+					} else if (contentType.contains("xml")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_XML;
+					} else {
+						syntax = contentType;
+					}
 				}
 			}
 			return syntax;
@@ -161,6 +172,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 				
 				pkg = "org.fife.ui.rsyntaxtextarea.modes.";
 				putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
+				putMapping(SYNTAX_STYLE_JSON, pkg + "JsonTokenMaker");
 				putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
 			}
 		}

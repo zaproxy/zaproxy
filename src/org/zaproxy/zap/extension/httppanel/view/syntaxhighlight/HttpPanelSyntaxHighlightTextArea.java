@@ -19,10 +19,8 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -352,13 +350,9 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	protected static class CustomTokenMakerFactory extends AbstractTokenMakerFactory {
 		
 		@Override
-		protected Map<String, String> createTokenMakerKeyToClassNameMap() {
-			HashMap<String, String> map = new HashMap<>();
-
+		protected void initTokenMakerMap() {
 			String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
-			map.put(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");
-			
-			return map;
+			putMapping(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");
 		}
 	}
 	

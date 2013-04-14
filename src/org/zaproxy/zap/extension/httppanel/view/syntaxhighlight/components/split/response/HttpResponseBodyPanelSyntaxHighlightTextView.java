@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.split.response;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,7 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 		private static final String CSS = Constant.messages.getString("http.panel.view.syntaxtext.syntax.css");
 		private static final String HTML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.html");
 		private static final String JAVASCRIPT = Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
+		private static final String JSON = Constant.messages.getString("http.panel.view.syntaxtext.syntax.json");
 		private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
 		
 		private static ResponseBodyTokenMakerFactory tokenMakerFactory = null;
@@ -57,6 +59,7 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 			addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
 			addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
 			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+			addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
 			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 		}
 
@@ -88,17 +91,18 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 			if (httpMessage != null && httpMessage.getResponseHeader() != null) {
 				String contentType = httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
 				if(contentType != null && !contentType.isEmpty()) {
-					contentType = contentType.toLowerCase();
+					contentType = contentType.toLowerCase(Locale.ENGLISH);
 					final int pos = contentType.indexOf(';');
 					if (pos != -1) {
 						contentType = contentType.substring(0, pos).trim();
 					}
-					if (contentType.indexOf("javascript") != -1 ||
-						contentType.indexOf("json") != -1) {
+					if (contentType.contains("javascript")) {
 						syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
-					} else if (contentType.indexOf("xhtml") != -1) {
+					} else if(contentType.contains("json")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
+					} else if (contentType.contains("xhtml")) {
 						syntax = SyntaxConstants.SYNTAX_STYLE_HTML;
-					} else if (contentType.indexOf("xml") != -1) {
+					} else if (contentType.contains("xml")) {
 						syntax = SyntaxConstants.SYNTAX_STYLE_XML;
 					} else {
 						syntax = contentType;
@@ -124,6 +128,7 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 				putMapping(SYNTAX_STYLE_CSS, pkg + "CSSTokenMaker");
 				putMapping(SYNTAX_STYLE_HTML, pkg + "HTMLTokenMaker");
 				putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
+				putMapping(SYNTAX_STYLE_JSON, pkg + "JsonTokenMaker");
 				putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
 			}
 		}
