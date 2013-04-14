@@ -29,7 +29,7 @@ import java.util.Enumeration;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -165,28 +165,12 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
     private File getOutputFile() {
 
 	    JFileChooser chooser = new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && 
-	                		file.getName().toLowerCase().endsWith(".txt")) {
-	                    return true;
-	                } else if (file.isFile() && 
-	                		file.getName().toLowerCase().endsWith(".htm")) {
-	                    return true;
-	                } else if (file.isFile() && 
-	                		file.getName().toLowerCase().endsWith(".html")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	               return Constant.messages.getString("file.format.textOrHtml");
-	           }
-	    });
+	    FileNameExtensionFilter textFilesFilter = new FileNameExtensionFilter(Constant.messages.getString("file.format.ascii"), "txt");
+	    FileNameExtensionFilter htmlFilesFilter = new FileNameExtensionFilter(Constant.messages.getString("file.format.html"), "html", "htm");
+
+	    chooser.addChoosableFileFilter(textFilesFilter);
+	    chooser.addChoosableFileFilter(htmlFilesFilter);
+	    chooser.setFileFilter(textFilesFilter);
 	    
 		File file = null;
 	    int rc = chooser.showSaveDialog(extension.getView().getMainFrame());
@@ -199,7 +183,13 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
     		String fileNameLc = file.getAbsolutePath().toLowerCase();
     		if (! fileNameLc.endsWith(".txt") && ! fileNameLc.endsWith(".htm") &&
     				! fileNameLc.endsWith(".html")) {
-    		    file = new File(file.getAbsolutePath() + ".txt");
+    		    String ext;
+    		    if (htmlFilesFilter.equals(chooser.getFileFilter())) {
+    		        ext = ".html";
+    		    } else {
+    		        ext = ".txt";
+    		    }
+    		    file = new File(file.getAbsolutePath() + ext);
     		}
     		return file;
     		
