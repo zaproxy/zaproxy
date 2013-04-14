@@ -29,6 +29,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/10/07 Added support for prepareShow() that is run on PopupMenu before showing it
 // ZAP: 2012/10/08 Added check for PopupMenu safeness
+// ZAP: 2013/04/14 Issue 592: Do not show the main pop up menu if it doesn't have visible pop up menu items
 
 package org.parosproxy.paros.view;
 
@@ -124,7 +125,20 @@ public class MainPopupMenu extends JPopupMenu {
 				handleMenu(invoker, item);
 			}
 		}
-	    super.show(invoker, x, y);
+
+		if (isAtLeastOneChildComponentVisible()) {
+			super.show(invoker, x, y);
+		}
+	}
+
+	private boolean isAtLeastOneChildComponentVisible() {
+		for (Component comp : getComponents()) {
+			if (comp.isVisible()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 	private void handleMenuItem(Component invoker, ExtensionPopupMenuItem menuItem) {
