@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -89,8 +90,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel activeScansValueLabel = null;
 	private List<String> activeScans = new ArrayList<>();
     private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
-    private List<String> fileList = null;
-	private JComboBox<String> fileSelect = null;
+    private List<ForcedBrowseFile> fileList = null;
+	private JComboBox<ForcedBrowseFile> fileSelect = null;
+	private DefaultComboBoxModel<ForcedBrowseFile> fileSelectModel = null;
 
 	private String fileDirectory = Constant.getInstance().DIRBUSTER_DIR;
 	private String customFileDirectory = Constant.getInstance().DIRBUSTER_CUSTOM_DIR;
@@ -126,6 +128,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         super();
         //this.extension = extension;
         this.bruteForceParam = bruteForceParam;
+        this.fileSelectModel = new DefaultComboBoxModel<>();
  		initialize();
     }
 
@@ -568,7 +571,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         return bfPanelCellRenderer;
 	}
 
-	private JComboBox<String> getFileSelect() {
+	private JComboBox<ForcedBrowseFile> getFileSelect() {
 		if (fileSelect == null) {
 			fileSelect = new JComboBox<>();
 			this.refreshFileList();
@@ -640,24 +643,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 			BruteForce bruteForce = bruteForceMap.get(site);
 			if (bruteForce == null) {
-				final String selectedFile = (String) this.fileSelect.getSelectedItem();
-				if (selectedFile == null) {
+				final ForcedBrowseFile selectedForcedBrowseFile = (ForcedBrowseFile) this.fileSelectModel.getSelectedItem();
+				if (selectedForcedBrowseFile == null) {
 					return;
 				}
-				// Try the 'local' dir first
-				String fileName = this.customFileDirectory + File.separator + selectedFile;
-				File f = new File(fileName);
-				if (! f.exists()) {
-					log.debug("No such file: " + f.getAbsolutePath());
-					fileName = this.fileDirectory + File.separator + selectedFile;
-					f = new File(fileName);
-				}
-				if (! f.exists()) {
-					log.error("No such file: " + f.getAbsolutePath());
+				File file = selectedForcedBrowseFile.getFile();
+				if (! file.exists()) {
+					log.error("No such file: " + file.getAbsolutePath());
 					return;
 				}
 				
-				bruteForce = new BruteForce(site, fileName, this, this.bruteForceParam);
+				bruteForce = new BruteForce(site, file, this, this.bruteForceParam);
 				bruteForceMap.put(site, bruteForce);
 			}
 			if (bruteForce.isAlive()) {
@@ -783,20 +779,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 		this.activeScans.add(currentSite);
 
-		// Start a new thread
-		// Try the 'local' dir first
-		String fileName = this.customFileDirectory + File.separator + this.fileSelect.getSelectedItem();
-		File f = new File(fileName);
-		if (! f.exists()) {
-			log.debug("No such file: " + f.getAbsolutePath());
-			fileName = this.fileDirectory + File.separator + this.fileSelect.getSelectedItem();
-			f = new File(fileName);
-		}
-		if (! f.exists()) {
-			log.error("No such file: " + f.getAbsolutePath());
+		final ForcedBrowseFile selectedForcedBrowseFile = (ForcedBrowseFile) this.fileSelectModel.getSelectedItem();
+		if (selectedForcedBrowseFile == null) {
 			return;
 		}
-		BruteForce bruteForce = new BruteForce(currentSite, f.getAbsolutePath(), this, bruteForceParam, directory);
+		File file = selectedForcedBrowseFile.getFile();
+		if (! file.exists()) {
+			log.error("No such file: " + file.getAbsolutePath());
+			return;
+		}
+		
+		BruteForce bruteForce = new BruteForce(currentSite, file, this, bruteForceParam, directory);
 		if (onlyUnderDirectory) {
 			bruteForce.setOnlyUnderDirectory(onlyUnderDirectory);
 		}
@@ -916,30 +909,32 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	public void refreshFileList() {
-		fileSelect.removeAllItems();
 		fileList = null;
-		List<String> list = getFileList();
-		for (String file: list) {
-			fileSelect.addItem(file);
+		
+		fileSelectModel = new DefaultComboBoxModel<>();
+		for (ForcedBrowseFile file : getFileList()) {
+			fileSelectModel.addElement(file);
 		}
+		
+		fileSelect.setModel(fileSelectModel);
 
-		String defaultFile = this.bruteForceParam.getDefaultFile();
+		ForcedBrowseFile defaultFile = this.bruteForceParam.getDefaultFile();
 		
 		if (defaultFile != null) {
-			fileSelect.setSelectedItem(defaultFile);
+			fileSelectModel.setSelectedItem(defaultFile);
 		}
 	}
 
-	public List<String> getFileList() {
+	public List<ForcedBrowseFile> getFileList() {
 		if (fileList == null) {
 			fileList = new ArrayList<>();
 			File dir = new File(fileDirectory);
 			FilenameFilter filter = new FilenameExtensionFilter(fileExtension, true);
-			String[] files = dir.list(filter );
+			File[] files = dir.listFiles(filter);
 			if (files != null) {
 				Arrays.sort(files);
-				for (String file : files) {
-					fileList.add(file);
+				for (File file : files) {
+					fileList.add(new ForcedBrowseFile(file));
 				}
 			}
 			
@@ -951,7 +946,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 					Arrays.sort(customFiles);
 					for (File file : customFiles) {
 						if (! file.isDirectory()) {
-							fileList.add(file.getName());
+							fileList.add(new ForcedBrowseFile(file));
 						}
 					}
 				}
@@ -962,8 +957,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		return fileList;
 	}
 
-	public void setDefaultFile(String file) {
-		this.getFileSelect().setSelectedItem(file);
+	public void setDefaultFile(ForcedBrowseFile file) {
+		this.fileSelectModel.setSelectedItem(file);
 	}
 
 	public void sessionScopeChanged(Session session) {

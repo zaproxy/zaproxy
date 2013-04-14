@@ -284,11 +284,11 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		this.getBruteForcePanel().refreshFileList();
 	}
 	
-	public List<String> getFileList() {
+	public List<ForcedBrowseFile> getFileList() {
 		return this.getBruteForcePanel().getFileList();
 	}
 	
-	public void setDefaultFile(String file) {
+	public void setDefaultFile(ForcedBrowseFile file) {
 		this.getBruteForcePanel().setDefaultFile(file);
 	}
 

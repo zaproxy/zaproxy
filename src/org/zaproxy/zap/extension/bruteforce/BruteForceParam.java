@@ -19,14 +19,19 @@
  */
 package org.zaproxy.zap.extension.bruteforce;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.configuration.ConversionException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class BruteForceParam extends AbstractParam {
 
+	private static final Logger logger = Logger.getLogger(BruteForceParam.class);
+	
 	private static final String THREAD_PER_SCAN = "bruteforce.threadPerHost";
 	private static final String DEFAULT_FILE = "bruteforce.defaultFile";
 	private static final String RECURSIVE = "bruteforce.recursive";
@@ -40,7 +45,7 @@ public class BruteForceParam extends AbstractParam {
 		
 	private int threadPerScan = DEFAULT_THREAD_PER_SCAN;
 	private boolean recursive = DEFAULT_RECURSIVE;
-	private String defaultFile = null;
+	private ForcedBrowseFile defaultFile = null;
 	private boolean browseFiles = DEFAULT_BROWSE_FILES;
 	// can't be null
 	private String fileExtensions = EMPTY_STRING;
@@ -53,10 +58,21 @@ public class BruteForceParam extends AbstractParam {
 		try {
 			this.threadPerScan = getConfig().getInt(THREAD_PER_SCAN, DEFAULT_THREAD_PER_SCAN);
 			this.recursive = getConfig().getBoolean(RECURSIVE, DEFAULT_RECURSIVE);
-			this.defaultFile = getConfig().getString(DEFAULT_FILE, null);
 			this.browseFiles = getConfig().getBoolean(BROWSE_FILES, DEFAULT_BROWSE_FILES);
 			this.fileExtensions = getConfig().getString(FILE_EXTENSIONS, EMPTY_STRING);
 		} catch (Exception e) {}
+		
+		try {
+			String path = getConfig().getString(DEFAULT_FILE, "");
+			if (!"".equals(path)) {
+				this.defaultFile = new ForcedBrowseFile(new File(path));
+			} else {
+				this.defaultFile = null;
+			}
+		} catch (ConversionException e) {
+			logger.error("Error while loading the forced browse default file: " + e.getMessage(), e);
+			this.defaultFile = null;
+		}
     }
 
     public int getThreadPerScan() {
@@ -79,13 +95,19 @@ public class BruteForceParam extends AbstractParam {
 
     }
 
-	protected String getDefaultFile() {
+	protected ForcedBrowseFile getDefaultFile() {
 		return defaultFile;
 	}
 
-	protected void setDefaultFile(String defaultFile) {
-        this.defaultFile = defaultFile;
-        getConfig().setProperty(DEFAULT_FILE, defaultFile);
+	protected void setDefaultFile(ForcedBrowseFile defaultFile) {
+		this.defaultFile = defaultFile;
+		
+		String absolutePath = "";
+		if (defaultFile != null) {
+			absolutePath = defaultFile.getFile().getAbsolutePath();
+		}
+		
+		getConfig().setProperty(DEFAULT_FILE, absolutePath);
 	}
 
 	public boolean isBrowseFiles() {

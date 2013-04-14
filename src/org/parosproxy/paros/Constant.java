@@ -43,6 +43,7 @@
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2012/12/08 Issue 428: Changed to use I18N for messages, to support the marketplace
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/04/14 Issue 610: Replace the use of the String class for available/default "Forced Browse" files
 
 package org.parosproxy.paros;
 
@@ -95,6 +96,7 @@ public final class Constant {
     private static final long VERSION_TAG = 1004001;
     
     // Old version numbers - for upgrade
+    private static final long V_2_0_0_TAG = 2000000;
 	private static final long V_1_4_1_TAG = 1004001;
     private static final long V_1_3_1_TAG = 1003001;
 	private static final long V_1_3_0_TAG = 1003000;
@@ -393,6 +395,9 @@ public final class Constant {
 	            	if (ver <= V_1_4_1_TAG) {
 	            		upgradeFrom1_4_1(config);
 	            	}
+	            	if (ver <= V_2_0_0_TAG) {
+	            		upgradeFrom2_0_0(config);
+	            	}
 	            	log.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -607,6 +612,22 @@ public final class Constant {
             config.setProperty(elementBaseKey + "enabled", data[7]);
         }
 	}
+
+    private void upgradeFrom2_0_0(XMLConfiguration config) {
+        String forcedBrowseFile = config.getString("bruteforce.defaultFile", "");
+        if (!"".equals(forcedBrowseFile)) {
+            String absolutePath = "";
+            // Try the 'local' dir first
+            File f = new File(DIRBUSTER_CUSTOM_DIR + File.separator + forcedBrowseFile);
+            if (!f.exists()) {
+                f = new File(DIRBUSTER_DIR + File.separator + forcedBrowseFile);
+            }
+            if (f.exists()) {
+                absolutePath = f.getAbsolutePath();
+            }
+            config.setProperty("bruteforce.defaultFile", absolutePath);
+        }
+    }
 
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");

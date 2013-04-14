@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.bruteforce;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -46,7 +47,7 @@ import com.sittinglittleduck.DirBuster.ExtToCheck;
 public class BruteForce extends Thread implements BruteForceListenner {
 
 	private String site;
-	private String fileName;
+	private File file;
 	private int port = 80;
 	private String directory;
 	private SortedListModel<BruteForceItem> list;
@@ -64,9 +65,9 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	
     private static Logger log = Logger.getLogger(BruteForce.class);
 
-	public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
+	public BruteForce (String site, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
 		this.site = site;
-		this.fileName = fileName;
+		this.file = file;
 		this.directory = null;
 		this.listenner = listenner;
 		this.threads = bruteForceParam.getThreadPerScan();
@@ -112,8 +113,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	    }
 	}
 
-    public BruteForce (String site, String fileName, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
-        this(site, fileName, listenner, bruteForceParam);
+    public BruteForce (String site, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
+        this(site, file, listenner, bruteForceParam);
         this.directory = directory;
         
         if (this.directory != null) {
@@ -137,7 +138,6 @@ public class BruteForce extends Thread implements BruteForceListenner {
         	}
             URL targetURL = new URL(protocol + "://" + site + "/");
             manager.setTargetURL(targetURL);
-            manager.setFileLocation(fileName);
             
             String host = targetURL.getHost();
 			manager.setAuto(true);
@@ -157,8 +157,11 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				startPoint = directory;
 			}
 			log.debug("BruteForce : starting on http://" + site + startPoint);
-			log.debug("BruteForce : file: " + fileName + " recursive=" + recursive);
-			manager.setupManager(startPoint, fileName, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
+			
+			final String fileAbsolutePath = file.getAbsolutePath();
+			
+			log.debug("BruteForce : file: " + fileAbsolutePath + " recursive=" + recursive);
+			manager.setupManager(startPoint, fileAbsolutePath, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
 			
 			manager.start();
 			
@@ -317,12 +320,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		return this.isPaused;
 	}
 
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public File getFile() {
+		return file.getAbsoluteFile();
 	}
 	
 	public void setOnlyUnderDirectory(boolean onlyUnderDirectory) {

@@ -49,7 +49,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelPortScan = null;
 	private JCheckBox checkBoxRecursive = null;
-	private JComboBox<String> defaultFileList = null;
+	private JComboBox<ForcedBrowseFile> defaultFileList = null;
 	private JButton addFileButton = null;
 	private JCheckBox checkBoxBrowseFiles = null;
 	private ZapTextField txtFileExtensions = null;
@@ -232,7 +232,7 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 		return panelPortScan;
 	}
 
-	private JComboBox<String> getDefaultFileList() {
+	private JComboBox<ForcedBrowseFile> getDefaultFileList() {
 		if (defaultFileList == null) {
 			defaultFileList = new JComboBox<>();
 			refreshFileList();
@@ -241,15 +241,15 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	}
 	
 	private void refreshFileList() {
-		String currentSelection = (String)defaultFileList.getSelectedItem();
+		ForcedBrowseFile selectedDefaultFile = (ForcedBrowseFile) defaultFileList.getSelectedItem();
 		defaultFileList.removeAllItems();
-		List<String> files = extension.getFileList();
-		for (String file : files) {
+		List<ForcedBrowseFile> files = extension.getFileList();
+		for (ForcedBrowseFile file : files) {
 			defaultFileList.addItem(file);
 		}
-		if (currentSelection != null) {
+		if (selectedDefaultFile != null) {
 			// Keep the same selection
-			defaultFileList.setSelectedItem(currentSelection);
+			defaultFileList.setSelectedItem(selectedDefaultFile);
 		}
 	}
 
@@ -299,15 +299,17 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	    }
 	   	param.setThreadPerScan(getSliderThreadsPerScan().getValue());
 	   	param.setRecursive(getCheckBoxRecursive().isSelected());
-	   	param.setDefaultFile((String)getDefaultFileList().getSelectedItem());
+	   	
+	   	ForcedBrowseFile selectedDefaultFile = (ForcedBrowseFile) getDefaultFileList().getSelectedItem();
+	   	param.setDefaultFile(selectedDefaultFile);
+	   	extension.setDefaultFile(selectedDefaultFile);
+	   	
 	   	param.setBrowseFiles(getCheckBoxBrowseFiles().isSelected());
 	   	if (getTxtFileExtensions().getText() != null) {
 	   		param.setFileExtensions(getTxtFileExtensions().getText());
 	   	} else {
 	   		param.setFileExtensions(BruteForceParam.EMPTY_STRING);
 	   	}
-	   	
-	   	extension.setDefaultFile((String)getDefaultFileList().getSelectedItem());
 	}
 	
 	/**
