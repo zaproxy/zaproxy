@@ -23,7 +23,10 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
-
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class PopupMenuAlert extends PopupMenuHistoryReference {
 
 	private static final long serialVersionUID = 1L;

@@ -23,6 +23,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods and 
 // removed unnecessary cast.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
+// ZAP: 2013/04/14 Issue 594: Deprecate unused classes
 
 package org.parosproxy.paros.view;
 
@@ -40,6 +41,10 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
+@Deprecated
 public class PopupDeleteMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 2282358266003940700L;
