@@ -19,90 +19,42 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
-import java.awt.Component;
-
-import javax.swing.JTree;
-
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.view.PopupMenuSiteNode;
 
+public class PopupMenuAddBreakSites extends PopupMenuSiteNode {
 
-
-public class PopupMenuAddBreakSites extends ExtensionPopupMenuItem {
-
-	private static final long serialVersionUID = 1L;
-
-	private JTree treeSite = null;
+    private static final long serialVersionUID = -7635703590177283587L;
     
     private ExtensionBreak extension;
     private HttpBreakpointsUiManagerInterface uiManager;
-    
-	
+
     public PopupMenuAddBreakSites(ExtensionBreak extension, HttpBreakpointsUiManagerInterface uiManager) {
-        super();
-        
+        super(Constant.messages.getString("brk.add.popup"));
+
         this.extension = extension;
         this.uiManager = uiManager;
-        
- 		initialize();
     }
 
-    
-    public PopupMenuAddBreakSites(String label) {
-        super(label);
-    }
-
-	private void initialize() {
-        this.setText(Constant.messages.getString("brk.add.popup"));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-                if (treeSite != null) {
-        		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		            if (node == null) {
-		                return;
-		            }
-                    String url = node.getHierarchicNodeName();
-                    if (! node.isLeaf()) {
-                    	url += "/*";
-                    }
-                    uiManager.handleAddBreakpoint(url);
-                }
-        	}
-        });
-
-			
-	}
-	
     @Override
-    public boolean isEnableForComponent(Component invoker) {
-        treeSite = getTree(invoker);
-        if (treeSite != null) {
-		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot() && extension.canAddBreakpoint()) {
-		        this.setEnabled(true);
-		    } else {
-		        this.setEnabled(false);
-		    }
-            return true;
-        }
-        return false;
+    public boolean isEnableForInvoker(Invoker invoker) {
+        return (invoker == Invoker.sites);
     }
 
-    private JTree getTree(Component invoker) {
-        if (invoker instanceof JTree) {
-            JTree tree = (JTree) invoker;
-            if (tree.getName().equals("treeSite")) {
-                return tree;
-            }
-        }
-
-        return null;
+    @Override
+    public boolean isEnabledForSiteNode(SiteNode sn) {
+        return extension.canAddBreakpoint();
     }
-    
+
+    @Override
+    public void performAction(SiteNode sn) throws Exception {
+        String url = sn.getHierarchicNodeName();
+        if (!sn.isLeaf()) {
+            url += "/*";
+        }
+        uiManager.handleAddBreakpoint(url);
+    }
+
 }

@@ -19,90 +19,47 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
-import java.awt.Component;
-import java.util.List;
-
-import javax.swing.JList;
+import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
+public class PopupMenuAddBreakHistory extends PopupMenuHistoryReference {
 
+    private static final long serialVersionUID = -1984801437717248474L;
 
-public class PopupMenuAddBreakHistory extends ExtensionPopupMenuItem {
+    private static final Logger logger = Logger.getLogger(PopupMenuAddBreakHistory.class);
 
-	private static final long serialVersionUID = 1L;
-	private ExtensionBreak extension = null;
-    private JList<HistoryReference> listLog = null;
-    private static Logger log = Logger.getLogger(PopupMenuAddBreakHistory.class);
-    
-    
-    public PopupMenuAddBreakHistory() {
-        super();
- 		initialize();
-    }
+    private final ExtensionBreak extension;
 
-    
-    public PopupMenuAddBreakHistory(String label) {
-        super(label);
-    }
+    public PopupMenuAddBreakHistory(ExtensionBreak extension) {
+        super(Constant.messages.getString("brk.add.popup"));
 
-	
-	private void initialize() {
-        this.setText(Constant.messages.getString("brk.add.popup"));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-                
-                List<HistoryReference> values = listLog.getSelectedValuesList();
-                if (values.size() != 1) {
-                    return;
-                }
-                
-                try {
-                    extension.addUiBreakpoint(values.get(0).getHttpMessage());
-                    
-                } catch (Exception e1) {
-                    extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
-                }
-        	}
-        });
-	}
-	
-    @Override
-    public boolean isEnableForComponent(Component invoker) {
-        
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-            try {
-                @SuppressWarnings("unchecked")
-                JList<HistoryReference> list = (JList<HistoryReference>) invoker;
-                
-                listLog = list;
-                List<HistoryReference> values = listLog.getSelectedValuesList();
-
-                if (values.size() == 1 && extension.canAddBreakpoint()) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-
-            } catch (Exception e) {
-            	log.warn(e.getMessage(), e);
-            }
-            return true;
-            
-        }
-        return false;
-    }
-
-        
-    void setExtension(ExtensionBreak extension) {
         this.extension = extension;
+    }
+
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker) {
+        return (invoker == Invoker.history);
+    }
+
+    @Override
+    public boolean isEnabledForHistoryReference(HistoryReference href) {
+        return (extension.canAddBreakpoint() && super.isEnabledForHistoryReference(href));
+    }
+
+    @Override
+    public void performAction(HistoryReference href) throws Exception {
+        try {
+            extension.addUiBreakpoint(href.getHttpMessage());
+        } catch (HttpMalformedHeaderException | SQLException e) {
+            logger.error(e.getMessage(), e);
+            extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
+        }
     }
 
 }

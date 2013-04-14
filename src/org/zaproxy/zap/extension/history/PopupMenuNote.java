@@ -19,84 +19,41 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Component;
 import java.sql.SQLException;
-
-import javax.swing.JList;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
+public class PopupMenuNote extends PopupMenuHistoryReference {
 
-public class PopupMenuNote extends ExtensionPopupMenuItem {
+    private static final long serialVersionUID = -5692544221103745600L;
 
-	private static final long serialVersionUID = 1L;
-	
-	private static final Logger logger = Logger.getLogger(PopupMenuNote.class);
-	
-	private ExtensionHistory extension = null;
-    
-    /**
-     * 
-     */
-    public PopupMenuNote() {
-        super();
- 		initialize();
-    }
+    private static final Logger logger = Logger.getLogger(PopupMenuNote.class);
 
-    /**
-     * @param label
-     */
-    public PopupMenuNote(String label) {
-        super(label);
-    }
+    private final ExtensionHistory extension;
 
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.note.popup"));
+    public PopupMenuNote(ExtensionHistory extension) {
+        super(Constant.messages.getString("history.note.popup"));
 
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent evt) {
-        	    
-        	    HistoryReference ref = extension.getSelectedHistoryReference();
-        	    HttpMessage msg = null;
-        	    try {
-                    msg = ref.getHttpMessage();
-            	    extension.showNotesAddDialog(ref, msg.getNote());
-            	    
-                } catch (HttpMalformedHeaderException | SQLException e) {
-                    logger.error(e.getMessage(), e);
-                }
-        	}
-        });
-	}
-	
-    @Override
-    public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-            try {
-                JList<?> list = (JList<?>) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {}
-            return true;
-        }
-        return false;
-    }
-    
-    public void setExtension(ExtensionHistory extension) {
         this.extension = extension;
+    }
+
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker) {
+        return (invoker == Invoker.history);
+    }
+
+    @Override
+    public void performAction(HistoryReference href) throws Exception {
+        try {
+            extension.showNotesAddDialog(href, href.getHttpMessage().getNote());
+
+        } catch (HttpMalformedHeaderException | SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

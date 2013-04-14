@@ -42,6 +42,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/14 Issue 588: ExtensionHistory.historyIdToRef should be cleared when changing session
+// ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 
 package org.parosproxy.paros.extension.history;
 
@@ -76,6 +77,7 @@ import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
+import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
@@ -155,7 +157,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return logPanel;
 	}
 	
-	protected void clearLogPanelDisplayQueue() {
+	public void clearLogPanelDisplayQueue() {
 		this.getLogPanel().clearDisplayQueue();
 	}
 	
@@ -430,16 +432,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return result;
 	}
 	
-	/**
-	 * This method initializes popupMenuPurgeHistory	
-	 * 	
-	 * @return org.parosproxy.paros.extension.history.PopupMenuPurgeHistory	
-	 */    
 	private PopupMenuPurgeHistory getPopupMenuPurgeHistory() {
 		if (popupMenuPurgeHistory == null) {
-			popupMenuPurgeHistory = new PopupMenuPurgeHistory();
-			popupMenuPurgeHistory.setExtension(this);
-
+			popupMenuPurgeHistory = new PopupMenuPurgeHistory(this);
 		}
 		return popupMenuPurgeHistory;
 	}
@@ -485,8 +480,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
     private PopupMenuTag getPopupMenuTag() {
         if (popupMenuTag == null) {
-            popupMenuTag = new PopupMenuTag();
-            popupMenuTag.setExtension(this);
+            popupMenuTag = new PopupMenuTag(this);
 
         }
         return popupMenuTag;
@@ -494,8 +488,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     
     private PopupMenuNote getPopupMenuNote() {
         if (popupMenuNote == null) {
-            popupMenuNote = new PopupMenuNote();
-            popupMenuNote.setExtension(this);
+            popupMenuNote = new PopupMenuNote(this);
 
         }
         return popupMenuNote;

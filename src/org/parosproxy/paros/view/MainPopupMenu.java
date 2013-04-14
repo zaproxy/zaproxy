@@ -30,6 +30,7 @@
 // ZAP: 2012/10/07 Added support for prepareShow() that is run on PopupMenu before showing it
 // ZAP: 2012/10/08 Added check for PopupMenu safeness
 // ZAP: 2013/04/14 Issue 592: Do not show the main pop up menu if it doesn't have visible pop up menu items
+// ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 
 package org.parosproxy.paros.view;
 
@@ -48,13 +49,14 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
+import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 
 public class MainPopupMenu extends JPopupMenu {
 
 	private static final long serialVersionUID = -3021348328961418293L;
 
 	private List<JMenuItem> itemList = null;
-	private PopupPurgeMenu popupPurgeMenu = null;
+	private PopupMenuPurgeSites popupMenuPurgeSites = null;
 	// ZAP: Added support for submenus
     Map<String, JMenuItem> superMenus = new HashMap<>();
     View view = null;
@@ -91,7 +93,7 @@ public class MainPopupMenu extends JPopupMenu {
 	    // added pre-set popup menu here
 //        this.add(getPopupFindMenu());
         //this.add(getPopupDeleteMenu());
-        this.add(getPopupPurgeMenu());
+        this.add(getPopupMenuPurgeSites());
 	}
 	
 	@Override
@@ -231,16 +233,11 @@ public class MainPopupMenu extends JPopupMenu {
 		
 	}
 
-	/**
-	 * This method initializes popupPurgeMenu	
-	 * 	
-	 * @return org.parosproxy.paros.view.PopupPurgeMenu	
-	 */    
-	private PopupPurgeMenu getPopupPurgeMenu() {
-		if (popupPurgeMenu == null) {
-			popupPurgeMenu = new PopupPurgeMenu();
+	private PopupMenuPurgeSites getPopupMenuPurgeSites() {
+		if (popupMenuPurgeSites == null) {
+			popupMenuPurgeSites = new PopupMenuPurgeSites();
 		}
-		return popupPurgeMenu;
+		return popupMenuPurgeSites;
 	}
 
 	// ZAP: added addMenu and removeMenu to support dynamic changing of menus

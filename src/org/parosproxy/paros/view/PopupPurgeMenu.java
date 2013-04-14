@@ -25,6 +25,7 @@
 // ZAP: 2012/06/01 Issue 310 prevent infinite loop when deleting nodes
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 
 package org.parosproxy.paros.view;
 
@@ -44,7 +45,12 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 
+/**
+ * @deprecated Replaced by {@link PopupMenuPurgeSites}. It will be removed in a future release.
+ */
+@Deprecated
 public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = -1140641989210953086L;

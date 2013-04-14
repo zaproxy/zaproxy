@@ -25,6 +25,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 
 package org.parosproxy.paros.extension.history;
 
@@ -45,7 +46,11 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.PopupPurgeMenu;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
-
+/**
+ * @deprecated Replaced by {@link org.zaproxy.zap.extension.history.PopupMenuPurgeHistory}. It will be removed in a future
+ *             release.
+ */
+@Deprecated
 public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 
     private ExtensionHistory extension = null;

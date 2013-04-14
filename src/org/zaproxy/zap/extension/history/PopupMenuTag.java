@@ -19,77 +19,31 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Component;
-
-import javax.swing.JList;
-
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
+public class PopupMenuTag extends PopupMenuHistoryReference {
 
-public class PopupMenuTag extends ExtensionPopupMenuItem {
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
-	private ExtensionHistory extension = null;
-    
-    /**
-     * 
-     */
-    public PopupMenuTag() {
-        super();
- 		initialize();
-    }
+    private final ExtensionHistory extension;
 
-    /**
-     * @param label
-     */
-    public PopupMenuTag(String label) {
-        super(label);
-    }
+    public PopupMenuTag(ExtensionHistory extension) {
+        super(Constant.messages.getString("history.tags.popup"));
 
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.tags.popup"));
-
-        this.addActionListener(new java.awt.event.ActionListener() { 
-
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        	    
-        	    HistoryReference ref = extension.getSelectedHistoryReference();
-        	    if (ref != null) {
-        	    	extension.showManageTagsDialog(ref, ref.getTags());
-        	    }
-        	}
-        });
-
-			
-	}
-	
-    @Override
-    public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-            try {
-                JList<?> list = (JList<?>) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {}
-            return true;
-        }
-        return false;
-    }
-    
-    public void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }
-    
 
-	
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker) {
+        return (invoker == Invoker.history);
+    }
+
+    @Override
+    public void performAction(HistoryReference href) throws Exception {
+        extension.showManageTagsDialog(href, href.getTags());
+    }
+
 }
