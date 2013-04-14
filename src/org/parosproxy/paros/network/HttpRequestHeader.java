@@ -35,6 +35,7 @@
 // requests returns the wrong port
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/08 Improved parse error reporting
+// ZAP: 2013/04/14 Issue 596: Rename the method HttpRequestHeader.getSecure to isSecure
 
 package org.parosproxy.paros.network;
 
@@ -254,8 +255,19 @@ public class HttpRequestHeader extends HttpHeader {
      * Get if this request header is under secure connection.
      *
      * @return
+     * @deprecated Replaced by {@link #isSecure()}. It will be removed in a future release.
      */
+    @Deprecated
     public boolean getSecure() {
+        return mIsSecure;
+    }
+
+    /**
+     * Tells whether the request is secure, or not. A request is considered secure if it's using the HTTPS protocol.
+     * 
+     * @return {@code true} if the request is secure, {@code false} otherwise.
+     */
+    public boolean isSecure() {
         return mIsSecure;
     }
 
@@ -276,9 +288,9 @@ public class HttpRequestHeader extends HttpHeader {
 
         URI newUri = mUri;
         // check if URI consistent
-        if (getSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
+        if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
-        } else if (!getSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
+        } else if (!isSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTPS, HTTP), true);
         }
 
@@ -341,7 +353,7 @@ public class HttpRequestHeader extends HttpHeader {
             mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
         }
 
-        if (getSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
+        if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
             mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
         }
 
@@ -417,19 +429,19 @@ public class HttpRequestHeader extends HttpHeader {
      * If the given {@code port} number is negative (usually -1 to represent
      * that no port number is defined), the port number set will be the default
      * port number for the used scheme known using the method
-     * {@code getSecure()}, either 80 for HTTP or 443 for HTTPS.
+     * {@code isSecure()}, either 80 for HTTP or 443 for HTTPS.
      * </p>
      * 
      * @param port
      *            the new port number
      * @see #mHostPort
-     * @see #getSecure()
+     * @see #isSecure()
      * @see URI#getPort()
      */
     private void setHostPort(int port) {
         if (port > -1) {
             mHostPort = port;
-        } else if (this.getSecure()) {
+        } else if (this.isSecure()) {
             mHostPort = 443;
         } else {
             mHostPort = 80;
