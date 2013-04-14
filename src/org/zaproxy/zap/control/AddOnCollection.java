@@ -72,6 +72,7 @@ public class AddOnCollection {
         						id, 
         						config.getString("addon_" + id + ".name"), 
         						config.getString("addon_" + id + ".description"), 
+        						config.getString("addon_" + id + ".author", ""),
         						config.getInt("addon_" + id + ".version"),
         						AddOn.Status.valueOf(config.getString("addon_" + id + ".status")),
         						config.getString("addon_" + id + ".changes"), 

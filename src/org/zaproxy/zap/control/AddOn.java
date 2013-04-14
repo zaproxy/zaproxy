@@ -160,11 +160,12 @@ public class AddOn  {
 		return list;
 	}
 	
-	public AddOn(String id, String name, String description, int version, Status status, 
+	public AddOn(String id, String name, String description, String author, int version, Status status, 
 			String changes, URL url, File file, long size, String notBeforeVersion, String notFromVersion) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
+		this.author = author;
 		this.version = version;
 		this.status = status;
 		this.changes = changes;
