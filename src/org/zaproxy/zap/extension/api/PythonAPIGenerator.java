@@ -133,7 +133,11 @@ public class PythonAPIGenerator {
 			}
 			out.write("})");
 		} else {
-			out.write(").get('" + camelCaseToLcUnderscores(element.getName()) + "')");
+			if (element.getName().startsWith("option")) {
+				out.write(").get('" + element.getName().substring(6) + "')");
+			} else {
+				out.write(").get('" + element.getName() + "')");
+			}
 		}
 		out.write("\n\n");
 		
