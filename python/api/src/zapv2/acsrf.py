@@ -26,15 +26,15 @@ class acsrf(object):
 
     @property
     def option_tokens(self):
-        return self.zap._request(self.zap.base + 'acsrf/view/optionTokens/').get('option_tokens')
+        return self.zap._request(self.zap.base + 'acsrf/view/optionTokens/').get('Tokens')
 
     @property
     def option_tokens_names(self):
-        return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').get('option_tokens_names')
+        return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').get('TokensNames')
 
     @property
     def option_confirm_remove_token(self):
-        return self.zap._request(self.zap.base + 'acsrf/view/optionConfirmRemoveToken/').get('option_confirm_remove_token')
+        return self.zap._request(self.zap.base + 'acsrf/view/optionConfirmRemoveToken/').get('ConfirmRemoveToken')
 
     def add_option_token(self, string):
         return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string})

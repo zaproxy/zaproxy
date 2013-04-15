@@ -26,51 +26,51 @@ class autoupdate(object):
 
     @property
     def latest_version_number(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/latestVersionNumber/').get('latest_version_number')
+        return self.zap._request(self.zap.base + 'autoupdate/view/latestVersionNumber/').get('latestVersionNumber')
 
     @property
     def is_latest_version(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/').get('is_latest_version')
+        return self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/').get('isLatestVersion')
 
     @property
     def option_check_on_start_unset(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStartUnset/').get('option_check_on_start_unset')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStartUnset/').get('CheckOnStartUnset')
 
     @property
     def option_check_on_start(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStart/').get('option_check_on_start')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStart/').get('CheckOnStart')
 
     @property
     def option_download_new_release(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionDownloadNewRelease/').get('option_download_new_release')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionDownloadNewRelease/').get('DownloadNewRelease')
 
     @property
     def option_check_addon_updates(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckAddonUpdates/').get('option_check_addon_updates')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckAddonUpdates/').get('CheckAddonUpdates')
 
     @property
     def option_install_addon_updates(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallAddonUpdates/').get('option_install_addon_updates')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallAddonUpdates/').get('InstallAddonUpdates')
 
     @property
     def option_install_scanner_rules(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallScannerRules/').get('option_install_scanner_rules')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionInstallScannerRules/').get('InstallScannerRules')
 
     @property
     def option_report_release_addons(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportReleaseAddons/').get('option_report_release_addons')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportReleaseAddons/').get('ReportReleaseAddons')
 
     @property
     def option_report_beta_addons(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportBetaAddons/').get('option_report_beta_addons')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportBetaAddons/').get('ReportBetaAddons')
 
     @property
     def option_report_alpha_addons(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').get('option_report_alpha_addons')
+        return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').get('ReportAlphaAddons')
 
     @property
     def download_latest_release(self):
-        return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/').get('download_latest_release')
+        return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/').get('downloadLatestRelease')
 
     def set_option_check_on_start(self, integer):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Integer' : integer})

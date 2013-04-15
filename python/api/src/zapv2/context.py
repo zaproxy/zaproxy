@@ -29,7 +29,7 @@ class context(object):
         """
         List context names of current session
         """
-        return self.zap._request(self.zap.base + 'context/view/contextList/').get('context_list')
+        return self.zap._request(self.zap.base + 'context/view/contextList/').get('contextList')
 
     def exclude_regexs(self, contextname):
         """

@@ -30,6 +30,7 @@ from autoupdate import autoupdate
 from context import context
 from core import core
 from params import params
+from pscan import pscan
 from search import search
 from spider import spider
 
@@ -68,6 +69,7 @@ class ZAPv2(object):
         self.context = context(self)
         self.core = core(self)
         self.params = params(self)
+        self.pscan = pscan(self)
         self.search = search(self)
         self.spider = spider(self)
 

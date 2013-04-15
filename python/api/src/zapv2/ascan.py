@@ -30,38 +30,38 @@ class ascan(object):
 
     @property
     def excluded_from_scan(self):
-        return self.zap._request(self.zap.base + 'ascan/view/excludedFromScan/').get('excluded_from_scan')
+        return self.zap._request(self.zap.base + 'ascan/view/excludedFromScan/').get('excludedFromScan')
 
     @property
     def option_thread_per_host(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionThreadPerHost/').get('option_thread_per_host')
+        return self.zap._request(self.zap.base + 'ascan/view/optionThreadPerHost/').get('ThreadPerHost')
 
     @property
     def option_host_per_scan(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionHostPerScan/').get('option_host_per_scan')
+        return self.zap._request(self.zap.base + 'ascan/view/optionHostPerScan/').get('HostPerScan')
 
     @property
     def option_delay_in_ms(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionDelayInMs/').get('option_delay_in_ms')
+        return self.zap._request(self.zap.base + 'ascan/view/optionDelayInMs/').get('DelayInMs')
 
     @property
     def option_handle_anti_csrf_tokens(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionHandleAntiCSRFTokens/').get('option_handle_anti_csrf_tokens')
+        return self.zap._request(self.zap.base + 'ascan/view/optionHandleAntiCSRFTokens/').get('HandleAntiCSRFTokens')
 
     @property
     def option_alert_threshold(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionAlertThreshold/').get('option_alert_threshold')
+        return self.zap._request(self.zap.base + 'ascan/view/optionAlertThreshold/').get('AlertThreshold')
 
     @property
     def option_attack_strength(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionAttackStrength/').get('option_attack_strength')
+        return self.zap._request(self.zap.base + 'ascan/view/optionAttackStrength/').get('AttackStrength')
 
     def scan(self, url, recurse='', inscopeonly=''):
         return self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly})
 
     @property
     def clear_excluded_from_scan(self):
-        return self.zap._request(self.zap.base + 'ascan/action/clearExcludedFromScan/').get('clear_excluded_from_scan')
+        return self.zap._request(self.zap.base + 'ascan/action/clearExcludedFromScan/').get('clearExcludedFromScan')
 
     def exclude_from_scan(self, regex):
         return self.zap._request(self.zap.base + 'ascan/action/excludeFromScan/', {'regex' : regex})

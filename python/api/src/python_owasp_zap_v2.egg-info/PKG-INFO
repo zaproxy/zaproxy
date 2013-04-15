@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: python-owasp-zap-v2
-Version: 0.0.3
+Version: 0.0.4
 Summary: OWASP ZAP API client
 Home-page: https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project
 Author: ZAP development team

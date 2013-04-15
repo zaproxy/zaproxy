@@ -48,75 +48,75 @@ class core(object):
 
     @property
     def excluded_from_proxy(self):
-        return self.zap._request(self.zap.base + 'core/view/excludedFromProxy/').get('excluded_from_proxy')
+        return self.zap._request(self.zap.base + 'core/view/excludedFromProxy/').get('excludedFromProxy')
 
     @property
     def home_directory(self):
-        return self.zap._request(self.zap.base + 'core/view/homeDirectory/').get('home_directory')
+        return self.zap._request(self.zap.base + 'core/view/homeDirectory/').get('homeDirectory')
 
     @property
     def option_http_state_enabled(self):
-        return self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/').get('option_http_state_enabled')
+        return self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/').get('HttpStateEnabled')
 
     @property
     def option_proxy_chain_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainName/').get('option_proxy_chain_name')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainName/').get('ProxyChainName')
 
     @property
     def option_proxy_chain_port(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/').get('option_proxy_chain_port')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/').get('ProxyChainPort')
 
     @property
     def option_proxy_chain_skip_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/').get('option_proxy_chain_skip_name')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/').get('ProxyChainSkipName')
 
     @property
     def option_proxy_chain_realm(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/').get('option_proxy_chain_realm')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/').get('ProxyChainRealm')
 
     @property
     def option_proxy_chain_user_name(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/').get('option_proxy_chain_user_name')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/').get('ProxyChainUserName')
 
     @property
     def option_proxy_chain_password(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/').get('option_proxy_chain_password')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/').get('ProxyChainPassword')
 
     @property
     def option_proxy_chain_prompt(self):
-        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').get('option_proxy_chain_prompt')
+        return self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').get('ProxyChainPrompt')
 
     @property
     def option_use_proxy_chain(self):
-        return self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/').get('option_use_proxy_chain')
+        return self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/').get('UseProxyChain')
 
     @property
     def option_list_auth(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuth/').get('option_list_auth')
+        return self.zap._request(self.zap.base + 'core/view/optionListAuth/').get('ListAuth')
 
     @property
     def option_list_auth_enabled(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuthEnabled/').get('option_list_auth_enabled')
+        return self.zap._request(self.zap.base + 'core/view/optionListAuthEnabled/').get('ListAuthEnabled')
 
     @property
     def option_http_state(self):
-        return self.zap._request(self.zap.base + 'core/view/optionHttpState/').get('option_http_state')
+        return self.zap._request(self.zap.base + 'core/view/optionHttpState/').get('HttpState')
 
     @property
     def option_timeout_in_secs(self):
-        return self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/').get('option_timeout_in_secs')
+        return self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/').get('TimeoutInSecs')
 
     @property
     def option_confirm_remove_auth(self):
-        return self.zap._request(self.zap.base + 'core/view/optionConfirmRemoveAuth/').get('option_confirm_remove_auth')
+        return self.zap._request(self.zap.base + 'core/view/optionConfirmRemoveAuth/').get('ConfirmRemoveAuth')
 
     @property
     def option_ports_for_ssl_tunneling(self):
-        return self.zap._request(self.zap.base + 'core/view/optionPortsForSslTunneling/').get('option_ports_for_ssl_tunneling')
+        return self.zap._request(self.zap.base + 'core/view/optionPortsForSslTunneling/').get('PortsForSslTunneling')
 
     @property
     def option_single_cookie_request_header(self):
-        return self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').get('option_single_cookie_request_header')
+        return self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').get('SingleCookieRequestHeader')
 
     @property
     def shutdown(self):
@@ -136,7 +136,7 @@ class core(object):
 
     @property
     def clear_excluded_from_proxy(self):
-        return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/').get('clear_excluded_from_proxy')
+        return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/').get('clearExcludedFromProxy')
 
     def exclude_from_proxy(self, regex):
         return self.zap._request(self.zap.base + 'core/action/excludeFromProxy/', {'regex' : regex})
@@ -146,7 +146,7 @@ class core(object):
 
     @property
     def generate_root_ca(self):
-        return self.zap._request(self.zap.base + 'core/action/generateRootCA/').get('generate_root_ca')
+        return self.zap._request(self.zap.base + 'core/action/generateRootCA/').get('generateRootCA')
 
     def set_option_proxy_chain_name(self, string):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string})
