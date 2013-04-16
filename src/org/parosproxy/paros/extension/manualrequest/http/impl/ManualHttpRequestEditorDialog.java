@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
+// ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -81,6 +82,8 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	public ManualHttpRequestEditorDialog(boolean isSendEnabled, String configurationKey) throws HeadlessException {
 		super(isSendEnabled, configurationKey);
 		
+		sender = new HttpPanelSender(getRequestPanel(), getResponsePanel());
+		
 		initialize();
 	}
 	
@@ -130,9 +133,6 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 
 	@Override
 	protected MessageSender getMessageSender() {
-		if (sender == null) {
-			sender = new HttpPanelSender(getRequestPanel(), getResponsePanel());
-		}
 		return sender;
 	}
 	

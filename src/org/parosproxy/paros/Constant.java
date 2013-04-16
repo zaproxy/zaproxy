@@ -44,6 +44,7 @@
 // ZAP: 2012/12/08 Issue 428: Changed to use I18N for messages, to support the marketplace
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/04/14 Issue 610: Replace the use of the String class for available/default "Forced Browse" files
+// ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 
 package org.parosproxy.paros;
 
@@ -627,6 +628,10 @@ public final class Constant {
             }
             config.setProperty("bruteforce.defaultFile", absolutePath);
         }
+        
+        // Remove the manual request editor configurations that were incorrectly created.
+        config.clearTree("nullrequest");
+        config.clearTree("nullresponse");
     }
 
 	public static void setLocale (String loc) {
