@@ -139,10 +139,6 @@ public class API {
 		String name = null;
 		
 		try {
-			if ( ! isEnabled()) {
-				throw new ApiException(ApiException.Type.DISABLED);
-			}
-			
 			if (callbackImpl != null) {
 				response = callbackImpl.handleCallBack(msg);
 			} else {
@@ -197,9 +193,17 @@ public class API {
 				}
 				
 				if (format.equals(Format.UI)) {
+					if ( ! isEnabled()) {
+						throw new ApiException(ApiException.Type.DISABLED);
+					}
+
 					response = webUI.handleRequest(component, impl, reqType, name);
 					contentType = "text/html";
 				} else if (name != null) {
+					if ( ! isEnabled()) {
+						throw new ApiException(ApiException.Type.DISABLED);
+					}
+
 					ApiResponse res;
 					JSONObject params = getParams(requestHeader.getURI().getQuery());
 					switch (reqType) {
@@ -289,8 +293,8 @@ public class API {
 						msg = impl.handleApiOther(msg, name, params);
 					}
 				} else {
-					// Handle default front page
-					response = webUI.handleRequest(requestHeader.getURI());
+					// Handle default front page, even if the API is disabled
+					response = webUI.handleRequest(requestHeader.getURI(), this.isEnabled());
 					format = Format.UI;
 					contentType = "text/html";
 				}

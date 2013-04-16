@@ -314,7 +314,7 @@ public class WebUI {
 		
 	}
 
-	public String handleRequest(URI uri) {
+	public String handleRequest(URI uri, boolean apiEnabled) {
 		// Right now just generate a basic home page
 		StringBuilder sb = new StringBuilder();
 		sb.append("<head>\n");
@@ -325,7 +325,13 @@ public class WebUI {
 		sb.append("<body>\n");
 		sb.append(Constant.messages.getString("api.home.topmsg"));
 		sb.append(Constant.messages.getString("api.home.proxypac"));
-		sb.append(Constant.messages.getString("api.home.links"));
+		sb.append(Constant.messages.getString("api.home.links.header"));
+		if (apiEnabled) {
+			sb.append(Constant.messages.getString("api.home.links.api.enabled"));
+		} else {
+			sb.append(Constant.messages.getString("api.home.links.api.disabled"));
+		}
+		sb.append(Constant.messages.getString("api.home.links.online"));
 		sb.append("</body>\n");
 		
 		return sb.toString();
