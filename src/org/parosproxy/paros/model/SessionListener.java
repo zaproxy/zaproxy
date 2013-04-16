@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
-// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.model;
 

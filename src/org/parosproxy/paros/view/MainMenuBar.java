@@ -23,7 +23,7 @@
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
-// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.view;
 

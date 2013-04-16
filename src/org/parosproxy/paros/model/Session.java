@@ -33,7 +33,7 @@
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/12/14 Issue 438: Validate regexs as part of API enhancements
-// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.model;
 

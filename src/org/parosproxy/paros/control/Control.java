@@ -39,7 +39,7 @@
 // ZAP: 2012/12/27 Hook new persistent connection listener.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
-// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.control;
 
