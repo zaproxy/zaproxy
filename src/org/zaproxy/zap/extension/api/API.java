@@ -85,6 +85,14 @@ public class API {
 		implementors.put(impl.getPrefix(), impl);
 	}
 	
+	public void removeApiImplementor(ApiImplementor impl) {
+		if (!implementors.containsKey(impl.getPrefix())) {
+			logger.warn("Attempting to remove an API implementor not registered, with prefix: " + impl.getPrefix());
+			return;
+		}
+		implementors.remove(impl.getPrefix());
+	}
+	
 	public boolean isEnabled() {
 		// Check API is enabled (its always enabled if run from the cmdline)
 		if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
