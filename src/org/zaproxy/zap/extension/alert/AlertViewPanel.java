@@ -184,12 +184,10 @@ public class AlertViewPanel extends AbstractPanel {
 							Vulnerability v = getVulnerability((String)alertEditName.getSelectedItem());
 							if (v != null) {
 								if (v.getDescription() != null && v.getDescription().length() > 0) {
-									alertDescription.setText(v.getDescription());
-									alertDescription.discardAllEdits();
+									setAlertDescription(v.getDescription());
 								}
 								if (v.getSolution() != null && v.getSolution().length() > 0) {
-									alertSolution.setText(v.getSolution());
-									alertSolution.discardAllEdits();
+									setAlertSolution(v.getSolution());
 								}
 								if (v.getReferences() != null) {
 									StringBuilder sb = new StringBuilder();
@@ -197,8 +195,7 @@ public class AlertViewPanel extends AbstractPanel {
 										sb.append(ref);
 										sb.append('\n');
 									}
-									alertReference.setText(sb.toString());
-									alertReference.discardAllEdits();
+									setAlertReference(sb.toString());
 								}
 							}
 						}
@@ -452,14 +449,6 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEditParam.setSelectedItem(alert.getParam());
 			alertEditAttack.setText(alert.getAttack());
 			alertEditAttack.discardAllEdits();
-			alertDescription.setText(alert.getDescription());
-			alertDescription.discardAllEdits();
-			alertOtherInfo.setText(alert.getOtherInfo());
-			alertOtherInfo.discardAllEdits();
-			alertSolution.setText(alert.getSolution());
-			alertSolution.discardAllEdits();
-			alertReference.setText(alert.getReference());
-			alertReference.discardAllEdits();
 			
 		} else {
 			alertName.setText(alert.getAlert());
@@ -491,15 +480,12 @@ public class AlertViewPanel extends AbstractPanel {
 			alertReliability.setText(Alert.MSG_RELIABILITY[alert.getReliability()]);
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
-			alertDescription.setText(alert.getDescription());
-			alertDescription.discardAllEdits();
-			alertOtherInfo.setText(alert.getOtherInfo());
-			alertOtherInfo.discardAllEdits();
-			alertSolution.setText(alert.getSolution());
-			alertSolution.discardAllEdits();
-			alertReference.setText(alert.getReference());
-			alertReference.discardAllEdits();
 		}
+		
+		setAlertDescription(alert.getDescription());
+		setAlertOtherInfo(alert.getOtherInfo());
+		setAlertSolution(alert.getSolution());
+		setAlertReference(alert.getReference());
 
 		cardLayout.show(this, getAlertPane().getName());
 	}
@@ -678,6 +664,28 @@ public class AlertViewPanel extends AbstractPanel {
 		}
 		Collections.sort(names);
 		return names;
+	}
+
+	private void setAlertDescription(String description) {
+		setTextDiscardEditsAndInitCaretPosition(alertDescription, description);
+	}
+
+	private void setAlertOtherInfo(String otherInfo) {
+		setTextDiscardEditsAndInitCaretPosition(alertOtherInfo, otherInfo);
+	}
+
+	private void setAlertSolution(String solution) {
+		setTextDiscardEditsAndInitCaretPosition(alertSolution, solution);
+	}
+
+	private void setAlertReference(String reference) {
+		setTextDiscardEditsAndInitCaretPosition(alertReference, reference);
+	}
+
+	private static void setTextDiscardEditsAndInitCaretPosition(ZapTextArea textArea, String text) {
+		textArea.setText(text);
+		textArea.discardAllEdits();
+		textArea.setCaretPosition(0);
 	}
 
 }
