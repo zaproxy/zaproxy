@@ -124,13 +124,28 @@ public class MainToolbarPanel extends JPanel {
 		getToolbar().add(button);
 	}
 
+	public void removeButton(JButton button) {
+		getToolbar().remove(button);
+	}
+
 	public void addButton(JToggleButton button) {
 		getToolbar().add(button);
 	}
 
+	public void removeButton(JToggleButton button) {
+		getToolbar().remove(button);
+	}
 
 	public void addSeparator() {
 		getToolbar().addSeparator();
+	}
+
+	public void addSeparator(JToolBar.Separator separator) {
+		getToolbar().add(separator);
+	}
+
+	public void removeSeparator(JToolBar.Separator separator) {
+		getToolbar().remove(separator);
 	}
 	
 	private JComboBox<String> getModeSelect() {

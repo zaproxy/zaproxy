@@ -40,6 +40,7 @@
 // time in the main window
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
+// ZAP: 2013/04/15 Issue 627: Allow add-ons to remove main tool bar buttons/separators
 
 package org.parosproxy.paros.view;
 
@@ -55,6 +56,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -406,4 +408,20 @@ public class View implements ViewDelegate {
 	public void addMainToolbarButton(JToggleButton button) {
     	this.getMainFrame().getMainToolbarPanel().addButton(button);
 	}
+
+    public void removeMainToolbarButton (JButton button) {
+        this.getMainFrame().getMainToolbarPanel().removeButton(button);
+    }
+
+    public void removeMainToolbarButton(JToggleButton button) {
+        this.getMainFrame().getMainToolbarPanel().removeButton(button);
+    }
+
+    public void addMainToolbarSeparator (JToolBar.Separator separator) {
+        this.getMainFrame().getMainToolbarPanel().addSeparator(separator);
+    }
+
+    public void removeMainToolbarSeparator(JToolBar.Separator separator) {
+        this.getMainFrame().getMainToolbarPanel().remove(separator);
+    }
 }
