@@ -33,6 +33,7 @@
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/12/14 Issue 438: Validate regexs as part of API enhancements
+// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.model;
 
@@ -384,6 +385,42 @@ public class Session extends FileXML {
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
 	}
 	
+	/**
+	 * Asynchronous call to snapshot a session.
+	 * @param fileName
+	 * @param callback
+	 */
+    protected void snapshot(final String fileName, final SessionListener callback) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Exception thrownException = null;
+                try {
+                    snapshot(fileName);
+                } catch (Exception e) {
+                	// ZAP: Log exceptions
+                	log.warn(e.getMessage(), e);
+                    thrownException = e;
+                }
+                if (callback != null) {
+                    callback.sessionSnapshot(thrownException);
+                }
+            }
+        });
+        t.setPriority(Thread.NORM_PRIORITY-2);
+        t.start();
+    }
+    
+    /**
+     * Synchronous call to snapshot a session.
+     * @param fileName
+     * @throws Exception
+     */
+	protected void snapshot(String fileName) throws Exception {
+	    saveFile(fileName);
+        model.snapshotSessionDb(this.fileName, fileName);
+	}
+
     /**
      * @param sessionDesc The sessionDesc to set.
      */

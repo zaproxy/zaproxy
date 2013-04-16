@@ -393,4 +393,9 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+
+	@Override
+	public void sessionSnapshot(Exception e) {
+		// Ignore
+	}
 }

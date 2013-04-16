@@ -23,6 +23,7 @@
 // ZAP: 2012/10/17 Issue 393: Added more online links from menu
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.view;
 
@@ -35,6 +36,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.MenuFileControl;
 import org.parosproxy.paros.control.MenuToolsControl;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.AboutDialog;
 
@@ -52,6 +55,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem menuFileNewSession = null;
 	private javax.swing.JMenuItem menuFileOpen = null;
 	private javax.swing.JMenuItem menuFileSaveAs = null;
+	private javax.swing.JMenuItem menuFileSnapshot = null;
 	private javax.swing.JMenuItem menuFileExit = null;
 	private JMenuItem menuFileProperties = null;
 	private JMenuItem menuFileSave = null;
@@ -182,6 +186,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFile.add(getMenuFileOpen());
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileSaveAs());
+			menuFile.add(getMenuFileSnapshot());
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileProperties());
 			menuFile.addSeparator();
@@ -266,19 +271,41 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileSaveAs() {
 		if (menuFileSaveAs == null) {
 			menuFileSaveAs = new javax.swing.JMenuItem();
-			menuFileSaveAs.setText(Constant.messages.getString("menu.file.saveAs")); // ZAP: i18n
+			menuFileSaveAs.setText(Constant.messages.getString("menu.file.persistSession")); // ZAP: i18n
 			menuFileSaveAs.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-				    getMenuFileControl().saveAsSession();
-
-
+					if (Model.getSingleton().getSession().isNewState()) {
+					    getMenuFileControl().saveAsSession();
+					} else {
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.sessionExists.error"));
+					}
 				}
 			});
 
 		}
 		return menuFileSaveAs;
+	}
+
+	private javax.swing.JMenuItem getMenuFileSnapshot() {
+		if (menuFileSnapshot == null) {
+			menuFileSnapshot = new javax.swing.JMenuItem();
+			menuFileSnapshot.setText(Constant.messages.getString("menu.file.snapshotSession"));
+			menuFileSnapshot.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					if (Model.getSingleton().getSession().isNewState()) {
+					    getMenuFileControl().saveSnapshot();
+					} else {
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.snapshotSession.error"));
+					}
+				}
+			});
+
+		}
+		return menuFileSnapshot;
 	}
 
 	/**
@@ -508,4 +535,9 @@ public class MainMenuBar extends JMenuBar {
         }
         return menuAnalyse;
     }
+    
+	public void sessionChanged(Session session) {
+		this.getMenuFileSaveAs().setEnabled(session.isNewState());
+		this.getMenuFileSnapshot().setEnabled(!session.isNewState());
+	}
 }

@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.KeyStore;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +65,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_LOAD_SESSION = "loadSession";
 	private static final String ACTION_NEW_SESSION = "newSession";
 	private static final String ACTION_SAVE_SESSION = "saveSession";
+	private static final String ACTION_SNAPSHOT_SESSION = "snapshotSession";
 	
 	private static final String ACTION_SHUTDOWN = "shutdown";
 	private static final String ACTION_EXCLUDE_FROM_PROXY = "excludeFromProxy";
@@ -89,6 +92,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
 
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean savingSession = false;
 
@@ -97,6 +101,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
@@ -169,6 +174,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			this.savingSession = true;
 			try {
 		    	Control.getSingleton().saveSession(filename, this);
+			} catch (Exception e) {
+				this.savingSession = false;
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
+						e.getMessage());
+			}
+			// Wait for notification that its worked ok
+			try {
+				while (this.savingSession) {
+						Thread.sleep(200);
+				}
+			} catch (InterruptedException e) {
+				// Probably not an error
+				logger.debug(e.getMessage(), e);
+			}
+			logger.debug("Can now return after saving session");
+			
+			
+		} else if (ACTION_SNAPSHOT_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
+			if (session.isNewState()) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+			}
+			String fileName = session.getFileName();
+			
+			if (fileName.endsWith(".session")) {
+			    fileName = fileName.substring(0, fileName.length() - 8);
+			}
+			fileName += "-" + dateFormat.format(new Date()) + ".session";
+
+			
+			this.savingSession = true;
+			try {
+		    	Control.getSingleton().snapshotSession(fileName, this);
 			} catch (Exception e) {
 				this.savingSession = false;
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
@@ -568,6 +605,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	@Override
 	public void sessionSaved(Exception e) {
 		logger.debug("Saved session notification");
+		this.savingSession = false;
+	}
+
+	@Override
+	public void sessionSnapshot(Exception e) {
+		logger.debug("Snaphot session notification");
 		this.savingSession = false;
 	}
 

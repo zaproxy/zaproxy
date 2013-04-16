@@ -39,6 +39,7 @@
 // ZAP: 2012/12/27 Hook new persistent connection listener.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
+// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.control;
 
@@ -165,9 +166,10 @@ public class Control extends AbstractControl implements SessionListener {
     
     public void exit (boolean noPrompt, final File openOnExit) {
 	    boolean isNewState = model.getSession().isNewState();
+	    int rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
 	    boolean askOnExit = view != null && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
 	    
-	    if (isNewState && askOnExit && ! noPrompt) {
+	    if (isNewState && rootCount > 0 && askOnExit && ! noPrompt) {
 	    	// ZAP: i18n
 			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
 				return;
@@ -289,6 +291,12 @@ public class Control extends AbstractControl implements SessionListener {
 		// The session is saved in a thread, so notify the listeners via the callback
     }
 
+    public void snapshotSession(final String fileName, final SessionListener callback) {
+	    log.info("Snapshot Session");
+		lastCallback = callback;
+		model.snapshotSession(fileName, this);
+		// The session is saved in a thread, so notify the listeners via the callback
+    }
 	
 	public void discardSession() {
 	    log.info("Discard Session");
@@ -320,6 +328,14 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		if (lastCallback != null) {
 			lastCallback.sessionSaved(e);
+			lastCallback = null;
+		}
+	}
+	
+	@Override
+	public void sessionSnapshot(Exception e) {
+		if (lastCallback != null) {
+			lastCallback.sessionSnapshot(e);
 			lastCallback = null;
 		}
 	}

@@ -39,6 +39,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 
 public class MainToolbarPanel extends JPanel {
@@ -52,6 +53,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnNew = null;
 	private JButton btnOpen = null;
 	private JButton btnSave = null;
+	private JButton btnSnapshot = null;
 	private JButton btnSession = null;
 	private JButton btnOptions = null;
 
@@ -95,6 +97,7 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnNew());
 		toolbar.add(getBtnOpen());
 		toolbar.add(getBtnSave());
+		toolbar.add(getBtnSnapshot());
 		toolbar.add(getBtnSession());
 		toolbar.add(getBtnOptions());
 		
@@ -233,22 +236,52 @@ public class MainToolbarPanel extends JPanel {
 		if (btnSave == null) {
 			btnSave = new JButton();
 			btnSave.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/096.png")));	// 'diskette' icon
-			btnSave.setToolTipText(Constant.messages.getString("menu.file.saveSession"));
+			btnSave.setToolTipText(Constant.messages.getString("menu.file.persistSession"));
 
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						Control.getSingleton().getMenuFileControl().saveAsSession();
+						if (Model.getSingleton().getSession().isNewState()) {
+							Control.getSingleton().getMenuFileControl().saveAsSession();
+						} else {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.sessionExists.error"));
+						}
 					} catch (Exception ex) {
 						logger.error(ex.getMessage(), ex);
-						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.saveSession.error"));
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.persistSession.error"));
 					}
 				}
 			});
 		}
 		return btnSave;
+	}
+
+	private JButton getBtnSnapshot() {
+		if (btnSnapshot == null) {
+			btnSnapshot = new JButton();
+			btnSnapshot.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/camera.png")));
+			btnSnapshot.setToolTipText(Constant.messages.getString("menu.file.snapshotSession"));
+
+			btnSnapshot.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						if (Model.getSingleton().getSession().isNewState()) {
+							View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.sessionNotExist.error"));
+						} else {
+							Control.getSingleton().getMenuFileControl().saveSnapshot();
+						}
+					} catch (Exception ex) {
+						logger.error(ex.getMessage(), ex);
+						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.persistSession.error"));
+					}
+				}
+			});
+		}
+		return btnSnapshot;
 	}
 
 	private JButton getBtnSession() {
@@ -352,6 +385,11 @@ public class MainToolbarPanel extends JPanel {
 			btnExpandSites.setSelected(true);
 			btnExpandReports.setSelected(false);
 		}
+	}
+
+	public void sessionChanged(Session session) {
+		this.getBtnSave().setEnabled(session.isNewState());
+		this.getBtnSnapshot().setEnabled(!session.isNewState());
 	}
 
 

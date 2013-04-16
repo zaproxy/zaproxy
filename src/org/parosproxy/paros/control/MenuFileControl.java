@@ -33,10 +33,13 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
 
 package org.parosproxy.paros.control;
  
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -60,6 +63,8 @@ public class MenuFileControl implements SessionListener {
     private Model model = null;
     private Control control = null;
     private WaitMessageDialog waitMessageDialog = null;
+    
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
     
     public MenuFileControl(Model model, View view, Control control) {
         this.view = view;
@@ -164,6 +169,7 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void saveAsSession() {
+		
 	    Session session = model.getSession();
 
 	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
@@ -212,6 +218,75 @@ public class MenuFileControl implements SessionListener {
                 log.error(e.getMessage(), e);
     		}
 	    }
+	}
+	
+	public void saveSnapshot() {
+	    Session session = model.getSession();
+
+	    // This code has been deliberately left here in case people dont like the auto naming of snapshots
+	    // It can be deleted at some point in the future if there are no complaints
+	    /*
+	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+	    // ZAP: set session name as file name proposal
+	    File fileproposal = new File(session.getSessionName());
+	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
+	    	// if there is already a file name, use it
+	    	fileproposal = new File(session.getFileName());
+	    }
+		chooser.setSelectedFile(fileproposal);
+	    chooser.setFileFilter(new FileFilter() {
+	           @Override
+	           public boolean accept(File file) {
+	                if (file.isDirectory()) {
+	                    return true;
+	                } else if (file.isFile() && file.getName().endsWith(".session")) {
+	                    return true;
+	                }
+	                return false;
+	            }
+	           @Override
+	           public String getDescription() {
+	               return Constant.messages.getString("file.format.zap.session");
+	           }
+	    });
+		File file = null;
+	    int rc = chooser.showSaveDialog(view.getMainFrame());
+	    if(rc == JFileChooser.APPROVE_OPTION) {
+    		file = chooser.getSelectedFile();
+    		if (file == null) {
+    			return;
+    		}
+            model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
+    		String fileName = file.getAbsolutePath();
+    		if (!fileName.endsWith(".session")) {
+    		    fileName += ".session";
+    		}
+    		
+    		try {
+	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSession"));	// ZAP: i18n
+	    	    control.snapshotSession(fileName, this);
+        	    log.info("snapshot as session file " + session.getFileName());
+        	    waitMessageDialog.setVisible(true);
+    		} catch (Exception e) {
+                log.error(e.getMessage(), e);
+    		}
+	    }
+	    */
+		String fileName = session.getFileName();
+		
+		if (fileName.endsWith(".session")) {
+		    fileName = fileName.substring(0, fileName.length() - 8);
+		}
+		fileName += "-" + dateFormat.format(new Date()) + ".session";
+		
+		try {
+    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSnapshot"));	// ZAP: i18n
+    	    control.snapshotSession(fileName, this);
+    	    log.info("snapshot as session file " + fileName);
+    	    waitMessageDialog.setVisible(true);
+		} catch (Exception e) {
+            log.error(e.getMessage(), e);
+		}
 	}
 	
 	private void setTitle() {
@@ -280,4 +355,19 @@ public class MenuFileControl implements SessionListener {
         }
 
     }
+    
+	@Override
+	public void sessionSnapshot(Exception e) {
+        if (e != null) {
+		    view.showWarningDialog(Constant.messages.getString("menu.file.snapshotSession.error"));	// ZAP: i18n
+    	    log.error("error saving snapshot file " + model.getSession().getFileName(), e);
+            log.error(e.getMessage(), e);
+        }
+        
+        if (waitMessageDialog != null) {
+            waitMessageDialog.setVisible(false);
+            waitMessageDialog = null;
+        }
+	}
+
 }

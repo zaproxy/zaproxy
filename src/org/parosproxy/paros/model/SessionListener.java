@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/04/16 Issue TBA: Persist and snapshot sessions instead of saving them
+
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -36,5 +38,11 @@ public interface SessionListener {
      * @param e = exception thrown during session opening.  null = no exception.
      */
     public void sessionSaved(Exception e);
+    
+    /**
+     * Callback method when a session snapshot is completed.
+     * @param e = exception thrown during session snapshot.  null = no exception.
+     */
+    public void sessionSnapshot(Exception e);
     
 }
