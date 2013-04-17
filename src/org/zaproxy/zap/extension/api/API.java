@@ -59,7 +59,9 @@ public class API {
 	private static API api = null;
 	private WebUI webUI = new WebUI(this);
 	private Map<String, ApiImplementor> callBacks = new HashMap<>();
-	
+
+	private Map<String, ApiImplementor> shortcuts = new HashMap<>();
+
 	private Random random = new Random();
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -83,6 +85,11 @@ public class API {
 			return;
 		}
 		implementors.put(impl.getPrefix(), impl);
+		for (String shortcut : impl.getApiShortcuts()) {
+			// TODO check for clashes
+			logger.debug("Registering API shortcut: " + shortcut);
+			this.shortcuts.put("/" + shortcut, impl);
+		}
 	}
 	
 	public void removeApiImplementor(ApiImplementor impl) {
@@ -112,6 +119,7 @@ public class API {
 		String url = requestHeader.getURI().toString();
 		Format format = Format.OTHER;
 		ApiImplementor callbackImpl = null;
+		ApiImplementor shortcutImpl = null;
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
@@ -123,8 +131,15 @@ public class API {
 				}
 			}
 		}
+		String path = requestHeader.getURI().getPath();
+		for (Entry<String, ApiImplementor> shortcut : shortcuts.entrySet()) {
+			if (path.startsWith(shortcut.getKey())) {
+				shortcutImpl = shortcut.getValue();
+				break;
+			}
+		}
 		
-		if (callbackImpl == null && ! url.startsWith(API_URL) && ! force) {
+		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! force) {
 			return false;
 		}
 		logger.debug("handleApiRequest " + url);
@@ -139,7 +154,9 @@ public class API {
 		String name = null;
 		
 		try {
-			if (callbackImpl != null) {
+			if (shortcutImpl != null) {
+				msg = shortcutImpl.handleShortcut(msg);
+			} else if (callbackImpl != null) {
 				response = callbackImpl.handleCallBack(msg);
 			} else {
 			
@@ -306,7 +323,7 @@ public class API {
  			logger.debug("handleApiRequest error: " + response, e);
 		}
 		
-		if (format == null || ! format.equals(Format.OTHER)) {
+		if (format == null || ! format.equals(Format.OTHER) && shortcutImpl == null) {
 	    	msg.setResponseHeader(
 	    			"HTTP/1.1 200 OK\r\n" +
 	    			"Pragma: no-cache\r\n" +
@@ -403,4 +420,5 @@ public class API {
 		this.callBacks.put(url, impl);
 		return url;
 	}
+	
 }

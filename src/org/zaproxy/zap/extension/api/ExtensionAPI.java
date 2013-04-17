@@ -35,10 +35,12 @@ import org.zaproxy.zap.utils.DesktopUtils;
 
 public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedListener {
 
+	public static final String NAME = "ExtensionAPI";
 	public static final String API_URL = "http://zap/";
 	
 	private OptionsApiPanel optionsApiPanel = null;
 	private JMenuItem menuAPI = null;
+    private CoreAPI coreApi = null;
 	
     public ExtensionAPI() {
         super();
@@ -56,7 +58,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setName("ExtensionAPI");
+        this.setName(NAME);
         this.setOrder(10);
 	}
 
@@ -69,7 +71,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	    	extensionHook.getHookMenu().addToolsMenuItem(getMenuAPI());
 	    }
         
-        CoreAPI coreApi = new CoreAPI();
+        coreApi = new CoreAPI();
         coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
         API.getInstance().registerApiImplementor(coreApi);
 
@@ -155,5 +157,9 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
+	}
+	
+	public CoreAPI getCoreAPI() {
+		return this.coreApi;
 	}
 }

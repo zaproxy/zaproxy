@@ -150,7 +150,11 @@ public class WebUI {
 		if (component != null && reqType != null) {
 			sb.append("<script>\n");
 			sb.append("function submitScript() {\n");
-			sb.append("var format = document.getElementById('zapapiformat').value\n");
+			if (RequestType.other.equals(reqType)) {
+				sb.append("var format = '" + Format.OTHER.name() + "'\n");
+			} else {
+				sb.append("var format = document.getElementById('zapapiformat').value\n");
+			}
 			sb.append("var url = '/' + format + '/" + component + "/" + reqType.name() + "/" + name + "/'\n");
 			sb.append("var form=document.getElementById('zapform');\n");
 			sb.append("form.action = url;\n");
@@ -201,15 +205,17 @@ public class WebUI {
 				
 				sb.append("<form id=\"zapform\" name=\"zapform\">");
 				sb.append("<table>\n");
-				sb.append("<tr><td>");
-				sb.append(Constant.messages.getString("api.html.format"));
-				sb.append("</td><td>\n");
-				sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
-				sb.append("<option>JSON</option>\n");
-				sb.append("<option>HTML</option>\n");
-				sb.append("<option>XML</option>\n");
-				sb.append("</select>\n");
-				sb.append("</td></tr>\n");
+				if ( ! RequestType.other.equals(reqType)) {
+					sb.append("<tr><td>");
+					sb.append(Constant.messages.getString("api.html.format"));
+					sb.append("</td><td>\n");
+					sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
+					sb.append("<option>JSON</option>\n");
+					sb.append("<option>HTML</option>\n");
+					sb.append("<option>XML</option>\n");
+					sb.append("</select>\n");
+					sb.append("</td></tr>\n");
+				}
 				
 				if (mandatoryParams != null) {
 					for (String param : mandatoryParams) {

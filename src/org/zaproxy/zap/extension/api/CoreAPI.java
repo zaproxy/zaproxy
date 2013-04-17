@@ -23,7 +23,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,9 +37,13 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.bouncycastle.openssl.MiscPEMGenerator;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -83,6 +89,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
+	private static final String OTHER_SET_PROXY = "setproxy";
+	private static final String OTHER_ROOT_CERT = "rootcert";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
@@ -91,6 +99,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	//private static final String PARAM_CONTEXT = "context";	// TODO need to support context methods for this!
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
+	private static final String PARAM_PROXY_DETAILS = "proxy";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -119,6 +128,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC));
+		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT));
+		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
+		
+		this.addApiShortcut(OTHER_PROXY_PAC);
+		// this.addApiShortcut(OTHER_ROOT_CERT);
+		this.addApiShortcut(OTHER_SET_PROXY);
+
 	}
 
 	@Override
@@ -407,9 +423,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			JSONObject params) throws ApiException {
 
 		if (OTHER_PROXY_PAC.equals(name)) {
-			String response;
 			try {
-				response = this.getPacFile(msg.getRequestHeader().getURI().getHost(), msg.getRequestHeader().getURI().getPort());
+				String response = this.getPacFile(msg.getRequestHeader().getURI().getHost(), msg.getRequestHeader().getURI().getPort());
 				msg.setResponseHeader(
 						"HTTP/1.1 200 OK\r\n" +
 						"Pragma: no-cache\r\n" +
@@ -426,9 +441,109 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 			}
 			return msg;
+		} else if (OTHER_SET_PROXY.equals(name)) {
+			/* JSON string:
+			 *  {"type":1,
+			 *  "http":	{"host":"proxy.corp.com","port":80},
+			 *  "ssl":	{"host":"proxy.corp.com","port":80},
+			 *  "ftp":{"host":"proxy.corp.com","port":80},
+			 *  "socks":{"host":"proxy.corp.com","port":80},
+			 *  "shareSettings":true,"socksVersion":5,
+			 *  "proxyExcludes":"localhost, 127.0.0.1"}
+			 */
+			String proxyDetails = params.getString(PARAM_PROXY_DETAILS);
+			String response = "OK";
+
+			try {
+				try {
+					JSONObject json = JSONObject.fromObject(proxyDetails);
+
+					if (json.getInt("type") == 1) {
+						JSONObject httpJson = JSONObject.fromObject(json.get("http"));
+						String proxyHost = httpJson.getString("host");
+						int proxyPort = httpJson.getInt("port");
+						
+						if (proxyHost != null && proxyHost.length() > 0 && proxyPort > 0) {
+							Model.getSingleton().getOptionsParam().getConnectionParam().setProxyChainName(proxyHost);
+							Model.getSingleton().getOptionsParam().getConnectionParam().setProxyChainPort(proxyPort);
+						}
+								
+					}
+				} catch (JSONException e) {
+					throw new ApiException(ApiException.Type.BAD_FORMAT);
+				}
+				msg.setResponseHeader(
+						"HTTP/1.1 200 OK\r\n" +
+						"Pragma: no-cache\r\n" +
+						"Cache-Control: no-cache\r\n" + 
+						"Access-Control-Allow-Origin: *\r\n" + 
+						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+						"Content-Length: " + response.length() + 
+						"\r\nContent-Type: text/html;");
+				
+		    	msg.setResponseBody(response);
+		    	
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+
+			return msg;
+		} else if (OTHER_ROOT_CERT.equals(name)) {
+			ExtensionDynSSL extDynSSL = 
+					(ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			if (extDynSSL != null) {
+				try {
+					Certificate rootCA = extDynSSL.getRootCA();
+					if (rootCA == null) {
+						throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+					}
+					final StringWriter sw = new StringWriter();
+					try (final PemWriter pw = new PemWriter(sw)) {
+						pw.writeObject(new MiscPEMGenerator(rootCA));
+						pw.flush();
+					}
+					String response = sw.toString();
+					msg.setResponseHeader(
+							"HTTP/1.1 200 OK\r\n" +
+							"Pragma: no-cache\r\n" +
+							"Cache-Control: no-cache\r\n" + 
+							"Access-Control-Allow-Origin: *\r\n" + 
+							"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+							"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+							"Content-Length: " + response.length() + 
+							"\r\nContent-Type: application/pkix-cert;");
+					
+					msg.setResponseBody(response);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+				}
+			} else {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+			}
+			
+			return msg;
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
+	}
+
+	@Override
+	public HttpMessage handleShortcut(HttpMessage msg)  throws ApiException {
+		try {
+			if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_PROXY_PAC)) {
+				return this.handleApiOther(msg, OTHER_PROXY_PAC, null);
+			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
+				JSONObject params = new JSONObject();
+				params.put(PARAM_PROXY_DETAILS, msg.getRequestBody());
+				return this.handleApiOther(msg, OTHER_SET_PROXY, params);
+			}
+		} catch (URIException e) {
+			logger.error(e.getMessage(), e);
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+		}
+		throw new ApiException (ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
 	}
 
 	private String getPacFile(String host, int port) {

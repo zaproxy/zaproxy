@@ -25,6 +25,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -108,5 +109,12 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 
 	public void setRootCa(KeyStore rootca) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
 		SslCertificateServiceImpl.getService().initializeRootCA(rootca);
+	}
+	
+	public Certificate getRootCA() throws KeyStoreException {
+		if (this.getParams().getRootca() == null) {
+			return null;
+		}
+		return this.getParams().getRootca().getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
 	}
 }

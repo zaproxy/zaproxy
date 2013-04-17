@@ -38,6 +38,7 @@ public abstract class ApiImplementor {
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
 	private List<ApiOther> apiOthers = new ArrayList<>();
+	private List<String> apiShortcuts = new ArrayList<String>();
 	private AbstractParam param = null;
 	
 	public List<ApiView> getApiViews() {
@@ -62,6 +63,10 @@ public abstract class ApiImplementor {
 	
 	public void addApiAction (ApiAction action) {
 		this.apiActions.add(action);
+	}
+	
+	public void addApiShortcut (String shortcut) {
+		this.apiShortcuts.add(shortcut);
 	}
 	
 	public void addApiOptions(AbstractParam param) {
@@ -234,6 +239,10 @@ public abstract class ApiImplementor {
 		throw new ApiException (ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
 	}
 
+	public HttpMessage handleShortcut(HttpMessage msg)  throws ApiException {
+		throw new ApiException (ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
+	}
+
 	public abstract String getPrefix();
 
 	public ApiAction getApiAction(String name) {
@@ -261,6 +270,10 @@ public abstract class ApiImplementor {
 			}
 		}
 		return null;
+	}
+	
+	protected List<String> getApiShortcuts() {
+		return this.apiShortcuts;
 	}
 
 	protected int getParam(JSONObject params, String name, int defaultValue) {
