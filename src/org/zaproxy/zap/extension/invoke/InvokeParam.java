@@ -93,7 +93,7 @@ public class InvokeParam extends AbstractParam {
             enabledApps.trimToSize();
             this.listInvokeEnabled = enabledApps;
         } catch (ConversionException e) {
-            logger.error("Error while loading anti CSRF tokens: " + e.getMessage(), e);
+            logger.error("Error while loading invoke applications: " + e.getMessage(), e);
         }
 
         try {
