@@ -388,8 +388,10 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	public void sessionChanged(Session session) {
-		this.getBtnSave().setEnabled(session.isNewState());
-		this.getBtnSnapshot().setEnabled(!session.isNewState());
+		if (session != null) {
+			this.getBtnSave().setEnabled(session.isNewState());
+			this.getBtnSnapshot().setEnabled(!session.isNewState());
+		}
 	}
 
 
