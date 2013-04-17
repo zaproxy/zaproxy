@@ -537,7 +537,9 @@ public class MainMenuBar extends JMenuBar {
     }
     
 	public void sessionChanged(Session session) {
-		this.getMenuFileSaveAs().setEnabled(session.isNewState());
-		this.getMenuFileSnapshot().setEnabled(!session.isNewState());
+		if (session != null) {
+			this.getMenuFileSaveAs().setEnabled(session.isNewState());
+			this.getMenuFileSnapshot().setEnabled(!session.isNewState());
+		}
 	}
 }
