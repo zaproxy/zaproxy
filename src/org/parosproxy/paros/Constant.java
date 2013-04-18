@@ -91,10 +91,8 @@ public final class Constant {
     private static final String DEV_VERSION = "Dev Build";
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
-    // Note: Change this before building a release!
-    //public static final String PROGRAM_VERSION = "1.4.0.1";
     
-    private static final long VERSION_TAG = 1004001;
+    private static final long VERSION_TAG = 2001000;
     
     // Old version numbers - for upgrade
     private static final long V_2_0_0_TAG = 2000000;
@@ -111,8 +109,9 @@ public final class Constant {
 //  note the above
 //  ************************************************************
     
-    // These are no longer final
-    public static String PROGRAM_VERSION = DEV_VERSION;
+    // Note: Change this before building a release!
+    //public static String PROGRAM_VERSION = "1.4.0.1";
+    public static String PROGRAM_VERSION = "2.1.0";
     public static String PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
     
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
