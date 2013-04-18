@@ -1,0 +1,9 @@
+<!DOCTYPE alertDef SYSTEM "alertDef.dtd">
+<alertDef>
+	<shortName>sql_injection</shortName>
+	<name>SQL injection</name>
+	<category>aaa</category>
+	<description>aaa</description>
+	<recommendation>bbb</recommendation>
+	<reference></reference>
+</alertDef>
