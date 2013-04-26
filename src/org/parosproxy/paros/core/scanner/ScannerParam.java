@@ -25,6 +25,7 @@
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/04/26 Issue 652: Added option to not delete records on shutdown
 
 package org.parosproxy.paros.core.scanner;
 
@@ -39,6 +40,7 @@ public class ScannerParam extends AbstractParam {
 	// ZAP: Added support for delayInMs
 	private static final String DELAY_IN_MS = "scanner.delayInMs";
 	private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
+	private static final String DELETE_RECORDS_ON_SHUTDOWN = "scanner.deleteOnShutdown";
 	private static final String LEVEL = "scanner.level";
 	private static final String STRENGTH = "scanner.strength";
 	/* Work in progress
@@ -51,6 +53,7 @@ public class ScannerParam extends AbstractParam {
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
 	private boolean handleAntiCSRFTokens = false;
+	private boolean deleteRequestsOnShutdown = true;
 	private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM; 
 	private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
 	
@@ -77,6 +80,9 @@ public class ScannerParam extends AbstractParam {
 		} catch (Exception e) {}
 		try {
 			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
+		} catch (Exception e) {}
+		try {
+			this.deleteRequestsOnShutdown = getConfig().getBoolean(DELETE_RECORDS_ON_SHUTDOWN, true);
 		} catch (Exception e) {}
 		try {
 			this.alertThreshold = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
@@ -142,7 +148,16 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
 	}
 	
-    public Plugin.AlertThreshold getAlertThreshold() {
+    public boolean isDeleteRequestsOnShutdown() {
+		return deleteRequestsOnShutdown;
+	}
+
+	public void setDeleteRequestsOnShutdown(boolean deleteRequestsOnShutdown) {
+		this.deleteRequestsOnShutdown = deleteRequestsOnShutdown;
+		getConfig().setProperty(DELETE_RECORDS_ON_SHUTDOWN, deleteRequestsOnShutdown);
+	}
+
+	public Plugin.AlertThreshold getAlertThreshold() {
 		return alertThreshold;
 	}
 

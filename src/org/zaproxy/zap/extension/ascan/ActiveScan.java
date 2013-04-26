@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2013 The ZAP development team
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.  
+ */
 package org.zaproxy.zap.extension.ascan;
 
 import java.sql.SQLException;
@@ -37,7 +56,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private int totalRequests = 0;
 	private Date timeStarted = null;
 	private Date timeFinished = null;
-	
+	private boolean deleteRecordsOnExit = true;
 	
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
@@ -51,6 +70,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);
 		this.site = site;
+		this.deleteRecordsOnExit = scannerParam.isDeleteRequestsOnShutdown();
 		if (activeScanPanel != null) {
 			this.activeScanPanel = activeScanPanel;
 			this.addScannerListener(activeScanPanel);
@@ -204,7 +224,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void reset() {
-        if (historyReferencesToDelete.size() != 0) {
+        if (deleteRecordsOnExit && historyReferencesToDelete.size() != 0) {
             try {
                 Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
             } catch (SQLException e) {
@@ -242,5 +262,5 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public Date getTimeFinished() {
 		return timeFinished;
 	}
-
+	
 }
