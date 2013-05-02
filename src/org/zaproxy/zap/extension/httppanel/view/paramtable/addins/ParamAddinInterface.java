@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 public interface ParamAddinInterface {
 	
-	public String convertData(String data) throws UnsupportedEncodingException;
+	String convertData(String data) throws UnsupportedEncodingException;
 	
-	public String getName();
+	String getName();
 }

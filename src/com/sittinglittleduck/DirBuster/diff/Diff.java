@@ -392,7 +392,7 @@ public class Diff {
    @param len1 number of lines in 2nd file
    @return a linked list of changes - or null
    */
-    public change build_script(
+    change build_script(
       boolean[] changed0,int len0,
       boolean[] changed1,int len1
     );

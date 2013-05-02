@@ -62,7 +62,7 @@ public interface ProxyListener extends ArrangeableProxyListener {
      *         {@code false} otherwise
      */
     // ZAP: Added the JavaDoc.
-    public boolean onHttpRequestSend(HttpMessage msg);
+    boolean onHttpRequestSend(HttpMessage msg);
 
     /**
      * Notifies the listener that a new response was received from the server
@@ -93,6 +93,6 @@ public interface ProxyListener extends ArrangeableProxyListener {
      *         {@code false} otherwise
      */
     // ZAP: Added the JavaDoc.
-    public boolean onHttpResponseReceive(HttpMessage msg);
+    boolean onHttpResponseReceive(HttpMessage msg);
 
 }

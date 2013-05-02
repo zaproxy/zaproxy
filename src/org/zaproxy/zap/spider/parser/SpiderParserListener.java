@@ -37,7 +37,7 @@ public interface SpiderParserListener {
 	 * @param depth the depth of this resource in the crawling process
 	 * @param uri the universal resource locator
 	 */
-	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri);
+	void resourceURIFound(HttpMessage responseMessage, int depth, String uri);
 
 	/**
 	 * Event triggered when a new resource URI is found. The responseMessage contains all the
@@ -51,7 +51,7 @@ public interface SpiderParserListener {
 	 * @param uri the universal resource locator
 	 * @param shouldIgnore whether this resource has a high chance of being not useful if fetched
 	 */
-	public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore);
+	void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore);
 
 	/**
 	 * Event triggered when a new resource URI is found. However, if the URI needs to be fetched, it
@@ -73,5 +73,5 @@ public interface SpiderParserListener {
 	 * @param requestBody represents the content that a request message should have in its body, if
 	 *            fetching the resource
 	 */
-	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody);
+	void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody);
 }

@@ -38,5 +38,5 @@ public interface PersistentConnectionListener extends ArrangeableProxyListener {
 	 * 
 	 * @return True if connection is took over, false if not interested.
 	 */
-	public boolean onHandshakeResponse(HttpMessage httpMessage, Socket inSocket, ZapGetMethod method);
+	boolean onHandshakeResponse(HttpMessage httpMessage, Socket inSocket, ZapGetMethod method);
 }

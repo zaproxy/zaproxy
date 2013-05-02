@@ -49,26 +49,26 @@ public interface Plugin extends Runnable {
      * Unique Paros ID of this plugin.
      * @return
      */
-    public int getId();
+    int getId();
 
     /**
      * Plugin name.  This is the human readable plugin name for display.
      * @return
      */
-    public String getName();
+    String getName();
 
     /**
      * Code name is the plugin name used for dependency naming.  By default this is the 
      * class name (without the package prefix).
      * @return
      */
-    public String getCodeName();
+    String getCodeName();
     
     /**
      * Default description of this plugin.
      * @return
      */
-    public String getDescription();
+    String getDescription();
     
     /**
      * returns the maximum risk alert that is thrown by the plugin
@@ -78,106 +78,106 @@ public interface Plugin extends Runnable {
      * @see Alert.RISK_LOW
      * @see Alert.RISK_INFO
      */
-    public int getRisk ();
+    int getRisk ();
     
-    public void init(HttpMessage msg, HostProcess parent);
+    void init(HttpMessage msg, HostProcess parent);
     
-    public void scan();
+    void scan();
 
     /**
      * Array of dependency of this plugin.  This plugin will start running until all
      * the dependency completed running.  The dependency is the class name.
      * @return null if there is no dependency.
      */
-    public String[] getDependency();
+    String[] getDependency();
 
     /**
      * Enable/disable this plugin.
      * @param enabled
      */
-    public void setEnabled(boolean enabled);
+    void setEnabled(boolean enabled);
     
     /**
      * Return if this plugin is enabled.
      * @return true = enabled.
      */
-    public boolean isEnabled();
+    boolean isEnabled();
     
     /**
      * The Category of this plugin.  See Category.
      * @return
      */
-    public int getCategory();
+    int getCategory();
     
     /**
      * Default solution returned by this plugin.
      * @return
      */
-    public String getSolution();
+    String getSolution();
     
     /**
      * Reference document provided by this plugin.
      * @return
      */
-    public String getReference();
+    String getReference();
 
     /**
      * Plugin must implement this to notify when completed.
      *
      */
-    public void notifyPluginCompleted(HostProcess parent);
+    void notifyPluginCompleted(HostProcess parent);
     
     /**
      * Always true - if plugin is visible to the framework.
      * @return
      */
-    public boolean isVisible();
+    boolean isVisible();
 
-    public void setConfig(Configuration config);
+    void setConfig(Configuration config);
     
-    public Configuration getConfig();
+    Configuration getConfig();
     
-    public void createParamIfNotExist();
+    void createParamIfNotExist();
     
 	// ZAP Added isDepreciated, getDelayInMs, setDelayInMs
-	public boolean isDepreciated();
+	boolean isDepreciated();
 	
-	public int getDelayInMs();
+	int getDelayInMs();
 	
-	public void setDelayInMs(int delay);
+	void setDelayInMs(int delay);
 	
 	/**
 	 * The alert threshold for this plugin, ie the level of certainty required to report an alert
 	 * @param incDefault if the DEFAULT level should be returned as DEFAULT as opposed to the value of the default level
 	 * @return The alert threshold currently set for this plugin
 	 */
-	public AlertThreshold getAlertThreshold(boolean incDefault);
+	AlertThreshold getAlertThreshold(boolean incDefault);
 	
 	/**
 	 * The alert threshold for this plugin, ie the level of certainty required to report an alert.
 	 * The DEFAULT level will not be returned, instead the value of the default level will be returned, if relevant.
 	 * @return The alert threshold for this plugin
 	 */
-	public AlertThreshold getAlertThreshold();
+	AlertThreshold getAlertThreshold();
 	
 	/**
 	 * Set the alert threshold for this plugin, ie the level of certainty required to report an alert
 	 * @param level The alert threshold to set for this plugin
 	 */
-	public void setAlertThreshold(AlertThreshold level);
+	void setAlertThreshold(AlertThreshold level);
 
 	/**
 	 * Set the default alert threshold for this plugin, ie the level of certainty required to report an alert
 	 * @param level The alert threshold to set for this plugin
 	 */
-	public void setDefaultAlertThreshold(AlertThreshold level);
+	void setDefaultAlertThreshold(AlertThreshold level);
 	
 	/**
 	 * Returns an array of the AlertThresholds supported. It must include MEDIUM and may include LOW and HIGH
 	 * OFF and DEFAULT are assumed and should not be returned.
 	 * @return
 	 */
-	public AlertThreshold[] getAlertThresholdsSupported();
+	AlertThreshold[] getAlertThresholdsSupported();
 
 	/**
 	 * Returns the AttackStrength, which is an indication of the relative number of requests the plugin will make
@@ -185,7 +185,7 @@ public interface Plugin extends Runnable {
 	 * @param incDefault if the DEFAULT level should be returned as DEFAULT as opposed to the value of the default level
 	 * @return The AttackStrength currently set for this plugin
 	 */
-	public AttackStrength getAttackStrength(boolean incDefault);
+	AttackStrength getAttackStrength(boolean incDefault);
 	
 	/**
 	 * Returns the AttackStrength, which is an indication of the relative number of requests the plugin will make
@@ -193,40 +193,40 @@ public interface Plugin extends Runnable {
 	 * The DEFAULT level will not be returned, instead the value of the default level will be returned, if relevant.
 	 * @return The AttackStrength currently set for this plugin
 	 */
-	public AttackStrength getAttackStrength();
+	AttackStrength getAttackStrength();
 	
 	/**
 	 * Set the attack strength for this plugin, ie the relative number of requests the plugin will make
 	 * against a given target.
 	 * @param level The alert threshold to set for this plugin
 	 */
-	public void setAttackStrength (AttackStrength level);
+	void setAttackStrength (AttackStrength level);
 	
 	/**
 	 * Set the default attack strength for this plugin, ie the relative number of attacks that will be performed
 	 * @param strength The attack strength to set for this plugin
 	 */
-	public void setDefaultAttackStrength(AttackStrength strength);
+	void setDefaultAttackStrength(AttackStrength strength);
 	
 	/**
 	 * Returns an array of the AttackStrengths supported. It must include MEDIUM and may include LOW, HIGH and INSANE
 	 * DEFAULT is assumed and should not be returned.
 	 * @return
 	 */
-	public AttackStrength[] getAttackStrengthsSupported();
+	AttackStrength[] getAttackStrengthsSupported();
 	
 	/**
 	 * Set the technology set this scanner should include in scope (if relevant)
 	 * @param ts
 	 */
-	public void setTechSet(TechSet ts);
+	void setTechSet(TechSet ts);
 	
 	/**
 	 * Returns true if the technology should be includes in the scope
 	 * @param tech
 	 * @return
 	 */
-	public boolean inScope(Tech tech);
+	boolean inScope(Tech tech);
 	
 	void setTimeStarted();
 	Date getTimeStarted();

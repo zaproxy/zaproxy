@@ -31,18 +31,18 @@ public interface SessionListener {
      * Callback method when a session was opened.
      * @param e = exception thrown during session opening.  null = no exception.
      */
-    public void sessionOpened(File file, Exception e);
+    void sessionOpened(File file, Exception e);
     
     /**
      * Callback method when a session was saved.
      * @param e = exception thrown during session opening.  null = no exception.
      */
-    public void sessionSaved(Exception e);
+    void sessionSaved(Exception e);
     
     /**
      * Callback method when a session snapshot is completed.
      * @param e = exception thrown during session snapshot.  null = no exception.
      */
-    public void sessionSnapshot(Exception e);
+    void sessionSnapshot(Exception e);
     
 }

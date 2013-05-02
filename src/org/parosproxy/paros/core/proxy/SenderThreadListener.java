@@ -31,6 +31,6 @@ import org.parosproxy.paros.network.HttpMessage;
 @Deprecated
 public interface SenderThreadListener {
 
-	public void onMessageReceive(HttpMessage msg, Exception ex);
+	void onMessageReceive(HttpMessage msg, Exception ex);
 	
 }

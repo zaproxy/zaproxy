@@ -44,7 +44,7 @@ public interface HttpSenderListener {
      *         should be notified about
      */
     // ZAP: Added the method.
-    public int getListenerOrder();
+    int getListenerOrder();
 
     /**
      * Notifies the listener that a new request was received from the client and
@@ -74,7 +74,7 @@ public interface HttpSenderListener {
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the server
      */
-    public void onHttpRequestSend(HttpMessage msg, int initiator);
+    void onHttpRequestSend(HttpMessage msg, int initiator);
 
     /**
      * Notifies the listener that a new response was received from the server
@@ -104,6 +104,6 @@ public interface HttpSenderListener {
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the client
      */
-    public void onHttpResponseReceive(HttpMessage msg, int initiator);
+    void onHttpResponseReceive(HttpMessage msg, int initiator);
 
 }

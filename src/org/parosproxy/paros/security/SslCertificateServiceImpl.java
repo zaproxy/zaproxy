@@ -96,7 +96,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 
 
 	@Override
-	public synchronized final void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
+	public synchronized void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
 		if (keystore == null) {
 			this.caCert = null;
 			this.caPrivKey = null;
@@ -170,7 +170,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
-	private final KeyPair createKeyPair() throws NoSuchAlgorithmException {
+	private KeyPair createKeyPair() throws NoSuchAlgorithmException {
 		final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		final SecureRandom random  = SecureRandom.getInstance("SHA1PRNG");
 		random.setSeed(Long.toString(System.currentTimeMillis()).getBytes());
@@ -182,7 +182,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 	/**
 	 * @return return the current {@link SslCertificateService}
 	 */
-	public final static SslCertificateService getService() {
+	public static SslCertificateService getService() {
 		return singleton;
 	}
 

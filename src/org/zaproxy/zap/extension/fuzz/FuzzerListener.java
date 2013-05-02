@@ -21,11 +21,11 @@ package org.zaproxy.zap.extension.fuzz;
 
 public interface FuzzerListener {
 
-    public void notifyFuzzerStarted (int total);
+    void notifyFuzzerStarted (int total);
 
-	public void notifyFuzzProcessStarted (FuzzProcess fuzzProcess);
+	void notifyFuzzProcessStarted (FuzzProcess fuzzProcess);
 
-	public void notifyFuzzProcessComplete (FuzzResult fuzzResult);
+	void notifyFuzzProcessComplete (FuzzResult fuzzResult);
 	
-	public void notifyFuzzerComplete();
+	void notifyFuzzerComplete();
 }

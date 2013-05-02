@@ -20,6 +20,7 @@
  */
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
@@ -31,38 +32,38 @@ public interface Filter {
     /**
      * @param model
      */
-    public void init(Model model);
+    void init(Model model);
     
-    public void initView(ViewDelegate view);
-
-    public int getId();
+    void initView(ViewDelegate view);
+   
+    int getId();
     
-    public String getName();
+    String getName();
     
-    public void onHttpRequestSend(HttpMessage httpMessage);
-
-    public void onHttpResponseReceive(HttpMessage httpMessage);
+    void onHttpRequestSend(HttpMessage httpMessage);
+   
+    void onHttpResponseReceive(HttpMessage httpMessage);
     
     /**
      * Filter to be destroyed when extension destroy
      *
      */
-    public void destroy();
+    void destroy();
     
     
     /**
      * @return Returns the enabled.
      */
-    public boolean isEnabled();
+    boolean isEnabled();
     
     /**
      * @param enabled The enabled to set.
      */
-    public void setEnabled(boolean enabled);
+    void setEnabled(boolean enabled);
     
-    public void timer();
+    void timer();
     
-    public boolean isPropertyExists();
+    boolean isPropertyExists();
     
-    public void editProperty();
+    void editProperty();
 }

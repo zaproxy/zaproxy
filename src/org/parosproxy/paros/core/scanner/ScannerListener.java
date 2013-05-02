@@ -19,25 +19,26 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
+
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.network.HttpMessage;
 
 
 public interface ScannerListener {
+    
+    void scannerComplete();
+    
+    void hostNewScan(String hostAndPort, HostProcess hostThread);
+    
+    void hostProgress(String hostAndPort, String msg, int percentage);
+    
+    void hostComplete(String hostAndPort);
 
-    
-    public void scannerComplete();
-    
-    public void hostNewScan(String hostAndPort, HostProcess hostThread);
-    
-    public void hostProgress(String hostAndPort, String msg, int percentage);
-    
-    public void hostComplete(String hostAndPort);
-
-    public void alertFound(Alert alert);
+    void alertFound(Alert alert);
 
     // ZAP: Added notifyNewMessage
-	public void notifyNewMessage(HttpMessage msg);
+	void notifyNewMessage(HttpMessage msg);
     
 }

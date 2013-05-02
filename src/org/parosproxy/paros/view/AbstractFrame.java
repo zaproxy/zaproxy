@@ -179,7 +179,7 @@ public abstract class AbstractFrame extends JFrame {
 	 *
 	 * @param size
 	 */
-	private final void saveWindowSize(Dimension size) {
+	private void saveWindowSize(Dimension size) {
 		if (size != null) {
 			if (getExtendedState() == Frame.NORMAL) {
 				if (logger.isDebugEnabled()) logger.debug("Saving preference " + PREF_WINDOW_SIZE + "=" + size.width + "," + size.height);
@@ -195,7 +195,7 @@ public abstract class AbstractFrame extends JFrame {
 	 *
 	 * @return the size of the frame OR null, if there wasn't any preference.
 	 */
-	private final Dimension restoreWindowSize() {
+	private Dimension restoreWindowSize() {
 		Dimension result = null;
 		final String sizestr = preferences.get(prefnzPrefix+PREF_WINDOW_SIZE, null);
 		if (sizestr != null) {
@@ -223,7 +223,7 @@ public abstract class AbstractFrame extends JFrame {
 	 *
 	 * @param point
 	 */
-	private final void saveWindowLocation(Point point) {
+	private void saveWindowLocation(Point point) {
 		if (point != null) {
 			if (getExtendedState() == Frame.NORMAL) {
 				if (logger.isDebugEnabled()) logger.debug("Saving preference " + PREF_WINDOW_POSITION + "=" + point.x + "," + point.y);
@@ -239,7 +239,7 @@ public abstract class AbstractFrame extends JFrame {
 	 *
 	 * @return the size of the frame OR null, if there wasn't any preference.
 	 */
-	private final Point restoreWindowLocation() {
+	private Point restoreWindowLocation() {
 		Point result = null;
 		final String sizestr = preferences.get(prefnzPrefix+PREF_WINDOW_POSITION, null);
 		if (sizestr != null) {

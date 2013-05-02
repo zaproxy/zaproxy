@@ -31,7 +31,7 @@ public class ProcessEnd extends TimerTask
     public interface ProcessUpdate
     {
 
-        public void isAlive();
+        void isAlive();
     }
 
     public ProcessEnd()

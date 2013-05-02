@@ -51,7 +51,7 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 	private Map<String, KeyStore> cache = new HashMap<>();
 
 	@Override
-	public synchronized final KeyStore createCertForHost(String hostname)
+	public synchronized KeyStore createCertForHost(String hostname)
 			throws NoSuchAlgorithmException, InvalidKeyException,
 			CertificateException, NoSuchProviderException, SignatureException,
 			KeyStoreException, IOException, UnrecoverableKeyException {
@@ -66,7 +66,7 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 	/**
 	 * @return return the current {@link SslCertificateService}
 	 */
-	public final static SslCertificateService getService() {
+	public static SslCertificateService getService() {
 		return singleton;
 	}
 

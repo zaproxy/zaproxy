@@ -36,7 +36,7 @@ public class ProcessChecker extends TimerTask
     public interface ProcessUpdate
     {
 
-        public void isAlive();
+        void isAlive();
     }
 
     public ProcessChecker()

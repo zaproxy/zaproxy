@@ -20,7 +20,7 @@
 package org.zaproxy.zap.extension.httppanel;
 
 public interface Message {
-	public boolean isInScope();
+	boolean isInScope();
 	
-	public boolean isForceIntercept();
+	boolean isForceIntercept();
 }

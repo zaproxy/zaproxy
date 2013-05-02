@@ -22,15 +22,12 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public interface HttpPanelDefaultViewSelector {
 
+	String getName(); 
 	
-	public String getName(); 
+	boolean matchToDefaultView(Message aMessage);
 	
-	public boolean matchToDefaultView(Message aMessage);
+	String getViewName();
 	
-	
-	public String getViewName();
-	
-	
-	public int getOrder();
+	int getOrder();
 
 }

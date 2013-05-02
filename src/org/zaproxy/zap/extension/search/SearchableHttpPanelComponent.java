@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
 
 public interface SearchableHttpPanelComponent {
 
-	public void searchHeader(Pattern p, List<SearchMatch> matches);
-	public void searchBody(Pattern p, List<SearchMatch> matches);
+	void searchHeader(Pattern p, List<SearchMatch> matches);
+	void searchBody(Pattern p, List<SearchMatch> matches);
 
-	public void highlightHeader(SearchMatch sm);
-	public void highlightBody(SearchMatch sm);
+	void highlightHeader(SearchMatch sm);
+	void highlightBody(SearchMatch sm);
 	
 }

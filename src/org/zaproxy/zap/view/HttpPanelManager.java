@@ -337,21 +337,21 @@ public class HttpPanelManager {
 	}
 	
 	public interface HttpPanelComponentFactory {
-		public String getName();
-		public String getComponentName();
-		public HttpPanelComponentInterface getNewComponent();
+		String getName();
+		String getComponentName();
+		HttpPanelComponentInterface getNewComponent();
 	}
 	
 	public interface HttpPanelViewFactory {
-		public String getName();
-		public HttpPanelView getNewView();
-		public Object getOptions();
+		String getName();
+		HttpPanelView getNewView();
+		Object getOptions();
 	}
 	
 	public interface HttpPanelDefaultViewSelectorFactory {
-		public String getName();
-		public HttpPanelDefaultViewSelector getNewDefaultViewSelector();
-		public Object getOptions();
+		String getName();
+		HttpPanelDefaultViewSelector getNewDefaultViewSelector();
+		Object getOptions();
 	}
 
 }

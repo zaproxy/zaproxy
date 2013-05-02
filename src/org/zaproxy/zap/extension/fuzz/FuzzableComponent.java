@@ -24,10 +24,10 @@ public interface FuzzableComponent {
 
     Class<? extends Message> getMessageClass();
 
-    public FuzzableMessage getFuzzableMessage();
+    FuzzableMessage getFuzzableMessage();
 
-    public boolean canFuzz();
+    boolean canFuzz();
 
-    public String getFuzzTarget();
+    String getFuzzTarget();
 
 }

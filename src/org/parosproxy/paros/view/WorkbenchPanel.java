@@ -25,6 +25,7 @@
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Removed redundant final modifiers from private methods
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -300,7 +301,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param prefix
 	 * @param location
 	 */
-	private final void saveDividerLocation(String prefix, int location) {
+	private void saveDividerLocation(String prefix, int location) {
 		if (location > 0) {
 			if (logger.isDebugEnabled()) logger.debug("Saving preference " + prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION + "=" + location);
 			this.preferences.put(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, Integer.toString(location));
@@ -318,7 +319,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param fallback
 	 * @return the size of the frame OR fallback value, if there wasn't any preference.
 	 */
-	private final int restoreDividerLocation(String prefix, int fallback) {
+	private int restoreDividerLocation(String prefix, int fallback) {
 		int result = fallback;
 		final String sizestr = preferences.get(prefnzPrefix+prefix + "." + PREF_DIVIDER_LOCATION, null);
 		if (sizestr != null) {

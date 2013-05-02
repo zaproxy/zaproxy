@@ -26,19 +26,19 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public interface PassiveScanner {
 
-	public void scanHttpRequestSend(HttpMessage msg, int id);
+	void scanHttpRequestSend(HttpMessage msg, int id);
 	
-	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source);
+	void scanHttpResponseReceive(HttpMessage msg, int id, Source source);
 	
-	public void setParent (PassiveScanThread parent);
+	void setParent (PassiveScanThread parent);
 
-	public String getName();
+	String getName();
 	
-	public void setEnabled (boolean enabled);
+	void setEnabled (boolean enabled);
 	
-	public boolean isEnabled();
+	boolean isEnabled();
 	
-	public AlertThreshold getLevel();
+	AlertThreshold getLevel();
 	
-	public void setLevel (AlertThreshold level);
+	void setLevel (AlertThreshold level);
 }

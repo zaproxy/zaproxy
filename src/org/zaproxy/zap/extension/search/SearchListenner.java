@@ -19,7 +19,7 @@ package org.zaproxy.zap.extension.search;
 
 public interface SearchListenner {
 
-	public void addSearchResult(SearchResult str);
+	void addSearchResult(SearchResult str);
 
-	public void searchComplete();
+	void searchComplete();
 }

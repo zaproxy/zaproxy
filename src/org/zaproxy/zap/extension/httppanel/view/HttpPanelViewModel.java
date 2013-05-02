@@ -28,18 +28,13 @@ public interface HttpPanelViewModel {
     //   all registered <code>ListDataListener</code>s that the contents
     //   have changed.
     
+    void setMessage(Message aMessage);
     
-    public void setMessage(Message aMessage);
+    Message getMessage();
     
+    void clear();
     
-    public Message getMessage();
+    void addHttpPanelViewModelListener(HttpPanelViewModelListener l);
     
-    
-    public void clear();
-    
-    
-    public void addHttpPanelViewModelListener(HttpPanelViewModelListener l);
-    
-    
-    public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l);
+    void removeHttpPanelViewModelListener(HttpPanelViewModelListener l);
 }

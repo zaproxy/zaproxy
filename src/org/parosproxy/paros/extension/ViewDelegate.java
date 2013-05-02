@@ -22,6 +22,7 @@
 // ZAP: 2012/04/26 Removed the method setStatus(String), no longer used.
 // ZAP: 2012/07/23 Added method getSessionDialog() to expose functionality.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 
 package org.parosproxy.paros.extension;
 
@@ -37,33 +38,33 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 
 public interface ViewDelegate {
 
-    public MainFrame getMainFrame();
+    MainFrame getMainFrame();
     
-    public SiteMapPanel getSiteTreePanel();
+    SiteMapPanel getSiteTreePanel();
     
-    public OutputPanel getOutputPanel();
+    OutputPanel getOutputPanel();
     
     // ZAP: expose dialog
-    public SessionDialog getSessionDialog();
+    SessionDialog getSessionDialog();
     
-    public int showConfirmDialog(String msg);
+    int showConfirmDialog(String msg);
 
-    public int showYesNoCancelDialog(String msg);
+    int showYesNoCancelDialog(String msg);
     
-    public void showWarningDialog(String msg);
+    void showWarningDialog(String msg);
     
-    public void showMessageDialog(String msg);
+    void showMessageDialog(String msg);
     
-    public WaitMessageDialog getWaitMessageDialog(String msg);
+    WaitMessageDialog getWaitMessageDialog(String msg);
     
-    public MainPopupMenu getPopupMenu();
+    MainPopupMenu getPopupMenu();
     
     // ZAP: Removed the method setStatus(String), no longer used.
     
-    public HttpPanelRequest getRequestPanel();
+    HttpPanelRequest getRequestPanel();
     
-    public HttpPanelResponse getResponsePanel();
+    HttpPanelResponse getResponsePanel();
     
-    public void addContextPanelFactory (ContextPanelFactory cpf);
+    void addContextPanelFactory (ContextPanelFactory cpf);
     
 }

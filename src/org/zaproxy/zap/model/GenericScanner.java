@@ -27,29 +27,29 @@ import org.parosproxy.paros.model.SiteNode;
 
 public interface GenericScanner extends Runnable {
 
-	public void stopScan();
+	void stopScan();
 
-	public boolean isStopped();
+	boolean isStopped();
 
-	public String getSite();
+	String getSite();
 
-	public int getProgress();
+	int getProgress();
 
-	public int getMaximum();
+	int getMaximum();
 
-	public void pauseScan();
+	void pauseScan();
 
-	public void resumeScan();
+	void resumeScan();
 
-	public boolean isPaused();
+	boolean isPaused();
 
-	public boolean isRunning();
+	boolean isRunning();
 
-	public void start();
+	void start();
 
-	public SiteNode getStartNode();
+	SiteNode getStartNode();
 
-	public void setStartNode(SiteNode startNode);
+	void setStartNode(SiteNode startNode);
 
 	/**
 	 * Sets whether the scanner is started with the nodes in scope or in context.
@@ -57,15 +57,15 @@ public interface GenericScanner extends Runnable {
 	 * @param scanInScope the new just scan in scope
 	 * @see GenericScanner#setScanContext(Context)
 	 */
-	public void setJustScanInScope(boolean scanInScope);
+	void setJustScanInScope(boolean scanInScope);
 
-	public boolean getJustScanInScope();
+	boolean getJustScanInScope();
 
-	public ListModel<?> getList();
+	ListModel<?> getList();
 
-	public void reset();
+	void reset();
 
-	public void setScanChildren(boolean scanChildren);
+	void setScanChildren(boolean scanChildren);
 
 	/**
 	 * Sets the {@link Context} that should be scanned. The value should be used only if
@@ -77,6 +77,6 @@ public interface GenericScanner extends Runnable {
 	 * @see GenericScanner#setJustScanInScope(boolean)
 	 * @see GenericScanner#getJustScanInScope()
 	 */
-	public void setScanContext(Context context);
+	void setScanContext(Context context);
 
 }

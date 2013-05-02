@@ -28,43 +28,33 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public interface HttpPanelView {
 
+    String getName();
+
+    String getCaptionName();
     
-    public String getName();
+    String getTargetViewName();
 
-    public String getCaptionName();
-    
-    public String getTargetViewName();
+    int getPosition();
 
-    public int getPosition();
-
-    public JComponent getPane();
+    JComponent getPane();
 
     void setSelected(boolean selected);
+    
+    void save();
+    
+    HttpPanelViewModel getModel();
+    
+    boolean isEnabled(Message aMessage);
 
+    boolean hasChanged();
     
-    public void save();
+    boolean isEditable();
 
-    
-    public HttpPanelViewModel getModel();
-    
-    
-    public boolean isEnabled(Message aMessage);
+    void setEditable(boolean editable);
 
-    
-    public boolean hasChanged();
+    void setParentConfigurationKey(String configurationKey);
 
-    
-    public boolean isEditable();
+    void loadConfiguration(FileConfiguration configuration);
 
-    
-    public void setEditable(boolean editable);
-
-    
-    public void setParentConfigurationKey(String configurationKey);
-
-    
-    public void loadConfiguration(FileConfiguration configuration);
-
-    
-    public void saveConfiguration(FileConfiguration configuration);
+    void saveConfiguration(FileConfiguration configuration);
 }

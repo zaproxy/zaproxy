@@ -35,7 +35,7 @@ public interface SessionChangedListener {
      * all the listener.  Use EventThread for each GUI event.
      * @param session
      */
-    public void sessionChanged(Session session);
+    void sessionChanged(Session session);
     
     /**
      * Called just prior to the session changing.
@@ -44,7 +44,7 @@ public interface SessionChangedListener {
      * all the listener.  Use EventThread for each GUI event.
      * @param session
      */
-    public void sessionAboutToChange(Session session);
+    void sessionAboutToChange(Session session);
     
     /**
      * Called when the user has changes the session scope.
@@ -52,7 +52,7 @@ public interface SessionChangedListener {
      * all the listener.  Use EventThread for each GUI event.
      * @param session
      */
-    public void sessionScopeChanged(Session session);
+    void sessionScopeChanged(Session session);
     
     /**
      * Called when the user changes the mode.
@@ -60,6 +60,6 @@ public interface SessionChangedListener {
      * all the listener.  Use EventThread for each GUI event.
      * @param mode
      */
-    public void sessionModeChanged(Mode mode);
+    void sessionModeChanged(Mode mode);
     
 }

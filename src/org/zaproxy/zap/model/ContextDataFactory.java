@@ -21,7 +21,7 @@ package org.zaproxy.zap.model;
 
 public interface ContextDataFactory {
 
-	public void loadContextData (Context ctx);
+	void loadContextData (Context ctx);
 	
-	public void saveContextData (Context ctx);
+	void saveContextData (Context ctx);
 }

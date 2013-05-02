@@ -39,11 +39,11 @@ public interface SslCertificateService {
 	/**
 	 * The passphrase which is used for all Paros Proxy SSL crypto stuff
 	 */
-	public static final char[] PASSPHRASE = "0w45P.Z4p".toCharArray();
+	char[] PASSPHRASE = "0w45P.Z4p".toCharArray();
 	/**
 	 * The alias name used in key stores.
 	 */
-	public static final String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
+	String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
 
 	/**
 	 * Generate a certificate signed by our CA's intermediate certificate.
@@ -63,7 +63,7 @@ public interface SslCertificateService {
 	 * @throws UnrecoverableKeyException
 	 * @throws MissingRootCertificateException when it wasn't initialized.
 	 */
-	public abstract KeyStore createCertForHost(String hostname)
+	KeyStore createCertForHost(String hostname)
 			throws NoSuchAlgorithmException, InvalidKeyException,
 			CertificateException, NoSuchProviderException, SignatureException,
 			KeyStoreException, IOException, UnrecoverableKeyException;
@@ -76,6 +76,6 @@ public interface SslCertificateService {
 	 * @throws NoSuchAlgorithmException
 	 * @throws UnrecoverableKeyException
 	 */
-	public abstract void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException;
+	void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException;
 
 }

@@ -21,6 +21,6 @@ import java.util.EventListener;
 
 public interface HttpPanelViewModelListener extends EventListener {
 	
-	public void dataChanged(HttpPanelViewModelEvent e);
+	void dataChanged(HttpPanelViewModelEvent e);
 	
 }

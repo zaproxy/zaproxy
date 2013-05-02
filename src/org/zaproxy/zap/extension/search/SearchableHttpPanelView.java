@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 
 public interface SearchableHttpPanelView {
 
-	public void search(Pattern p, List<SearchMatch> matches);
+	void search(Pattern p, List<SearchMatch> matches);
 
-	public void highlight(SearchMatch sm);
+	void highlight(SearchMatch sm);
 
 }

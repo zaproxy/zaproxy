@@ -25,12 +25,12 @@ public interface FuzzableMessage {
 	/**
 	 * @return the unmodified Message.
 	 */
-	public Message getMessage();
+	Message getMessage();
 	
 	/**
 	 * @param fuzzString the fuzz string.
 	 * @return a Message with the target replaced with the fuzz string.
 	 */
-	public Message fuzz(String fuzzString) throws Exception;
+	Message fuzz(String fuzzString) throws Exception;
 	
 }

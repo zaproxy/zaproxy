@@ -20,12 +20,13 @@
  */
 // ZAP: 2012/03/15 Changed the first letter of the method OptionsChanged to lower case.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 
 package org.parosproxy.paros.extension;
 
 import org.parosproxy.paros.model.OptionsParam;
 
 public interface OptionsChangedListener {
-    public void optionsChanged(OptionsParam optionsParam);
+    void optionsChanged(OptionsParam optionsParam);
     
 }

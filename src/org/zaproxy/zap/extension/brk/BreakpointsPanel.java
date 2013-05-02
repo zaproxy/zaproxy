@@ -251,7 +251,7 @@ public class BreakpointsPanel extends AbstractPanel {
 	    
 	}
 
-	private final void saveColumnWidth(String prefix, int width) {
+	private void saveColumnWidth(String prefix, int width) {
 		if (width > 0) {
 			if (log.isDebugEnabled()) log.debug("Saving preference " + prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH + "=" + width);
 			this.preferences.put(prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH, Integer.toString(width));
@@ -264,7 +264,7 @@ public class BreakpointsPanel extends AbstractPanel {
 		}
 	}
 	
-	private final int restoreColumnWidth(String prefix, int fallback) {
+	private int restoreColumnWidth(String prefix, int fallback) {
 		int result = fallback;
 		final String sizestr = preferences.get(prefnzPrefix+prefix + "." + PREF_COLUMN_WIDTH, null);
 		if (sizestr != null) {

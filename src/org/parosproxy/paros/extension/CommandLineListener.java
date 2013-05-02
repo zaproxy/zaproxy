@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 package org.parosproxy.paros.extension;
 
 
@@ -27,6 +28,6 @@ public interface CommandLineListener {
     /**
      * execute the command line using the argument provided.
      */
-    public void execute(CommandLineArgument[] args);
+    void execute(CommandLineArgument[] args);
 
 }

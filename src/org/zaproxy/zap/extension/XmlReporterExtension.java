@@ -14,6 +14,6 @@ import org.parosproxy.paros.model.SiteNode;
  */
 public interface XmlReporterExtension {
     
-    public String getXml(SiteNode site);
+    String getXml(SiteNode site);
     
 }

@@ -38,5 +38,5 @@ public interface ArrangeableProxyListener {
      * @return an {@code int} with the value of the order that this listener
      *         should be notified about
      */
-    public int getArrangeableListenerOrder();
+    int getArrangeableListenerOrder();
 }

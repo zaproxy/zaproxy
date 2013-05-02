@@ -37,7 +37,7 @@ public interface SpiderListener {
 	 * @param numberCrawled the number of pages crawled
 	 * @param numberToCrawl the number of pages left to crawl
 	 */
-	public void spiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl);
+	void spiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl);
 
 	/**
 	 * Event triggered when a new uri was found. The <code>status</code> parameter says if the URI
@@ -48,14 +48,14 @@ public interface SpiderListener {
 	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
 	 *            stating the reason of the filtering
 	 */
-	public void foundURI(String uri, String method, FetchStatus status);
+	void foundURI(String uri, String method, FetchStatus status);
 
 	/**
 	 * Event triggered when a new uri was read.
 	 * 
 	 * @param msg the message
 	 */
-	public void readURI(HttpMessage msg);
+	void readURI(HttpMessage msg);
 
 	/**
 	 * Event triggered when the spider is finished. This event is triggered either when the spider
@@ -69,6 +69,6 @@ public interface SpiderListener {
 	 *            <li>false - when the spider was stopped by the user</li>
 	 *            </ul>
 	 */
-	public void spiderComplete(boolean successful);
+	void spiderComplete(boolean successful);
 
 }
