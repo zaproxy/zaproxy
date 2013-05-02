@@ -66,18 +66,5 @@ public class XMLStringUtil {
 		
 		return sb.toString();
 	}
-	
-	public static void main(String[] args) throws Exception {
-		// Some basic tests
-		String str0 = "ABCDEF";
-		String str1 = "A\u0000B\u0001C\u0010D\uFFFEE\uFFFFF";
-		
-		System.out.println(str0);
-		System.out.println(XMLStringUtil.removeControlChrs(str0));
-		System.out.println(XMLStringUtil.escapeControlChrs(str0));
-		System.out.println(str1);
-		System.out.println(XMLStringUtil.removeControlChrs(str1));
-		System.out.println(XMLStringUtil.escapeControlChrs(str1));
-	}
 
 }
