@@ -207,7 +207,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 			// we remove the icons of the node that has to be cleaned when manually visiting them
 			if (!this.icons.isEmpty() && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
 				for (int i = 0; i < this.clearIfManual.size(); ++i) {
-					if (this.clearIfManual.get(i) == true && this.icons.size() > i) {
+					if (this.clearIfManual.get(i) && this.icons.size() > i) {
 						this.icons.remove(i);
 						this.clearIfManual.remove(i);
 					}
