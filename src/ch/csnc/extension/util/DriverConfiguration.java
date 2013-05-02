@@ -66,14 +66,14 @@ public class DriverConfiguration extends Observable {
 				try {
 					slots.add(Integer.parseInt(slotElement.getValue()));
 				} catch (final Exception e) {
-					slots.add(new Integer(0)); // default value
+					slots.add(0); // default value
 				}
 
 				final Element slotListIndex = ((Element) o).getChild("slotListIndex");
 				try {
 					slotListIndexes.add(Integer.parseInt(slotListIndex.getValue()));
 				} catch (final Exception e) {
-					slotListIndexes.add(new Integer(0)); // default value
+					slotListIndexes.add(0); // default value
 				}
 			}
 

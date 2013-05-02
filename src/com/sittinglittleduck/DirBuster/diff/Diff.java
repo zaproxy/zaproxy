@@ -787,7 +787,7 @@ public class Diff {
       for (int i = 0; i < data.length; ++i) {
         Integer ir = (Integer)h.get(data[i]);
 	if (ir == null)
-	  h.put(data[i],new Integer(equivs[i] = equiv_max++));
+	  h.put(data[i],Integer.valueOf(equivs[i] = equiv_max++));
 	else
 	  equivs[i] = ir.intValue();
       }

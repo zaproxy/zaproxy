@@ -66,7 +66,7 @@ public class FileSystemModel extends AbstractTreeTableModel
     protected static Class[]  cTypes = {TreeTableModel.class, Integer.class, String.class, Date.class};
 
     // The the returned file length for directories. 
-    public static final Integer ZERO = new Integer(0); 
+    public static final Integer ZERO = 0; 
 
     public FileSystemModel() { 
 	super(new FileNode(new File(File.separator))); 
@@ -125,7 +125,7 @@ public class FileSystemModel extends AbstractTreeTableModel
 	    case 0:
 		return file.getName();
 	    case 1:
-		return file.isFile() ? new Integer((int)file.length()) : ZERO;
+		return file.isFile() ? Integer.valueOf((int)file.length()) : ZERO;
 	    case 2:
 		return file.isFile() ?  "File" : "Directory";
 	    case 3:

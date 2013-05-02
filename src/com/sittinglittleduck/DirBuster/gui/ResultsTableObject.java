@@ -37,7 +37,7 @@ public class ResultsTableObject
     private String baseCase = "";
     private String rawResponce = "";
     
-    private Boolean scanFurther = new Boolean(false);
+    private Boolean scanFurther = Boolean.FALSE;
     
     private BaseCase baseCaseObj = null;
     
@@ -79,11 +79,11 @@ public class ResultsTableObject
         this.rawResponce = rawResponce;
         if(scanFurther)
         {
-            this.scanFurther = new Boolean(true);
+            this.scanFurther = Boolean.TRUE;
         }
         else
         {
-            this.scanFurther = new Boolean(false);
+            this.scanFurther = Boolean.FALSE;
         }
         this.baseCaseObj = baseCaseObj;
         
