@@ -1647,7 +1647,7 @@ public class Manager implements ProcessChecker.ProcessUpdate
     {
         userPrefs = Preferences.userNodeForPackage(Manager.class);
         checkForUpdates = userPrefs.getBoolean("CheckForUpdates", true);
-        lastUpdateCheck = new Date(userPrefs.getLong("LastUpdateCheck", 0l));
+        lastUpdateCheck = new Date(userPrefs.getLong("LastUpdateCheck", 0L));
         defaultNoThreads = userPrefs.getInt("DefaultNoTreads", 10);
         defaultList = userPrefs.get("DefaultList", "");
         defaultExts = userPrefs.get("DefaultExts", "php");

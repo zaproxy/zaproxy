@@ -72,7 +72,7 @@ public class urlTest
         
         Date now = new Date();
                 //if(now.)
-        Date update =  new Date(0l);
+        Date update =  new Date(0L);
         
         Long passed = now.getTime() - update.getTime();
         System.out.println("now: " + now.getTime());
