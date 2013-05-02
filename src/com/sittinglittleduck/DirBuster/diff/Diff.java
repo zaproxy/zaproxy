@@ -461,7 +461,7 @@ public class Diff {
   }
 
   /** Standard ScriptBuilders. */
-  public final static ScriptBuilder
+  public static final ScriptBuilder
     forwardScript = new ForwardScript(),
     reverseScript = new ReverseScript();
 

@@ -37,7 +37,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 public class DriverConfiguration extends Observable {
-	final static String filename = "xml/drivers.xml";
+	static final String filename = "xml/drivers.xml";
 
 	private Vector<String> names;
 	private Vector<String> paths;

@@ -51,8 +51,8 @@ import org.zaproxy.zap.extension.search.SearchResult;
 
 public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedListener, AddonFilesChangedListener {
 
-	public final static String NAME = "ExtensionFuzz";
-	public final static String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
+	public static final String NAME = "ExtensionFuzz";
+	public static final String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
 	
     private PopupFuzzMenu popupFuzzMenu = null;
     private FuzzerThread fuzzerThread = null;

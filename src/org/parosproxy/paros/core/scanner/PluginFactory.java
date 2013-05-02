@@ -28,6 +28,7 @@
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/01/25 Catch any exceptions thrown when loading plugins to allow ZAP to still start
 // ZAP: 2013/03/18 Issue 564: Active scanner can hang if dependencies used
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.core.scanner;
 
@@ -109,7 +110,7 @@ public class PluginFactory {
         
     }
 
-    public synchronized static void loadAllPlugin(Configuration config) {
+    public static synchronized void loadAllPlugin(Configuration config) {
     	
        	List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
 		listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));

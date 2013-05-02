@@ -21,7 +21,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
-abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxHighlightTextArea {
+public abstract class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxHighlightTextArea {
 	
 	private static final long serialVersionUID = 293746373028878338L;
 
@@ -61,7 +61,7 @@ abstract public class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxH
 	    }
 	}
 
-	abstract protected String detectSyntax(HttpMessage httpMessage);
+	protected abstract String detectSyntax(HttpMessage httpMessage);
 	
 	@Override
 	public void loadConfiguration(String key, FileConfiguration fileConfiguration) {

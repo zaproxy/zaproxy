@@ -28,9 +28,9 @@ import org.zaproxy.zap.utils.ByteBuilder;
 
 public class HttpPanelHexModel extends AbstractTableModel {
 
-    private final static String[] hexSymbols = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
-    private final static int BITS_PER_HEX_DIGIT = 4;
-	private final static int COLUMN_COUNT = 34;
+    private static final String[] hexSymbols = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" };
+    private static final int BITS_PER_HEX_DIGIT = 4;
+	private static final int COLUMN_COUNT = 34;
 
 	private static final long serialVersionUID = 1L;
     private List<String[]> listRow = new ArrayList<>();

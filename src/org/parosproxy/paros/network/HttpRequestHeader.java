@@ -36,6 +36,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/08 Improved parse error reporting
 // ZAP: 2013/04/14 Issue 596: Rename the method HttpRequestHeader.getSecure to isSecure
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.network;
 
@@ -61,17 +62,17 @@ public class HttpRequestHeader extends HttpHeader {
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
     
     // method list
-    public final static String OPTIONS = "OPTIONS";
-    public final static String GET = "GET";
-    public final static String HEAD = "HEAD";
-    public final static String POST = "POST";
-    public final static String PUT = "PUT";
-    public final static String DELETE = "DELETE";
-    public final static String TRACE = "TRACE";
-    public final static String CONNECT = "CONNECT";
+    public static final String OPTIONS = "OPTIONS";
+    public static final String GET = "GET";
+    public static final String HEAD = "HEAD";
+    public static final String POST = "POST";
+    public static final String PUT = "PUT";
+    public static final String DELETE = "DELETE";
+    public static final String TRACE = "TRACE";
+    public static final String CONNECT = "CONNECT";
     // ZAP: Added method array
-    public final static String[] METHODS = {OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT};
-    public final static String HOST = "Host";
+    public static final String[] METHODS = {OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT};
+    public static final String HOST = "Host";
     private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");

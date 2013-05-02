@@ -31,6 +31,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/02/19 Issue 528 Scan progress dialog can show negative progress times
 // ZAP: 2013/04/14 Issue 611: Log the exceptions thrown by active scanners as error
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.core.scanner;
 
@@ -55,7 +56,7 @@ import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
-abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
+public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	
     /**
      * Default pattern used in pattern check for most plugins.
@@ -88,10 +89,10 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     @Override
-    abstract public int getId();
+    public abstract int getId();
     
     @Override
-    abstract public String getName();
+    public abstract String getName();
     
     @Override
     public String getCodeName() {
@@ -104,19 +105,19 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
     }
     
     @Override
-    abstract public String[] getDependency();
+    public abstract String[] getDependency();
     
     @Override
-    abstract public String getDescription();
+    public abstract String getDescription();
     
     @Override
-    abstract public int getCategory();
+    public abstract int getCategory();
     
     @Override
-    abstract public String getSolution();
+    public abstract String getSolution();
     
     @Override
-    abstract public String getReference();
+    public abstract String getReference();
     
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -125,7 +126,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
         init();
     }
     
-    abstract public void init();
+    public abstract void init();
 
     /**
      * Obtain a new HttpMessage with the same request as the base.  The response is empty.
@@ -252,7 +253,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
      * The core scan method to be implmented by subclass.
      */
     @Override
-    abstract public void scan();
+    public abstract void scan();
 
     /**
      * Generate an alert when a security issue (risk/info) is found.  Default name, description,
@@ -538,7 +539,7 @@ abstract public class AbstractPlugin implements Plugin, Comparable<Object> {
 	}
 
     @Override
-    abstract public void notifyPluginCompleted(HostProcess parent);
+    public abstract void notifyPluginCompleted(HostProcess parent);
 
 
 	

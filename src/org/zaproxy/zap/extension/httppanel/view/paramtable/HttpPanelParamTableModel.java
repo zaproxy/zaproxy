@@ -179,8 +179,8 @@ public abstract class HttpPanelParamTableModel extends AbstractTableModel {
         return columnNames[col];
     }
     
-    abstract protected void loadAllParams();
-    abstract public void saveAllParams();
-    abstract protected HtmlParameter getDefaultHtmlParameter();
+    protected abstract void loadAllParams();
+    public abstract void saveAllParams();
+    protected abstract HtmlParameter getDefaultHtmlParameter();
 
 }

@@ -106,9 +106,9 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         initSpecial();
     }
 
-    abstract protected void initComponents();
+    protected abstract void initComponents();
     
-    abstract protected void initSpecial();
+    protected abstract void initSpecial();
 
     
     private void setConfigurationKey(String key) {

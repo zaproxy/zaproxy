@@ -60,10 +60,10 @@ public class FileSystemModel extends AbstractTreeTableModel
                              implements TreeTableModel {
 
     // Names of the columns.
-    static protected String[]  cNames = {"Name", "Size", "Type", "Modified"};
+    protected static String[]  cNames = {"Name", "Size", "Type", "Modified"};
 
     // Types of the columns.
-    static protected Class[]  cTypes = {TreeTableModel.class, Integer.class, String.class, Date.class};
+    protected static Class[]  cTypes = {TreeTableModel.class, Integer.class, String.class, Date.class};
 
     // The the returned file length for directories. 
     public static final Integer ZERO = new Integer(0); 
@@ -152,7 +152,7 @@ class FileNode {
     }
 
     // Used to sort the file names.
-    static private MergeSort  fileMS = new MergeSort() {
+    private static MergeSort  fileMS = new MergeSort() {
 	public int compareElementsAt(int a, int b) {
 	    return ((String)toSort[a]).compareTo((String)toSort[b]);
 	}

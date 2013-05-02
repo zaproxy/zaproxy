@@ -168,25 +168,25 @@ public class Base64
     
     
     /** No options specified. Value is zero. */
-    public final static int NO_OPTIONS = 0;
+    public static final int NO_OPTIONS = 0;
     
     /** Specify encoding in first bit. Value is one. */
-    public final static int ENCODE = 1;
+    public static final int ENCODE = 1;
     
     
     /** Specify decoding in first bit. Value is zero. */
-    public final static int DECODE = 0;
+    public static final int DECODE = 0;
     
 
     /** Specify that data should be gzip-compressed in second bit. Value is two. */
-    public final static int GZIP = 2;
+    public static final int GZIP = 2;
 
     /** Specify that gzipped data should <em>not</em> be automatically gunzipped. */
-    public final static int DONT_GUNZIP = 4;
+    public static final int DONT_GUNZIP = 4;
     
     
     /** Do break lines when encoding. Value is 8. */
-    public final static int DO_BREAK_LINES = 8;
+    public static final int DO_BREAK_LINES = 8;
 	
     /** 
      * Encode using Base64-like encoding that is URL- and Filename-safe as described
@@ -196,14 +196,14 @@ public class Base64
      * or at the very least should not be called Base64 without also specifying that is
      * was encoded using the URL- and Filename-safe dialect.
      */
-     public final static int URL_SAFE = 16;
+     public static final int URL_SAFE = 16;
 
 
      /**
       * Encode using the special "ordered" dialect of Base64 described here:
       * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
       */
-     public final static int ORDERED = 32;
+     public static final int ORDERED = 32;
     
     
 /* ********  P R I V A T E   F I E L D S  ******** */  
@@ -211,30 +211,30 @@ public class Base64
     private static final Logger logger = Logger.getLogger(Base64.class);
     
     /** Maximum line length (76) of Base64 output. */
-    private final static int MAX_LINE_LENGTH = 76;
+    private static final int MAX_LINE_LENGTH = 76;
     
     
     /** The equals sign (=) as a byte. */
-    private final static byte EQUALS_SIGN = (byte)'=';
+    private static final byte EQUALS_SIGN = (byte)'=';
     
     
     /** The new line character (\n) as a byte. */
-    private final static byte NEW_LINE = (byte)'\n';
+    private static final byte NEW_LINE = (byte)'\n';
     
     
     /** Preferred encoding. */
-    private final static String PREFERRED_ENCODING = "US-ASCII";
+    private static final String PREFERRED_ENCODING = "US-ASCII";
     
 	
-    private final static byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
-    private final static byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
+    private static final byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
+    private static final byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
 	
 	
 /* ********  S T A N D A R D   B A S E 6 4   A L P H A B E T  ******** */	
     
     /** The 64 valid Base64 values. */
     /* Host platform me be something funny like EBCDIC, so we hardcode these values. */
-    private final static byte[] _STANDARD_ALPHABET = {
+    private static final byte[] _STANDARD_ALPHABET = {
         (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', (byte)'G',
         (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L', (byte)'M', (byte)'N',
         (byte)'O', (byte)'P', (byte)'Q', (byte)'R', (byte)'S', (byte)'T', (byte)'U', 
@@ -252,7 +252,7 @@ public class Base64
      * Translates a Base64 value to either its 6-bit reconstruction value
      * or a negative number indicating some other meaning.
      **/
-    private final static byte[] _STANDARD_DECODABET = {
+    private static final byte[] _STANDARD_DECODABET = {
         -9,-9,-9,-9,-9,-9,-9,-9,-9,                 // Decimal  0 -  8
         -5,-5,                                      // Whitespace: Tab and Linefeed
         -9,-9,                                      // Decimal 11 - 12
@@ -294,7 +294,7 @@ public class Base64
      * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
      * Notice that the last two bytes become "hyphen" and "underscore" instead of "plus" and "slash."
      */
-    private final static byte[] _URL_SAFE_ALPHABET = {
+    private static final byte[] _URL_SAFE_ALPHABET = {
       (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', (byte)'G',
       (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L', (byte)'M', (byte)'N',
       (byte)'O', (byte)'P', (byte)'Q', (byte)'R', (byte)'S', (byte)'T', (byte)'U', 
@@ -310,7 +310,7 @@ public class Base64
     /**
      * Used in decoding URL- and Filename-safe dialects of Base64.
      */
-    private final static byte[] _URL_SAFE_DECODABET = {
+    private static final byte[] _URL_SAFE_DECODABET = {
       -9,-9,-9,-9,-9,-9,-9,-9,-9,                 // Decimal  0 -  8
       -5,-5,                                      // Whitespace: Tab and Linefeed
       -9,-9,                                      // Decimal 11 - 12
@@ -357,7 +357,7 @@ public class Base64
      * and it is described here:
      * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
      */
-    private final static byte[] _ORDERED_ALPHABET = {
+    private static final byte[] _ORDERED_ALPHABET = {
       (byte)'-',
       (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4',
       (byte)'5', (byte)'6', (byte)'7', (byte)'8', (byte)'9',
@@ -375,7 +375,7 @@ public class Base64
     /**
      * Used in decoding the "ordered" dialect of Base64.
      */
-    private final static byte[] _ORDERED_DECODABET = {
+    private static final byte[] _ORDERED_DECODABET = {
       -9,-9,-9,-9,-9,-9,-9,-9,-9,                 // Decimal  0 -  8
       -5,-5,                                      // Whitespace: Tab and Linefeed
       -9,-9,                                      // Decimal 11 - 12

@@ -18,13 +18,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.model.Model;
 
-abstract public class AbstractParamPanel extends JPanel {
+public abstract class AbstractParamPanel extends JPanel {
 
 	private static final long serialVersionUID = 3245127348676340802L;
 
@@ -44,16 +45,16 @@ abstract public class AbstractParamPanel extends JPanel {
 	    }
 	}
 	
-	abstract public void initParam(Object obj);
+	public abstract void initParam(Object obj);
 	
-	abstract public void validateParam(Object obj) throws Exception;
+	public abstract void validateParam(Object obj) throws Exception;
 	
-	abstract public void saveParam(Object obj) throws Exception;
+	public abstract void saveParam(Object obj) throws Exception;
 	
 	/**
 	 * @return The help index key, as used in JavaHelp.
 	 *         OR use return null, if no help key is available.
 	 *         When a valid key is returned, there will be a help button displayed.
 	 */
-	abstract public String getHelpIndex();
+	public abstract String getHelpIndex();
 }

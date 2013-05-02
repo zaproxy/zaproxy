@@ -33,9 +33,9 @@ import com.sittinglittleduck.DirBuster.gui.JTableTree.TreeTableModel;
 public class ResultsTableTreeModel extends AbstractTreeTableModel
         implements TreeTableModel
 {
-    static protected String[] cNames = {new String("Directory Stucture"), new String("Responce Code"), new String("Responce Size")};
+    protected static String[] cNames = {new String("Directory Stucture"), new String("Responce Code"), new String("Responce Size")};
     // Types of the columns.
-    static protected Class[]  cTypes = {TreeTableModel.class, String.class, String.class};
+    protected static Class[]  cTypes = {TreeTableModel.class, String.class, String.class};
     private ResultsNode rootNode;
 
     public ResultsTableTreeModel(ResultsNode rootNode)

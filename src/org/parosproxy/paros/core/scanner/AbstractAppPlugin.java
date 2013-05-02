@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.core.scanner;
 
 /**
@@ -29,7 +30,7 @@ package org.parosproxy.paros.core.scanner;
  * Multiple threads will be executed.  But AbstractAppPlugin must complete before another
  * can start.
  */
-abstract public class AbstractAppPlugin extends AbstractPlugin {
+public abstract class AbstractAppPlugin extends AbstractPlugin {
     
     @Override
     public void notifyPluginCompleted(HostProcess parent) {

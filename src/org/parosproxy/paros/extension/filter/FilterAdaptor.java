@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.extension.ViewDelegate;
@@ -28,7 +29,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-abstract public class FilterAdaptor implements Filter {
+public abstract class FilterAdaptor implements Filter {
 
     private boolean enabled = false;
     private ViewDelegate view = null;
@@ -43,16 +44,16 @@ abstract public class FilterAdaptor implements Filter {
     }
 
     @Override
-    abstract public int getId();
+    public abstract int getId();
     
     @Override
-    abstract public String getName();
+    public abstract String getName();
     
     @Override
-    abstract public void onHttpRequestSend(HttpMessage httpMessage);
+    public abstract void onHttpRequestSend(HttpMessage httpMessage);
 
     @Override
-    abstract public void onHttpResponseReceive(HttpMessage httpMessage);
+    public abstract void onHttpResponseReceive(HttpMessage httpMessage);
     
     /**
      * Filter to be destroyed when extension destroy

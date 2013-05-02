@@ -25,6 +25,7 @@
 // ZAP: 2012/03/15 Changed to sort the ProxyListeners. Set the name of the proxy server thread.
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/12/27 Added PersistentConnectionListener list, setter & getter.
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.core.proxy;
  
@@ -53,7 +54,7 @@ public class ProxyServer implements Runnable {
 	
 	protected Thread	thread = null;
 
-	protected final static int PORT_TIME_OUT = 0;
+	protected static final int PORT_TIME_OUT = 0;
 	protected ServerSocket proxySocket = null;
 	protected boolean isProxyRunning = false;
 	protected ProxyParam proxyParam = new ProxyParam();
@@ -317,7 +318,7 @@ public class ProxyServer implements Runnable {
 	}
 	
 	// ZAP: Added the method.
-	synchronized private void createListenersComparator() {
+	private synchronized void createListenersComparator() {
 		if (listenersComparator == null) {
 			listenersComparator = new Comparator<ArrangeableProxyListener>() {
 				

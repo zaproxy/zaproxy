@@ -75,7 +75,7 @@ public class DiffPrint
       <code>print_hunk</code> for each hunk.  Various utility methods
       are provided as well.
      */
-    public static abstract class Base
+    public abstract static class Base
     {
         protected PrintWriter outfile;
         

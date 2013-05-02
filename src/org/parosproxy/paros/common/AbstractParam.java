@@ -23,6 +23,7 @@
 //      removed duplicated method calls and removed an unnecessary method (load())
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.common;
 
@@ -30,7 +31,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-abstract public class AbstractParam {
+public abstract class AbstractParam {
 
     private static final Logger logger = Logger.getLogger(AbstractParam.class);
     
@@ -66,5 +67,5 @@ abstract public class AbstractParam {
      * Implement by subclass to parse the config file.
      *
      */
-    abstract protected void parse();
+    protected abstract void parse();
 }

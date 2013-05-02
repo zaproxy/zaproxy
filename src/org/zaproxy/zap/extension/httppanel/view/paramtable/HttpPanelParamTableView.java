@@ -123,7 +123,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 		table.getColumnModel().getColumn(3).setCellRenderer(new ComboBoxCellRenderer(comboBoxAddIns));
 	}
 	
-	abstract public JComboBox<HtmlParameter.Type> getComboBoxTypes();
+	public abstract JComboBox<HtmlParameter.Type> getComboBoxTypes();
 	
 	@Override
 	public void dataChanged(HttpPanelViewModelEvent e) {

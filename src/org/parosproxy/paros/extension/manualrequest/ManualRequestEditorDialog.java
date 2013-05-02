@@ -32,6 +32,7 @@
 // methods windowClosing and setVisible.
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -108,21 +109,21 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 	 * 
 	 * @return
 	 */
-	abstract public Class<? extends Message> getMessageType();
+	public abstract Class<? extends Message> getMessageType();
 	
 	/**
 	 * Message sender for the given {@link #getMessageType()}.
 	 * 
 	 * @return
 	 */
-	abstract protected MessageSender getMessageSender();
+	protected abstract MessageSender getMessageSender();
 	
 	/**
 	 * Menu item that calls this editor.
 	 * 
 	 * @return
 	 */
-	abstract public JMenuItem getMenuItem();
+	public abstract JMenuItem getMenuItem();
 
 	protected JPanel getWindowPanel() {
 		if (panelWindow == null) {
@@ -135,7 +136,7 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 		return panelWindow;
 	}
 	
-	abstract protected Component getManualSendPanel();
+	protected abstract Component getManualSendPanel();
 	
 	@Override
 	public void setVisible(boolean show) {
@@ -146,11 +147,11 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 		super.setVisible(show);
 	}
 
-	abstract public void setDefaultMessage();
+	public abstract void setDefaultMessage();
 	
-	abstract public void setMessage(Message aMessage);
+	public abstract void setMessage(Message aMessage);
 
-	abstract public Message getMessage();
+	public abstract Message getMessage();
 
 	public void clear() {
 		getRequestPanel().clearView();
@@ -194,7 +195,7 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 	/**
 	 * Do not forget to enable the send button again i
 	 */
-	abstract protected void btnSendAction();
+	protected abstract void btnSendAction();
 
 	protected void send(final Message aMessage) {
         final Thread t = new Thread(new Runnable() {
@@ -220,7 +221,7 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 		getRequestPanel().updateContent();
 	}
 	
-	abstract protected void saveConfig();
+	protected abstract void saveConfig();
 
-	abstract protected HttpPanelRequest getRequestPanel();
+	protected abstract HttpPanelRequest getRequestPanel();
 }

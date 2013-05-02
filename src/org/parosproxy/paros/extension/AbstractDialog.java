@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.extension;
 
 
@@ -38,7 +39,7 @@ import org.parosproxy.paros.view.View;
 /**
  * Abstract base class for all dialog box.
  */
-abstract public class AbstractDialog extends JDialog {
+public abstract class AbstractDialog extends JDialog {
  
 	private static final long serialVersionUID = -3951504408180103696L;
 

@@ -25,6 +25,7 @@
 // org.zaproxy.zap.extension.pscan.scanner.PasswordAutocompleteScanner.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.extension.filter;
 
@@ -112,7 +113,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
 		"Microsoft Internet Explorer URL Local Resource Access Weakness (http://www.securityfocus.com/bid/10472, http://secunia.com/advisories/11793"
 	};
 	
-	private final static Pattern[] patternBadBodyList = {
+	private static final Pattern[] patternBadBodyList = {
 		Pattern.compile("^.*file:javascript:eval.*$", DEFAULT),
 		Pattern.compile("<[^>]*CLSID:11111111-1111-1111-1111-11111111111[^>]*>", DEFAULT),
 		Pattern.compile("^.*?Scripting\\.FileSystemObject.*?$", DEFAULT),
@@ -130,7 +131,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
 		Pattern.compile("^.*?execScript.*?$", DEFAULT)
 	};
 
-	private final static String[] patternBadBodyDesc = {
+	private static final String[] patternBadBodyDesc = {
 			"Suspcious use of javascript 'file:javascript:eval'.",
 			"Suspicious ActiveX CLSID 11111111-1111-1111-1111-... being used.",
 			"Attempt to access Scripting.FileSystemObject.",

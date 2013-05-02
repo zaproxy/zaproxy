@@ -73,7 +73,7 @@ public class SslCertificateUtils {
 	 * or 'SHA1PRNG' Secure random number generator
 	 * @throws IllegalStateException in case of errors during assembling {@link KeyStore}
 	 */
-	public final static KeyStore createRootCA() throws NoSuchAlgorithmException {
+	public static final KeyStore createRootCA() throws NoSuchAlgorithmException {
 		final Date startDate = Calendar.getInstance().getTime();
 		final Date expireDate = new Date(startDate.getTime()+ (DEFAULT_VALID_DAYS * 24L * 60L * 60L * 1000L));
 
@@ -135,7 +135,7 @@ public class SslCertificateUtils {
 	 * @throws CertificateException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public final static String keyStore2String(KeyStore keystore) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public static final String keyStore2String(KeyStore keystore) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		keystore.store(baos, SslCertificateService.PASSPHRASE);
 		final byte[] bytes = baos.toByteArray();
@@ -151,7 +151,7 @@ public class SslCertificateUtils {
 	 * @throws CertificateException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public final static KeyStore string2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public static final KeyStore string2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		final byte[] bytes = Base64.decodeBase64(str);
 		final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());

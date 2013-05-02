@@ -20,9 +20,10 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.core.scanner;
 
-abstract public class AbstractHostPlugin extends AbstractPlugin {
+public abstract class AbstractHostPlugin extends AbstractPlugin {
 
     @Override
     public void notifyPluginCompleted(HostProcess parent) {

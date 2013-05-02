@@ -22,6 +22,7 @@
 // ZAP: 2012/12/20 Added listener setter for persistentConnectionListenerList.
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/04/14 Issue 608: Rename the method ExtensionHook.addSiteMapListner to addSiteMapListener
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.extension;
 
@@ -77,7 +78,7 @@ public class ExtensionHook {
     }
 
     /**
-     * @Deprecated Replaced by the method {@link #addSiteMapListener(SiteMapListener)}. 
+     * @deprecated Replaced by the method {@link #addSiteMapListener(SiteMapListener)}. 
      * It will be removed in a future release.
      */
     @Deprecated

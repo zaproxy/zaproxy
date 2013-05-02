@@ -22,6 +22,7 @@
 // unnecessary casts.
 // ZAP: 2012/08/31 Added support for AttackStrength
 // ZAP: 2013/02/12 Added variant handling the parameters of OData urls
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.core.scanner;
 
@@ -29,7 +30,7 @@ import java.util.Vector;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
+public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
 
     private Vector<Variant> listVariant = new Vector<>();
@@ -76,7 +77,7 @@ abstract public class AbstractAppParamPlugin extends AbstractAppPlugin {
         }
     }
     
-    abstract public void scan(HttpMessage msg, String param, String value);
+    public abstract void scan(HttpMessage msg, String param, String value);
 
     /**
      * Set the paramter into the current message.  The position will be handled

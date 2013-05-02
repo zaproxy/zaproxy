@@ -20,6 +20,7 @@
 */
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.db;
 
@@ -51,6 +52,6 @@ import java.sql.SQLException;
         return connection;
     }
     
-    abstract protected void reconnect(Connection connection) throws SQLException;
+    protected abstract void reconnect(Connection connection) throws SQLException;
 
 }

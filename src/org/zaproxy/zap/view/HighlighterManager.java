@@ -14,7 +14,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 public class HighlighterManager extends Observable {
 	static HighlighterManager hilighterManager = null;
 	
-	static public HighlighterManager getInstance() {
+	public static HighlighterManager getInstance() {
 		if ( hilighterManager == null) {
 			hilighterManager = new HighlighterManager();
 		}

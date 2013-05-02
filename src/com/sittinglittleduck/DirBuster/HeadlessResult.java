@@ -29,9 +29,9 @@ package com.sittinglittleduck.DirBuster;
 
 public class HeadlessResult 
 {
-    public final static int DIR = 0;
-    public final static int FILE = 1;
-    public final static int ERROR = 2;
+    public static final int DIR = 0;
+    public static final int FILE = 1;
+    public static final int ERROR = 2;
     
     private String found;
     private int responceCode;

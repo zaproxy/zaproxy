@@ -23,6 +23,7 @@
 // to protected to ease inheritance. Created processFilterReplaceDialog() method
 // to ease extensibility and moved code from getFilterReplaceDialog() there.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 package org.parosproxy.paros.extension.filter;
 
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 
-abstract public class FilterAbstractReplace extends FilterAdaptor {
+public abstract class FilterAbstractReplace extends FilterAdaptor {
     
     private FilterReplaceDialog filterReplaceDialog = null;
 	private Pattern pattern = null;

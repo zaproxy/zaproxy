@@ -27,6 +27,7 @@
 // valid version (HttpHeader.HTTP10).
 // ZAP: 2012/11/01 Issue 410: charset wrapped in quotation marks
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.network;
 
@@ -37,7 +38,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 
-abstract public class HttpHeader implements java.io.Serializable{
+public abstract class HttpHeader implements java.io.Serializable{
 
 	private static final long serialVersionUID = 7922279497679304778L;
 
@@ -251,7 +252,7 @@ abstract public class HttpHeader implements java.io.Serializable{
 	 * Set the HTTP version of this header.
 	 * @param version
 	 */
-	abstract public void setVersion(String version);
+	public abstract void setVersion(String version);
 
 	/**
 	 * Get the content length of this header.
@@ -467,7 +468,7 @@ abstract public class HttpHeader implements java.io.Serializable{
      * Get the prime header.
      * @return startline for request, statusline for response.
      */
-    abstract public String getPrimeHeader();
+    public abstract String getPrimeHeader();
 
     /**
      * Get if this is a image header.

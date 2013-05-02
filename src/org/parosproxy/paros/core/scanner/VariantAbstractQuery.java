@@ -22,6 +22,7 @@
 // use the class StringBuilder instead of StringBuffer. Removed unnecessary 
 // castings in the method setParameter. Made a change in the method parse.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 
 package org.parosproxy.paros.core.scanner;
 
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-abstract public class VariantAbstractQuery implements Variant {
+public abstract class VariantAbstractQuery implements Variant {
     
 	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
 
@@ -40,7 +41,7 @@ abstract public class VariantAbstractQuery implements Variant {
         
     }
 
-    abstract protected void buildMessage(HttpMessage msg, String query, boolean escaped);
+    protected abstract void buildMessage(HttpMessage msg, String query, boolean escaped);
     
     /**
      * Return encoded mutate of the value.  To be overridden by subclass.
