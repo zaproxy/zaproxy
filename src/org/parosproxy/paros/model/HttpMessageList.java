@@ -46,7 +46,7 @@ public class HttpMessageList {
         HttpMessage msg = null;
         try {
             msg = list.get(i);
-        } catch (Exception e) {};
+        } catch (Exception e) {}
         return msg;
     }
     

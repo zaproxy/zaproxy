@@ -306,7 +306,7 @@ public abstract class FuzzDialog extends AbstractDialog {
                 List<String> names = fuzzersField.getSelectedValuesList();
                 int size = names.size();
                 try {
-                    Fuzzer [] fuzzers = null;;
+                    Fuzzer [] fuzzers = null;
                     FileFuzzer [] fileFuzzers = null;
                     if (isCustomCategory()) {
                         fileFuzzers = new FileFuzzer[size];

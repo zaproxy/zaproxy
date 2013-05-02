@@ -246,7 +246,7 @@ public class Session extends FileXML {
 			} catch (Exception e) {
             	// ZAP: Log exceptions
             	log.warn(e.getMessage(), e);
-			};
+			}
 			
 		}
 		
@@ -266,7 +266,7 @@ public class Session extends FileXML {
 			} catch (Exception e) {
             	// ZAP: Log exceptions
             	log.warn(e.getMessage(), e);
-			};
+			}
 			
 			
 		}
