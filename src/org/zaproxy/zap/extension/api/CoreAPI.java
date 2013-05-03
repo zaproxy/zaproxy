@@ -41,7 +41,6 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -62,7 +61,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
-import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -584,8 +582,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("reliability", Alert.MSG_RELIABILITY[alert.getReliability()]);
 		map.put("url", alert.getUri());
 		map.put("other", alert.getOtherInfo());
-		map.put("param", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(alert.getParam())));
-		map.put("attack", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(alert.getAttack())));
+		map.put("param", alert.getParam());
+		map.put("attack", alert.getAttack());
 		map.put("reference", alert.getReference());
 		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
@@ -602,11 +600,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private ApiResponseSet httpMessageToSet(HttpMessage msg) {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", String.valueOf(msg.getHistoryRef().getHistoryId()));
-		map.put("cookieParams", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(msg.getCookieParamsAsString())));
+		map.put("cookieParams", msg.getCookieParamsAsString());
 		map.put("note", msg.getNote());
-		map.put("requestHeader", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(msg.getRequestHeader().toString())));
-		map.put("requestBody", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(msg.getRequestBody().toString())));
-		map.put("responseHeader", StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(msg.getResponseHeader().toString())));
+		map.put("requestHeader", msg.getRequestHeader().toString());
+		map.put("requestBody", msg.getRequestBody().toString());
+		map.put("responseHeader", msg.getResponseHeader().toString());
 		
 		if (HttpHeader.GZIP.equals(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
 			// Uncompress gziped content
@@ -624,13 +622,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				isr.close();
 				gis.close();
 				bais.close();
-				map.put("responseBody", StringEscapeUtils.escapeXml(StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(sb.toString()))));
+				map.put("responseBody", sb.toString());
 			} catch (IOException e) {
 				//this.log.error(e.getMessage(), e);
 				System.out.println(e);
 			}
 		} else {
-			map.put("responseBody", StringEscapeUtils.escapeXml(StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(msg.getResponseBody().toString()))));
+			map.put("responseBody", msg.getResponseBody().toString());
 		}
 		
 		return new ApiResponseSet("message", map);

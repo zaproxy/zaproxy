@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -96,7 +97,7 @@ public class ApiResponseSet extends ApiResponse {
 			sb.append("<tr><td>\n");
 			sb.append(val.getKey());
 			sb.append("</td><td>\n");
-			sb.append(val.getValue());
+			sb.append(StringEscapeUtils.escapeHtml(val.getValue()));
 			sb.append("</td></tr>\n");
 		}
 		sb.append("</table>\n");
