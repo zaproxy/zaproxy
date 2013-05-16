@@ -132,10 +132,12 @@ public class API {
 			}
 		}
 		String path = requestHeader.getURI().getPath();
-		for (Entry<String, ApiImplementor> shortcut : shortcuts.entrySet()) {
-			if (path.startsWith(shortcut.getKey())) {
-				shortcutImpl = shortcut.getValue();
-				break;
+		if (path != null) {
+			for (Entry<String, ApiImplementor> shortcut : shortcuts.entrySet()) {
+				if (path.startsWith(shortcut.getKey())) {
+					shortcutImpl = shortcut.getValue();
+					break;
+				}
 			}
 		}
 		
