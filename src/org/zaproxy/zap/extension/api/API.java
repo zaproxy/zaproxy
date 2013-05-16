@@ -240,7 +240,7 @@ public class API {
 							List<String> mandatoryParams = action.getMandatoryParamNames();
 							if (mandatoryParams != null) {
 								for (String param : mandatoryParams) {
-									if (params.getString(param) == null || params.getString(param).length() == 0) {
+									if (!params.has(param) || params.getString(param).length() == 0) {
 										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
 									}
 								}
