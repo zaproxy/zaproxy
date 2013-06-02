@@ -22,6 +22,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Issue 462: SSLSocketFactory with TLS enabled and default Cipher options
+// ZAP: 2013/06/01 Issue 669: Certificate algorithm constraints in Java 1.7
 
 package org.parosproxy.paros.network;
 
@@ -43,10 +44,11 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
@@ -321,7 +323,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	}
 }
 
-class RelaxedX509TrustManager implements X509TrustManager {
+class RelaxedX509TrustManager extends X509ExtendedTrustManager {
 	public boolean checkClientTrusted(java.security.cert.X509Certificate[] chain) {
 		return true;
 	}
@@ -348,4 +350,24 @@ class RelaxedX509TrustManager implements X509TrustManager {
 	public void checkServerTrusted(java.security.cert.X509Certificate[] chain,
 			String authType) {
 	}
+
+    @Override
+    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType, Socket socket)
+            throws CertificateException {
+    }
+
+    @Override
+    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType, Socket socket)
+            throws CertificateException {
+    }
+
+    @Override
+    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType, SSLEngine engine)
+            throws CertificateException {
+    }
+
+    @Override
+    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType, SSLEngine engine)
+            throws CertificateException {
+    }
 }
