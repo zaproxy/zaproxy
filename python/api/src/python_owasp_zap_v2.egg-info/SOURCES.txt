@@ -10,6 +10,7 @@ src/zapv2/auth.py
 src/zapv2/autoupdate.py
 src/zapv2/context.py
 src/zapv2/core.py
+src/zapv2/httpSessions.py
 src/zapv2/params.py
 src/zapv2/pscan.py
 src/zapv2/search.py

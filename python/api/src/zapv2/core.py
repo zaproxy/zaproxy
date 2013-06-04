@@ -135,6 +135,10 @@ class core(object):
         return self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name})
 
     @property
+    def snapshot_session(self):
+        return self.zap._request(self.zap.base + 'core/action/snapshotSession/').get('snapshotSession')
+
+    @property
     def clear_excluded_from_proxy(self):
         return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/').get('clearExcludedFromProxy')
 
@@ -183,5 +187,16 @@ class core(object):
 
     def set_option_single_cookie_request_header(self, boolean):
         return self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean})
+
+    @property
+    def proxy_pac(self):
+        return self.zap._request(self.zap.base + 'core/other/proxy.pac/').get('proxy.pac')
+
+    @property
+    def rootcert(self):
+        return self.zap._request(self.zap.base + 'core/other/rootcert/').get('rootcert')
+
+    def setproxy(self, proxy):
+        return self.zap._request(self.zap.base + 'core/other/setproxy/', {'proxy' : proxy})
 
 

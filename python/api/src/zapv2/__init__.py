@@ -29,6 +29,7 @@ from auth import auth
 from autoupdate import autoupdate
 from context import context
 from core import core
+from httpsessions import httpSessions
 from params import params
 from pscan import pscan
 from search import search
@@ -68,6 +69,7 @@ class ZAPv2(object):
         self.autoupdate = autoupdate(self)
         self.context = context(self)
         self.core = core(self)
+        self.httpsessions = httpSessions(self)
         self.params = params(self)
         self.pscan = pscan(self)
         self.search = search(self)

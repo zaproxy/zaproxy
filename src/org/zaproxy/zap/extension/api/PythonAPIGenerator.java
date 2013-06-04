@@ -74,7 +74,7 @@ public class PythonAPIGenerator {
 		if (! hasParams) {
 			out.write("    @property\n");
 		}
-		out.write("    def " + camelCaseToLcUnderscores(element.getName()) + "(self");
+		out.write("    def " + createFunctionName(element.getName()) + "(self");
 
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
@@ -148,7 +148,7 @@ public class PythonAPIGenerator {
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(HEADER);
-		out.write("class " + camelCaseToLcUnderscores(imp.getPrefix()) + "(object):\n\n");
+		out.write("class " + imp.getPrefix() + "(object):\n\n");
 		out.write("    def __init__(self, zap):\n");
 		out.write("        self.zap = zap\n");
 		out.write("\n");
@@ -166,6 +166,14 @@ public class PythonAPIGenerator {
 		out.close();
 	}
 	
+	private static String createFunctionName(String name) {
+		return removeAllFullStopCharacters(camelCaseToLcUnderscores(name));
+	}
+
+	private static String removeAllFullStopCharacters(String string) {
+		return string.replaceAll("\\.", "");
+	}
+
 	public static String camelCaseToLcUnderscores(String s) {
 		// Ripped off / inspired by http://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
 		return s.replaceAll(
