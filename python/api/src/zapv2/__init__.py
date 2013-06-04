@@ -29,7 +29,7 @@ from auth import auth
 from autoupdate import autoupdate
 from context import context
 from core import core
-from httpsessions import httpSessions
+from httpSessions import httpSessions
 from params import params
 from pscan import pscan
 from search import search
