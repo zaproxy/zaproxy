@@ -113,6 +113,11 @@ public class Spider {
 		return api.callApi("spider", "view", "optionHandleParameters", map);
 	}
 
+	public ApiResponse optionHandleODataParametersVisited() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionHandleODataParametersVisited", map);
+	}
+
 	public ApiResponse scan(String url) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -205,6 +210,13 @@ public class Spider {
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("spider", "action", "setOptionParseRobotsTxt", map);
+	}
+
+	public ApiResponse setOptionHandleODataParametersVisited(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("spider", "action", "setOptionHandleODataParametersVisited", map);
 	}
 
 }

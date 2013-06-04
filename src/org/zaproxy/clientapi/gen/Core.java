@@ -161,6 +161,11 @@ public class Core {
 		return api.callApi("core", "view", "optionPortsForSslTunneling", map);
 	}
 
+	public ApiResponse optionSingleCookieRequestHeader() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionSingleCookieRequestHeader", map);
+	}
+
 	/**
 	 * Shuts down ZAP
 	 */
@@ -188,6 +193,11 @@ public class Core {
 		map = new HashMap<String, String>();
 		map.put("name", name);
 		return api.callApi("core", "action", "saveSession", map);
+	}
+
+	public ApiResponse snapshotSession() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "action", "snapshotSession", map);
 	}
 
 	public ApiResponse clearExcludedFromProxy() throws ClientApiException {
@@ -289,6 +299,30 @@ public class Core {
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionConfirmRemoveAuth", map);
+	}
+
+	public ApiResponse setOptionSingleCookieRequestHeader(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("core", "action", "setOptionSingleCookieRequestHeader", map);
+	}
+
+	public ApiResponse proxypac() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "other", "proxy.pac", map);
+	}
+
+	public ApiResponse rootcert() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "other", "rootcert", map);
+	}
+
+	public ApiResponse setproxy(String proxy) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("proxy", proxy);
+		return api.callApi("core", "other", "setproxy", map);
 	}
 
 }

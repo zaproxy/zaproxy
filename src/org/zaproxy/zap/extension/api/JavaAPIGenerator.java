@@ -78,7 +78,7 @@ public class JavaAPIGenerator {
 			System.out.println("No i18n for: " + descTag);
 		}
 
-		out.write("\tpublic ApiResponse " + element.getName() + "(");
+		out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
 		//out.write("\t\t\t");
 
 		if (element.getMandatoryParamNames() != null) {
@@ -155,6 +155,14 @@ public class JavaAPIGenerator {
 		
 		out.write("\t}\n\n");
 		
+	}
+
+	private static String createMethodName(String name) {
+		return removeAllFullStopCharacters(name);
+	}
+
+	private static String removeAllFullStopCharacters(String string) {
+		return string.replaceAll("\\.", "");
 	}
 
 	private void generateJavaComponent(ApiImplementor imp) throws IOException {
