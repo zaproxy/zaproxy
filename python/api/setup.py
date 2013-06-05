@@ -33,7 +33,7 @@ setup(
 
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        'Development Status :: 6 - Beta',
+        'Development Status :: 4 - Beta',
         'Topic :: Security',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Intended Audience :: Developers',

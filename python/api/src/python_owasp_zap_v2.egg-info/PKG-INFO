@@ -10,7 +10,7 @@ Download-URL: http://code.google.com/p/zaproxy/downloads/list
 Description: OWASP Zed Attack Proxy API v2 python client
 Platform: any
 Classifier: License :: OSI Approved :: Apache Software License
-Classifier: Development Status :: 6 - Beta
+Classifier: Development Status :: 4 - Beta
 Classifier: Topic :: Security
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Classifier: Intended Audience :: Developers
