@@ -60,26 +60,6 @@ public class HttpSessions {
 		return api.callApi("httpSessions", "view", "sessionTokens", map);
 	}
 
-	public ApiResponse optionDefaultTokens() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("httpSessions", "view", "optionDefaultTokens", map);
-	}
-
-	public ApiResponse optionDefaultTokensEnabled() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("httpSessions", "view", "optionDefaultTokensEnabled", map);
-	}
-
-	public ApiResponse optionEnabledProxyOnly() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("httpSessions", "view", "optionEnabledProxyOnly", map);
-	}
-
-	public ApiResponse optionConfirmRemoveDefaultToken() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("httpSessions", "view", "optionConfirmRemoveDefaultToken", map);
-	}
-
 	public ApiResponse createEmptySession(String site) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -143,20 +123,6 @@ public class HttpSessions {
 		map.put("oldSessionName", oldsessionname);
 		map.put("newSessionName", newsessionname);
 		return api.callApi("httpSessions", "action", "renameSession", map);
-	}
-
-	public ApiResponse setOptionEnabledProxyOnly(boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("httpSessions", "action", "setOptionEnabledProxyOnly", map);
-	}
-
-	public ApiResponse setOptionConfirmRemoveDefaultToken(boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("httpSessions", "action", "setOptionConfirmRemoveDefaultToken", map);
 	}
 
 }

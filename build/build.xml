@@ -14,7 +14,7 @@
     <property name="zap.extensions.alpha.src.dir" location="../../zap-extensions-alpha/src/" />
     <property name="zap.extensions.beta.src.dir" location="../../zap-extensions-beta/src/" />
     <property name="zap.extensions.trunk.src.dir" location="../../zap-extensions-trunk/src/" />
-    <property name="zap.java.api.version" value="3" />
+    <property name="zap.java.api.version" value="4" />
 
     <!-- mac specific properties -->
     <property name="dist-mac" location="zap-mac" />

@@ -33,22 +33,6 @@ class httpSessions(object):
     def session_tokens(self, site):
         return self.zap._request(self.zap.base + 'httpSessions/view/sessionTokens/', {'site' : site})
 
-    @property
-    def option_default_tokens(self):
-        return self.zap._request(self.zap.base + 'httpSessions/view/optionDefaultTokens/').get('DefaultTokens')
-
-    @property
-    def option_default_tokens_enabled(self):
-        return self.zap._request(self.zap.base + 'httpSessions/view/optionDefaultTokensEnabled/').get('DefaultTokensEnabled')
-
-    @property
-    def option_enabled_proxy_only(self):
-        return self.zap._request(self.zap.base + 'httpSessions/view/optionEnabledProxyOnly/').get('EnabledProxyOnly')
-
-    @property
-    def option_confirm_remove_default_token(self):
-        return self.zap._request(self.zap.base + 'httpSessions/view/optionConfirmRemoveDefaultToken/').get('ConfirmRemoveDefaultToken')
-
     def create_empty_session(self, site):
         return self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', {'site' : site})
 
@@ -72,11 +56,5 @@ class httpSessions(object):
 
     def rename_session(self, site, oldsessionname, newsessionname):
         return self.zap._request(self.zap.base + 'httpSessions/action/renameSession/', {'site' : site, 'oldSessionName' : oldsessionname, 'newSessionName' : newsessionname})
-
-    def set_option_enabled_proxy_only(self, boolean):
-        return self.zap._request(self.zap.base + 'httpSessions/action/setOptionEnabledProxyOnly/', {'Boolean' : boolean})
-
-    def set_option_confirm_remove_default_token(self, boolean):
-        return self.zap._request(self.zap.base + 'httpSessions/action/setOptionConfirmRemoveDefaultToken/', {'Boolean' : boolean})
 
 
