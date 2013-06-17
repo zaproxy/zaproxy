@@ -37,6 +37,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/11 Issue 621: Handle requests to the proxy URL
 // ZAP: 2013/04/14 Issue 622: Local proxy unable to correctly detect requests to itself
+// ZAP: 2013/06/17 Issue 686: Log HttpException (as error) in the ProxyThread
 
 package org.parosproxy.paros.core.proxy;
 
@@ -202,6 +203,8 @@ class ProxyThread implements Runnable {
 	    	}
 	    } catch (HttpMalformedHeaderException e) {
 	    	log.warn("Malformed Header: ", e);
+		} catch (HttpException e) {
+			log.error(e.getMessage(), e);
 		} catch (IOException e) {
 		    log.debug("IOException: ", e);
 		} finally {
