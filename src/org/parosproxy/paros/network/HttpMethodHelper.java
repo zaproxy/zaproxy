@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer
 // ZAP: 2012/05/04 Changed to use the class ZapGetMethod instead of org.apache.commons.httpclient.methods.GetMethod
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/06/17 Issue 687: Change HTTP response header parser to be less strict
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -33,16 +34,18 @@ import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.TraceMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
+import org.zaproxy.zap.network.ZapDeleteMethod;
+import org.zaproxy.zap.network.ZapHeadMethod;
+import org.zaproxy.zap.network.ZapOptionsMethod;
+import org.zaproxy.zap.network.ZapPostMethod;
+import org.zaproxy.zap.network.ZapPutMethod;
+import org.zaproxy.zap.network.ZapTraceMethod;
 
 public class HttpMethodHelper {
 
@@ -157,17 +160,17 @@ public class HttpMethodHelper {
 			// ZAP: avoid discarding HTTP status code 101 that is used for WebSocket upgrade 
 			httpMethod = new ZapGetMethod();
 		} else if (method.equalsIgnoreCase(POST)) {
-			httpMethod = new PostMethod();
+			httpMethod = new ZapPostMethod();
 		} else if (method.equalsIgnoreCase(DELETE)) {
-			httpMethod = new DeleteMethod();
+			httpMethod = new ZapDeleteMethod();
 		} else if (method.equalsIgnoreCase(PUT)) {
-			httpMethod = new PutMethod();
+			httpMethod = new ZapPutMethod();
 		} else if (method.equalsIgnoreCase(HEAD)) {
-			httpMethod = new HeadMethod();
+			httpMethod = new ZapHeadMethod();
 		} else if (method.equalsIgnoreCase(OPTIONS)) {
-			httpMethod = new OptionsMethod();
+			httpMethod = new ZapOptionsMethod();
 		} else if (method.equalsIgnoreCase(TRACE)) {
-			httpMethod = new TraceMethod(uri.toString());
+			httpMethod = new ZapTraceMethod(uri.toString());
 		} else {
 			httpMethod = new GenericMethod(method);
 		}

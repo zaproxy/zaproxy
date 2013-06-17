@@ -24,15 +24,21 @@
 */
 package org.parosproxy.paros.network;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpConnection;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.util.EncodingUtil;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
  * This class is basing on the HttpClient under Apache licence 2.0
@@ -364,5 +370,22 @@ public class GenericMethod extends EntityEnclosingMethod {
         addParameters(parametersBody);
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <strong>Note:</strong> Malformed HTTP header lines are ignored (instead of throwing an exception).
+     */
+    /*
+     * Implementation copied from HttpMethodBase#readResponseHeaders(HttpState, HttpConnection) but changed to use a custom
+     * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
+     */
+    @Override
+    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException, HttpException {
+        getResponseHeaderGroup().clear();
+
+        Header[] headers = ZapHttpParser.parseHeaders(conn.getResponseInputStream(), getParams().getHttpElementCharset());
+        // Wire logging moved to HttpParser
+        getResponseHeaderGroup().setHeaders(headers);
+    }
 
 }

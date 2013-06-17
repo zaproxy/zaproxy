@@ -30,12 +30,16 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
  * Do not ignore HTTP status code of 101 and keep {@link Socket} &
  * {@link InputStream} open, as 101 states a protocol switch.
  * 
  * Is essential for the WebSockets extension.
+ * <p>
+ * Malformed HTTP response header lines are ignored.
+ * </p>
  */
 public class ZapGetMethod extends GetMethod {
     private static final Log LOG = LogFactory.getLog(ZapGetMethod.class);
@@ -161,5 +165,23 @@ public class ZapGetMethod extends GetMethod {
 		}
 		
 		super.releaseConnection();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * <strong>Note:</strong> Malformed HTTP header lines are ignored (instead of throwing an exception).
+     */
+    /*
+     * Implementation copied from HttpMethodBase#readResponseHeaders(HttpState, HttpConnection) but changed to use a custom
+     * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
+     */
+    @Override
+    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException, HttpException {
+        getResponseHeaderGroup().clear();
+
+        Header[] headers = ZapHttpParser.parseHeaders(conn.getResponseInputStream(), getParams().getHttpElementCharset());
+        // Wire logging moved to HttpParser
+        getResponseHeaderGroup().setHeaders(headers);
     }
 }
