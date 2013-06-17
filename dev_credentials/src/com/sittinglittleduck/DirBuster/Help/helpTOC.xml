@@ -1,0 +1,47 @@
+<!-- 
+ * Copyright 2007 James Fisher
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+-->
+
+<?xml version="1.0" encoding="ISO-8859-1"  ?>
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+            "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+<toc version="1.0">
+<tocitem text="About" image="chapter" >
+    <tocitem text="About DirBuster" target="about" image="topic" />
+    <tocitem text="How DirBuster Works" target="about" image="topic" />
+</tocitem>
+<tocitem text="How to use" image="chapter" >
+    <tocitem text="Basic Useage" target="basic" image="topic" />
+    <tocitem text="Testing For Multiple File Extentions" target="ext" image="topic" />
+    <tocitem text="URL Fuzzing To Find Files" target="item1" image="topic" />
+    <tocitem text="Setting Authentication Credentials" target="auth" image="topic" />
+    <tocitem text="Setting Custom Headers" target="customHeader" image="topic" />
+    <tocitem text="Using Your Own Lists" target="own-list" image="topic" />
+    <tocitem text="During Scanning" image="chapter" >
+        <tocitem text="Telling DirBuster Not To Scan A Dir It Has Found" target="item1" image="topic" />
+        <tocitem text="Viewing Responces" target="item1" image="topic" />
+        <tocitem text="Skipping A The Current Working Dir" target="item1" image="topic" />
+    </tocitem>
+</tocitem>
+<tocitem text="FAQ" image="chapter" >
+    <tocitem text="FAQ" target="FAQ" image="topic" />
+</tocitem>
+<tocitem text="OWASP" image="chapter" >
+    <tocitem text="About OWASP" target="owasp" image="topic" />
+</tocitem>
+</toc>
