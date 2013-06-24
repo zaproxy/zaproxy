@@ -95,6 +95,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_COUNT = "count";
 	private static final String PARAM_DIR = "dir";
 	private static final String PARAM_SESSION = "name";
+	private static final String PARAM_OVERWRITE_SESSION = "overwrite";
 	//private static final String PARAM_CONTEXT = "context";	// TODO need to support context methods for this!
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
@@ -106,9 +107,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	public CoreAPI() {
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
-		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
-		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}, new String[] {PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
@@ -182,7 +183,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				file = new File(filename);
 			} 
 			
-			if (file.exists()) {
+			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
+			
+			boolean sameSession = false;
+			if (!session.isNewState()) {
+				final File fileCurrentSession = new File(session.getFileName());
+				sameSession = fileCurrentSession.getAbsolutePath().equals(file.getAbsolutePath());
+			}
+			
+			if (file.exists() && (!overwrite || sameSession)) {
 				throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 						filename);
 			}
@@ -293,7 +302,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					file = new File(filename);
 				} 
 				
-				if (file.exists()) {
+				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
+				
+				if (file.exists() && !overwrite) {
 					throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 							filename);
 				}
