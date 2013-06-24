@@ -210,9 +210,9 @@ public class WebUI {
 					sb.append(Constant.messages.getString("api.html.format"));
 					sb.append("</td><td>\n");
 					sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
-					sb.append("<option>JSON</option>\n");
-					sb.append("<option>HTML</option>\n");
-					sb.append("<option>XML</option>\n");
+					sb.append("<option value=\"JSON\">JSON</option>\n");
+					sb.append("<option value=\"HTML\">HTML</option>\n");
+					sb.append("<option value=\"XML\">XML</option>\n");
 					sb.append("</select>\n");
 					sb.append("</td></tr>\n");
 				}
