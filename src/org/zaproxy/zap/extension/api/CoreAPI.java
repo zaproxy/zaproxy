@@ -46,6 +46,7 @@ import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
@@ -433,8 +434,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			JSONObject params) throws ApiException {
 
 		if (OTHER_PROXY_PAC.equals(name)) {
+			final ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+			final String domain = proxyParam.getProxyIp();
+			final int port = proxyParam.getProxyPort();
 			try {
-				String response = this.getPacFile(msg.getRequestHeader().getURI().getHost(), msg.getRequestHeader().getURI().getPort());
+				String response = this.getPacFile(domain, port);
 				msg.setResponseHeader(
 						"HTTP/1.1 200 OK\r\n" +
 						"Pragma: no-cache\r\n" +
@@ -558,9 +562,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private String getPacFile(String host, int port) {
 		// Could put in 'ignore urls'?
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(100);
 		sb.append("function FindProxyForURL(url, host) {\n");
-		sb.append("  return \"PROXY " + host + ":" + port + "\";\n");
+		sb.append("  return \"PROXY ").append(host).append(':').append(port).append("\";\n");
 		sb.append("} // End of function\n");
 		
 		return sb.toString();
