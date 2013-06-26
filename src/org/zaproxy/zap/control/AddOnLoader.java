@@ -91,8 +91,7 @@ public class AddOnLoader extends URLClassLoader {
         this.aoc = new AddOnCollection(dirs);
         
         for (AddOn ao : this.aoc.getAddOns()) {
-        	// Add, unless its on the block list
-        	if ( ! this.blockList.contains(ao.getId())) {
+        	if (canLoadAddOn(ao)) {
         		this.addAddOnFile(ao);
         	}
         }
@@ -115,7 +114,27 @@ public class AddOnLoader extends URLClassLoader {
 			}
     	}
     }
-    
+
+    private boolean canLoadAddOn(AddOn ao) {
+        if (blockList.contains(ao.getId())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Can't load add-on " + ao.getName()
+                        + " it's on the block list (add-on uninstalled but the file couldn't be removed).");
+            }
+            return false;
+        }
+
+        if (!ao.canLoad()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Can't load add-on " + ao.getName() + " because of ZAP version constraints; Not before="
+                        + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + " Current Version="
+                        + Constant.PROGRAM_VERSION);
+            }
+            return false;
+        }
+        return true;
+    }
+
     private void addAddOnFile(AddOn ao) {
     	try {
 			this.addOnLoaders.put(ao.getId(), new URLClassLoader(new URL[]{ao.getFile().toURI().toURL()}));
