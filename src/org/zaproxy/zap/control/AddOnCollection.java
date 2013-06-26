@@ -142,6 +142,7 @@ public class AddOnCollection {
                                                 + " Not from=" + ao.getNotFromVersion() + " Current Version="
                                                 + Constant.PROGRAM_VERSION);
                                     }
+                                    add = false;
                                 }
 		            		} else {
 		            			// Same or older version, dont include
