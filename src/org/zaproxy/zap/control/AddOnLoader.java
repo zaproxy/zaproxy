@@ -37,6 +37,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -90,10 +91,13 @@ public class AddOnLoader extends URLClassLoader {
 
         this.aoc = new AddOnCollection(dirs);
         
-        for (AddOn ao : this.aoc.getAddOns()) {
-        	if (canLoadAddOn(ao)) {
-        		this.addAddOnFile(ao);
-        	}
+        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
+            AddOn addOn = iterator.next();
+            if (canLoadAddOn(addOn)) {
+                this.addAddOnFile(addOn);
+            } else {
+                iterator.remove();
+            }
         }
 
         if (dirs != null) {
