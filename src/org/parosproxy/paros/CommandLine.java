@@ -163,7 +163,7 @@ public class CommandLine {
 	    
 	    // check if there is some unknown keywords
 	    for (int i=0; i<args.length; i++) {
-	        if (args[i] != null && ! args[i].equals("org.zaproxy.zap.ZAP")) {
+	        if (args[i] != null) {
                 throw new Exception("Unknown options: " + args[i]);	            
 	        }
 	    }
