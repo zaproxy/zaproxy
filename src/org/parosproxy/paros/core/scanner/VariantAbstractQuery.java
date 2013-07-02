@@ -23,19 +23,21 @@
 // castings in the method setParameter. Made a change in the method parse.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2013/07/02 Changed Vector to ArrayList because obsolete and faster
 
 package org.parosproxy.paros.core.scanner;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class VariantAbstractQuery implements Variant {
     
-	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
+    private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
 
-    private Vector<NameValuePair> listParam = new Vector<>();
+    private List<NameValuePair> listParam = new ArrayList<>();
     
     public VariantAbstractQuery() {
         
@@ -83,8 +85,12 @@ public abstract class VariantAbstractQuery implements Variant {
 		
     }
     
+    /**
+     * 
+     * @return 
+     */
     @Override
-    public Vector<NameValuePair> getParamList() {
+    public List<NameValuePair> getParamList() {
         return listParam;
     }
 

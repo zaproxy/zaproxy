@@ -18,17 +18,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2013/07/02 Changed Vector to generic List
+// ZAP: 2013/07/02 Changed API to public for future extensible Variant model
 package org.parosproxy.paros.core.scanner;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface Variant {
 
-    void setMessage(HttpMessage msg);
-    Vector<NameValuePair> getParamList();
-    String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
-    String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
+    public void setMessage(HttpMessage msg);
+    public List<NameValuePair> getParamList();
+    public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
+    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value);
     
 }
