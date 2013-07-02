@@ -126,7 +126,7 @@ public final class URLCanonicalizer {
 			 * Normalize: no empty segments (i.e., "//"), no segments equal to ".", and no segments equal to
 			 * ".." that are preceded by a segment not equal to "..".
 			 */
-			String path = canonicalURI.normalize().getPath();
+			String path = canonicalURI.normalize().getRawPath();
 
 			/* Convert '//' -> '/' */
 			int idx = path.indexOf("//");
