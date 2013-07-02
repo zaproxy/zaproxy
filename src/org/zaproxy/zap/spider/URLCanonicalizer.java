@@ -62,26 +62,25 @@ public final class URLCanonicalizer {
 		IRRELEVANT_PARAMETERS.add("aspsessionid");
 	}
 	
-	
 	/** 
 	 *	OData support
 	 *	Extract the ID of a resource including the surrounding quote
 	 *  First group is the resource_name
 	 *  Second group is the ID (quote will be taken as part of the value)
 	 */
-	private static final Pattern patternResourceIdentifierUnquoted  = Pattern.compile("/(\\w*)\\(([\\w']*)\\)");
+	private static final Pattern patternResourceIdentifierUnquoted  = Pattern.compile("/([\\w%]*)\\(([\\w']*)\\)");
 
 	/** 
 	 * OData support
 	 * Detect a section containing a composite IDs 
 	 */
-	private static final Pattern patternResourceMultipleIdentifier  = Pattern.compile("/\\w*\\((.*)\\)");
+	private static final Pattern patternResourceMultipleIdentifier  = Pattern.compile("/[\\w%]*\\((.*)\\)");
 
 	/** 
 	 * OData support
 	 * Extract the detail of the multiples IDs
 	 */
-	private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("(\\w*)=([\\w']*)");
+	private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("([\\w%]*)=([\\w']*)");
 
 	
 	/**
@@ -206,66 +205,20 @@ public final class URLCanonicalizer {
 
 		// If the option is set to ignore parameters completely, ignore the query completely
 		if (handleParameters.equals(HandleParametersOption.IGNORE_COMPLETELY)) {
-			StringBuilder retVal = new StringBuilder();
-			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
-			if (uri.getPort() != -1) {
-				retVal.append(':').append(uri.getPort());
-			}
-			if (uri.getPath() != null) {
-				
-				String cleanedPath;
-				if (handleODataParametersVisited){
-					String path = uri.getPath();
-					cleanedPath = cleanODataPath(path,handleParameters);
-				} else {
-					cleanedPath = uri.getPath();
-				}
-
-				retVal.append(cleanedPath);
-			}
-			return retVal.toString();
+			return createBaseUriWithCleanedPath(uri, handleParameters, handleODataParametersVisited);
 		}
 
 		// If the option is set to ignore the value, we get the parameters and we only add their name to the
 		// query
 		if (handleParameters.equals(HandleParametersOption.IGNORE_VALUE)) {
-			StringBuilder retVal = new StringBuilder();
-			retVal.append(uri.getScheme()).append("://").append(uri.getHost());
-			if (uri.getPort() != -1) {
-				retVal.append(':').append(uri.getPort());
-			}
-			if (uri.getPath() != null) {
-				
-				String cleanedPath;
-				if (handleODataParametersVisited){
-					String path = uri.getPath();
-					cleanedPath = cleanODataPath(path,handleParameters);
-				} else {
-					cleanedPath = uri.getPath();
-				}
-								
-				retVal.append(cleanedPath);
-
-			}
-
-			// Get the parameters' names
-			SortedMap<String, String> params = createParameterMap(uri.getQuery());
-			StringBuilder sb = new StringBuilder();
-			if (params != null && !params.isEmpty()) {
-				for (String key : params.keySet()) {
-					// Ignore irrelevant parameters
-					if (IRRELEVANT_PARAMETERS.contains(key) || key.startsWith("utm_")) {
-						continue;
-					}
-					if (sb.length() > 0) {
-						sb.append('&');
-					}
-					sb.append(key);
-				}
-			}
+			StringBuilder retVal = new StringBuilder(
+					createBaseUriWithCleanedPath(uri, handleParameters, handleODataParametersVisited));
+			
+			String cleanedQuery = getCleanedQuery(uri.getEscapedQuery());
+			
 			// Add the parameters' names to the uri representation. 
-			if(sb.length()>0) {
-				retVal.append("?").append(sb);
+			if(cleanedQuery.length()>0) {
+				retVal.append('?').append(cleanedQuery);
 			}
 
 			return retVal.toString();
@@ -274,6 +227,64 @@ public final class URLCanonicalizer {
 		// Should not be reached
 		return uri.toString();
 	}
+
+    private static String createBaseUriWithCleanedPath(
+            org.apache.commons.httpclient.URI uri,
+            HandleParametersOption handleParameters,
+            boolean handleODataParametersVisited) throws URIException {
+        StringBuilder uriBuilder = new StringBuilder(createBaseUri(uri));
+
+        uriBuilder.append(getCleanedPath(uri.getEscapedPath(), handleParameters, handleODataParametersVisited));
+
+        return uriBuilder.toString();
+    }
+
+    private static String createBaseUri(org.apache.commons.httpclient.URI uri) throws URIException {
+        StringBuilder baseUriBuilder = new StringBuilder();
+        baseUriBuilder.append(uri.getScheme()).append("://").append(uri.getHost());
+        if (uri.getPort() != -1) {
+            baseUriBuilder.append(':').append(uri.getPort());
+        }
+        return baseUriBuilder.toString();
+    }
+
+    private static String getCleanedPath(
+            String escapedPath,
+            HandleParametersOption handleParameters,
+            boolean handleODataParametersVisited) {
+        if (escapedPath == null) {
+            return "";
+        }
+
+        String cleanedPath;
+        if (handleODataParametersVisited) {
+            cleanedPath = cleanODataPath(escapedPath, handleParameters);
+        } else {
+            cleanedPath = escapedPath;
+        }
+
+        return cleanedPath;
+    }
+
+    private static String getCleanedQuery(String escapedQuery) {
+        // Get the parameters' names
+        SortedMap<String, String> params = createParameterMap(escapedQuery);
+        StringBuilder cleanedQueryBuilder = new StringBuilder();
+        if (params != null && !params.isEmpty()) {
+            for (String key : params.keySet()) {
+                // Ignore irrelevant parameters
+                if (IRRELEVANT_PARAMETERS.contains(key) || key.startsWith("utm_")) {
+                    continue;
+                }
+                if (cleanedQueryBuilder.length() > 0) {
+                    cleanedQueryBuilder.append('&');
+                }
+                cleanedQueryBuilder.append(key);
+            }
+        }
+
+        return cleanedQueryBuilder.toString();
+    }
 
 	/**
 	 * Clean the path in the case of an OData Uri containing a resource identifier (simple or multiple)
