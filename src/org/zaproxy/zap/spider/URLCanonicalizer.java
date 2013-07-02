@@ -25,8 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -144,7 +142,7 @@ public final class URLCanonicalizer {
 			path = path.trim();
 
 			/* Process parameters and sort them. */
-			final SortedMap<String, String> params = createParameterMap(canonicalURI.getQuery());
+			final SortedMap<String, String> params = createParameterMap(canonicalURI.getRawQuery());
 			final String queryString;
 			String canonicalParams = canonicalize(params);
 			queryString = (canonicalParams.isEmpty() ? "" : "?" + canonicalParams);
@@ -422,31 +420,13 @@ public final class URLCanonicalizer {
 			if (sb.length() > 0) {
 				sb.append('&');
 			}
-			sb.append(percentEncodeRfc3986(pair.getKey()));
+			sb.append(pair.getKey());
 			if (!pair.getValue().isEmpty()) {
 				sb.append('=');
-				sb.append(percentEncodeRfc3986(pair.getValue()));
+				sb.append(pair.getValue());
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Percent-encode values according the RFC 3986. The built-in Java URLEncoder does not encode according to
-	 * the RFC, so we make the extra replacements.
-	 * 
-	 * @param string Decoded string.
-	 * @return Encoded string per RFC 3986.
-	 */
-	private static String percentEncodeRfc3986(String string) {
-		try {
-			string = string.replace("+", "%2B");
-			string = URLDecoder.decode(string, "UTF-8");
-			string = URLEncoder.encode(string, "UTF-8");
-			return string.replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-		} catch (Exception e) {
-			return string;
-		}
 	}
 
 	/**
