@@ -24,10 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -40,6 +43,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -63,8 +67,8 @@ import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  * </p>
  * 
  */
-public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, SiteMapListener,
-		HttpSenderListener {
+public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener,
+		SiteMapListener, HttpSenderListener {
 
 	/** The Constant NAME. */
 	public static final String NAME = "ExtensionHttpSessions";
@@ -488,6 +492,29 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	@Override
 	public void sessionModeChanged(Mode mode) {
+	}
+
+	/**
+	 * Builds and returns a list of http sessions that correspond to a given context.
+	 * 
+	 * @param context the context
+	 * @return the http sessions for context
+	 */
+	public List<HttpSession> getHttpSessionsForContext(Context context) {
+		List<HttpSession> sessions = new LinkedList<HttpSession>();
+		if (this.sessions == null)
+			return sessions;
+
+		for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
+			String siteName = e.getKey();
+			siteName = siteName.substring(0, siteName.lastIndexOf(":"));
+			siteName = "http://" + siteName;
+			log.debug(siteName);
+			if (context.isInContext(siteName))
+				sessions.addAll(e.getValue().getHttpSessions());
+		}
+
+		return sessions;
 	}
 
 	@Override
