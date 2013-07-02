@@ -37,117 +37,129 @@ import org.parosproxy.paros.Constant;
 
 public abstract class AbstractFormDialog extends JDialog {
 
-    private static final long serialVersionUID = -3345423228612477780L;
+	private static final long serialVersionUID = -3345423228612477780L;
 
-    private static final String CANCEL_BUTTON_LABEL = Constant.messages.getString("form.dialog.button.cancel");
-    
-    private JButton confirmButton ;
-    private JButton cancelButton;
-    
-    private boolean firstTime;
-    
-    public AbstractFormDialog(Dialog owner, String title) {
-        super(owner, title, true);
-        
-        firstTime = true;
-        
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
-        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        buttonsPanel.add(Box.createHorizontalGlue());
-        buttonsPanel.add(getCancelButton());
-        buttonsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        buttonsPanel.add(getConfirmButton());
+	private static final String CANCEL_BUTTON_LABEL = Constant.messages
+			.getString("form.dialog.button.cancel");
 
-        JPanel panel = new JPanel(new BorderLayout());
-        
-        panel.add(getFieldsPanel(), BorderLayout.CENTER);
-        panel.add(buttonsPanel, BorderLayout.PAGE_END);
+	private JButton confirmButton;
+	private JButton cancelButton;
 
-        this.setContentPane(panel);
-    }
-    
-    private JButton getConfirmButton() {
-        if (confirmButton == null) {
-            confirmButton = new JButton(getConfirmButtonLabel());
-            confirmButton.setEnabled(false);
-            
-            confirmButton.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (validateFields()) {
-                        performAction();
-                        clearAndHide();
-                    }
-                }
-            });
-        }
-        return confirmButton;
-    }
+	private boolean firstTime;
 
-    private JButton getCancelButton() {
-        if (cancelButton == null) {
-            cancelButton = new JButton(getCancelButtonLabel());
-            cancelButton.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    clearAndHide();
-                }
-            });
-        }
-        return cancelButton;
-    }
-    
-    protected abstract JPanel getFieldsPanel();
-    
-    @Override
-    public void setVisible(boolean b) {
-        init();
+	public AbstractFormDialog(Dialog owner, String title) {
+		super(owner, title, true);
 
-        if (firstTime) {
-            centreOnOwner();
-            firstTime = false;
-        }
-        
-        super.setVisible(b);
-    }
-    
-    private void clearAndHide() {
-        clearFields();
-        dispose();
-    }
-    
-    protected abstract String getConfirmButtonLabel();
-    
-    protected String getCancelButtonLabel() {
-        return CANCEL_BUTTON_LABEL;
-    }
-    
-    protected void setConfirmButtonEnabled(boolean enabled) {
-        getConfirmButton().setEnabled(enabled);
-    }
-    
-    protected void init() {
-    }
-    
-    protected boolean validateFields() {
-        return true;
-    }
-    
-    protected void performAction() {
-    }
+		firstTime = true;
+		initView();
+	}
 
-    protected void clearFields() {
-    }
-    
-    private void centreOnOwner() {
-        Dimension frameSize = this.getSize();
-        Rectangle mainrect = getOwner().getBounds();
-        int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
-        int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
-        this.setLocation(x, y);
-    }
+	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
+		super(owner, title, true);
+
+		firstTime = true;
+		if (initView)
+			initView();
+	}
+
+	protected void initView() {
+		JPanel buttonsPanel = new JPanel();
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
+		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		buttonsPanel.add(Box.createHorizontalGlue());
+		buttonsPanel.add(getCancelButton());
+		buttonsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+		buttonsPanel.add(getConfirmButton());
+
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.add(getFieldsPanel(), BorderLayout.CENTER);
+		panel.add(buttonsPanel, BorderLayout.PAGE_END);
+
+		this.setContentPane(panel);
+	}
+
+	private JButton getConfirmButton() {
+		if (confirmButton == null) {
+			confirmButton = new JButton(getConfirmButtonLabel());
+			confirmButton.setEnabled(false);
+
+			confirmButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (validateFields()) {
+						performAction();
+						clearAndHide();
+					}
+				}
+			});
+		}
+		return confirmButton;
+	}
+
+	private JButton getCancelButton() {
+		if (cancelButton == null) {
+			cancelButton = new JButton(getCancelButtonLabel());
+			cancelButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					clearAndHide();
+				}
+			});
+		}
+		return cancelButton;
+	}
+
+	protected abstract JPanel getFieldsPanel();
+
+	@Override
+	public void setVisible(boolean b) {
+		init();
+
+		if (firstTime) {
+			centreOnOwner();
+			firstTime = false;
+		}
+
+		super.setVisible(b);
+	}
+
+	private void clearAndHide() {
+		clearFields();
+		dispose();
+	}
+
+	protected abstract String getConfirmButtonLabel();
+
+	protected String getCancelButtonLabel() {
+		return CANCEL_BUTTON_LABEL;
+	}
+
+	protected void setConfirmButtonEnabled(boolean enabled) {
+		getConfirmButton().setEnabled(enabled);
+	}
+
+	protected void init() {
+	}
+
+	protected boolean validateFields() {
+		return true;
+	}
+
+	protected void performAction() {
+	}
+
+	protected void clearFields() {
+	}
+
+	private void centreOnOwner() {
+		Dimension frameSize = this.getSize();
+		Rectangle mainrect = getOwner().getBounds();
+		int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
+		int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
+		this.setLocation(x, y);
+	}
 
 }

@@ -98,6 +98,7 @@ public class Context {
 			url = url.substring(0, url.indexOf("?"));
 		}
 		for (Pattern p : this.includeInPatterns) {
+			log.info(url+" vs "+p.pattern());
 			if (p.matcher(url).matches()) {
 				return true;
 			}
