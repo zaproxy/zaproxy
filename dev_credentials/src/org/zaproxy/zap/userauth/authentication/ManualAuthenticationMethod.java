@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package org.zaproxy.zap.userauth.authentication;
 
 import java.awt.Component;
@@ -19,6 +22,10 @@ import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/**
+ * The implementation for an {@link AuthenticationMethod} where the user manually authenticates and
+ * then just selects an already authenticated {@link HttpSession}.
+ */
 public class ManualAuthenticationMethod implements AuthenticationMethod {
 
 	private HttpSession selectedSession;
@@ -28,10 +35,14 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 		return "Manual-Authentication-Method";
 	}
 
+	@Override
 	public HttpSession authenticate() {
 		return selectedSession;
 	}
 
+	/**
+	 * A factory for creating ManualAuthenticationMethod objects.
+	 */
 	public static class ManualAuthenticationMethodFactory extends
 			AuthenticationMethodFactory<ManualAuthenticationMethod> {
 
@@ -54,6 +65,9 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 		}
 	}
 
+	/**
+	 * The option panel for configuring ManualAuthenticationMethod objects.
+	 */
 	public static class ManualAuthenticationMethodOptionsPanel extends
 			AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> {
 
@@ -88,6 +102,9 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 			getMethod().selectedSession = (HttpSession) getSessionsComboBox().getSelectedItem();
 		}
 
+		/**
+		 * Initialize the panel.
+		 */
 		protected void initialize() {
 			log.debug("Initializing options panel for context: " + context);
 
@@ -102,22 +119,21 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 			getSessionsComboBox().setRenderer(new HttpSessionRenderer());
 		}
 
+		/**
+		 * A renderer for properly displaying the name of an HttpSession in a ComboBox.
+		 */
 		class HttpSessionRenderer extends BasicComboBoxRenderer {
-
-			/** The Constant serialVersionUID. */
 			private static final long serialVersionUID = 3654541772447187317L;
 
 			public Component getListCellRendererComponent(JList list, Object value, int index,
 					boolean isSelected, boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
 				if (value != null) {
 					HttpSession item = (HttpSession) value;
 					setText(item.getName());
 				}
 				return this;
 			}
-
 		}
 
 		private JComboBox<HttpSession> getSessionsComboBox() {
