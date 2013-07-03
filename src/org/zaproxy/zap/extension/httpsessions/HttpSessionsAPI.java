@@ -186,6 +186,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (sessionSST == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
 			}
+			extension.addHttpSessionToken(params.getString(ACTION_PARAM_SITE), params.getString(ACTION_PARAM_TOKEN_NAME));
 			sessionSST.setTokenValue(params.getString(ACTION_PARAM_TOKEN_NAME),
 					params.getString(ACTION_PARAM_TOKEN_VALUE));
 			return ApiResponseElement.OK;
