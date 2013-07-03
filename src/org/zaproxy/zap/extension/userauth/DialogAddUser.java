@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2013 The ZAP Development Team
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.userauth;
 
 import java.awt.BorderLayout;
@@ -25,12 +44,14 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.UserAuthManager;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
-import org.zaproxy.zap.userauth.authentication.ManualAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/**
+ * The Dialog used for adding a new user.
+ */
 public class DialogAddUser extends AbstractFormDialog {
 
 	private static final Logger log = Logger.getLogger(DialogAddUser.class);
@@ -53,6 +74,7 @@ public class DialogAddUser extends AbstractFormDialog {
 	protected void performAction() {
 		user = new User(this.contextId, nameTextField.getText());
 		user.setEnabled(enabledCheckBox.isEnabled());
+		// TODO: Save authentication method and session management method
 	}
 
 	@Override
@@ -216,8 +238,10 @@ public class DialogAddUser extends AbstractFormDialog {
 					checkValidAndEnableConfirmButton();
 					if (e.getStateChange() == ItemEvent.SELECTED) {
 						log.debug("Selected new Sesion Management method: " + e.getItem());
-						SessionManagementMethodFactory<?> factory = (SessionManagementMethodFactory<?>) e
-								.getItem();
+						// SessionManagementMethodFactory<?> factory =
+						// (SessionManagementMethodFactory<?>) e
+						// .getItem();
+						// TODO: Handle cases with session management method with config panels
 					}
 				}
 			});
@@ -242,6 +266,7 @@ public class DialogAddUser extends AbstractFormDialog {
 						log.debug("Selected new Authentication method: " + e.getItem());
 						getAuthenticationMethodStatusPanel().setVisible(true);
 						DialogAddUser.this.pack();
+						// TODO: Handle cases with authentication methods without config panels
 					}
 				}
 			});
