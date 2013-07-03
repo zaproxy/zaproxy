@@ -18,12 +18,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed
-// unnecessary casts.
+// ZAP: 2012/04/25 Added @Override annotation to the appropriate method and removed unnecessary casts.
 // ZAP: 2012/08/31 Added support for AttackStrength
 // ZAP: 2013/02/12 Added variant handling the parameters of OData urls
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-// ZAP: 2013/07/02 Changed Vector to generic List
+// ZAP: 2013/07/02 Changed Vector to generic List and added new varaints for GWT, JSON and Headers
+// ZAP: 2013/07/03 Added variant handling attributes and data contained in XML requests 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,6 +43,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         listVariant.add(new VariantFormQuery());
         listVariant.add(new VariantMultipartFormQuery());
         listVariant.add(new VariantGWTQuery());
+        listVariant.add(new VariantXMLQuery());
         listVariant.add(new VariantJSONQuery());
         listVariant.add(new VariantHeader());
         // Currently usual plugins seems not 

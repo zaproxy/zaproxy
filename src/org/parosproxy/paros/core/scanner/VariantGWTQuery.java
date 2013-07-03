@@ -45,11 +45,12 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
 
     /**
      * 
+     * @param contentType
      * @return 
      */
     @Override
-    public String getContentTypeValue() {
-        return GWT_RPC_CONTENT_TYPE;
+    public boolean isValidContentType(String contentType) {
+        return contentType.startsWith(GWT_RPC_CONTENT_TYPE);
     }
 
     /**
@@ -111,7 +112,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
             if (parameterTypes[i].startsWith("java.lang.String")) {
                 int idx = Integer.parseInt(strIndex);
                 if (idx > 0) {
-                    addParameter(String.valueOf(i), stringTableIndices[idx - 1], stringTableIndices[idx] - 1);
+                    addParameter(String.valueOf(i), stringTableIndices[idx - 1], stringTableIndices[idx] - 1, false);
                 }
             }
         }        
@@ -120,12 +121,12 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
     /**
      * 
      * @param value
-     * @param type
+     * @param toQuote
      * @param escaped
      * @return 
      */
     @Override
-    public String encodeParameter(String value, int type, boolean escaped) {
+    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
         return value;
     }
     

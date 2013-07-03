@@ -22,6 +22,8 @@
 
 package org.parosproxy.paros.core.scanner;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 /**
  *
  * @author andy
@@ -42,11 +44,12 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     /**
      * 
+     * @param contentType
      * @return 
      */
     @Override
-    public String getContentTypeValue() {
-        return JSON_RPC_CONTENT_TYPE;
+    public boolean isValidContentType(String contentType) {
+        return contentType.startsWith(JSON_RPC_CONTENT_TYPE);
     }
 
     /**
@@ -62,18 +65,14 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     /**
      * 
      * @param value
-     * @param type
+     * @param toQuote
      * @param escaped
      * @return 
      */
     @Override
-    public String encodeParameter(String value, int type, boolean escaped) {
-        value = value.replaceAll("\"", "\\\"");
-        
-        if (type == RPCParameter.TYPE_NUMERIC)
-                value = VariantJSONQuery.QUOTATION_MARK + value + VariantJSONQuery.QUOTATION_MARK;
-                
-        return value;
+    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
+        String result = StringEscapeUtils.escapeJava(value);
+        return (toQuote) ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK : result;
     }
 
     // --------------------------------------------------------------------
@@ -199,7 +198,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             
             // Now we have the string object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition());
+            addParameter(fieldName, beginToken, sr.getPosition(), false);
             
         // check if the value is a number
         } else if (Character.isDigit(chr) || chr == '-') {
@@ -219,7 +218,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             sr.unreadLastCharacter();
             // Now we have the int object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition());            
+            addParameter(fieldName, beginToken, sr.getPosition(), true);            
             
         } else if (chr == BEGIN_OBJECT) {
             sr.unreadLastCharacter();

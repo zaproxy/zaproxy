@@ -17,8 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/01 Added Content-type checking at setMessage level
-// ZAP: 2013/07/01 Added encoding abstract function to manage character escape or integer values
+// ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
 
 package org.parosproxy.paros.core.scanner;
 
@@ -28,7 +27,8 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- *
+ * Abstract class for HTTP RPC request handling
+ * 
  * @author andy
  */
 public abstract class VariantAbstractRPCQuery implements Variant {
@@ -42,7 +42,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         // First check if it's a gwt rpc form data request
         // Otherwise give back an empty param list
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        if (contentType != null && contentType.startsWith(getContentTypeValue())) {
+        if (contentType != null && isValidContentType(contentType)) {
             requestContent = msg.getRequestBody().toString(); 
             parseContent(requestContent);
 
@@ -57,14 +57,16 @@ public abstract class VariantAbstractRPCQuery implements Variant {
      * 
      * @param name
      * @param beginOffset
-     * @param endOffset 
+     * @param endOffset
+     * @param quote
      */
-    public void addParameter(String name, int beginOffset, int endOffset) {
+    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote) {
         RPCParameter param = new RPCParameter();
         param.setName(name);
         param.setValue(requestContent.substring(beginOffset, endOffset));
         param.setBeginOffset(beginOffset);
         param.setEndOffset(endOffset);
+        param.setToQuote(toQuote);
         listParam.add(param);
     }
 
@@ -124,7 +126,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
-        sb.append(encodeParameter(value, param.getType(), escaped));
+        sb.append(encodeParameter(value, param.isToQuote(), escaped));
         sb.append(requestContent.substring(param.getEndOffset()));
         
         String query = sb.toString();
@@ -134,9 +136,10 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
     /**
      * 
+     * @param contentType
      * @return 
      */
-    public abstract String getContentTypeValue();
+    public abstract boolean isValidContentType(String contentType);
 
     /**
      * 
@@ -147,26 +150,21 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     /**
      * 
      * @param value
-     * @param type
+     * @param toQuote
      * @param escaped
      * @return 
      */
-    public abstract String encodeParameter(String value, int type, boolean escaped);
+    public abstract String encodeParameter(String value, boolean toQuote, boolean escaped);
     
     /**
      * Inner support class
      */
-    protected class RPCParameter {
-        
-        protected static final int TYPE_NUMERIC = 0;
-        protected static final int TYPE_STRING = 1;
-        protected static final int TYPE_OBJECT = 2;        
-        
+    protected class RPCParameter {                
         private String name;
         private String value;
         private int beginOffset;
         private int endOffset;
-        private int type;
+        private boolean toQuote;
 
         public String getName() {
             return name;
@@ -200,12 +198,12 @@ public abstract class VariantAbstractRPCQuery implements Variant {
             this.endOffset = endOffset;
         }
 
-        public int getType() {
-            return type;
+        public boolean isToQuote() {
+            return toQuote;
         }
 
-        public void setType(int type) {
-            this.type = type;
+        public void setToQuote(boolean toQuote) {
+            this.toQuote = toQuote;
         }        
     }
 }
