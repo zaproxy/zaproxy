@@ -256,7 +256,7 @@ public class BreakPanelToolbarFactory {
 		isBreakResponse = brk;
 		resetRequestSerialization(false);
 
-		updateBreakRequestBtn();
+		updateBreakResponseBtn();
 	}
 
 	private void toggleBreakRequest() {
