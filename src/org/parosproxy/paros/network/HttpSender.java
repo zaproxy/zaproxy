@@ -31,6 +31,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
+// ZAP: 2013/07/10 Issue 720: Cannot send non standard http methods 
 
 package org.parosproxy.paros.network;
 
@@ -373,7 +374,10 @@ public class HttpSender {
 		// no more retry
 		modifyUserAgent(msg);
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
-        method.setFollowRedirects(isFollowRedirect);
+        if (! (method instanceof GenericMethod)) {
+        	// cant do this for Generic methods - it will fail
+        	method.setFollowRedirects(isFollowRedirect);
+        }
         this.executeMethod(method);
         if (allowState) {
             if (param.isHttpStateEnabled()) {
