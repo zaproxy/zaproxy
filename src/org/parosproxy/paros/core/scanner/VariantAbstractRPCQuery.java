@@ -18,10 +18,12 @@
  * limitations under the License. 
  */
 // ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
+// ZAP: 2013/07/10 Added some features and method encapsulation
 
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -43,8 +45,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         // Otherwise give back an empty param list
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         if (contentType != null && isValidContentType(contentType)) {
-            requestContent = msg.getRequestBody().toString(); 
-            parseContent(requestContent);
+            setRequestContent(msg.getRequestBody().toString());
 
             for (int i = 0; i < listParam.size(); i++) {
                 RPCParameter param = listParam.get(i);
@@ -136,6 +137,42 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
     /**
      * 
+     * @param requestContent 
+     */
+    protected void setRequestContent(String requestContent) {
+        this.requestContent = requestContent;
+        parseContent(requestContent);
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    protected String getReadableParametrizedQuery() {
+       StringBuilder result = new StringBuilder();
+       int begin = 0;
+       int end;
+       
+       // Put each parameter in order
+       // so that we can concatenate body pieces
+       // in the right way
+       // --------------------------------------
+       Collections.sort(listParam);
+       
+       for (RPCParameter param : listParam) {
+           end = param.getBeginOffset();
+           result.append(requestContent.substring(begin, end));
+           result.append("__INJECTABLE_PARAM__");
+           begin = param.getEndOffset();
+       }
+       
+       result.append(requestContent.substring(begin));
+       
+       return result.toString();
+    }
+
+    /**
+     * 
      * @param contentType
      * @return 
      */
@@ -159,7 +196,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     /**
      * Inner support class
      */
-    protected class RPCParameter {                
+    protected class RPCParameter implements Comparable<RPCParameter> {                
         private String name;
         private String value;
         private int beginOffset;
@@ -205,5 +242,10 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         public void setToQuote(boolean toQuote) {
             this.toQuote = toQuote;
         }        
+
+        @Override
+        public int compareTo(RPCParameter t) {
+            return this.beginOffset - t.beginOffset;
+        }
     }
 }
