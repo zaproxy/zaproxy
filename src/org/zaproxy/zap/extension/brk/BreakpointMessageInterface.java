@@ -26,7 +26,7 @@ public interface BreakpointMessageInterface {
 
     String getType();
     
-    boolean match(Message aMessage, boolean onlyIfInScope);
+    boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope);
 
     void setEnabled(boolean enabled);
 

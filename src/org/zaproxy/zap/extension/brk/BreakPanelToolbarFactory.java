@@ -29,6 +29,7 @@ public class BreakPanelToolbarFactory {
 	private LinkedList<JButton> btnContinueList = new LinkedList<>();
 	private LinkedList<JButton> btnStepList = new LinkedList<>();
 	private LinkedList<JButton> btnDropList = new LinkedList<>();
+	private LinkedList<JButton> btnBrkPointList = new LinkedList<>();
 
 	private LinkedList<JToggleButton> btnBreakRequestList = new LinkedList<>();
 	private LinkedList<JToggleButton> btnBreakResponseList = new LinkedList<>();
@@ -82,7 +83,7 @@ public class BreakPanelToolbarFactory {
 	public boolean isBreakResponse() {
 		return isBreakResponse;
 	}
-
+	
 	public JButton getBtnStep() {
 		JButton btnStep;
 
@@ -207,6 +208,25 @@ public class BreakPanelToolbarFactory {
 		return btnBreakResponse;
 	}
 
+
+	public JButton getBtnBreakPoint() {
+		JButton btnBreakPoint;
+
+		btnBreakPoint = new JButton();
+		btnBreakPoint.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/break_add.png")));
+		btnBreakPoint.setToolTipText(Constant.messages.getString("brk.toolbar.button.brkpoint"));
+		btnBreakPoint.addActionListener(new ActionListener() { 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				breakPanel.showNewBreakPointDialog();
+			}
+		});
+
+		btnBrkPointList.add(btnBreakPoint);
+
+		return btnBreakPoint;
+	}
+
 	public boolean isStepping() {
 		return stepping;
 	}
@@ -223,6 +243,20 @@ public class BreakPanelToolbarFactory {
 		} else {
 			Control.getSingleton().getProxy().setSerialize(true);
 		}
+	}
+
+	public void setBreakRequest(Boolean brk) {
+		isBreakRequest = brk;
+		resetRequestSerialization(false);
+
+		updateBreakRequestBtn();
+	}
+
+	public void setBreakResponse(Boolean brk) {
+		isBreakResponse = brk;
+		resetRequestSerialization(false);
+
+		updateBreakRequestBtn();
 	}
 
 	private void toggleBreakRequest() {

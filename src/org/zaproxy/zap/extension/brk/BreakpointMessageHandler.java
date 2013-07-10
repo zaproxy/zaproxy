@@ -209,7 +209,7 @@ public class BreakpointMessageHandler {
             while(it.hasNext()) {
                 BreakpointMessageInterface breakpoint = it.next();
                 
-                if (breakpoint.match(aMessage, onlyIfInScope)) {
+                if (breakpoint.match(aMessage, isRequest, onlyIfInScope)) {
                     return true;
                 }
             }

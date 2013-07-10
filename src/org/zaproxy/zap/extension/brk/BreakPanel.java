@@ -32,6 +32,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -49,11 +50,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private HttpPanelRequest requestPanel;
 	private HttpPanelResponse responsePanel;
 
+	private ExtensionBreak extension;
 	private JPanel panelContent;
 	private BreakPanelToolbarFactory breakToolbarFactory;
 
-	public BreakPanel(BreakpointsParam breakpointsParams) {
+	public BreakPanel(ExtensionBreak extension, BreakpointsParam breakpointsParams) {
 		super();
+		this.extension = extension;
 		
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 		this.setLayout(new BorderLayout());
@@ -138,6 +141,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		panelCommand.add(breakToolbarFactory.getBtnStep());
 		panelCommand.add(breakToolbarFactory.getBtnContinue());
 		panelCommand.add(breakToolbarFactory.getBtnDrop());
+		panelCommand.add(breakToolbarFactory.getBtnBreakPoint());
 
 		return panelCommand;
 	}
@@ -148,6 +152,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnStep());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnContinue());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnDrop());
+		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnBreakPoint());
 	}
 	
 	public void setMessage(Message aMessage, boolean isRequest) {
@@ -207,6 +212,18 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			this.breakToolbarFactory.setBreakEnabled(true);
 		}
 
+	}
+
+	public void setBreakAllRequests(boolean brk) {
+		breakToolbarFactory.setBreakRequest(brk);
+	}
+
+	public void setBreakAllResponses(boolean brk) {
+		breakToolbarFactory.setBreakResponse(brk);
+	}
+	
+	public void showNewBreakPointDialog() {
+		extension.addUiBreakpoint(new HttpMessage());
 	}
 
 }
