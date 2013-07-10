@@ -24,6 +24,7 @@
 // ZAP: 2012/05/04 Changed to use the class ZapGetMethod instead of org.apache.commons.httpclient.methods.GetMethod
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/06/17 Issue 687: Change HTTP response header parser to be less strict
+// ZAP: 2013/07/10 Issue 721: Non POST and PUT requests receive a 504 when server expects a request body
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -35,8 +36,6 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
@@ -223,7 +222,7 @@ public class HttpMethodHelper {
 		}
 
 		// set body if post method or put method
-		if (body != null && body.length() > 0 && (httpMethod instanceof PostMethod || httpMethod instanceof PutMethod)) {
+		if (body != null && body.length() > 0 &&  (httpMethod instanceof EntityEnclosingMethod)) {
 			EntityEnclosingMethod post = (EntityEnclosingMethod) httpMethod;
 //			post.setRequestEntity(new StringRequestEntity(body.toString()));
             post.setRequestEntity(new ByteArrayRequestEntity(body.getBytes()));
