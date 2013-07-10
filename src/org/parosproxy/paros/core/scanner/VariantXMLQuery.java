@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2013/07/10 Escaped all special characters inside the regex patterns + updated regex for non capturing groups
 
 package org.parosproxy.paros.core.scanner;
 
@@ -45,8 +46,8 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
     // Eq ::= S? '=' S?
     // AttValue ::= '"' ([^<&"] | Reference)* '"' |  "'" ([^<&'] | Reference)* "'"
     // ----------------------------------------------
-    private final static String attRegex = "(\\S+)\\s*=\\s*(\"[^\"&<]*\"|'[^'&<]*')";
-    private final static String tagRegex = "<([_:A-Za-z][_:A-Za-z0-9\\-\\.]*)\\s*[^>]*>(<!\\[CDATA\\[\\s*(?:.(?<!\\]\\]>)\\s*)*\\]\\]>|[^<&]*)</[_:A-Za-z][_:A-Za-z0-9\\-\\.]*\\s*>";
+    private final static String attRegex = "(\\S+)\\s*=\\s*((?:\"[^\"\\&\\<]*\")|(?:'[^'\\&\\<]*'))";
+    private final static String tagRegex = "\\<([\\_\\:A-Za-z][\\_\\:A-Za-z0-9\\-\\.]*)\\s*[^\\>]*\\>((?:\\<\\!\\[CDATA\\[(?:.(?<!\\]\\]>))*\\]\\]>)|(?:[^\\<\\&]*))\\<\\/[\\_\\:A-Za-z][\\_\\:A-Za-z0-9\\-\\.]*\\s*\\>";
     private Pattern attPattern = Pattern.compile(attRegex);
     private Pattern tagPattern = Pattern.compile(tagRegex);
 
@@ -104,5 +105,5 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             
             addParameter(matcher.group(1), bidx, eidx, false);
         }
-    }    
+    }
 }
