@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
+// ZAP: 2013/07/11 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.db;
 
@@ -55,6 +56,9 @@ public class TableAlert extends AbstractTable {
 	private static final String OTHERINFO	= "OTHERINFO";
 	private static final String SOLUTION	= "SOLUTION";
 	private static final String REFERENCE	= "REFERENCE";
+	private static final String EVIDENCE	= "EVIDENCE";
+	private static final String CWEID		= "CWEID";
+	private static final String WASCID		= "WASCID";
 	private static final String HISTORYID	= "HISTORYID";
 	private static final String SOURCEHISTORYID	= "SOURCEHISTORYID";
 
@@ -82,8 +86,9 @@ public class TableAlert extends AbstractTable {
         
         psInsert = conn.prepareStatement("INSERT INTO " + TABLE_NAME + " ("
                 + SCANID + "," + PLUGINID + "," + ALERT + "," + RISK + "," + RELIABILITY + "," + DESCRIPTION + ","
-                + URI + "," + PARAM + "," + ATTACK + "," + OTHERINFO + "," + SOLUTION + "," + REFERENCE + "," + HISTORYID
-                 + "," + SOURCEHISTORYID + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                + URI + "," + PARAM + "," + ATTACK + "," + OTHERINFO + "," + SOLUTION + "," + REFERENCE + "," 
+                + EVIDENCE + "," + CWEID + "," + WASCID + "," + HISTORYID
+                 + "," + SOURCEHISTORYID + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
         psDeleteAlert = conn.prepareStatement("DELETE FROM " + TABLE_NAME + " WHERE " + ALERTID + " = ?");
         //psDeleteScan = conn.prepareStatement("DELETE FROM ALERT WHERE " + SCANID + " = ?");
@@ -99,7 +104,10 @@ public class TableAlert extends AbstractTable {
                 ATTACK + " = ?," + 
                 OTHERINFO + " = ?," + 
                 SOLUTION + " = ?," +        
-                REFERENCE + " = ?, " +      
+                REFERENCE + " = ?, " +
+                EVIDENCE + " = ?, " +
+                CWEID + " = ?, " +
+                WASCID + " = ?, " +
                 SOURCEHISTORYID + " = ? " + 
                 "WHERE " + ALERTID + " = ?");
 
@@ -124,6 +132,13 @@ public class TableAlert extends AbstractTable {
         if (!DbUtils.hasColumn(connection, TABLE_NAME, ATTACK)) {
             DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+ATTACK+" VARCHAR(32768) DEFAULT ''"));
         }
+        
+        if (!DbUtils.hasColumn(connection, TABLE_NAME, EVIDENCE)) {
+        	// Evidence, cweId and wascId all added at the same time
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+EVIDENCE+" VARCHAR(32768) DEFAULT ''"));
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+CWEID+" INT DEFAULT -1"));
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+WASCID+" INT DEFAULT -1"));
+        }
     }
 
     public synchronized RecordAlert read(int alertId) throws SQLException {
@@ -140,7 +155,7 @@ public class TableAlert extends AbstractTable {
 
     public synchronized RecordAlert write(int scanId, int pluginId, String alert, 
             int risk, int reliability, String description, String uri, String param, String attack, 
-            String otherInfo, String solution, String reference, int historyId,
+            String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
             int sourceHistoryId) throws SQLException {
         
         psInsert.setInt(1, scanId);
@@ -155,8 +170,11 @@ public class TableAlert extends AbstractTable {
         psInsert.setString(10, otherInfo);
         psInsert.setString(11, solution);
         psInsert.setString(12, reference);
-        psInsert.setInt(13, historyId);
-        psInsert.setInt(14, sourceHistoryId);
+        psInsert.setString(13, evidence);
+        psInsert.setInt(14, cweId);
+        psInsert.setInt(15, wascId);
+        psInsert.setInt(16, historyId);
+        psInsert.setInt(17, sourceHistoryId);
         psInsert.executeUpdate();
         
         ResultSet rs = psGetIdLastInsert.executeQuery();
@@ -183,6 +201,9 @@ public class TableAlert extends AbstractTable {
                     rs.getString(OTHERINFO),
                     rs.getString(SOLUTION),
                     rs.getString(REFERENCE),
+                    rs.getString(EVIDENCE),
+                    rs.getInt(CWEID),
+                    rs.getInt(WASCID),
                     rs.getInt(HISTORYID),
                     rs.getInt(SOURCEHISTORYID)
             );
@@ -248,7 +269,7 @@ public class TableAlert extends AbstractTable {
     public synchronized void update(int alertId, String alert, 
             int risk, int reliability, String description, String uri, 
             String param, String attack, String otherInfo, String solution, String reference,
-            int sourceHistoryId) throws SQLException {
+            String evidence, int cweId, int wascId, int sourceHistoryId) throws SQLException {
         
         psUpdate.setString(1, alert);
         psUpdate.setInt(2, risk);
@@ -260,8 +281,11 @@ public class TableAlert extends AbstractTable {
         psUpdate.setString(8, otherInfo);
         psUpdate.setString(9, solution);
         psUpdate.setString(10, reference);
-        psUpdate.setInt(11, sourceHistoryId);
-        psUpdate.setInt(12, alertId);
+        psUpdate.setString(11, evidence);
+        psUpdate.setInt(12, cweId);
+        psUpdate.setInt(13, wascId);
+        psUpdate.setInt(14, sourceHistoryId);
+        psUpdate.setInt(15, alertId);
         psUpdate.executeUpdate();
     }
 

@@ -52,6 +52,7 @@ import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.extension.report.ReportLastScan;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -91,6 +92,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
 	private static final String OTHER_ROOT_CERT = "rootcert";
+	private static final String OTHER_XML_REPORT = "xmlreport";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
@@ -131,6 +133,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
+		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		
 		this.addApiShortcut(OTHER_PROXY_PAC);
 		// this.addApiShortcut(OTHER_ROOT_CERT);
@@ -533,11 +536,36 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					logger.error(e.getMessage(), e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 				}
+				
 			} else {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
 			}
 			
 			return msg;
+		} else if (OTHER_XML_REPORT.equals(name)) {
+			try {
+				ReportLastScan rls = new ReportLastScan();
+		        StringBuilder report = new StringBuilder();
+				rls.generate(report, Model.getSingleton());
+				String response = report.toString();
+				
+				msg.setResponseHeader(
+						"HTTP/1.1 200 OK\r\n" +
+						"Pragma: no-cache\r\n" +
+						"Cache-Control: no-cache\r\n" + 
+						"Access-Control-Allow-Origin: *\r\n" + 
+						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+						"Content-Length: " + response.length() + 
+						"\r\nContent-Type: text/xml;");
+				
+				msg.setResponseBody(response);
+		        
+				return msg;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
@@ -599,7 +627,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("other", alert.getOtherInfo());
 		map.put("param", alert.getParam());
 		map.put("attack", alert.getAttack());
+		map.put("evidence", alert.getEvidence());
 		map.put("reference", alert.getReference());
+		map.put("cweid", String.valueOf(alert.getCweId()));
+		map.put("wascid", String.valueOf(alert.getWascId()));
 		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
 			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));

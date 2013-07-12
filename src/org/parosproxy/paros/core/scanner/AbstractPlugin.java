@@ -32,6 +32,7 @@
 // ZAP: 2013/02/19 Issue 528 Scan progress dialog can show negative progress times
 // ZAP: 2013/04/14 Issue 611: Log the exceptions thrown by active scanners as error
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.core.scanner;
 
@@ -118,6 +119,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     
     @Override
     public abstract String getReference();
+    
+    @Override
+    public abstract int getCweId();
+    
+    @Override
+    public abstract int getWascId();
+
     
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -255,6 +263,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public abstract void scan();
 
+    
     /**
      * Generate an alert when a security issue (risk/info) is found.  Default name, description,
      * solution of this Plugin will be used.
@@ -265,8 +274,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo
      * @param msg
      */
-	protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo, HttpMessage msg) {
-	    bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(), msg);
+	protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo, 
+			HttpMessage msg) {
+	    bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(), 
+	    		msg);
 	}
 
 	/**
@@ -284,7 +295,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	 * @param msg
 	 */
 	protected void bingo(int risk, int reliability, String name, String description, String uri, 
-			String param, String attack, String otherInfo, String solution, HttpMessage msg) {
+			String param, String attack, String otherInfo, String solution, 
+			HttpMessage msg) {
 		log.debug("New alert pluginid=" + + this.getId() + " " + name + " uri=" + uri);
 	    Alert alert = new Alert(this.getId(), risk, reliability, name);
 	    if (uri == null || uri.equals("")) {
@@ -293,7 +305,70 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	    if (param == null) {
 	        param = "";
 	    }
-	    alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(), msg);
+	    alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(), 
+	    		attack, this.getCweId(), this.getWascId(), msg);
+	    parent.alertFound(alert);
+	}
+
+    /**
+     * Generate an alert when a security issue (risk/info) is found.  Default name, description,
+     * solution of this Plugin will be used.
+     * @param risk
+     * @param reliability
+     * @param uri
+     * @param param
+     * @param otherInfo
+     * @param msg
+     */
+	protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo, 
+			String evidence, HttpMessage msg) {
+	    bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(), 
+	    		evidence, msg);
+	}
+
+	/**
+     * Generate an alert when a security issue (risk/info) is found.  Custome alert name,
+     * description and solution will be used.
+	 * 
+	 * @param risk
+	 * @param reliability
+	 * @param name
+	 * @param description
+	 * @param uri
+	 * @param param
+	 * @param otherInfo
+	 * @param solution
+	 * @param msg
+	 */
+	protected void bingo(int risk, int reliability, String name, String description, String uri, 
+			String param, String attack, String otherInfo, String solution, 
+			String evidence, HttpMessage msg) {
+		log.debug("New alert pluginid=" + + this.getId() + " " + name + " uri=" + uri);
+	    Alert alert = new Alert(this.getId(), risk, reliability, name);
+	    if (uri == null || uri.equals("")) {
+	        uri = msg.getRequestHeader().getURI().toString();
+	    }
+	    if (param == null) {
+	        param = "";
+	    }
+	    alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(), 
+	    		evidence, this.getCweId(), this.getWascId(), msg);
+	    parent.alertFound(alert);
+	}
+
+	protected void bingo(int risk, int reliability, String name, String description, String uri, 
+			String param, String attack, String otherInfo, String solution, 
+			String evidence, int cweId, int wascId, HttpMessage msg) {
+		log.debug("New alert pluginid=" + + this.getId() + " " + name + " uri=" + uri);
+	    Alert alert = new Alert(this.getId(), risk, reliability, name);
+	    if (uri == null || uri.equals("")) {
+	        uri = msg.getRequestHeader().getURI().toString();
+	    }
+	    if (param == null) {
+	        param = "";
+	    }
+	    alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(), 
+	    		evidence, cweId, wascId, msg);
 	    parent.alertFound(alert);
 	}
 

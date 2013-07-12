@@ -271,7 +271,7 @@ public class AlertPanel extends AbstractPanel {
 				        Object obj = node.getUserObject();
 				        if (obj instanceof Alert) {
 				            Alert alert = (Alert) obj;
-						    setMessage(alert.getMessage(), alert.getAttack());
+						    setMessage(alert.getMessage(), alert.getEvidence());
 						    getAlertViewPanel().displayAlert(alert);
 				        } else {
 						    getAlertViewPanel().clearAlert();
