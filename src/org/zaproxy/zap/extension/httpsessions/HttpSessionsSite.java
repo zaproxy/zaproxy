@@ -192,11 +192,13 @@ public class HttpSessionsSite {
 
 	/**
 	 * Creates a new empty session.
+	 * <p>
+	 * The newly created session is set as the active session.
+	 * 
+	 * @see #setActiveSession(HttpSession)
 	 */
 	public void createEmptySession() {
-		HttpSession session = new HttpSession(generateUniqueSessionName());
-		this.addHttpSession(session);
-		this.setActiveSession(session);
+		createEmptySessionAndSetAsActive(generateUniqueSessionName());
 	}
 
 	/**
@@ -247,6 +249,61 @@ public class HttpSessionsSite {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Creates an empty session with the given {@code name} and sets it as the active session.
+	 * <p>
+	 * <strong>Note:</strong> It's responsibility of the caller to ensure that no session with the given {@code name} already
+	 * exists.
+	 * 
+	 * @param name the name of the session that will be created and set as the active session
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 * @see #addHttpSession(HttpSession)
+	 * @see #setActiveSession(HttpSession)
+	 * @see #isSessionNameUnique(String)
+	 */
+	private void createEmptySessionAndSetAsActive(final String name) {
+		validateSessionName(name);
+
+		final HttpSession session = new HttpSession(name);
+		addHttpSession(session);
+		setActiveSession(session);
+	}
+
+	/**
+	 * Validates that the session {@code name} is not {@code null} or an empty string.
+	 * 
+	 * @param name the session name to be validated
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 */
+	private static void validateSessionName(final String name) {
+		if (name == null) {
+			throw new IllegalArgumentException("Session name must not be null.");
+		}
+		if (name.isEmpty()) {
+			throw new IllegalArgumentException("Session name must not be empty.");
+		}
+	}
+
+	/**
+	 * Creates an empty session with the given {@code name}.
+	 * <p>
+	 * The newly created session is set as the active session.
+	 * <p>
+	 * <strong>Note:</strong> If a session with the given {@code name} already exists no action is taken.
+	 * 
+	 * @param name the name of the session
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 * @see #setActiveSession(HttpSession)
+	 */
+	public void createEmptySession(final String name) {
+		validateSessionName(name);
+
+		if (!isSessionNameUnique(name)) {
+			return;
+		}
+		createEmptySessionAndSetAsActive(name);
 	}
 
 	/**
