@@ -120,20 +120,34 @@ public class ExtensionFactory {
             	Extension ext = mapOrderToExtension.get(order);
             	if (ext.isEnabled()) {
             		log.debug("Ordered extension " + order + " " + ext.getName());
-            		extensionLoader.addExtension(ext);
-            		loadMessages(ext);
-            		intitializeHelpSet(ext);
             	}
+            	loadMessagesAndAddExtension(extensionLoader, ext);
             }
             // And then the unordered ones
             for (Extension ext : unorderedExtensions) {
             	if (ext.isEnabled()) {
             		log.debug("Unordered extension " + ext.getName());
-            		extensionLoader.addExtension(ext);
-            		loadMessages(ext);
-            		intitializeHelpSet(ext);
             	}
+            	loadMessagesAndAddExtension(extensionLoader, ext);
             }
+        }
+    }
+
+    /**
+     * Loads the messages of the {@code extension} and, if enabled, adds it to the {@code extensionLoader} and loads the
+     * extension's help set.
+     * 
+     * @param extensionLoader the extension loader
+     * @param extension the extension
+     * @see #loadMessages(Extension)
+     * @see ExtensionLoader#addExtension(Extension)
+     * @see #intitializeHelpSet(Extension)
+     */
+    private static void loadMessagesAndAddExtension(ExtensionLoader extensionLoader, Extension extension) {
+        loadMessages(extension);
+        if (extension.isEnabled()) {
+            extensionLoader.addExtension(extension);
+            intitializeHelpSet(extension);
         }
     }
 
@@ -185,10 +199,8 @@ public class ExtensionFactory {
             for (Extension ext : listExts) {
             	if (ext.isEnabled()) {
             		log.debug("Adding new extension " + ext.getName());
-            		extensionLoader.addExtension(ext);
-            		loadMessages(ext);
-            		intitializeHelpSet(ext);
             	}
+            	loadMessagesAndAddExtension(extensionLoader, ext);
             }
         }
         return listExts;
