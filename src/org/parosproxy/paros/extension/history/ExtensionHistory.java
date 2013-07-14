@@ -43,6 +43,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/14 Issue 588: ExtensionHistory.historyIdToRef should be cleared when changing session
 // ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
+// ZAP: 2013/07/14 Issue 725: Clear alert's panel fields
 
 package org.parosproxy.paros.extension.history;
 
@@ -565,10 +566,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
     }
 
-	public void hideAlertAddDialog() {
-		dialogAlertAdd.dispose();
-	}
-	
 	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, List<String> tags) {
 		try {
 			manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());

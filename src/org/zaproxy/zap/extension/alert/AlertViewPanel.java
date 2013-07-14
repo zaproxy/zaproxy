@@ -445,6 +445,31 @@ public class AlertViewPanel extends AbstractPanel {
 	
 	public void clearAlert () {
 		cardLayout.show(this, getDefaultPane().getName());
+
+        originalAlert = null;
+        historyRef = null;
+        httpMessage = null;
+
+        alertName.setText("");
+        alertRisk.setText("");
+        alertReliability.setText("");
+        alertParam.setText("");
+        alertAttack.setText("");
+        alertDescription.setText("");
+        alertOtherInfo.setText("");
+        alertSolution.setText("");
+        alertReference.setText("");
+
+        if (editable) {
+            alertEditAttack.setText("");
+            alertEditAttack.discardAllEdits();
+            alertEditEvidence.setText("");
+            alertEditEvidence.discardAllEdits();
+            alertDescription.discardAllEdits();
+            alertOtherInfo.discardAllEdits();
+            alertSolution.discardAllEdits();
+            alertReference.discardAllEdits();
+        }
 	}
 	
 	/**

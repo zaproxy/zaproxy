@@ -231,7 +231,7 @@ public class AlertAddDialog extends AbstractDialog {
 					} catch (Exception ex) {
 					    logger.error(ex.getMessage(), ex);
 					}
-					extension.hideAlertAddDialog();
+					clearAndCloseDialog();
 				}
 			});
 
@@ -253,7 +253,7 @@ public class AlertAddDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-				    extension.hideAlertAddDialog();
+				    clearAndCloseDialog();
 				}
 			});
 
@@ -261,6 +261,13 @@ public class AlertAddDialog extends AbstractDialog {
 		return btnCancel;
 	}
 	
+    private void clearAndCloseDialog() {
+        getAlertViewPanel().clearAlert();
+        historyRef = null;
+        httpMessage = null;
+        dispose();
+    }
+
 	public void setPlugin(ExtensionHistory plugin) {
 	    this.extension = plugin;
 	}
