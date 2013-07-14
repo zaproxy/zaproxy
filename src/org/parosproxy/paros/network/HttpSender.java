@@ -32,6 +32,7 @@
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
 // ZAP: 2013/07/10 Issue 720: Cannot send non standard http methods 
+// ZAP: 2013/07/14 Issue 729: Update NTLM authentication code
 
 package org.parosproxy.paros.network;
 
@@ -45,10 +46,12 @@ import java.util.List;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -58,6 +61,7 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.network.ZapNTLMScheme;
 
 public class HttpSender {
 	public static final int PROXY_INITIATOR = 1;
@@ -90,6 +94,8 @@ public class HttpSender {
 	    if (sslFactory == null || !(sslFactory instanceof SSLConnector)) {
 	        Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new SSLConnector(), 443));
 	    }
+	    
+	    AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
     }
     
     private static HttpMethodHelper helper = new HttpMethodHelper();
