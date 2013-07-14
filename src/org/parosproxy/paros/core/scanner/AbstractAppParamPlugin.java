@@ -24,14 +24,18 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/02 Changed Vector to generic List and added new varaints for GWT, JSON and Headers
 // ZAP: 2013/07/03 Added variant handling attributes and data contained in XML requests 
+// ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
 
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
+
+    private static final Logger logger = Logger.getLogger(AbstractAppParamPlugin.class);
 
     private ArrayList<Variant> listVariant = new ArrayList<>();    
     private NameValuePair originalPair = null;
@@ -72,8 +76,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             HttpMessage msg = getNewMsg();
             // ZAP: Removed unnecessary cast.
             variant = listVariant.get(i);
-            variant.setMessage(msg);
-            scanVariant();
+            try {
+                variant.setMessage(msg);
+                scanVariant();
+            } catch (Exception e) {
+                logger.error("Error occurred while scanning with variant " + variant.getClass().getCanonicalName(), e);
+            }
         }
 
     }
