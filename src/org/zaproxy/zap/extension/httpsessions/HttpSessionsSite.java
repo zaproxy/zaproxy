@@ -194,16 +194,59 @@ public class HttpSessionsSite {
 	 * Creates a new empty session.
 	 */
 	public void createEmptySession() {
-		// Generate unique
-		String name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
-				Integer.valueOf(lastGeneratedSessionID++));
-		while (this.getHttpSession(name) != null) {
-			name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
-					Integer.valueOf(lastGeneratedSessionID++));
-		}
-		HttpSession session = new HttpSession(name);
+		HttpSession session = new HttpSession(generateUniqueSessionName());
 		this.addHttpSession(session);
 		this.setActiveSession(session);
+	}
+
+	/**
+	 * Generates a unique session name.
+	 * <p>
+	 * The generated name is guaranteed to be unique compared to existing session names. If a generated name is already in use
+	 * (happens if the user creates a session with a name that is equal to the ones generated) a new one will be generated until
+	 * it's unique.
+	 * <p>
+	 * The generated session name is composed by the (internationalised) word "Session" appended with a space character and an
+	 * (unique sequential) integer identifier. Each time the method is called the integer identifier is incremented, at least,
+	 * by 1 unit.
+	 * <p>
+	 * Example session names generated:
+	 * <p>
+	 * 
+	 * <pre>
+	 * Session 0
+	 * Session 1
+	 * Session 2
+	 * </pre>
+	 * 
+	 * @return the generated unique session name
+	 * @see #lastGeneratedSessionID
+	 */
+	private String generateUniqueSessionName() {
+		String name;
+		do {
+			name = MessageFormat.format(
+					Constant.messages.getString("httpsessions.session.defaultName"),
+					Integer.valueOf(lastGeneratedSessionID++));
+		} while (!isSessionNameUnique(name));
+
+		return name;
+	}
+
+	/**
+	 * Tells whether the given session {@code name} is unique or not, compared to existing session names.
+	 * 
+	 * @param name the session name that will be checked
+	 * @return {@code true} if the session name is unique, {@code false} otherwise
+	 * @see #sessions
+	 */
+	private boolean isSessionNameUnique(final String name) {
+		for (HttpSession session : sessions) {
+			if (name.equals(session.getName())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -345,7 +388,7 @@ public class HttpSessionsSite {
 
 		// If the session didn't exist, create it now
 		if (session == null) {
-			session = new HttpSession("Session " + (lastGeneratedSessionID++));
+			session = new HttpSession(generateUniqueSessionName());
 			this.addHttpSession(session);
 
 			// Add all the existing tokens from the request, if they don't replace one in the
