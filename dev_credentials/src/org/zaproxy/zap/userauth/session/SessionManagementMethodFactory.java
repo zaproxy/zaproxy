@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 
 /**
  * A factory for creating {@link SessionManagementMethod} objects.<br/>
@@ -50,8 +51,20 @@ public abstract class SessionManagementMethodFactory<T extends SessionManagement
 	 * 
 	 * @param contextId the context id
 	 * @return the abstract session method options panel
+	 * @see SessionManagementMethodFactory#hasOptionsPanel
 	 */
-	public abstract AbstractSessionManagementMethodOptionsPanel<T> buildOptionsPanel(int contextId);
+	public abstract AbstractSessionManagementMethodOptionsPanel<T> buildOptionsPanel(T existingMethod,
+			int contextId);
+
+	/**
+	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
+	 * used for configuration.
+	 * 
+	 * @see SessionManagementMethodFactory#buildOptionsPanel
+	 * 
+	 * @return true, if successful
+	 */
+	public abstract boolean hasOptionsPanel();
 
 	@Override
 	public String toString() {

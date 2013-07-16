@@ -47,10 +47,22 @@ public abstract class AuthenticationMethodFactory<T extends AuthenticationMethod
 	/**
 	 * Builds the options panel that can be used to fully configure the authentication method.
 	 * 
+	 * @see AuthenticationMethodFactory#hasOptionsPanel()
 	 * @param contextId the context id
 	 * @return the abstract authentication method options panel
 	 */
-	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(int contextId);
+	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(T existingMethod,
+			int contextId);
+
+	/**
+	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
+	 * used for configuration.
+	 * 
+	 * @see AuthenticationMethodFactory#buildOptionsPanel(int);
+	 * 
+	 * @return true, if successful
+	 */
+	public abstract boolean hasOptionsPanel();
 
 	@Override
 	public String toString() {
