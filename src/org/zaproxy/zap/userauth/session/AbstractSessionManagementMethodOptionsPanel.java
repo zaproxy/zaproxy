@@ -35,19 +35,19 @@ public abstract class AbstractSessionManagementMethodOptionsPanel<T extends Sess
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 9003182467823059637L;
 
-	public AbstractSessionManagementMethodOptionsPanel() {
+	/** The method. */
+	protected T method;
+
+	public AbstractSessionManagementMethodOptionsPanel(T existingMethod) {
 		super();
-		initialize();
-	}
-
-	protected void initialize() {
-
+		method = existingMethod;
 	}
 
 	/**
 	 * Validate the fields of the configuration panel.
+	 * @return 
 	 */
-	public abstract void validateFields();
+	public abstract boolean validateFields();
 
 	/**
 	 * Save the changes from the panel in the session management method.
@@ -59,6 +59,8 @@ public abstract class AbstractSessionManagementMethodOptionsPanel<T extends Sess
 	 * 
 	 * @return the method
 	 */
-	public abstract T getMethod();
+	public T getMethod() {
+		return method;
+	}
 
 }

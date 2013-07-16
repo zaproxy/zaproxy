@@ -26,4 +26,17 @@ package org.zaproxy.zap.userauth.session;
  */
 public interface SessionManagementMethod {
 
+	/**
+	 * Gets a string describing the status (the configuration) of the session management method.
+	 * 
+	 * @return the status description
+	 */
+	public String getStatusDescription();
+
+	/**
+	 * Checks if the session management method is fully configured.
+	 * 
+	 * @return true, if is configured
+	 */
+	public boolean isConfigured();
 }

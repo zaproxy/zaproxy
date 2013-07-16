@@ -30,6 +30,10 @@ import org.zaproxy.zap.utils.Enableable;
  */
 public class User extends Enableable {
 
+	public SessionManagementMethod getSessionManagementMethod() {
+		return sessionManagementMethod;
+	}
+
 	/** The name. */
 	private String name;
 
@@ -53,6 +57,10 @@ public class User extends Enableable {
 
 	public String getName() {
 		return name;
+	}
+
+	public AuthenticationMethod getAuthenticationMethod() {
+		return authenticationMethod;
 	}
 
 	public void setSessionManagementMethod(SessionManagementMethod sessionManagementMethod) {

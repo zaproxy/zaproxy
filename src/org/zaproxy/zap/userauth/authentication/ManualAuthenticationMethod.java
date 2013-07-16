@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
@@ -29,10 +30,11 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ManualAuthenticationMethod implements AuthenticationMethod {
 
 	private HttpSession selectedSession;
+	private static final String NAME = Constant.messages.getString("userauth.auth.manual.name");
 
 	@Override
 	public String toString() {
-		return "Manual-Authentication-Method";
+		return NAME;
 	}
 
 	@Override
@@ -60,8 +62,13 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 
 		@Override
 		public AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> buildOptionsPanel(
-				int contextId) {
-			return new ManualAuthenticationMethodOptionsPanel(this, contextId);
+				ManualAuthenticationMethod existingMethod, int contextId) {
+			return new ManualAuthenticationMethodOptionsPanel(existingMethod, contextId);
+		}
+
+		@Override
+		public boolean hasOptionsPanel() {
+			return true;
 		}
 	}
 
@@ -75,15 +82,9 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 		private JComboBox<HttpSession> sessionsComboBox;
 		private Context context;
 
-		public ManualAuthenticationMethodOptionsPanel(ManualAuthenticationMethod existingMethod, int contextId) {
+		private ManualAuthenticationMethodOptionsPanel(ManualAuthenticationMethod existingMethod,
+				int contextId) {
 			super(existingMethod);
-			context = Model.getSingleton().getSession().getContext(contextId);
-			initialize();
-		}
-
-		public ManualAuthenticationMethodOptionsPanel(
-				AuthenticationMethodFactory<ManualAuthenticationMethod> factory, int contextId) {
-			super(factory);
 			context = Model.getSingleton().getSession().getContext(contextId);
 			initialize();
 		}
@@ -93,7 +94,15 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 
 		@Override
 		public boolean validateFields() {
-			return sessionsComboBox.getSelectedIndex() != -1;
+			if (sessionsComboBox.getSelectedIndex() < 0) {
+				JOptionPane.showMessageDialog(this,
+						Constant.messages.getString("userauth.auth.manual.dialog.error.nosession.text"),
+						Constant.messages.getString("userauth.auth.manual.dialog.error.title"),
+						JOptionPane.WARNING_MESSAGE);
+				sessionsComboBox.requestFocusInWindow();
+				return false;
+			}
+			return true;
 		}
 
 		@Override
@@ -116,7 +125,7 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 
 			this.add(sessionsLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D, insets));
 			this.add(getSessionsComboBox(), LayoutHelper.getGBC(1, 0, 1, 0.5D, insets));
-			getSessionsComboBox().setRenderer(new HttpSessionRenderer());
+			this.getSessionsComboBox().setRenderer(new HttpSessionRenderer());
 		}
 
 		/**
@@ -142,7 +151,7 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 						.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
 				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
 				if (log.isDebugEnabled())
-					log.debug("Found sessions for Manual Authentication: " + sessions);
+					log.debug("Found sessions for Manual Authentication Config: " + sessions);
 				sessionsComboBox = new JComboBox<>(sessions.toArray(new HttpSession[sessions.size()]));
 			}
 			return sessionsComboBox;
@@ -153,4 +162,10 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 	public String getStatusDescription() {
 		return "Selected HTTP Session: " + selectedSession.getName();
 	}
+
+	@Override
+	public boolean isConfigured() {
+		return selectedSession != null;
+	}
+
 }

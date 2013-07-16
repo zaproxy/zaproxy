@@ -32,13 +32,15 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 	/** The Constant defining the table column names. */
 	private static final String[] COLUMN_NAMES = {
 			Constant.messages.getString("userauth.user.table.header.enabled"),
-			Constant.messages.getString("userauth.user.table.header.name") };
+			Constant.messages.getString("userauth.user.table.header.name"),
+			Constant.messages.getString("userauth.user.table.header.authentication"),
+			Constant.messages.getString("userauth.user.table.header.sessionmanagement") };
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 4463944219657112162L;
 
 	/** The users. */
-	List<User> users=new ArrayList<User>();
+	List<User> users = new ArrayList<User>();
 
 	@Override
 	public int getColumnCount() {
@@ -57,6 +59,10 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 			return users.get(rowIndex).isEnabled();
 		case 1:
 			return users.get(rowIndex).getName();
+		case 2:
+			return users.get(rowIndex).getAuthenticationMethod().toString();
+		case 3:
+			return users.get(rowIndex).getSessionManagementMethod().toString();
 		default:
 			return null;
 		}
@@ -91,6 +97,8 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 		case 0:
 			return Boolean.class;
 		case 1:
+		case 2:
+		case 3:
 			return String.class;
 		default:
 			return null;

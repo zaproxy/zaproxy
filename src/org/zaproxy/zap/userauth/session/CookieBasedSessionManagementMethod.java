@@ -31,9 +31,16 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 	/** The session. */
 	private HttpSession session;
 
+	private static final String NAME = Constant.messages.getString("userauth.session.cb.name");
+
+	@Override
+	public String toString() {
+		return NAME;
+	}
+	
 	/**
 	 * Sets the session.
-	 *
+	 * 
 	 * @param session the new session
 	 */
 	public void setSession(HttpSession session) {
@@ -49,32 +56,40 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 		/** The Constant METHOD_NAME. */
 		private static final String METHOD_NAME = Constant.messages.getString("userauth.session.cb.name");
 
-		/* (non-Javadoc)
-		 * @see org.zaproxy.zap.userauth.session.SessionManagementMethodFactory#buildSessionManagementMethod()
-		 */
 		@Override
 		public CookieBasedSessionManagementMethod buildSessionManagementMethod() {
 			return new CookieBasedSessionManagementMethod();
 		}
 
-		/* (non-Javadoc)
-		 * @see org.zaproxy.zap.userauth.session.SessionManagementMethodFactory#getName()
-		 */
 		@Override
 		public String getName() {
 			return METHOD_NAME;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.zaproxy.zap.userauth.session.SessionManagementMethodFactory#buildOptionsPanel(int)
-		 */
 		@Override
 		public AbstractSessionManagementMethodOptionsPanel<CookieBasedSessionManagementMethod> buildOptionsPanel(
-				int contextId) {
+				CookieBasedSessionManagementMethod existingMethod, int contextId) {
 			// No need for a configuration panel yet
 			return null;
 		}
 
+		@Override
+		public boolean hasOptionsPanel() {
+			return false;
+		}
+
+	}
+
+	@Override
+	public boolean isConfigured() {
+		// Always configured
+		return true;
+	}
+
+	@Override
+	public String getStatusDescription() {
+		// No options panel, so no need for status description
+		return "";
 	}
 
 }

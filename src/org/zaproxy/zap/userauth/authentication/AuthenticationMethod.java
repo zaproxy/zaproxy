@@ -41,4 +41,11 @@ public interface AuthenticationMethod {
 	 */
 	public HttpSession authenticate();
 
+	/**
+	 * Checks if the authentication method is fully configured.
+	 * 
+	 * @return true, if is configured
+	 */
+	public boolean isConfigured();
+
 }

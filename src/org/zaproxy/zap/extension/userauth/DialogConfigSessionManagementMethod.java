@@ -24,33 +24,35 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.userauth.authentication.AbstractAuthenticationMethodOptionsPanel;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
+import org.zaproxy.zap.userauth.session.AbstractSessionManagementMethodOptionsPanel;
+import org.zaproxy.zap.userauth.session.SessionManagementMethod;
+import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
 /**
- * The Dialog that contains the panel for setting up an Authentication Method.
+ * The Dialog that contains the panel for setting up a Session Management Method.
  */
-public class DialogEditAuthenticationMethod extends AbstractFormDialog {
+public class DialogConfigSessionManagementMethod<T extends SessionManagementMethod> extends
+		AbstractFormDialog {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -4896945401407014417L;
 
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-			.getString("userauth.user.dialog.add.button.confirm");
+			.getString("userauth.session.dialog.config.button.confirm");
 
-	private AuthenticationMethodFactory<?> authenticationMethodFactory;
-	private AbstractAuthenticationMethodOptionsPanel<?> contentsPanel;
+	private SessionManagementMethodFactory<T> sessionManagementMethodFactory;
+	private AbstractSessionManagementMethodOptionsPanel<T> contentsPanel;
+	private T existingMethod;
 	private int contextId;
 
-	public DialogEditAuthenticationMethod(Dialog owner, String title, AuthenticationMethodFactory<?> factory,
-			int contextId) {
+	public DialogConfigSessionManagementMethod(Dialog owner, String title,
+			SessionManagementMethodFactory<T> factory, T existingMethod, int contextId) {
 		super(owner, factory.getName(), false);
 		this.contextId = contextId;
-		this.authenticationMethodFactory = factory;
+		this.sessionManagementMethodFactory = factory;
+		this.existingMethod = existingMethod;
 		initView();
 		this.setMinimumSize(new Dimension(250, 50));
 		this.setConfirmButtonEnabled(true);
@@ -59,7 +61,7 @@ public class DialogEditAuthenticationMethod extends AbstractFormDialog {
 	@Override
 	protected JPanel getFieldsPanel() {
 		if (contentsPanel == null) {
-			contentsPanel = authenticationMethodFactory.buildOptionsPanel(contextId);
+			contentsPanel = sessionManagementMethodFactory.buildOptionsPanel(existingMethod, contextId);
 		}
 		return contentsPanel;
 	}
@@ -76,11 +78,10 @@ public class DialogEditAuthenticationMethod extends AbstractFormDialog {
 
 	@Override
 	protected void performAction() {
-		Logger.getRootLogger().info("Action...");
 		contentsPanel.saveMethod();
 	}
 
-	public AuthenticationMethod getAuthenticationMethod() {
+	public SessionManagementMethod getSessionManagementMethod() {
 		return contentsPanel.getMethod();
 	}
 
