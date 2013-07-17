@@ -22,40 +22,62 @@ package org.zaproxy.zap.userauth;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
-import org.zaproxy.zap.userauth.authentication.ManualAuthenticationMethod;
-import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
 
 /**
  * The Manager that handles all the information related to {@link User Users}, {@link Role Roles}
  * and authentications in various {@link Context Contexts}. This class also handles the loading of
  * {@link AuthenticationMethodFactory} and {@link SessionManagementMethodFactory} classes in the
- * system.
+ * system using the AddOnLoader ({@link ExtensionFactory#getAddOnLoader()}).
  */
 public class UserAuthManager {
 
-	List<AuthenticationMethodFactory<?>> authenticationMethods;
-	List<SessionManagementMethodFactory<?>> sessionManagementMethods;
+	private static final Logger log = Logger.getLogger(UserAuthManager.class);
+
+	List<AuthenticationMethodFactory<?>> authenticationMethodFactories;
+	List<SessionManagementMethodFactory<?>> sessionManagementMethodFactories;
 
 	/**
-	 * Load authentication method factories.
+	 * Load authentication method factories using reflection.
 	 */
 	private void loadAuthenticationMethodFactories() {
-		authenticationMethods = new ArrayList<AuthenticationMethodFactory<?>>();
-		// TODO: Load factories using reflection
-		authenticationMethods.add(new ManualAuthenticationMethod.ManualAuthenticationMethodFactory());
+		// Load the method factories as raw types (only way supported) and put them in a list of
+		// parameterized methods
+		@SuppressWarnings("rawtypes")
+		List<AuthenticationMethodFactory> rawFactories = ExtensionFactory.getAddOnLoader().getImplementors(
+				"org.zaproxy.zap", AuthenticationMethodFactory.class);
+		authenticationMethodFactories = new ArrayList<AuthenticationMethodFactory<?>>(rawFactories.size());
+		for (AuthenticationMethodFactory<?> a : rawFactories) {
+			authenticationMethodFactories.add(a);
+		}
+
+		if (log.isInfoEnabled()) {
+			log.info("Loaded authentication method factories: " + authenticationMethodFactories);
+		}
 	}
 
 	/**
-	 * Load sesssion management method factories.
+	 * Load session management method factories using reflection.
 	 */
 	private void loadSesssionManagementMethodFactories() {
-		sessionManagementMethods = new ArrayList<SessionManagementMethodFactory<?>>();
-		// TODO: Load factories using reflection
-		sessionManagementMethods
-				.add(new CookieBasedSessionManagementMethod.CookieBasedSessionManagementMethodFactory());
+		// Load the method factories as raw types (only way supported) and put them in a list of
+		// parameterized methods
+		@SuppressWarnings("rawtypes")
+		List<SessionManagementMethodFactory> rawFactories = ExtensionFactory.getAddOnLoader()
+				.getImplementors("org.zaproxy.zap", SessionManagementMethodFactory.class);
+		sessionManagementMethodFactories = new ArrayList<SessionManagementMethodFactory<?>>(
+				rawFactories.size());
+		for (SessionManagementMethodFactory<?> sm : rawFactories) {
+			sessionManagementMethodFactories.add(sm);
+		}
+
+		if (log.isInfoEnabled()) {
+			log.info("Loaded session management method factories: " + sessionManagementMethodFactories);
+		}
 	}
 
 	/**
@@ -64,7 +86,7 @@ public class UserAuthManager {
 	 * @return the authentication method factories
 	 */
 	public List<AuthenticationMethodFactory<?>> getAuthenticationMethodFactories() {
-		return authenticationMethods;
+		return authenticationMethodFactories;
 	}
 
 	/**
@@ -73,7 +95,7 @@ public class UserAuthManager {
 	 * @return the session management method factories
 	 */
 	public List<SessionManagementMethodFactory<?>> getSessionManagementMethodFactories() {
-		return sessionManagementMethods;
+		return sessionManagementMethodFactories;
 	}
 
 	/** The instance. */
