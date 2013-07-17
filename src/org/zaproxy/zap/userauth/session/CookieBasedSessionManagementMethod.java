@@ -37,7 +37,7 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 	public String toString() {
 		return NAME;
 	}
-	
+
 	/**
 	 * Sets the session.
 	 * 
@@ -76,6 +76,11 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 		@Override
 		public boolean hasOptionsPanel() {
 			return false;
+		}
+
+		@Override
+		public boolean isFactoryForMethod(Class<? extends SessionManagementMethod> methodClass) {
+			return CookieBasedSessionManagementMethod.class == methodClass;
 		}
 
 	}

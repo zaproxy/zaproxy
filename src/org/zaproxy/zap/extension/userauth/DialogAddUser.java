@@ -62,7 +62,7 @@ public class DialogAddUser extends AbstractFormDialog {
 	private static final String SESSION_MANAGEMENT_METHOD_NOT_CONFIGURED = Constant.messages
 			.getString("userauth.user.dialog.add.session.notconfigured");
 
-	private static final Logger log = Logger.getLogger(DialogAddUser.class);
+	protected static final Logger log = Logger.getLogger(DialogAddUser.class);
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -7369728566299090079L;
@@ -85,9 +85,11 @@ public class DialogAddUser extends AbstractFormDialog {
 	@Override
 	protected void performAction() {
 		user = new User(this.contextId, nameTextField.getText());
-		user.setEnabled(enabledCheckBox.isEnabled());
+		user.setEnabled(enabledCheckBox.isSelected());
 		user.setAuthenticationMethod(selectedAuthenticationMethod);
 		user.setSessionManagementMethod(selectedSessionManagementMethod);
+		if (log.isInfoEnabled())
+			log.info("Saving user: " + user);
 	}
 
 	@Override
@@ -106,6 +108,7 @@ public class DialogAddUser extends AbstractFormDialog {
 
 	@Override
 	protected void init() {
+		log.info("Initializing add user dialog...");
 		getNameTextField().setText("");
 		getEnabledCheckBox().setSelected(true);
 		getAuthenticationMethodStatusPanel().setVisible(false);
@@ -337,7 +340,13 @@ public class DialogAddUser extends AbstractFormDialog {
 						log.debug("Selected new Session Management method: " + e.getItem());
 						SessionManagementMethodFactory<?> factory = ((SessionManagementMethodFactory<?>) e
 								.getItem());
-						selectedSessionManagementMethod = factory.buildSessionManagementMethod();
+						// If no session management method was previously selected or it's a
+						// different
+						// class
+						if (selectedSessionManagementMethod == null
+								|| !factory.isFactoryForMethod(selectedSessionManagementMethod.getClass())) {
+							selectedSessionManagementMethod = factory.buildSessionManagementMethod();
+						}
 
 						// Show the status panel and configuration button, if needed
 						if (factory.hasOptionsPanel()) {
@@ -383,7 +392,12 @@ public class DialogAddUser extends AbstractFormDialog {
 						log.debug("Selected new Authentication method: " + e.getItem());
 						AuthenticationMethodFactory<?> factory = ((AuthenticationMethodFactory<?>) e
 								.getItem());
-						selectedAuthenticationMethod = factory.buildAuthenticationMethod();
+						// If no authentication method was previously selected or it's a different
+						// class
+						if (selectedAuthenticationMethod == null
+								|| !factory.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
+							selectedAuthenticationMethod = factory.buildAuthenticationMethod();
+						}
 
 						// Show the status panel and configuration button, if needed
 						if (factory.hasOptionsPanel()) {

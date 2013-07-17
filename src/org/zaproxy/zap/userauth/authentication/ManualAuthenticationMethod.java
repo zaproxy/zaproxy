@@ -70,6 +70,11 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 		public boolean hasOptionsPanel() {
 			return true;
 		}
+
+		@Override
+		public boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass) {
+			return methodClass == ManualAuthenticationMethod.class;
+		}
 	}
 
 	/**

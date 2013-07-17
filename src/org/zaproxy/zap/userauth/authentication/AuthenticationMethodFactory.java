@@ -64,6 +64,14 @@ public abstract class AuthenticationMethodFactory<T extends AuthenticationMethod
 	 */
 	public abstract boolean hasOptionsPanel();
 
+	/**
+	 * Checks if is this is a factory for the Authentication Method provided as parameter.
+	 *
+	 * @param methodClass the method class
+	 * @return true, if is factory for method
+	 */
+	public abstract boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass);
+
 	@Override
 	public String toString() {
 		return getName();

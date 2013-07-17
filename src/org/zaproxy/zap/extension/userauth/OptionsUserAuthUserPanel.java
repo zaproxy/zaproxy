@@ -23,16 +23,15 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
-import javax.swing.table.TableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httpsessions.HttpSessionToken;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.utils.Enableable;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
 public class OptionsUserAuthUserPanel extends AbstractParamPanel {
@@ -40,9 +39,8 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 	private int contextId;
 	private UsersMultipleOptionsPanel usersOptionsPanel;
 	private UserAuthUserTableModel usersTableModel;
-	/**
-	 * 
-	 */
+	
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -3920598166129639573L;
 	private static final String PANEL_NAME = Constant.messages.getString("userauth.user.panel.title");
 
@@ -53,7 +51,7 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 	}
 
 	public static String getPanelName(int contextId) {
-		// Panel names hav to be unique, so prefix with the context id
+		// Panel names have to be unique, so prefix with the context id
 		return contextId + ": " + PANEL_NAME;
 	}
 
@@ -81,7 +79,7 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 
 	private UserAuthUserTableModel getUsersTableModel() {
 		if (usersTableModel == null) {
-			usersTableModel=new UserAuthUserTableModel();
+			usersTableModel = new UserAuthUserTableModel();
 		}
 		return usersTableModel;
 	}
@@ -121,19 +119,20 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 		 */
 		private static final long serialVersionUID = -7216673905642941770L;
 		private static final String REMOVE_DIALOG_TITLE = Constant.messages
-				.getString("httpsessions.options.dialog.token.remove.title");
+				.getString("userauth.user.dialog.remove.title");
 		private static final String REMOVE_DIALOG_TEXT = Constant.messages
-				.getString("httpsessions.options.dialog.token.remove.text");
+				.getString("userauth.user.dialog.remove.text");
 
 		private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages
-				.getString("httpsessions.options.dialog.token.remove.button.confirm");
+				.getString("userauth.user.dialog.remove.button.confirm");
 		private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages
-				.getString("httpsessions.options.dialog.token.remove.button.cancel");
+				.getString("userauth.user.dialog.remove.button.cancel");
 
 		private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages
-				.getString("httpsessions.options.dialog.token.remove.checkbox.label");
+				.getString("userauth.user.dialog.remove.checkbox.label");
 
 		private DialogAddUser addDialog = null;
+		private DialogModifyUser modifyDialog = null;
 		private int contextId;
 
 		public UsersMultipleOptionsPanel(UserAuthUserTableModel model, int contextId) {
@@ -160,14 +159,35 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 		}
 
 		@Override
-		public User showModifyDialogue(User e) {
-			// TODO Auto-generated method stub
-			return null;
+		public User showModifyDialogue(User user) {
+			if (modifyDialog == null) {
+				modifyDialog = new DialogModifyUser(View.getSingleton().getOptionsDialog(null), contextId);
+				modifyDialog.pack();
+			}
+			// addDialog.setTokens(model.getElements());
+			modifyDialog.setUser(user);
+			modifyDialog.setVisible(true);
+
+			user = modifyDialog.getUser();
+			modifyDialog.clear();
+
+			return user;
 		}
 
 		@Override
 		public boolean showRemoveDialogue(User e) {
-			// TODO Auto-generated method stub
+			JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+			Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
+			int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(), messages,
+					REMOVE_DIALOG_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
+					null);
+
+			if (option == JOptionPane.OK_OPTION) {
+				setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+				return true;
+			}
+
 			return false;
 		}
 

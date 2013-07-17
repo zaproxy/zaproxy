@@ -82,6 +82,12 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 		return Collections.unmodifiableList(users);
 	}
 
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
+		// Just the enable/disable
+		return (columnIndex == 0);
+	}
+
 	/**
 	 * Sets a new list of users for this model. An internal copy of the provided list is stored.
 	 * 
