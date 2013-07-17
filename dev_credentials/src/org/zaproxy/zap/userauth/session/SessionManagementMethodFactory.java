@@ -65,6 +65,14 @@ public abstract class SessionManagementMethodFactory<T extends SessionManagement
 	 * @return true, if successful
 	 */
 	public abstract boolean hasOptionsPanel();
+	
+	/**
+	 * Checks if is this is a factory for the Session Management Method provided as parameter.
+	 *
+	 * @param methodClass the method class
+	 * @return true, if is factory for method
+	 */
+	public abstract boolean isFactoryForMethod(Class<? extends SessionManagementMethod> methodClass);
 
 	@Override
 	public String toString() {

@@ -71,4 +71,11 @@ public class User extends Enableable {
 		this.authenticationMethod = authenticationMethod;
 	}
 
+	@Override
+	public String toString() {
+		return "User [name=" + name + ", contextId=" + contextId + ", authenticationMethod="
+				+ authenticationMethod + ", sessionManagementMethod=" + sessionManagementMethod + ", roles="
+				+ roles + ", enabled=" + isEnabled() + "]";
+	}
+
 }
