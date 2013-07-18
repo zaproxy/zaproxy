@@ -82,7 +82,7 @@ public class AddOnLoader extends URLClassLoader {
     /*
      * Using sub-classloaders means we can unload and reload addons
      */
-    private Map<String, URLClassLoader> addOnLoaders = new HashMap<String, URLClassLoader>();
+    private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
     public AddOnLoader(File[] dirs) {
         super(new URL[0]);
@@ -141,7 +141,7 @@ public class AddOnLoader extends URLClassLoader {
 
     private void addAddOnFile(AddOn ao) {
     	try {
-			this.addOnLoaders.put(ao.getId(), new URLClassLoader(new URL[]{ao.getFile().toURI().toURL()}));
+			this.addOnLoaders.put(ao.getId(), new AddOnClassLoader(ao.getFile().toURI().toURL(), this));
 		} catch (MalformedURLException e) {
     		logger.error(e.getMessage(), e);
 		}
@@ -154,7 +154,7 @@ public class AddOnLoader extends URLClassLoader {
 		} catch (ClassNotFoundException e) {
 			// Continue for now
 		}
-        for (URLClassLoader loader : addOnLoaders.values()) {
+        for (AddOnClassLoader loader : addOnLoaders.values()) {
             try {
     			return loader.loadClass(name);
     		} catch (ClassNotFoundException e) {
@@ -249,7 +249,7 @@ public class AddOnLoader extends URLClassLoader {
 	    			List<String> fileNames = ao.getFiles();
 
 	    			if (fileNames != null && fileNames != null) {
-	    				URLClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
+	    			    AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
 	    				for (String name : fileNames) {
 							File outfile = null;
 	    					logger.debug("Install file: " + name);
