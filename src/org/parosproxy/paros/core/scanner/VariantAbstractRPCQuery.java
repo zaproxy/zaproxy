@@ -19,6 +19,7 @@
  */
 // ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
 // ZAP: 2013/07/10 Added some features and method encapsulation
+// ZAP: 2013/07/21 Added XML parameters ordering on tag position inside the overall content
 
 package org.parosproxy.paros.core.scanner;
 
@@ -46,11 +47,6 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         if (contentType != null && isValidContentType(contentType)) {
             setRequestContent(msg.getRequestBody().toString());
-
-            for (int i = 0; i < listParam.size(); i++) {
-                RPCParameter param = listParam.get(i);
-                params.add(new NameValuePair(param.getName(), param.getValue(), i));
-            }            
         }
     }
 
@@ -142,6 +138,17 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     protected void setRequestContent(String requestContent) {
         this.requestContent = requestContent;
         parseContent(requestContent);
+
+        // Put each parameter in order by beginOffset
+        // so that we can inject payloads
+        // following the request order
+        // --------------------------------------
+        Collections.sort(listParam);
+
+        for (int i = 0; i < listParam.size(); i++) {
+            RPCParameter param = listParam.get(i);
+            params.add(new NameValuePair(param.getName(), param.getValue(), i));
+        }         
     }
     
     /**
@@ -152,12 +159,6 @@ public abstract class VariantAbstractRPCQuery implements Variant {
        StringBuilder result = new StringBuilder();
        int begin = 0;
        int end;
-       
-       // Put each parameter in order
-       // so that we can concatenate body pieces
-       // in the right way
-       // --------------------------------------
-       Collections.sort(listParam);
        
        for (RPCParameter param : listParam) {
            end = param.getBeginOffset();

@@ -105,5 +105,5 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             
             addParameter(matcher.group(1), bidx, eidx, false);
         }
-    }
+    }    
 }
