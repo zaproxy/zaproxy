@@ -1,0 +1,2 @@
+# to place a custom plugin, create a jar with the class files and place in this directory.
+# the class file subclassing AbstractPlugin will be loaded.
