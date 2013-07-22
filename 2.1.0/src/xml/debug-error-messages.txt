@@ -1,0 +1,28 @@
+# This file is used by the class InformationDisclosureDebugErrors under org.zaproxy.zap.extension.pscan.scanner
+# Strings below are used to search for debug information disclosure in HTTP body responses 
+Error Occurred While Processing Request
+Internal Server Error
+test page for apache
+failed to open stream: HTTP request failed!
+Parse error: parse error, unexpected T_VARIABLE
+The script whose uid is
+PHP Parse error
+PHP Warning
+PHP Error
+Warning: Cannot modify header information - headers already sent
+mysqli error is
+404 SC_NOT_FOUND
+ASP.NET_SessionId
+servlet error:
+Under construction
+Welcome to Windows 2000 Internet Services
+welcome to iis 4.0
+Warning: Supplied argument is not a valid File-Handle resource
+Warning: Division by zero in
+Warning: SAFE MODE Restriction in effect.
+Error Message : Error loading required libraries.
+Fatal error: Call to undefined function
+access denied for user
+incorrect syntax near
+Unclosed quotation mark before the character string
+There seems to have been a problem with the
