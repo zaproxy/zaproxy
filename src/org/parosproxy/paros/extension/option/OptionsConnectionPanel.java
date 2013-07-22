@@ -22,6 +22,8 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/12/18 Issue 441: Dont access view in daemon mode
 // ZAP: 2013/01/04 Added field txtSslTunnelingPorts below txtTimeoutInSecs.
+// ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
+// a single Cookie request header and set it as the default
 
 package org.parosproxy.paros.extension.option;
 
@@ -70,6 +72,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JPanel panelGeneral = null;
 	// ZAP: Added field for ssl ports
 	private ZapTextField txtSslTunnelingPorts;
+    private JCheckBox checkBoxSingleCookieRequestHeader;
 	
     public OptionsConnectionPanel() {
         super();
@@ -416,6 +419,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
 	    txtTimeoutInSecs.discardAllEdits();
 	    
+	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
+	    
 	    this.txtSslTunnelingPorts.setText(connectionParam.getPortsForSslTunneling());
 	    txtSslTunnelingPorts.discardAllEdits();
 	    
@@ -581,6 +586,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setPortsForSslTunneling(sslPorts);
+	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
 	    
 	}
 
@@ -698,6 +704,15 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			jLabel.setText(Constant.messages.getString("conn.options.ssl_ports"));
 			panelGeneral.add(jLabel, gridBagConstraints00);
 			panelGeneral.add(getTxtSslTunnelingPorts(), gridBagConstraints01);
+
+			java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+			gbc.gridy = 2;
+			gbc.gridwidth = 2;
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.insets = new java.awt.Insets(2,2,2,2);
+			gbc.anchor = java.awt.GridBagConstraints.WEST;
+            
+            panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
 		}
 		return panelGeneral;
 	}
@@ -715,6 +730,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return txtSslTunnelingPorts;
 	}
+	
+    private JCheckBox getCheckBoxSingleCookeRequestHeader() {
+        if (checkBoxSingleCookieRequestHeader == null) {
+            checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
+        }
+        return checkBoxSingleCookieRequestHeader;
+    }
 	
 	/**
 	 * Throws an exception when ports is not a comma separated list of integers.

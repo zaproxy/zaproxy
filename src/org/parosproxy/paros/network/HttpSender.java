@@ -29,6 +29,8 @@
 //                 introduced two helper methods for notifying listeners.
 // ZAP: 2013/01/19 Issue 459: Active scanner locking
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
+// ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
+// a single Cookie request header and set it as the default
 
 package org.parosproxy.paros.network;
 
@@ -48,6 +50,7 @@ import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
@@ -145,6 +148,9 @@ public class HttpSender {
             clientViaProxy.setState(param.getHttpState());
             client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
             clientViaProxy.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            final boolean singleCookieRequestHeader = param.isSingleCookieRequestHeader();
+            client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
+            clientViaProxy.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
         } else {
             client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
             clientViaProxy.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);

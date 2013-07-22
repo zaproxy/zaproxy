@@ -26,6 +26,8 @@
 // throughout ZAP and enhance the usability of some options.
 // ZAP: 2013/01/04 Added portsForSslTunneling parameter with method
 // isPortDemandingSslTunnel() to indicate HTTP CONNECT behavior.
+// ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
+// a single Cookie request header and set it as the default
 
 package org.parosproxy.paros.network;
 
@@ -69,6 +71,7 @@ public class ConnectionParam extends AbstractParam {
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
 	private static final String SSL_CONNECT_PORTS = CONNECTION_BASE_KEY + ".sslConnectPorts";
+	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
     
     private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
 
@@ -90,6 +93,8 @@ public class ConnectionParam extends AbstractParam {
 	private Pattern	patternSkip = null;
 	
 	private Set<Integer> portsForSslTunneling = new HashSet<>();
+	
+	private boolean singleCookieRequestHeader = true;
 	
 	private boolean confirmRemoveAuth = true;
 
@@ -169,6 +174,12 @@ public class ConnectionParam extends AbstractParam {
             this.confirmRemoveAuth = getConfig().getBoolean(CONFIRM_REMOVE_AUTH_KEY, true);
         } catch (ConversionException e) {
             log.error("Error while loading the confirm remove option: " + e.getMessage(), e);
+        }
+        
+        try {
+            this.singleCookieRequestHeader = getConfig().getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
+        } catch (ConversionException e) {
+            log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
         }
 	}
 	
@@ -444,5 +455,27 @@ public class ConnectionParam extends AbstractParam {
 			portsForSslTunneling.add(Integer.valueOf(port));
 		}
 		getConfig().setProperty(SSL_CONNECT_PORTS, getPortsForSslTunneling());
+	}
+	
+	/**
+	 * Tells whether the cookies should be set on a single "Cookie" request header or multiple "Cookie" request headers, when
+	 * sending an HTTP request to the server.
+	 * 
+	 * @return {@code true} if the cookies should be set on a single request header, {@code false} otherwise
+	 */
+	public boolean isSingleCookieRequestHeader() {
+		return this.singleCookieRequestHeader;
+	}
+	
+	/**
+	 * Sets whether the cookies should be set on a single "Cookie" request header or multiple "Cookie" request headers, when
+	 * sending an HTTP request to the server.
+	 * 
+	 * @param singleCookieRequestHeader {@code true} if the cookies should be set on a single request header, {@code false}
+	 *            otherwise
+	 */
+	public void setSingleCookieRequestHeader(boolean singleCookieRequestHeader) {
+		this.singleCookieRequestHeader = singleCookieRequestHeader;
+		getConfig().setProperty(SINGLE_COOKIE_REQUEST_HEADER, Boolean.valueOf(singleCookieRequestHeader));
 	}
 }

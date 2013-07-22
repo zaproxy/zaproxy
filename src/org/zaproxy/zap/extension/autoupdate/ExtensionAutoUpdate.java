@@ -65,8 +65,8 @@ import org.zaproxy.zap.view.ScanStatus;
  */
 public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
 	
-	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
-    private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
+	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/xGJUO
+    private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/xGJUO";
     private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
 
 	// URLs for use when testing locally ;)
@@ -391,6 +391,36 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	// Only expect this to be called on startup
     	
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+    	
+		if (View.isInitialised()) {
+			if (getModel().getOptionsParam().getCheckForUpdatesParam().isCheckOnStartUnset()) {
+				// First time in
+				OptionsParamCheckForUpdates param = getModel().getOptionsParam().getCheckForUpdatesParam();
+                int result = getView().showConfirmDialog(
+                		Constant.messages.getString("cfu.confirm.startCheck"));
+                if (result == JOptionPane.OK_OPTION) {
+                	param.setCheckOnStart(1);
+                	param.setCheckAddonUpdates(true);
+                	param.setDownloadNewRelease(true);
+                } else {
+                	param.setCheckOnStart(0);
+                }
+                // Save
+			    try {
+			    	this.getModel().getOptionsParam().getConfig().save();
+	            } catch (ConfigurationException ce) {
+	            	logger.error(ce.getMessage(), ce);
+	                getView().showWarningDialog(
+	                		Constant.messages.getString("cfu.confirm.error"));
+	                return;
+	            }
+			}
+			if (! getModel().getOptionsParam().getCheckForUpdatesParam().isCheckOnStart()) {
+				return;
+			}
+			
+		}
+
     	
 		if (! options.isCheckOnStart()) {
 			// Top level option not set, dont do anything, unless already downloaded last release

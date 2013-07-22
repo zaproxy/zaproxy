@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-	<version>1004000</version>
+	<version>2000000</version>
 	<userDir></userDir>
 	<connection>
 		<proxyChain>
@@ -32,7 +32,6 @@
 		<showMainToolbar>1</showMainToolbar>
 	</view>
     <start>
-        <checkForUpdates>0</checkForUpdates>
     </start>
     
 	<certificate>
