@@ -44,6 +44,7 @@
 // ZAP: 2013/04/14 Issue 588: ExtensionHistory.historyIdToRef should be cleared when changing session
 // ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 // ZAP: 2013/07/14 Issue 725: Clear alert's panel fields
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
 
 package org.parosproxy.paros.extension.history;
 
@@ -152,6 +153,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
 			logPanel.setIcon(new ImageIcon(ExtensionHistory.class.getResource("/resource/icon/16/025.png")));	// 'calendar' icon
+			// Dont allow this tab to be hidden
+			logPanel.setHideable(false);
 
             logPanel.setExtension(this);
 		}

@@ -51,6 +51,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 /**
@@ -277,6 +278,9 @@ public class AddOnLoader extends URLClassLoader {
 
         		}
 
+        		if (View.isInitialised()) {
+        			View.getSingleton().refreshTabViewMenus();
+        		}
     	}
     }
     
