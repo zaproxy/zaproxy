@@ -22,6 +22,9 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.TabbedPanel;
 
+/**
+ * A tabbed panel that adds the option to hide individual tabs via a cross button on the tab.
+ */
 public class TabbedPanel2 extends TabbedPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -35,26 +38,6 @@ public class TabbedPanel2 extends TabbedPanel {
 	private List<Component> removedTabList = new ArrayList<Component>();
 
 	private final Logger logger = Logger.getLogger(TabbedPanel2.class);
-
-	/*
-	 * TODO 
-	 * |	Add config str in right place?
-	 * 		Show breakpoint panel when breakpoint hit!
-	 * 		Name???
-	 * Optional
-	 * 		Help - optional until oked by everyone..
-	 * 		Move cross to right hand side?
-	 * 		Hide icons in non selected tabs (might be hard?)
-	 * 
-	 * Classes
-	 * 		AbstractPanel
-	 * 		View
-	 * 		MainFrame
-	 * 		WorkbenchPanel
-	 * 		ExtensionLoader
-	 * 		OptionsParamView
-	 * 		:
-	 */
 
 	public TabbedPanel2() {
 		super();
