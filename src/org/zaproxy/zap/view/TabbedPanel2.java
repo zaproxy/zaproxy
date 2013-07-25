@@ -183,9 +183,6 @@ public class TabbedPanel2 extends TabbedPanel {
 		};
 		btnClose.addActionListener(listener);
 
-		// Optionally bring the new tab to the front
-		this.setSelectedComponent(c);
-
 		if (! this.isTabVisible(c)) {
 			// Only add back visible tabs
 			setVisible(c, false);
