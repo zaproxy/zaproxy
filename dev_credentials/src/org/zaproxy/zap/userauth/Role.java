@@ -24,6 +24,7 @@ package org.zaproxy.zap.userauth;
  */
 public class Role {
 
+
 	/** The corresponding context id. */
 	private int contextId;
 
