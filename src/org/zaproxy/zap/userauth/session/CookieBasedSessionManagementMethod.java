@@ -125,7 +125,11 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 
 	@Override
 	public void processMessageToMatchSession(HttpMessage message) {
-		CookieBasedSessionManagementHelper.processMessageToMatchSession(message, session);
+		if (message.getHttpSession() != session) {
+			if (log.isDebugEnabled())
+				log.debug("Modifying message to match User session: " + session);
+			CookieBasedSessionManagementHelper.processMessageToMatchSession(message, session);
+		}
 	}
 
 }
