@@ -21,6 +21,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
@@ -29,7 +30,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  */
 public class ManualAuthenticationMethod implements AuthenticationMethod {
 
-	private HttpSession selectedSession;
+	private WebSession selectedSession;
 	private static final String NAME = Constant.messages.getString("userauth.auth.manual.name");
 
 	@Override
@@ -38,8 +39,18 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 	}
 
 	@Override
-	public HttpSession authenticate() {
+	public WebSession authenticate() {
 		return selectedSession;
+	}
+
+	@Override
+	public String getStatusDescription() {
+		return "Selected HTTP Session: " + selectedSession.getName();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return selectedSession != null;
 	}
 
 	/**
@@ -113,7 +124,7 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 		@Override
 		public void saveMethod() {
 			log.info("Saving Manual Authentication Method: " + getSessionsComboBox().getSelectedItem());
-			getMethod().selectedSession = (HttpSession) getSessionsComboBox().getSelectedItem();
+			getMethod().selectedSession = (WebSession) getSessionsComboBox().getSelectedItem();
 		}
 
 		/**
@@ -161,16 +172,6 @@ public class ManualAuthenticationMethod implements AuthenticationMethod {
 			}
 			return sessionsComboBox;
 		}
-	}
-
-	@Override
-	public String getStatusDescription() {
-		return "Selected HTTP Session: " + selectedSession.getName();
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return selectedSession != null;
 	}
 
 }

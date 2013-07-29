@@ -19,6 +19,9 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import org.parosproxy.paros.network.HttpMessage;
+
+
 /**
  * The {@link SessionManagementMethod} represents a session management method that can be used to
  * manage an existing http session corresponding to an entity (user) interacting with a particular
@@ -39,4 +42,48 @@ public interface SessionManagementMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
+
+	/**
+	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
+	 * object corresponding to the Session Management Method.<br/>
+	 * <br/>
+	 * This method should not store the extracted web session. Future calls to
+	 * {@link SessionManagementMethod#setWebSession(WebSession)} will be made.
+	 * 
+	 * @param msg the msg
+	 * @return the web session
+	 */
+	public WebSession extractWebSession(HttpMessage msg);
+
+	/**
+	 * Sets the web session.
+	 * 
+	 * @param session the new web session
+	 * @throws UnsupportedWebSessionException if the web session type is unsupported
+	 */
+	public void setWebSession(WebSession session) throws UnsupportedWebSessionException;
+
+
+	/**
+	 * Modifies a message so its Request Header/Body matches the web session corresponding to this
+	 * session management method.
+	 * 
+	 * @param message the message
+	 */
+	public void processMessageToMatchSession(HttpMessage message);
+
+	/**
+	 * Thrown when an unsupported type of web session is used with a {@link SessionManagementMethod}
+	 * .
+	 */
+	public class UnsupportedWebSessionException extends Exception {
+
+		/** The Constant serialVersionUID. */
+		private static final long serialVersionUID = 4802501809913124766L;
+
+		public UnsupportedWebSessionException(String message) {
+			super(message);
+		}
+
+	}
 }
