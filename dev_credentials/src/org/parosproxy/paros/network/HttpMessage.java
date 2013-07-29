@@ -32,6 +32,7 @@
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
+// ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
 
 package org.parosproxy.paros.network;
 
@@ -53,6 +54,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
+import org.zaproxy.zap.userauth.User;
 
 
 /**
@@ -81,6 +83,8 @@ public class HttpMessage implements Message {
     private static Logger log = Logger.getLogger(HttpMessage.class);
     // ZAP: Added HttpSession
 	private HttpSession httpSession = null;
+	// ZAP: Added support for requesting the message to be sent as a particular User
+	private User requestUser;
 
 
     public HistoryReference getHistoryRef() {
@@ -866,4 +870,25 @@ public class HttpMessage implements Message {
 		}
 		return false;
 	}
+
+	/**
+	 * Gets the request user.
+	 *
+	 * @return the request user
+	 */
+	public User getRequestingUser() {
+		return requestUser;
+	}
+
+	/**
+	 * Sets the requesting user. When sending the message, if a requesting user has been set, the message
+	 * will be modified so that it will be sent as from the point of view of this particular user.
+	 * 
+	 * @param requestUser the new request user
+	 */
+	public void setRequestingUser(User requestUser) {
+		this.requestUser = requestUser;
+	}
+	
+	
 }

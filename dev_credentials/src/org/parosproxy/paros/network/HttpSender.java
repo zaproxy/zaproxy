@@ -31,6 +31,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
+// ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
 
 package org.parosproxy.paros.network;
 
@@ -341,6 +342,10 @@ public class HttpSender {
 	private void send(HttpMessage msg, boolean isFollowRedirect) throws IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
+        
+        //ZAP: Modify the request message if a 'Requesting User' has been set
+        if(msg.getRequestingUser()!=null)
+        	msg.getRequestingUser().getSessionManagementMethod().processMessageToMatchSession(msg);
         
         try {
             method = runMethod(msg, isFollowRedirect);
