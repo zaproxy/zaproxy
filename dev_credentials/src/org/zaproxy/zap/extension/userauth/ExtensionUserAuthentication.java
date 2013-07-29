@@ -22,9 +22,12 @@ package org.zaproxy.zap.extension.userauth;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.management.relation.Role;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -37,35 +40,65 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
+import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
- * The Class ExtensionUserAuthentication.<br/<br/>
+ * The Extension for managing {@link User Users}, {@link Role Roles},
+ * {@link SessionManagementMethod SessionManagementMethods}, {@link AuthenticationMethod
+ * AuthenticationMethods} and related entities.
+ * <p>
  * This class also handles the loading of {@link AuthenticationMethodFactory} and
  * {@link SessionManagementMethodFactory} classes in the system using the AddOnLoader (
  * {@link ExtensionFactory#getAddOnLoader()}).
+ * </p>
  */
 public class ExtensionUserAuthentication extends ExtensionAdaptor implements ContextPanelFactory,
 		ContextDataFactory {
+
+	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionUserAuthentication";
 
+	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(ExtensionUserAuthentication.class);
+
+	/** The user panels, mapped to each context. */
 	private Map<Integer, OptionsUserAuthUserPanel> userPanelsMap = new HashMap<>();
+
+	/** The context managers, mapped to each context. */
 	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
 
+	/** The automatically loaded authentication method factories. */
 	List<AuthenticationMethodFactory<?>> authenticationMethodFactories;
+
+	/** The automatically loaded session management method factories. */
 	List<SessionManagementMethodFactory<?>> sessionManagementMethodFactories;
 
+	/** The Constant EXTENSION DEPENDENCIES. */
+	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
+	static {
+		// Prepare a list of Extensions on which this extension depends
+		List<Class<?>> dependencies = new ArrayList<>();
+		dependencies.add(ExtensionHttpSessions.class);
+		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
+	}
+
+	/** A reference to the http sessions extension. */
+	private ExtensionHttpSessions extensionHttpSessions;
+
+	/**
+	 * Instantiates a new extension.
+	 */
 	public ExtensionUserAuthentication() {
 		initialize();
 	}
 
-	private ExtensionHttpSessions extensionHttpSessions;
-
 	/**
-	 * Gets the ExtensionHttpSessions, if it's enabled
+	 * Gets the ExtensionHttpSessions, if it's enabled.
 	 * 
 	 * @return the Http Sessions extension or null, if it's not available
 	 */
@@ -73,19 +106,26 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 		if (extensionHttpSessions == null) {
 			extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
 					.getExtension(ExtensionHttpSessions.NAME);
+			if (extensionHttpSessions == null)
+				log.error("Http Sessions Extension should be enabled for the "
+						+ ExtensionUserAuthentication.class.getSimpleName() + " to work.");
 		}
 		return extensionHttpSessions;
 
 	}
 
+	/**
+	 * Initialize the extension.
+	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(100);
+		this.setOrder(102);
 
 		// Load the Authentication and Session Management methods
 		this.loadAuthenticationMethodFactories();
 		this.loadSesssionManagementMethodFactories();
 
+		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
 		// API.getInstance().registerApiImplementor(api);
 		// HttpSender.addListener(this);
@@ -94,15 +134,6 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
-	}
-
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
 	}
 
 	@Override
@@ -115,6 +146,20 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
 
+		}
+	}
+
+	@Override
+	public List<Class<?>> getDependencies() {
+		return EXTENSION_DEPENDENCIES;
+	}
+
+	@Override
+	public URL getURL() {
+		try {
+			return new URL(Constant.ZAP_HOMEPAGE);
+		} catch (MalformedURLException e) {
+			return null;
 		}
 	}
 
