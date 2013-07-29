@@ -42,6 +42,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner, ScannerListener {
@@ -261,6 +262,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	public Date getTimeFinished() {
 		return timeFinished;
+	}
+
+	@Override
+	public void setScanAsUser(User user) {
+		// TODO Should be implemented to make the Active Scan work from the point of view of a User
 	}
 	
 }

@@ -21,8 +21,11 @@ package org.zaproxy.zap.userauth;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
+import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.utils.Enableable;
 
 /**
@@ -33,6 +36,8 @@ public class User extends Enableable {
 	public SessionManagementMethod getSessionManagementMethod() {
 		return sessionManagementMethod;
 	}
+
+	private static final Logger log = Logger.getLogger(User.class);
 
 	/** The name. */
 	private String name;
@@ -78,4 +83,20 @@ public class User extends Enableable {
 				+ roles + ", enabled=" + isEnabled() + "]";
 	}
 
+	/**
+	 * Modifies a message so its Request Header/Body matches the web session corresponding to this
+	 * user.
+	 * 
+	 * @param message the message
+	 */
+	public void processMessageToMatchUser(HttpMessage message) {
+		// If the user is not yet authenticated, authenticate now
+		if (!this.sessionManagementMethod.isAuthenticated()) {
+			log.info("Authenticating user: " + this.name);
+			WebSession newSession = this.authenticationMethod.authenticate();
+			this.sessionManagementMethod.setWebSession(newSession);
+		}
+		// Modify the message accordingly
+		this.sessionManagementMethod.processMessageToMatchSession(message);
+	}
 }

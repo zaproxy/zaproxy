@@ -40,6 +40,7 @@ import org.zaproxy.zap.spider.filters.DefaultParseFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.userauth.User;
 
 /**
  * The Class Spider.
@@ -71,8 +72,8 @@ public class Spider {
 	private SpiderController controller;
 
 	/**
-	 * The condition that is used for the threads in the pool to wait on, when the Spider crawling is paused.
-	 * When the Spider is resumed, all the waiting threads are awakened.
+	 * The condition that is used for the threads in the pool to wait on, when the Spider crawling
+	 * is paused. When the Spider is resumed, all the waiting threads are awakened.
 	 */
 	private Condition pausedCondition = pauseLock.newCondition();
 
@@ -100,9 +101,13 @@ public class Spider {
 	/** The cookie manager. */
 	private CookieManager cookieManager;
 
+	/** The scan user. */
+	private User scanUser;
+
 	/**
-	 * The initialized marks if the spidering process is completely started. It solves the problem when the
-	 * first task is processed and the process is finished before the other seeds are added.
+	 * The initialized marks if the spidering process is completely started. It solves the problem
+	 * when the first task is processed and the process is finished before the other seeds are
+	 * added.
 	 */
 	private boolean initialized;
 
@@ -188,7 +193,8 @@ public class Spider {
 				if (uri.getPort() == 80 || uri.getPort() == 443) {
 					robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
 				} else {
-					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt", true);
+					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt",
+							true);
 				}
 				this.seedList.add(robotsUri);
 			} catch (Exception e) {
@@ -199,7 +205,8 @@ public class Spider {
 	}
 
 	/**
-	 * Sets the exclude list which contains a List of strings, defining the uris that should be excluded.
+	 * Sets the exclude list which contains a List of strings, defining the uris that should be
+	 * excluded.
 	 * 
 	 * @param excludeList the new exclude list
 	 */
@@ -306,6 +313,9 @@ public class Spider {
 			return;
 		}
 
+		if (scanUser != null)
+			log.info("Scan will be performed from the point of view of User: " + scanUser.getName());
+
 		this.controller.reset();
 		this.stopped = false;
 		this.paused = false;
@@ -411,17 +421,37 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly, it checks
-	 * if the Spidering process is paused and, if it is, it waits on the corresponding condition for the
-	 * process to be resumed. Called from the SpiderTask.
+	 * Sets the spider so it will scan from the point of view of a user.
+	 *
+	 * @param user the user to be scanned as
+	 */
+	public void setScanAsUser(User user) {
+		this.scanUser = user;
+	}
+	
+	/**
+	 * Gets the user that will be used in the scanning.
+	 *
+	 * @return the scan user
+	 */
+	protected User getScanUser(){
+		return this.scanUser;
+	}
+
+	
+	
+	/**
+	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
+	 * it checks if the Spidering process is paused and, if it is, it waits on the corresponding
+	 * condition for the process to be resumed. Called from the SpiderTask.
 	 */
 	protected void preTaskExecution() {
 		checkPauseAndWait();
 	}
 
 	/**
-	 * This method is run by Threads in the ThreadPool and checks if the scan is paused and, if it is, waits
-	 * until it's unpaused.
+	 * This method is run by Threads in the ThreadPool and checks if the scan is paused and, if it
+	 * is, waits until it's unpaused.
 	 */
 	protected void checkPauseAndWait() {
 		pauseLock.lock();
@@ -436,8 +466,9 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly, it
-	 * notifies the listeners of the progress and checks if the scan is complete. Called from the SpiderTask.
+	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
+	 * it notifies the listeners of the progress and checks if the scan is complete. Called from the
+	 * SpiderTask.
 	 */
 	protected void postTaskExecution() {
 		int done = this.tasksDoneCount.incrementAndGet();
@@ -518,8 +549,8 @@ public class Spider {
 	 * 
 	 * @param uri the uri
 	 * @param method the method used for fetching the resource
-	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not, stating the
-	 *        reason of the filtering
+	 * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+	 *            stating the reason of the filtering
 	 */
 	protected synchronized void notifyListenersFoundURI(String uri, String method, FetchStatus status) {
 		for (SpiderListener l : listeners) {
