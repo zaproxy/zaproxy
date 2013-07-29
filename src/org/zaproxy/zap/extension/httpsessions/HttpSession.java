@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.userauth.session.WebSession;
+
 /**
  * The Class HttpSession defines the data that is stored regarding an existing HTTP session on a
  * particular site.
@@ -29,7 +32,7 @@ import java.util.Map;
  * The session can be invalidated and should only be used while it is valid.
  * </p>
  */
-public class HttpSession {
+public class HttpSession implements WebSession {
 
 	/** The name. */
 	private String name;
@@ -45,19 +48,27 @@ public class HttpSession {
 
 	/** The number of http messages that matched this session. */
 	private int messagesMatched;
+	
+	private HttpSessionTokensSet tokenNames;
 
 	/**
 	 * Instantiates a new http session.
-	 * 
+	 *
 	 * @param name the name
+	 * @param tokenNames the token names
 	 */
-	public HttpSession(String name) {
+	public HttpSession(String name, HttpSessionTokensSet tokenNames) {
 		super();
 		this.name = name;
 		this.active = false;
 		this.valid = true;
 		this.messagesMatched = 0;
 		this.tokenValues = new HashMap<>(1);
+		this.tokenNames=tokenNames;
+	}
+
+	public HttpSessionTokensSet getTokensNames() {
+		return tokenNames;
 	}
 
 	/**
@@ -260,6 +271,11 @@ public class HttpSession {
 	 */
 	public void setMessagesMatched(int messagesMatched) {
 		this.messagesMatched = messagesMatched;
+	}
+
+	@Override
+	public void processMessageToMatch(HttpMessage message) {
+		
 	}
 
 }

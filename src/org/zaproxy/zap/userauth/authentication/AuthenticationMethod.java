@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
-import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.userauth.session.WebSession;
 
 /**
  * The AuthenticationMethod represents an authentication method that can be used to authenticate an
@@ -39,7 +39,7 @@ public interface AuthenticationMethod {
 	 * 
 	 * @return the http session
 	 */
-	public HttpSession authenticate();
+	public WebSession authenticate();
 
 	/**
 	 * Checks if the authentication method is fully configured.

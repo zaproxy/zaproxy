@@ -19,14 +19,25 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import java.net.HttpCookie;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 
 /**
  * The implementation for a {@link SessionManagementMethod} that for web applications that use
  * cookies for session management.
  */
 public class CookieBasedSessionManagementMethod implements SessionManagementMethod {
+
+	private static final Logger log = Logger.getLogger(CookieBasedSessionManagementMethod.class);
 
 	/** The session. */
 	private HttpSession session;
@@ -95,6 +106,26 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 	public String getStatusDescription() {
 		// No options panel, so no need for status description
 		return "";
+	}
+
+	@Override
+	public WebSession extractWebSession(HttpMessage msg) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setWebSession(WebSession session) throws UnsupportedWebSessionException {
+		if (!(session instanceof HttpSession))
+			throw new UnsupportedWebSessionException(
+					"The WebSession type provided is unsupported. Cookie based session management only supports "
+							+ HttpSession.class + " type of WebSession.");
+		this.session = (HttpSession) session;
+	}
+
+	@Override
+	public void processMessageToMatchSession(HttpMessage message) {
+		CookieBasedSessionManagementHelper.processMessageToMatchSession(message, session);
 	}
 
 }
