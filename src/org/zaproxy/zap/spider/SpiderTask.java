@@ -233,7 +233,12 @@ public class SpiderTask implements Runnable {
 		if (parent.getSpiderParam().getUserAgent() != null) {
 			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
 		}
-
+		
+		//Check if there's a need to send the message from the point of view of a User
+		if(parent.getScanUser()!=null){
+			msg.setRequestingUser(parent.getScanUser());
+		}
+		
 		// Fetch the page
 		if (parent.getHttpSender() != null) {
 			parent.getHttpSender().sendAndReceive(msg);

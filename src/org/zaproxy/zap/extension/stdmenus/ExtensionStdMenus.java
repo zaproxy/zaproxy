@@ -36,6 +36,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuSpiderSite popupMenuSpiderSite = null;
 	private PopupMenuSpiderContext popupMenuSpiderContext = null;
 	private PopupMenuSpiderSubtree popupMenuSpiderSubtree = null;
+	private PopupMenuSpiderURLAsUser popupMenuSpiderURLAsUser = null;
 	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -81,6 +82,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
@@ -105,6 +107,13 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			popupMenuSpiderContext = new PopupMenuSpiderContext(Constant.messages.getString("spider.context.popup"));
 		}
 		return popupMenuSpiderContext;
+	}
+	
+	private PopupMenuSpiderURLAsUser getPopupMenuSpiderURLAsUser(int menuIndex) {
+		if (popupMenuSpiderURLAsUser == null) {
+			popupMenuSpiderURLAsUser = new PopupMenuSpiderURLAsUser(Constant.messages.getString("spider.url.user.popup"));
+		}
+		return popupMenuSpiderURLAsUser;
 	}
 
 	private PopupMenuSpiderSite getPopupMenuSpiderSite(int menuIndex) {

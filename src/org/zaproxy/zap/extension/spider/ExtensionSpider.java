@@ -44,6 +44,7 @@ import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
@@ -315,7 +316,16 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param node the node
 	 */
 	public void startScanNode(SiteNode node) {
-		this.getSpiderPanel().scanNode(node, true);
+		this.getSpiderPanel().scanNode(node, true, null);
+	}
+	
+	/**
+	 * Start the scan of an URL (Node) from the POV of a User.
+	 * 
+	 * @param node the node
+	 */
+	public void startScanNode(SiteNode node, User user) {
+		this.getSpiderPanel().scanNode(node, true, user);
 	}
 
 	/**

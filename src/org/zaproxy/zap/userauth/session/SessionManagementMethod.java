@@ -42,6 +42,13 @@ public interface SessionManagementMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
+	
+	/**
+	 * Checks if this session managed method is authenticated.
+	 *
+	 * @return true, if is authenticated
+	 */
+	public boolean isAuthenticated();
 
 	/**
 	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
@@ -76,7 +83,7 @@ public interface SessionManagementMethod {
 	 * Thrown when an unsupported type of web session is used with a {@link SessionManagementMethod}
 	 * .
 	 */
-	public class UnsupportedWebSessionException extends Exception {
+	public class UnsupportedWebSessionException extends RuntimeException {
 
 		/** The Constant serialVersionUID. */
 		private static final long serialVersionUID = 4802501809913124766L;

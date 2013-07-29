@@ -19,17 +19,10 @@
  */
 package org.zaproxy.zap.userauth.session;
 
-import java.net.HttpCookie;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
-import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 
 /**
  * The implementation for a {@link SessionManagementMethod} that for web applications that use
@@ -130,6 +123,11 @@ public class CookieBasedSessionManagementMethod implements SessionManagementMeth
 				log.debug("Modifying message to match User session: " + session);
 			CookieBasedSessionManagementHelper.processMessageToMatchSession(message, session);
 		}
+	}
+
+	@Override
+	public boolean isAuthenticated() {
+		return session!=null;
 	}
 
 }

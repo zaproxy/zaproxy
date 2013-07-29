@@ -345,7 +345,7 @@ public class HttpSender {
         
         //ZAP: Modify the request message if a 'Requesting User' has been set
         if(msg.getRequestingUser()!=null)
-        	msg.getRequestingUser().getSessionManagementMethod().processMessageToMatchSession(msg);
+        	msg.getRequestingUser().processMessageToMatchUser(msg);
         
         try {
             method = runMethod(msg, isFollowRedirect);

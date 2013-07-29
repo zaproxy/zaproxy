@@ -38,6 +38,7 @@ import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.userauth.User;
 
 /**
  * The Class SpiderThread that controls the spidering process on a particular site. Being a
@@ -81,6 +82,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	/** The scan context. */
 	private Context scanContext = null;
+
+	/** The scan user. */
+	private User scanUser = null;
 
 	/** The results model. */
 	private SpiderPanelTableModel resultsModel;
@@ -196,8 +200,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 		// If the spider hasn't been initialized, do it now
 		if (spider == null) {
-			spider = new Spider(extension.getSpiderParam(),
-					extension.getModel().getOptionsParam().getConnectionParam(), extension.getModel());
+			spider = new Spider(extension.getSpiderParam(), extension.getModel().getOptionsParam()
+					.getConnectionParam(), extension.getModel());
 
 			// Register this thread as a Spider Listener, so it gets notified of events and is able
 			// to manipulate the UI accordingly
@@ -217,6 +221,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			else
 				spider.addSeed(startURI);
 		}
+		if(scanUser!=null)
+			spider.setScanAsUser(scanUser);
 
 		// Set the Spider Panel as the focused one
 		if (extension.getView() != null) {
@@ -318,7 +324,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		SiteMap siteTree = extension.getModel().getSession().getSiteTree();
 		HistoryReference historyRef = null;
 		try {
-			historyRef = new HistoryReference(extension.getModel().getSession(), HistoryReference.TYPE_SPIDER, msg);
+			historyRef = new HistoryReference(extension.getModel().getSession(),
+					HistoryReference.TYPE_SPIDER, msg);
 			// // Use custom icon for robots.txt file
 			// if (msg.getRequestHeader().getURI().getPath().equalsIgnoreCase("/robots.txt"))
 			// historyRef.setCustomIcon("/resource/icon/10/189.png", false);
@@ -405,6 +412,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public void setScanContext(Context context) {
 		this.scanContext = context;
+	}
+
+	@Override
+	public void setScanAsUser(User user) {
+		this.scanUser = user;
 	}
 
 }
