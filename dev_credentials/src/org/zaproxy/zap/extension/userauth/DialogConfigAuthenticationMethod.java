@@ -24,7 +24,6 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.userauth.authentication.AbstractAuthenticationMethodOptionsPanel;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;

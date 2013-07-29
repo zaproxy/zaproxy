@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.userauth.UserAuthManager;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -71,6 +70,8 @@ public class DialogAddUser extends AbstractFormDialog {
 
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
 			.getString("userauth.user.dialog.add.button.confirm");
+
+	protected ExtensionUserAuthentication extension;
 
 	@Override
 	protected boolean validateFields() {
@@ -138,14 +139,18 @@ public class DialogAddUser extends AbstractFormDialog {
 	private JLabel authenticationMethodStatusLabel;
 	private JLabel sessionManagementMethodStatusLabel;
 
-	public DialogAddUser(Dialog owner, int contextId) {
-		super(owner, DIALOG_TITLE);
+	public DialogAddUser(Dialog owner, ExtensionUserAuthentication extension, int contextId) {
+		super(owner, DIALOG_TITLE, false);
 		this.contextId = contextId;
+		this.extension = extension;
+		initView();
 	}
 
-	public DialogAddUser(Dialog owner, String title, int contextId) {
-		super(owner, title);
+	public DialogAddUser(Dialog owner, ExtensionUserAuthentication extension, String title, int contextId) {
+		super(owner, title, false);
 		this.contextId = contextId;
+		this.extension = extension;
+		initView();
 	}
 
 	@Override
@@ -326,8 +331,8 @@ public class DialogAddUser extends AbstractFormDialog {
 
 	protected JComboBox<SessionManagementMethodFactory<?>> getSessionManagementMethodsComboBox() {
 		if (sessionManagementMethodsComboBox == null) {
-			Vector<SessionManagementMethodFactory<?>> methods = new Vector<>(UserAuthManager.getInstance()
-					.getSessionManagementMethodFactories());
+			Vector<SessionManagementMethodFactory<?>> methods = new Vector<>(
+					extension.getSessionManagementMethodFactories());
 			sessionManagementMethodsComboBox = new JComboBox<>(methods);
 			sessionManagementMethodsComboBox.setSelectedItem(null);
 
@@ -378,8 +383,8 @@ public class DialogAddUser extends AbstractFormDialog {
 	 */
 	protected JComboBox<AuthenticationMethodFactory<?>> getAuthenticationMethodsComboBox() {
 		if (authenticationMethodsComboBox == null) {
-			Vector<AuthenticationMethodFactory<?>> methods = new Vector<>(UserAuthManager.getInstance()
-					.getAuthenticationMethodFactories());
+			Vector<AuthenticationMethodFactory<?>> methods = new Vector<>(
+					extension.getAuthenticationMethodFactories());
 			authenticationMethodsComboBox = new JComboBox<>(methods);
 			authenticationMethodsComboBox.setSelectedItem(null);
 

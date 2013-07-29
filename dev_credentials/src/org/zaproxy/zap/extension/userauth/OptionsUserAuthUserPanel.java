@@ -38,15 +38,18 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 
 	private int contextId;
 	private UsersMultipleOptionsPanel usersOptionsPanel;
-	private UserAuthUserTableModel usersTableModel;
-	
+	private ContextUserAuthManager contextManager;
+	private ExtensionUserAuthentication extension;
+
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -3920598166129639573L;
 	private static final String PANEL_NAME = Constant.messages.getString("userauth.user.panel.title");
 
-	public OptionsUserAuthUserPanel(int contextId) {
+	public OptionsUserAuthUserPanel(ExtensionUserAuthentication extension, int contextId) {
 		super();
 		this.contextId = contextId;
+		this.contextManager = extension.getContextUserAuthManager(contextId);
+		this.extension = extension;
 		initialize();
 	}
 
@@ -71,17 +74,11 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 
 		this.add(tokenNamesLabel, gbc);
 
-		usersOptionsPanel = new UsersMultipleOptionsPanel(getUsersTableModel(), contextId);
+		usersOptionsPanel = new UsersMultipleOptionsPanel(this.extension,
+				this.contextManager.getUsersModel(), contextId);
 
 		gbc.weighty = 1.0;
 		this.add(usersOptionsPanel, gbc);
-	}
-
-	private UserAuthUserTableModel getUsersTableModel() {
-		if (usersTableModel == null) {
-			usersTableModel = new UserAuthUserTableModel();
-		}
-		return usersTableModel;
 	}
 
 	@Override
@@ -133,11 +130,14 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 
 		private DialogAddUser addDialog = null;
 		private DialogModifyUser modifyDialog = null;
+		private ExtensionUserAuthentication extension;
 		private int contextId;
 
-		public UsersMultipleOptionsPanel(UserAuthUserTableModel model, int contextId) {
+		public UsersMultipleOptionsPanel(ExtensionUserAuthentication extension, UserAuthUserTableModel model,
+				int contextId) {
 			super(model);
 			this.contextId = contextId;
+			this.extension = extension;
 
 			getTable().getColumnExt(0).setPreferredWidth(20);
 			getTable().setSortOrder(1, SortOrder.ASCENDING);
@@ -146,7 +146,8 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 		@Override
 		public User showAddDialogue() {
 			if (addDialog == null) {
-				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), contextId);
+				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), this.extension,
+						contextId);
 				addDialog.pack();
 			}
 			// addDialog.setTokens(model.getElements());
@@ -161,7 +162,8 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 		@Override
 		public User showModifyDialogue(User user) {
 			if (modifyDialog == null) {
-				modifyDialog = new DialogModifyUser(View.getSingleton().getOptionsDialog(null), contextId);
+				modifyDialog = new DialogModifyUser(View.getSingleton().getOptionsDialog(null),
+						this.extension, contextId);
 				modifyDialog.pack();
 			}
 			// addDialog.setTokens(model.getElements());
