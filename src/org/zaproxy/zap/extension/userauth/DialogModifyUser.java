@@ -4,8 +4,6 @@ import java.awt.Dialog;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.userauth.UserAuthManager;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
 
@@ -18,8 +16,8 @@ public class DialogModifyUser extends DialogAddUser {
 	private static final String DIALOG_TITLE = Constant.messages
 			.getString("userauth.user.dialog.modify.title");
 
-	public DialogModifyUser(Dialog owner, int contextId) {
-		super(owner, DIALOG_TITLE, contextId);
+	public DialogModifyUser(Dialog owner, ExtensionUserAuthentication extension, int contextId) {
+		super(owner, extension, DIALOG_TITLE, contextId);
 	}
 
 	public void setUser(User user) {
@@ -40,16 +38,14 @@ public class DialogModifyUser extends DialogAddUser {
 		getEnabledCheckBox().setSelected(user.isEnabled());
 
 		// Identify selected authentication method
-		for (AuthenticationMethodFactory<?> f : UserAuthManager.getInstance()
-				.getAuthenticationMethodFactories()) {
+		for (AuthenticationMethodFactory<?> f : extension.getAuthenticationMethodFactories()) {
 			if (f.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
 				getAuthenticationMethodsComboBox().setSelectedItem(f);
 			}
 		}
 
 		// Identify selected session management method
-		for (SessionManagementMethodFactory<?> f : UserAuthManager.getInstance()
-				.getSessionManagementMethodFactories()) {
+		for (SessionManagementMethodFactory<?> f : extension.getSessionManagementMethodFactories()) {
 			if (f.isFactoryForMethod(selectedSessionManagementMethod.getClass())) {
 				getSessionManagementMethodsComboBox().setSelectedItem(f);
 			}

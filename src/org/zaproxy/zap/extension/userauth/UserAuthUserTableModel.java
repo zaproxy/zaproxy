@@ -24,9 +24,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+/**
+ * A table model for holding a set of Users, for a {@link Context}.
+ */
 public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<User> {
 
 	/** The Constant defining the table column names. */
@@ -114,6 +118,16 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 	@Override
 	public String getColumnName(int column) {
 		return COLUMN_NAMES[column];
+	}
+
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		if (columnIndex == 0) {
+			if (aValue instanceof Boolean) {
+				users.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+				fireTableCellUpdated(rowIndex, columnIndex);
+			}
+		}
 	}
 
 }
