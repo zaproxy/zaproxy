@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.stdmenus;
 import java.util.List;
 
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
@@ -41,11 +41,19 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 	/** The parent menu name. */
 	private String parentMenuName;
 
+	/** The context. */
+	private Context context;
+
 	public PopupUserMenu(Context context, User user, String parentMenu) {
 		super(context.getName() + ": " + user.getName(), true);
 		this.user = user;
 		this.parentMenuName = parentMenu;
-		Model.getSingleton().getSession().getContext(2);
+		this.context = context;
+	}
+
+	@Override
+	public boolean isEnabledForSiteNode(SiteNode sn) {
+		return context.isInContext(sn);
 	}
 
 	@Override
@@ -65,10 +73,18 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {
-		if (invoker == Invoker.sites)
-			return true;
-		else
+		switch (invoker) {
+		case alerts:
+		case ascan:
+		case bruteforce:
+		case fuzz:
 			return false;
+		case history:
+		case sites:
+		case search:
+		default:
+			return true;
+		}
 	}
 
 	@Override
