@@ -24,6 +24,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.core.scanner;
 
@@ -132,7 +133,7 @@ public abstract class AbstractDefaultFilePlugin extends AbstractHostPlugin {
                 msg.getRequestBody().setLength(0);
                 sendAndReceive(msg);
                 if (isFileExist(msg)) {
-                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, uri.toString(), "", "", "", msg);
+                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, uri.toString(), "", "", "", "", msg);
                 }
             } catch (Exception e) {
             }

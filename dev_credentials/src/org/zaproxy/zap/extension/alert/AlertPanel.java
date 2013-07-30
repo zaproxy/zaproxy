@@ -271,7 +271,7 @@ public class AlertPanel extends AbstractPanel {
 				        Object obj = node.getUserObject();
 				        if (obj instanceof Alert) {
 				            Alert alert = (Alert) obj;
-						    setMessage(alert.getMessage(), alert.getAttack());
+						    setMessage(alert.getMessage(), alert.getEvidence());
 						    getAlertViewPanel().displayAlert(alert);
 				        } else {
 						    getAlertViewPanel().clearAlert();
@@ -340,19 +340,16 @@ public class AlertPanel extends AbstractPanel {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
 	    
-	    HttpMessage newMsg = msg.cloneAll();
-	    
-	    
 	    if (msg.getRequestHeader().isEmpty()) {
 	    	requestPanel.clearView(true);
 	    } else {
-	        requestPanel.setMessage(newMsg);
+	        requestPanel.setMessage(msg);
 	    }
 
 	    if (msg.getResponseHeader().isEmpty()) {
 	    	responsePanel.clearView(false);
 	    } else {
-	        responsePanel.setMessage(newMsg, true);
+	        responsePanel.setMessage(msg, true);
 
 	        SearchMatch sm = null;
 	        int start;
@@ -360,23 +357,23 @@ public class AlertPanel extends AbstractPanel {
 	        // Highlight the 'attack' / evidence
 	        if (highlight == null || highlight.length() == 0) {
 	        	// ignore
-	        } else if ((start = newMsg.getResponseHeader().toString().indexOf(highlight)) >=0) {
-		        sm = new SearchMatch(newMsg, SearchMatch.Location.RESPONSE_HEAD, start, start + highlight.length());
+	        } else if ((start = msg.getResponseHeader().toString().indexOf(highlight)) >=0) {
+		        sm = new SearchMatch(msg, SearchMatch.Location.RESPONSE_HEAD, start, start + highlight.length());
 				responsePanel.highlightHeader(sm);
 				responsePanel.setTabFocus();
 		        
-	        } else if ((start = newMsg.getResponseBody().toString().indexOf(highlight)) >=0) {
-	        	sm = new SearchMatch(newMsg, SearchMatch.Location.RESPONSE_BODY, start, start + highlight.length());
+	        } else if ((start = msg.getResponseBody().toString().indexOf(highlight)) >=0) {
+	        	sm = new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, start, start + highlight.length());
 				responsePanel.highlightBody(sm);
 				responsePanel.setTabFocus();
 
-	        } else if ((start = newMsg.getRequestHeader().toString().indexOf(highlight)) >=0) {
-		        sm = new SearchMatch(newMsg, SearchMatch.Location.REQUEST_HEAD, start, start + highlight.length());
+	        } else if ((start = msg.getRequestHeader().toString().indexOf(highlight)) >=0) {
+		        sm = new SearchMatch(msg, SearchMatch.Location.REQUEST_HEAD, start, start + highlight.length());
 				requestPanel.highlightHeader(sm);
 				requestPanel.setTabFocus();
 
-	        } else if ((start = newMsg.getRequestBody().toString().indexOf(highlight)) >=0) {
-	        	sm = new SearchMatch(newMsg, SearchMatch.Location.REQUEST_BODY, start, start + highlight.length());
+	        } else if ((start = msg.getRequestBody().toString().indexOf(highlight)) >=0) {
+	        	sm = new SearchMatch(msg, SearchMatch.Location.REQUEST_BODY, start, start + highlight.length());
 				requestPanel.highlightBody(sm);
 				requestPanel.setTabFocus();
 	        }

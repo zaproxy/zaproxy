@@ -44,6 +44,7 @@ public class BreakpointsPanel extends AbstractPanel {
 
 	public static final String PANEL_NAME = "breakpoints";
 	
+	private ExtensionBreak extension;
 	private javax.swing.JPanel panelCommand = null;
 	private javax.swing.JLabel jLabel = null;
 	private JScrollPane jScrollPane = null;
@@ -58,8 +59,9 @@ public class BreakpointsPanel extends AbstractPanel {
 	private static Logger log = Logger.getLogger(BreakpointsPanel.class);
 
     
-    public BreakpointsPanel() {
+    public BreakpointsPanel(ExtensionBreak extension) {
         super();
+        this.extension = extension;
 		this.preferences = Preferences.userNodeForPackage(getClass());
 		
  		initialize();
@@ -164,6 +166,10 @@ public class BreakpointsPanel extends AbstractPanel {
 						
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 			        }
+				    if (e.getClickCount() > 1) {
+				    	// Its a double click
+				    	extension.editUiSelectedBreakpoint();
+				    }
 			    }
 			});
 		}

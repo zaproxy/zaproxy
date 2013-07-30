@@ -19,6 +19,8 @@ package org.zaproxy.zap.extension.api;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,7 +226,7 @@ public class API {
 					}
 
 					ApiResponse res;
-					JSONObject params = getParams(requestHeader.getURI().getQuery());
+					JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
 					switch (reqType) {
 					case action:	
 						// TODO Handle POST requests - need to read these in and then parse params from POST body
@@ -397,9 +399,15 @@ public class API {
 			pos = keyValue[i].indexOf('=');
 			if (pos > 0) {
 				// param found
-				key = keyValue[i].substring(0,pos);
-				value = keyValue[i].substring(pos+1);
-				jp.put(key, value);
+				try {
+					key = URLDecoder.decode(keyValue[i].substring(0,pos), "UTF-8");
+					value = URLDecoder.decode(keyValue[i].substring(pos+1), "UTF-8");
+					jp.put(key, value);
+				} catch (UnsupportedEncodingException | IllegalArgumentException e) {
+					// Carry on anyway
+					Exception apiException = new ApiException(ApiException.Type.BAD_FORMAT, params, e);
+					logger.error(apiException.getMessage(), apiException);
+				}
 			} else {
 				// Carry on anyway
 				Exception e = new ApiException(ApiException.Type.BAD_FORMAT, params);

@@ -24,6 +24,7 @@
 // ZAP: 2012/08/31 Enabled control of AttackStrength
 // ZAP: 2012/10/03 Issue 388: Added enabling support for technologies
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.core.scanner;
 
@@ -233,4 +234,17 @@ public interface Plugin extends Runnable {
 
 	void setTimeFinished();
 	Date getTimeFinished();
+	
+	/**
+	 * Get the CWE Id: http://cwe.mitre.org/index.html
+	 * @return
+	 */
+	int getCweId();
+	
+	/**
+	 * Get the WASC Id: http://projects.webappsec.org/w/page/13246978/Threat%20Classification
+	 * @return
+	 */
+	int getWascId();
+
 }

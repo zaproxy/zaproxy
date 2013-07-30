@@ -59,6 +59,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		historyTable = Database.getSingleton().getTableHistory();
 		// Get the last id - in case we've just opened an existing session
 		currentId = this.getLastHistoryId();
+		lastId = currentId;
 		
 		while (!shutDown) {
 			try {
@@ -135,7 +136,14 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 	
 	protected int getRecordsToScan() {
-		return this.getLastHistoryId() - currentId;
+		return this.getLastHistoryId() - getLastScannedId();
+	}
+
+	private int getLastScannedId() {
+		if (currentId > lastId) {
+			return currentId - 1;
+		}
+		return currentId;
 	}
 	
 	private ExtensionHistory getExtensionHistory() {
@@ -199,9 +207,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		// Reset the currentId
 		historyTable = Database.getSingleton().getTableHistory();
 		href = null;
-		lastId = -1;
 		// Get the last id - in case we've just opened an existing session
 		currentId = historyTable.lastIndex();
+		lastId = currentId;
 	}
 	
 	@Override

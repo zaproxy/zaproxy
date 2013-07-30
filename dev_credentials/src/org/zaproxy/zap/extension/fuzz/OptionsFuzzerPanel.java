@@ -255,7 +255,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 
 	private JButton getAddFileButton() {
 		if (addFileButton == null) {
-	        addFileButton = new JButton(Constant.messages.getString("bruteforce.options.button.addfile")); 
+	        addFileButton = new JButton(Constant.messages.getString("fuzz.options.button.addfile")); 
 			addFileButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    

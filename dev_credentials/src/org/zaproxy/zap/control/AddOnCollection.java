@@ -130,10 +130,20 @@ public class AddOnCollection {
 	            	for (AddOn addOn : addOns) {
 	            		if (ao.isSameAddOn(addOn)) {
 		            		if (ao.isUpdateTo(addOn)) {
-		            			// Replace in situ so we're not changing a list we're iterating through
-		                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
-		                    			" superceeded by " + ao.getVersion());
-		                    	addOns.remove(addOn);
+                                if (ao.canLoad()) {
+    		            			// Replace in situ so we're not changing a list we're iterating through
+    		                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
+    		                    			" superceeded by " + ao.getVersion());
+    		                    	addOns.remove(addOn);
+                                } else {
+                                    if (logger.isDebugEnabled()) {
+                                        logger.debug("Ignoring newer addon " + ao.getId() + " version " + ao.getVersion()
+                                                + " because of ZAP version constraints; Not before=" + ao.getNotBeforeVersion()
+                                                + " Not from=" + ao.getNotFromVersion() + " Current Version="
+                                                + Constant.PROGRAM_VERSION);
+                                    }
+                                    add = false;
+                                }
 		            		} else {
 		            			// Same or older version, dont include
 		                    	logger.debug("Addon " + ao.getId() + " version " + ao.getVersion() + 

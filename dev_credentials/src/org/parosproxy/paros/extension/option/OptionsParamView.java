@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Removed the options of the http panels.
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
 
 package org.parosproxy.paros.extension.option;
 
@@ -49,6 +50,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String REVEAL_OPTION = "view.reveal";
 	public static final String MODE_OPTION = "view.mode";
+	public static final String TAB_OPTION = "view.tab";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;

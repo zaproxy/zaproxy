@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
@@ -29,16 +31,28 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 
+	public enum Location {url, request_header, request_body, response_header, response_body};
+	public enum Match {contains, regex};
+	
     private static final Logger logger = Logger.getLogger(HttpBreakpointMessage.class);
     
     private static final String TYPE = "HTTP";
     
-	private String url;
+	private String string;
 	private Pattern pattern;
+	private Location location;
+	private Match match;
+	private boolean inverse;
+	private boolean ignoreCase;
 
-	public HttpBreakpointMessage(String url) {
-		this.url = url;
-
+	public HttpBreakpointMessage(String string, Location location, Match match, boolean inverse, boolean ignoreCase) {
+		super();
+		this.string = string;
+		this.location = location;
+		this.match = match;
+		this.inverse = inverse;
+		this.ignoreCase = ignoreCase;
+		
 		compilePattern();
 	}
 
@@ -47,30 +61,122 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 	    return TYPE;
 	}
 	
-	public String getUrl() {
-		return url;
+	public String getString() {
+		return string;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
-		
+	public void setString(String str) {
+		this.string = str;
+		compilePattern();
+	}
+
+	public Pattern getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(Pattern pattern) {
+		this.pattern = pattern;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public Match getMatch() {
+		return match;
+	}
+
+	public void setMatch(Match match) {
+		this.match = match;
+		compilePattern();
+	}
+
+	public boolean isInverse() {
+		return inverse;
+	}
+
+	public void setInverse(boolean inverse) {
+		this.inverse = inverse;
+	}
+
+	public boolean isIgnoreCase() {
+		return ignoreCase;
+	}
+
+	public void setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
 		compilePattern();
 	}
 
 	@Override
-	public boolean match(Message aMessage, boolean onlyIfInScope) {
+	public boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
 	    if (aMessage instanceof HttpMessage) {
 	        HttpMessage messge = (HttpMessage)aMessage;
-	        URI uri;
+
             try {
-                uri = (URI) messge.getRequestHeader().getURI().clone();
-                uri.setQuery(null);
-                if (onlyIfInScope) {
-                	if (! Model.getSingleton().getSession().isInScope(uri.toString())) {
-                		return false;
-                	}
-                }
-                return pattern.matcher(uri.getURI()).find();
+		        URI uri = (URI) messge.getRequestHeader().getURI().clone();
+	            uri.setQuery(null);
+	
+	            if (onlyIfInScope) {
+	            	if (! Model.getSingleton().getSession().isInScope(uri.toString())) {
+	            		return false;
+	            	}
+	            }
+	
+		        
+		        String src = null;
+		        switch (location) {
+		        case url:	
+		        	src = uri.getURI();	
+		        	break;
+		        case request_header:
+		        	if (! isRequest) {
+		        		return false;
+		        	}
+		        	src = messge.getRequestHeader().toString();
+		        	break;
+		        case request_body:
+		        	if (! isRequest) {
+		        		return false;
+		        	}
+		        	src = messge.getRequestBody().toString();
+		        	break;
+		        case response_header:	
+		        	if (isRequest) {
+		        		return false;
+		        	}
+		        	src = messge.getResponseHeader().toString();
+		        	break;
+		        case response_body:
+		        	if (isRequest) {
+		        		return false;
+		        	}
+		        	src = messge.getResponseBody().toString();
+		        	break;
+		        }
+		        
+		        boolean res;
+		        if (Match.contains.equals(this.match)) {
+		        	if (ignoreCase) {
+			        	res = src.toLowerCase().contains(string.toLowerCase());
+		        	} else {
+			        	res = src.contains(string);
+		        	}
+		        	
+		        } else {
+		        	res = pattern.matcher(src).find();
+		        }
+		        
+		        if (inverse) {
+		        	return ! res;
+		        } else {
+		        	return res;
+		        }
+		        
             } catch (CloneNotSupportedException | URIException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -80,18 +186,53 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 	}
 
 	private void compilePattern() {
-		String str = url;
-
-		str = str.replaceAll("\\.", "\\\\.");
-		str = str.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
-		str = "(" + str.replaceAll(";+", "|") + ")$";
-
-		pattern = Pattern.compile(str, Pattern.CASE_INSENSITIVE);
+		try {
+			if (ignoreCase) {
+				pattern = Pattern.compile(string, Pattern.CASE_INSENSITIVE);
+			} else {
+				pattern = Pattern.compile(string);
+			}
+		} catch (Exception e) {
+			// This wont be a problem if its a 'contains' match
+			logger.debug("Potentially invalid regex", e);
+		}
 	}
 
     @Override
     public String getDisplayMessage() {
-        return url;
+    	return Constant.messages.getString("brk.brkpoint.location." + location.name()) + ": " + 
+    			Constant.messages.getString("brk.brkpoint.match." + match.name()) + ": " +
+    			(ignoreCase ? Constant.messages.getString("brk.brkpoint.ignorecase.label") : "") +
+    			(inverse ? Constant.messages.getString("brk.brkpoint.inverse.label") : "") +
+    			string;
     }
     
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj == null) {
+            return false;
+    	}
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof HttpBreakpointMessage)) {
+            return false;
+        }
+        HttpBreakpointMessage hbm = (HttpBreakpointMessage) obj;
+        return this.getString().equals(hbm.getString()) &&
+        		this.getLocation().equals(hbm.getLocation()) &&
+        		this.getMatch().equals(hbm.getMatch()) &&
+        		this.isIgnoreCase() == hbm.isIgnoreCase() &&
+        		this.isInverse() == hbm.isInverse();
+    }
+
+    public int hashCode() {
+    	return new HashCodeBuilder(349, 631). // two 'randomly' chosen prime numbers
+            append(string).
+            append(location).
+            append(match).
+            append(ignoreCase).
+            append(inverse).
+            toHashCode();
+    }
 }

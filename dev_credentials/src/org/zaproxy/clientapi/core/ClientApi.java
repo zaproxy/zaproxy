@@ -256,7 +256,10 @@ public class ClientApi {
                         alertSet.getAttribute("attack"),
                         alertSet.getAttribute("description"),
                         alertSet.getAttribute("reference"),
-                        alertSet.getAttribute("solution")));
+                        alertSet.getAttribute("solution"),
+                        alertSet.getAttribute("evidence"),
+                        Integer.parseInt(alertSet.getAttribute("cweid")),
+                        Integer.parseInt(alertSet.getAttribute("wascid"))));
             }
         }
     	return alerts;

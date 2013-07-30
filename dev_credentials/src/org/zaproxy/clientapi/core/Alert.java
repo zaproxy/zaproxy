@@ -32,9 +32,12 @@ public class Alert {
 	private String other;
 	private String param;
     private String attack;
+    private String evidence;
     private String description;
     private String reference;
     private String solution;
+    private int cweId;
+    private int wascId;
 	
     public Alert(String alert, String url, String riskStr, String reliabilityStr,
                  String param, String other) {
@@ -52,7 +55,8 @@ public class Alert {
     }
 	
 	public Alert(String alert, String url, Risk risk, Reliability reliability, 
-			String param, String other, String attack, String description, String reference, String solution) {
+			String param, String other, String attack, String description, String reference, String solution,
+			String evidence, int cweId, int wascId) {
 		super();
 		this.alert = alert;
 		this.risk = risk;
@@ -64,6 +68,9 @@ public class Alert {
         this.description = description;
         this.reference = reference;
         this.solution = solution;
+        this.evidence = evidence;
+        this.cweId = cweId;
+        this.wascId = wascId;
 	}
 
     public Alert(String alert, String url, Risk risk, Reliability reliability,
@@ -149,6 +156,18 @@ public class Alert {
     public String getSolution() {
         return solution;
     }
+
+	public String getEvidence() {
+		return evidence;
+	}
+
+	public int getCweId() {
+		return cweId;
+	}
+
+	public int getWascId() {
+		return wascId;
+	}
 
 	public boolean matches (Alert alertFilter) {
 		boolean matches = true;

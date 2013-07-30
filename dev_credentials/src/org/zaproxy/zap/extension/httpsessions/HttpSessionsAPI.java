@@ -96,7 +96,8 @@ public class HttpSessionsAPI extends ApiImplementor {
 		this.extension = extension;
 
 		// Register the actions
-		this.addApiAction(new ApiAction(ACTION_CREATE_EMPTY_SESSION, new String[] { ACTION_PARAM_SITE }));
+		this.addApiAction(new ApiAction(ACTION_CREATE_EMPTY_SESSION, new String[] { ACTION_PARAM_SITE },
+				new String[] { ACTION_PARAM_SESSION }));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SESSION, new String[] { ACTION_PARAM_SITE, ACTION_PARAM_SESSION }));
 		this.addApiAction(new ApiAction(ACTION_SET_ACTIVE_SESSION, new String[] { ACTION_PARAM_SITE,
 				ACTION_PARAM_SESSION }));
@@ -135,7 +136,12 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
-			site.createEmptySession();
+			final String sessionName = getParam(params, ACTION_PARAM_SESSION, "");
+			if ("".equals(sessionName)) {
+				site.createEmptySession();
+			} else {
+				site.createEmptySession(sessionName);
+			}
 			return ApiResponseElement.OK;
 		case ACTION_REMOVE_SESSION:
 			site = extension.getHttpSessionsSite(params.getString(ACTION_PARAM_SITE), false);
@@ -186,6 +192,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (sessionSST == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
 			}
+			extension.addHttpSessionToken(params.getString(ACTION_PARAM_SITE), params.getString(ACTION_PARAM_TOKEN_NAME));
 			sessionSST.setTokenValue(params.getString(ACTION_PARAM_TOKEN_NAME),
 					params.getString(ACTION_PARAM_TOKEN_VALUE));
 			return ApiResponseElement.OK;

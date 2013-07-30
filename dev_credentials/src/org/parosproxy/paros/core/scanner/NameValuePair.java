@@ -19,9 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/07/02 Changed API to public because future extensible Variant model
 package org.parosproxy.paros.core.scanner;
 
-class NameValuePair {
+public class NameValuePair {
     private String name = null;
     private String value = null;
     private int position = 0;
@@ -34,7 +35,7 @@ class NameValuePair {
      * @param name
      * @param value
      */
-    NameValuePair(String name, String value, int position) {
+    public NameValuePair(String name, String value, int position) {
         super();
         this.name = name;
         this.value = value;

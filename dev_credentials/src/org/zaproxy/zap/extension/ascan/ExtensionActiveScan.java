@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
@@ -49,10 +50,13 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
@@ -64,6 +68,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private static final int ARG_SCAN_IDX = 0;
 
 	public static final String NAME = "ExtensionActiveScan";
+	
+	private static final ImageIcon SCRIPT_ICON_ACTIVE = 
+			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
+	public static final String SCRIPT_TYPE_ACTIVE = "active";
+
 
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
 	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
@@ -130,6 +139,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
         extensionHook.addOptionsParamSet(getScannerParam());
         extensionHook.addCommandLine(getCommandLineArguments());
+
+		ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+		if (extScript != null) {
+			extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
+		}
 
         ActiveScanAPI api = new ActiveScanAPI(this);
         api.addApiOptions(getScannerParam());

@@ -23,6 +23,8 @@
 // ZAP: 2012/03/15 Changed so the change display option stays visually selected.
 // ZAP: 2012/04/26 Removed the method setStatus(String) and instance variable
 // "txtStatus".
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
+
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -111,7 +113,7 @@ public class MainFrame extends AbstractFrame {
 	 *
 	 * @return org.parosproxy.paros.view.StandardPanel
 	 */
-	org.parosproxy.paros.view.WorkbenchPanel getWorkbench() {
+	public org.parosproxy.paros.view.WorkbenchPanel getWorkbench() {
 		if (paneStandard == null) {
 			paneStandard = new org.parosproxy.paros.view.WorkbenchPanel(displayOption);
 			paneStandard.setLayout(new CardLayout());

@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.http.cookie.CookieAttributeHandler;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
@@ -193,30 +192,120 @@ public class HttpSessionsSite {
 	}
 
 	/**
-	 * Creates a new empty session.
+	 * Generates a unique session name.
+	 * <p>
+	 * The generated name is guaranteed to be unique compared to existing session names. If a
+	 * generated name is already in use (happens if the user creates a session with a name that is
+	 * equal to the ones generated) a new one will be generated until it's unique.
+	 * <p>
+	 * The generated session name is composed by the (internationalised) word "Session" appended
+	 * with a space character and an (unique sequential) integer identifier. Each time the method is
+	 * called the integer identifier is incremented, at least, by 1 unit.
+	 * <p>
+	 * Example session names generated:
+	 * <p>
+	 * 
+	 * <pre>
+	 * Session 0
+	 * Session 1
+	 * Session 2
+	 * </pre>
+	 * 
+	 * @return the generated unique session name
+	 * @see #lastGeneratedSessionID
 	 */
-	public void createEmptySession() {
-		HttpSession session = buildNewSession();
+	private String generateUniqueSessionName() {
+		String name;
+		do {
+			name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
+					Integer.valueOf(lastGeneratedSessionID++));
+		} while (!isSessionNameUnique(name));
 
-		// Set as active, so that future requests/responses modify this session
-		this.addHttpSession(session);
-		this.setActiveSession(session);
+		return name;
 	}
 
 	/**
-	 * Builds a new session, with a uniquely generated name.
+	 * Tells whether the given session {@code name} is unique or not, compared to existing session
+	 * names.
 	 * 
-	 * @return the http session
+	 * @param name the session name that will be checked
+	 * @return {@code true} if the session name is unique, {@code false} otherwise
+	 * @see #sessions
 	 */
-	private HttpSession buildNewSession() {
-		// Generate unique
-		String name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
-				Integer.valueOf(lastGeneratedSessionID++));
-		while (this.getHttpSession(name) != null) {
-			name = MessageFormat.format(Constant.messages.getString("httpsessions.session.defaultName"),
-					Integer.valueOf(lastGeneratedSessionID++));
+	private boolean isSessionNameUnique(final String name) {
+		for (HttpSession session : sessions) {
+			if (name.equals(session.getName())) {
+				return false;
+			}
 		}
-		return new HttpSession(name, extension.getHttpSessionTokensSet(getSite()));
+		return true;
+	}
+
+	/**
+	 * Validates that the session {@code name} is not {@code null} or an empty string.
+	 * 
+	 * @param name the session name to be validated
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 */
+	private static void validateSessionName(final String name) {
+		if (name == null) {
+			throw new IllegalArgumentException("Session name must not be null.");
+		}
+		if (name.isEmpty()) {
+			throw new IllegalArgumentException("Session name must not be empty.");
+		}
+	}
+
+	/**
+	 * Creates an empty session with the given {@code name} and sets it as the active session.
+	 * <p>
+	 * <strong>Note:</strong> It's responsibility of the caller to ensure that no session with the
+	 * given {@code name} already exists.
+	 * 
+	 * @param name the name of the session that will be created and set as the active session
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 * @see #addHttpSession(HttpSession)
+	 * @see #setActiveSession(HttpSession)
+	 * @see #isSessionNameUnique(String)
+	 */
+	private void createEmptySessionAndSetAsActive(final String name) {
+		validateSessionName(name);
+
+		final HttpSession session = new HttpSession(name, extension.getHttpSessionTokensSet(getSite()));
+		addHttpSession(session);
+		setActiveSession(session);
+	}
+
+	/**
+	 * Creates an empty session with the given {@code name}.
+	 * <p>
+	 * The newly created session is set as the active session.
+	 * <p>
+	 * <strong>Note:</strong> If a session with the given {@code name} already exists no action is
+	 * taken.
+	 * 
+	 * @param name the name of the session
+	 * @throws IllegalArgumentException if the {@code name} is {@code null} or an empty string
+	 * @see #setActiveSession(HttpSession)
+	 */
+	public void createEmptySession(final String name) {
+		validateSessionName(name);
+
+		if (!isSessionNameUnique(name)) {
+			return;
+		}
+		createEmptySessionAndSetAsActive(name);
+	}
+
+	/**
+	 * Creates a new empty session.
+	 * <p>
+	 * The newly created session is set as the active session.
+	 * 
+	 * @see #setActiveSession(HttpSession)
+	 */
+	public void createEmptySession() {
+		createEmptySessionAndSetAsActive(generateUniqueSessionName());
 	}
 
 	/**
@@ -316,7 +405,8 @@ public class HttpSessionsSite {
 
 		// If the session didn't exist, create it now
 		if (session == null) {
-			session = buildNewSession();
+			session = new HttpSession(generateUniqueSessionName(),
+					extension.getHttpSessionTokensSet(getSite()));
 			this.addHttpSession(session);
 
 			// Add all the existing tokens from the request, if they don't replace one in the

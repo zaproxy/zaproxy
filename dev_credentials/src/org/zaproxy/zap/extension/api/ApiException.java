@@ -50,11 +50,21 @@ public class ApiException extends Exception {
 		this.detail = null;
 	}
 
+    public ApiException(Type type, Throwable cause) {
+        super(type.name().toLowerCase(), cause);
+        this.detail = null;
+    }
+
 	public ApiException(Type type, String detail) {
 		super(type.name().toLowerCase());
 		this.detail = detail;
 	}
-	
+
+    public ApiException(Type type, String detail, Throwable cause) {
+        super(type.name().toLowerCase(), cause);
+        this.detail = detail;
+    }
+
 	@Override
 	public String toString () {
 		if (detail != null) {

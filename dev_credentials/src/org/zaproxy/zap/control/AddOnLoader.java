@@ -37,6 +37,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -50,6 +51,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 /**
@@ -81,7 +83,7 @@ public class AddOnLoader extends URLClassLoader {
     /*
      * Using sub-classloaders means we can unload and reload addons
      */
-    private Map<String, URLClassLoader> addOnLoaders = new HashMap<String, URLClassLoader>();
+    private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
     public AddOnLoader(File[] dirs) {
         super(new URL[0]);
@@ -90,11 +92,13 @@ public class AddOnLoader extends URLClassLoader {
 
         this.aoc = new AddOnCollection(dirs);
         
-        for (AddOn ao : this.aoc.getAddOns()) {
-        	// Add, unless its on the block list
-        	if ( ! this.blockList.contains(ao.getId())) {
-        		this.addAddOnFile(ao);
-        	}
+        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
+            AddOn addOn = iterator.next();
+            if (canLoadAddOn(addOn)) {
+                this.addAddOnFile(addOn);
+            } else {
+                iterator.remove();
+            }
         }
 
         if (dirs != null) {
@@ -115,10 +119,30 @@ public class AddOnLoader extends URLClassLoader {
 			}
     	}
     }
-    
+
+    private boolean canLoadAddOn(AddOn ao) {
+        if (blockList.contains(ao.getId())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Can't load add-on " + ao.getName()
+                        + " it's on the block list (add-on uninstalled but the file couldn't be removed).");
+            }
+            return false;
+        }
+
+        if (!ao.canLoad()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Can't load add-on " + ao.getName() + " because of ZAP version constraints; Not before="
+                        + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + " Current Version="
+                        + Constant.PROGRAM_VERSION);
+            }
+            return false;
+        }
+        return true;
+    }
+
     private void addAddOnFile(AddOn ao) {
     	try {
-			this.addOnLoaders.put(ao.getId(), new URLClassLoader(new URL[]{ao.getFile().toURI().toURL()}));
+			this.addOnLoaders.put(ao.getId(), new AddOnClassLoader(ao.getFile().toURI().toURL(), this));
 		} catch (MalformedURLException e) {
     		logger.error(e.getMessage(), e);
 		}
@@ -131,7 +155,7 @@ public class AddOnLoader extends URLClassLoader {
 		} catch (ClassNotFoundException e) {
 			// Continue for now
 		}
-        for (URLClassLoader loader : addOnLoaders.values()) {
+        for (AddOnClassLoader loader : addOnLoaders.values()) {
             try {
     			return loader.loadClass(name);
     		} catch (ClassNotFoundException e) {
@@ -226,7 +250,7 @@ public class AddOnLoader extends URLClassLoader {
 	    			List<String> fileNames = ao.getFiles();
 
 	    			if (fileNames != null && fileNames != null) {
-	    				URLClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
+	    			    AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
 	    				for (String name : fileNames) {
 							File outfile = null;
 	    					logger.debug("Install file: " + name);
@@ -254,6 +278,9 @@ public class AddOnLoader extends URLClassLoader {
 
         		}
 
+        		if (View.isInitialised()) {
+        			View.getSingleton().refreshTabViewMenus();
+        		}
     	}
     }
     

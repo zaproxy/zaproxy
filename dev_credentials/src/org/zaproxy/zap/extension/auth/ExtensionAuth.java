@@ -22,9 +22,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
@@ -43,6 +46,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -380,7 +384,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			URI uri = new URI(url, true);
 			// Note the findNode just checks the parameter names, not their values
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-			if (sn != null && sn.getHistoryReference().getHttpMessage().getRequestBody().toString().equals(postData)) {
+			if (isSiteNodeMatch(sn, uri.getQuery(), postData)) {
 				this.setLoginRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem
@@ -391,6 +395,51 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			}
 		}
 	}
+
+    private static boolean isSiteNodeMatch(SiteNode sn, String query, String postData) throws Exception {
+        if (sn == null) {
+            return false;
+        }
+
+        final HttpMessage httpMessage = sn.getHistoryReference().getHttpMessage();
+
+        if (!httpMessage.getUrlParams().equals(getParamsSet(query))) {
+            return false;
+        }
+
+        if (!httpMessage.getRequestBody().toString().equals(postData)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // TODO factor out, adapted from HttpMessage.getParamsSet(HtmlParameter.Type,String)
+    private static Set<HtmlParameter> getParamsSet(String params) {
+        if (params == null || params.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        TreeSet<HtmlParameter> set = new TreeSet<>();
+        String[] keyValue = Pattern.compile("&", Pattern.CASE_INSENSITIVE).split(params);
+        String key = null;
+        String value = null;
+        int pos = 0;
+        for (int i = 0; i < keyValue.length; i++) {
+            key = null;
+            value = null;
+            pos = keyValue[i].indexOf('=');
+            if (pos > 0) {
+                key = keyValue[i].substring(0, pos);
+                value = keyValue[i].substring(pos + 1);
+                set.add(new HtmlParameter(HtmlParameter.Type.url, key, value));
+            } else if (keyValue[i].length() > 0) {
+                set.add(new HtmlParameter(HtmlParameter.Type.url, keyValue[i], ""));
+            }
+        }
+
+        return set;
+    }
 
 	protected HttpMessage getLogoutRequest(int contextId) throws Exception {
 		return this.getContextAuth(contextId).getLogoutMsg();
@@ -442,7 +491,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 			URI uri = new URI(url, true);
 			// Note the findNode just checks the parameter names, not their values
 			SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-			if (sn != null && sn.getHistoryReference().getHttpMessage().getRequestBody().toString().equals(postData)) {
+			if (isSiteNodeMatch(sn, uri.getQuery(), postData)) {
 				this.setLogoutRequest(contextId, sn);
 			} else {
 				// Havnt visited this node before, not a problem

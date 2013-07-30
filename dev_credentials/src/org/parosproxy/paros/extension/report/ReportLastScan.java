@@ -24,25 +24,19 @@
 // StringBuilder instead of StringBuffer.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.extension.report;
 
-import edu.stanford.ejalbert.BrowserLauncher;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
+
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.db.Database;
-import org.parosproxy.paros.db.RecordAlert;
-import org.parosproxy.paros.db.RecordScan;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.ViewDelegate;
@@ -54,6 +48,8 @@ import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 public class ReportLastScan {
 
     private Logger logger = Logger.getLogger(ReportLastScan.class);
@@ -61,94 +57,21 @@ public class ReportLastScan {
     public ReportLastScan() {
     }
 
-    private String getAlertXML(Database db, RecordScan recordScan) throws SQLException {
-
-        Connection conn = null;
-        PreparedStatement psAlert = null;
-        StringBuilder sb = new StringBuilder();
-
-        // prepare table connection
-        try {
-            conn = db.getDatabaseServer().getNewConnection();
-            conn.setReadOnly(true);
-            // ZAP: Changed to read all alerts and order by risk
-            psAlert = conn.prepareStatement("SELECT ALERT.ALERTID FROM ALERT ORDER BY RISK, PLUGINID");
-            //psAlert = conn.prepareStatement("SELECT ALERT.ALERTID FROM ALERT JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SCAN.SCANID = ? ORDER BY PLUGINID");
-            //psAlert.setInt(1, recordScan.getScanId());
-            psAlert.executeQuery();
-            ResultSet rs = psAlert.getResultSet();
-
-            RecordAlert recordAlert = null;
-            Alert alert = null;
-            Alert lastAlert = null;
-
-            StringBuilder sbURLs = new StringBuilder(100);
-            String s = null;
-
-            // get each alert from table
-            while (rs.next()) {
-                int alertId = rs.getInt(1);
-                recordAlert = db.getTableAlert().read(alertId);
-                alert = new Alert(recordAlert);
-
-                // ZAP: Ignore false positives
-                if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-                    continue;
-                }
-
-                if (lastAlert != null
-                        && (alert.getPluginId() != lastAlert.getPluginId()
-                        || alert.getRisk() != lastAlert.getRisk())) {
-                    s = lastAlert.toPluginXML(sbURLs.toString());
-                    sb.append(s);
-                    sbURLs.setLength(0);
-                }
-
-                s = alert.getUrlParamXML();
-                sbURLs.append(s);
-
-                lastAlert = alert;
-
-            }
-            rs.close();
-
-            if (lastAlert != null) {
-                sb.append(lastAlert.toPluginXML(sbURLs.toString()));
-            }
-
-
-
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
-
-        }
-
-        //exit
-        return sb.toString();
-    }
 
     public File generate(String fileName, Model model, String xslFile) throws Exception {
-
     	StringBuilder sb = new StringBuilder(500);
-        // ZAP: Dont require scan to have been run
-
-        sb.append("<?xml version=\"1.0\"?>");
-        sb.append("<OWASPZAPReport version=\"").append(Constant.PROGRAM_VERSION).append("\" generated=\"").append(ReportGenerator.getCurrentDateTimeString()).append("\">\r\n");
-        // sb.append(getAlertXML(model.getDb(), null));
-        sb.append(siteXML());
-        sb.append("</OWASPZAPReport>");
-
-        File report = ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
-
-        return report;
+        this.generate(sb, model);
+        return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
     }
 
-    private StringBuilder siteXML() {
-        StringBuilder report = new StringBuilder();
+    public void generate(StringBuilder report, Model model) throws Exception {
+        report.append("<?xml version=\"1.0\"?>");
+        report.append("<OWASPZAPReport version=\"").append(Constant.PROGRAM_VERSION).append("\" generated=\"").append(ReportGenerator.getCurrentDateTimeString()).append("\">\r\n");
+        siteXML(report);
+        report.append("</OWASPZAPReport>");
+    }
+
+    private void siteXML(StringBuilder report) {
         SiteMap siteMap = Model.getSingleton().getSession().getSiteTree();
         SiteNode root = (SiteNode) siteMap.getRoot();
         int siteNumber = root.getChildCount();
@@ -168,7 +91,6 @@ public class ReportLastScan {
             report.append(extensionsXML);
             report.append(siteEnd);
         }
-        return report;
     }
     
     public StringBuilder getExtensionsXML(SiteNode site) {
