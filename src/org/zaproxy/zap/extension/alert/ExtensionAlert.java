@@ -249,6 +249,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getReliability(),
                 alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(),
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
+                alert.getEvidence(), alert.getCweId(), alert.getWascId(),
                 ref.getHistoryId(), alert.getSourceHistoryId());
 
         alert.setAlertId(recordAlert.getAlertId());
@@ -268,8 +269,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(),
                 alert.getReliability(), alert.getDescription(), alert.getUri(),
-                alert.getParam(), alert.getAttack(), alert.getOtherInfo(), alert.getSolution(),
-                alert.getReference(), alert.getSourceHistoryId());
+                alert.getParam(), alert.getAttack(), alert.getOtherInfo(), alert.getSolution(), alert.getReference(), 
+                alert.getEvidence(), alert.getCweId(), alert.getWascId(), alert.getSourceHistoryId());
     }
 
     public void displayAlert(Alert alert) {

@@ -41,10 +41,14 @@
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
 // ZAP: 2013/04/15 Issue 627: Allow add-ons to remove main tool bar buttons/separators
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
 
 package org.parosproxy.paros.view;
 
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -53,6 +57,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
@@ -60,6 +65,7 @@ import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -78,6 +84,7 @@ import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.TabbedPanel2;
 
 public class View implements ViewDelegate {
 	
@@ -98,6 +105,8 @@ public class View implements ViewDelegate {
 	private SiteMapPanel siteMapPanel  = null;
 	private OutputPanel outputPanel = null;
 	private Vector<JMenuItem> popupList = new Vector<>();
+
+	private JMenu menuShowTabs = null;
 
     private List<AbstractParamPanel> contextPanels = new ArrayList<AbstractParamPanel>();
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<ContextPanelFactory>();
@@ -143,15 +152,15 @@ public class View implements ViewDelegate {
         ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
 
 		// do not allow editable in request panel
-		getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel());
-		getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel());
+		getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel(), false);
+		getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel(), false);
 		
 		//logPanel.setDisplayPanel(requestPanel, responsePanel);
 		//getWorkbench().getTabbedStatus().add(logPanel, "URLs");
 		
 		// ZAP: Added 'world' icon
 		Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
-		getWorkbench().getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, siteMapPanel); // ZAP: i18n
+		getWorkbench().getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, siteMapPanel, false); // ZAP: i18n
 		
 		getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
@@ -165,8 +174,55 @@ public class View implements ViewDelegate {
 	}
 	
 	public void postInit() {
-	    getWorkbench().getTabbedStatus().add(outputPanel);
+	    //getWorkbench().getTabbedStatus().add(outputPanel);
+	    getWorkbench().getTabbedStatus().addTab(outputPanel.getName(), outputPanel.getIcon(), outputPanel, false);
 	    messagePanelsPositionController.restoreState();
+	    
+	    refreshTabViewMenus();
+	}
+	
+	public void refreshTabViewMenus() {
+		if (menuShowTabs != null) {
+			// Remove the old ones
+			mainFrame.getMainMenuBar().getMenuView().remove(menuShowTabs);
+		}
+		menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
+		mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs );
+		
+	    for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
+	    	if (tab instanceof AbstractPanel) {
+		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedSelect(), (AbstractPanel)tab));
+	    	}
+	    }
+    	menuShowTabs.addSeparator();
+	    for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
+	    	if (tab instanceof AbstractPanel) {
+		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedWork(), (AbstractPanel)tab));
+	    	}
+	    }
+    	menuShowTabs.addSeparator();
+	    for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
+	    	if (tab instanceof AbstractPanel) {
+		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedStatus(), (AbstractPanel)tab));
+	    	}
+	    }
+		
+	}
+	
+	private JMenuItem getTabViewMenuItem(final TabbedPanel2 parent, final AbstractPanel tab) {
+    	JMenuItem tabMenu = new JMenuItem(tab.getName());
+		if (tab.getIcon() != null) {
+			tabMenu.setIcon(tab.getIcon());
+		}
+		tabMenu.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				parent.setVisible(tab, true);
+				tab.setTabFocus();
+			}});
+    	return tabMenu;
+		
 	}
 	
 	@Override

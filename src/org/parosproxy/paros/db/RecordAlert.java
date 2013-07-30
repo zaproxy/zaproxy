@@ -20,7 +20,7 @@
 */
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
-
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.db;
 
@@ -41,6 +41,9 @@ public class RecordAlert {
     private String solution = "";
     private String reference = "";
     private int historyId = 0;
+	private String 	evidence = "";
+	private int cweId = -1;
+	private int wascId = -1;
     // ZAP: Added sourceHistoryId to RecordAlert - this is the original record that 'caused' the alert
     private int sourceHistoryId = 0;
     
@@ -50,7 +53,7 @@ public class RecordAlert {
 
 	public RecordAlert(int alertId, int scanId, int pluginId, String alert, 
 			int risk, int reliability, String description, String uri, String param, String attack, 
-			String otherInfo, String solution, String reference, int historyId,
+			String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
 			int sourceHistoryId) {
 	    setAlertId(alertId);
 	    setScanId(scanId);
@@ -67,6 +70,9 @@ public class RecordAlert {
 	    setReference(reference);
 	    setHistoryId(historyId);
 	    setSourceHistoryId(sourceHistoryId);
+	    setEvidence(evidence);
+	    setCweId(cweId);
+	    setWascId(wascId);
 	    
 	    if ((attack == null || attack.length() == 0) && param.indexOf("=") > 0) {
 	    	// 'old' alerts will have attack in the param field
@@ -253,4 +259,29 @@ public class RecordAlert {
     public void setAttack(String attack) {
 		this.attack = attack;
 	}
+
+	public String getEvidence() {
+		return evidence;
+	}
+
+	public void setEvidence(String evidence) {
+		this.evidence = evidence;
+	}
+
+	public int getCweId() {
+		return cweId;
+	}
+
+	public void setCweId(int cweId) {
+		this.cweId = cweId;
+	}
+
+	public int getWascId() {
+		return wascId;
+	}
+
+	public void setWascId(int wascId) {
+		this.wascId = wascId;
+	}
+    
 }

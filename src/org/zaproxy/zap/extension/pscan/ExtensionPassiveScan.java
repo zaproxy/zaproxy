@@ -25,25 +25,36 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.params.ParamScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptType;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionPassiveScan"; 
+	
+	private static final ImageIcon SCRIPT_ICON = 
+			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-pscan.png"));
+
+	public static final String SCRIPT_TYPE_PASSIVE = "passive";
 	
 	private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
 
@@ -86,6 +97,13 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(
                     getOptionsPassiveScan(getPassiveScanThread()));
         }
+        
+		ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+		if (extScript != null) {
+			extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", SCRIPT_ICON, true));
+		}
+
+
         API.getInstance().registerApiImplementor(new PassiveScanAPI(this));
 
 	}

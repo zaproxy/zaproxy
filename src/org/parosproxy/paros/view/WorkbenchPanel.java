@@ -44,6 +44,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.view.TabbedPanel2;
 
 public class WorkbenchPanel extends JPanel {
 
@@ -60,9 +61,9 @@ public class WorkbenchPanel extends JPanel {
 	private JPanel paneSelect = null;
 	private JPanel paneWork = null;
 
-	private org.parosproxy.paros.view.TabbedPanel tabbedStatus = null;
-	private org.parosproxy.paros.view.TabbedPanel tabbedWork = null;
-	private org.parosproxy.paros.view.TabbedPanel tabbedSelect = null;
+	private TabbedPanel2 tabbedStatus = null;
+	private TabbedPanel2 tabbedWork = null;
+	private TabbedPanel2 tabbedSelect = null;
 	
 	private int displayOption;
 
@@ -194,7 +195,7 @@ public class WorkbenchPanel extends JPanel {
 		}
 		return paneStatus;
 	}
-
+	
 	/**
 	 * This method initializes paneSelect
 	 * 
@@ -254,9 +255,9 @@ public class WorkbenchPanel extends JPanel {
 	 * 
 	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
-	public org.parosproxy.paros.view.TabbedPanel getTabbedStatus() {
+	public TabbedPanel2 getTabbedStatus() {
 		if (tabbedStatus == null) {
-			tabbedStatus = new org.parosproxy.paros.view.TabbedPanel();
+			tabbedStatus = new TabbedPanel2();
 			tabbedStatus.setPreferredSize(new Dimension(800, 200));
 			// ZAP: Move tabs to the top of the panel
 			tabbedStatus.setTabPlacement(JTabbedPane.TOP);
@@ -271,9 +272,9 @@ public class WorkbenchPanel extends JPanel {
 	 * 
 	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
-	public org.parosproxy.paros.view.TabbedPanel getTabbedWork() {
+	public TabbedPanel2 getTabbedWork() {
 		if (tabbedWork == null) {
-			tabbedWork = new org.parosproxy.paros.view.TabbedPanel();
+			tabbedWork = new TabbedPanel2();
 			tabbedWork.setPreferredSize(new Dimension(600, 400));
 			tabbedWork.setName("tabbedWork");
 			tabbedWork.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -286,9 +287,9 @@ public class WorkbenchPanel extends JPanel {
 	 * 
 	 * @return org.parosproxy.paros.view.ParosTabbedPane
 	 */
-	public org.parosproxy.paros.view.TabbedPanel getTabbedSelect() {
+	public TabbedPanel2 getTabbedSelect() {
 		if (tabbedSelect == null) {
-			tabbedSelect = new org.parosproxy.paros.view.TabbedPanel();
+			tabbedSelect = new TabbedPanel2();
 			tabbedSelect.setPreferredSize(new Dimension(200, 400));
 			tabbedSelect.setName("tabbedSelect");
 			tabbedSelect.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));

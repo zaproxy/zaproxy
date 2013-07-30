@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
 
 package org.parosproxy.paros.extension;
 
@@ -29,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.view.TabbedPanel2;
 
 public class AbstractPanel extends JPanel {
 
@@ -37,6 +39,8 @@ public class AbstractPanel extends JPanel {
 	// ZAP: Added icon
 	private Icon icon = null;
     private int tabIndex = -1;
+    private TabbedPanel2 parent = null;
+    private boolean hideable = true;
 	
 	public Icon getIcon() {
 		return icon;
@@ -61,7 +65,12 @@ public class AbstractPanel extends JPanel {
 	}
 
 	public void setTabFocus() {
-	    Component c = this.getParent();
+    	if (parent != null) {
+    		// Just incase the tab has been hidden
+    		parent.setVisible(this, true);
+    	}
+		
+		Component c = this.getParent();
 	    if (c instanceof JTabbedPane) {
 		    JTabbedPane tab = (JTabbedPane) c;
 		    tab.setSelectedComponent(this);
@@ -76,5 +85,16 @@ public class AbstractPanel extends JPanel {
 		this.tabIndex = tabIndex;
 	}
 	
+	public void setParent(TabbedPanel2 parent) {
+		this.parent = parent;
+	}
+	
+	public boolean isHideable() {
+		return hideable;
+	}
+	
+	public void setHideable(boolean hideable) {
+		this.hideable = hideable;
+	}
 
 }

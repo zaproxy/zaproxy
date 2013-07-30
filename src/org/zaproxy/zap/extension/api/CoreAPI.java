@@ -46,11 +46,13 @@ import org.bouncycastle.openssl.MiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.extension.report.ReportLastScan;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -90,11 +92,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
 	private static final String OTHER_ROOT_CERT = "rootcert";
+	private static final String OTHER_XML_REPORT = "xmlreport";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
 	private static final String PARAM_DIR = "dir";
 	private static final String PARAM_SESSION = "name";
+	private static final String PARAM_OVERWRITE_SESSION = "overwrite";
 	//private static final String PARAM_CONTEXT = "context";	// TODO need to support context methods for this!
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
@@ -106,9 +110,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	public CoreAPI() {
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
-		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
-		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}));
+		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}, new String[] {PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
@@ -129,6 +133,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
+		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		
 		this.addApiShortcut(OTHER_PROXY_PAC);
 		// this.addApiShortcut(OTHER_ROOT_CERT);
@@ -182,7 +187,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				file = new File(filename);
 			} 
 			
-			if (file.exists()) {
+			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
+			
+			boolean sameSession = false;
+			if (!session.isNewState()) {
+				final File fileCurrentSession = new File(session.getFileName());
+				sameSession = fileCurrentSession.getAbsolutePath().equals(file.getAbsolutePath());
+			}
+			
+			if (file.exists() && (!overwrite || sameSession)) {
 				throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 						filename);
 			}
@@ -293,7 +306,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					file = new File(filename);
 				} 
 				
-				if (file.exists()) {
+				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
+				
+				if (file.exists() && !overwrite) {
 					throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 							filename);
 				}
@@ -422,8 +437,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			JSONObject params) throws ApiException {
 
 		if (OTHER_PROXY_PAC.equals(name)) {
+			final ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+			final String domain = proxyParam.getProxyIp();
+			final int port = proxyParam.getProxyPort();
 			try {
-				String response = this.getPacFile(msg.getRequestHeader().getURI().getHost(), msg.getRequestHeader().getURI().getPort());
+				String response = this.getPacFile(domain, port);
 				msg.setResponseHeader(
 						"HTTP/1.1 200 OK\r\n" +
 						"Pragma: no-cache\r\n" +
@@ -518,11 +536,36 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					logger.error(e.getMessage(), e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 				}
+				
 			} else {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
 			}
 			
 			return msg;
+		} else if (OTHER_XML_REPORT.equals(name)) {
+			try {
+				ReportLastScan rls = new ReportLastScan();
+		        StringBuilder report = new StringBuilder();
+				rls.generate(report, Model.getSingleton());
+				String response = report.toString();
+				
+				msg.setResponseHeader(
+						"HTTP/1.1 200 OK\r\n" +
+						"Pragma: no-cache\r\n" +
+						"Cache-Control: no-cache\r\n" + 
+						"Access-Control-Allow-Origin: *\r\n" + 
+						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
+						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
+						"Content-Length: " + response.length() + 
+						"\r\nContent-Type: text/xml;");
+				
+				msg.setResponseBody(response);
+		        
+				return msg;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
@@ -547,9 +590,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private String getPacFile(String host, int port) {
 		// Could put in 'ignore urls'?
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(100);
 		sb.append("function FindProxyForURL(url, host) {\n");
-		sb.append("  return \"PROXY " + host + ":" + port + "\";\n");
+		sb.append("  return \"PROXY ").append(host).append(':').append(port).append("\";\n");
 		sb.append("} // End of function\n");
 		
 		return sb.toString();
@@ -584,7 +627,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("other", alert.getOtherInfo());
 		map.put("param", alert.getParam());
 		map.put("attack", alert.getAttack());
+		map.put("evidence", alert.getEvidence());
 		map.put("reference", alert.getReference());
+		map.put("cweid", String.valueOf(alert.getCweId()));
+		map.put("wascid", String.valueOf(alert.getWascId()));
 		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
 			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));

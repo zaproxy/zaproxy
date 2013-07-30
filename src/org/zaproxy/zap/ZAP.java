@@ -349,6 +349,10 @@ public class ZAP {
 	    } catch (final Exception e) {
 	        log.error(e.getMessage(), e);
 	        System.out.println(e.getMessage());
+	        System.out.println();
+	        // Help is kind of useful too ;)
+            help = cmdLine.getHelp();
+            System.out.println(help);
 	        rc = 1;
 	    } finally {
             control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());

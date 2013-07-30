@@ -135,16 +135,19 @@ public class BreakpointsTableModel extends AbstractTableModel {
 	}
 	
 	public void removeBreakpoint(BreakpointMessageInterface breakpoint) {
-        int row = mapBreakpointRow.remove(breakpoint).intValue();
-        breakpoints.remove(row);
-        this.fireTableRowsDeleted(row, row);
+        Integer row = mapBreakpointRow.remove(breakpoint);
         
-        rebuildMapBreakpointRow();
-        
-        synchronized (breakpointsEnabled) {
-            if (breakpoint.isEnabled()) {
-                breakpointsEnabled.remove(breakpoint);
-            }
+        if (row != null) {
+	        breakpoints.remove(breakpoint);
+	        this.fireTableRowsDeleted(row, row);
+	        
+	        rebuildMapBreakpointRow();
+	        
+	        synchronized (breakpointsEnabled) {
+	            if (breakpoint.isEnabled()) {
+	                breakpointsEnabled.remove(breakpoint);
+	            }
+	        }
         }
 	}
 

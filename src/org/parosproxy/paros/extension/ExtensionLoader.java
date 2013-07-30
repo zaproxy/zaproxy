@@ -38,6 +38,7 @@
 // to remove listeners, menu items, etc.
 // ZAP: 2013/01/25 Refactored hookMenu(). Resolved some Checkstyle issues.
 // ZAP: 2013/01/29 Catch Errors thrown by out of date extensions as well as Exceptions
+// ZAP: 2013/07/23 Issue 738: Options to hide tabs
 
 package org.parosproxy.paros.extension;
 
@@ -63,11 +64,11 @@ import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.MainMenuBar;
 import org.parosproxy.paros.view.SiteMapPanel;
-import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.view.SiteMapListener;
+import org.zaproxy.zap.view.TabbedPanel2;
 
 public class ExtensionLoader {
 
@@ -469,7 +470,7 @@ public class ExtensionLoader {
         }
     }
     
-    private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel tab) {
+    private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
             try {
@@ -478,7 +479,7 @@ public class ExtensionLoader {
                 
         		// ZAP: added icon
                 if (panel.getTabIndex() >= 0) {
-                	tab.insertTab(panel.getName() + " ", panel.getIcon(), panel, null, panel.getTabIndex());
+                	tab.addTab(panel.getName() + " ", panel.getIcon(), panel, panel.isHideable(), panel.getTabIndex());
                     if (panel.getTabIndex() == 0) {
                     	// Its now the first one, give it focus
                     	tab.setSelectedComponent(panel);	
@@ -496,14 +497,12 @@ public class ExtensionLoader {
         }
     }
     
-    private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel tab) {
+    private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
             try {
                 panel = panelList.get(i);
-                tab.remove(panel);
-
-                //Do I need to call removeTab() also?
+                tab.removeTab(panel);
             } catch (Exception e) {
             	logger.error(e.getMessage(), e);
             }
@@ -639,6 +638,8 @@ public class ExtensionLoader {
         removeMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         
         removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
+        
+        view.refreshTabViewMenus();
     }
 
 	private void removeMenuHelper(JMenuBar menuBar, List<JMenuItem> items) {

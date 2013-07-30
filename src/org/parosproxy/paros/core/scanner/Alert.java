@@ -30,6 +30,7 @@
 // ZAP: 2012/07/10 Issue 323: Added getIconUrl()
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
+// ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 
 package org.parosproxy.paros.core.scanner;
 
@@ -74,6 +75,9 @@ public class Alert implements Comparable<Object>  {
 	private String 	otherInfo = "";
 	private String 	solution = "";
 	private String	reference = "";
+	private String 	evidence = "";
+	private int cweId = -1;
+	private int wascId = -1;
 	// Tempory ref - should be cleared asap after use
 	private HttpMessage message = null;
 	// ZAP: Added sourceHistoryId to Alert
@@ -105,7 +109,8 @@ public class Alert implements Comparable<Object>  {
         	historyRef = new HistoryReference(recordAlert.getHistoryId());
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
             		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-            		recordAlert.getSolution(), recordAlert.getReference(), 
+            		recordAlert.getSolution(), recordAlert.getReference(),
+            		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
             		historyRef.getHttpMessage());
             // ZAP: Set up the Alert History Id
 
@@ -128,6 +133,7 @@ public class Alert implements Comparable<Object>  {
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
             		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
             		recordAlert.getSolution(), recordAlert.getReference(), 
+            		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
             		ref == null ? null : ref.getHttpMessage());
         } catch (Exception e) {
         	// ZAP: Log the exception
@@ -149,7 +155,7 @@ public class Alert implements Comparable<Object>  {
 	
 
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
-			String solution, String reference, HttpMessage msg) {
+			String solution, String reference, String evidence, int cweId, int wascId, HttpMessage msg) {
 		setDescription(description);
 		setUri(uri);
 		setParam(param);
@@ -158,6 +164,9 @@ public class Alert implements Comparable<Object>  {
 		setSolution(solution);
 		setReference(reference);
 		setMessage(msg);
+		setEvidence(evidence);
+		setCweId(cweId);
+		setWascId(wascId);
 		if (msg != null) {
 			this.historyRef = msg.getHistoryRef();
 		}
@@ -194,7 +203,6 @@ public class Alert implements Comparable<Object>  {
 	    // ZAP: Changed to not create a new String.
 		this.param = param;
 	}
-	
 	
 	public void setOtherInfo(String otherInfo) {
 	    if (otherInfo == null) return;
@@ -308,6 +316,12 @@ public class Alert implements Comparable<Object>  {
             sb.append("  <otherinfo>").append(paragraph(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
         }
 		sb.append("  <reference>" ).append(paragraph(replaceEntity(reference))).append("</reference>\r\n");
+		if (cweId > 0) {
+			sb.append("  <cweid>" ).append(cweId).append("</cweid>\r\n");
+		}
+		if (wascId > 0) {
+			sb.append("  <wascid>" ).append(wascId).append("</wascid>\r\n");
+		}
 		
 		sb.append("</alertitem>\r\n");
 		return sb.toString();
@@ -453,6 +467,9 @@ public class Alert implements Comparable<Object>  {
         sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
         sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
         sb.append("  <otherinfo>").append(breakNoSpaceString(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
+		if (evidence != null && evidence.length() > 0) {
+			sb.append("  <evidence>").append(breakNoSpaceString(replaceEntity(evidence))).append("</evidence>\r\n");
+		}
         return sb.toString();
     }
 
@@ -493,6 +510,30 @@ public class Alert implements Comparable<Object>  {
 
 	public URI getMsgUri() {
 		return msgUri;
+	}
+
+	public String getEvidence() {
+		return evidence;
+	}
+
+	public void setEvidence(String evidence) {
+		this.evidence = evidence;
+	}
+
+	public int getCweId() {
+		return cweId;
+	}
+
+	public void setCweId(int cweId) {
+		this.cweId = cweId;
+	}
+
+	public int getWascId() {
+		return wascId;
+	}
+
+	public void setWascId(int wascId) {
+		this.wascId = wascId;
 	}
     
 }	

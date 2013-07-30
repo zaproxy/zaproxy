@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,10 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
+import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
+import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -71,6 +77,9 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	
 	private BreakpointsOptionsPanel breakpointsOptionsPanel;
 	
+	private BreakAPI api = new BreakAPI(this);
+
+	
     public ExtensionBreak() {
         super();
  		initialize();
@@ -87,10 +96,9 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         this.setOrder(24);
 	}
 	
-	    
 	public BreakPanel getBreakPanel() {
 		if (breakPanel == null) {
-		    breakPanel = new BreakPanel(getOptionsParam());
+		    breakPanel = new BreakPanel(this, getOptionsParam());
 		    breakPanel.setName(Constant.messages.getString("tab.break"));
 		}
 		return breakPanel;
@@ -123,8 +131,11 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
             addBreakpointsUiManager(new HttpBreakpointsUiManagerInterface(extensionHook.getHookMenu(), this));
             
             extensionHook.addProxyListener(getProxyListenerBreak());
-            
-            
+
+            // APIs are usually loaded even if the view is null, as they are specifically for daemon mode
+            // However in this case the API isnt really of any use unless the UI is available
+    		API.getInstance().registerApiImplementor(api);
+
             extensionHook.addSessionListener(this);
 
 	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
@@ -148,13 +159,15 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	
 	private BreakpointsPanel getBreakpointsPanel() {
 		if (breakpointsPanel == null) {
-			breakpointsPanel = new BreakpointsPanel();
+			breakpointsPanel = new BreakpointsPanel(this);
 		}
 		return breakpointsPanel;
 	}
 	
 	public void addBreakpoint(BreakpointMessageInterface breakpoint) {
 		this.getBreakpointsPanel().addBreakpoint(breakpoint);
+		// Switch to the panel for some visual feedback
+		this.getBreakpointsPanel().setTabFocus();
 	}
 
 	public void editBreakpoint(BreakpointMessageInterface oldBreakpoint, BreakpointMessageInterface newBreakpoint) {
@@ -183,14 +196,62 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         mapBreakpointUiManager.remove(uiManager.getBreakpointClass());
         mapMessageUiManager.remove(uiManager.getMessageClass());		
 	}
+	
+	public void setBreakAllRequests(boolean brk) {
+		this.getBreakPanel().setBreakAllRequests(brk);
+	}
     
+	public void setBreakAllResponses(boolean brk) {
+		this.getBreakPanel().setBreakAllResponses(brk);
+	}
+
+	public void addHttpBreakpoint(String string, String location, String match, boolean inverse, boolean ignoreCase) {
+		Location loc;
+		Match mtch;
+		
+		try {
+			loc = Location.valueOf(location);
+		} catch (Exception e) {
+			throw new InvalidParameterException("location must be one of " + Arrays.toString(Location.values()));
+		}
+		
+		try {
+			mtch = Match.valueOf(match);
+		} catch (Exception e) {
+			throw new InvalidParameterException("match must be one of " + Arrays.toString(Match.values()));
+		}
+		
+		this.addBreakpoint(new HttpBreakpointMessage(string, loc, mtch, inverse, ignoreCase));
+		
+	}
+
+	public void removeHttpBreakpoint(String string, String location, String match, boolean inverse, boolean ignoreCase) {
+		Location loc;
+		Match mtch;
+		
+		try {
+			loc = Location.valueOf(location);
+		} catch (Exception e) {
+			throw new InvalidParameterException("location must be one of " + Arrays.toString(Location.values()));
+		}
+		
+		try {
+			mtch = Match.valueOf(match);
+		} catch (Exception e) {
+			throw new InvalidParameterException("match must be one of " + Arrays.toString(Match.values()));
+		}
+		
+		this.removeBreakpoint(new HttpBreakpointMessage(string, loc, mtch, inverse, ignoreCase));
+		
+	}
+
     public void addUiBreakpoint(Message aMessage) {
-       BreakpointsUiManagerInterface uiManager = mapMessageUiManager.get(aMessage.getClass());
-       if (uiManager != null) {
-           uiManager.handleAddBreakpoint(aMessage);
-       }
-    }
-    
+        BreakpointsUiManagerInterface uiManager = mapMessageUiManager.get(aMessage.getClass());
+        if (uiManager != null) {
+            uiManager.handleAddBreakpoint(aMessage);
+        }
+     }
+     
     public void editUiSelectedBreakpoint() {
         BreakpointMessageInterface breakpoint = getBreakpointsPanel().getSelectedBreakpoint();
         if (breakpoint != null) {

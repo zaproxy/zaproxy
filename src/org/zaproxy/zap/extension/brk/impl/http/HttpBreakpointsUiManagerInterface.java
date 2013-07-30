@@ -19,8 +19,11 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
+import java.awt.Dimension;
+
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
@@ -29,8 +32,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
 
-    private BreakAddDialog addDialog = null;
-    private BreakEditDialog editDialog = null;
+    private BreakAddEditDialog breakDialog = null;
     
     private ExtensionBreak extensionBreak;
 
@@ -93,56 +95,49 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     public void reset() {
     }
     
-    
-    private void populateAddDialogAndSetVisible(Message aMessage) {
-        addDialog.setMessage((HttpMessage)aMessage);
-        addDialog.setVisible(true);
-    }
-    
     private void populateAddDialogAndSetVisible(String url) {
-        addDialog.setUrl(url);
-        addDialog.setVisible(true);
+    	breakDialog.init(
+    			new HttpBreakpointMessage(url, HttpBreakpointMessage.Location.url, 
+    					HttpBreakpointMessage.Match.contains, false, true), 
+    			true);
+    	breakDialog.setVisible(true);
     }
     
     private void showAddDialog(Message aMessage) {
-        if (addDialog == null) {
-            addDialog = new BreakAddDialog(this);
-            populateAddDialogAndSetVisible(aMessage);
-        } else if (!addDialog.isVisible()) {
-            populateAddDialogAndSetVisible(aMessage);
-        }
+    	HttpMessage msg = (HttpMessage) aMessage;
+    	if (msg.getRequestHeader().getURI() != null) {
+            this.showAddDialog(msg.getRequestHeader().getURI().toString());
+    	} else {
+            this.showAddDialog("");
+    	}
     }
     
     private void showAddDialog(String url) {
-        if (addDialog == null) {
-            addDialog = new BreakAddDialog(this);
-            populateAddDialogAndSetVisible(url);
-        } else if (!addDialog.isVisible()) {
-            populateAddDialogAndSetVisible(url);
+        if (breakDialog == null) {
+        	breakDialog = new BreakAddEditDialog(this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
         }
+        populateAddDialogAndSetVisible(url);
     }
 
     void hideAddDialog() {
-        addDialog.dispose();
+    	breakDialog.dispose();
         extensionBreak.dialogClosed();
     }
     
     private void populateEditDialogAndSetVisible(HttpBreakpointMessage breakpoint) {
-        editDialog.setBreakpoint(breakpoint);
-        editDialog.setVisible(true);
+    	breakDialog.init(breakpoint, false);
+    	breakDialog.setVisible(true);
     }
     
     private void showEditDialog(HttpBreakpointMessage breakpoint) {
-        if (editDialog == null) {
-            editDialog = new BreakEditDialog(this);
-            populateEditDialogAndSetVisible(breakpoint);
-        } else if (!editDialog.isVisible()) {
-            populateEditDialogAndSetVisible(breakpoint);
+        if (breakDialog == null) {
+        	breakDialog = new BreakAddEditDialog(this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
         }
+        populateEditDialogAndSetVisible(breakpoint);
     }
 
     void hideEditDialog() {
-        editDialog.dispose();
+    	breakDialog.dispose();
         extensionBreak.dialogClosed();
     }
 

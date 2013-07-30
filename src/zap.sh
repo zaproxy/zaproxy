@@ -7,7 +7,7 @@ if [[ $JAVAV == 1.7* ]]; then
     # OK
     echo "Using Java version: $JAVAV"
 else
-    echo "Exiting: ZAP 2.0.0 requires a minimum of Java 7 to run."
+    echo "Exiting: ZAP requires a minimum of Java 7 to run. Found $JAVAV"
     exit 1
 fi
 
@@ -64,5 +64,5 @@ fi
 
 #Start ZAP
 
-exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap.jar" org.zaproxy.zap.ZAP $*
+exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap.jar" $*
 
