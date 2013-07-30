@@ -502,7 +502,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
 			String siteName = e.getKey();
-			siteName = siteName.substring(0, siteName.lastIndexOf(":"));
+//			siteName = siteName.substring(0, siteName.lastIndexOf(":"));
 			siteName = "http://" + siteName;
 			log.debug(siteName);
 			if (context.isInContext(siteName))
