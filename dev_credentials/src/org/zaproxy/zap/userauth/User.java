@@ -23,19 +23,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.WebSession;
+import org.zaproxy.zap.userauth.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.utils.Enableable;
 
 /**
  * ZAP representation of a web application user.
  */
 public class User extends Enableable {
-
-	public SessionManagementMethod getSessionManagementMethod() {
-		return sessionManagementMethod;
-	}
 
 	private static final Logger log = Logger.getLogger(User.class);
 
@@ -45,14 +39,11 @@ public class User extends Enableable {
 	/** The corresponding context id. */
 	private int contextId;
 
-	/** The authentication method. */
-	private AuthenticationMethod authenticationMethod;
-
-	/** The session management method. */
-	private SessionManagementMethod sessionManagementMethod;
-
 	/** The roles corresponding to this user. */
 	private List<Role> roles;
+	
+	/** The authentication credentials that can be used for configuring the user. */
+	private AuthenticationCredentials authenticationCredentials;
 
 	public User(int contextId, String name) {
 		super();
@@ -64,23 +55,9 @@ public class User extends Enableable {
 		return name;
 	}
 
-	public AuthenticationMethod getAuthenticationMethod() {
-		return authenticationMethod;
-	}
-
-	public void setSessionManagementMethod(SessionManagementMethod sessionManagementMethod) {
-		this.sessionManagementMethod = sessionManagementMethod;
-	}
-
-	public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
-		this.authenticationMethod = authenticationMethod;
-	}
-
 	@Override
 	public String toString() {
-		return "User [name=" + name + ", contextId=" + contextId + ", authenticationMethod="
-				+ authenticationMethod + ", sessionManagementMethod=" + sessionManagementMethod + ", roles="
-				+ roles + ", enabled=" + isEnabled() + "]";
+		return "User [name=" + name + ", contextId=" + contextId + ", enabled=" + isEnabled() + "]";
 	}
 
 	/**
@@ -90,13 +67,13 @@ public class User extends Enableable {
 	 * @param message the message
 	 */
 	public void processMessageToMatchUser(HttpMessage message) {
-		// If the user is not yet authenticated, authenticate now
-		if (!this.sessionManagementMethod.isAuthenticated()) {
-			log.info("Authenticating user: " + this.name);
-			WebSession newSession = this.authenticationMethod.authenticate();
-			this.sessionManagementMethod.setWebSession(newSession);
-		}
-		// Modify the message accordingly
-		this.sessionManagementMethod.processMessageToMatchSession(message);
+		// // If the user is not yet authenticated, authenticate now
+		// if (!this.sessionManagementMethod.isAuthenticated()) {
+		// log.info("Authenticating user: " + this.name);
+		// WebSession newSession = this.authenticationMethod.authenticate();
+		// this.sessionManagementMethod.setWebSession(newSession);
+		// }
+		// // Modify the message accordingly
+		// this.sessionManagementMethod.processMessageToMatchSession(message);
 	}
 }

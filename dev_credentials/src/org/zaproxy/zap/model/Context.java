@@ -30,6 +30,9 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
+import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
+import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 
 public class Context {
 	
@@ -45,6 +48,12 @@ public class Context {
     private List<Pattern> includeInPatterns = new ArrayList<Pattern>();
     private List<Pattern> excludeFromPatterns = new ArrayList<Pattern>();
     
+	/** The authentication method. */
+	private AuthenticationMethod<?> authenticationMethod=null;
+
+	/** The session management method. */
+	private SessionManagementMethod sessionManagementMethod;
+    
     private TechSet techSet = new TechSet(Tech.builtInTech);
     private boolean inScope = true;
     
@@ -52,6 +61,7 @@ public class Context {
     	this.session = session;
     	this.index = index;
     	this.name = String.valueOf(index);
+    	this.sessionManagementMethod=new CookieBasedSessionManagementMethod();
     }
 
 	public boolean isIncludedInScope(SiteNode sn) {
@@ -349,6 +359,42 @@ public class Context {
 
 	public void setInScope(boolean inScope) {
 		this.inScope = inScope;
+	}
+
+	/**
+	 * Gets the authentication method corresponding to this context.
+	 *
+	 * @return the authentication method
+	 */
+	public AuthenticationMethod<?> getAuthenticationMethod() {
+		return authenticationMethod;
+	}
+
+	/**
+	 * Sets the authentication method corresponding to this context.
+	 *
+	 * @param authenticationMethod the new authentication method
+	 */
+	public void setAuthenticationMethod(AuthenticationMethod<?> authenticationMethod) {
+		this.authenticationMethod = authenticationMethod;
+	}
+
+	/**
+	 * Gets the session management method corresponding to this context.
+	 *
+	 * @return the session management method
+	 */
+	public SessionManagementMethod getSessionManagementMethod() {
+		return sessionManagementMethod;
+	}
+
+	/**
+	 * Sets the session management method corresponding to this context.
+	 *
+	 * @param sessionManagementMethod the new session management method
+	 */
+	public void setSessionManagementMethod(SessionManagementMethod sessionManagementMethod) {
+		this.sessionManagementMethod = sessionManagementMethod;
 	}
 
 }

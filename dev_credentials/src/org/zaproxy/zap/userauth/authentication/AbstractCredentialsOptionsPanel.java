@@ -23,31 +23,30 @@ import javax.swing.JPanel;
 
 /**
  * An Options Panel that is used to configure all the settings corresponding to an
- * {@link AuthenticationMethod}.
+ * {@link AuthenticationCredentials}.
  * 
  * <p>
  * This panel will be displayed to users in a separate dialog.
  * </p>
  * 
- * @param <T> the authentication method type
+ * @param <T> the authenticator type
  */
-public abstract class AbstractAuthenticationMethodOptionsPanel<T extends AuthenticationMethod<T>> extends
-		JPanel {
+public abstract class AbstractCredentialsOptionsPanel<T extends AuthenticationCredentials> extends JPanel {
 
 	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 9003182467823059637L;
+	private static final long serialVersionUID = -199406099430582188L;
 
 	/** The method. */
-	protected T authenticationMethod;
+	protected T credentials;
 
 	/**
-	 * Instantiates a new abstract authentication method options panel.
+	 * Instantiates a new abstract options panel for configuring {@link AuthenticationCredentials}.
 	 * 
-	 * @param existingMethod the authentication method that need to be configured
+	 * @param credentials the authentication credentials to be configured.
 	 */
-	public AbstractAuthenticationMethodOptionsPanel(T authenticationMethod) {
+	public AbstractCredentialsOptionsPanel(T credentials) {
 		super();
-		this.authenticationMethod = authenticationMethod;
+		this.credentials = credentials;
 	}
 
 	/**
@@ -58,19 +57,19 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 	public abstract boolean validateFields();
 
 	/**
-	 * Save the changes from the panel in the authentication method. After this method call, calls
-	 * to {@link AbstractAuthenticationMethodOptionsPanel#getMethod()} should return the
-	 * {@link AuthenticationMethod} with the saved changes.
+	 * Save the changes from the panel in the credentials. After this method call, calls to
+	 * {@link AbstractCredentialsOptionsPanel#getCredentials()} should return the credentials with
+	 * the saved changes.
 	 */
-	public abstract void saveMethod();
+	public abstract void saveCredentials();
 
 	/**
-	 * Gets the corresponding authentication method.
+	 * Gets the corresponding authenticator.
 	 * 
-	 * @return the method
+	 * @return the authenticator
 	 */
-	public T getMethod() {
-		return authenticationMethod;
+	public T getCredentials() {
+		return credentials;
 	}
 
 }
