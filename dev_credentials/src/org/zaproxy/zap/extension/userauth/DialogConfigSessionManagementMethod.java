@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.userauth.session.AbstractSessionManagementMethodOptionsPanel;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
+import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
 /**
@@ -42,13 +42,13 @@ public class DialogConfigSessionManagementMethod<T extends SessionManagementMeth
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
 			.getString("userauth.session.dialog.config.button.confirm");
 
-	private SessionManagementMethodFactory<T> sessionManagementMethodFactory;
+	private SessionManagementMethodType<T> sessionManagementMethodFactory;
 	private AbstractSessionManagementMethodOptionsPanel<T> contentsPanel;
 	private T existingMethod;
 	private int contextId;
 
 	public DialogConfigSessionManagementMethod(Dialog owner, String title,
-			SessionManagementMethodFactory<T> factory, T existingMethod, int contextId) {
+			SessionManagementMethodType<T> factory, T existingMethod, int contextId) {
 		super(owner, factory.getName(), false);
 		this.contextId = contextId;
 		this.sessionManagementMethodFactory = factory;
