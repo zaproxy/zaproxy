@@ -21,8 +21,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.zaproxy.zap.extension.userauth.ExtensionUserAuthentication;
 
 public class ExtensionStdMenus extends ExtensionAdaptor {
 
@@ -82,7 +84,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
+			//Enable some popup menus only if some extensions are enabled 
+			if(Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserAuthentication.NAME)!=null){
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));	
+			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
