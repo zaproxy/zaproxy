@@ -4,8 +4,8 @@ import java.awt.Dialog;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 
 public class DialogModifyUser extends DialogAddUser {
 
@@ -22,8 +22,6 @@ public class DialogModifyUser extends DialogAddUser {
 
 	public void setUser(User user) {
 		this.user = user;
-		this.selectedAuthenticationMethod = user.getAuthenticationMethod();
-		this.selectedSessionManagementMethod = user.getSessionManagementMethod();
 	}
 
 	@Override
@@ -37,18 +35,18 @@ public class DialogModifyUser extends DialogAddUser {
 		getNameTextField().setText(user.getName());
 		getEnabledCheckBox().setSelected(user.isEnabled());
 
-		// Identify selected authentication method
-		for (AuthenticationMethodFactory<?> f : extension.getAuthenticationMethodFactories()) {
-			if (f.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
-				getAuthenticationMethodsComboBox().setSelectedItem(f);
-			}
-		}
-
-		// Identify selected session management method
-		for (SessionManagementMethodFactory<?> f : extension.getSessionManagementMethodFactories()) {
-			if (f.isFactoryForMethod(selectedSessionManagementMethod.getClass())) {
-				getSessionManagementMethodsComboBox().setSelectedItem(f);
-			}
-		}
+//		// Identify selected authentication method
+//		for (AuthenticationMethodType<?> f : extension.getAuthenticationMethodFactories()) {
+//			if (f.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
+//				getAuthenticationMethodsComboBox().setSelectedItem(f);
+//			}
+//		}
+//
+//		// Identify selected session management method
+//		for (AuthenticationMethodType<?> f : extension.getSessionManagementMethodFactories()) {
+//			if (f.isFactoryForMethod(selectedSessionManagementMethod.getClass())) {
+//				getSessionManagementMethodsComboBox().setSelectedItem(f);
+//			}
+//		}
 	}
 }

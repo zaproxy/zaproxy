@@ -42,9 +42,9 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethodFactory;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodFactory;
+import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
@@ -52,13 +52,13 @@ import org.zaproxy.zap.view.ContextPanelFactory;
  * {@link SessionManagementMethod SessionManagementMethods}, {@link AuthenticationMethod
  * AuthenticationMethods} and related entities.
  * <p>
- * This class also handles the loading of {@link AuthenticationMethodFactory} and
- * {@link SessionManagementMethodFactory} classes in the system using the AddOnLoader (
+ * This class also handles the loading of {@link AuthenticationMethodType} and
+ * {@link AuthenticationMethodType} classes in the system using the AddOnLoader (
  * {@link ExtensionFactory#getAddOnLoader()}).
  * </p>
  */
-public class ExtensionUserAuthentication extends ExtensionAdaptor implements ContextPanelFactory,
-		ContextDataFactory {
+public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements ContextPanelFactory, ContextDataFactory 
+		{
 
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionUserAuthentication";
@@ -73,10 +73,8 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
 
 	/** The automatically loaded authentication method factories. */
-	List<AuthenticationMethodFactory<?>> authenticationMethodFactories;
+	List<AuthenticationMethodType<?>> authenticationMethodFactories;
 
-	/** The automatically loaded session management method factories. */
-	List<SessionManagementMethodFactory<?>> sessionManagementMethodFactories;
 
 	/** The Constant EXTENSION DEPENDENCIES. */
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
@@ -118,12 +116,11 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 	 * Initialize the extension.
 	 */
 	private void initialize() {
-		this.setName(NAME);
-		this.setOrder(102);
-
-		// Load the Authentication and Session Management methods
-		this.loadAuthenticationMethodFactories();
-		this.loadSesssionManagementMethodFactories();
+//		this.setName(NAME);
+//		this.setOrder(102);
+//
+//		// Load the Authentication and Session Management methods
+//		this.loadAuthenticationMethodFactories();
 
 		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
@@ -138,15 +135,15 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
-		// Register this as a context data factory
-		Model.getSingleton().addContextDataFactory(this);
-
-		if (getView() != null) {
-			// Factory for generating Session Context UserAuth panels
-			getView().addContextPanelFactory(this);
-
-		}
+//		super.hook(extensionHook);
+//		// Register this as a context data factory
+//		Model.getSingleton().addContextDataFactory(this);
+//
+//		if (getView() != null) {
+//			// Factory for generating Session Context UserAuth panels
+//			getView().addContextPanelFactory(this);
+//
+//		}
 	}
 
 	@Override
@@ -163,10 +160,12 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 		}
 	}
 
-	@Override
-	public AbstractParamPanel getContextPanel(Context ctx) {
-		return getContextPanel(ctx.getIndex());
-	}
+//	@Override
+//	public AbstractParamPanel getContextPanel(Context ctx) {
+//		return getContextPanel(ctx.getIndex());
+////		//TODO: Refix this
+////		return new OptionsUserAuthUserPanel(this, ctx.getIndex());
+//	}
 
 	/**
 	 * Gets the context panel for a given context.
@@ -198,79 +197,25 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor implements Con
 		return manager;
 	}
 
-	@Override
-	public void discardContexts() {
-		// TODO Auto-generated method stub
+//	@Override
+//	public void discardContexts() {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void loadContextData(Context ctx) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void saveContextData(Context ctx) {
+//		// TODO Auto-generated method stub
+//
+//	}
 
-	}
+	
 
-	@Override
-	public void loadContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * Load authentication method factories using reflection.
-	 */
-	private void loadAuthenticationMethodFactories() {
-		// Load the method factories as raw types (only way supported) and put them in a list of
-		// parameterized methods
-		@SuppressWarnings("rawtypes")
-		List<AuthenticationMethodFactory> rawFactories = ExtensionFactory.getAddOnLoader().getImplementors(
-				"org.zaproxy.zap", AuthenticationMethodFactory.class);
-		authenticationMethodFactories = new ArrayList<AuthenticationMethodFactory<?>>(rawFactories.size());
-		for (AuthenticationMethodFactory<?> a : rawFactories) {
-			authenticationMethodFactories.add(a);
-		}
-
-		if (log.isInfoEnabled()) {
-			log.info("Loaded authentication method factories: " + authenticationMethodFactories);
-		}
-	}
-
-	/**
-	 * Load session management method factories using reflection.
-	 */
-	private void loadSesssionManagementMethodFactories() {
-		// Load the method factories as raw types (only way supported) and put them in a list of
-		// parameterized methods
-		@SuppressWarnings("rawtypes")
-		List<SessionManagementMethodFactory> rawFactories = ExtensionFactory.getAddOnLoader()
-				.getImplementors("org.zaproxy.zap", SessionManagementMethodFactory.class);
-		sessionManagementMethodFactories = new ArrayList<SessionManagementMethodFactory<?>>(
-				rawFactories.size());
-		for (SessionManagementMethodFactory<?> sm : rawFactories) {
-			sessionManagementMethodFactories.add(sm);
-		}
-
-		if (log.isInfoEnabled()) {
-			log.info("Loaded session management method factories: " + sessionManagementMethodFactories);
-		}
-	}
-
-	/**
-	 * Gets all the registered/loaded authentication method factories.
-	 * 
-	 * @return the authentication method factories
-	 */
-	public List<AuthenticationMethodFactory<?>> getAuthenticationMethodFactories() {
-		return authenticationMethodFactories;
-	}
-
-	/**
-	 * Gets all the registered/loaded session management method factories.
-	 * 
-	 * @return the session management method factories
-	 */
-	public List<SessionManagementMethodFactory<?>> getSessionManagementMethodFactories() {
-		return sessionManagementMethodFactories;
-	}
 
 }
