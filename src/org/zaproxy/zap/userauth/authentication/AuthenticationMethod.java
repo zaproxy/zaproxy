@@ -19,27 +19,14 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 
 /**
  * The AuthenticationMethod represents an authentication method that can be used to authenticate an
  * entity in a particular WebApplication.
  */
-public interface AuthenticationMethod {
-
-	/**
-	 * Gets a string describing the status (the configuration) of the authentication method.
-	 * 
-	 * @return the status description
-	 */
-	public String getStatusDescription();
-
-	/**
-	 * Performs an authentication in a web application, returning an authenticated HttpSession.
-	 * 
-	 * @return the http session
-	 */
-	public WebSession authenticate();
+public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 
 	/**
 	 * Checks if the authentication method is fully configured.
@@ -47,5 +34,39 @@ public interface AuthenticationMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
+
+	/**
+	 * Creates a new, empty, Authentication Credentials object corresponding to this type of
+	 * Authentication method.
+	 *
+	 * @return the authentication credentials
+	 */
+	public AuthenticationCredentials createAuthenticationCredentials();
+
+	/**
+	 * Performs an authentication in a web application, returning an authenticated
+	 * {@link WebSession}.
+	 * 
+	 * @param sessionManagementMethod the set up session management method is provided so it can be
+	 *            used, if needed, to automatically extract session information from Http Messages.
+	 * @param credentials the credentials
+	 * @return an authenticated web session
+	 * 
+	 */
+	public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
+			AuthenticationCredentials credentials) throws UnsupportedAuthenticationCredentialsException;
+
+	/**
+	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
+	 */
+	public class UnsupportedAuthenticationCredentialsException extends RuntimeException {
+
+		/** The Constant serialVersionUID. */
+		private static final long serialVersionUID = 4802501809913124766L;
+
+		public UnsupportedAuthenticationCredentialsException(String message) {
+			super(message);
+		}
+	}
 
 }

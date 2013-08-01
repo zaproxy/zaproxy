@@ -91,6 +91,5 @@ public interface SessionManagementMethod {
 		public UnsupportedWebSessionException(String message) {
 			super(message);
 		}
-
 	}
 }

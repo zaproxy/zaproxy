@@ -19,25 +19,28 @@
  */
 package org.zaproxy.zap.userauth.session;
 
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
-
 /**
- * A factory for creating {@link SessionManagementMethod} objects.<br/>
- * <br/>
- * The implementors of new Session Management Methods should also implement a corresponding factory.
- * The system automatically detects and loads Sesssion Management Factories and, through them, the
- * corresponding session management methods.
+ * A type of session management method. This class also acts as a factory for creating
+ * {@link SessionManagementMethod} objects.
+ * <p>
+ * The implementors of new Session Management Methods should also implement a corresponding type.
+ * The system automatically detects and loads {@link SessionManagementMethodType} classes and,
+ * through them, the corresponding session management methods.
+ * </p>
  * 
- * @param <T> the type of the authentication method
+ * @param <T> the corresponding session management method
  */
-public abstract class SessionManagementMethodFactory<T extends SessionManagementMethod> {
+public abstract class SessionManagementMethodType<T extends SessionManagementMethod> {
 
 	/**
-	 * Builds an implementation for a session management method.
+	 * Builds a new, empty, session management method. The session mangement method should then be
+	 * configured through its corresponding Options panel.
 	 * 
+	 * @param contextId the context id
 	 * @return the session management method
+	 * @see SessionManagementMethodType#buildOptionsPanel(SessionManagementMethod, int)
 	 */
-	public abstract T buildSessionManagementMethod();
+	public abstract SessionManagementMethod createSessionManagementMethod(int contextId);
 
 	/**
 	 * Gets the name of the session management method.
@@ -51,7 +54,7 @@ public abstract class SessionManagementMethodFactory<T extends SessionManagement
 	 * 
 	 * @param contextId the context id
 	 * @return the abstract session method options panel
-	 * @see SessionManagementMethodFactory#hasOptionsPanel
+	 * @see SessionManagementMethodType#hasOptionsPanel
 	 */
 	public abstract AbstractSessionManagementMethodOptionsPanel<T> buildOptionsPanel(T existingMethod,
 			int contextId);
@@ -60,15 +63,15 @@ public abstract class SessionManagementMethodFactory<T extends SessionManagement
 	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
 	 * used for configuration.
 	 * 
-	 * @see SessionManagementMethodFactory#buildOptionsPanel
+	 * @see SessionManagementMethodType#buildOptionsPanel
 	 * 
 	 * @return true, if successful
 	 */
 	public abstract boolean hasOptionsPanel();
-	
+
 	/**
 	 * Checks if is this is a factory for the Session Management Method provided as parameter.
-	 *
+	 * 
 	 * @param methodClass the method class
 	 * @return true, if is factory for method
 	 */
