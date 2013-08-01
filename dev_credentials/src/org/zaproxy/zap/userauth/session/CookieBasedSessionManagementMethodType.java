@@ -14,7 +14,7 @@ public class CookieBasedSessionManagementMethodType extends
 		SessionManagementMethodType<CookieBasedSessionManagementMethod> {
 
 	/** The Constant METHOD_NAME. */
-	private static final String METHOD_NAME = Constant.messages.getString("userauth.session.cb.name");
+	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.cb.name");
 
 	/**
 	 * The implementation for a {@link SessionManagementMethod} that for web applications that use
@@ -27,11 +27,9 @@ public class CookieBasedSessionManagementMethodType extends
 		/** The session. */
 		private HttpSession session;
 
-		private static final String NAME = Constant.messages.getString("userauth.session.cb.name");
-
 		@Override
 		public String toString() {
-			return NAME;
+			return CookieBasedSessionManagementMethodType.METHOD_NAME;
 		}
 
 		/**

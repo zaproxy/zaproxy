@@ -93,6 +93,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 			ManualAuthenticationCredentials mc = (ManualAuthenticationCredentials) credentials;
 			return mc.getSelectedSession();
 		}
+
+		@Override
+		public String getStatusDescription() {
+			return null; // Not needed
+		}
 	}
 
 	/**

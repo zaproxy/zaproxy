@@ -38,10 +38,17 @@ public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 	/**
 	 * Creates a new, empty, Authentication Credentials object corresponding to this type of
 	 * Authentication method.
-	 *
+	 * 
 	 * @return the authentication credentials
 	 */
 	public AuthenticationCredentials createAuthenticationCredentials();
+
+	/**
+	 * Gets a string describing the status (the configuration) of the authentication method.
+	 * 
+	 * @return the status description
+	 */
+	public String getStatusDescription();
 
 	/**
 	 * Performs an authentication in a web application, returning an authenticated
