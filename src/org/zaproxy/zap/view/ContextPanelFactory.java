@@ -4,7 +4,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 
 public interface ContextPanelFactory {
-	AbstractParamPanel getContextPanel(Context ctx);
+	AbstractContextPropertiesPanel getContextPanel(Context ctx);
 	
 	void discardContexts();
 }

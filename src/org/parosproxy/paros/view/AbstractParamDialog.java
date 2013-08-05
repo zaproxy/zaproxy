@@ -24,6 +24,7 @@
 // ZAP: 2012/04/25 Added @SuppressWarnings annotation in the method
 //      getTreeNodeFromPanelName(String).
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2013/08/05 Added accessor to shown panels
 
 
 package org.parosproxy.paros.view;
@@ -37,6 +38,7 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -64,7 +66,7 @@ public class AbstractParamDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = -5223178126156052670L;
 
-	private Object paramObject = null;
+	protected Object paramObject = null;
     private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<>();
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
@@ -628,6 +630,17 @@ public class AbstractParamDialog extends AbstractDialog {
         this.setVisible(true);
 	    return exitResult;
 	
+	}
+	
+	// ZAP: Added accessor to the panels
+	/**
+	 * Gets the panels shown on this dialog.
+	 *
+	 * @return the panels
+	 */
+	protected Collection<AbstractParamPanel> getPanels(){
+		return tablePanel.values();
+		
 	}
 
 	// ZAP: show the last selected panel
