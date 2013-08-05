@@ -24,7 +24,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.zaproxy.zap.extension.userauth.ExtensionUserAuthentication;
+import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 
 public class ExtensionStdMenus extends ExtensionAdaptor {
 
@@ -85,7 +85,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
 			//Enable some popup menus only if some extensions are enabled 
-			if(Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserAuthentication.NAME)!=null){
+			if(Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME)!=null){
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));	
 			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));

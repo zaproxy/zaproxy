@@ -34,18 +34,18 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-public class OptionsUserAuthUserPanel extends AbstractParamPanel {
+public class ContextUsersPanel extends AbstractParamPanel {
 
 	private int contextId;
 	private UsersMultipleOptionsPanel usersOptionsPanel;
 	private ContextUserAuthManager contextManager;
-	private ExtensionUserAuthentication extension;
+	private ExtensionUserManagement extension;
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -3920598166129639573L;
 	private static final String PANEL_NAME = Constant.messages.getString("userauth.user.panel.title");
 
-	public OptionsUserAuthUserPanel(ExtensionUserAuthentication extension, int contextId) {
+	public ContextUsersPanel(ExtensionUserManagement extension, int contextId) {
 		super();
 		this.contextId = contextId;
 		this.contextManager = extension.getContextUserAuthManager(contextId);
@@ -130,10 +130,10 @@ public class OptionsUserAuthUserPanel extends AbstractParamPanel {
 
 		private DialogAddUser addDialog = null;
 		private DialogModifyUser modifyDialog = null;
-		private ExtensionUserAuthentication extension;
+		private ExtensionUserManagement extension;
 		private int contextId;
 
-		public UsersMultipleOptionsPanel(ExtensionUserAuthentication extension, UserAuthUserTableModel model,
+		public UsersMultipleOptionsPanel(ExtensionUserManagement extension, UserAuthUserTableModel model,
 				int contextId) {
 			super(model);
 			this.contextId = contextId;

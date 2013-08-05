@@ -33,7 +33,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.userauth.ContextUserAuthManager;
-import org.zaproxy.zap.extension.userauth.ExtensionUserAuthentication;
+import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
@@ -61,7 +61,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
 	private boolean visibleItself;
 
 	/** The user authentication extension. */
-	private ExtensionUserAuthentication extensionUserAuth;
+	private ExtensionUserManagement extensionUserAuth;
 
 	/**
 	 * Instantiates a new popup user menu item holder. This initializes the holder so that the Popup
@@ -75,11 +75,11 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
 		this.parentName = parentName;
 		this.visibleItself = true;
 		// Check whether the User Authentication extension is enabled
-		extensionUserAuth = (ExtensionUserAuthentication) Control.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionUserAuthentication.NAME);
+		extensionUserAuth = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
+				.getExtension(ExtensionUserManagement.NAME);
 		if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
 			Logger.getLogger(PopupUserMenuItemHolder.class).warn(
-					ExtensionUserAuthentication.class
+					ExtensionUserManagement.class
 							+ " is not enabled but is required for getting info about Users.");
 			extensionUserAuth = null;
 		}

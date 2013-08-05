@@ -38,43 +38,36 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
+import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;
+import org.zaproxy.zap.extension.userauth.sessions.ExtensionSessionManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
-import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
- * The Extension for managing {@link User Users}, {@link Role Roles},
- * {@link SessionManagementMethod SessionManagementMethods}, {@link AuthenticationMethod
- * AuthenticationMethods} and related entities.
+ * The Extension for managing {@link User Users}, {@link Role Roles}, and related entities.
  * <p>
  * This class also handles the loading of {@link AuthenticationMethodType} and
  * {@link AuthenticationMethodType} classes in the system using the AddOnLoader (
  * {@link ExtensionFactory#getAddOnLoader()}).
  * </p>
  */
-public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements ContextPanelFactory, ContextDataFactory 
-		{
+public class ExtensionUserManagement extends ExtensionAdaptor implements ContextPanelFactory,
+		ContextDataFactory {
 
 	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionUserAuthentication";
+	public static final String NAME = "ExtensionUserManagement";
 
 	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionUserAuthentication.class);
+	private static final Logger log = Logger.getLogger(ExtensionUserManagement.class);
 
 	/** The user panels, mapped to each context. */
-	private Map<Integer, OptionsUserAuthUserPanel> userPanelsMap = new HashMap<>();
+	private Map<Integer, ContextUsersPanel> userPanelsMap = new HashMap<>();
 
 	/** The context managers, mapped to each context. */
 	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
-
-	/** The automatically loaded authentication method factories. */
-	List<AuthenticationMethodType<?>> authenticationMethodFactories;
-
 
 	/** The Constant EXTENSION DEPENDENCIES. */
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
@@ -82,6 +75,8 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 		// Prepare a list of Extensions on which this extension depends
 		List<Class<?>> dependencies = new ArrayList<>();
 		dependencies.add(ExtensionHttpSessions.class);
+		dependencies.add(ExtensionAuthentication.class);
+		dependencies.add(ExtensionSessionManagement.class);
 		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
 	}
 
@@ -91,7 +86,7 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 	/**
 	 * Instantiates a new extension.
 	 */
-	public ExtensionUserAuthentication() {
+	public ExtensionUserManagement() {
 		initialize();
 	}
 
@@ -106,7 +101,7 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 					.getExtension(ExtensionHttpSessions.NAME);
 			if (extensionHttpSessions == null)
 				log.error("Http Sessions Extension should be enabled for the "
-						+ ExtensionUserAuthentication.class.getSimpleName() + " to work.");
+						+ ExtensionUserManagement.class.getSimpleName() + " to work.");
 		}
 		return extensionHttpSessions;
 
@@ -116,11 +111,8 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 	 * Initialize the extension.
 	 */
 	private void initialize() {
-//		this.setName(NAME);
-//		this.setOrder(102);
-//
-//		// Load the Authentication and Session Management methods
-//		this.loadAuthenticationMethodFactories();
+		this.setName(NAME);
+		this.setOrder(102);
 
 		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
@@ -135,15 +127,14 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-//		super.hook(extensionHook);
-//		// Register this as a context data factory
-//		Model.getSingleton().addContextDataFactory(this);
-//
-//		if (getView() != null) {
-//			// Factory for generating Session Context UserAuth panels
-//			getView().addContextPanelFactory(this);
-//
-//		}
+		super.hook(extensionHook);
+		// Register this as a context data factory
+		Model.getSingleton().addContextDataFactory(this);
+
+		if (getView() != null) {
+			// Factory for generating Session Context Users panels
+			getView().addContextPanelFactory(this);
+		}
 	}
 
 	@Override
@@ -160,12 +151,12 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 		}
 	}
 
-//	@Override
-//	public AbstractParamPanel getContextPanel(Context ctx) {
-//		return getContextPanel(ctx.getIndex());
-////		//TODO: Refix this
-////		return new OptionsUserAuthUserPanel(this, ctx.getIndex());
-//	}
+	@Override
+	public AbstractParamPanel getContextPanel(Context ctx) {
+		return getContextPanel(ctx.getIndex());
+		// // //TODO: Refix this
+		// // return new OptionsUserAuthUserPanel(this, ctx.getIndex());
+	}
 
 	/**
 	 * Gets the context panel for a given context.
@@ -173,10 +164,10 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 	 * @param contextId the context id
 	 * @return the context panel
 	 */
-	private OptionsUserAuthUserPanel getContextPanel(int contextId) {
-		OptionsUserAuthUserPanel panel = this.userPanelsMap.get(contextId);
+	private ContextUsersPanel getContextPanel(int contextId) {
+		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
 		if (panel == null) {
-			panel = new OptionsUserAuthUserPanel(this, contextId);
+			panel = new ContextUsersPanel(this, contextId);
 			this.userPanelsMap.put(contextId, panel);
 		}
 		return panel;
@@ -197,25 +188,22 @@ public class ExtensionUserAuthentication extends ExtensionAdaptor //  implements
 		return manager;
 	}
 
-//	@Override
-//	public void discardContexts() {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void loadContextData(Context ctx) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void saveContextData(Context ctx) {
-//		// TODO Auto-generated method stub
-//
-//	}
+	@Override
+	public void loadContextData(Context ctx) {
+		// TODO Auto-generated method stub
 
-	
+	}
 
+	@Override
+	public void saveContextData(Context ctx) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void discardContexts() {
+		// TODO Auto-generated method stub
+
+	}
 
 }
