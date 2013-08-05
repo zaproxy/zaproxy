@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -62,7 +61,6 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
-import org.zaproxy.zap.extension.dynssl.SslCertificateUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -343,10 +341,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
 			if (extDyn != null) {
 				try {
-					final KeyStore newrootca = SslCertificateUtils.createRootCA();
-					extDyn.setRootCa(newrootca);
-					extDyn.getParams().setRootca(newrootca);
-					
+					extDyn.createNewRootCa();
 				} catch (Exception e) {
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
@@ -361,7 +356,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
 		ApiResponse result = null;
-		//JSONArray result = new JSONArray();
 		Session session = Model.getSingleton().getSession();
 
 		if (VIEW_HOSTS.equals(name)) {

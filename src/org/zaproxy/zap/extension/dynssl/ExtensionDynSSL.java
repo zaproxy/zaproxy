@@ -73,6 +73,13 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 			logger.error("Couldn't initialize Root CA", e);
 		}
 	}
+	
+	public void createNewRootCa() throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException {
+		logger.info("Creating new root CA");
+		KeyStore newrootca = SslCertificateUtils.createRootCA();
+		setRootCa(newrootca);
+		getParams().setRootca(newrootca);
+	}
 
 	private DynamicSSLPanel getOptionsPanel() {
 		if (optionsPanel == null) {

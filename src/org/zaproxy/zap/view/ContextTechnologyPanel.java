@@ -51,12 +51,13 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
-public class ContextTechnologyPanel extends AbstractParamPanel {
+public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	
 	private static final String PANEL_NAME = Constant.messages.getString("context.technology.title"); 
 	private static final long serialVersionUID = -8337361808959321380L;
 	
-	private Context context;
+	private Context uiCommonContext;
+	private int contextId;
 
 	private JPanel panelSession = null;
 	private JScrollPane jScrollPane = null;
@@ -65,14 +66,14 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 	
 	private CheckboxTree techTree = null;
 	
-	public static String getPanelName(Context ctx) {
+	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
-		return ctx.getIndex() + ": " + PANEL_NAME;
+		return contextId + ": " + PANEL_NAME;
 	}
 
     public ContextTechnologyPanel(Context context) {
         super();
-        this.context = context;
+        this.contextId = context.getIndex();
  		initialize();
    }
 
@@ -84,7 +85,7 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(this.context));
+        this.setName(getPanelName(this.contextId));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	/**
@@ -126,25 +127,6 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 		return panelSession;
 	}
 	
-	@Override
-	public void initParam(Object obj) {
-		TreeCheckingModel chModel = techTree.getCheckingModel();
-		chModel.clearChecking();
-
-	    //Session session = (Session) obj;
-	    // Init model from context
-	    TechSet techSet = context.getTechSet();
-	    // start by walking the local tree
-	    Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-	    while (iter.hasNext()) {
-	    	Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-    		TreePath tp = this.getPath(node.getValue());
-	    	if (techSet.includes(node.getKey())) {
-	    		chModel.addCheckingPath(tp);
-	    	}
-	    }
-	}
-	
 	private TreePath getPath(TreeNode node) {
 	    List<TreeNode> list = new ArrayList<TreeNode>();
 
@@ -157,31 +139,6 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 
 	    // Convert array of nodes to TreePath
 	    return new TreePath(list.toArray());
-	}
-	
-	@Override
-	public void validateParam(Object obj) {
-	    // Nothing to validate
-	}
-	
-	@Override
-	public void saveParam (Object obj) throws Exception {
-	    Session session = (Session) obj;
-		TreeCheckingModel chModel = techTree.getCheckingModel();
-	    TechSet techSet = new TechSet();
-	    
-	    Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-	    while (iter.hasNext()) {
-	    	Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-    		TreePath tp = this.getPath(node.getValue());
-    		Tech tech = node.getKey();
-    		if (chModel.isPathChecked(tp)) {
-    			techSet.include(tech);
-    		} else {
-    			techSet.exclude(tech);
-    		}
-	    }
-	    session.getContext(this.context.getIndex()).setTechSet(techSet);
 	}
 	
 	private CheckboxTree getTechTree() {
@@ -225,6 +182,7 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 			techTree.expandAll();
 			TreeCheckingModel chModel = techTree.getCheckingModel();
 			chModel.setPathEnabled(new TreePath(root), false);
+			// TODO: If needed, save the temporary changes in the uiCommonContext
 
 		}
 		return techTree;
@@ -242,5 +200,57 @@ public class ContextTechnologyPanel extends AbstractParamPanel {
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.contexts";
+	}
+
+	@Override
+	public void initContextData(Session session, Context uiContext) {
+		uiCommonContext=uiContext;
+		TreeCheckingModel chModel = techTree.getCheckingModel();
+		chModel.clearChecking();
+
+	    //Session session = (Session) obj;
+	    // Init model from context
+	    TechSet techSet = uiContext.getTechSet();
+	    // start by walking the local tree
+	    Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+	    while (iter.hasNext()) {
+	    	Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+    		TreePath tp = this.getPath(node.getValue());
+	    	if (techSet.includes(node.getKey())) {
+	    		chModel.addCheckingPath(tp);
+	    	}
+	    }
+		
+	}
+
+	@Override
+	public void validateContextData(Session session) throws Exception {
+		// Nothing to validate
+		
+	}
+
+	@Override
+	public void saveContextData(Session session) throws Exception {
+		TreeCheckingModel chModel = techTree.getCheckingModel();
+		TechSet techSet = new TechSet();
+
+		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+			TreePath tp = this.getPath(node.getValue());
+			Tech tech = node.getKey();
+			if (chModel.isPathChecked(tp)) {
+				techSet.include(tech);
+			} else {
+				techSet.exclude(tech);
+			}
+		}
+		session.getContext(this.contextId).setTechSet(techSet);
+		
+	}
+
+	@Override
+	public int getContextIndex() {
+		return contextId;
 	}
 }

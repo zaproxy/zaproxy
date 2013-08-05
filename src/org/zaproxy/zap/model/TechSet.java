@@ -48,17 +48,18 @@ public class TechSet {
 		}
 	}
 	
+	public TechSet(TechSet techSet){
+		this.includeTech.addAll(techSet.includeTech);
+		this.excludeTech.addAll(techSet.excludeTech);
+	}
+	
 	public void include(Tech tech) {
-		if (excludeTech.contains(tech)) {
-			excludeTech.remove(tech);
-		}
+		excludeTech.remove(tech);
 		includeTech.add(tech);
 	}
 	
 	public void exclude(Tech tech) {
-		if (includeTech.contains(tech)) {
-			includeTech.remove(tech);
-		}
+		includeTech.remove(tech);
 		excludeTech.add(tech);
 	}
 	

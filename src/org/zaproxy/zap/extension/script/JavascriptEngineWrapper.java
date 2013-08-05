@@ -46,11 +46,6 @@ public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 	}
 
 	@Override
-	public String getExtension() {
-		return ".js";
-	}
-
-	@Override
 	public boolean isTextBased() {
 		return true;
 	}

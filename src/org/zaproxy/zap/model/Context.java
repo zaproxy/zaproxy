@@ -397,4 +397,23 @@ public class Context {
 		this.sessionManagementMethod = sessionManagementMethod;
 	}
 
+	/**
+	 * Creates a deep copy of the Context.  
+	 *
+	 * @return the context
+	 */
+	public Context duplicate(){
+		Context newContext=new Context(session, getIndex());
+		newContext.description=this.description;
+		newContext.name=this.name;
+		newContext.includeInRegexs=new ArrayList<>(this.includeInRegexs);
+		newContext.includeInPatterns=new ArrayList<Pattern>(this.includeInPatterns);
+		newContext.excludeFromRegexs=new ArrayList<>(this.excludeFromRegexs);
+		newContext.excludeFromPatterns=new ArrayList<Pattern>(this.excludeFromPatterns);
+		newContext.inScope=this.inScope;
+		newContext.techSet=new TechSet(this.techSet);
+		
+		return newContext;
+	}
+
 }

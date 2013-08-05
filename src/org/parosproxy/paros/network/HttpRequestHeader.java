@@ -691,7 +691,12 @@ public class HttpRequestHeader extends HttpHeader {
 		while (it.hasNext()) {
 			HtmlParameter htmlParameter = it.next();
 			if(!htmlParameter.getName().isEmpty()) {
-				cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
+				try {
+					cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
+				} catch (IllegalArgumentException e) {
+					// Occurs while scanning ;)
+					log.debug(e.getMessage() + " " + htmlParameter.getName());
+				}
 			}
 		}
 		return cookies;

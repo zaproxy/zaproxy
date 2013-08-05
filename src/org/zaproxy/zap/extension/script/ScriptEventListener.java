@@ -23,7 +23,9 @@ public interface ScriptEventListener {
 
 	void refreshScript(ScriptWrapper script);
 
-	void scriptAdded(ScriptWrapper script);
+	void scriptAdded(ScriptWrapper script, boolean display);
+
+	void scriptRemoved(ScriptWrapper script);
 
 	void preInvoke(ScriptWrapper script);
 

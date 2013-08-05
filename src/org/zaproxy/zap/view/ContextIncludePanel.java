@@ -31,32 +31,34 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 
-public class ContextIncludePanel extends AbstractParamPanel {
+public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
 	private static final String PANEL_NAME = Constant.messages.getString("context.scope.include.title"); 
 	private static final long serialVersionUID = -8337361808959321380L;
 	
-	private Context context;
-	
+	private int contextId;
 	private JPanel panelSession = null;
 	private JTable tableIgnore = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
+	private Context uiClonedContext;
 	
-	public static String getPanelName(Context ctx) {
+	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
-		return ctx.getIndex() + ": " + PANEL_NAME;
+		return contextId + ": " + PANEL_NAME;
 	}
 
     public ContextIncludePanel(Context context) {
         super();
-        this.context = context;
+        this.contextId = context.getIndex();
  		initialize();
    }
     
@@ -67,7 +69,7 @@ public class ContextIncludePanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(this.context));
+        this.setName(getPanelName(contextId));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	/**
@@ -110,29 +112,6 @@ public class ContextIncludePanel extends AbstractParamPanel {
 		return panelSession;
 	}
 	
-	@Override
-	public void initParam(Object obj) {
-	    //Session session = (Session) obj;
-	    getModel().setLines(context.getIncludeInContextRegexs());
-	}
-	
-	@Override
-	public void validateParam(Object obj) {
-	    // Check for valid regexs
-		for (String regex : getModel().getLines()) {
-			if (regex.trim().length() > 0) {
-				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
-			}
-		}
-	}
-	
-	@Override
-	public void saveParam (Object obj) throws Exception {
-	    Session session = (Session) obj;
-	    context.setIncludeInContextRegexs(getModel().getLines());
-	    session.saveContext(context);
-	}
-	
 	private JTable getTableIgnore() {
 		if (tableIgnore == null) {
 			tableIgnore = new JTable();
@@ -153,6 +132,17 @@ public class ContextIncludePanel extends AbstractParamPanel {
 	private SingleColumnTableModel getModel() {
 		if (model == null) {
 			model = new SingleColumnTableModel(Constant.messages.getString("context.table.header.include"));
+			// Store the change in the ui common context
+			model.addTableModelListener(new TableModelListener() {
+				@Override
+				public void tableChanged(TableModelEvent arg0) {
+					try {
+						uiClonedContext.setIncludeInContextRegexs(model.getLines());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 		return model;
 	}
@@ -160,5 +150,35 @@ public class ContextIncludePanel extends AbstractParamPanel {
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.contexts";
+	}
+
+	@Override
+	public void initContextData(Session session, Context uiContext) {
+		this.uiClonedContext=uiContext;
+	    getModel().setLines(uiContext.getIncludeInContextRegexs());
+		
+	}
+
+	@Override
+	public void validateContextData(Session session) {
+		// Check for valid regexs
+		for (String regex : getModel().getLines()) {
+			if (regex.trim().length() > 0) {
+				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
+			}
+		}
+	}
+
+	@Override
+	public void saveContextData(Session session) throws Exception {
+		Context context = session.getContext(this.contextId);
+		
+	    context.setIncludeInContextRegexs(getModel().getLines());
+	    session.saveContext(context);
+	}
+
+	@Override
+	public int getContextIndex() {
+		return contextId;
 	}
 }

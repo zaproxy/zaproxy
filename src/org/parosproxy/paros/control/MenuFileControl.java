@@ -34,6 +34,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/08/05 Proper call for starting Session Properties dialog
 
 package org.parosproxy.paros.control;
  
@@ -50,7 +51,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
-import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 
@@ -303,10 +303,8 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void properties() {
-		// ZAP: removed session dialog parameter
-	    SessionDialog dialog = view.getSessionDialog();
-	    dialog.initParam(model.getSession());
-	    dialog.showDialog(false);
+		// ZAP: proper call of existing method
+		View.getSingleton().showSessionDialog(model.getSession(), null);
 
 	    // ZAP: Set the title consistently
 	    setTitle();

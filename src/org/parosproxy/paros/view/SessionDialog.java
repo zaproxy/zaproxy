@@ -25,41 +25,74 @@ package org.parosproxy.paros.view;
 
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 
 public class SessionDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 2078860056416521552L;
-	
-    public SessionDialog() {
-        super();
- 		initialize();
-   }
-    /**
-     * @deprecated No longer used/needed. It will be removed in a future release. Use the constructor
-     *             {@link #SessionDialog(Frame parent, boolean modal, String title, String rootName)} instead.
-     */
-    @Deprecated
-    public SessionDialog(Frame parent, boolean modal, String title)
-            throws HeadlessException {
-        super(parent, modal, title, "Session");
-        initialize();
-    }
-    
-    public SessionDialog(Frame parent, boolean modal, String title, String rootName) {
-        super(parent, modal, title, rootName);
-        initialize();
-    }
-    
+
+	/** The map of duplicate of the contexts, used for temporary changes in the UI. */
+	private Map<Integer, Context> uiContexts = new HashMap<Integer, Context>();
+
+	public SessionDialog() {
+		super();
+		initialize();
+	}
+
+	/**
+	 * @deprecated No longer used/needed. It will be removed in a future release. Use the
+	 *             constructor
+	 *             {@link #SessionDialog(Frame parent, boolean modal, String title, String rootName)}
+	 *             instead.
+	 */
+	@Deprecated
+	public SessionDialog(Frame parent, boolean modal, String title) throws HeadlessException {
+		super(parent, modal, title, "Session");
+		initialize();
+	}
+
+	public SessionDialog(Frame parent, boolean modal, String title, String rootName) {
+		super(parent, modal, title, rootName);
+		initialize();
+	}
+
 	/**
 	 * This method initializes this
 	 */
 	private void initialize() {
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(650, 500);
-	    } else {
-	    	pack();
-	    }
+		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+			this.setSize(650, 500);
+		} else {
+			pack();
+		}
+	}
+
+	@Override
+	public void initParam(Object obj) {
+		super.paramObject = obj;
+		// Send the 'ui context' duplicate to Context Properties Panels
+		prepareUIContextCopies(Model.getSingleton().getSession());
+		for (AbstractParamPanel panel : super.getPanels()) {
+			if (panel instanceof AbstractContextPropertiesPanel) {
+				AbstractContextPropertiesPanel contextPanel = (AbstractContextPropertiesPanel) panel;
+				contextPanel.initContextData((Session) obj, uiContexts.get(contextPanel.getContextIndex()));
+			} else {
+				panel.initParam(obj);
+			}
+		}
+	}
+
+	private void prepareUIContextCopies(Session session) {
+		uiContexts.clear();
+		for (Context context : session.getContexts()) {
+			Context uiContext = context.duplicate();
+			uiContexts.put(context.getIndex(), uiContext);
+		}
 	}
 }

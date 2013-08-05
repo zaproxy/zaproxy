@@ -21,6 +21,7 @@
 package org.zaproxy.zap.view;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -72,17 +73,11 @@ public class SingleColumnTableModel extends AbstractTableModel {
      * @return Returns the tokens.
      */
     public List<String> getLines() {
-        String line = null;
-        for (int i=0; i<lines.size();) {
-            line =  lines.get(i);
-            if (line.equals("")) {
-                lines.remove(i);
-                continue;
-            }
-            i++;
-        }
-        
-        List<String> newList = new ArrayList<>(lines);
+    	List<String> newList = new ArrayList<>(lines);
+    	Iterator<String> it=newList.iterator();
+    	while(it.hasNext())
+    		if(it.next().equals(""))
+    			it.remove();
         return newList;
     }
     /**
