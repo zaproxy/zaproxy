@@ -29,12 +29,15 @@ import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-public class ContextUsersPanel extends AbstractParamPanel {
+public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	private int contextId;
 	private UsersMultipleOptionsPanel usersOptionsPanel;
@@ -79,24 +82,6 @@ public class ContextUsersPanel extends AbstractParamPanel {
 
 		gbc.weighty = 1.0;
 		this.add(usersOptionsPanel, gbc);
-	}
-
-	@Override
-	public void initParam(Object obj) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void validateParam(Object obj) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveParam(Object obj) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -193,5 +178,28 @@ public class ContextUsersPanel extends AbstractParamPanel {
 			return false;
 		}
 
+	}
+
+	@Override
+	public void initContextData(Session session, Context uiCommonContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void validateContextData(Session session) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void saveContextData(Session session) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getContextIndex() {
+		return contextId;
 	}
 }

@@ -36,17 +36,19 @@ import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SummaryAndConfigPanel;
 
 /**
  * The Context Panel shown for configuring a Context's authentication methods.
  */
-public class ContextAuthenticationPanel extends AbstractParamPanel {
+public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	private static final String CONFIG_NOT_NEEDED = Constant.messages
 			.getString("sessionmanagement.panel.label.noConfigPanel");
@@ -72,7 +74,10 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	private ExtensionAuthentication extension;
 
 	/** The context. */
-	private Context context;
+	private int contextId;
+
+	/** The ui common context. */
+	private Context uiCommonContext;
 
 	/** The authentication method types combo box. */
 	private JComboBox<AuthenticationMethodType<?>> authenticationMethodsComboBox;
@@ -91,7 +96,7 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	 */
 	public ContextAuthenticationPanel(ExtensionAuthentication extension, Context context) {
 		super();
-		this.context = context;
+		this.contextId = context.getIndex();
 		this.extension = extension;
 		initialize();
 	}
@@ -101,7 +106,7 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
-		this.setName(context.getIndex() + ": " + PANEL_NAME);
+		this.setName(contextId + ": " + PANEL_NAME);
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -206,7 +211,7 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 						// class, create a new authentication method object
 						if (selectedAuthenticationMethod == null
 								|| !type.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
-							selectedAuthenticationMethod = type.createAuthenticationMethod(context.getIndex());
+							selectedAuthenticationMethod = type.createAuthenticationMethod(contextId);
 						}
 
 						// Show the status panel and configuration button, if needed
@@ -228,11 +233,18 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void initParam(Object obj) {
-		selectedAuthenticationMethod = context.getAuthenticationMethod();
+	public String getHelpIndex() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initContextData(Session session, Context uiCommonContext) {
+		this.uiCommonContext=uiCommonContext;
+		selectedAuthenticationMethod = uiCommonContext.getAuthenticationMethod();
 		if (log.isDebugEnabled())
 			log.debug("Initializing configuration panel for authentication method: "
-					+ selectedAuthenticationMethod + " for context " + context.getName());
+					+ selectedAuthenticationMethod + " for context " + uiCommonContext.getName());
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedAuthenticationMethod != null) {
@@ -248,22 +260,21 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
+	public void validateContextData(Session session) throws Exception {
 		if (!selectedAuthenticationMethod.isConfigured())
 			throw new IllegalStateException(
 					"The selected authentication method has not been properly configured for Context "
-							+ context.getName());
+							+ uiCommonContext.getName());
 	}
 
 	@Override
-	public void saveParam(Object obj) throws Exception {
-		context.setAuthenticationMethod(selectedAuthenticationMethod);
+	public void saveContextData(Session session) throws Exception {
+		session.getContext(contextId).setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
 	@Override
-	public String getHelpIndex() {
-		// TODO Auto-generated method stub
-		return null;
+	public int getContextIndex() {
+		return contextId;
 	}
 
 }

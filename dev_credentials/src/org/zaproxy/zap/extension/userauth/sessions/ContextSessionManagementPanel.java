@@ -33,17 +33,19 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * The Context Panel shown for configuring a Context's session management method.
  */
-public class ContextSessionManagementPanel extends AbstractParamPanel {
+public class ContextSessionManagementPanel extends AbstractContextPropertiesPanel {
 
 	/** The Constant PANEL NAME. */
 	private static final String PANEL_NAME = Constant.messages.getString("sessionmanagement.panel.title");
@@ -57,7 +59,10 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 	private ExtensionSessionManagement extension;
 
 	/** The context. */
-	private Context context;
+	private Context uiCommonContext;
+	
+	/** The context id. */
+	private int contextId;
 
 	/** The session management methods combo box. */
 	private JComboBox<SessionManagementMethodType<?>> sessionManagementMethodsComboBox;
@@ -75,7 +80,7 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 	 */
 	public ContextSessionManagementPanel(ExtensionSessionManagement extension, Context context) {
 		super();
-		this.context = context;
+		this.contextId = context.getIndex();
 		this.extension = extension;
 		initialize();
 	}
@@ -85,7 +90,7 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
-		this.setName(context.getIndex() + ": " + PANEL_NAME);
+		this.setName(contextId + ": " + PANEL_NAME);
 		this.setLayout(new GridBagLayout());
 
 		this.add(new JLabel(Constant.messages.getString("sessionmanagement.panel.label.description")),
@@ -164,6 +169,9 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 			sessionManagementMethodsComboBox = new JComboBox<>(methods);
 			sessionManagementMethodsComboBox.setSelectedItem(null);
 
+			
+			// TODO: Save the changes in the UI common Context
+			
 			// Prepare the listener for the change of selection
 			sessionManagementMethodsComboBox.addItemListener(new ItemListener() {
 
@@ -177,12 +185,12 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 						// different class, create it now
 						if (selectedMethod == null || !type.isFactoryForMethod(selectedMethod.getClass())) {
 							// Create the new session management method
-							selectedMethod = type.createSessionManagementMethod(context.getIndex());
+							selectedMethod = type.createSessionManagementMethod(contextId);
 						}
 
 						// Show the status panel and configuration button, if needed
 						if (type.hasOptionsPanel()) {
-							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, context.getIndex()));
+							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, contextId));
 						} else {
 							changeMethodConfigPanel(null);
 						}
@@ -195,11 +203,18 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void initParam(Object obj) {
-		selectedMethod = context.getSessionManagementMethod();
+	public String getHelpIndex() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initContextData(Session session, Context uiCommonContext) {
+		this.uiCommonContext=uiCommonContext;
+		selectedMethod = uiCommonContext.getSessionManagementMethod();
 		if (log.isDebugEnabled())
 			log.debug("Initializing configuration panel for session management method: " + selectedMethod
-					+ " for context " + context.getName());
+					+ " for context " + uiCommonContext.getName());
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedMethod != null) {
@@ -215,26 +230,25 @@ public class ContextSessionManagementPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
+	public void validateContextData(Session session) throws Exception {
 		if (selectedMethod == null)
 			throw new IllegalStateException(
-					"A valid session management method has to be selected for Context " + context.getName());
+					"A valid session management method has to be selected for Context " + uiCommonContext.getName());
 		if (!selectedMethod.isConfigured())
 			throw new IllegalStateException(
 					"The session management method has not been properly configured for Context "
-							+ context.getName());
+							+ uiCommonContext.getName());
 	}
 
 	@Override
-	public void saveParam(Object obj) throws Exception {
-		context.setSessionManagementMethod(selectedMethod);
-
+	public void saveContextData(Session session) throws Exception {
+		session.getContext(contextId).setSessionManagementMethod(selectedMethod);
+		
 	}
 
 	@Override
-	public String getHelpIndex() {
-		// TODO Auto-generated method stub
-		return null;
+	public int getContextIndex() {
+		return contextId;
 	}
 
 }

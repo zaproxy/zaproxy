@@ -44,6 +44,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
@@ -152,7 +153,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
-	public AbstractParamPanel getContextPanel(Context ctx) {
+	public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
 		return getContextPanel(ctx.getIndex());
 		// // //TODO: Refix this
 		// // return new OptionsUserAuthUserPanel(this, ctx.getIndex());
