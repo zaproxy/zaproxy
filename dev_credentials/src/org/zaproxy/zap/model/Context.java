@@ -31,6 +31,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
+import org.zaproxy.zap.userauth.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 
@@ -62,6 +63,7 @@ public class Context {
     	this.index = index;
     	this.name = String.valueOf(index);
     	this.sessionManagementMethod=new CookieBasedSessionManagementMethod();
+		this.authenticationMethod = new ManualAuthenticationMethod(index);
     }
 
 	public boolean isIncludedInScope(SiteNode sn) {
