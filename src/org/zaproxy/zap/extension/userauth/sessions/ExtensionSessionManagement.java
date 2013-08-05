@@ -36,6 +36,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
@@ -89,7 +90,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	}
 
 	@Override
-	public AbstractParamPanel getContextPanel(Context context) {
+	public AbstractContextPropertiesPanel getContextPanel(Context context) {
 		ContextSessionManagementPanel panel = this.contextPanelsMap.get(context.getIndex());
 		if (panel == null) {
 			panel = new ContextSessionManagementPanel(this, context);

@@ -36,6 +36,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
@@ -90,7 +91,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	@Override
-	public AbstractParamPanel getContextPanel(Context context) {
+	public AbstractContextPropertiesPanel getContextPanel(Context context) {
 		ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getIndex());
 		if (panel == null) {
 			panel = new ContextAuthenticationPanel(this, context);
