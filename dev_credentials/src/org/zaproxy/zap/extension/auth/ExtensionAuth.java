@@ -60,6 +60,7 @@ import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener, ContextPanelFactory, ContextDataFactory {
@@ -746,7 +747,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	}
 
 	@Override
-	public AbstractParamPanel getContextPanel(Context ctx) {
+	public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
 		return this.getContextPanel(ctx.getIndex());
 	}
 	

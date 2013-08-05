@@ -20,6 +20,8 @@
 
 package org.zaproxy.zap.extension.script;
 
+import java.util.List;
+
 import javax.script.ScriptEngine;
 import javax.swing.ImageIcon;
 
@@ -45,7 +47,8 @@ public abstract class ScriptEngineWrapper {
 	}
 	
 	public ScriptEngine getEngine() {
-		return engine;
+		// TODO Nasty hack!
+		return engine.getFactory().getScriptEngine();
 	}
 	
 	public abstract boolean isTextBased();
@@ -56,7 +59,7 @@ public abstract class ScriptEngineWrapper {
 	
 	public abstract ImageIcon getIcon();
 
-	public abstract String getExtension();
+	public abstract List<String> getExtensions();
 	
 	public abstract boolean isRawEngine();
 	

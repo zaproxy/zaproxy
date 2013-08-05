@@ -18,6 +18,7 @@
  * limitations under the License. 
  */
 // ZAP: 2013/07/10 Escaped all special characters inside the regex patterns + updated regex for non capturing groups
+// ZAP: 2013/08/02 Added new XML content type to the Variant
 
 package org.parosproxy.paros.core.scanner;
 
@@ -33,6 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 public class VariantXMLQuery extends VariantAbstractRPCQuery {
 
     public static final String XML_CONTENT_TYPE = "text/xml";
+    public static final String XML_APP_CONTENT_TYPE = "application/xml";
     public static final String SOAP2_CONTENT_TYPE = "application/soap+xml";
     
     // XML standard from W3C Consortium
@@ -58,8 +60,11 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      */
     @Override
     public boolean isValidContentType(String contentType) {
+        // Could be generalized finding only the "xml" string
+        // but should become too much extended
         return contentType.startsWith(XML_CONTENT_TYPE) || 
-               contentType.startsWith(SOAP2_CONTENT_TYPE);
+               contentType.startsWith(SOAP2_CONTENT_TYPE) || 
+               contentType.startsWith(XML_APP_CONTENT_TYPE);
     }
 
     /**
@@ -105,5 +110,5 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             
             addParameter(matcher.group(1), bidx, eidx, false);
         }
-    }    
+    }
 }

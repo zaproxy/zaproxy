@@ -63,7 +63,7 @@ public class ScriptNode extends DefaultMutableTreeNode {
 		return nodeName;
 	}
 	
-	protected void setNodeName(String name) {
+	public void setNodeName(String name) {
 		this.nodeName = name;
 	}
 	

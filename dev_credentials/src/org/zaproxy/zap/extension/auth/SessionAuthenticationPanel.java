@@ -30,11 +30,14 @@ import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
-public class SessionAuthenticationPanel extends AbstractParamPanel {
+public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	private static final String PANEL_NAME = Constant.messages.getString("auth.session.title"); 
 	private static final long serialVersionUID = -1;
@@ -157,27 +160,29 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 	
 
 	@Override
-	public void initParam(Object obj) {
+	public void initContextData(Session session, Context uiCommonContext) {
 	}
-	
+
 	@Override
-	public void validateParam(Object obj) {
+	public void validateContextData(Session session) throws Exception {
 		// Check for valid regexs
 		Pattern.compile(this.txtLoggedInIndicaterRegex.getText());
 		Pattern.compile(this.txtLoggedOutIndicaterRegex.getText());
-
 	}
-	
+
 	@Override
-	public void saveParam (Object obj) throws Exception {
-	    ExtensionAuth ext = (ExtensionAuth) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAuth.NAME);
-	    if (ext != null) {
-	    	ext.setLoginRequest(contextId, this.getTxtLoginUrl().getText(), this.getTxtLoginPostData().getText());
-	    	ext.setLogoutRequest(contextId, this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData().getText());
-	    	ext.setLoggedInIndicationRegex(contextId, this.txtLoggedInIndicaterRegex.getText());
-	    	ext.setLoggedOutIndicationRegex(contextId, this.txtLoggedOutIndicaterRegex.getText());
-	    	ext.saveAuthParams(contextId);
-	    }
+	public void saveContextData(Session session) throws Exception {
+		ExtensionAuth ext = (ExtensionAuth) Control.getSingleton().getExtensionLoader()
+				.getExtension(ExtensionAuth.NAME);
+		if (ext != null) {
+			ext.setLoginRequest(contextId, this.getTxtLoginUrl().getText(), this.getTxtLoginPostData()
+					.getText());
+			ext.setLogoutRequest(contextId, this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData()
+					.getText());
+			ext.setLoggedInIndicationRegex(contextId, this.txtLoggedInIndicaterRegex.getText());
+			ext.setLoggedOutIndicationRegex(contextId, this.txtLoggedOutIndicaterRegex.getText());
+			ext.saveAuthParams(contextId);
+		}
 	}
 	
 	@Override
@@ -210,5 +215,10 @@ public class SessionAuthenticationPanel extends AbstractParamPanel {
 
 	public void setLoggedInIndicationRegex(String authIndicationRegex) {
 		this.getTxtLoggedInIndicaterRegex().setText(authIndicationRegex);
+	}
+
+	@Override
+	public int getContextIndex() {
+		return contextId;
 	}
 }

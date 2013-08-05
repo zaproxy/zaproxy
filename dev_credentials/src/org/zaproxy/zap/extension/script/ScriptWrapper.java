@@ -117,6 +117,9 @@ public class ScriptWrapper {
 	}
 	
 	public String getTypeName() {
+		if (type != null) {
+			return type.getName();
+		}
 		return typeName;
 	}
 

@@ -78,6 +78,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	
 	private List<ScriptEventListener> listeners = new ArrayList<ScriptEventListener>();
 	private MultipleWriters writers = new MultipleWriters();
+	private ScriptUI scriptUI = null;
 
 	private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
@@ -125,6 +126,12 @@ public class ExtensionScript extends ExtensionAdaptor {
 		for (ScriptEngineFactory engine : engines) {
 			engineNames.add(engine.getLanguageName() + LANG_ENGINE_SEP + engine.getEngineName());
 		}
+		for (ScriptEngineWrapper sew : this.engineWrappers) {
+			if (! engines.contains(sew.getEngine().getFactory())) {
+				engineNames.add(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName());
+			}
+		}
+		
 		Collections.sort(engineNames);
 		return engineNames;
 	}
@@ -169,6 +176,23 @@ public class ExtensionScript extends ExtensionAdaptor {
 			return dew;
 		}
 		throw new InvalidParameterException("No such engine: " + name);
+	}
+	
+	public String getEngineNameForExtension(String ext) {
+		ScriptEngine engine = mgr.getEngineByExtension(ext);
+		if (engine != null) {
+			return (String)engine.get(ScriptEngine.LANGUAGE) + LANG_ENGINE_SEP + (String)engine.get(ScriptEngine.ENGINE);
+		}
+		for (ScriptEngineWrapper sew : this.engineWrappers) {
+			if (sew.getExtensions() != null) {
+				for (String extn : sew.getExtensions()) {
+					if (ext.equals(extn)) {
+						return sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	protected ScriptParam getScriptParam() {
@@ -229,24 +253,25 @@ public class ExtensionScript extends ExtensionAdaptor {
 	}
 	
 	public ScriptWrapper getScript(String name) {
-		ScriptWrapper script =  this.treeModel.getScript(name);
+		ScriptWrapper script =  this.getTreeModel().getScript(name);
 		refreshScript(script);
 		return script;
 	}
 	
-	public void addScript(ScriptWrapper script) {
-		this.addScript(script, true);
+	public ScriptNode addScript(ScriptWrapper script) {
+		return this.addScript(script, true);
 	}
 	
-	public void addScript(ScriptWrapper script, boolean display) {
+	public ScriptNode addScript(ScriptWrapper script, boolean display) {
 		if (script == null) {
-			return;
+			return null;
 		}
-		this.getTreeModel().addScript(script);
+		ScriptNode node = this.getTreeModel().addScript(script);
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptAdded(script);
+			listener.scriptAdded(script, display);
 		}
+		return node;
 	}
 
 	public void saveScript(ScriptWrapper script) throws IOException {
@@ -269,7 +294,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 		this.getScriptParam().saveScripts();
 		this.getTreeModel().removeScript(script);
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptAdded(script);
+			listener.scriptRemoved(script);
 		}
 
 	}
@@ -356,7 +381,12 @@ public class ExtensionScript extends ExtensionAdaptor {
 	    	this.setError(script, e);
 	    	this.setEnabled(script, false);
 	    }
-		return (Invocable) se;
+
+	    if (se instanceof Invocable) {
+	    	return (Invocable) se;
+	    } else {
+	    	return null;
+	    }
 	}
 	
     public void invokeTargetedScript(ScriptWrapper script, HttpMessage msg) {
@@ -449,4 +479,16 @@ public class ExtensionScript extends ExtensionAdaptor {
 	public void removeWriter(Writer writer) {
 		this.writers.removeWriter(writer);
 	}
+
+	public ScriptUI getScriptUI() {
+		return scriptUI;
+	}
+
+	public void setScriptUI(ScriptUI scriptUI) {
+		if (this.scriptUI != null) {
+			throw new InvalidParameterException("A script UI has already been set - only one is supported");
+		}
+		this.scriptUI = scriptUI;
+	}
+	
 }

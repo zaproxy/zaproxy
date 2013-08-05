@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
@@ -55,7 +56,8 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 	public String getTemplate(String type) {
 		if (! templateMap.containsKey(type)) {
 			templateMap.put(type, this.getStringReource(
-					this.getLanguageName().toLowerCase() + File.separator + type.toLowerCase() + "-template" + this.getExtension()));
+					this.getLanguageName().toLowerCase() + File.separator + type.toLowerCase() + 
+					"-template" + this.getExtensions().get(0)));
 		}
 		return templateMap.get(type);
 	}
@@ -93,8 +95,8 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 	}
 
 	@Override
-	public String getExtension() {
-		return null;
+	public List<String> getExtensions() {
+		return this.getEngine().getFactory().getExtensions();
 	}
 
 	@Override

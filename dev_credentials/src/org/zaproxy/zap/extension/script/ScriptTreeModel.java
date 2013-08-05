@@ -51,6 +51,10 @@ public class ScriptTreeModel extends DefaultTreeModel {
     	
     }
     
+    public ScriptNode getTypeNode(String type) {
+    	return nodeMap.get(type);
+    }
+    
     @Override
     public ScriptNode getRoot() {
     	return (ScriptNode)this.root;

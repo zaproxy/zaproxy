@@ -2,21 +2,24 @@ package org.zaproxy.zap.view;
 
 import java.awt.CardLayout;
 import java.awt.GridBagLayout;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
 
-public class ContextGeneralPanel extends AbstractParamPanel {
+public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 
 	private static final long serialVersionUID = -8337361808959321380L;
 
@@ -25,6 +28,7 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 	private ZapTextField txtName = null;
 	private ZapTextArea txtDescription = null;
 	private JCheckBox chkInScope = null;
+	private Context uiClonedContext;
 	
     public ContextGeneralPanel(String name, int index) {
         super();
@@ -78,6 +82,18 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 	private ZapTextField getTxtName() {
 		if (txtName == null) {
 			txtName = new ZapTextField();
+			// Store the change in the ui cloned context
+			txtName.addFocusListener(new FocusListener() {
+				
+				@Override
+				public void focusLost(FocusEvent arg0) {
+					uiClonedContext.setName(txtName.getText());
+				}
+				
+				@Override
+				public void focusGained(FocusEvent arg0) {
+				}
+			});
 		}
 		return txtName;
 	}
@@ -86,6 +102,13 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 		if (chkInScope == null) {
 			chkInScope = new JCheckBox();
 			chkInScope.setText(Constant.messages.getString("context.inscope.label"));
+			// Store the change in the ui cloned context
+			chkInScope.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent arg0) {
+					uiClonedContext.setInScope(chkInScope.isSelected());
+				}
+			});
 		}
 		return chkInScope;
 	}
@@ -101,31 +124,51 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 			txtDescription.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 			txtDescription.setLineWrap(true);
 			txtDescription.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+			// Store the change in the ui common context 
+			txtDescription.addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent arg0) {
+					uiClonedContext.setDescription(txtDescription.getText());
+				}
+				@Override
+				public void focusGained(FocusEvent arg0) {
+				}
+			});
 		}
 		return txtDescription;
 	}
-	
+
 	@Override
-	public void initParam(Object obj) {
-	    Session session = (Session) obj;
-	    Context context = session.getContext(this.index);
-    	this.setName(context.getName());
-	    getTxtName().setText(context.getName());
+	public String getHelpIndex() {
+		return "ui.dialogs.contexts";
+	}
+	
+	public int getContextIndex() {
+		return this.index;
+	}
+
+
+	@Override
+	public void initContextData(Session session, Context uiContext) {
+		this.uiClonedContext=uiContext;
+    	this.setName(uiContext.getName());
+	    getTxtName().setText(uiContext.getName());
 	    getTxtName().discardAllEdits();
-	    getTxtDescription().setText(context.getDescription());
+	    getTxtDescription().setText(uiContext.getDescription());
 	    getTxtDescription().discardAllEdits();
-	    getChkInScope().setSelected(context.isInScope());
+	    getChkInScope().setSelected(uiContext.isInScope());
 	}
-	
+
+
 	@Override
-	public void validateParam(Object obj) {
+	public void validateContextData(Session session) {
 	    // no validation needed
+		
 	}
-	
+
 	@Override
-	public void saveParam (Object obj) throws Exception {
-	    Session session = (Session) obj;
-	    Context context = session.getContext(this.index);
+	public void saveContextData(Session session) {
+		Context context = session.getContext(this.index);
 
     	String name = getTxtName().getText();
     	if (! this.getName().equals(name) && View.isInitialised()) {
@@ -136,17 +179,6 @@ public class ContextGeneralPanel extends AbstractParamPanel {
 	    context.setDescription(getTxtDescription().getText());
 	    context.setInScope(getChkInScope().isSelected());
 	    context.save();
-	    
-	}
-
-
-	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
-	}
-	
-	public int getContextIndex() {
-		return this.index;
 	}
 	
 }
