@@ -19,138 +19,119 @@
  */
 package org.zaproxy.zap.extension.userauth;
 
-import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Vector;
 
-import javax.swing.JButton;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
+import org.zaproxy.zap.userauth.authentication.AbstractCredentialsOptionsPanel;
+import org.zaproxy.zap.userauth.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
-import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
- * The Dialog used for adding a new user.
+ * The Dialog for adding and conffiguring a new {@link User}.
  */
 public class DialogAddUser extends AbstractFormDialog {
 
-	private static final String AUTHENTICATION_METHOD_NOT_CONFIGURED = Constant.messages
-			.getString("userauth.user.dialog.add.authentication.notconfigured");
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = -7210879426146833234L;
 
-	private static final String SESSION_MANAGEMENT_METHOD_NOT_CONFIGURED = Constant.messages
-			.getString("userauth.user.dialog.add.session.notconfigured");
-
+	/** The Constant logger. */
 	protected static final Logger log = Logger.getLogger(DialogAddUser.class);
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = -7369728566299090079L;
-
 	private static final String DIALOG_TITLE = Constant.messages.getString("userauth.user.dialog.add.title");
-
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
 			.getString("userauth.user.dialog.add.button.confirm");
 
-	protected ExtensionUserAuthentication extension;
+	/** The context corresponding to the new user. */
+	private Context context;
 
-	@Override
-	protected boolean validateFields() {
-		// TODO: Check name collision
-		if (selectedAuthenticationMethod == null || !selectedAuthenticationMethod.isConfigured())
-			return false;
-		if (selectedSessionManagementMethod == null || !selectedSessionManagementMethod.isConfigured())
-			return false;
-		return true;
+	/** The extension. */
+	private ExtensionUserManagement extension;
+
+	private JPanel fieldsPanel;
+	private AbstractCredentialsOptionsPanel<?> credentialsPanel;
+	private ZapTextField nameTextField;
+	private AuthenticationCredentials configuredCredentials;
+	private JCheckBox enabledCheckBox;
+	protected User user;
+
+	/**
+	 * Instantiates a new dialog add user.
+	 * 
+	 * @param owner the owner
+	 * @param extension the extension
+	 * @param context the context
+	 */
+	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, int contextId) {
+		super(owner, DIALOG_TITLE, false);
+		this.context = Model.getSingleton().getSession().getContext(contextId);
+		this.extension = extension;
+		initView();
 	}
 
-	@Override
-	protected void performAction() {
-		user = new User(this.contextId, nameTextField.getText());
-		user.setEnabled(enabledCheckBox.isSelected());
-//		user.setAuthenticationMethod(selectedAuthenticationMethod);
-//		user.setSessionManagementMethod(selectedSessionManagementMethod);
-		if (log.isInfoEnabled())
-			log.info("Saving user: " + user);
-	}
-
-	@Override
-	protected void clearFields() {
-		nameTextField.setText("");
-		nameTextField.discardAllEdits();
-		sessionManagementMethodsComboBox.setSelectedItem(null);
-		authenticationMethodsComboBox.setSelectedItem(null);
-
-		getAuthenticationMethodStatusPanel().setVisible(false);
-		authenticationMethodStatusLabel.setText(AUTHENTICATION_METHOD_NOT_CONFIGURED);
-
-//		getSessionManagementMethodStatusPanel().setVisible(false);
-//		sessionManagementMethodStatusLabel.setText(SESSION_MANAGEMENT_METHOD_NOT_CONFIGURED);
+	/**
+	 * Instantiates a new dialog add user.
+	 * 
+	 * @param owner the owner
+	 * @param extension the extension
+	 * @param title the title
+	 * @param context the context
+	 */
+	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, String title, int contextId) {
+		super(owner, title, false);
+		this.context = Model.getSingleton().getSession().getContext(contextId);
+		this.extension = extension;
+		initView();
 	}
 
 	@Override
 	protected void init() {
-		log.info("Initializing add user dialog...");
-		getNameTextField().setText("");
-		getEnabledCheckBox().setSelected(true);
-		getAuthenticationMethodStatusPanel().setVisible(false);
-		user = null;
-		selectedAuthenticationMethod = null;
-		selectedSessionManagementMethod = null;
+		super.init();
+
+		// Initialize the credentials that will be configured
+		configuredCredentials = context.getAuthenticationMethod().createAuthenticationCredentials();
+
+		// Initialize the credentials config panel
+		AuthenticationMethodType<?> type = context.getAuthenticationMethod().getType();
+		if (type.hasCredentialsOptionsPanel()) {
+			credentialsPanel = type.buildCredentialsOptionsPanel(configuredCredentials, context.getIndex());
+			fieldsPanel.add(credentialsPanel, LayoutHelper.getGBC(0, 3, 2, 1, new Insets(4, 8, 2, 4)));
+			fieldsPanel.revalidate();
+			this.pack();
+		}
 	}
 
-	private ZapTextField nameTextField;
-	private JCheckBox enabledCheckBox;
-
-	protected User user;
-
-	protected AuthenticationMethod selectedAuthenticationMethod;
-	protected SessionManagementMethod selectedSessionManagementMethod;
-
-	private int contextId;
-	private JPanel fieldsPanel;
-
-	private JPanel authenticationMethodStatusPanel;
-	private JPanel sessionManagementMethodStatusPanel;
-
-	private JComboBox<AuthenticationMethodType<?>> sessionManagementMethodsComboBox;
-
-	private JComboBox<AuthenticationMethodType<?>> authenticationMethodsComboBox;
-
-	private JLabel authenticationMethodStatusLabel;
-	private JLabel sessionManagementMethodStatusLabel;
-
-	public DialogAddUser(Dialog owner, ExtensionUserAuthentication extension, int contextId) {
-		super(owner, DIALOG_TITLE, false);
-		this.contextId = contextId;
-		this.extension = extension;
-		initView();
+	public void clear() {
+		this.user = null;
+		// Remove previous config panel
+		if (credentialsPanel != null)
+			getFieldsPanel().remove(credentialsPanel);
 	}
 
-	public DialogAddUser(Dialog owner, ExtensionUserAuthentication extension, String title, int contextId) {
-		super(owner, title, false);
-		this.contextId = contextId;
-		this.extension = extension;
-		initView();
+	/**
+	 * Gets the user defined in the dialog, if any.
+	 * 
+	 * @return the user, if correctly built or null, otherwise
+	 */
+	public User getUser() {
+		return user;
 	}
 
 	@Override
@@ -159,17 +140,13 @@ public class DialogAddUser extends AbstractFormDialog {
 			fieldsPanel = new JPanel();
 
 			fieldsPanel.setLayout(new GridBagLayout());
-			fieldsPanel.setName("Dialog Add User");
+			fieldsPanel.setName("DialogAddUser");
 			Insets insets = new Insets(4, 8, 2, 4);
 
 			JLabel nameLabel = new JLabel(
 					Constant.messages.getString("userauth.user.dialog.add.field.label.name"));
 			JLabel enabledLabel = new JLabel(
 					Constant.messages.getString("userauth.user.dialog.add.field.label.enabled"));
-			JLabel sessionManagementLabel = new JLabel(
-					Constant.messages.getString("userauth.user.dialog.add.field.label.sessionmanagement"));
-			JLabel authenticationLabel = new JLabel(
-					Constant.messages.getString("userauth.user.dialog.add.field.label.authentication"));
 
 			fieldsPanel.add(nameLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D, insets));
 			fieldsPanel.add(getNameTextField(), LayoutHelper.getGBC(1, 0, 1, 0.5D, insets));
@@ -178,69 +155,9 @@ public class DialogAddUser extends AbstractFormDialog {
 			fieldsPanel.add(getEnabledCheckBox(), LayoutHelper.getGBC(1, 1, 1, 0.5D, insets));
 
 			fieldsPanel.add(new JSeparator(), LayoutHelper.getGBC(0, 2, 2, 0.5D, insets));
-			fieldsPanel.add(sessionManagementLabel, LayoutHelper.getGBC(0, 3, 1, 0.5D, insets));
-			fieldsPanel
-					.add(getSessionManagementMethodsComboBox(), LayoutHelper.getGBC(1, 3, 1, 0.5D, insets));
 
-//			fieldsPanel
-//					.add(getSessionManagementMethodStatusPanel(), LayoutHelper.getGBC(0, 4, 2, 1D, insets));
-
-			fieldsPanel.add(new JSeparator(), LayoutHelper.getGBC(0, 5, 2, 0.5D, insets));
-			fieldsPanel.add(authenticationLabel, LayoutHelper.getGBC(0, 6, 1, 0.5D, insets));
-			fieldsPanel.add(getAuthenticationMethodsComboBox(), LayoutHelper.getGBC(1, 6, 1, 0.5D, insets));
-
-			fieldsPanel.add(getAuthenticationMethodStatusPanel(), LayoutHelper.getGBC(0, 7, 2, 1D, insets));
 		}
 		return fieldsPanel;
-	}
-
-
-
-	/**
-	 * Gets the authentication method status panel that is used to display brief info about the
-	 * authentication method and configure it.
-	 * 
-	 * @return the authentication method status panel
-	 */
-	protected JPanel getAuthenticationMethodStatusPanel() {
-		if (authenticationMethodStatusPanel == null) {
-			// Status label
-			authenticationMethodStatusPanel = new JPanel(new BorderLayout());
-			authenticationMethodStatusLabel = new JLabel(AUTHENTICATION_METHOD_NOT_CONFIGURED);
-			authenticationMethodStatusPanel.add(authenticationMethodStatusLabel, BorderLayout.WEST);
-
-			// Configure button
-			JButton authenticationMethodConfigButton = new JButton("Configure");
-			authenticationMethodStatusPanel.add(authenticationMethodConfigButton, BorderLayout.EAST);
-			authenticationMethodConfigButton.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// If the configure button has been clicked, get the corresponding factory and
-					// start the configure dialog
-					AuthenticationMethodType<?> factory = (AuthenticationMethodType<?>) getAuthenticationMethodsComboBox()
-							.getSelectedItem();
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					DialogConfigAuthenticationMethod dialog = new DialogConfigAuthenticationMethod(View
-							.getSingleton().getOptionsDialog(null), "Edit", factory,
-							selectedAuthenticationMethod, contextId);
-					dialog.pack();
-					dialog.setVisible(true);
-
-//					// Store the authentication method
-//					if (dialog.getAuthenticationMethod() != null) {
-//						AuthenticationMethod configuredMethod = dialog.getAuthenticationMethod();
-//						if (configuredMethod.isConfigured()) {
-//							authenticationMethodStatusLabel.setText(configuredMethod.getStatusDescription());
-//						}
-//						checkValidAndEnableConfirmButton();
-//					}
-
-				}
-			});
-			authenticationMethodStatusPanel.setVisible(false);
-		}
-		return authenticationMethodStatusPanel;
 	}
 
 	protected ZapTextField getNameTextField() {
@@ -269,12 +186,6 @@ public class DialogAddUser extends AbstractFormDialog {
 		return nameTextField;
 	}
 
-	private void checkValidAndEnableConfirmButton() {
-		setConfirmButtonEnabled(getNameTextField().getDocument().getLength() > 0
-				&& getSessionManagementMethodsComboBox().getSelectedIndex() >= 0
-				&& selectedAuthenticationMethod != null && selectedAuthenticationMethod.isConfigured());
-	}
-
 	protected JCheckBox getEnabledCheckBox() {
 		if (enabledCheckBox == null) {
 			enabledCheckBox = new JCheckBox();
@@ -283,121 +194,17 @@ public class DialogAddUser extends AbstractFormDialog {
 		return enabledCheckBox;
 	}
 
-	protected JComboBox<AuthenticationMethodType<?>> getSessionManagementMethodsComboBox() {
-		if (sessionManagementMethodsComboBox == null) {
-//			Vector<AuthenticationMethodType<?>> methods = new Vector<>(
-//					extension.getSessionManagementMethodFactories());
-//			sessionManagementMethodsComboBox = new JComboBox<>(methods);
-//			sessionManagementMethodsComboBox.setSelectedItem(null);
-//
-//			// Prepare the listener for the change of selection
-//			sessionManagementMethodsComboBox.addItemListener(new ItemListener() {
-//				@Override
-//				public void itemStateChanged(ItemEvent e) {
-//					if (e.getStateChange() == ItemEvent.SELECTED) {
-//						// Prepare the new session management method
-//						log.debug("Selected new Session Management method: " + e.getItem());
-//						AuthenticationMethodType<?> factory = ((AuthenticationMethodType<?>) e
-//								.getItem());
-//						// If no session management method was previously selected or it's a
-//						// different
-//						// class
-//						if (selectedSessionManagementMethod == null
-//								|| !factory.isFactoryForMethod(selectedSessionManagementMethod.getClass())) {
-//							selectedSessionManagementMethod = factory.createSessionManagementMethod();
-//						}
-//
-//						// Show the status panel and configuration button, if needed
-//						if (factory.hasOptionsPanel()) {
-//							getSessionManagementMethodStatusPanel().setVisible(true);
-//							if (selectedSessionManagementMethod.isConfigured()) {
-//								sessionManagementMethodStatusLabel.setText(selectedSessionManagementMethod
-//										.getStatusDescription());
-//							} else {
-//								sessionManagementMethodStatusLabel
-//										.setText(SESSION_MANAGEMENT_METHOD_NOT_CONFIGURED);
-//							}
-//						} else {
-//							getSessionManagementMethodStatusPanel().setVisible(false);
-//						}
-//						DialogAddUser.this.pack();
-//					}
-//					checkValidAndEnableConfirmButton();
-//				}
-//			});
-		}
-		return sessionManagementMethodsComboBox;
-
-	}
-
 	/**
-	 * Gets the combo box used for selecting the type of authentication method.
-	 * 
-	 * @return the authentication methods combo box
+	 * Checks if the fields of the dialog are valid and enable confirm button, if everything is
+	 * valid.
 	 */
-	protected JComboBox<AuthenticationMethodType<?>> getAuthenticationMethodsComboBox() {
-		if (authenticationMethodsComboBox == null) {
-//			Vector<AuthenticationMethodType<?>> methods = new Vector<>(
-//					extension.getAuthenticationMethodFactories());
-//			authenticationMethodsComboBox = new JComboBox<>(methods);
-//			authenticationMethodsComboBox.setSelectedItem(null);
-//
-//			// Prepare the listener for the change of selection
-//			authenticationMethodsComboBox.addItemListener(new ItemListener() {
-//				@Override
-//				public void itemStateChanged(ItemEvent e) {
-//					if (e.getStateChange() == ItemEvent.SELECTED) {
-//						// Prepare the new authentication method
-//						log.debug("Selected new Authentication method: " + e.getItem());
-//						AuthenticationMethodType<?> factory = ((AuthenticationMethodType<?>) e
-//								.getItem());
-//						// If no authentication method was previously selected or it's a different
-//						// class
-//						if (selectedAuthenticationMethod == null
-//								|| !factory.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
-//							selectedAuthenticationMethod = factory.createAuthenticationMethod();
-//						}
-//
-//						// Show the status panel and configuration button, if needed
-//						if (factory.hasOptionsPanel()) {
-//							getAuthenticationMethodStatusPanel().setVisible(true);
-//							if (selectedAuthenticationMethod.isConfigured()) {
-//								authenticationMethodStatusLabel.setText(selectedAuthenticationMethod
-//										.getStatusDescription());
-//							} else {
-//								authenticationMethodStatusLabel.setText(AUTHENTICATION_METHOD_NOT_CONFIGURED);
-//							}
-//						} else {
-//							getAuthenticationMethodStatusPanel().setVisible(false);
-//						}
-//						DialogAddUser.this.pack();
-//					}
-//					checkValidAndEnableConfirmButton();
-//				}
-//			});
-		}
-		return authenticationMethodsComboBox;
-
+	private void checkValidAndEnableConfirmButton() {
+		setConfirmButtonEnabled(getNameTextField().getDocument().getLength() > 0);
 	}
 
 	@Override
 	protected String getConfirmButtonLabel() {
 		return CONFIRM_BUTTON_LABEL;
-	}
-
-	/**
-	 * Gets the user defined in the dialog, if any.
-	 * 
-	 * @return the user, if correctly built or null, otherwise
-	 */
-	public User getUser() {
-		return user;
-	}
-
-	public void clear() {
-		this.user = null;
-		this.selectedAuthenticationMethod = null;
-		this.selectedSessionManagementMethod = null;
 	}
 
 }

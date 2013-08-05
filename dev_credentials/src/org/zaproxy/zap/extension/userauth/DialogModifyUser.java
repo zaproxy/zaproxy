@@ -16,7 +16,7 @@ public class DialogModifyUser extends DialogAddUser {
 	private static final String DIALOG_TITLE = Constant.messages
 			.getString("userauth.user.dialog.modify.title");
 
-	public DialogModifyUser(Dialog owner, ExtensionUserAuthentication extension, int contextId) {
+	public DialogModifyUser(Dialog owner, ExtensionUserManagement extension, int contextId) {
 		super(owner, extension, DIALOG_TITLE, contextId);
 	}
 
