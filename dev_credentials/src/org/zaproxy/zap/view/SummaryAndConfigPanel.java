@@ -44,6 +44,8 @@ public class SummaryAndConfigPanel extends JPanel {
 	/** The summary title text. */
 	private String summaryTitleText;
 
+	private JButton configButton;
+
 	/**
 	 * Instantiates a new summary and config panel.
 	 * 
@@ -58,7 +60,7 @@ public class SummaryAndConfigPanel extends JPanel {
 
 		this.summaryTitleText = summaryTitleText;
 
-		JButton configButton = new JButton(configButtonText);
+		configButton = new JButton(configButtonText);
 		configButton.setIcon(new ImageIcon(ContextAuthenticationPanel.class
 				.getResource("/resource/icon/16/041.png")));
 		configButton.addActionListener(configButtonActionListener);
@@ -80,4 +82,12 @@ public class SummaryAndConfigPanel extends JPanel {
 		summaryArea.setText("<html><b>" + summaryTitleText + "</b><br/>" + content + "</html>");
 	}
 
+	/**
+	 * Sets whether the config button is enabled.
+	 *
+	 * @param enabled true, if enabled
+	 */
+	public void setConfigButtonEnabled(boolean enabled) {
+		this.configButton.setEnabled(enabled);
+	}
 }
