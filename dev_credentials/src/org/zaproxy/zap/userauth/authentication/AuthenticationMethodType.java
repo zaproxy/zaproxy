@@ -70,16 +70,15 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	public abstract boolean hasOptionsPanel();
 
 	/**
-	 * Builds the options panel that can be used to fully configure an
-	 * {@link AuthenticationCredentials} object.
-	 * 
-	 * @param authenticationMethod the authentication method
+	 * Builds the options panel that can be used to fully configure an.
+	 *
 	 * @param credentials the credentials
+	 * @param contextId the context id
 	 * @return the abstract credentials options panel
-	 * 
+	 * {@link AuthenticationCredentials} object.
 	 */
 	public abstract AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
-			T authenticationMethod, AuthenticationCredentials credentials);
+			AuthenticationCredentials credentials, int contextId);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationCredentials} has an options panel that can

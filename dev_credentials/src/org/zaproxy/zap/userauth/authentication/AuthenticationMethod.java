@@ -51,6 +51,17 @@ public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 	public String getStatusDescription();
 
 	/**
+	 * Gets the {@link AuthenticationMethodType} corresponding to this authentication method.
+	 * <p>
+	 * Implementations may return new instantiations at every call, so performance considerations
+	 * should be taken by users.
+	 * </p>
+	 * 
+	 * @return the type
+	 */
+	public AuthenticationMethodType<SELF> getType();
+
+	/**
 	 * Performs an authentication in a web application, returning an authenticated
 	 * {@link WebSession}.
 	 * 

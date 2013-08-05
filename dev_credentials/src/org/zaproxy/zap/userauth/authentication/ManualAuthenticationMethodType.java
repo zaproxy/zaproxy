@@ -98,6 +98,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		public String getStatusDescription() {
 			return null; // Not needed
 		}
+
+		@Override
+		public AuthenticationMethodType<ManualAuthenticationMethod> getType() {
+			return new ManualAuthenticationMethodType();
+		}
 	}
 
 	/**
@@ -149,13 +154,12 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 			log.debug("Initializing options panel for context: " + context.getName());
 
 			this.setLayout(new GridBagLayout());
-			Insets insets = new Insets(4, 8, 2, 4);
 
 			JLabel sessionsLabel = new JLabel(
 					Constant.messages.getString("userauth.auth.manual.field.sessions"));
 
-			this.add(sessionsLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D, insets));
-			this.add(getSessionsComboBox(), LayoutHelper.getGBC(1, 0, 1, 0.5D, insets));
+			this.add(sessionsLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D));
+			this.add(getSessionsComboBox(), LayoutHelper.getGBC(1, 0, 1, 0.5D));
 			this.getSessionsComboBox().setRenderer(new HttpSessionRenderer());
 		}
 
@@ -238,9 +242,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 
 	@Override
 	public AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
-			ManualAuthenticationMethod authenticationMethod, AuthenticationCredentials credentials) {
+			AuthenticationCredentials credentials, int contextId) {
 		return new ManualAuthenticationCredentialsOptionsPanel((ManualAuthenticationCredentials) credentials,
-				authenticationMethod.getContextId());
+				contextId);
 	}
 
 	@Override
