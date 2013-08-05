@@ -29,13 +29,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
@@ -44,7 +40,6 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
-import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SummaryAndConfigPanel;
 
@@ -52,6 +47,9 @@ import org.zaproxy.zap.view.SummaryAndConfigPanel;
  * The Context Panel shown for configuring a Context's authentication methods.
  */
 public class ContextAuthenticationPanel extends AbstractParamPanel {
+
+	private static final String CONFIG_NOT_NEEDED = Constant.messages
+			.getString("sessionmanagement.panel.label.noConfigPanel");
 
 	private static final String METHOD_NOT_CONFIGURED = Constant.messages
 			.getString("authentication.panel.label.notConfigured");
@@ -79,14 +77,11 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	/** The authentication method types combo box. */
 	private JComboBox<AuthenticationMethodType<?>> authenticationMethodsComboBox;
 
-	/** The authentication method status panel. */
-	private JPanel shownStatusPanel;
-
 	/** The authentication method summary panel. */
 	private SummaryAndConfigPanel authenticationMethodSummaryPanel;
 
 	/** The selected authentication method. */
-	private AuthenticationMethod selectedAuthenticationMethod;
+	private AuthenticationMethod<?> selectedAuthenticationMethod;
 
 	/**
 	 * Instantiates a new context authentication configuration panel.
@@ -138,22 +133,6 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	}
 
 	/**
-	 * Builds a panel showing that no method configuration is needed.
-	 * 
-	 * @return the no method configuration panel
-	 */
-	private JPanel buildNoMethodConfigurationPanel() {
-		// No caching is done as their is no need for a 'lifetime' reference to one as most likely
-		// will either not be used again, or is the displayed panel.
-		JPanel noConfigPanel = new JPanel();
-		noConfigPanel.add(
-				new JLabel(Constant.messages.getString("sessionmanagement.panel.label.noConfigPanel")),
-				getMethodPanelConstraints());
-
-		return noConfigPanel;
-	}
-
-	/**
 	 * Gets the method's panel grid bag constraints.
 	 * 
 	 * @return the method panel constraints
@@ -178,26 +157,27 @@ public class ContextAuthenticationPanel extends AbstractParamPanel {
 	 *            {@link ContextAuthenticationPanel#getNoMethodConfigurationPanel()}).
 	 */
 	private void changeMethodConfigPanel(AuthenticationMethodType<?> newMethodType) {
-		// Remove oldPanel, if it exists
-		if (shownStatusPanel != null)
-			this.remove(shownStatusPanel);
-
-		// If there's no new method (so no new method), don't display anything
+		// If there's no new method, don't display anything
 		if (newMethodType == null) {
-			shownStatusPanel = null;
+			if (authenticationMethodSummaryPanel != null)
+				this.remove(authenticationMethodSummaryPanel);
+			authenticationMethodSummaryPanel = null;
+			this.revalidate();
 			return;
+		}
+		// If there's no panel shown, create it now
+		if (authenticationMethodSummaryPanel == null) {
+			authenticationMethodSummaryPanel = buildConfigurationPanel();
+			this.add(authenticationMethodSummaryPanel, getMethodPanelConstraints());
+			this.revalidate();
 		}
 
 		// show the panel according to whether the authentication type needs configuration
-		if (newMethodType.hasOptionsPanel()) {
-			authenticationMethodSummaryPanel = buildConfigurationPanel();
-			shownStatusPanel = authenticationMethodSummaryPanel;
-		} else {
-			shownStatusPanel = buildNoMethodConfigurationPanel();
-		}
-
-		this.add(shownStatusPanel, getMethodPanelConstraints());
-		this.revalidate();
+		if (!newMethodType.hasOptionsPanel()) {
+			authenticationMethodSummaryPanel.setSummaryContent(CONFIG_NOT_NEEDED);
+			authenticationMethodSummaryPanel.setConfigButtonEnabled(false);
+		} else
+			authenticationMethodSummaryPanel.setConfigButtonEnabled(true);
 	}
 
 	/**
