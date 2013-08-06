@@ -23,18 +23,15 @@ import java.awt.Dialog;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.authentication.AbstractCredentialsOptionsPanel;
@@ -45,7 +42,7 @@ import org.zaproxy.zap.view.AbstractFormDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
- * The Dialog for adding and conffiguring a new {@link User}.
+ * The Dialog for adding and configuring a new {@link User}.
  */
 public class DialogAddUser extends AbstractFormDialog {
 
@@ -59,17 +56,12 @@ public class DialogAddUser extends AbstractFormDialog {
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
 			.getString("userauth.user.dialog.add.button.confirm");
 
-	/** The context corresponding to the new user. */
-	private Context context;
-
-	/** The extension. */
-	private ExtensionUserManagement extension;
-
 	private JPanel fieldsPanel;
 	private AbstractCredentialsOptionsPanel<?> credentialsPanel;
 	private ZapTextField nameTextField;
-	private AuthenticationCredentials configuredCredentials;
+	protected AuthenticationCredentials configuredCredentials;
 	private JCheckBox enabledCheckBox;
+	protected Context workingContext;
 	protected User user;
 
 	/**
@@ -79,11 +71,8 @@ public class DialogAddUser extends AbstractFormDialog {
 	 * @param extension the extension
 	 * @param context the context
 	 */
-	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, int contextId) {
-		super(owner, DIALOG_TITLE, false);
-		this.context = Model.getSingleton().getSession().getContext(contextId);
-		this.extension = extension;
-		initView();
+	public DialogAddUser(Dialog owner, ExtensionUserManagement extension) {
+		super(owner, DIALOG_TITLE);
 	}
 
 	/**
@@ -94,24 +83,40 @@ public class DialogAddUser extends AbstractFormDialog {
 	 * @param title the title
 	 * @param context the context
 	 */
-	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, String title, int contextId) {
-		super(owner, title, false);
-		this.context = Model.getSingleton().getSession().getContext(contextId);
-		this.extension = extension;
-		initView();
+	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, String title) {
+		super(owner, title);
+	}
+
+	/**
+	 * Sets the context on which the Dialog is working.
+	 * 
+	 * @param context the new working context
+	 */
+	public void setWorkingContext(Context context) {
+		this.workingContext = context;
 	}
 
 	@Override
 	protected void init() {
-		super.init();
+		if (this.workingContext == null)
+			throw new IllegalStateException(
+					"A working Context should be set before setting the 'Add Dialog' visible.");
+
+		getEnabledCheckBox().setSelected(true);
 
 		// Initialize the credentials that will be configured
-		configuredCredentials = context.getAuthenticationMethod().createAuthenticationCredentials();
+		configuredCredentials = workingContext.getAuthenticationMethod().createAuthenticationCredentials();
+		initializeCredentialsConfigPanel();
+	}
 
+	/**
+	 * Initialize credentials config panel.
+	 */
+	protected void initializeCredentialsConfigPanel() {
 		// Initialize the credentials config panel
-		AuthenticationMethodType<?> type = context.getAuthenticationMethod().getType();
+		AuthenticationMethodType<?> type = workingContext.getAuthenticationMethod().getType();
 		if (type.hasCredentialsOptionsPanel()) {
-			credentialsPanel = type.buildCredentialsOptionsPanel(configuredCredentials, context.getIndex());
+			credentialsPanel = type.buildCredentialsOptionsPanel(configuredCredentials, workingContext);
 			fieldsPanel.add(credentialsPanel, LayoutHelper.getGBC(0, 3, 2, 1, new Insets(4, 8, 2, 4)));
 			fieldsPanel.revalidate();
 			this.pack();
@@ -120,9 +125,31 @@ public class DialogAddUser extends AbstractFormDialog {
 
 	public void clear() {
 		this.user = null;
+		this.workingContext = null;
 		// Remove previous config panel
 		if (credentialsPanel != null)
 			getFieldsPanel().remove(credentialsPanel);
+	}
+
+	@Override
+	protected boolean validateFields() {
+		return credentialsPanel.validateFields();
+	}
+
+	@Override
+	protected void performAction() {
+		this.user = new User(workingContext.getIndex(), getNameTextField().getText());
+		this.user.setEnabled(getEnabledCheckBox().isSelected());
+		// Make sure the credentials panel saves its changes first
+		credentialsPanel.saveCredentials();
+		this.user.setAuthenticationCredentials(credentialsPanel.getCredentials());
+	}
+
+	@Override
+	protected void clearFields() {
+		this.nameTextField.setText("");
+		this.enabledCheckBox.setSelected(true);
+		this.setConfirmButtonEnabled(false);
 	}
 
 	/**

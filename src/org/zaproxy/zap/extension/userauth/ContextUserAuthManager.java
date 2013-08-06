@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.userauth;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.zaproxy.zap.model.Context;
@@ -35,22 +37,20 @@ public class ContextUserAuthManager {
 	private int contextId;
 
 	/** The model. */
-	private UserAuthUserTableModel model;
+	private List<User> users;
 
 	public ContextUserAuthManager(int contextId) {
 		this.contextId = contextId;
+		this.users = new ArrayList<>();
 	}
 
 	/**
-	 * Gets a table model for the users.
+	 * Builds a table model for the users.
 	 * 
 	 * @return the model
 	 */
-	public UserAuthUserTableModel getUsersModel() {
-		if (model == null) {
-			model = new UserAuthUserTableModel();
-		}
-		return model;
+	public UsersTableModel getUsersModel() {
+		return new UsersTableModel(this.users);
 	}
 
 	/**
@@ -68,25 +68,34 @@ public class ContextUserAuthManager {
 	 * @return the users
 	 */
 	public List<User> getUsers() {
-		return model.getUsers();
+		return Collections.unmodifiableList(users);
+	}
+
+	/**
+	 * Sets a new list of users for this context. An internal copy of the provided list is stored.
+	 * 
+	 * @param users the users
+	 * @return the list
+	 */
+	public void setUsers(List<User> users) {
+		this.users = new ArrayList<>(users);
 	}
 
 	/**
 	 * Adds an user.
-	 *
+	 * 
 	 * @param user the user
 	 */
 	public void addUser(User user) {
-		model.addElement(user);
+		users.add(user);
 	}
 
 	/**
 	 * Removes an user.
-	 *
+	 * 
 	 * @param user the user
 	 */
 	public void removeUser(User user) {
-		int index = model.getUsers().indexOf(user);
-		model.removeElement(index);
+		users.remove(user);
 	}
 }

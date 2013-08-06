@@ -138,12 +138,12 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 
 		private static final Logger log = Logger.getLogger(ManualAuthenticationCredentialsOptionsPanel.class);
 		private JComboBox<HttpSession> sessionsComboBox;
-		private Context context;
+		private Context uiSharedContext;
 
 		public ManualAuthenticationCredentialsOptionsPanel(ManualAuthenticationCredentials credentials,
-				int contextId) {
+				Context uiSharedContext) {
 			super(credentials);
-			context = Model.getSingleton().getSession().getContext(contextId);
+			this.uiSharedContext = uiSharedContext;
 			initialize();
 		}
 
@@ -151,7 +151,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		 * Initialize the panel.
 		 */
 		protected void initialize() {
-			log.debug("Initializing options panel for context: " + context.getName());
+			log.debug("Initializing options panel for context: " + uiSharedContext.getName());
 
 			this.setLayout(new GridBagLayout());
 
@@ -184,10 +184,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 			if (sessionsComboBox == null) {
 				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
 						.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
-				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
+				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(uiSharedContext);
 				if (log.isDebugEnabled())
 					log.debug("Found sessions for Manual Authentication Config: " + sessions);
 				sessionsComboBox = new JComboBox<>(sessions.toArray(new HttpSession[sessions.size()]));
+				sessionsComboBox.setSelectedItem(this.getCredentials().getSelectedSession());
 			}
 			return sessionsComboBox;
 		}
@@ -235,16 +236,16 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 
 	@Override
 	public AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> buildOptionsPanel(
-			ManualAuthenticationMethod authenticationMethod, int contextId) {
+			ManualAuthenticationMethod authenticationMethod, Context uiSharedContext) {
 		// Not needed
 		return null;
 	}
 
 	@Override
 	public AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
-			AuthenticationCredentials credentials, int contextId) {
+			AuthenticationCredentials credentials, Context uiSharedContext) {
 		return new ManualAuthenticationCredentialsOptionsPanel((ManualAuthenticationCredentials) credentials,
-				contextId);
+				uiSharedContext);
 	}
 
 	@Override
