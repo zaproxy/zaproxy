@@ -31,13 +31,12 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
@@ -148,7 +147,13 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	}
 
 	private void configureSelectedMethod() {
+		DialogConfigAuthenticationMethod dialog = new DialogConfigAuthenticationMethod(View.getSingleton()
+				.getOptionsDialog(null), selectedAuthenticationMethod.getType(),
+				selectedAuthenticationMethod, uiCommonContext);
+		dialog.pack();
+		dialog.setVisible(true);
 
+		checkConfiguredAndShowSummary();
 	}
 
 	/**
@@ -172,6 +177,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		}
 		// If there's no panel shown, create it now
 		if (authenticationMethodSummaryPanel == null) {
+			log.info("Creating panel");
 			authenticationMethodSummaryPanel = buildConfigurationPanel();
 			this.add(authenticationMethodSummaryPanel, getMethodPanelConstraints());
 			this.revalidate();
@@ -181,8 +187,10 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		if (!newMethodType.hasOptionsPanel()) {
 			authenticationMethodSummaryPanel.setSummaryContent(CONFIG_NOT_NEEDED);
 			authenticationMethodSummaryPanel.setConfigButtonEnabled(false);
-		} else
+		} else {
+			log.debug("New authentication type has an options panel.");
 			authenticationMethodSummaryPanel.setConfigButtonEnabled(true);
+		}
 	}
 
 	/**
@@ -212,24 +220,27 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 						if (selectedAuthenticationMethod == null
 								|| !type.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
 							selectedAuthenticationMethod = type.createAuthenticationMethod(contextId);
+							uiCommonContext.setAuthenticationMethod(selectedAuthenticationMethod);
 						}
 
 						// Show the status panel and configuration button, if needed
 						changeMethodConfigPanel(type);
 						if (type.hasOptionsPanel()) {
-							if (selectedAuthenticationMethod.isConfigured())
-								authenticationMethodSummaryPanel
-										.setSummaryContent(selectedAuthenticationMethod
-												.getStatusDescription());
-							else
-								authenticationMethodSummaryPanel.setSummaryContent(METHOD_NOT_CONFIGURED);
+							checkConfiguredAndShowSummary();
 						}
 					}
 				}
 			});
 		}
 		return authenticationMethodsComboBox;
+	}
 
+	private void checkConfiguredAndShowSummary() {
+		if (selectedAuthenticationMethod.isConfigured())
+			authenticationMethodSummaryPanel.setSummaryContent(selectedAuthenticationMethod
+					.getStatusDescription());
+		else
+			authenticationMethodSummaryPanel.setSummaryContent(METHOD_NOT_CONFIGURED);
 	}
 
 	@Override
@@ -240,7 +251,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiCommonContext) {
-		this.uiCommonContext=uiCommonContext;
+		this.uiCommonContext = uiCommonContext;
 		selectedAuthenticationMethod = uiCommonContext.getAuthenticationMethod();
 		if (log.isDebugEnabled())
 			log.debug("Initializing configuration panel for authentication method: "

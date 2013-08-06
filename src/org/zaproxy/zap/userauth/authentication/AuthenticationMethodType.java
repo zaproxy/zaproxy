@@ -52,14 +52,14 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 
 	/**
 	 * Builds the options panel that can be used to fully configure the authentication method.
-	 *
+	 * 
 	 * @param authenticationMethod the authentication method to be configured by the panel
 	 * @param uiSharedContext the shared context on which the panel should work
 	 * @return the abstract authentication method options panel
 	 * @see AuthenticationMethodType#hasOptionsPanel()
 	 */
-	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(T authenticationMethod,
-			Context uiSharedContext);
+	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(
+			AuthenticationMethod<?> authenticationMethod, Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
@@ -73,11 +73,10 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 
 	/**
 	 * Builds the options panel that can be used to fully configure an.
-	 *
+	 * 
 	 * @param credentials the credentials
 	 * @param uiSharedContext the shared context on which the panel should work
-	 * @return the abstract credentials options panel
-	 * {@link AuthenticationCredentials} object.
+	 * @return the abstract credentials options panel {@link AuthenticationCredentials} object.
 	 */
 	public abstract AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
 			AuthenticationCredentials credentials, Context uiSharedContext);

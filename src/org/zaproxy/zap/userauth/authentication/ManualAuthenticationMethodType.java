@@ -21,7 +21,6 @@ package org.zaproxy.zap.userauth.authentication;
 
 import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -33,7 +32,6 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
@@ -49,7 +47,8 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ManualAuthenticationMethodType extends AuthenticationMethodType<ManualAuthenticationMethod> {
 
 	/** The Authentication method's name. */
-	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.manual.name");
+	private static final String METHOD_NAME = Constant.messages
+			.getString("authentication.method.manual.name");
 
 	/**
 	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
@@ -151,8 +150,6 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		 * Initialize the panel.
 		 */
 		protected void initialize() {
-			log.debug("Initializing options panel for context: " + uiSharedContext.getName());
-
 			this.setLayout(new GridBagLayout());
 
 			JLabel sessionsLabel = new JLabel(
@@ -196,8 +193,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		@Override
 		public boolean validateFields() {
 			if (sessionsComboBox.getSelectedIndex() < 0) {
-				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("authentication.method.manual.dialog.error.nosession.text"),
+				JOptionPane.showMessageDialog(this, Constant.messages
+						.getString("authentication.method.manual.dialog.error.nosession.text"),
 						Constant.messages.getString("authentication.method.manual.dialog.error.title"),
 						JOptionPane.WARNING_MESSAGE);
 				sessionsComboBox.requestFocusInWindow();
@@ -236,7 +233,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 
 	@Override
 	public AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> buildOptionsPanel(
-			ManualAuthenticationMethod authenticationMethod, Context uiSharedContext) {
+			AuthenticationMethod<?> authenticationMethod, Context uiSharedContext) {
 		// Not needed
 		return null;
 	}
