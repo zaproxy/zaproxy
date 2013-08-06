@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.userauth;
 
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JCheckBox;
@@ -30,12 +29,12 @@ import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
@@ -43,6 +42,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 	private UsersMultipleOptionsPanel usersOptionsPanel;
 	private ContextUserAuthManager contextManager;
 	private ExtensionUserManagement extension;
+	private UsersTableModel usersTableModel;
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -3920598166129639573L;
@@ -66,22 +66,12 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		this.setName(getPanelName(this.contextId));
 		this.setLayout(new GridBagLayout());
 
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.weightx = 1.0;
-		gbc.anchor = GridBagConstraints.LINE_START;
-		gbc.fill = GridBagConstraints.BOTH;
+		this.add(new JLabel(Constant.messages.getString("httpsessions.options.label.tokens")),
+				LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 
-		JLabel tokenNamesLabel = new JLabel();
-		tokenNamesLabel.setText(Constant.messages.getString("httpsessions.options.label.tokens"));
-
-		this.add(tokenNamesLabel, gbc);
-
-		usersOptionsPanel = new UsersMultipleOptionsPanel(this.extension,
-				this.contextManager.getUsersModel(), contextId);
-
-		gbc.weighty = 1.0;
-		this.add(usersOptionsPanel, gbc);
+		usersTableModel = new UsersTableModel();
+		usersOptionsPanel = new UsersMultipleOptionsPanel(this.extension, usersTableModel, contextId);
+		this.add(usersOptionsPanel, LayoutHelper.getGBC(0, 1, 1, 1.0d, 1.0d));
 	}
 
 	@Override
@@ -90,11 +80,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		return null;
 	}
 
-	protected int getContextId() {
-		return contextId;
-	}
-
-	private static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
+	public static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
 
 		/**
 		 * 
@@ -116,12 +102,11 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		private DialogAddUser addDialog = null;
 		private DialogModifyUser modifyDialog = null;
 		private ExtensionUserManagement extension;
-		private int contextId;
+		private Context uiSharedContext;
 
-		public UsersMultipleOptionsPanel(ExtensionUserManagement extension, UserAuthUserTableModel model,
+		public UsersMultipleOptionsPanel(ExtensionUserManagement extension, UsersTableModel model,
 				int contextId) {
 			super(model);
-			this.contextId = contextId;
 			this.extension = extension;
 
 			getTable().getColumnExt(0).setPreferredWidth(20);
@@ -131,11 +116,10 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		@Override
 		public User showAddDialogue() {
 			if (addDialog == null) {
-				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), this.extension,
-						contextId);
+				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), this.extension);
 				addDialog.pack();
 			}
-			// addDialog.setTokens(model.getElements());
+			addDialog.setWorkingContext(this.uiSharedContext);
 			addDialog.setVisible(true);
 
 			User user = addDialog.getUser();
@@ -148,10 +132,10 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		public User showModifyDialogue(User user) {
 			if (modifyDialog == null) {
 				modifyDialog = new DialogModifyUser(View.getSingleton().getOptionsDialog(null),
-						this.extension, contextId);
+						this.extension);
 				modifyDialog.pack();
 			}
-			// addDialog.setTokens(model.getElements());
+			modifyDialog.setWorkingContext(this.uiSharedContext);
 			modifyDialog.setUser(user);
 			modifyDialog.setVisible(true);
 
@@ -178,24 +162,27 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 			return false;
 		}
 
+		protected void setWorkingContext(Context context) {
+			this.uiSharedContext = context;
+		}
+
 	}
 
 	@Override
 	public void initContextData(Session session, Context uiCommonContext) {
-		// TODO Auto-generated method stub
-		
+		this.usersOptionsPanel.setWorkingContext(uiCommonContext);
+		this.usersTableModel.setUsers(this.contextManager.getUsers());
 	}
 
 	@Override
 	public void validateContextData(Session session) throws Exception {
-		// TODO Auto-generated method stub
-		
+		// Nothing to validate
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		// TODO Auto-generated method stub
-		
+		this.contextManager.setUsers(usersTableModel.getUsers());
+
 	}
 
 	@Override

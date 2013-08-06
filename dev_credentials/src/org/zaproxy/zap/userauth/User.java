@@ -45,6 +45,10 @@ public class User extends Enableable {
 	/** The authentication credentials that can be used for configuring the user. */
 	private AuthenticationCredentials authenticationCredentials;
 
+	public void setAuthenticationCredentials(AuthenticationCredentials authenticationCredentials) {
+		this.authenticationCredentials = authenticationCredentials;
+	}
+
 	public User(int contextId, String name) {
 		super();
 		this.contextId = contextId;
@@ -75,5 +79,9 @@ public class User extends Enableable {
 		// }
 		// // Modify the message accordingly
 		// this.sessionManagementMethod.processMessageToMatchSession(message);
+	}
+
+	public AuthenticationCredentials getAuthenticationCredentials() {
+		return authenticationCredentials;
 	}
 }

@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import org.zaproxy.zap.model.Context;
+
 /**
  * A type of authentication method. This class also acts as a factory for creating
  * {@link AuthenticationMethod} objects and for creating the options panels used for configuring
@@ -50,14 +52,14 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 
 	/**
 	 * Builds the options panel that can be used to fully configure the authentication method.
-	 * 
+	 *
 	 * @param authenticationMethod the authentication method to be configured by the panel
-	 * @param contextId the context id
+	 * @param uiSharedContext the shared context on which the panel should work
 	 * @return the abstract authentication method options panel
 	 * @see AuthenticationMethodType#hasOptionsPanel()
 	 */
 	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(T authenticationMethod,
-			int contextId);
+			Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
@@ -73,12 +75,12 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	 * Builds the options panel that can be used to fully configure an.
 	 *
 	 * @param credentials the credentials
-	 * @param contextId the context id
+	 * @param uiSharedContext the shared context on which the panel should work
 	 * @return the abstract credentials options panel
 	 * {@link AuthenticationCredentials} object.
 	 */
 	public abstract AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
-			AuthenticationCredentials credentials, int contextId);
+			AuthenticationCredentials credentials, Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationCredentials} has an options panel that can

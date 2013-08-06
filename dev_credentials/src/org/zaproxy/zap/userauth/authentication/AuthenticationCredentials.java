@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
-import org.zaproxy.zap.userauth.session.SessionManagementMethod;
-import org.zaproxy.zap.userauth.session.WebSession;
 
 /**
  * The Credentials is an entity, corresponding to an Authentication Method, that has all the

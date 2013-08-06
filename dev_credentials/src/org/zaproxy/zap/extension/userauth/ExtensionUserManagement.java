@@ -35,7 +35,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;

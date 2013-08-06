@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.userauth;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
@@ -31,7 +30,7 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 /**
  * A table model for holding a set of Users, for a {@link Context}.
  */
-public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<User> {
+public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 
 	/** The Constant defining the table column names. */
 	private static final String[] COLUMN_NAMES = {
@@ -42,7 +41,23 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 	private static final long serialVersionUID = 4463944219657112162L;
 
 	/** The users. */
-	List<User> users = new ArrayList<User>();
+	private List<User> users = new ArrayList<User>();
+
+	/**
+	 * Instantiates a new users table model. An internal copy of the provided list is stored.
+	 * 
+	 * @param users the users
+	 */
+	public UsersTableModel(List<User> users) {
+		this.users = new ArrayList<>(users);
+	}
+
+	/**
+	 * Instantiates a new user table model.
+	 */
+	public UsersTableModel() {
+		this.users = new ArrayList<User>();
+	}
 
 	@Override
 	public int getColumnCount() {
@@ -72,12 +87,12 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 	}
 
 	/**
-	 * Gets an unmodifiable view of the internal list of users.
+	 * Gets the internal list of users managed by this model. 
 	 * 
 	 * @return the users
 	 */
 	public List<User> getUsers() {
-		return Collections.unmodifiableList(users);
+		return users;
 	}
 
 	@Override
@@ -93,6 +108,7 @@ public class UserAuthUserTableModel extends AbstractMultipleOptionsTableModel<Us
 	 */
 	public void setUsers(List<User> users) {
 		this.users = new ArrayList<>(users);
+		this.fireTableDataChanged();
 	}
 
 	@Override
