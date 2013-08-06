@@ -28,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 
 /**
@@ -79,7 +80,8 @@ public class SummaryAndConfigPanel extends JPanel {
 	 * @param content the new summary content
 	 */
 	public void setSummaryContent(String content) {
-		summaryArea.setText("<html><b>" + summaryTitleText + "</b><br/>" + content + "</html>");
+		Logger.getRootLogger().info("New summary: "+content);
+		summaryArea.setText("<html><b>" + summaryTitleText + "</b><br/><br/>" + content + "</html>");
 	}
 
 	/**
