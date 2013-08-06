@@ -48,8 +48,8 @@ import org.zaproxy.zap.view.LayoutHelper;
  */
 public class ManualAuthenticationMethodType extends AuthenticationMethodType<ManualAuthenticationMethod> {
 
-	/** The Authentication's method name. */
-	private static final String METHOD_NAME = Constant.messages.getString("userauth.auth.manual.name");
+	/** The Authentication method's name. */
+	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.manual.name");
 
 	/**
 	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
@@ -156,7 +156,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 			this.setLayout(new GridBagLayout());
 
 			JLabel sessionsLabel = new JLabel(
-					Constant.messages.getString("userauth.auth.manual.field.sessions"));
+					Constant.messages.getString("authentication.method.manual.field.session"));
 
 			this.add(sessionsLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D));
 			this.add(getSessionsComboBox(), LayoutHelper.getGBC(1, 0, 1, 0.5D));
@@ -197,8 +197,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		public boolean validateFields() {
 			if (sessionsComboBox.getSelectedIndex() < 0) {
 				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("userauth.auth.manual.dialog.error.nosession.text"),
-						Constant.messages.getString("userauth.auth.manual.dialog.error.title"),
+						Constant.messages.getString("authentication.method.manual.dialog.error.nosession.text"),
+						Constant.messages.getString("authentication.method.manual.dialog.error.title"),
 						JOptionPane.WARNING_MESSAGE);
 				sessionsComboBox.requestFocusInWindow();
 				return false;
