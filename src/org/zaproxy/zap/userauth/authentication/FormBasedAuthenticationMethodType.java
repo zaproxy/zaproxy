@@ -210,10 +210,14 @@ public class FormBasedAuthenticationMethodType extends
 
 			this.add(new JLabel(USERNAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d));
 			this.usernameTextField = new ZapTextField();
+			if (this.getCredentials().username != null)
+				this.usernameTextField.setText(this.getCredentials().username);
 			this.add(this.usernameTextField, LayoutHelper.getGBC(1, 0, 1, 0.0d, new Insets(0, 4, 0, 0)));
 
 			this.add(new JLabel(PASSWORD_LABEL), LayoutHelper.getGBC(0, 1, 1, 0.0d));
 			this.passwordTextField = new JPasswordField();
+			if (this.getCredentials().password != null)
+				this.passwordTextField.setText(this.getCredentials().password);
 			this.add(this.passwordTextField, LayoutHelper.getGBC(1, 1, 1, 1.0d, new Insets(0, 4, 0, 0)));
 		}
 
