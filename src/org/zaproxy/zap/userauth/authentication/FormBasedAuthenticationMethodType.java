@@ -21,13 +21,27 @@ package org.zaproxy.zap.userauth.authentication;
 
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.network.HttpUtil;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -48,9 +62,13 @@ public class FormBasedAuthenticationMethodType extends
 	public static class FormBasedAuthenticationMethod implements
 			AuthenticationMethod<FormBasedAuthenticationMethod> {
 
+		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
+		private static final String ENCODING_TYPE = "UTF-8";
+		private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
 		private String usernameFormFieldName;
 		private String passwordFormFieldName;
 		private String loginURL;
+		private HttpSender httpSender;
 
 		@Override
 		public boolean isConfigured() {
@@ -79,14 +97,65 @@ public class FormBasedAuthenticationMethodType extends
 			return new FormBasedAuthenticationMethodType();
 		}
 
+		private HttpSender getHttpSender() {
+			if (this.httpSender == null) {
+				this.httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(),
+						false, HttpSender.AUTHENTICATION_INITIATOR);
+			}
+			return httpSender;
+		}
+
 		@Override
 		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
 				AuthenticationCredentials credentials)
-				throws org.zaproxy.zap.userauth.authentication.AuthenticationMethod.UnsupportedAuthenticationCredentialsException {
-			// TODO Will be done later
-			return null;
-		}
+				throws AuthenticationMethod.UnsupportedAuthenticationCredentialsException {
 
+			// type check
+			if (!(credentials instanceof UsernamePasswordAuthenticationCredentials)) {
+				throw new UnsupportedAuthenticationCredentialsException(
+						"Form based authentication method only supports "
+								+ UsernamePasswordAuthenticationCredentials.class.getSimpleName());
+			}
+			UsernamePasswordAuthenticationCredentials cred = (UsernamePasswordAuthenticationCredentials) credentials;
+
+			// Prepare login message
+			HttpMessage msg = new HttpMessage();
+			try {
+				msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.POST, new URI(loginURL, false),
+						HttpRequestHeader.HTTP10));
+				String reqBody = usernameFormFieldName + "="
+						+ URLEncoder.encode(cred.username, ENCODING_TYPE) + "&" + passwordFormFieldName + "="
+						+ URLEncoder.encode(cred.password, ENCODING_TYPE);
+				msg.setRequestBody(reqBody);
+				if (log.isDebugEnabled())
+					log.debug("Sending authentication message with content: " + reqBody);
+			} catch (Exception e) {
+				log.error("Unable to build authentication message: " + e.getMessage(), e);
+				return null;
+			}
+
+			// Send the authentication message
+			try {
+				getHttpSender().sendAndReceive(msg);
+			} catch (IOException e) {
+				log.error("Unable to send authentication message: " + e.getMessage());
+				return null;
+			}
+
+			// Add message to history
+			try {
+				ExtensionHistory extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHistory.class);
+				HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(),
+						HistoryReference.TYPE_AUTHENTICATION, msg);
+				ref.addTag(HISTORY_TAG_AUTHENTICATION);
+				extHistory.addHistory(ref);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			return sessionManagementMethod.extractWebSession(msg);
+		}
 	}
 
 	/**
