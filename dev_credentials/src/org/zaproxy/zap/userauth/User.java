@@ -98,6 +98,10 @@ public class User extends Enableable {
 		// If the user is not yet authenticated, authenticate now
 		if (!this.isAuthenticated()) {
 			this.authenticate();
+			if (!this.isAuthenticated()) {
+				log.info("Authentication failed for user: " + name);
+				return;
+			}
 		}
 		// Modify the message accordingly
 		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);

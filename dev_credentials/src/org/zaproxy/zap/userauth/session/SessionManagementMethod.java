@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import java.util.List;
+
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -34,6 +36,19 @@ public interface SessionManagementMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
+
+	/**
+	 * Identifies the web session, from a list of existing sessions, which matches the given
+	 * HttpMesage. The callers of this method <b>must</b> make sure that the provided list contains
+	 * sessions that are the same type and are adequate.
+	 * 
+	 * @param sessions the list of existing sessions for this Session Management method.
+	 * @param msg the http message
+	 * @return the matching Web Session, if any, or {@code null} otherwise
+	 * @throws UnsupportedWebSessionException if the web session type is unsupported
+	 */
+	public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
+			throws UnsupportedWebSessionException;
 
 	/**
 	 * Extracts the web session information from a Http Message, creating a {@link WebSession}

@@ -1,8 +1,13 @@
 package org.zaproxy.zap.userauth.session;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
@@ -25,6 +30,16 @@ public class CookieBasedSessionManagementMethodType extends
 
 		private static final Logger log = Logger.getLogger(CookieBasedSessionManagementMethod.class);
 
+		private int contextId;
+
+		private Context context;
+
+		private static ExtensionHttpSessions extHttpSessions;
+
+		public CookieBasedSessionManagementMethod(int contextId) {
+			this.contextId = contextId;
+		}
+
 		@Override
 		public String toString() {
 			return CookieBasedSessionManagementMethodType.METHOD_NAME;
@@ -38,15 +53,17 @@ public class CookieBasedSessionManagementMethodType extends
 
 		@Override
 		public WebSession extractWebSession(HttpMessage msg) {
-			// TODO Auto-generated method stub
-			return null;
+			// TODO: Based on the already identified http session. This is based on the assumption
+			// that the HttpSessions Extension has already identified the session
+			return msg.getHttpSession();
+			// return identifyMatchingWebSession(getSessionsForContext(), msg);
 		}
 
 		@Override
 		public void processMessageToMatchSession(HttpMessage message, WebSession session)
 				throws UnsupportedWebSessionException {
 
-			if (message.getHttpSession() != session) {
+			if (session != null && message.getHttpSession() != session) {
 				if (log.isDebugEnabled()) {
 					log.debug("Modifying message to match session: " + session);
 				}
@@ -62,11 +79,41 @@ public class CookieBasedSessionManagementMethodType extends
 						(HttpSession) session);
 			}
 		}
+
+		@Override
+		public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
+				throws UnsupportedWebSessionException {
+			// TODO: Proper implementation. Now it's hacked and does not work in all scenarios
+			return CookieBasedSessionManagementHelper.getMatchingHttpSession(getSessionsForContext(), msg
+					.getRequestHeader().getHttpCookies(), getHttpSessionsExtension()
+					.getHttpSessionTokensSetForContext(getContext()));
+		}
+
+		private ExtensionHttpSessions getHttpSessionsExtension() {
+			if (extHttpSessions == null) {
+				extHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHttpSessions.class);
+				if (extHttpSessions == null)
+					log.error("An error occured while loading the ExtensionHttpSessions.");
+			}
+			return extHttpSessions;
+		}
+
+		private Context getContext() {
+			if (context == null) {
+				context = Model.getSingleton().getSession().getContext(contextId);
+			}
+			return context;
+		}
+
+		private List<HttpSession> getSessionsForContext() {
+			return getHttpSessionsExtension().getHttpSessionsForContext(getContext());
+		}
 	}
 
 	@Override
 	public CookieBasedSessionManagementMethod createSessionManagementMethod(int contextId) {
-		return new CookieBasedSessionManagementMethod();
+		return new CookieBasedSessionManagementMethod(contextId);
 	}
 
 	@Override

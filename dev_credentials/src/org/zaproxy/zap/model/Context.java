@@ -62,7 +62,7 @@ public class Context {
 		this.session = session;
 		this.index = index;
 		this.name = String.valueOf(index);
-		this.sessionManagementMethod = new CookieBasedSessionManagementMethod();
+		this.sessionManagementMethod = new CookieBasedSessionManagementMethod(index);
 		this.authenticationMethod = new ManualAuthenticationMethod(index);
 	}
 
