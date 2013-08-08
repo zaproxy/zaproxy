@@ -445,40 +445,7 @@ public class HttpSessionsSite {
 	 */
 	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final HttpSessionTokensSet siteTokens) {
 
-		// Pre-checks
-		if (sessions.isEmpty()) {
-			return null;
-		}
-
-		List<HttpSession> matchingSessions = new LinkedList<>(sessions);
-		for (String token : siteTokens.getTokensSet()) {
-			// Get the corresponding cookie from the cookies list
-			HttpCookie matchingCookie = null;
-			for (HttpCookie cookie : cookies) {
-				if (cookie.getName().equals(token)) {
-					matchingCookie = cookie;
-					break;
-				}
-			}
-			// Filter the sessions that do not match the cookie value
-			Iterator<HttpSession> it = matchingSessions.iterator();
-			while (it.hasNext()) {
-				if (!it.next().matchesToken(token, matchingCookie)) {
-					it.remove();
-				}
-			}
-		}
-
-		// Return the matching session
-		if (matchingSessions.size() >= 1) {
-			if (matchingSessions.size() > 1) {
-				log.warn("Multiple sessions matching the cookies from response for site: " + getSite()
-						+ ". Using first one.");
-			}
-			return matchingSessions.get(0);
-		}
-		return null;
-
+		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessions, cookies, siteTokens);
 	}
 
 	@Override

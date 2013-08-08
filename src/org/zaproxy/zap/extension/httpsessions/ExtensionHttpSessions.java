@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.json.HTTPTokener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -502,14 +503,29 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
 			String siteName = e.getKey();
-//			siteName = siteName.substring(0, siteName.lastIndexOf(":"));
 			siteName = "http://" + siteName;
-			log.debug(siteName);
 			if (context.isInContext(siteName))
 				sessions.addAll(e.getValue().getHttpSessions());
 		}
 
 		return sessions;
+	}
+	
+	/**
+	 * Gets the http session tokens set for the first site matching a given Context. 
+	 *
+	 * @param context the context
+	 * @return the http session tokens set for context
+	 */
+	public HttpSessionTokensSet getHttpSessionTokensSetForContext(Context context){
+		//TODO: Proper implementation. Hack for now
+		for (Entry<String, HttpSessionTokensSet> e : this.sessionTokens.entrySet()) {
+			String siteName = e.getKey();
+			siteName = "http://" + siteName;
+			if (context.isInContext(siteName))
+				return e.getValue();
+		}
+		return null;
 	}
 
 	@Override
