@@ -28,6 +28,7 @@
 // ZAP: 2012/08/07 Deleted some not used Spider Related constants
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/02/26 Cache the response body length as part of Issue 539
+// ZAP: 2013/08/07 Added TYPE_AUTHENTICATION
 
 package org.parosproxy.paros.model;
 
@@ -72,7 +73,9 @@ public class HistoryReference {
    public static final int TYPE_SPIDER_TASK = 9;
    // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
    public static final int TYPE_SPIDER_AJAX = 10;
-   public static final int TYPE_RESERVED_11 = 11;	// Reserved by Psiinon
+   // ZAP: Added TYPE_AUTHENTICATION for use in authentication methods
+   public static final int TYPE_AUTHENTICATION = 11;
+   public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
