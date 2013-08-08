@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
-import org.zaproxy.zap.userauth.session.SessionManagementMethod.UnsupportedWebSessionException;
 
 /**
  * Helper for Cookie-based session management.

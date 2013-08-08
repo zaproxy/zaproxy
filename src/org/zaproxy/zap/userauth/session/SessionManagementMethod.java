@@ -21,20 +21,12 @@ package org.zaproxy.zap.userauth.session;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-
 /**
  * The {@link SessionManagementMethod} represents a session management method that can be used to
- * manage an existing http session corresponding to an entity (user) interacting with a particular
+ * manage an existing Web Session corresponding to an entity (user) interacting with a particular
  * WebApplication.
  */
 public interface SessionManagementMethod {
-
-	/**
-	 * Gets a string describing the status (the configuration) of the session management method.
-	 * 
-	 * @return the status description
-	 */
-	public String getStatusDescription();
 
 	/**
 	 * Checks if the session management method is fully configured.
@@ -42,20 +34,14 @@ public interface SessionManagementMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
-	
-	/**
-	 * Checks if this session managed method is authenticated.
-	 *
-	 * @return true, if is authenticated
-	 */
-	public boolean isAuthenticated();
 
 	/**
 	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
-	 * object corresponding to the Session Management Method.<br/>
-	 * <br/>
+	 * object corresponding to the Session Management Method.
+	 * <p>
 	 * This method should not store the extracted web session. Future calls to
 	 * {@link SessionManagementMethod#setWebSession(WebSession)} will be made.
+	 * </p>
 	 * 
 	 * @param msg the msg
 	 * @return the web session
@@ -63,21 +49,15 @@ public interface SessionManagementMethod {
 	public WebSession extractWebSession(HttpMessage msg);
 
 	/**
-	 * Sets the web session.
-	 * 
-	 * @param session the new web session
-	 * @throws UnsupportedWebSessionException if the web session type is unsupported
-	 */
-	public void setWebSession(WebSession session) throws UnsupportedWebSessionException;
-
-
-	/**
-	 * Modifies a message so its Request Header/Body matches the web session corresponding to this
-	 * session management method.
+	 * Modifies a message so its Request Header/Body matches the given web session, according to
+	 * this session management method.
 	 * 
 	 * @param message the message
+	 * @param session the session
+	 * @throws UnsupportedWebSessionException if the web session type is unsupported
 	 */
-	public void processMessageToMatchSession(HttpMessage message);
+	public void processMessageToMatchSession(HttpMessage message, WebSession session)
+			throws UnsupportedWebSessionException;
 
 	/**
 	 * Thrown when an unsupported type of web session is used with a {@link SessionManagementMethod}

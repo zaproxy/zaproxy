@@ -34,9 +34,7 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -190,7 +188,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 						// Show the status panel and configuration button, if needed
 						if (type.hasOptionsPanel()) {
-							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, contextId));
+							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, uiCommonContext));
 						} else {
 							changeMethodConfigPanel(null);
 						}

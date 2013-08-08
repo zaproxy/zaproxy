@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import org.zaproxy.zap.model.Context;
+
 /**
  * A type of session management method. This class also acts as a factory for creating
  * {@link SessionManagementMethod} objects.
@@ -52,12 +54,13 @@ public abstract class SessionManagementMethodType<T extends SessionManagementMet
 	/**
 	 * Builds the options panel that can be used to fully configure a session management method.
 	 * 
-	 * @param contextId the context id
+	 * @param existingMethod the existing method
+	 * @param uiSharedContext the ui shared context on which the panel should work
 	 * @return the abstract session method options panel
 	 * @see SessionManagementMethodType#hasOptionsPanel
 	 */
-	public abstract AbstractSessionManagementMethodOptionsPanel<T> buildOptionsPanel(T existingMethod,
-			int contextId);
+	public abstract AbstractSessionManagementMethodOptionsPanel<?> buildOptionsPanel(T existingMethod,
+			Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
