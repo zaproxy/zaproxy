@@ -22,8 +22,13 @@ package org.zaproxy.zap.userauth;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationCredentials;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
+import org.zaproxy.zap.userauth.session.SessionManagementMethod;
+import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.utils.Enableable;
 
 /**
@@ -41,13 +46,15 @@ public class User extends Enableable {
 
 	/** The roles corresponding to this user. */
 	private List<Role> roles;
-	
+
+	/** The authenticated session. */
+	private WebSession authenticatedSession;
+
 	/** The authentication credentials that can be used for configuring the user. */
 	private AuthenticationCredentials authenticationCredentials;
 
-	public void setAuthenticationCredentials(AuthenticationCredentials authenticationCredentials) {
-		this.authenticationCredentials = authenticationCredentials;
-	}
+	/** The context. */
+	private Context context;
 
 	public User(int contextId, String name) {
 		super();
@@ -55,6 +62,11 @@ public class User extends Enableable {
 		this.name = name;
 	}
 
+	/**
+	 * Gets the name of the user.
+	 * 
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
@@ -65,23 +77,72 @@ public class User extends Enableable {
 	}
 
 	/**
+	 * Gets the context to which this user corresponds.
+	 * 
+	 * @return the context
+	 */
+	private Context getContext() {
+		if (context == null) {
+			context = Model.getSingleton().getSession().getContext(this.contextId);
+		}
+		return context;
+	}
+
+	/**
 	 * Modifies a message so its Request Header/Body matches the web session corresponding to this
 	 * user.
 	 * 
 	 * @param message the message
 	 */
 	public void processMessageToMatchUser(HttpMessage message) {
-		// // If the user is not yet authenticated, authenticate now
-		// if (!this.sessionManagementMethod.isAuthenticated()) {
-		// log.info("Authenticating user: " + this.name);
-		// WebSession newSession = this.authenticationMethod.authenticate();
-		// this.sessionManagementMethod.setWebSession(newSession);
-		// }
-		// // Modify the message accordingly
-		// this.sessionManagementMethod.processMessageToMatchSession(message);
+		// If the user is not yet authenticated, authenticate now
+		if (!this.isAuthenticated()) {
+			this.authenticate();
+		}
+		// Modify the message accordingly
+		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);
 	}
 
+	/**
+	 * Gets the configured authentication credentials of this user.
+	 * 
+	 * @return the authentication credentials
+	 */
 	public AuthenticationCredentials getAuthenticationCredentials() {
 		return authenticationCredentials;
 	}
+
+	/**
+	 * Sets the authentication credentials for the user. These will be used to authenticate the
+	 * user, if necessary.
+	 * 
+	 * @param authenticationCredentials the new authentication credentials
+	 */
+	public void setAuthenticationCredentials(AuthenticationCredentials authenticationCredentials) {
+		this.authenticationCredentials = authenticationCredentials;
+	}
+
+	/**
+	 * Checks if the user is authenticated.
+	 * 
+	 * @return true, if is authenticated
+	 */
+	public boolean isAuthenticated() {
+		return authenticatedSession != null;
+	}
+
+	/**
+	 * Authenticates the user, using its authentication credentials and the authentication method
+	 * corresponding to its Context.
+	 * 
+	 * @see SessionManagementMethod
+	 * @see AuthenticationMethod
+	 * @see Context
+	 */
+	public void authenticate() {
+		log.info("Authenticating user: " + this.name);
+		this.authenticatedSession = getContext().getAuthenticationMethod().authenticate(
+				getContext().getSessionManagementMethod(), this.authenticationCredentials);
+	}
+
 }
