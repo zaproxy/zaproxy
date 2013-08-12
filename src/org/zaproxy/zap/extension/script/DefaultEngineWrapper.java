@@ -57,7 +57,7 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 		if (! templateMap.containsKey(type)) {
 			templateMap.put(type, this.getStringReource(
 					this.getLanguageName().toLowerCase() + File.separator + type.toLowerCase() + 
-					"-template" + this.getExtensions().get(0)));
+					"-template." + this.getExtensions().get(0)));
 		}
 		return templateMap.get(type);
 	}
