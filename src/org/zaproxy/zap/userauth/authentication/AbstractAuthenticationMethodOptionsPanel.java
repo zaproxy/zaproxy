@@ -21,6 +21,8 @@ package org.zaproxy.zap.userauth.authentication;
 
 import javax.swing.JPanel;
 
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType.UnsupportedAuthenticationMethodException;
+
 /**
  * An Options Panel that is used to configure all the settings corresponding to an
  * {@link AuthenticationMethod}.
@@ -41,16 +43,6 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 	protected T authenticationMethod;
 
 	/**
-	 * Instantiates a new abstract authentication method options panel.
-	 * 
-	 * @param existingMethod the authentication method that need to be configured
-	 */
-	public AbstractAuthenticationMethodOptionsPanel(T authenticationMethod) {
-		super();
-		this.authenticationMethod = authenticationMethod;
-	}
-
-	/**
 	 * Validate the fields.
 	 * 
 	 * @return true, if successful
@@ -63,6 +55,17 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 	 * {@link AuthenticationMethod} with the saved changes.
 	 */
 	public abstract void saveMethod();
+
+	/**
+	 * Binds (loads) data from an existing Authentication method in the panel. After this method, to
+	 * {@link AbstractAuthenticationMethodOptionsPanel#getMethod()} should return the same object,
+	 * eventually with some changes (if
+	 * {@link AbstractAuthenticationMethodOptionsPanel#saveMethod()} was called).
+	 * 
+	 * @param method the method to be loaded/shown in the panel.
+	 */
+	public abstract void bindMethod(AuthenticationMethod<T> method)
+			throws UnsupportedAuthenticationMethodException;
 
 	/**
 	 * Gets the corresponding authentication method.

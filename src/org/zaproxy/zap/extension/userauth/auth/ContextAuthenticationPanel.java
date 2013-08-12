@@ -19,18 +19,22 @@
  */
 package org.zaproxy.zap.extension.userauth.auth;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
@@ -38,6 +42,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.authentication.AbstractAuthenticationMethodOptionsPanel;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -87,6 +92,12 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	/** The selected authentication method. */
 	private AuthenticationMethod<?> selectedAuthenticationMethod;
 
+	private AuthenticationMethodType<?> shownAuthMethodType;
+
+	private AbstractAuthenticationMethodOptionsPanel<?> authConfigPanel;
+
+	private JPanel configContainerPanel;
+
 	/**
 	 * Instantiates a new context authentication configuration panel.
 	 * 
@@ -112,48 +123,16 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.description")),
 				LayoutHelper.getGBC(0, 0, 2, 1.0D));
 
-		// Session management combo box
+		// Method type combo box
 		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.typeSelect")),
 				LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(20, 0, 5, 0)));
 		this.add(getAuthenticationMethodsComboBox(), LayoutHelper.getGBC(0, 3, 2, 1.0D));
 
+		// Method config panel container
+		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 4, 2, 1.0d, new Insets(10, 0, 10, 0)));
+
 		// Padding
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
-	}
-
-	/**
-	 * Builds a panel that is used to display a summary of the method's configuration and a
-	 * "configure" button.
-	 * 
-	 * @return the panel
-	 */
-	private SummaryAndConfigPanel buildConfigurationPanel() {
-		return new SummaryAndConfigPanel(SUMMARY_TITLE, CONFIG_BUTTON_LABEL, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				configureSelectedMethod();
-			}
-		});
-	}
-
-	/**
-	 * Gets the method's panel grid bag constraints.
-	 * 
-	 * @return the method panel constraints
-	 */
-	private GridBagConstraints getMethodPanelConstraints() {
-		return LayoutHelper.getGBC(0, 4, 1, 1.0D, 1.0, GridBagConstraints.HORIZONTAL,
-				new Insets(10, 2, 10, 4));
-	}
-
-	private void configureSelectedMethod() {
-		DialogConfigAuthenticationMethod dialog = new DialogConfigAuthenticationMethod(View.getSingleton()
-				.getOptionsDialog(null), selectedAuthenticationMethod.getType(),
-				selectedAuthenticationMethod, uiCommonContext);
-		dialog.pack();
-		dialog.setVisible(true);
-
-		checkConfiguredAndShowSummary();
 	}
 
 	/**
@@ -169,28 +148,32 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	private void changeMethodConfigPanel(AuthenticationMethodType<?> newMethodType) {
 		// If there's no new method, don't display anything
 		if (newMethodType == null) {
-			if (authenticationMethodSummaryPanel != null)
-				this.remove(authenticationMethodSummaryPanel);
-			authenticationMethodSummaryPanel = null;
-			this.revalidate();
+			getConfigContainerPanel().removeAll();
+			getConfigContainerPanel().setVisible(false);
+			this.shownAuthMethodType = null;
 			return;
 		}
-		// If there's no panel shown, create it now
-		if (authenticationMethodSummaryPanel == null) {
-			log.info("Creating panel");
-			authenticationMethodSummaryPanel = buildConfigurationPanel();
-			this.add(authenticationMethodSummaryPanel, getMethodPanelConstraints());
-			this.revalidate();
+
+		// If a panel of the correct type is already shown, do nothing
+		if (shownAuthMethodType != null && newMethodType.getClass().equals(shownAuthMethodType.getClass())) {
+			return;
 		}
 
+		log.info("Creating new panel for configuring: " + newMethodType.getName());
+		this.getConfigContainerPanel().removeAll();
+
 		// show the panel according to whether the authentication type needs configuration
-		if (!newMethodType.hasOptionsPanel()) {
-			authenticationMethodSummaryPanel.setSummaryContent(CONFIG_NOT_NEEDED);
-			authenticationMethodSummaryPanel.setConfigButtonEnabled(false);
+		if (newMethodType.hasOptionsPanel()) {
+			authConfigPanel = newMethodType.buildOptionsPanel(uiCommonContext);
+			getConfigContainerPanel().add(authConfigPanel, BorderLayout.CENTER);
 		} else {
-			log.debug("New authentication type has an options panel.");
-			authenticationMethodSummaryPanel.setConfigButtonEnabled(true);
+			authConfigPanel = null;
+			getConfigContainerPanel().add(new JLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
+					BorderLayout.CENTER);
 		}
+
+		this.getConfigContainerPanel().setVisible(true);
+		this.getConfigContainerPanel().revalidate();
 	}
 
 	/**
@@ -223,11 +206,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 							uiCommonContext.setAuthenticationMethod(selectedAuthenticationMethod);
 						}
 
-						// Show the status panel and configuration button, if needed
+						// Show the configuration panel
 						changeMethodConfigPanel(type);
-						if (type.hasOptionsPanel()) {
-							checkConfiguredAndShowSummary();
-						}
 					}
 				}
 			});
@@ -235,12 +215,30 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		return authenticationMethodsComboBox;
 	}
 
-	private void checkConfiguredAndShowSummary() {
-		if (selectedAuthenticationMethod.isConfigured())
-			authenticationMethodSummaryPanel.setSummaryContent(selectedAuthenticationMethod
-					.getStatusDescription());
-		else
-			authenticationMethodSummaryPanel.setSummaryContent(METHOD_NOT_CONFIGURED);
+	private JPanel getConfigContainerPanel() {
+		if (configContainerPanel == null) {
+			configContainerPanel = new JPanel(new BorderLayout());
+			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
+					Constant.messages.getString("authentication.dialog.title"),
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
+							java.awt.Font.BOLD, 12), java.awt.Color.black));
+			configContainerPanel.addFocusListener(new FocusListener() {
+
+				@Override
+				public void focusLost(FocusEvent e) {
+					log.info("Unfocused");
+
+				}
+
+				@Override
+				public void focusGained(FocusEvent e) {
+					log.info("Focused");
+
+				}
+			});
+		}
+		return configContainerPanel;
 	}
 
 	@Override
@@ -272,7 +270,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void validateContextData(Session session) throws Exception {
-		if (!selectedAuthenticationMethod.isConfigured())
+		if (authConfigPanel != null && !authConfigPanel.validateFields())
 			throw new IllegalStateException(
 					"The selected authentication method has not been properly configured for Context "
 							+ uiCommonContext.getName());
