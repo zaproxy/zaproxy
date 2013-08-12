@@ -233,7 +233,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 
 	@Override
 	public AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> buildOptionsPanel(
-			AuthenticationMethod<?> authenticationMethod, Context uiSharedContext) {
+			Context uiSharedContext) {
 		// Not needed
 		return null;
 	}

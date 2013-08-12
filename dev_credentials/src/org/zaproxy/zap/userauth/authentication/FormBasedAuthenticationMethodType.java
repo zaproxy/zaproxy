@@ -192,8 +192,8 @@ public class FormBasedAuthenticationMethodType extends
 		private ZapTextField passFormField;
 		private ZapTextField loginUrl;
 
-		public FormBasedAuthenticationMethodOptionsPanel(FormBasedAuthenticationMethod authenticationMethod) {
-			super(authenticationMethod);
+		public FormBasedAuthenticationMethodOptionsPanel() {
+			super();
 			initialize();
 		}
 
@@ -202,20 +202,14 @@ public class FormBasedAuthenticationMethodType extends
 
 			this.add(new JLabel(USER_FORM_FIELD_LABEL), LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 			this.userFormField = new ZapTextField();
-			if (getMethod().usernameFormFieldName != null)
-				this.userFormField.setText(getMethod().usernameFormFieldName);
 			this.add(this.userFormField, LayoutHelper.getGBC(0, 1, 1, 1.0d, 0.0d));
 
 			this.add(new JLabel(PASS_FORM_FIELD_LABEL), LayoutHelper.getGBC(0, 2, 1, 1.0d, 0.0d));
 			this.passFormField = new ZapTextField();
-			if (getMethod().passwordFormFieldName != null)
-				this.passFormField.setText(getMethod().passwordFormFieldName);
 			this.add(this.passFormField, LayoutHelper.getGBC(0, 3, 1, 1.0d, 0.0d));
 
 			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
 			this.loginUrl = new ZapTextField();
-			if (getMethod().loginURL != null)
-				this.loginUrl.setText(getMethod().loginURL);
 			this.add(this.loginUrl, LayoutHelper.getGBC(0, 5, 1, 1.0d, 0.0d));
 		}
 
@@ -249,6 +243,14 @@ public class FormBasedAuthenticationMethodType extends
 			getMethod().loginURL = loginUrl.getText();
 			getMethod().passwordFormFieldName = passFormField.getText();
 			getMethod().usernameFormFieldName = userFormField.getText();
+		}
+
+		@Override
+		public void bindMethod(AuthenticationMethod<FormBasedAuthenticationMethod> method) {
+			this.authenticationMethod = (FormBasedAuthenticationMethod) method;
+			this.userFormField.setText(getMethod().usernameFormFieldName);
+			this.passFormField.setText(getMethod().passwordFormFieldName);
+			this.loginUrl.setText(getMethod().loginURL);
 		}
 	}
 
@@ -323,9 +325,8 @@ public class FormBasedAuthenticationMethodType extends
 
 	@Override
 	public AbstractAuthenticationMethodOptionsPanel<FormBasedAuthenticationMethod> buildOptionsPanel(
-			AuthenticationMethod<?> authenticationMethod, Context uiSharedContext) {
-		return new FormBasedAuthenticationMethodOptionsPanel(
-				(FormBasedAuthenticationMethod) authenticationMethod);
+			Context uiSharedContext) {
+		return new FormBasedAuthenticationMethodOptionsPanel();
 	}
 
 	@Override

@@ -51,15 +51,18 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	public abstract String getName();
 
 	/**
-	 * Builds the options panel that can be used to fully configure the authentication method.
+	 * Builds the options panel that can be used to fully configure an authentication method.
+	 * <p>
+	 * This method just builds an empty options panel. For binding an existing method to the panel,
+	 * {@link AbstractAuthenticationMethodOptionsPanel#bindMethod(AuthenticationMethod)} should be
+	 * used.
+	 * </p>
 	 * 
-	 * @param authenticationMethod the authentication method to be configured by the panel
 	 * @param uiSharedContext the shared context on which the panel should work
 	 * @return the abstract authentication method options panel
 	 * @see AuthenticationMethodType#hasOptionsPanel()
 	 */
-	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(
-			AuthenticationMethod<?> authenticationMethod, Context uiSharedContext);
+	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
@@ -100,6 +103,20 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	/**
+	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
+	 */
+	public static class UnsupportedAuthenticationMethodException extends RuntimeException {
+
+		/** The Constant serialVersionUID. */
+		private static final long serialVersionUID = -9023988233854612561L;
+
+		public UnsupportedAuthenticationMethodException(String message) {
+			super(message);
+		}
+
 	}
 
 }

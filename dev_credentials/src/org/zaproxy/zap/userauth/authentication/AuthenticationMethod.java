@@ -77,7 +77,7 @@ public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
 	 */
-	public class UnsupportedAuthenticationCredentialsException extends RuntimeException {
+	public static class UnsupportedAuthenticationCredentialsException extends RuntimeException {
 
 		/** The Constant serialVersionUID. */
 		private static final long serialVersionUID = 4802501809913124766L;
