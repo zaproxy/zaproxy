@@ -122,7 +122,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             hrefs.add(ref);
 
             writeAlertToDB(alert, ref);
-            addAlertToDisplay(alert, ref, alert.getMessage());
+            addAlertToTree(alert, ref, alert.getMessage());
 
             // The node node may have a new alert flag...
             this.siteNodeChanged(ref.getSiteNode());
@@ -144,13 +144,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         siteNodeChanged(node.getParent());
     }
 
-    private void addAlertToDisplay(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
-        if (getView() == null) {
-            // Running as a daemon
-            return;
-        }
+    private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
         if (EventQueue.isDispatchThread()) {
-            addAlertToDisplayEventHandler(alert, ref, msg);
+            addAlertToTreeEventHandler(alert, ref, msg);
 
         } else {
 
@@ -162,7 +158,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
                     @Override
                     public void run() {
-                        addAlertToDisplayEventHandler(alert, ref, msg);
+                        addAlertToTreeEventHandler(alert, ref, msg);
                     }
                 });
             } catch (Exception e) {
@@ -176,15 +172,17 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     	return this.getModel().getSession().isInScope(alert.getHistoryRef());
     }
 
-    private void addAlertToDisplayEventHandler(Alert alert, HistoryReference ref, HttpMessage msg) {
+    private void addAlertToTreeEventHandler(Alert alert, HistoryReference ref, HttpMessage msg) {
 
         synchronized (this.getTreeModel()) {
         	this.getTreeModel().addPath(alert);
         	if (isInFilter(alert)) {
 	        	this.getFilteredTreeModel().addPath(alert);
         	}
-            getAlertPanel().expandRoot();
-            this.recalcAlerts();
+            if (getView() != null) {
+                getAlertPanel().expandRoot();
+                this.recalcAlerts();
+            }
         }
 
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
@@ -349,7 +347,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             Alert alert = new Alert(recAlert);
             if (alert.getHistoryRef() != null) {
                 // The ref can be null if hrefs are purged
-                addAlertToDisplay(alert, alert.getHistoryRef(), null);
+                addAlertToTree(alert, alert.getHistoryRef(), null);
                 this.hrefs.add(alert.getHistoryRef());
             }
         }
