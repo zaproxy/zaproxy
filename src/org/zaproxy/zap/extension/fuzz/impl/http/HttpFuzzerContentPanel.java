@@ -47,6 +47,8 @@ import org.zaproxy.zap.utils.Pair;
 
 public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
+	public static final String PANEL_NAME = "HttpFuzzerContentPanel";
+	
     private static final Logger logger = Logger.getLogger(HttpFuzzerContentPanel.class);
 
     private JTable fuzzResultTable;
@@ -87,7 +89,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             fuzzResultTable = new JTable(resultsModel);
             fuzzResultTable.setDoubleBuffered(true);
             fuzzResultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-            fuzzResultTable.setName("HttpFuzzerContentPanel");
+            fuzzResultTable.setName(PANEL_NAME);
             fuzzResultTable.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
             fuzzResultTable.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
 
