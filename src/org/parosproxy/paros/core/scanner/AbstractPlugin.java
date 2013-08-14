@@ -239,7 +239,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	    	String replaced = msg.getRequestBody().toString();
 	    	replaced = replaced.replace(encoder.getURLEncode(antiCsrfToken.getValue()), encoder.getURLEncode(tokenValue));
 	    	msg.setRequestBody(replaced);
-	    	extAntiCSRF.registerAntiCsrfToken(new AntiCsrfToken(msg, antiCsrfToken.getName(), tokenValue));
+	    	extAntiCSRF.registerAntiCsrfToken(new AntiCsrfToken(msg, antiCsrfToken.getName(), tokenValue, antiCsrfToken.getFormIndex()));
 	    }
     }
 
