@@ -236,19 +236,35 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             HistoryReference historyReference = it.next().second;
             try {
                 HttpMessage msg = historyReference.getHttpMessage();
-                if (msg != null && msg.getRequestBody() != null) {
-                    matcher = pattern.matcher(msg.getResponseBody().toString());
-                    if (inverse) {
-                        if (! matcher.find()) {
-                            results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
-                        }
-                    } else {
-                        while (matcher.find()) {
-                            results.add(
-                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(),
-                                            new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
-                        }
-                    }
+                if (msg != null) {
+                	if (msg.getRequestHeader() != null) {
+	                    matcher = pattern.matcher(msg.getResponseHeader().toString());
+	                    if (inverse) {
+	                        if (! matcher.find()) {
+	                            results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
+	                        }
+	                    } else {
+	                        while (matcher.find()) {
+	                            results.add(
+	                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(),
+	                                            new SearchMatch(msg, SearchMatch.Location.RESPONSE_HEAD, matcher.start(), matcher.end())));
+	                        }
+	                    }
+                	}
+                	if (msg.getRequestBody() != null) {
+	                    matcher = pattern.matcher(msg.getResponseBody().toString());
+	                    if (inverse) {
+	                        if (! matcher.find()) {
+	                            results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
+	                        }
+	                    } else {
+	                        while (matcher.find()) {
+	                            results.add(
+	                                    new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), matcher.group(),
+	                                            new SearchMatch(msg, SearchMatch.Location.RESPONSE_BODY, matcher.start(), matcher.end())));
+	                        }
+	                    }
+                	}
                 }
             } catch (HttpMalformedHeaderException e) {
                 logger.error(e.getMessage(), e);
