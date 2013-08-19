@@ -28,6 +28,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -618,6 +619,21 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 				((ZapTextField)c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+	}
+
+	public void addFieldListener(String fieldLabel, MouseAdapter listener) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof ZapTextField) {
+				((ZapTextField)c).addMouseListener(listener);
+			} else if (c instanceof ZapTextArea) {
+				((ZapTextArea)c).addMouseListener(listener);
+			} else if (c instanceof JComboBox) {
+				((JComboBox<?>)c).addMouseListener(listener);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
