@@ -58,6 +58,10 @@ public class FormBasedAuthenticationMethodType extends
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
 
+	/**
+	 * The implementation for an {@link AuthenticationMethod} where the Users are authenticated by
+	 * posting a form with user and password.
+	 */
 	public static class FormBasedAuthenticationMethod implements
 			AuthenticationMethod<FormBasedAuthenticationMethod> {
 
@@ -66,9 +70,10 @@ public class FormBasedAuthenticationMethodType extends
 		private static final String ENCODING_TYPE = "UTF-8";
 		private static final String MSG_USER_PATTERN = "{%username%}";
 		private static final String MSG_PASS_PATTERN = "{%password%}";
-		private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
-		private HttpSender httpSender;
 
+		private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
+
+		private HttpSender httpSender;
 		private SiteNode loginSiteNode = null;
 		private HttpMessage loginMsg = null;
 
@@ -96,6 +101,13 @@ public class FormBasedAuthenticationMethodType extends
 			return httpSender;
 		}
 
+		/**
+		 * Prepares a request message, by filling the appropriate 'username' and 'password' fields
+		 * in the request URI and the POST data, if any.
+		 * 
+		 * @param requestMessage the request message
+		 * @param credentials the credentials
+		 */
 		private void prepareRequestMessage(HttpMessage requestMessage,
 				UsernamePasswordAuthenticationCredentials credentials) throws URIException,
 				NullPointerException {
@@ -113,7 +125,6 @@ public class FormBasedAuthenticationMethodType extends
 				requestBody = requestBody.replace(MSG_PASS_PATTERN, credentials.password);
 				requestMessage.getRequestBody().setBody(requestBody);
 			}
-
 		}
 
 		@Override
@@ -162,32 +173,48 @@ public class FormBasedAuthenticationMethodType extends
 				ex.printStackTrace();
 			}
 
+			// Return the web session as extracted by the session management method
 			return sessionManagementMethod.extractWebSession(msg);
 		}
 
+		/**
+		 * Sets the login request as being an existing SiteNode.
+		 * 
+		 * @param sn the new login request
+		 */
 		protected void setLoginRequest(SiteNode sn) throws Exception {
+			// No need for resetting everything up it's already the right node
+			if (sn != null && this.loginSiteNode == sn) {
+				return;
+			}
+
 			if (this.loginSiteNode != null) {
 				this.loginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
 			}
+
 			this.loginSiteNode = sn;
 			if (sn == null) {
 				this.loginMsg = null;
 				return;
 			}
 			sn.addCustomIcon(LOGIN_ICON_RESOURCE, false);
-			this.setLoginMsg(sn.getHistoryReference().getHttpMessage());
+
+			// Set a cloned http message
+			this.setLoginMsg(sn.getHistoryReference().getHttpMessage().cloneRequest());
 		}
 
-		private void setLoginMsg(HttpMessage msg) throws Exception {
-			this.loginMsg = msg;
-			if (log.isDebugEnabled()) {
-				log.debug("New login message set for form-based authentication:\n"
-						+ msg.getRequestHeader().toString());
-				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST))
-					log.debug(msg.getRequestBody());
-			}
-		}
-
+		/**
+		 * Sets the login request, based on a given url and, if needed, post data. If post data is
+		 * provided, the assumed HTTP method is POST.
+		 * <p>
+		 * If there is a SiteNode that matches the URL and post data (with the exception of the
+		 * 'username' and 'password' parameters), it is marked as the 'Login' site node.
+		 * </p>
+		 * 
+		 * @param url the url
+		 * @param postData the post data, or {@code null} if the request should be a GET one
+		 * @throws Exception the exception
+		 */
 		protected void setLoginRequest(String url, String postData) throws Exception {
 			if (url == null || url.length() == 0) {
 				this.setLoginRequest(null);
@@ -202,6 +229,8 @@ public class FormBasedAuthenticationMethodType extends
 				// TODO: Make sure the other parameters (besides user/password) are the same
 				if (sn != null) {
 					this.setLoginRequest(sn);
+					this.loginMsg.getRequestHeader().setURI(uri);
+					this.loginMsg.getRequestBody().setBody(postData);
 				} else {
 					// Haven't visited this node before, not a problem
 					HttpMessage msg = new HttpMessage();
@@ -209,6 +238,16 @@ public class FormBasedAuthenticationMethodType extends
 					msg.setRequestBody(postData);
 					this.setLoginMsg(msg);
 				}
+			}
+		}
+
+		private void setLoginMsg(HttpMessage msg) throws Exception {
+			this.loginMsg = msg;
+			if (log.isDebugEnabled()) {
+				log.debug("New login message set for form-based authentication:\n"
+						+ msg.getRequestHeader().toString());
+				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST))
+					log.debug(msg.getRequestBody());
 			}
 		}
 
