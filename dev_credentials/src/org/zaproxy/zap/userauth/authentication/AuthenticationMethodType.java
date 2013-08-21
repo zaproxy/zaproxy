@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -99,6 +100,17 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	 * @return true, if is factory for method
 	 */
 	public abstract boolean isFactoryForMethod(Class<? extends AuthenticationMethod<?>> methodClass);
+
+	/**
+	 * Hooks the Authentication Method Type with other components of ZAP, if needed. This method
+	 * should is called only ones, when authentication types are loaded.
+	 * <p>
+	 * For example, PopupMenus can be registered.
+	 * </p>
+	 * 
+	 * @param extensionHook the extension hook
+	 */
+	public abstract void hook(ExtensionHook extensionHook);
 
 	@Override
 	public String toString() {

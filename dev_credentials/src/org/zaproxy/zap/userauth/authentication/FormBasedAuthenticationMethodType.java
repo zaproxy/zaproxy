@@ -23,6 +23,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,6 +34,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -41,6 +43,10 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
+import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -58,6 +64,8 @@ public class FormBasedAuthenticationMethodType extends
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
 
+	private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
+
 	/**
 	 * The implementation for an {@link AuthenticationMethod} where the Users are authenticated by
 	 * posting a form with user and password.
@@ -70,8 +78,6 @@ public class FormBasedAuthenticationMethodType extends
 		private static final String ENCODING_TYPE = "UTF-8";
 		private static final String MSG_USER_PATTERN = "{%username%}";
 		private static final String MSG_PASS_PATTERN = "{%password%}";
-
-		private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
 
 		private HttpSender httpSender;
 		private SiteNode loginSiteNode = null;
@@ -249,6 +255,11 @@ public class FormBasedAuthenticationMethodType extends
 				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST))
 					log.debug(msg.getRequestBody());
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "FormBasedAuthenticationMethod [loginURI=" + loginMsg.getRequestHeader().getURI() + "]";
 		}
 
 	}
@@ -438,4 +449,63 @@ public class FormBasedAuthenticationMethodType extends
 		return methodClass.equals(FormBasedAuthenticationMethod.class);
 	}
 
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+		extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginRequestMenuFactory());
+	}
+
+	/**
+	 * Gets the popup menu factory for flagging login requests.
+	 * 
+	 * @return the popup flag login request menu factory
+	 */
+	private PopupContextMenuSiteNodeFactory getPopupFlagLoginRequestMenuFactory() {
+		PopupContextMenuSiteNodeFactory popupFlagLoginRequestMenuFactory = new PopupContextMenuSiteNodeFactory(
+				Constant.messages.getString("context.flag.popup")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public PopupContextMenu getContextMenu(Context context, String parentMenu) {
+				return new PopupContextMenu(context, parentMenu, MessageFormat.format(
+						Constant.messages.getString("authentication.method.fb.popup.login.request"),
+						context.getName())) {
+
+					private static final long serialVersionUID = 1967885623005183801L;
+
+					@Override
+					public void performAction(SiteNode sn) throws Exception {
+						if (this.getContext().getAuthenticationMethod() instanceof FormBasedAuthenticationMethod) {
+							if (log.isInfoEnabled())
+								log.info("Selected new login request. Changing existing Form-Based Authentication instance for Context "
+										+ getContext().getIndex());
+							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) this
+									.getContext().getAuthenticationMethod();
+							method.setLoginRequest(sn);
+							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+									ContextAuthenticationPanel.buildName(this.getContext().getIndex()));
+						} else {
+							if (log.isInfoEnabled())
+								log.info("Selected new login request. Creating new Form-Based Authentication instance for Context "
+										+ getContext().getIndex());
+							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
+							method.setLoginRequest(sn);
+							this.getContext().setAuthenticationMethod(method);
+							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+									ContextAuthenticationPanel.buildName(this.getContext().getIndex()));
+						}
+
+						// setLoginRequest(this.getContext().getIndex(), sn);
+						// View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+						// getContextPanel(this.getContext()).getName());
+					}
+				};
+			}
+
+			@Override
+			public int getParentMenuIndex() {
+				return 3;
+			}
+		};
+		return popupFlagLoginRequestMenuFactory;
+	}
 }
