@@ -23,7 +23,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,11 +36,11 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpUtil;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -62,34 +61,26 @@ public class FormBasedAuthenticationMethodType extends
 	public static class FormBasedAuthenticationMethod implements
 			AuthenticationMethod<FormBasedAuthenticationMethod> {
 
+		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
 		private static final String ENCODING_TYPE = "UTF-8";
+		private static final String MSG_USER_PATTERN = "{%username%}";
+		private static final String MSG_PASS_PATTERN = "{%password%}";
 		private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
-		private String usernameFormFieldName;
-		private String passwordFormFieldName;
-		private String loginURL;
 		private HttpSender httpSender;
+
+		private SiteNode loginSiteNode = null;
+		private HttpMessage loginMsg = null;
 
 		@Override
 		public boolean isConfigured() {
 			// check if the login url is valid
-			try {
-				new URL(loginURL);
-			} catch (Exception e) {
-				return false;
-			}
-			return usernameFormFieldName != null && passwordFormFieldName != null;
+			return loginMsg != null;
 		}
 
 		@Override
 		public AuthenticationCredentials createAuthenticationCredentials() {
 			return new UsernamePasswordAuthenticationCredentials();
-		}
-
-		@Override
-		public String getStatusDescription() {
-			return "<p>Login URL: " + loginURL + "</p><p>Username Form Field: " + usernameFormFieldName
-					+ "</p><p>Password Form Field: " + passwordFormFieldName + "</p>";
 		}
 
 		@Override
@@ -103,6 +94,26 @@ public class FormBasedAuthenticationMethodType extends
 						false, HttpSender.AUTHENTICATION_INITIATOR);
 			}
 			return httpSender;
+		}
+
+		private void prepareRequestMessage(HttpMessage requestMessage,
+				UsernamePasswordAuthenticationCredentials credentials) throws URIException,
+				NullPointerException {
+
+			// Replace the username and password in the uri
+			String requestUri = requestMessage.getRequestHeader().getURI().toString();
+			requestUri = requestUri.replace(MSG_USER_PATTERN, credentials.username);
+			requestUri = requestUri.replace(MSG_PASS_PATTERN, credentials.password);
+			requestMessage.getRequestHeader().setURI(new URI(requestUri, false));
+
+			// Replace the username and password in the post data of the request, if needed
+			if (!requestMessage.getRequestHeader().getMethod().equals(HttpRequestHeader.GET)) {
+				String requestBody = requestMessage.getRequestBody().toString();
+				requestBody = requestBody.replace(MSG_USER_PATTERN, credentials.username);
+				requestBody = requestBody.replace(MSG_PASS_PATTERN, credentials.password);
+				requestMessage.getRequestBody().setBody(requestBody);
+			}
+
 		}
 
 		@Override
@@ -119,21 +130,18 @@ public class FormBasedAuthenticationMethodType extends
 			UsernamePasswordAuthenticationCredentials cred = (UsernamePasswordAuthenticationCredentials) credentials;
 
 			// Prepare login message
-			HttpMessage msg = new HttpMessage();
+			HttpMessage msg = this.loginMsg.cloneRequest();
 			try {
-				msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.POST, new URI(loginURL, false),
-						HttpRequestHeader.HTTP10));
-				String reqBody = usernameFormFieldName + "="
-						+ URLEncoder.encode(cred.username, ENCODING_TYPE) + "&" + passwordFormFieldName + "="
-						+ URLEncoder.encode(cred.password, ENCODING_TYPE);
-				msg.setRequestBody(reqBody);
-				if (log.isDebugEnabled())
-					log.debug("Sending authentication message with content: " + reqBody);
+				prepareRequestMessage(msg, cred);
+				if (log.isDebugEnabled()) {
+					log.debug("Authentication request header: \n" + msg.getRequestHeader());
+					if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET))
+						log.debug("Authentication request body: \n" + msg.getRequestBody());
+				}
 			} catch (Exception e) {
-				log.error("Unable to build authentication message: " + e.getMessage(), e);
+				log.error("Unable to prepare authentication message: " + e.getMessage());
 				return null;
 			}
-
 			// Send the authentication message
 			try {
 				getHttpSender().sendAndReceive(msg);
@@ -155,6 +163,59 @@ public class FormBasedAuthenticationMethodType extends
 			}
 
 			return sessionManagementMethod.extractWebSession(msg);
+		}
+
+		protected void setLoginRequest(SiteNode sn) throws Exception {
+			if (this.loginSiteNode != null) {
+				this.loginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
+			}
+			this.loginSiteNode = sn;
+			if (sn == null) {
+				this.loginMsg = null;
+				return;
+			}
+			sn.addCustomIcon(LOGIN_ICON_RESOURCE, false);
+			this.setLoginMsg(sn.getHistoryReference().getHttpMessage());
+		}
+
+		private void setLoginMsg(HttpMessage msg) throws Exception {
+			this.loginMsg = msg;
+			if (log.isDebugEnabled()) {
+				log.debug("New login message set for form-based authentication:\n"
+						+ msg.getRequestHeader().toString());
+				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST))
+					log.debug(msg.getRequestBody());
+			}
+		}
+
+		protected void setLoginRequest(String url, String postData) throws Exception {
+			if (url == null || url.length() == 0) {
+				this.setLoginRequest(null);
+			} else {
+				String method = HttpRequestHeader.GET;
+				if (postData != null && postData.length() > 0) {
+					method = HttpRequestHeader.POST;
+				}
+				URI uri = new URI(url, true);
+				// Note: the findNode just checks the parameter names, not their values
+				SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
+				// TODO: Make sure the other parameters (besides user/password) are the same
+				if (sn != null) {
+					this.setLoginRequest(sn);
+				} else {
+					// Haven't visited this node before, not a problem
+					HttpMessage msg = new HttpMessage();
+					msg.setRequestHeader(new HttpRequestHeader(method, uri, HttpHeader.HTTP10));
+					msg.setRequestBody(postData);
+					this.setLoginMsg(msg);
+				}
+			}
+		}
+
+		@Override
+		public String getStatusDescription() {
+			// TODO Auto-generated method stub
+			return "SHould not be seen";
 		}
 	}
 
@@ -181,16 +242,15 @@ public class FormBasedAuthenticationMethodType extends
 
 		private static final long serialVersionUID = -9010956260384814566L;
 
-		private static final String USER_FORM_FIELD_LABEL = Constant.messages
-				.getString("authentication.method.fb.field.label.userFieldName");
-		private static final String PASS_FORM_FIELD_LABEL = Constant.messages
-				.getString("authentication.method.fb.field.label.passFieldName");
+		private static final String POST_DATA_LABEL = Constant.messages
+				.getString("authentication.method.fb.field.label.postData");
 		private static final String LOGIN_URL_LABEL = Constant.messages
 				.getString("authentication.method.fb.field.label.loginUrl");
+		private static final String AUTH_DESCRIPTION = Constant.messages
+				.getString("authentication.method.fb.field.label.description");
 
-		private ZapTextField userFormField;
-		private ZapTextField passFormField;
-		private ZapTextField loginUrl;
+		private ZapTextField loginUrlField;
+		private ZapTextField postDataField;
 
 		public FormBasedAuthenticationMethodOptionsPanel() {
 			super();
@@ -200,38 +260,27 @@ public class FormBasedAuthenticationMethodType extends
 		private void initialize() {
 			this.setLayout(new GridBagLayout());
 
-			this.add(new JLabel(USER_FORM_FIELD_LABEL), LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
-			this.userFormField = new ZapTextField();
-			this.add(this.userFormField, LayoutHelper.getGBC(0, 1, 1, 1.0d, 0.0d));
+			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
+			this.loginUrlField = new ZapTextField();
+			this.add(this.loginUrlField, LayoutHelper.getGBC(0, 1, 1, 1.0d, 0.0d));
 
-			this.add(new JLabel(PASS_FORM_FIELD_LABEL), LayoutHelper.getGBC(0, 2, 1, 1.0d, 0.0d));
-			this.passFormField = new ZapTextField();
-			this.add(this.passFormField, LayoutHelper.getGBC(0, 3, 1, 1.0d, 0.0d));
+			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 1, 1.0d, 0.0d));
+			this.postDataField = new ZapTextField();
+			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 1, 1.0d, 0.0d));
 
-			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
-			this.loginUrl = new ZapTextField();
-			this.add(this.loginUrl, LayoutHelper.getGBC(0, 5, 1, 1.0d, 0.0d));
+			this.add(new JLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
 		}
 
 		@Override
 		public boolean validateFields() {
-			if (userFormField.getText().isEmpty() || passFormField.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("authentication.method.fb.dialog.error.nofields.text"),
-						Constant.messages.getString("authentication.method.fb.dialog.error.title"),
-						JOptionPane.WARNING_MESSAGE);
-				userFormField.requestFocusInWindow();
-				return false;
-			}
-
 			try {
-				new URL(loginUrl.getText());
+				new URL(loginUrlField.getText());
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this,
 						Constant.messages.getString("authentication.method.fb.dialog.error.url.text"),
 						Constant.messages.getString("authentication.method.fb.dialog.error.title"),
 						JOptionPane.WARNING_MESSAGE);
-				loginUrl.requestFocusInWindow();
+				loginUrlField.requestFocusInWindow();
 				return false;
 			}
 
@@ -240,17 +289,21 @@ public class FormBasedAuthenticationMethodType extends
 
 		@Override
 		public void saveMethod() {
-			getMethod().loginURL = loginUrl.getText();
-			getMethod().passwordFormFieldName = passFormField.getText();
-			getMethod().usernameFormFieldName = userFormField.getText();
+			try {
+				getMethod().setLoginRequest(loginUrlField.getText(), postDataField.getText());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
-		public void bindMethod(AuthenticationMethod<FormBasedAuthenticationMethod> method) {
+		public void bindMethod(AuthenticationMethod method) {
 			this.authenticationMethod = (FormBasedAuthenticationMethod) method;
-			this.userFormField.setText(getMethod().usernameFormFieldName);
-			this.passFormField.setText(getMethod().passwordFormFieldName);
-			this.loginUrl.setText(getMethod().loginURL);
+			if (authenticationMethod.loginMsg != null) {
+				this.loginUrlField.setText(authenticationMethod.loginMsg.getRequestHeader().getURI()
+						.toString());
+				this.postDataField.setText(authenticationMethod.loginMsg.getRequestBody().toString());
+			}
 		}
 	}
 

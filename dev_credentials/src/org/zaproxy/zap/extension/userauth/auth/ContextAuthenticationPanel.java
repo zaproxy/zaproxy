@@ -208,6 +208,10 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 						// Show the configuration panel
 						changeMethodConfigPanel(type);
+						if (type.hasOptionsPanel()) {
+							authConfigPanel
+									.bindMethod((AuthenticationMethod<?>) selectedAuthenticationMethod);
+						}
 					}
 				}
 			});
@@ -278,6 +282,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
+		authConfigPanel.saveMethod();
 		session.getContext(contextId).setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 

@@ -66,7 +66,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		this.setName(getPanelName(this.contextId));
 		this.setLayout(new GridBagLayout());
 
-		this.add(new JLabel(Constant.messages.getString("httpsessions.options.label.tokens")),
+		this.add(new JLabel(Constant.messages.getString("userauth.user.panel.description")),
 				LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 
 		usersTableModel = new UsersTableModel();
