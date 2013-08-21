@@ -56,12 +56,6 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	/** The extension. */
 	private ExtensionSessionManagement extension;
 
-	/** The context. */
-	private Context uiCommonContext;
-	
-	/** The context id. */
-	private int contextId;
-
 	/** The session management methods combo box. */
 	private JComboBox<SessionManagementMethodType<?>> sessionManagementMethodsComboBox;
 
@@ -77,8 +71,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	 * @param context the context
 	 */
 	public ContextSessionManagementPanel(ExtensionSessionManagement extension, Context context) {
-		super();
-		this.contextId = context.getIndex();
+		super(context.getIndex());
 		this.extension = extension;
 		initialize();
 	}
@@ -88,7 +81,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
-		this.setName(contextId + ": " + PANEL_NAME);
+		this.setName(getContextIndex() + ": " + PANEL_NAME);
 		this.setLayout(new GridBagLayout());
 
 		this.add(new JLabel(Constant.messages.getString("sessionmanagement.panel.label.description")),
@@ -183,12 +176,12 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 						// different class, create it now
 						if (selectedMethod == null || !type.isFactoryForMethod(selectedMethod.getClass())) {
 							// Create the new session management method
-							selectedMethod = type.createSessionManagementMethod(contextId);
+							selectedMethod = type.createSessionManagementMethod(getContextIndex());
 						}
 
 						// Show the status panel and configuration button, if needed
 						if (type.hasOptionsPanel()) {
-							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, uiCommonContext));
+							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, getUISharedContext()));
 						} else {
 							changeMethodConfigPanel(null);
 						}
@@ -207,12 +200,11 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	}
 
 	@Override
-	public void initContextData(Session session, Context uiCommonContext) {
-		this.uiCommonContext=uiCommonContext;
-		selectedMethod = uiCommonContext.getSessionManagementMethod();
+	public void initContextData(Session session, Context uiSharedContext) {
+		selectedMethod = uiSharedContext.getSessionManagementMethod();
 		if (log.isDebugEnabled())
 			log.debug("Initializing configuration panel for session management method: " + selectedMethod
-					+ " for context " + uiCommonContext.getName());
+					+ " for context " + uiSharedContext.getName());
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedMethod != null) {
@@ -231,22 +223,22 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	public void validateContextData(Session session) throws Exception {
 		if (selectedMethod == null)
 			throw new IllegalStateException(
-					"A valid session management method has to be selected for Context " + uiCommonContext.getName());
+					"A valid session management method has to be selected for Context " + getUISharedContext().getName());
 		if (!selectedMethod.isConfigured())
 			throw new IllegalStateException(
 					"The session management method has not been properly configured for Context "
-							+ uiCommonContext.getName());
+							+ getUISharedContext().getName());
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		session.getContext(contextId).setSessionManagementMethod(selectedMethod);
+		session.getContext(getContextIndex()).setSessionManagementMethod(selectedMethod);
 		
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		// Data is already saved in the uiSharedContext
 	}
 
 }

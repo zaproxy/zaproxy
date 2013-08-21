@@ -77,12 +77,6 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	/** The extension. */
 	private ExtensionAuthentication extension;
 
-	/** The context. */
-	private int contextId;
-
-	/** The ui common context. */
-	private Context uiCommonContext;
-
 	/** The authentication method types combo box. */
 	private JComboBox<AuthenticationMethodType<?>> authenticationMethodsComboBox;
 
@@ -105,8 +99,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 * @param context the context
 	 */
 	public ContextAuthenticationPanel(ExtensionAuthentication extension, Context context) {
-		super();
-		this.contextId = context.getIndex();
+		super(context.getIndex());
 		this.extension = extension;
 		initialize();
 	}
@@ -120,7 +113,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
-		this.setName(buildName(contextId));
+		this.setName(buildName(getContextIndex()));
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -168,7 +161,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 		// show the panel according to whether the authentication type needs configuration
 		if (newMethodType.hasOptionsPanel()) {
-			authConfigPanel = newMethodType.buildOptionsPanel(uiCommonContext);
+			authConfigPanel = newMethodType.buildOptionsPanel(getUISharedContext());
 			getConfigContainerPanel().add(authConfigPanel, BorderLayout.CENTER);
 		} else {
 			authConfigPanel = null;
@@ -207,8 +200,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 						// class, create a new authentication method object
 						if (selectedAuthenticationMethod == null
 								|| !type.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
-							selectedAuthenticationMethod = type.createAuthenticationMethod(contextId);
-							uiCommonContext.setAuthenticationMethod(selectedAuthenticationMethod);
+							selectedAuthenticationMethod = type.createAuthenticationMethod(getContextIndex());
+							getUISharedContext().setAuthenticationMethod(selectedAuthenticationMethod);
 						}
 
 						// Show the configuration panel
@@ -257,12 +250,11 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	}
 
 	@Override
-	public void initContextData(Session session, Context uiCommonContext) {
-		this.uiCommonContext = uiCommonContext;
-		selectedAuthenticationMethod = uiCommonContext.getAuthenticationMethod();
+	public void initContextData(Session session, Context uiSharedContext) {
+		selectedAuthenticationMethod = uiSharedContext.getAuthenticationMethod();
 		if (log.isDebugEnabled())
 			log.debug("Initializing configuration panel for authentication method: "
-					+ selectedAuthenticationMethod + " for context " + uiCommonContext.getName());
+					+ selectedAuthenticationMethod + " for context " + uiSharedContext.getName());
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedAuthenticationMethod != null) {
@@ -273,7 +265,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 									.getClass())) {
 				if (shownAuthMethodType.hasOptionsPanel()) {
 					log.debug("Binding authentication method to existing panel of proper type for context "
-							+ uiCommonContext.getName());
+							+ uiSharedContext.getName());
 					authConfigPanel.bindMethod(selectedAuthenticationMethod);
 				}
 				return;
@@ -285,7 +277,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 					// Selecting the type here will also force the selection listener to run and
 					// change the config panel accordingly
 					log.debug("Binding authentication method to new panel of proper type for context "
-							+ uiCommonContext.getName());
+							+ uiSharedContext.getName());
 					getAuthenticationMethodsComboBox().setSelectedItem(type);
 					break;
 				}
@@ -297,19 +289,19 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		if (authConfigPanel != null && !authConfigPanel.validateFields())
 			throw new IllegalStateException(
 					"The selected authentication method has not been properly configured for Context "
-							+ uiCommonContext.getName());
+							+ getUISharedContext().getName());
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
 		if (authConfigPanel != null)
 			authConfigPanel.saveMethod();
-		session.getContext(contextId).setAuthenticationMethod(selectedAuthenticationMethod);
+		session.getContext(getContextIndex()).setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		// Data is already saved in the uiSharedContext
 	}
 
 }
