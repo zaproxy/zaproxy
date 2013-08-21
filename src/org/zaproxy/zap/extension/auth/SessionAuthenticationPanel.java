@@ -31,7 +31,6 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -39,10 +38,9 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
-	private static final String PANEL_NAME = Constant.messages.getString("auth.session.title"); 
+	private static final String PANEL_NAME = Constant.messages.getString("auth.session.title");
 	private static final long serialVersionUID = -1;
-	
-	private int contextId;
+
 	private JPanel panelSession = null;
 	private ZapTextField txtLoginUrl = null;
 	private ZapTextField txtLoginPostData = null;
@@ -50,33 +48,32 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 	private ZapTextField txtLogoutPostData = null;
 	private ZapTextField txtLoggedInIndicaterRegex = null;
 	private ZapTextField txtLoggedOutIndicaterRegex = null;
-	
-	public static String getPanelName (int contextId) {
+
+	public static String getPanelName(int contextId) {
 		// Panel names hav to be unique, so prefix with the context id
 		return contextId + ": " + PANEL_NAME;
 	}
-	
-    public SessionAuthenticationPanel(int contextId) {
-        super();
-        this.contextId = contextId;
- 		initialize();
+
+	public SessionAuthenticationPanel(int contextId) {
+		super(contextId);
+		initialize();
 	}
-    
+
 	/**
 	 * This method initializes this
 	 * 
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(getPanelName(this.contextId));
-        this.add(getPanelSession(), getPanelSession().getName());
+		this.setLayout(new CardLayout());
+		this.setName(getPanelName(this.getContextIndex()));
+		this.add(getPanelSession(), getPanelSession().getName());
 	}
-	
+
 	/**
-	 * This method initializes panelSession	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes panelSession
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getPanelSession() {
 		if (panelSession == null) {
 
@@ -84,34 +81,31 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 			panelSession.setLayout(new GridBagLayout());
 			panelSession.setName("SessionAuthentication");
 			panelSession.setLayout(new GridBagLayout());
-			
-			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.loginurl")), 
+
+			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.loginurl")),
 					LayoutHelper.getGBC(0, 0, 1, 1.0D));
-			panelSession.add(getTxtLoginUrl(), 
-					LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(2,0,2,0)));
-			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.loginpost")), 
+			panelSession.add(getTxtLoginUrl(), LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.loginpost")),
 					LayoutHelper.getGBC(0, 2, 1, 1.0D));
-			panelSession.add(getTxtLoginPostData(), 
-					LayoutHelper.getGBC(0, 3, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(getTxtLoginPostData(),
+					LayoutHelper.getGBC(0, 3, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.loginregex")),
 					LayoutHelper.getGBC(0, 4, 1, 1.0D));
-			panelSession.add(getTxtLoggedInIndicaterRegex(), 
-					LayoutHelper.getGBC(0, 5, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(getTxtLoggedInIndicaterRegex(),
+					LayoutHelper.getGBC(0, 5, 1, 1.0D, new Insets(2, 0, 2, 0)));
 
 			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.logouturl")),
 					LayoutHelper.getGBC(0, 6, 1, 1.0D));
-			panelSession.add(getTxtLogoutUrl(), 
-					LayoutHelper.getGBC(0, 7, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(getTxtLogoutUrl(), LayoutHelper.getGBC(0, 7, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.logoutpost")),
 					LayoutHelper.getGBC(0, 8, 1, 1.0D));
-			panelSession.add(getTxtLogoutPostData(), 
-					LayoutHelper.getGBC(0, 9, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(getTxtLogoutPostData(),
+					LayoutHelper.getGBC(0, 9, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("auth.session.lable.logoutregex")),
 					LayoutHelper.getGBC(0, 10, 1, 1.0D));
-			panelSession.add(getTxtLoggedOutIndicaterRegex(), 
-					LayoutHelper.getGBC(0, 11, 1, 1.0D, new Insets(2,0,2,0)));
-			panelSession.add(new JLabel(), 
-					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));	// Padding
+			panelSession.add(getTxtLoggedOutIndicaterRegex(),
+					LayoutHelper.getGBC(0, 11, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(new JLabel(), LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D)); // Padding
 		}
 		return panelSession;
 	}
@@ -122,7 +116,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 		}
 		return txtLoginUrl;
 	}
-	
+
 	private ZapTextField getTxtLoginPostData() {
 		if (txtLoginPostData == null) {
 			txtLoginPostData = new ZapTextField();
@@ -136,7 +130,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 		}
 		return txtLogoutUrl;
 	}
-	
+
 	private ZapTextField getTxtLogoutPostData() {
 		if (txtLogoutPostData == null) {
 			txtLogoutPostData = new ZapTextField();
@@ -157,7 +151,6 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 		}
 		return txtLoggedOutIndicaterRegex;
 	}
-	
 
 	@Override
 	public void initContextData(Session session, Context uiCommonContext) {
@@ -175,16 +168,16 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 		ExtensionAuth ext = (ExtensionAuth) Control.getSingleton().getExtensionLoader()
 				.getExtension(ExtensionAuth.NAME);
 		if (ext != null) {
-			ext.setLoginRequest(contextId, this.getTxtLoginUrl().getText(), this.getTxtLoginPostData()
+			ext.setLoginRequest(getContextIndex(), this.getTxtLoginUrl().getText(), this.getTxtLoginPostData()
 					.getText());
-			ext.setLogoutRequest(contextId, this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData()
+			ext.setLogoutRequest(getContextIndex(), this.getTxtLogoutUrl().getText(), this.getTxtLogoutPostData()
 					.getText());
-			ext.setLoggedInIndicationRegex(contextId, this.txtLoggedInIndicaterRegex.getText());
-			ext.setLoggedOutIndicationRegex(contextId, this.txtLoggedOutIndicaterRegex.getText());
-			ext.saveAuthParams(contextId);
+			ext.setLoggedInIndicationRegex(getContextIndex(), this.txtLoggedInIndicaterRegex.getText());
+			ext.setLoggedOutIndicationRegex(getContextIndex(), this.txtLoggedOutIndicaterRegex.getText());
+			ext.saveAuthParams(getContextIndex());
 		}
 	}
-	
+
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.contexts";
@@ -192,7 +185,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	public void setLoginURL(String string) {
 		this.getTxtLoginUrl().setText(string);
-		
+
 	}
 
 	public void setLoginPostData(String string) {
@@ -201,7 +194,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	public void setLogoutURL(String string) {
 		this.getTxtLogoutUrl().setText(string);
-		
+
 	}
 
 	public void setLogoutPostData(String string) {
@@ -210,7 +203,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	public void setLoggedOutIndicationRegex(String unauthIndicationRegex) {
 		this.getTxtLoggedOutIndicaterRegex().setText(unauthIndicationRegex);
-		
+
 	}
 
 	public void setLoggedInIndicationRegex(String authIndicationRegex) {
@@ -218,7 +211,7 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		// Do nothing as the info here is not saved into Context
 	}
 }

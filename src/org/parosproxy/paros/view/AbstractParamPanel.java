@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
@@ -57,4 +58,18 @@ public abstract class AbstractParamPanel extends JPanel {
 	 *         When a valid key is returned, there will be a help button displayed.
 	 */
 	public abstract String getHelpIndex();
+	
+	/**
+	 * Called when the panel is shown (becomes visible) in the containing Abstract Param Dialog.
+	 */
+	public void onShow() {
+		
+	}
+	
+	/**
+	 * Called when the panel is hidden(another panel becomes visible) in the containing Abstract Param Dialog.
+	 */
+	public void onHide() {
+		
+	}
 }

@@ -31,52 +31,47 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 
 public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
-	private static final String PANEL_NAME = Constant.messages.getString("context.scope.include.title"); 
+	private static final String PANEL_NAME = Constant.messages.getString("context.scope.include.title");
 	private static final long serialVersionUID = -8337361808959321380L;
-	
-	private int contextId;
+
 	private JPanel panelSession = null;
 	private JTable tableIgnore = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
-	private Context uiClonedContext;
-	
+
 	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
 		return contextId + ": " + PANEL_NAME;
 	}
 
-    public ContextIncludePanel(Context context) {
-        super();
-        this.contextId = context.getIndex();
- 		initialize();
-   }
-    
+	public ContextIncludePanel(Context context) {
+		super(context.getIndex());
+		initialize();
+	}
+
 	/**
 	 * This method initializes this
 	 * 
 	 * @return void
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(getPanelName(contextId));
-        this.add(getPanelSession(), getPanelSession().getName());
+		this.setLayout(new CardLayout());
+		this.setName(getPanelName(getContextIndex()));
+		this.add(getPanelSession(), getPanelSession().getName());
 	}
+
 	/**
-	 * This method initializes panelSession	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes panelSession
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getPanelSession() {
 		if (panelSession == null) {
 
@@ -85,33 +80,33 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 			panelSession.setName("IncludeInScope");
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-	        javax.swing.JLabel jLabel = new JLabel();
+			javax.swing.JLabel jLabel = new JLabel();
 
-	        jLabel.setText(Constant.messages.getString("context.label.include"));
-	        gridBagConstraints1.gridx = 0;
-	        gridBagConstraints1.gridy = 0;
-	        gridBagConstraints1.gridheight = 1;
-	        gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
-	        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-	        gridBagConstraints1.weightx = 0.0D;
+			jLabel.setText(Constant.messages.getString("context.label.include"));
+			gridBagConstraints1.gridx = 0;
+			gridBagConstraints1.gridy = 0;
+			gridBagConstraints1.gridheight = 1;
+			gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
+			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints1.weightx = 0.0D;
 
-	        gridBagConstraints2.gridx = 0;
-	        gridBagConstraints2.gridy = 1;
-	        gridBagConstraints2.weightx = 1.0;
-	        gridBagConstraints2.weighty = 1.0;
-	        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-	        gridBagConstraints2.ipadx = 0;
-	        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-	        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        panelSession.add(jLabel, gridBagConstraints1);
-	        panelSession.add(getJScrollPane(), gridBagConstraints2);
+			gridBagConstraints2.gridx = 0;
+			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.weightx = 1.0;
+			gridBagConstraints2.weighty = 1.0;
+			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+			gridBagConstraints2.ipadx = 0;
+			gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
+			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			panelSession.add(jLabel, gridBagConstraints1);
+			panelSession.add(getJScrollPane(), gridBagConstraints2);
 		}
 		return panelSession;
 	}
-	
+
 	private JTable getTableIgnore() {
 		if (tableIgnore == null) {
 			tableIgnore = new JTable();
@@ -120,33 +115,24 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 		}
 		return tableIgnore;
 	}
+
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getTableIgnore());
-			jScrollPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+			jScrollPane.setBorder(javax.swing.BorderFactory
+					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 		}
 		return jScrollPane;
 	}
-	
+
 	private SingleColumnTableModel getModel() {
 		if (model == null) {
 			model = new SingleColumnTableModel(Constant.messages.getString("context.table.header.include"));
-			// Store the change in the ui common context
-			model.addTableModelListener(new TableModelListener() {
-				@Override
-				public void tableChanged(TableModelEvent arg0) {
-					try {
-						uiClonedContext.setIncludeInContextRegexs(model.getLines());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
 		}
 		return model;
 	}
-	
+
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.contexts";
@@ -154,9 +140,8 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiContext) {
-		this.uiClonedContext=uiContext;
-	    getModel().setLines(uiContext.getIncludeInContextRegexs());
-		
+		getModel().setLines(uiContext.getIncludeInContextRegexs());
+
 	}
 
 	@Override
@@ -171,14 +156,19 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		Context context = session.getContext(this.contextId);
-		
-	    context.setIncludeInContextRegexs(getModel().getLines());
-	    session.saveContext(context);
+		Context context = session.getContext(getContextIndex());
+
+		context.setIncludeInContextRegexs(getModel().getLines());
+		session.saveContext(context);
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		try {
+			uiSharedContext.setIncludeInContextRegexs(getModel().getLines());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
 }

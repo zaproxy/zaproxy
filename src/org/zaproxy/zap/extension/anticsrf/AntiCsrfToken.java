@@ -27,8 +27,9 @@ public class AntiCsrfToken implements Cloneable {
 	private String name;
 	private String value;
 	private String targetURL;
+	private int formIndex;
 	
-	public AntiCsrfToken(HttpMessage msg, String name, String value) {
+	public AntiCsrfToken(HttpMessage msg, String name, String value, int formIndex) {
 		super();
 		this.msg = msg;
 		this.name = name;
@@ -62,9 +63,17 @@ public class AntiCsrfToken implements Cloneable {
 		return targetURL;
 	}
 
+	public int getFormIndex() {
+		return formIndex;
+	}
+
+	public void setFormIndex(int formIndex) {
+		this.formIndex = formIndex;
+	}
+
 	@Override	
 	public AntiCsrfToken clone () {
-		return new AntiCsrfToken(msg, name, value);
+		return new AntiCsrfToken(msg, name, value, formIndex);
 	}
 	
 }

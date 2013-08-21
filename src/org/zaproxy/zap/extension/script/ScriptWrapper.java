@@ -21,6 +21,9 @@
 package org.zaproxy.zap.extension.script;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.script.ScriptException;
 
 public class ScriptWrapper {
 
@@ -196,4 +199,9 @@ public class ScriptWrapper {
 	public void setFile(File file) {
 		this.file = file;
 	}
+	
+	public <T> T getInterface(Class<T> class1) throws ScriptException, IOException {
+		return null;
+	}
+
 }

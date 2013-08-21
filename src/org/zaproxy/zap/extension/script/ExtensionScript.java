@@ -393,8 +393,7 @@ public class ExtensionScript extends ExtensionAdaptor {
     	if (TYPE_TARGETED.equals(script.getTypeName())) {
 			try {
 				// Dont need to check if enabled as it can only be invoked manually
-				Invocable inv = invokeScript(script);
-				TargetedScript s = inv.getInterface(TargetedScript.class);
+				TargetedScript s = this.getInterface(script, TargetedScript.class);
 				
 				if (s != null) {
 					s.invokeWith(msg);
@@ -489,6 +488,19 @@ public class ExtensionScript extends ExtensionAdaptor {
 			throw new InvalidParameterException("A script UI has already been set - only one is supported");
 		}
 		this.scriptUI = scriptUI;
+	}
+
+	public <T> T getInterface(ScriptWrapper script, Class<T> class1) throws ScriptException, IOException {
+	
+		T iface = script.getInterface(class1);
+		
+		if (iface != null) {
+			// the script wrapper has overriden the usual scripting mechanism
+			return iface;
+		}
+		
+		return invokeScript(script).getInterface(class1);
+
 	}
 	
 }

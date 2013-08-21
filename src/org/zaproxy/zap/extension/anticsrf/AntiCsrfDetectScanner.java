@@ -21,11 +21,8 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.List;
 
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
@@ -35,7 +32,6 @@ import org.zaproxy.zap.extension.pscan.PassiveScanner;
 public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
-	private Logger logger = Logger.getLogger(this.getClass());
 
 	@Override
 	public void setParent (PassiveScanThread parent) {
@@ -49,53 +45,15 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
-
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
-		if (formElements != null && formElements.size() > 0) {
-			// Loop through all of the FORM tags
-			logger.debug("Found " + formElements.size() + " forms");
-			
-			for (Element formElement : formElements) {
-				List<Element> inputElements = formElement.getAllElements(HTMLElementName.INPUT);
-				
-				if (inputElements != null && inputElements.size() > 0) {
-					// Loop through all of the INPUT elements
-					logger.debug("Found " + inputElements.size() + " inputs");
-					for (Element inputElement : inputElements) {
-						String attId = inputElement.getAttributeValue("ID");
-						if (attId != null) {
-							for (String tokenName : this.getTokenNames()) {
-								if (tokenName.equalsIgnoreCase(attId)) {
-									
-									if (parent != null) {
-										parent.addTag(id, ExtensionAntiCSRF.TAG);
-									}
-									extAntiCSRF.registerAntiCsrfToken(
-											new AntiCsrfToken(msg, attId, inputElement.getAttributeValue("VALUE")));
-									break;
-								}
-							}
-						}
-						String name = inputElement.getAttributeValue("NAME");
-						if (name != null) {
-							for (String tokenName : this.getTokenNames()) {
-								if (tokenName.equalsIgnoreCase(name)) {
-									
-									if (parent != null) {
-										parent.addTag(id, ExtensionAntiCSRF.TAG);
-									}
-									extAntiCSRF.registerAntiCsrfToken(
-											new AntiCsrfToken(msg, name, inputElement.getAttributeValue("VALUE")));
-									break;
-								}
-							}
-						}
-					}
-				}
+		List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
+		for (AntiCsrfToken token : list) {
+			if (parent != null) {
+				parent.addTag(id, ExtensionAntiCSRF.TAG);
 			}
+			extAntiCSRF.registerAntiCsrfToken(token);
 		}
 	}
 
@@ -104,11 +62,6 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 		return "Anti CSRF Token Detection";
 	}
 
-	public List<String> getTokenNames() {
-		// Always get the latest set of token names
-		return ((ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME)).getAntiCsrfTokenNames();
-	}
-	
 	@Override
 	public boolean isEnabled() {
 		// Always enabled

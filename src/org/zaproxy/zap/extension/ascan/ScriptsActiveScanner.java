@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 
-import javax.script.Invocable;
-
 import org.apache.commons.httpclient.HttpException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -98,9 +96,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			StringWriter writer = new StringWriter();
 			try {
 				if (script.isEnabled()) {
-					Invocable inv = extension.invokeScript(script);
-					
-					ActiveScript s = inv.getInterface(ActiveScript.class);
+					ActiveScript s = extension.getInterface(script, ActiveScript.class);
 					
 					if (s != null) {
 						s.scan(this, msg, param, value);

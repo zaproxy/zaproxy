@@ -194,6 +194,51 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return null;
 	}
 
+	public List<AntiCsrfToken> getTokensFromResponse(HttpMessage msg, Source source) {
+		List<AntiCsrfToken> list = new ArrayList<AntiCsrfToken>();
+		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
+
+		if (formElements != null && formElements.size() > 0) {
+			// Loop through all of the FORM tags
+			log.debug("Found " + formElements.size() + " forms");
+			int formIndex = 0;
+			
+			for (Element formElement : formElements) {
+				List<Element> inputElements = formElement.getAllElements(HTMLElementName.INPUT);
+				
+				if (inputElements != null && inputElements.size() > 0) {
+					// Loop through all of the INPUT elements
+					log.debug("Found " + inputElements.size() + " inputs");
+					for (Element inputElement : inputElements) {
+						String attId = inputElement.getAttributeValue("ID");
+						boolean found = false;
+						if (attId != null) {
+							for (String tokenName : this.getAntiCsrfTokenNames()) {
+								if (tokenName.equalsIgnoreCase(attId)) {
+									list.add(new AntiCsrfToken(msg, attId, inputElement.getAttributeValue("VALUE"), formIndex));
+									found = true;
+									break;
+								}
+							}
+						}
+						if (!found) {
+							String name = inputElement.getAttributeValue("NAME");
+							if (name != null) {
+								for (String tokenName : this.getAntiCsrfTokenNames()) {
+									if (tokenName.equalsIgnoreCase(name)) {
+										list.add(new AntiCsrfToken(msg, name, inputElement.getAttributeValue("VALUE"), formIndex));
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				formIndex++;
+			}
+		}
+		return list;
+	}
 
 	@Override
 	public void sessionChanged(Session session) {
@@ -282,7 +327,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			sb.append("<h3>");
 			sb.append(msg.getRequestHeader().getURI());
 			sb.append("</h3>");
-			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + msg.getRequestHeader().getURI() + "\">\n");
+			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + hr.getURI() + "\">\n");
 			sb.append("<table>\n");
 			
 			TreeSet<HtmlParameter> params = msg.getFormParams();

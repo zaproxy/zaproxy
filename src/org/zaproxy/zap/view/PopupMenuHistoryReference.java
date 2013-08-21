@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -43,15 +44,18 @@ import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.bruteforce.BruteForceItem;
 import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 
 public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
-	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce, hreftable};
+	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, fuzz2, bruteforce, hreftable};
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
     private JList<?> listInvoker = null;
+    private JTable tableInvoker = null;
     private HistoryReferenceTable hrefTableInvoker = null;
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
@@ -134,7 +138,14 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    ref = (HistoryReference) listInvoker.getSelectedValue();
 				break;
 
-    		case alerts:
+			case fuzz2:
+            	int row = tableInvoker.getSelectedRow();
+            	if (row >=0) {
+            		ref = ((HttpFuzzTableModel)tableInvoker.getModel()).getHistoryReferenceAtRow(row);
+            	}
+				break;
+
+			case alerts:
     			AlertNode aNode = (AlertNode) treeInvoker.getLastSelectedPathComponent();
         	    if (aNode.getUserObject() != null) {
         	        if (aNode.getUserObject() instanceof Alert) {
@@ -193,6 +204,13 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    		refs.add((HistoryReference)obj);
         	    	}
         	    }
+				break;
+
+            case fuzz2:
+            	int[] rows = tableInvoker.getSelectedRows();
+            	for (int row : rows) {
+            		refs.add(((HttpFuzzTableModel)tableInvoker.getModel()).getHistoryReferenceAtRow(row));
+            	}
 				break;
 
     		case alerts:
@@ -285,8 +303,14 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
+        	// this might well not be needed..
         	this.lastInvoker = Invoker.fuzz;
             this.listInvoker = (JList<?>) invoker;
+            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
+            display = true;
+        } else if (invoker.getName().equals(HttpFuzzerContentPanel.PANEL_NAME)) {
+        	this.lastInvoker = Invoker.fuzz2;
+            this.tableInvoker = (JTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
