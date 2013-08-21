@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.pscan.scanner;
 import java.io.StringWriter;
 import java.util.List;
 
-import javax.script.Invocable;
-
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.Constant;
@@ -32,8 +30,8 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
-import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
 
@@ -84,9 +82,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 				StringWriter writer = new StringWriter();
 				try {
 					if (script.isEnabled()) {
-						Invocable inv = extension.invokeScript(script);
-						
-						PassiveScript s = inv.getInterface(PassiveScript.class);
+						PassiveScript s = extension.getInterface(script, PassiveScript.class);
 						
 						if (s != null) {
 							s.scan(this, msg, source);
@@ -119,7 +115,6 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
 		this.parent.raiseAlert(this.getId(), alert);
 	}
-
 
 	@Override
 	public void setParent(PassiveScanThread parent) {

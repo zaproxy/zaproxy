@@ -31,12 +31,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 
 public class ContextExcludePanel extends AbstractContextPropertiesPanel {
@@ -48,8 +45,6 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	private JTable tableIgnore = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
-	private int contextId;
-	private Context uiClonedContext;
 	
 	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
@@ -57,8 +52,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	}
 	
     public ContextExcludePanel(Context context) {
-        super();
-        this.contextId = context.getIndex();
+        super(context.getIndex());
  		initialize();
    }
     
@@ -69,7 +63,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(contextId));
+        this.setName(getPanelName(getContextIndex()));
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	/**
@@ -132,17 +126,6 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	private SingleColumnTableModel getModel() {
 		if (model == null) {
 			model = new SingleColumnTableModel(Constant.messages.getString("context.table.header.exclude"));
-			// Store the change in the ui common context
-			model.addTableModelListener(new TableModelListener() {
-				@Override
-				public void tableChanged(TableModelEvent arg0) {
-					try {
-						uiClonedContext.setExcludeFromContextRegexs(model.getLines());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
 		}
 		return model;
 	}
@@ -154,7 +137,6 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiContext) {
-		uiClonedContext=uiContext;
 		getModel().setLines(uiContext.getExcludeFromContextRegexs());		
 	}
 
@@ -170,14 +152,19 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		Context context = session.getContext(this.contextId);
+		Context context = session.getContext(getContextIndex());
 		
 		context.setExcludeFromContextRegexs(getModel().getLines());
 		session.saveContext(context);		
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		try {
+			uiSharedContext.setExcludeFromContextRegexs(getModel().getLines());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
 }

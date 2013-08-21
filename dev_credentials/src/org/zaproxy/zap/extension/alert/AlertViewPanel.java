@@ -174,72 +174,70 @@ public class AlertViewPanel extends AbstractPanel {
 			
 			// Create the labels
 			
-			if (editable) {
-				alertEditName = new JComboBox<>();
-				alertEditName.setEditable(true);
-				nameListModel = new DefaultComboBoxModel<>();
-				
-				List <String> allVulns = getAllVulnerabilityNames();
-				nameListModel.addElement("");	// Default to blank
-				for (String vuln : allVulns) {
-					nameListModel.addElement(vuln);
-				}
-				
-				alertEditName.setModel(nameListModel);
-				alertEditName.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						if ("comboBoxChanged".equals(e.getActionCommand())) {
-							Vulnerability v = getVulnerability((String)alertEditName.getSelectedItem());
-							if (v != null) {
-								if (v.getDescription() != null && v.getDescription().length() > 0) {
-									setAlertDescription(v.getDescription());
-								}
-								if (v.getSolution() != null && v.getSolution().length() > 0) {
-									setAlertSolution(v.getSolution());
-								}
-								if (v.getReferences() != null) {
-									StringBuilder sb = new StringBuilder();
-									for (String ref : v.getReferences()) {
-										sb.append(ref);
-										sb.append('\n');
-									}
-									setAlertReference(sb.toString());
-								}
-								alertEditWascId.setValue(v.getWascId());
+			alertEditName = new JComboBox<>();
+			alertEditName.setEditable(true);
+			nameListModel = new DefaultComboBoxModel<>();
+			
+			List <String> allVulns = getAllVulnerabilityNames();
+			nameListModel.addElement("");	// Default to blank
+			for (String vuln : allVulns) {
+				nameListModel.addElement(vuln);
+			}
+			
+			alertEditName.setModel(nameListModel);
+			alertEditName.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if ("comboBoxChanged".equals(e.getActionCommand())) {
+						Vulnerability v = getVulnerability((String)alertEditName.getSelectedItem());
+						if (v != null) {
+							if (v.getDescription() != null && v.getDescription().length() > 0) {
+								setAlertDescription(v.getDescription());
 							}
+							if (v.getSolution() != null && v.getSolution().length() > 0) {
+								setAlertSolution(v.getSolution());
+							}
+							if (v.getReferences() != null) {
+								StringBuilder sb = new StringBuilder();
+								for (String ref : v.getReferences()) {
+									sb.append(ref);
+									sb.append('\n');
+								}
+								setAlertReference(sb.toString());
+							}
+							alertEditWascId.setValue(v.getWascId());
 						}
 					}
-				});
+				}
+			});
 
-				alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
-				alertEditReliability = new JComboBox<>(Alert.MSG_RELIABILITY);
-				alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[Alert.SUSPICIOUS]);
-				alertEditAttack = new ZapTextField();
-				
-				paramListModel = new DefaultComboBoxModel<>();
-				paramListModel.addElement("");	// Default is empty so user can type anything in
-				alertEditParam = new JComboBox<>();
-				alertEditParam.setModel(paramListModel);
-				alertEditParam.setEditable(true);
-				
-				alertEditEvidence = new ZapTextField();
-				alertEditCweId = new ZapNumberSpinner();
-				alertEditWascId = new ZapNumberSpinner();
+			alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
+			alertEditReliability = new JComboBox<>(Alert.MSG_RELIABILITY);
+			alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[Alert.SUSPICIOUS]);
+			alertEditAttack = new ZapTextField();
+			
+			paramListModel = new DefaultComboBoxModel<>();
+			paramListModel.addElement("");	// Default is empty so user can type anything in
+			alertEditParam = new JComboBox<>();
+			alertEditParam.setModel(paramListModel);
+			alertEditParam.setEditable(true);
+			
+			alertEditEvidence = new ZapTextField();
+			alertEditCweId = new ZapNumberSpinner();
+			alertEditWascId = new ZapNumberSpinner();
 
-			} else {
-				alertName = new JLabel();
-				Font f = alertName.getFont();
-				alertName.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+			// Read only ones
+			alertName = new JLabel();
+			Font f = alertName.getFont();
+			alertName.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
 
-				alertRisk = new JLabel();
-				alertReliability = new JLabel();
-				alertParam = new JLabel();
-				alertAttack = new JLabel();
-				alertEvidence = new JLabel();
-				alertCweId = new JLabel();
-				alertWascId = new JLabel();
-			}
+			alertRisk = new JLabel();
+			alertReliability = new JLabel();
+			alertParam = new JLabel();
+			alertAttack = new JLabel();
+			alertEvidence = new JLabel();
+			alertCweId = new JLabel();
+			alertWascId = new JLabel();
 
 			alertUrl = new ZapTextField();
 			

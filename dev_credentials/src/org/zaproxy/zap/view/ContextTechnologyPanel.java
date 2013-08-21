@@ -46,53 +46,48 @@ import javax.swing.tree.TreePath;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
 public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
-	
-	private static final String PANEL_NAME = Constant.messages.getString("context.technology.title"); 
+
+	private static final String PANEL_NAME = Constant.messages.getString("context.technology.title");
 	private static final long serialVersionUID = -8337361808959321380L;
-	
-	private Context uiCommonContext;
-	private int contextId;
 
 	private JPanel panelSession = null;
 	private JScrollPane jScrollPane = null;
 	private TreeModel model = null;
 	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<Tech, DefaultMutableTreeNode>();
-	
+
 	private CheckboxTree techTree = null;
-	
+
 	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
 		return contextId + ": " + PANEL_NAME;
 	}
 
-    public ContextTechnologyPanel(Context context) {
-        super();
-        this.contextId = context.getIndex();
- 		initialize();
-   }
+	public ContextTechnologyPanel(Context context) {
+		super(context.getIndex());
+		initialize();
+	}
 
-    
 	/**
 	 * This method initializes this
 	 * 
 	 * @return void
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(getPanelName(this.contextId));
-        this.add(getPanelSession(), getPanelSession().getName());
+		this.setLayout(new CardLayout());
+		this.setName(getPanelName(getContextIndex()));
+		this.add(getPanelSession(), getPanelSession().getName());
 	}
+
 	/**
-	 * This method initializes panelSession	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes panelSession
+	 * 
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getPanelSession() {
 		if (panelSession == null) {
 
@@ -101,63 +96,64 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 			panelSession.setName("SessionTech");
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-	        javax.swing.JLabel jLabel = new JLabel();
+			javax.swing.JLabel jLabel = new JLabel();
 
-	        jLabel.setText(Constant.messages.getString("context.technology.tree.root"));
-	        gridBagConstraints1.gridx = 0;
-	        gridBagConstraints1.gridy = 0;
-	        gridBagConstraints1.gridheight = 1;
-	        gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
-	        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-	        gridBagConstraints1.weightx = 0.0D;
+			jLabel.setText(Constant.messages.getString("context.technology.tree.root"));
+			gridBagConstraints1.gridx = 0;
+			gridBagConstraints1.gridy = 0;
+			gridBagConstraints1.gridheight = 1;
+			gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
+			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints1.weightx = 0.0D;
 
-	        gridBagConstraints2.gridx = 0;
-	        gridBagConstraints2.gridy = 1;
-	        gridBagConstraints2.weightx = 1.0;
-	        gridBagConstraints2.weighty = 1.0;
-	        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-	        gridBagConstraints2.ipadx = 0;
-	        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-	        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        panelSession.add(getJScrollPane(), gridBagConstraints2);
+			gridBagConstraints2.gridx = 0;
+			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.weightx = 1.0;
+			gridBagConstraints2.weighty = 1.0;
+			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+			gridBagConstraints2.ipadx = 0;
+			gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
+			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			panelSession.add(getJScrollPane(), gridBagConstraints2);
 		}
 		return panelSession;
 	}
-	
+
 	private TreePath getPath(TreeNode node) {
-	    List<TreeNode> list = new ArrayList<TreeNode>();
+		List<TreeNode> list = new ArrayList<TreeNode>();
 
-	    // Add all nodes to list
-	    while (node != null) {
-	        list.add(node);
-	        node = node.getParent();
-	    }
-	    Collections.reverse(list);
+		// Add all nodes to list
+		while (node != null) {
+			list.add(node);
+			node = node.getParent();
+		}
+		Collections.reverse(list);
 
-	    // Convert array of nodes to TreePath
-	    return new TreePath(list.toArray());
+		// Convert array of nodes to TreePath
+		return new TreePath(list.toArray());
 	}
-	
+
 	private CheckboxTree getTechTree() {
 		if (techTree == null) {
 			techTree = new CheckboxTree() {
 				private static final long serialVersionUID = 1L;
+
 				@Override
 				protected void setExpandedState(TreePath path, boolean state) {
-			        // Ignore all collapse requests; collapse events will not be fired
-			        if (state) {
-			            super.setExpandedState(path, state);
-			        }
-			    }
+					// Ignore all collapse requests; collapse events will not be fired
+					if (state) {
+						super.setExpandedState(path, state);
+					}
+				}
 			};
 			techTree.getCheckingModel().setCheckingMode(TreeCheckingModel.CheckingMode.PROPAGATE_UP_UNCHECK);
 			// Initialise the structure based on all the tech we know about
 			TechSet ts = new TechSet(Tech.builtInTech);
 			Iterator<Tech> iter = ts.getIncludeTech().iterator();
-			
+
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
 			Tech tech;
 			DefaultMutableTreeNode parent;
@@ -176,13 +172,12 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 				parent.add(node);
 				techToNodeMap.put(tech, node);
 			}
-			
-			model = new DefaultTreeModel(root); 
+
+			model = new DefaultTreeModel(root);
 			techTree.setModel(model);
 			techTree.expandAll();
 			TreeCheckingModel chModel = techTree.getCheckingModel();
 			chModel.setPathEnabled(new TreePath(root), false);
-			// TODO: If needed, save the temporary changes in the uiCommonContext
 
 		}
 		return techTree;
@@ -192,7 +187,8 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getTechTree());
-			jScrollPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+			jScrollPane.setBorder(javax.swing.BorderFactory
+					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 		}
 		return jScrollPane;
 	}
@@ -204,33 +200,38 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiContext) {
-		uiCommonContext=uiContext;
 		TreeCheckingModel chModel = techTree.getCheckingModel();
 		chModel.clearChecking();
 
-	    //Session session = (Session) obj;
-	    // Init model from context
-	    TechSet techSet = uiContext.getTechSet();
-	    // start by walking the local tree
-	    Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-	    while (iter.hasNext()) {
-	    	Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-    		TreePath tp = this.getPath(node.getValue());
-	    	if (techSet.includes(node.getKey())) {
-	    		chModel.addCheckingPath(tp);
-	    	}
-	    }
-		
+		// Session session = (Session) obj;
+		// Init model from context
+		TechSet techSet = uiContext.getTechSet();
+		// start by walking the local tree
+		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+			TreePath tp = this.getPath(node.getValue());
+			if (techSet.includes(node.getKey())) {
+				chModel.addCheckingPath(tp);
+			}
+		}
+
 	}
 
 	@Override
 	public void validateContextData(Session session) throws Exception {
 		// Nothing to validate
-		
+
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
+
+		session.getContext(getContextIndex()).setTechSet(buildTechSet());
+
+	}
+
+	private TechSet buildTechSet(){
 		TreeCheckingModel chModel = techTree.getCheckingModel();
 		TechSet techSet = new TechSet();
 
@@ -245,12 +246,12 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 				techSet.exclude(tech);
 			}
 		}
-		session.getContext(this.contextId).setTechSet(techSet);
-		
+		return techSet;
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		uiSharedContext.setTechSet(buildTechSet());
 	}
+
 }

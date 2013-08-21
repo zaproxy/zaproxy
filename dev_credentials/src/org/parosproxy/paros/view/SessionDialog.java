@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/08/29 Issue 250 Support for authentication management (enlarged window size)
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2013/08/21 Introduced support for shared UI Contexts for Context Property panels
 
 package org.parosproxy.paros.view;
 
@@ -63,7 +64,7 @@ public class SessionDialog extends AbstractParamDialog {
 	}
 
 	/**
-	 * This method initializes this
+	 * This method initializes this dialog.
 	 */
 	private void initialize() {
 		if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
@@ -76,8 +77,8 @@ public class SessionDialog extends AbstractParamDialog {
 	@Override
 	public void initParam(Object obj) {
 		super.paramObject = obj;
+		// NOTE: Creation of UI Shared Contexts should be done/redone before calling this method.
 		// Send the 'ui context' duplicate to Context Properties Panels
-		prepareUIContextCopies(Model.getSingleton().getSession());
 		for (AbstractParamPanel panel : super.getPanels()) {
 			if (panel instanceof AbstractContextPropertiesPanel) {
 				AbstractContextPropertiesPanel contextPanel = (AbstractContextPropertiesPanel) panel;
@@ -88,11 +89,27 @@ public class SessionDialog extends AbstractParamDialog {
 		}
 	}
 
-	private void prepareUIContextCopies(Session session) {
+	/**
+	 * Reset the UI shared Context copies. The effect is that previous copies are discarded and new
+	 * copies are created.
+	 * 
+	 * @param session the session
+	 */
+	public void recreateUISharedContexts(Session session) {
 		uiContexts.clear();
 		for (Context context : session.getContexts()) {
 			Context uiContext = context.duplicate();
 			uiContexts.put(context.getIndex(), uiContext);
 		}
+	}
+
+	/**
+	 * Gets the UI shared context copy for a given context index.
+	 * 
+	 * @param contextId the context index
+	 * @return the uI shared context
+	 */
+	public Context getUISharedContext(int contextId) {
+		return uiContexts.get(contextId);
 	}
 }

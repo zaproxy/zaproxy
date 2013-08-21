@@ -28,6 +28,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -314,10 +315,15 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	}
 
 	public void addComboField(String fieldLabel, String[] choices, String value) {
+		this.addComboField(fieldLabel, choices, value, false);
+	}
+
+	public void addComboField(String fieldLabel, String[] choices, String value, boolean editable) {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
 		JComboBox<String> field = new JComboBox<String>();
+		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
 		}
@@ -328,10 +334,15 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	}
 	
 	public void addComboField(String fieldLabel, List<String> choices, String value) {
+		this.addComboField(fieldLabel, choices, value, false);
+	}
+	
+	public void addComboField(String fieldLabel, List<String> choices, String value, boolean editable) {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
 		JComboBox<String> field = new JComboBox<String>();
+		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
 		}
@@ -340,7 +351,53 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
+
+	public void addComboField(int tabIndex, String fieldLabel, String[] choices, String value) {
+		this.addComboField(fieldLabel, choices, value, false);
+	}
+
+	public void addComboField(int tabIndex, String fieldLabel, String[] choices, String value, boolean editable) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JComboBox<String> field = new JComboBox<String>();
+		field.setEditable(editable);
+		for (String label : choices) {
+			field.addItem(label);
+		}
+		if (value != null) {
+			field.setSelectedItem(value);
+		}
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
 	
+	public void addComboField(int tabIndex, String fieldLabel, List<String> choices, String value) {
+		this.addComboField(fieldLabel, choices, value, false);
+	}
+	
+	public void addComboField(int tabIndex, String fieldLabel, List<String> choices, String value, boolean editable) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JComboBox<String> field = new JComboBox<String>();
+		field.setEditable(editable);
+		for (String label : choices) {
+			field.addItem(label);
+		}
+		if (value != null) {
+			field.setSelectedItem(value);
+		}
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+
 	public void addComboField(String fieldLabel, int[] choices, int value) {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
@@ -562,6 +619,21 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 				((ZapTextField)c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+	}
+
+	public void addFieldListener(String fieldLabel, MouseAdapter listener) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof ZapTextField) {
+				((ZapTextField)c).addMouseListener(listener);
+			} else if (c instanceof ZapTextArea) {
+				((ZapTextArea)c).addMouseListener(listener);
+			} else if (c instanceof JComboBox) {
+				((JComboBox<?>)c).addMouseListener(listener);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
