@@ -77,18 +77,6 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 	private ZapTextField getTxtName() {
 		if (txtName == null) {
 			txtName = new ZapTextField();
-			// Store the change in the ui cloned context
-			txtName.addFocusListener(new FocusListener() {
-
-				@Override
-				public void focusLost(FocusEvent arg0) {
-					getUISharedContext().setName(txtName.getText());
-				}
-
-				@Override
-				public void focusGained(FocusEvent arg0) {
-				}
-			});
 		}
 		return txtName;
 	}
@@ -97,13 +85,6 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		if (chkInScope == null) {
 			chkInScope = new JCheckBox();
 			chkInScope.setText(Constant.messages.getString("context.inscope.label"));
-			// Store the change in the ui cloned context
-			chkInScope.addChangeListener(new ChangeListener() {
-				@Override
-				public void stateChanged(ChangeEvent arg0) {
-					getUISharedContext().setInScope(chkInScope.isSelected());
-				}
-			});
 		}
 		return chkInScope;
 	}
@@ -120,17 +101,6 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 					.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 			txtDescription.setLineWrap(true);
 			txtDescription.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			// Store the change in the ui common context
-			txtDescription.addFocusListener(new FocusListener() {
-				@Override
-				public void focusLost(FocusEvent arg0) {
-					getUISharedContext().setDescription(txtDescription.getText());
-				}
-
-				@Override
-				public void focusGained(FocusEvent arg0) {
-				}
-			});
 		}
 		return txtDescription;
 	}
