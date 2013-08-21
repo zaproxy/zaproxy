@@ -68,9 +68,6 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		this.setName(NAME);
 		this.setOrder(102);
 
-		// Load the Authentication and Session Management methods
-		this.loadAuthenticationMethodTypes();
-
 		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
 		// API.getInstance().registerApiImplementor(api);
@@ -87,6 +84,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
 		}
+
+		// Load the Authentication and Session Management methods
+		this.loadAuthenticationMethodTypes(extensionHook);
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	/**
 	 * Load authentication method types using reflection.
 	 */
-	private void loadAuthenticationMethodTypes() {
+	private void loadAuthenticationMethodTypes(ExtensionHook hook) {
 		// Load the method types as raw types (only way supported) and put them in a list of
 		// parameterized methods
 		@SuppressWarnings("rawtypes")
@@ -142,6 +142,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		authenticationMethodTypes = new ArrayList<AuthenticationMethodType<?>>(rawFactories.size());
 		for (AuthenticationMethodType<?> a : rawFactories) {
 			authenticationMethodTypes.add(a);
+			a.hook(hook);
 		}
 
 		if (log.isInfoEnabled()) {

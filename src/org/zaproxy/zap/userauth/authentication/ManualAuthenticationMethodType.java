@@ -32,6 +32,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
@@ -243,6 +244,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 	@Override
 	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod<?>> methodClass) {
 		return methodClass.equals(ManualAuthenticationMethod.class);
+	}
+
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+		// Do nothing
 	}
 
 }
