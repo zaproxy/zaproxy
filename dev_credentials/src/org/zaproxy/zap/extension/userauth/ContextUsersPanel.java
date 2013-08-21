@@ -38,7 +38,6 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
-	private int contextId;
 	private UsersMultipleOptionsPanel usersOptionsPanel;
 	private ContextUserAuthManager contextManager;
 	private ExtensionUserManagement extension;
@@ -49,8 +48,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 	private static final String PANEL_NAME = Constant.messages.getString("userauth.user.panel.title");
 
 	public ContextUsersPanel(ExtensionUserManagement extension, int contextId) {
-		super();
-		this.contextId = contextId;
+		super(contextId);
 		this.contextManager = extension.getContextUserAuthManager(contextId);
 		this.extension = extension;
 		initialize();
@@ -63,14 +61,14 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	private void initialize() {
 		this.setLayout(new CardLayout());
-		this.setName(getPanelName(this.contextId));
+		this.setName(getPanelName(getContextIndex()));
 		this.setLayout(new GridBagLayout());
 
 		this.add(new JLabel(Constant.messages.getString("userauth.user.panel.description")),
 				LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 
 		usersTableModel = new UsersTableModel();
-		usersOptionsPanel = new UsersMultipleOptionsPanel(this.extension, usersTableModel, contextId);
+		usersOptionsPanel = new UsersMultipleOptionsPanel(this.extension, usersTableModel, getContextIndex());
 		this.add(usersOptionsPanel, LayoutHelper.getGBC(0, 1, 1, 1.0d, 1.0d));
 	}
 
@@ -186,7 +184,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 	}
 
 	@Override
-	public int getContextIndex() {
-		return contextId;
+	public void saveTemporaryContextData(Context uiSharedContext) {
+		// Data is already saved in the uiSharedContext
 	}
 }
