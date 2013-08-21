@@ -433,6 +433,9 @@ public class HttpSessionsSite {
 		session.setMessagesMatched(session.getMessagesMatched() + 1);
 
 		this.model.fireHttpSessionUpdated(session);
+		
+		// Store the session in the HttpMessage for caching purpose
+		message.setHttpSession(session);
 	}
 
 	/**

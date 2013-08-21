@@ -64,7 +64,7 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 	 * 
 	 * @param method the method to be loaded/shown in the panel.
 	 */
-	public abstract void bindMethod(AuthenticationMethod<T> method)
+	public abstract void bindMethod(AuthenticationMethod method)
 			throws UnsupportedAuthenticationMethodException;
 
 	/**
