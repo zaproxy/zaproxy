@@ -96,13 +96,17 @@ public class User extends Enableable {
 	 */
 	public void processMessageToMatchUser(HttpMessage message) {
 		// If the user is not yet authenticated, authenticate now
-		if (!this.isAuthenticated()) {
-			this.authenticate();
+		// Make sure there are no simultaneous authentications for the same user
+		synchronized (this) {
 			if (!this.isAuthenticated()) {
-				log.info("Authentication failed for user: " + name);
-				return;
+				this.authenticate();
+				if (!this.isAuthenticated()) {
+					log.info("Authentication failed for user: " + name);
+					return;
+				}
 			}
 		}
+
 		// Modify the message accordingly
 		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);
 	}
