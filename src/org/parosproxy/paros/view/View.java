@@ -42,6 +42,7 @@
 // position changed
 // ZAP: 2013/04/15 Issue 627: Allow add-ons to remove main tool bar buttons/separators
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
+// ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
 
 package org.parosproxy.paros.view;
 
@@ -74,6 +75,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextIncludePanel;
@@ -334,8 +336,8 @@ public class View implements ViewDelegate {
 
 	@Override    
     public SessionDialog getSessionDialog() {
-        String[] ROOT = {};
         if (sessionDialog == null) {
+            String[] ROOT = {};
         	// ZAP: i18n, plus in-lined title parameter
         	String propertiesTitle = Constant.messages.getString("session.properties.title");
         	String dialogTitle = Constant.messages.getString("session.dialog.title");
@@ -349,9 +351,15 @@ public class View implements ViewDelegate {
         
         return sessionDialog;
     }
+	
+	public void showSessionDialog(Session session, String panel){
+		showSessionDialog(session, panel, true);
+	}
 
-    public void showSessionDialog(Session session, String panel) {
+    public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts) {
     	if (sessionDialog != null) {
+    		if(recreateUISharedContexts)
+    			sessionDialog.recreateUISharedContexts(session);
     		sessionDialog.initParam(session);
     		sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
     		sessionDialog.showDialog(false, panel);
@@ -360,23 +368,28 @@ public class View implements ViewDelegate {
     
     public void addContext(Context c) {
     	ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
+    	contextGenPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list")}, contextGenPanel, false);
 		this.contextPanels.add(contextGenPanel);
 		
 		ContextIncludePanel contextIncPanel = new ContextIncludePanel(c);
+		contextIncPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextIncPanel, false);
 		this.contextPanels.add(contextIncPanel);
 		
 		ContextExcludePanel contextExcPanel = new ContextExcludePanel(c);
+		contextExcPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
 		this.contextPanels.add(contextExcPanel);
 		
 		ContextTechnologyPanel contextTechPanel = new ContextTechnologyPanel(c);
+		contextTechPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextTechPanel, false);
 		this.contextPanels.add(contextTechPanel);
 
 		for (ContextPanelFactory cpf : this.contextPanelFactories) {
-			AbstractParamPanel panel = cpf.getContextPanel(c);
+			AbstractContextPropertiesPanel panel = cpf.getContextPanel(c);
+			panel.setSessionDialog(getSessionDialog());
 			getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, panel, false);
 			this.contextPanels.add(panel);
 		}
