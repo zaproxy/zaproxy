@@ -44,13 +44,6 @@ public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 	public AuthenticationCredentials createAuthenticationCredentials();
 
 	/**
-	 * Gets a string describing the status (the configuration) of the authentication method.
-	 * 
-	 * @return the status description
-	 */
-	public String getStatusDescription();
-
-	/**
 	 * Gets the {@link AuthenticationMethodType} corresponding to this authentication method.
 	 * <p>
 	 * Implementations may return new instantiations at every call, so performance considerations

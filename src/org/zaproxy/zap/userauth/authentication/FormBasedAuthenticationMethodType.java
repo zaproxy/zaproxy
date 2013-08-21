@@ -251,11 +251,6 @@ public class FormBasedAuthenticationMethodType extends
 			}
 		}
 
-		@Override
-		public String getStatusDescription() {
-			// TODO Auto-generated method stub
-			return "SHould not be seen";
-		}
 	}
 
 	/**

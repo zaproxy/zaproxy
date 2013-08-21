@@ -94,11 +94,6 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		}
 
 		@Override
-		public String getStatusDescription() {
-			return null; // Not needed
-		}
-
-		@Override
 		public AuthenticationMethodType<ManualAuthenticationMethod> getType() {
 			return new ManualAuthenticationMethodType();
 		}
