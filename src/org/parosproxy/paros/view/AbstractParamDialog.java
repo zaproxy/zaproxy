@@ -25,6 +25,7 @@
 //      getTreeNodeFromPanelName(String).
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/08/05 Added accessor to shown panels
+// ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 
 
 package org.parosproxy.paros.view;
@@ -542,6 +543,12 @@ public class AbstractParamDialog extends AbstractDialog {
 	}
 
 	public void showParamPanel(AbstractParamPanel panel, String name) {
+		// ZAP: Notify previously shown panel that it was hidden
+		if (nameLastSelectedPanel != null) {
+			AbstractParamPanel currentPanel = tablePanel.get(nameLastSelectedPanel);
+			if (currentPanel != null)
+				currentPanel.onHide();
+		}
         nameLastSelectedPanel = name;
 
         getPanelHeadline();
@@ -551,6 +558,8 @@ public class AbstractParamDialog extends AbstractDialog {
 
         CardLayout card = (CardLayout) getPanelParam().getLayout();
         card.show(getPanelParam(), name);
+        // ZAP: Notify the new panel that it is now shown
+        panel.onShow();
 	}
 
 	public void initParam(Object obj) {
