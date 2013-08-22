@@ -93,12 +93,12 @@ public abstract class AuthenticationMethodType {
 	public abstract boolean hasCredentialsOptionsPanel();
 
 	/**
-	 * Checks if is this is a factory for the Authentication Method provided as parameter.
-	 * 
-	 * @param methodClass the method class
+	 * Checks if is this is a type for the Authentication Method provided as parameter.
+	 *
+	 * @param method the method
 	 * @return true, if is factory for method
 	 */
-	public abstract boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass);
+	public abstract boolean isTypeForMethod(AuthenticationMethod method);
 
 	/**
 	 * Hooks the Authentication Method Type with other components of ZAP, if needed. This method

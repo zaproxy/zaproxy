@@ -23,8 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Vector;
@@ -43,7 +41,6 @@ import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
-import org.zaproxy.zap.view.SummaryAndConfigPanel;
 
 /**
  * The Context Panel shown for configuring a Context's authentication methods.
@@ -52,15 +49,6 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	private static final String CONFIG_NOT_NEEDED = Constant.messages
 			.getString("sessionmanagement.panel.label.noConfigPanel");
-
-	private static final String METHOD_NOT_CONFIGURED = Constant.messages
-			.getString("authentication.panel.label.notConfigured");
-
-	private static final String SUMMARY_TITLE = Constant.messages
-			.getString("authentication.panel.label.summaryTitle");
-
-	private static final String CONFIG_BUTTON_LABEL = Constant.messages
-			.getString("authentication.panel.button.config");
 
 	/** The Constant PANEL NAME. */
 	private static final String PANEL_NAME = Constant.messages.getString("authentication.panel.title");
@@ -76,16 +64,16 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	/** The authentication method types combo box. */
 	private JComboBox<AuthenticationMethodType> authenticationMethodsComboBox;
 
-	/** The authentication method summary panel. */
-	private SummaryAndConfigPanel authenticationMethodSummaryPanel;
-
 	/** The selected authentication method. */
 	private AuthenticationMethod selectedAuthenticationMethod;
 
-	private AuthenticationMethodType shownAuthMethodType;
+	/** The shown method type. */
+	private AuthenticationMethodType shownMethodType;
 
-	private AbstractAuthenticationMethodOptionsPanel authConfigPanel;
+	/** The shown config panel. */
+	private AbstractAuthenticationMethodOptionsPanel shownConfigPanel;
 
+	/** The container panel for the authentication method's configuration. */
 	private JPanel configContainerPanel;
 
 	/**
@@ -114,15 +102,15 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
 		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.description")),
-				LayoutHelper.getGBC(0, 0, 2, 1.0D));
+				LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
 		// Method type combo box
 		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.typeSelect")),
-				LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(20, 0, 5, 0)));
-		this.add(getAuthenticationMethodsComboBox(), LayoutHelper.getGBC(0, 3, 2, 1.0D));
+				LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(20, 0, 5, 5)));
+		this.add(getAuthenticationMethodsComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
 
 		// Method config panel container
-		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 4, 2, 1.0d, new Insets(10, 0, 10, 0)));
+		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 3, 1, 1.0d, new Insets(10, 0, 10, 0)));
 
 		// Padding
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
@@ -143,12 +131,12 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		if (newMethodType == null) {
 			getConfigContainerPanel().removeAll();
 			getConfigContainerPanel().setVisible(false);
-			this.shownAuthMethodType = null;
+			this.shownMethodType = null;
 			return;
 		}
 
 		// If a panel of the correct type is already shown, do nothing
-		if (shownAuthMethodType != null && newMethodType.getClass().equals(shownAuthMethodType.getClass())) {
+		if (shownMethodType != null && newMethodType.getClass().equals(shownMethodType.getClass())) {
 			return;
 		}
 
@@ -157,14 +145,14 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 		// show the panel according to whether the authentication type needs configuration
 		if (newMethodType.hasOptionsPanel()) {
-			authConfigPanel = newMethodType.buildOptionsPanel(getUISharedContext());
-			getConfigContainerPanel().add(authConfigPanel, BorderLayout.CENTER);
+			shownConfigPanel = newMethodType.buildOptionsPanel(getUISharedContext());
+			getConfigContainerPanel().add(shownConfigPanel, BorderLayout.CENTER);
 		} else {
-			authConfigPanel = null;
+			shownConfigPanel = null;
 			getConfigContainerPanel().add(new JLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
 					BorderLayout.CENTER);
 		}
-		this.shownAuthMethodType = newMethodType;
+		this.shownMethodType = newMethodType;
 
 		this.getConfigContainerPanel().setVisible(true);
 		this.getConfigContainerPanel().revalidate();
@@ -177,8 +165,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 */
 	protected JComboBox<AuthenticationMethodType> getAuthenticationMethodsComboBox() {
 		if (authenticationMethodsComboBox == null) {
-			Vector<AuthenticationMethodType> methods = new Vector<>(
-					extension.getAuthenticationMethodTypes());
+			Vector<AuthenticationMethodType> methods = new Vector<>(extension.getAuthenticationMethodTypes());
 			authenticationMethodsComboBox = new JComboBox<>(methods);
 			authenticationMethodsComboBox.setSelectedItem(null);
 
@@ -195,16 +182,14 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 						// If no authentication method was previously selected or it's a different
 						// class, create a new authentication method object
 						if (selectedAuthenticationMethod == null
-								|| !type.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
+								|| !type.isTypeForMethod(selectedAuthenticationMethod)) {
 							selectedAuthenticationMethod = type.createAuthenticationMethod(getContextIndex());
-							getUISharedContext().setAuthenticationMethod(selectedAuthenticationMethod);
 						}
 
 						// Show the configuration panel
 						changeMethodConfigPanel(type);
 						if (type.hasOptionsPanel()) {
-							authConfigPanel
-									.bindMethod(selectedAuthenticationMethod);
+							shownConfigPanel.bindMethod(selectedAuthenticationMethod);
 						}
 					}
 				}
@@ -241,21 +226,18 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedAuthenticationMethod != null) {
 			// If the proper type is already selected, just rebind the data
-			if (shownAuthMethodType != null
-					&& shownAuthMethodType
-							.isFactoryForMethod((Class<? extends AuthenticationMethod>) selectedAuthenticationMethod
-									.getClass())) {
-				if (shownAuthMethodType.hasOptionsPanel()) {
+			if (shownMethodType != null && shownMethodType.isTypeForMethod(selectedAuthenticationMethod)) {
+				if (shownMethodType.hasOptionsPanel()) {
 					log.debug("Binding authentication method to existing panel of proper type for context "
 							+ uiSharedContext.getName());
-					authConfigPanel.bindMethod(selectedAuthenticationMethod);
+					shownConfigPanel.bindMethod(selectedAuthenticationMethod);
 				}
 				return;
 			}
 
 			// Select what needs to be selected
 			for (AuthenticationMethodType type : extension.getAuthenticationMethodTypes())
-				if (type.isFactoryForMethod(selectedAuthenticationMethod.getClass())) {
+				if (type.isTypeForMethod(selectedAuthenticationMethod)) {
 					// Selecting the type here will also force the selection listener to run and
 					// change the config panel accordingly
 					log.debug("Binding authentication method to new panel of proper type for context "
@@ -268,22 +250,20 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void validateContextData(Session session) throws Exception {
-		if (authConfigPanel != null && !authConfigPanel.validateFields())
-			throw new IllegalStateException(
-					"The selected authentication method has not been properly configured for Context "
-							+ getUISharedContext().getName());
+		if (shownConfigPanel != null)
+			shownConfigPanel.validateFields();
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		if (authConfigPanel != null)
-			authConfigPanel.saveMethod();
+		if (shownConfigPanel != null)
+			shownConfigPanel.saveMethod();
 		session.getContext(getContextIndex()).setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		// Data is already saved in the uiSharedContext
+		uiSharedContext.setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
 }

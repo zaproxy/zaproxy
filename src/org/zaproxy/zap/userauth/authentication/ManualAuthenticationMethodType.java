@@ -143,6 +143,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		/**
 		 * Initialize the panel.
 		 */
+		@SuppressWarnings("unchecked")
 		protected void initialize() {
 			this.setLayout(new GridBagLayout());
 
@@ -160,6 +161,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		private static class HttpSessionRenderer extends BasicComboBoxRenderer {
 			private static final long serialVersionUID = 3654541772447187317L;
 
+			@SuppressWarnings("rawtypes")
 			public Component getListCellRendererComponent(JList list, Object value, int index,
 					boolean isSelected, boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -239,8 +241,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	@Override
-	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass) {
-		return methodClass.equals(ManualAuthenticationMethod.class);
+	public boolean isTypeForMethod(AuthenticationMethod method) {
+		return (method instanceof ManualAuthenticationMethod);
 	}
 
 	@Override

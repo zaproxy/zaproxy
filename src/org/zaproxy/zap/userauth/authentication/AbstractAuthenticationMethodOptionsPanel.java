@@ -39,11 +39,13 @@ public abstract class AbstractAuthenticationMethodOptionsPanel extends JPanel {
 	private static final long serialVersionUID = 9003182467823059637L;
 
 	/**
-	 * Validate the fields.
+	 * Validate the fields of the configuration panel. If any of the fields are not in the proper
+	 * state, an {@link IllegalStateException} is thrown, containing a message describing the
+	 * problem.
 	 * 
-	 * @return true, if successful
+	 * @throws IllegalStateException if any of the fields are not in the valid state
 	 */
-	public abstract boolean validateFields();
+	public abstract void validateFields() throws IllegalStateException;
 
 	/**
 	 * Save the changes from the panel in the authentication method. After this method call, calls
