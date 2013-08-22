@@ -22,7 +22,9 @@ package org.zaproxy.zap.userauth.authentication;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 
@@ -72,6 +74,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 */
 	public static class FormBasedAuthenticationMethod implements AuthenticationMethod {
 
+		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
 		private static final String MSG_USER_PATTERN = "{%username%}";
@@ -114,33 +117,45 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * @param credentials the credentials
 		 * @throws SQLException
 		 * @throws HttpMalformedHeaderException
+		 * @throws UnsupportedEncodingException
 		 */
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
-				throws URIException, NullPointerException, HttpMalformedHeaderException, SQLException {
+				throws URIException, NullPointerException, HttpMalformedHeaderException, SQLException,
+				UnsupportedEncodingException {
 
 			// Replace the username and password in the uri
-			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN, credentials.username);
-			requestURL = requestURL.replace(MSG_PASS_PATTERN, credentials.password);
+			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
+					URLEncoder.encode(credentials.username, ENCODING));
+			requestURL = requestURL.replace(MSG_PASS_PATTERN,
+					URLEncoder.encode(credentials.password, ENCODING));
 			URI requestURI = new URI(requestURL, false);
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
 			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
-				requestBody = loginRequestBody.replace(MSG_USER_PATTERN, credentials.username);
-				requestBody = requestBody.replace(MSG_PASS_PATTERN, credentials.password);
+				requestBody = loginRequestBody.replace(MSG_USER_PATTERN,
+						URLEncoder.encode(credentials.username, ENCODING));
+				requestBody = requestBody.replace(MSG_PASS_PATTERN,
+						URLEncoder.encode(credentials.password, ENCODING));
 			}
 
 			// Prepare the actual message, either based on the existing one, or create a new one
 			HttpMessage requestMessage;
 			if (this.loginSiteNode != null) {
+				// TODO: What happens if the SiteNode was deleted?
 				requestMessage = loginSiteNode.getHistoryReference().getHttpMessage().cloneRequest();
 				requestMessage.getRequestHeader().setURI(requestURI);
-				requestMessage.getRequestBody().setBody(requestBody);
+				if (requestBody != null) {
+					requestMessage.getRequestBody().setBody(requestBody);
+					requestMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
+				}
 			} else {
 				String method = (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
 				requestMessage = new HttpMessage();
 				requestMessage.setRequestHeader(new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
-				requestMessage.getRequestBody().setBody(requestBody);
+				if (requestBody != null) {
+					requestMessage.getRequestBody().setBody(requestBody);
+				}
 			}
 
 			return requestMessage;
@@ -163,15 +178,18 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			HttpMessage msg;
 			try {
 				msg = prepareRequestMessage(cred);
-
-				if (log.isDebugEnabled()) {
-					log.debug("Authentication request header: \n" + msg.getRequestHeader());
-					if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET))
-						log.debug("Authentication request body: \n" + msg.getRequestBody());
-				}
 			} catch (Exception e) {
 				log.error("Unable to prepare authentication message: " + e.getMessage());
 				return null;
+			}
+
+			// Clear any session identifiers
+			sessionManagementMethod.clearWebSessionIdentifiers(msg);
+
+			if (log.isDebugEnabled()) {
+				log.debug("Authentication request header: \n" + msg.getRequestHeader());
+				if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET))
+					log.debug("Authentication request body: \n" + msg.getRequestBody());
 			}
 
 			// Send the authentication message
