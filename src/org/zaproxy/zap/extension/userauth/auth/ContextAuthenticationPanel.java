@@ -21,11 +21,8 @@ package org.zaproxy.zap.extension.userauth.auth;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
@@ -40,7 +37,6 @@ import javax.swing.border.EmptyBorder;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AbstractAuthenticationMethodOptionsPanel;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
@@ -78,17 +74,17 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	private ExtensionAuthentication extension;
 
 	/** The authentication method types combo box. */
-	private JComboBox<AuthenticationMethodType<?>> authenticationMethodsComboBox;
+	private JComboBox<AuthenticationMethodType> authenticationMethodsComboBox;
 
 	/** The authentication method summary panel. */
 	private SummaryAndConfigPanel authenticationMethodSummaryPanel;
 
 	/** The selected authentication method. */
-	private AuthenticationMethod<?> selectedAuthenticationMethod;
+	private AuthenticationMethod selectedAuthenticationMethod;
 
-	private AuthenticationMethodType<?> shownAuthMethodType;
+	private AuthenticationMethodType shownAuthMethodType;
 
-	private AbstractAuthenticationMethodOptionsPanel<?> authConfigPanel;
+	private AbstractAuthenticationMethodOptionsPanel authConfigPanel;
 
 	private JPanel configContainerPanel;
 
@@ -142,7 +138,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 *            config, a message is shown, on a panel returned by
 	 *            {@link ContextAuthenticationPanel#getNoMethodConfigurationPanel()}).
 	 */
-	private void changeMethodConfigPanel(AuthenticationMethodType<?> newMethodType) {
+	private void changeMethodConfigPanel(AuthenticationMethodType newMethodType) {
 		// If there's no new method, don't display anything
 		if (newMethodType == null) {
 			getConfigContainerPanel().removeAll();
@@ -179,9 +175,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 * 
 	 * @return the authentication methods combo box
 	 */
-	protected JComboBox<AuthenticationMethodType<?>> getAuthenticationMethodsComboBox() {
+	protected JComboBox<AuthenticationMethodType> getAuthenticationMethodsComboBox() {
 		if (authenticationMethodsComboBox == null) {
-			Vector<AuthenticationMethodType<?>> methods = new Vector<>(
+			Vector<AuthenticationMethodType> methods = new Vector<>(
 					extension.getAuthenticationMethodTypes());
 			authenticationMethodsComboBox = new JComboBox<>(methods);
 			authenticationMethodsComboBox.setSelectedItem(null);
@@ -208,7 +204,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 						changeMethodConfigPanel(type);
 						if (type.hasOptionsPanel()) {
 							authConfigPanel
-									.bindMethod((AuthenticationMethod<?>) selectedAuthenticationMethod);
+									.bindMethod(selectedAuthenticationMethod);
 						}
 					}
 				}
@@ -225,20 +221,6 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
 							java.awt.Font.BOLD, 12), java.awt.Color.black));
-			configContainerPanel.addFocusListener(new FocusListener() {
-
-				@Override
-				public void focusLost(FocusEvent e) {
-					log.info("Unfocused");
-
-				}
-
-				@Override
-				public void focusGained(FocusEvent e) {
-					log.info("Focused");
-
-				}
-			});
 		}
 		return configContainerPanel;
 	}
@@ -261,7 +243,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			// If the proper type is already selected, just rebind the data
 			if (shownAuthMethodType != null
 					&& shownAuthMethodType
-							.isFactoryForMethod((Class<? extends AuthenticationMethod<?>>) selectedAuthenticationMethod
+							.isFactoryForMethod((Class<? extends AuthenticationMethod>) selectedAuthenticationMethod
 									.getClass())) {
 				if (shownAuthMethodType.hasOptionsPanel()) {
 					log.debug("Binding authentication method to existing panel of proper type for context "

@@ -26,7 +26,7 @@ import org.zaproxy.zap.userauth.session.WebSession;
  * The AuthenticationMethod represents an authentication method that can be used to authenticate an
  * entity in a particular WebApplication.
  */
-public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
+public interface AuthenticationMethod {
 
 	/**
 	 * Checks if the authentication method is fully configured.
@@ -52,7 +52,7 @@ public interface AuthenticationMethod<SELF extends AuthenticationMethod<SELF>> {
 	 * 
 	 * @return the type
 	 */
-	public AuthenticationMethodType<SELF> getType();
+	public AuthenticationMethodType getType();
 
 	/**
 	 * Performs an authentication in a web application, returning an authenticated

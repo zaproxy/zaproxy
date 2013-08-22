@@ -36,7 +36,6 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -45,7 +44,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The implementation for an {@link AuthenticationMethodType} where the user manually authenticates
  * and then just selects an already authenticated {@link WebSession}.
  */
-public class ManualAuthenticationMethodType extends AuthenticationMethodType<ManualAuthenticationMethod> {
+public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages
@@ -55,8 +54,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
 	 * and then just selects an already authenticated {@link WebSession}.
 	 */
-	public static class ManualAuthenticationMethod implements
-			AuthenticationMethod<ManualAuthenticationMethod> {
+	public static class ManualAuthenticationMethod implements AuthenticationMethod {
 		private int contextId;
 
 		public ManualAuthenticationMethod(int contextId) {
@@ -95,7 +93,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 		}
 
 		@Override
-		public AuthenticationMethodType<ManualAuthenticationMethod> getType() {
+		public AuthenticationMethodType getType() {
 			return new ManualAuthenticationMethodType();
 		}
 	}
@@ -228,8 +226,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 	}
 
 	@Override
-	public AbstractAuthenticationMethodOptionsPanel<ManualAuthenticationMethod> buildOptionsPanel(
-			Context uiSharedContext) {
+	public AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
 		// Not needed
 		return null;
 	}
@@ -242,7 +239,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType<Man
 	}
 
 	@Override
-	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod<?>> methodClass) {
+	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass) {
 		return methodClass.equals(ManualAuthenticationMethod.class);
 	}
 

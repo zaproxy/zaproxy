@@ -114,7 +114,7 @@ public class DialogAddUser extends AbstractFormDialog {
 	 */
 	protected void initializeCredentialsConfigPanel() {
 		// Initialize the credentials config panel
-		AuthenticationMethodType<?> type = workingContext.getAuthenticationMethod().getType();
+		AuthenticationMethodType type = workingContext.getAuthenticationMethod().getType();
 		if (type.hasCredentialsOptionsPanel()) {
 			credentialsPanel = type.buildCredentialsOptionsPanel(configuredCredentials, workingContext);
 			fieldsPanel.add(credentialsPanel, LayoutHelper.getGBC(0, 3, 2, 1, new Insets(4, 8, 2, 4)));

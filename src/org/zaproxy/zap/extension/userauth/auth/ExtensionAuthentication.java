@@ -51,7 +51,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
 
 	/** The automatically loaded authentication method types. */
-	List<AuthenticationMethodType<?>> authenticationMethodTypes;
+	List<AuthenticationMethodType> authenticationMethodTypes;
 
 	/** The context panels map. */
 	private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
@@ -131,17 +131,14 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	/**
-	 * Load authentication method types using reflection.
+	 * Load authentication method types using reflection and hooks them up.
+	 *
+	 * @param hook the extension hook
 	 */
 	private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-		// Load the method types as raw types (only way supported) and put them in a list of
-		// parameterized methods
-		@SuppressWarnings("rawtypes")
-		List<AuthenticationMethodType> rawFactories = ExtensionFactory.getAddOnLoader().getImplementors(
-				"org.zaproxy.zap", AuthenticationMethodType.class);
-		authenticationMethodTypes = new ArrayList<AuthenticationMethodType<?>>(rawFactories.size());
-		for (AuthenticationMethodType<?> a : rawFactories) {
-			authenticationMethodTypes.add(a);
+		this.authenticationMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap",
+				AuthenticationMethodType.class);
+		for (AuthenticationMethodType a : authenticationMethodTypes) {
 			a.hook(hook);
 		}
 
@@ -155,7 +152,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	 * 
 	 * @return the authentication method types
 	 */
-	public List<AuthenticationMethodType<?>> getAuthenticationMethodTypes() {
+	public List<AuthenticationMethodType> getAuthenticationMethodTypes() {
 		return authenticationMethodTypes;
 	}
 
