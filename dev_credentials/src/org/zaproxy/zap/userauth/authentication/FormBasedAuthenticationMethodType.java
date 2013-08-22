@@ -48,7 +48,6 @@ import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -58,8 +57,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The implementation for an {@link AuthenticationMethodType} where the Users are authenticated by
  * posting a form with user and password.
  */
-public class FormBasedAuthenticationMethodType extends
-		AuthenticationMethodType<FormBasedAuthenticationMethod> {
+public class FormBasedAuthenticationMethodType extends AuthenticationMethodType {
 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
@@ -70,8 +68,7 @@ public class FormBasedAuthenticationMethodType extends
 	 * The implementation for an {@link AuthenticationMethod} where the Users are authenticated by
 	 * posting a form with user and password.
 	 */
-	public static class FormBasedAuthenticationMethod implements
-			AuthenticationMethod<FormBasedAuthenticationMethod> {
+	public static class FormBasedAuthenticationMethod implements AuthenticationMethod {
 
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
@@ -95,7 +92,7 @@ public class FormBasedAuthenticationMethodType extends
 		}
 
 		@Override
-		public AuthenticationMethodType<FormBasedAuthenticationMethod> getType() {
+		public AuthenticationMethodType getType() {
 			return new FormBasedAuthenticationMethodType();
 		}
 
@@ -283,7 +280,7 @@ public class FormBasedAuthenticationMethodType extends
 	 * The Options Panel used for configuring a {@link FormBasedAuthenticationMethod}.
 	 */
 	private static class FormBasedAuthenticationMethodOptionsPanel extends
-			AbstractAuthenticationMethodOptionsPanel<FormBasedAuthenticationMethod> {
+			AbstractAuthenticationMethodOptionsPanel {
 
 		private static final long serialVersionUID = -9010956260384814566L;
 
@@ -296,6 +293,7 @@ public class FormBasedAuthenticationMethodType extends
 
 		private ZapTextField loginUrlField;
 		private ZapTextField postDataField;
+		private FormBasedAuthenticationMethod authenticationMethod;
 
 		public FormBasedAuthenticationMethodOptionsPanel() {
 			super();
@@ -349,6 +347,11 @@ public class FormBasedAuthenticationMethodType extends
 						.toString());
 				this.postDataField.setText(authenticationMethod.loginMsg.getRequestBody().toString());
 			}
+		}
+
+		@Override
+		public FormBasedAuthenticationMethod getMethod() {
+			return this.authenticationMethod;
 		}
 	}
 
@@ -412,7 +415,7 @@ public class FormBasedAuthenticationMethodType extends
 	}
 
 	@Override
-	public AuthenticationMethod<FormBasedAuthenticationMethod> createAuthenticationMethod(int contextId) {
+	public AuthenticationMethod createAuthenticationMethod(int contextId) {
 		return new FormBasedAuthenticationMethod();
 	}
 
@@ -422,8 +425,7 @@ public class FormBasedAuthenticationMethodType extends
 	}
 
 	@Override
-	public AbstractAuthenticationMethodOptionsPanel<FormBasedAuthenticationMethod> buildOptionsPanel(
-			Context uiSharedContext) {
+	public AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
 		return new FormBasedAuthenticationMethodOptionsPanel();
 	}
 
@@ -445,7 +447,7 @@ public class FormBasedAuthenticationMethodType extends
 	}
 
 	@Override
-	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod<?>> methodClass) {
+	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass) {
 		return methodClass.equals(FormBasedAuthenticationMethod.class);
 	}
 

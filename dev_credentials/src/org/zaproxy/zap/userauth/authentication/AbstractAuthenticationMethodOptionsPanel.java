@@ -28,19 +28,15 @@ import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType.Unsuppor
  * {@link AuthenticationMethod}.
  * 
  * <p>
- * This panel will be displayed to users in a separate dialog.
+ * This panel will be displayed to users as part of the Authentication panel in the Session
+ * Properties.
  * </p>
  * 
- * @param <T> the authentication method type
  */
-public abstract class AbstractAuthenticationMethodOptionsPanel<T extends AuthenticationMethod<T>> extends
-		JPanel {
+public abstract class AbstractAuthenticationMethodOptionsPanel extends JPanel {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 9003182467823059637L;
-
-	/** The method. */
-	protected T authenticationMethod;
 
 	/**
 	 * Validate the fields.
@@ -58,9 +54,8 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 
 	/**
 	 * Binds (loads) data from an existing Authentication method in the panel. After this method, to
-	 * {@link AbstractAuthenticationMethodOptionsPanel#getMethod()} should return the same object,
-	 * eventually with some changes (if
-	 * {@link AbstractAuthenticationMethodOptionsPanel#saveMethod()} was called).
+	 * {@link #getMethod()} should return the same object, eventually with some changes (if
+	 * {@link #saveMethod()} was called).
 	 * 
 	 * @param method the method to be loaded/shown in the panel.
 	 */
@@ -68,12 +63,10 @@ public abstract class AbstractAuthenticationMethodOptionsPanel<T extends Authent
 			throws UnsupportedAuthenticationMethodException;
 
 	/**
-	 * Gets the corresponding authentication method.
+	 * Gets the corresponding authentication method configured by this panel.
 	 * 
 	 * @return the method
 	 */
-	public T getMethod() {
-		return authenticationMethod;
-	}
+	public abstract AuthenticationMethod getMethod();
 
 }

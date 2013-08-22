@@ -34,7 +34,6 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.session.AbstractSessionManagementMethodOptionsPanel;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -118,7 +117,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	 * 
 	 * @param newMethodType the new method type. If null, nothing is shown. If does not require
 	 *            config, a message is shown, on a panel returned by
-	 *            {@link ContextAuthenticationPanel#getNoMethodConfigurationPanel()}).
+	 *            {@link #getNoMethodConfigurationPanel()}).
 	 */
 	private void changeMethodConfigPanel(SessionManagementMethodType newMethodType) {
 		// If there's no new method, don't display anything
@@ -203,7 +202,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 		if (configContainerPanel == null) {
 			configContainerPanel = new JPanel(new BorderLayout());
 			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
-					Constant.messages.getString("authentication.dialog.title"),
+					Constant.messages.getString("sessionmanagement.panel.config.title"),
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
 							java.awt.Font.BOLD, 12), java.awt.Color.black));

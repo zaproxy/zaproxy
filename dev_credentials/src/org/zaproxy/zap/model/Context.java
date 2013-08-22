@@ -50,7 +50,7 @@ public class Context {
 	private List<Pattern> excludeFromPatterns = new ArrayList<Pattern>();
 
 	/** The authentication method. */
-	private AuthenticationMethod<?> authenticationMethod = null;
+	private AuthenticationMethod authenticationMethod = null;
 
 	/** The session management method. */
 	private SessionManagementMethod sessionManagementMethod;
@@ -358,7 +358,7 @@ public class Context {
 	 * 
 	 * @return the authentication method
 	 */
-	public AuthenticationMethod<?> getAuthenticationMethod() {
+	public AuthenticationMethod getAuthenticationMethod() {
 		return authenticationMethod;
 	}
 
@@ -367,7 +367,7 @@ public class Context {
 	 * 
 	 * @param authenticationMethod the new authentication method
 	 */
-	public void setAuthenticationMethod(AuthenticationMethod<?> authenticationMethod) {
+	public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
 		this.authenticationMethod = authenticationMethod;
 	}
 

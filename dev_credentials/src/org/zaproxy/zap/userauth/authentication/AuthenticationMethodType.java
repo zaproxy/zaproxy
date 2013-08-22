@@ -32,9 +32,8 @@ import org.zaproxy.zap.model.Context;
  * Method Types and, through them, the corresponding Authentication methods.
  * </p>
  * 
- * @param <T> the type of the authentication method
  */
-public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>> {
+public abstract class AuthenticationMethodType {
 
 	/**
 	 * Builds a new, empty, authentication method. The authentication method should then be
@@ -42,7 +41,7 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	 * 
 	 * @return the authentication method
 	 */
-	public abstract AuthenticationMethod<T> createAuthenticationMethod(int contextId);
+	public abstract AuthenticationMethod createAuthenticationMethod(int contextId);
 
 	/**
 	 * Gets the name of the authentication method.
@@ -63,7 +62,7 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	 * @return the abstract authentication method options panel
 	 * @see AuthenticationMethodType#hasOptionsPanel()
 	 */
-	public abstract AbstractAuthenticationMethodOptionsPanel<T> buildOptionsPanel(Context uiSharedContext);
+	public abstract AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
@@ -99,7 +98,7 @@ public abstract class AuthenticationMethodType<T extends AuthenticationMethod<T>
 	 * @param methodClass the method class
 	 * @return true, if is factory for method
 	 */
-	public abstract boolean isFactoryForMethod(Class<? extends AuthenticationMethod<?>> methodClass);
+	public abstract boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass);
 
 	/**
 	 * Hooks the Authentication Method Type with other components of ZAP, if needed. This method
