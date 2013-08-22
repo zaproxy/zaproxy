@@ -52,6 +52,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	/** The automatically loaded session management method types. */
 	List<SessionManagementMethodType> sessionManagementMethodTypes;
 
+	/** The map of context panels. */
 	private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
 
 	public ExtensionSessionManagement() {
@@ -134,7 +135,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	/**
 	 * Load session management method types using reflection.
-	 *
+	 * 
 	 * @param extensionHook the extension hook
 	 */
 	private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {

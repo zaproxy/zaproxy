@@ -55,16 +55,11 @@ public abstract class SessionManagementMethodType {
 	/**
 	 * Builds the options panel that can be used to fully configure a session management method.
 	 * 
-	 * @param existingMethod the existing method
 	 * @param uiSharedContext the ui shared context on which the panel should work
 	 * @return the abstract session method options panel
-	 * @throws UnsupportedSessionManagementMethodException if an unsupported session management
-	 *             method is provided
 	 * @see SessionManagementMethodType#hasOptionsPanel
 	 */
-	public abstract AbstractSessionManagementMethodOptionsPanel<?> buildOptionsPanel(
-			SessionManagementMethod existingMethod, Context uiSharedContext)
-			throws UnsupportedSessionManagementMethodException;
+	public abstract AbstractSessionManagementMethodOptionsPanel buildOptionsPanel(Context uiSharedContext);
 
 	/**
 	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
@@ -77,10 +72,10 @@ public abstract class SessionManagementMethodType {
 	public abstract boolean hasOptionsPanel();
 
 	/**
-	 * Checks if is this is a factory for the Session Management Method provided as parameter.
+	 * Checks if is this the type for the Session Management Method provided as parameter.
 	 * 
 	 * @param methodClass the method class
-	 * @return true, if is factory for method
+	 * @return true, if is type for method
 	 */
 	public abstract boolean isTypeForMethod(SessionManagementMethod method);
 

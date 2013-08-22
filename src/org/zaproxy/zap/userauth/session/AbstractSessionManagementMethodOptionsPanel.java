@@ -21,6 +21,8 @@ package org.zaproxy.zap.userauth.session;
 
 import javax.swing.JPanel;
 
+import org.zaproxy.zap.userauth.session.SessionManagementMethodType.UnsupportedSessionManagementMethodException;
+
 /**
  * An Options Panel that is used to configure all the settings corresponding to an
  * {@link SessionManagementMethod}.<br/>
@@ -29,25 +31,33 @@ import javax.swing.JPanel;
  * 
  * @param <T> the session management method type
  */
-public abstract class AbstractSessionManagementMethodOptionsPanel<T extends SessionManagementMethod> extends
-		JPanel {
+public abstract class AbstractSessionManagementMethodOptionsPanel extends JPanel {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 9003182467823059637L;
 
-	/** The method. */
-	protected T method;
-
-	public AbstractSessionManagementMethodOptionsPanel(T existingMethod) {
+	public AbstractSessionManagementMethodOptionsPanel() {
 		super();
-		method = existingMethod;
 	}
 
 	/**
-	 * Validate the fields of the configuration panel.
-	 * @return 
+	 * Binds (loads) data from an existing Session Management method in the panel. After this
+	 * method, the {@link #getMethod()} should return the same object, eventually with some changes
+	 * (if {@link #saveMethod()} was called).
+	 * 
+	 * @param method the method to be loaded/shown in the panel.
 	 */
-	public abstract boolean validateFields();
+	public abstract void bindMethod(SessionManagementMethod method)
+			throws UnsupportedSessionManagementMethodException;
+
+	/**
+	 * Validate the fields of the configuration panel. If any of the fields are not in the proper
+	 * state, an {@link IllegalStateException} is thrown, containing a message describing the
+	 * problem.
+	 * 
+	 * @throws IllegalStateException if any of the fields are not in the valid state
+	 */
+	public abstract void validateFields() throws IllegalStateException;
 
 	/**
 	 * Save the changes from the panel in the session management method.
@@ -59,8 +69,6 @@ public abstract class AbstractSessionManagementMethodOptionsPanel<T extends Sess
 	 * 
 	 * @return the method
 	 */
-	public T getMethod() {
-		return method;
-	}
+	public abstract SessionManagementMethod getMethod();
 
 }
