@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.userauth.sessions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	private static final Logger log = Logger.getLogger(ExtensionSessionManagement.class);
 
 	/** The automatically loaded session management method types. */
-	List<SessionManagementMethodType<?>> sessionManagementMethodTypes;
+	List<SessionManagementMethodType> sessionManagementMethodTypes;
 
 	private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
 
@@ -129,7 +128,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 		// TODO Auto-generated method stub
 	}
 
-	public List<SessionManagementMethodType<?>> getSessionManagementMethodTypes() {
+	public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
 		return sessionManagementMethodTypes;
 	}
 
@@ -139,13 +138,8 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	private void loadSesssionManagementMethodTypes() {
 		// Load the type as raw types (only way supported) and put them in a list of
 		// parameterized methods
-		@SuppressWarnings("rawtypes")
-		List<SessionManagementMethodType> rawFactories = ExtensionFactory.getAddOnLoader().getImplementors(
+		this.sessionManagementMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors(
 				"org.zaproxy.zap", SessionManagementMethodType.class);
-		sessionManagementMethodTypes = new ArrayList<SessionManagementMethodType<?>>(rawFactories.size());
-		for (SessionManagementMethodType<?> sm : rawFactories) {
-			sessionManagementMethodTypes.add(sm);
-		}
 
 		if (log.isInfoEnabled()) {
 			log.info("Loaded session management method types: " + sessionManagementMethodTypes);

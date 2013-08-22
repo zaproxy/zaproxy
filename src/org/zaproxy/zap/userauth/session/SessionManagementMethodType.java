@@ -32,7 +32,7 @@ import org.zaproxy.zap.model.Context;
  * 
  * @param <T> the corresponding session management method
  */
-public abstract class SessionManagementMethodType<T extends SessionManagementMethod> {
+public abstract class SessionManagementMethodType {
 
 	/**
 	 * Builds a new, empty, session management method. The session mangement method should then be
@@ -57,10 +57,13 @@ public abstract class SessionManagementMethodType<T extends SessionManagementMet
 	 * @param existingMethod the existing method
 	 * @param uiSharedContext the ui shared context on which the panel should work
 	 * @return the abstract session method options panel
+	 * @throws UnsupportedSessionManagementMethodException if an unsupported session management
+	 *             method is provided
 	 * @see SessionManagementMethodType#hasOptionsPanel
 	 */
-	public abstract AbstractSessionManagementMethodOptionsPanel<?> buildOptionsPanel(T existingMethod,
-			Context uiSharedContext);
+	public abstract AbstractSessionManagementMethodOptionsPanel<?> buildOptionsPanel(
+			SessionManagementMethod existingMethod, Context uiSharedContext)
+			throws UnsupportedSessionManagementMethodException;
 
 	/**
 	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
@@ -78,10 +81,23 @@ public abstract class SessionManagementMethodType<T extends SessionManagementMet
 	 * @param methodClass the method class
 	 * @return true, if is factory for method
 	 */
-	public abstract boolean isFactoryForMethod(Class<? extends SessionManagementMethod> methodClass);
+	public abstract boolean isTypeForMethod(SessionManagementMethod method);
 
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	/**
+	 * Thrown when an unsupported type of SessionManagement is used. .
+	 */
+	public class UnsupportedSessionManagementMethodException extends RuntimeException {
+
+		/** The Constant serialVersionUID. */
+		private static final long serialVersionUID = 4802501809913124766L;
+
+		public UnsupportedSessionManagementMethodException(String message) {
+			super(message);
+		}
 	}
 }

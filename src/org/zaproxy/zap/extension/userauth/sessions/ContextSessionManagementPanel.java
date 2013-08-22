@@ -57,7 +57,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	private ExtensionSessionManagement extension;
 
 	/** The session management methods combo box. */
-	private JComboBox<SessionManagementMethodType<?>> sessionManagementMethodsComboBox;
+	private JComboBox<SessionManagementMethodType> sessionManagementMethodsComboBox;
 
 	/** The session management method status panel. */
 	private JPanel sessionManagementMethodStatusPanel;
@@ -153,16 +153,14 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	 * 
 	 * @return the session management methods combo box
 	 */
-	protected JComboBox<SessionManagementMethodType<?>> getSessionManagementMethodsComboBox() {
+	protected JComboBox<SessionManagementMethodType> getSessionManagementMethodsComboBox() {
 		if (sessionManagementMethodsComboBox == null) {
-			Vector<SessionManagementMethodType<?>> methods = new Vector<>(
+			Vector<SessionManagementMethodType> methods = new Vector<>(
 					extension.getSessionManagementMethodTypes());
 			sessionManagementMethodsComboBox = new JComboBox<>(methods);
 			sessionManagementMethodsComboBox.setSelectedItem(null);
 
-			
 			// TODO: Save the changes in the UI common Context
-			
 			// Prepare the listener for the change of selection
 			sessionManagementMethodsComboBox.addItemListener(new ItemListener() {
 
@@ -174,7 +172,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 						SessionManagementMethodType type = ((SessionManagementMethodType) e.getItem());
 						// If no session management method was previously selected or it's a
 						// different class, create it now
-						if (selectedMethod == null || !type.isFactoryForMethod(selectedMethod.getClass())) {
+						if (selectedMethod == null || !type.isTypeForMethod(selectedMethod)) {
 							// Create the new session management method
 							selectedMethod = type.createSessionManagementMethod(getContextIndex());
 						}
@@ -209,8 +207,8 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedMethod != null) {
 			// Select what needs to be selected
-			for (SessionManagementMethodType<?> type : extension.getSessionManagementMethodTypes())
-				if (type.isFactoryForMethod(selectedMethod.getClass())) {
+			for (SessionManagementMethodType type : extension.getSessionManagementMethodTypes())
+				if (type.isTypeForMethod(selectedMethod)) {
 					// Selecting the type here will also force the selection listener to run and
 					// change the config panel accordingly
 					getSessionManagementMethodsComboBox().setSelectedItem(type);

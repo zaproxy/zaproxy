@@ -10,14 +10,12 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 
 /**
  * The type corresponding to a {@link SessionManagementMethod} for web applications that use cookies
  * for session management.
  */
-public class CookieBasedSessionManagementMethodType extends
-		SessionManagementMethodType<CookieBasedSessionManagementMethod> {
+public class CookieBasedSessionManagementMethodType extends SessionManagementMethodType {
 
 	/** The Constant METHOD_NAME. */
 	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.cb.name");
@@ -123,7 +121,7 @@ public class CookieBasedSessionManagementMethodType extends
 
 	@Override
 	public AbstractSessionManagementMethodOptionsPanel<CookieBasedSessionManagementMethod> buildOptionsPanel(
-			CookieBasedSessionManagementMethod existingMethod, Context uiSharedContext) {
+			SessionManagementMethod existingMethod, Context uiSharedContext) {
 		// No need for a configuration panel yet
 		return null;
 	}
@@ -134,8 +132,8 @@ public class CookieBasedSessionManagementMethodType extends
 	}
 
 	@Override
-	public boolean isFactoryForMethod(Class<? extends SessionManagementMethod> methodClass) {
-		return CookieBasedSessionManagementMethod.class == methodClass;
+	public boolean isTypeForMethod(SessionManagementMethod method) {
+		return (method instanceof CookieBasedSessionManagementMethod);
 	}
 
 }
