@@ -1,5 +1,7 @@
 package org.zaproxy.zap.userauth.session;
 
+import java.net.HttpCookie;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -10,6 +12,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -112,6 +115,22 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		@Override
 		public SessionManagementMethod duplicate() {
 			return new CookieBasedSessionManagementMethod(contextId);
+		}
+
+		@Override
+		public void clearWebSessionIdentifiers(HttpMessage msg) {
+			HttpSessionTokensSet tokens = getHttpSessionsExtension().getHttpSessionTokensSetForContext(
+					getContext());
+			if (tokens == null) {
+				log.info("No tokens to clear.");
+				return;
+			}
+			List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();
+			Iterator<HttpCookie> it = requestCookies.iterator();
+			while (it.hasNext())
+				if (tokens.isSessionToken(it.next().getName()))
+					it.remove();
+			msg.setCookies(requestCookies);
 		}
 	}
 

@@ -71,6 +71,14 @@ public interface SessionManagementMethod {
 	public WebSession extractWebSession(HttpMessage msg);
 
 	/**
+	 * Clears any tokens or elements that can link the HttpMessage provided as a parameter to a
+	 * WebSession.
+	 * 
+	 * @param msg the http message
+	 */
+	public void clearWebSessionIdentifiers(HttpMessage msg);
+
+	/**
 	 * Modifies a message so its Request Header/Body matches the given web session, according to
 	 * this session management method.
 	 * 
