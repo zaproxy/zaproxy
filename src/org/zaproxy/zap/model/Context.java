@@ -390,8 +390,7 @@ public class Context {
 	}
 
 	/**
-	 * Creates a copy of the Context. The copy is deep, with the exception of the Authentication
-	 * method, Session Management method and TechSet.
+	 * Creates a copy of the Context. The copy is deep, with the exception of the TechSet.
 	 * 
 	 * @return the context
 	 */
@@ -405,8 +404,8 @@ public class Context {
 		newContext.excludeFromPatterns = new ArrayList<Pattern>(this.excludeFromPatterns);
 		newContext.inScope = this.inScope;
 		newContext.techSet = new TechSet(this.techSet);
-		newContext.authenticationMethod = this.authenticationMethod;
-		newContext.sessionManagementMethod = this.sessionManagementMethod;
+		newContext.authenticationMethod = this.authenticationMethod.duplicate();
+		newContext.sessionManagementMethod = this.sessionManagementMethod.duplicate();
 		return newContext;
 	}
 

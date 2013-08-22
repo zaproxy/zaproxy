@@ -258,6 +258,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			return "FormBasedAuthenticationMethod [loginURI=" + loginMsg.getRequestHeader().getURI() + "]";
 		}
 
+		@Override
+		public AuthenticationMethod duplicate() {
+			FormBasedAuthenticationMethod clonedMethod = new FormBasedAuthenticationMethod();
+			clonedMethod.loginMsg = this.loginMsg.cloneRequest();
+			clonedMethod.loginSiteNode = this.loginSiteNode;
+			return clonedMethod;
+		}
+
 	}
 
 	/**

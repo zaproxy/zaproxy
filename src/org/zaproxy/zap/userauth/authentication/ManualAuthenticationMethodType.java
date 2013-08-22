@@ -96,6 +96,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		public AuthenticationMethodType getType() {
 			return new ManualAuthenticationMethodType();
 		}
+
+		@Override
+		public AuthenticationMethod duplicate() {
+			return new ManualAuthenticationMethod(contextId);
+		}
 	}
 
 	/**
