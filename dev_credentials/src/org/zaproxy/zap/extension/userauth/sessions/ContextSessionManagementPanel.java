@@ -30,6 +30,7 @@ import java.util.Vector;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -93,13 +94,14 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 		this.setLayout(new CardLayout());
 		this.setName(getContextIndex() + ": " + PANEL_NAME);
 		this.setLayout(new GridBagLayout());
+		this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
 		this.add(new JLabel(Constant.messages.getString("sessionmanagement.panel.label.description")),
-				LayoutHelper.getGBC(0, 0, 1, 1.0D, new Insets(0, 5, 0, 5)));
+				LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
 		// Session management combo box
 		this.add(new JLabel(Constant.messages.getString("sessionmanagement.panel.label.typeSelect")),
-				LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(20, 5, 5, 5)));
+				LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(20, 0, 5, 5)));
 		this.add(getSessionManagementMethodsComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
 
 		// Method config panel container

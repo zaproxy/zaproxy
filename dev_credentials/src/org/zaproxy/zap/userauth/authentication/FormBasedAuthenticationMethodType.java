@@ -72,7 +72,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
-		private static final String ENCODING_TYPE = "UTF-8";
 		private static final String MSG_USER_PATTERN = "{%username%}";
 		private static final String MSG_PASS_PATTERN = "{%password%}";
 
@@ -315,19 +314,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 
 		@Override
-		public boolean validateFields() {
+		public void validateFields() {
 			try {
 				new URL(loginUrlField.getText());
 			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("authentication.method.fb.dialog.error.url.text"),
-						Constant.messages.getString("authentication.method.fb.dialog.error.title"),
-						JOptionPane.WARNING_MESSAGE);
 				loginUrlField.requestFocusInWindow();
-				return false;
+				throw new IllegalStateException(
+						Constant.messages.getString("authentication.method.fb.dialog.error.url.text"));
 			}
-
-			return true;
 		}
 
 		@Override
@@ -447,8 +441,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	@Override
-	public boolean isFactoryForMethod(Class<? extends AuthenticationMethod> methodClass) {
-		return methodClass.equals(FormBasedAuthenticationMethod.class);
+	public boolean isTypeForMethod(AuthenticationMethod method) {
+		return (method instanceof FormBasedAuthenticationMethod);
 	}
 
 	@Override
@@ -495,10 +489,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
 									ContextAuthenticationPanel.buildName(this.getContext().getIndex()));
 						}
-
-						// setLoginRequest(this.getContext().getIndex(), sn);
-						// View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-						// getContextPanel(this.getContext()).getName());
 					}
 				};
 			}
