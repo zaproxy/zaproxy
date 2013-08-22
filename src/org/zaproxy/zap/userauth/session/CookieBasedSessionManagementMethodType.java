@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
@@ -134,6 +135,12 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 	@Override
 	public boolean isTypeForMethod(SessionManagementMethod method) {
 		return (method instanceof CookieBasedSessionManagementMethod);
+	}
+
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
