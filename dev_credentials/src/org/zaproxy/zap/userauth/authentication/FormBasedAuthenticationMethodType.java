@@ -23,6 +23,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 
 import javax.swing.JLabel;
@@ -40,6 +41,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
@@ -77,12 +79,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private HttpSender httpSender;
 		private SiteNode loginSiteNode = null;
-		private HttpMessage loginMsg = null;
+		private String loginRequestURL;
+		private String loginRequestBody;
 
 		@Override
 		public boolean isConfigured() {
 			// check if the login url is valid
-			return loginMsg != null;
+			return loginRequestURL != null && !loginRequestURL.isEmpty();
 		}
 
 		@Override
@@ -109,24 +112,38 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * 
 		 * @param requestMessage the request message
 		 * @param credentials the credentials
+		 * @throws SQLException
+		 * @throws HttpMalformedHeaderException
 		 */
-		private void prepareRequestMessage(HttpMessage requestMessage,
-				UsernamePasswordAuthenticationCredentials credentials) throws URIException,
-				NullPointerException {
+		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
+				throws URIException, NullPointerException, HttpMalformedHeaderException, SQLException {
 
 			// Replace the username and password in the uri
-			String requestUri = requestMessage.getRequestHeader().getURI().toString();
-			requestUri = requestUri.replace(MSG_USER_PATTERN, credentials.username);
-			requestUri = requestUri.replace(MSG_PASS_PATTERN, credentials.password);
-			requestMessage.getRequestHeader().setURI(new URI(requestUri, false));
+			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN, credentials.username);
+			requestURL = requestURL.replace(MSG_PASS_PATTERN, credentials.password);
+			URI requestURI = new URI(requestURL, false);
 
 			// Replace the username and password in the post data of the request, if needed
-			if (!requestMessage.getRequestHeader().getMethod().equals(HttpRequestHeader.GET)) {
-				String requestBody = requestMessage.getRequestBody().toString();
-				requestBody = requestBody.replace(MSG_USER_PATTERN, credentials.username);
+			String requestBody = null;
+			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
+				requestBody = loginRequestBody.replace(MSG_USER_PATTERN, credentials.username);
 				requestBody = requestBody.replace(MSG_PASS_PATTERN, credentials.password);
+			}
+
+			// Prepare the actual message, either based on the existing one, or create a new one
+			HttpMessage requestMessage;
+			if (this.loginSiteNode != null) {
+				requestMessage = loginSiteNode.getHistoryReference().getHttpMessage().cloneRequest();
+				requestMessage.getRequestHeader().setURI(requestURI);
+				requestMessage.getRequestBody().setBody(requestBody);
+			} else {
+				String method = (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
+				requestMessage = new HttpMessage();
+				requestMessage.setRequestHeader(new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
 				requestMessage.getRequestBody().setBody(requestBody);
 			}
+
+			return requestMessage;
 		}
 
 		@Override
@@ -143,9 +160,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			UsernamePasswordAuthenticationCredentials cred = (UsernamePasswordAuthenticationCredentials) credentials;
 
 			// Prepare login message
-			HttpMessage msg = this.loginMsg.cloneRequest();
+			HttpMessage msg;
 			try {
-				prepareRequestMessage(msg, cred);
+				msg = prepareRequestMessage(cred);
+
 				if (log.isDebugEnabled()) {
 					log.debug("Authentication request header: \n" + msg.getRequestHeader());
 					if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET))
@@ -155,6 +173,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				log.error("Unable to prepare authentication message: " + e.getMessage());
 				return null;
 			}
+
 			// Send the authentication message
 			try {
 				getHttpSender().sendAndReceive(msg);
@@ -184,25 +203,36 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * 
 		 * @param sn the new login request
 		 */
-		protected void setLoginRequest(SiteNode sn) throws Exception {
-			// No need for resetting everything up it's already the right node
-			if (sn != null && this.loginSiteNode == sn) {
+		public void setLoginRequest(SiteNode loginSiteNode) throws Exception {
+			setLoginSiteNode(loginSiteNode);
+
+			HttpMessage requestMessage = loginSiteNode.getHistoryReference().getHttpMessage();
+			this.loginRequestURL = requestMessage.getRequestHeader().getURI().toString();
+			if (requestMessage.getRequestHeader().getMethod() != HttpRequestHeader.GET)
+				this.loginRequestBody = requestMessage.getRequestBody().toString();
+			else
+				this.loginRequestBody = null;
+		}
+
+		/**
+		 * Sets the login site node.
+		 * 
+		 * @param sn the new login site node
+		 */
+		private void setLoginSiteNode(SiteNode sn) {
+			// No need for resetting everything up if it's already the right node
+			if (this.loginSiteNode == sn) {
 				return;
 			}
-
 			if (this.loginSiteNode != null) {
 				this.loginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
 			}
 
 			this.loginSiteNode = sn;
 			if (sn == null) {
-				this.loginMsg = null;
 				return;
 			}
 			sn.addCustomIcon(LOGIN_ICON_RESOURCE, false);
-
-			// Set a cloned http message
-			this.setLoginMsg(sn.getHistoryReference().getHttpMessage().cloneRequest());
 		}
 
 		/**
@@ -226,42 +256,29 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					method = HttpRequestHeader.POST;
 				}
 				URI uri = new URI(url, true);
-				// Note: the findNode just checks the parameter names, not their values
-				SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-				// TODO: Make sure the other parameters (besides user/password) are the same
-				if (sn != null) {
-					this.setLoginRequest(sn);
-					this.loginMsg.getRequestHeader().setURI(uri);
-					this.loginMsg.getRequestBody().setBody(postData);
-				} else {
-					// Haven't visited this node before, not a problem
-					HttpMessage msg = new HttpMessage();
-					msg.setRequestHeader(new HttpRequestHeader(method, uri, HttpHeader.HTTP10));
-					msg.setRequestBody(postData);
-					this.setLoginMsg(msg);
-				}
-			}
-		}
 
-		private void setLoginMsg(HttpMessage msg) throws Exception {
-			this.loginMsg = msg;
-			if (log.isDebugEnabled()) {
-				log.debug("New login message set for form-based authentication:\n"
-						+ msg.getRequestHeader().toString());
-				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST))
-					log.debug(msg.getRequestBody());
+				this.loginRequestURL = url;
+				this.loginRequestBody = postData;
+
+				// Note: the findNode just checks the parameter names, not their values
+				// TODO: Make sure the other parameters (besides user/password) are the same
+				// Note: Set the login site node anyway, to make sure any marked SiteNode is
+				// unmarked
+				SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
+				this.setLoginSiteNode(sn);
 			}
 		}
 
 		@Override
 		public String toString() {
-			return "FormBasedAuthenticationMethod [loginURI=" + loginMsg.getRequestHeader().getURI() + "]";
+			return "FormBasedAuthenticationMethod [loginURI=" + loginRequestURL + "]";
 		}
 
 		@Override
 		public AuthenticationMethod duplicate() {
 			FormBasedAuthenticationMethod clonedMethod = new FormBasedAuthenticationMethod();
-			clonedMethod.loginMsg = this.loginMsg.cloneRequest();
+			clonedMethod.loginRequestURL = this.loginRequestURL;
+			clonedMethod.loginRequestBody = this.loginRequestBody;
 			clonedMethod.loginSiteNode = this.loginSiteNode;
 			return clonedMethod;
 		}
@@ -344,11 +361,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		@Override
 		public void bindMethod(AuthenticationMethod method) {
 			this.authenticationMethod = (FormBasedAuthenticationMethod) method;
-			if (authenticationMethod.loginMsg != null) {
-				this.loginUrlField.setText(authenticationMethod.loginMsg.getRequestHeader().getURI()
-						.toString());
-				this.postDataField.setText(authenticationMethod.loginMsg.getRequestBody().toString());
-			}
+			this.loginUrlField.setText(authenticationMethod.loginRequestURL);
+			this.postDataField.setText(authenticationMethod.loginRequestBody);
 		}
 
 		@Override
