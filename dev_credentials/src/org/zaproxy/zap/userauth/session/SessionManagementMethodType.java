@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -89,7 +90,18 @@ public abstract class SessionManagementMethodType {
 	}
 
 	/**
-	 * Thrown when an unsupported type of SessionManagement is used. .
+	 * Hooks the Session Management Method Type with other components of ZAP, if needed. This method
+	 * will be called only once, when authentication types are loaded.
+	 * <p>
+	 * For example, PopupMenus can be registered.
+	 * </p>
+	 * 
+	 * @param extensionHook the extension hook
+	 */
+	public abstract void hook(ExtensionHook extensionHook);
+
+	/**
+	 * Thrown when an unsupported type of SessionManagement is used.
 	 */
 	public class UnsupportedSessionManagementMethodException extends RuntimeException {
 

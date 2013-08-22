@@ -64,10 +64,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(102);
-
-		// Load the Authentication and Session Management methods
-		this.loadSesssionManagementMethodTypes();
+		this.setOrder(103);
 
 		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
@@ -85,6 +82,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
 		}
+
+		// Load the Session Management methods
+		this.loadSesssionManagementMethodTypes(extensionHook);
 	}
 
 	@Override
@@ -134,12 +134,15 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	/**
 	 * Load session management method types using reflection.
+	 *
+	 * @param extensionHook the extension hook
 	 */
-	private void loadSesssionManagementMethodTypes() {
-		// Load the type as raw types (only way supported) and put them in a list of
-		// parameterized methods
+	private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {
 		this.sessionManagementMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors(
 				"org.zaproxy.zap", SessionManagementMethodType.class);
+
+		for (SessionManagementMethodType t : sessionManagementMethodTypes)
+			t.hook(extensionHook);
 
 		if (log.isInfoEnabled()) {
 			log.info("Loaded session management method types: " + sessionManagementMethodTypes);
