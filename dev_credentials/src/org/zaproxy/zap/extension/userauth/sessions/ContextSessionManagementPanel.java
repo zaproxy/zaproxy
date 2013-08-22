@@ -19,8 +19,8 @@
  */
 package org.zaproxy.zap.extension.userauth.sessions;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
@@ -34,7 +34,9 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.session.AbstractSessionManagementMethodOptionsPanel;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -47,6 +49,8 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 	/** The Constant PANEL NAME. */
 	private static final String PANEL_NAME = Constant.messages.getString("sessionmanagement.panel.title");
+	private static final String CONFIG_NOT_NEEDED = Constant.messages
+			.getString("sessionmanagement.panel.label.noConfigPanel");
 
 	private static final Logger log = Logger.getLogger(ContextSessionManagementPanel.class);
 
@@ -59,10 +63,17 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	/** The session management methods combo box. */
 	private JComboBox<SessionManagementMethodType> sessionManagementMethodsComboBox;
 
-	/** The session management method status panel. */
-	private JPanel sessionManagementMethodStatusPanel;
-
+	/** The selected method that is being configured. */
 	private SessionManagementMethod selectedMethod;
+
+	/** The shown method type. */
+	private SessionManagementMethodType shownMethodType;
+
+	/** The shown method's config panel. */
+	private AbstractSessionManagementMethodOptionsPanel shownConfigPanel;
+
+	/** The container panel for the configuration. */
+	private JPanel configContainerPanel;
 
 	/**
 	 * Instantiates a new context session management panel.
@@ -89,63 +100,57 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 		// Session management combo box
 		this.add(new JLabel(Constant.messages.getString("sessionmanagement.panel.label.typeSelect")),
-				LayoutHelper.getGBC(0, 2, 1, 1.0D, new Insets(20, 5, 5, 5)));
-		this.add(getSessionManagementMethodsComboBox(),
-				LayoutHelper.getGBC(0, 3, 1, 1.0D, new Insets(0, 5, 0, 5)));
+				LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(20, 5, 5, 5)));
+		this.add(getSessionManagementMethodsComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
+
+		// Method config panel container
+		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 3, 1, 1.0d, new Insets(10, 0, 10, 0)));
 
 		// Padding
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
 	}
 
 	/**
-	 * Builds a panel showing that no method configuration is needed.
-	 * 
-	 * @return the no method configuration panel
-	 */
-	private JPanel buildNoMethodConfigurationPanel() {
-		// No caching is done as their is no need for a 'lifetime' reference to one as most likely
-		// will either not be used again, or is the displayed panel.
-		JPanel noConfigPanel = new JPanel();
-		noConfigPanel.add(
-				new JLabel(Constant.messages.getString("sessionmanagement.panel.label.noConfigPanel")),
-				getMethodPanelConstraints());
-
-		return noConfigPanel;
-	}
-
-	/**
-	 * Gets the method's panel grid bag constraints.
-	 * 
-	 * @return the method panel constraints
-	 */
-	private GridBagConstraints getMethodPanelConstraints() {
-		return LayoutHelper.getGBC(0, 4, 1, 1.0D, 1.0, GridBagConstraints.HORIZONTAL,
-				new Insets(10, 2, 10, 4));
-	}
-
-	/**
 	 * Changes the shown method's configuration panel (used to display brief info about the method
-	 * and configure it) with a new one. If {@code null} is provided as a parameter, a message is
-	 * shown stating that no configuration is need for the currently selected method.
+	 * and configure it) with a new one, based on a new method type. If {@code null} is provided as
+	 * a parameter, nothing is shown. If the provided method type does not require configuration, a
+	 * simple message is shown stating that no configuration is needed.
 	 * 
-	 * @param newPanel the new panel, if any, or null to just remove the existing one and show the
-	 *            panel for no configuration (as returned by
-	 *            {@link ContextSessionManagementPanel#buildNoMethodConfigurationPanel()}).
+	 * @param newMethodType the new method type. If null, nothing is shown. If does not require
+	 *            config, a message is shown, on a panel returned by
+	 *            {@link ContextAuthenticationPanel#getNoMethodConfigurationPanel()}).
 	 */
-	private void changeMethodConfigPanel(JPanel newPanel) {
-		// Remove oldPanel, if it exists
-		if (sessionManagementMethodStatusPanel != null)
-			this.remove(sessionManagementMethodStatusPanel);
+	private void changeMethodConfigPanel(SessionManagementMethodType newMethodType) {
+		// If there's no new method, don't display anything
+		if (newMethodType == null) {
+			getConfigContainerPanel().removeAll();
+			getConfigContainerPanel().setVisible(false);
+			this.shownMethodType = null;
+			this.shownConfigPanel = null;
+			return;
+		}
 
-		// if there's no new panel to replace it with
-		if (newPanel == null)
-			this.add(buildNoMethodConfigurationPanel(), getMethodPanelConstraints());
-		else
-			// if there's a panel, place it there
-			this.add(newPanel, getMethodPanelConstraints());
+		// If a panel of the correct type is already shown, do nothing
+		if (shownMethodType != null && newMethodType.getClass().equals(shownMethodType.getClass())) {
+			return;
+		}
 
-		this.revalidate();
-		this.sessionManagementMethodStatusPanel = newPanel;
+		log.debug("Creating new panel for configuring: " + newMethodType.getName());
+		this.getConfigContainerPanel().removeAll();
+
+		// show the panel according to whether the session management type needs configuration
+		if (newMethodType.hasOptionsPanel()) {
+			this.shownConfigPanel = newMethodType.buildOptionsPanel(getUISharedContext());
+			getConfigContainerPanel().add(this.shownConfigPanel, BorderLayout.CENTER);
+		} else {
+			this.shownConfigPanel = null;
+			getConfigContainerPanel().add(new JLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
+					BorderLayout.CENTER);
+		}
+		this.shownMethodType = newMethodType;
+
+		this.getConfigContainerPanel().setVisible(true);
+		this.getConfigContainerPanel().revalidate();
 	}
 
 	/**
@@ -160,7 +165,6 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 			sessionManagementMethodsComboBox = new JComboBox<>(methods);
 			sessionManagementMethodsComboBox.setSelectedItem(null);
 
-			// TODO: Save the changes in the UI common Context
 			// Prepare the listener for the change of selection
 			sessionManagementMethodsComboBox.addItemListener(new ItemListener() {
 
@@ -170,6 +174,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 						// Prepare the new session management method
 						log.debug("Selected new Session Management type: " + e.getItem());
 						SessionManagementMethodType type = ((SessionManagementMethodType) e.getItem());
+
 						// If no session management method was previously selected or it's a
 						// different class, create it now
 						if (selectedMethod == null || !type.isTypeForMethod(selectedMethod)) {
@@ -178,17 +183,32 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 						}
 
 						// Show the status panel and configuration button, if needed
-						if (type.hasOptionsPanel()) {
-							changeMethodConfigPanel(type.buildOptionsPanel(selectedMethod, getUISharedContext()));
-						} else {
-							changeMethodConfigPanel(null);
-						}
+						changeMethodConfigPanel(type);
+						if (type.hasOptionsPanel())
+							shownConfigPanel.bindMethod(selectedMethod);
 					}
 				}
 			});
 		}
 		return sessionManagementMethodsComboBox;
 
+	}
+
+	/**
+	 * Gets the configuration container panel.
+	 * 
+	 * @return the config container panel
+	 */
+	private JPanel getConfigContainerPanel() {
+		if (configContainerPanel == null) {
+			configContainerPanel = new JPanel(new BorderLayout());
+			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
+					Constant.messages.getString("authentication.dialog.title"),
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
+							java.awt.Font.BOLD, 12), java.awt.Color.black));
+		}
+		return configContainerPanel;
 	}
 
 	@Override
@@ -206,6 +226,13 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedMethod != null) {
+			// If the proper type is already selected, just rebind the data
+			if (shownMethodType != null && shownMethodType.isTypeForMethod(selectedMethod)) {
+				if (shownMethodType.hasOptionsPanel())
+					shownConfigPanel.bindMethod(selectedMethod);
+				return;
+			}
+
 			// Select what needs to be selected
 			for (SessionManagementMethodType type : extension.getSessionManagementMethodTypes())
 				if (type.isTypeForMethod(selectedMethod)) {
@@ -218,25 +245,24 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 	}
 
 	@Override
-	public void validateContextData(Session session) throws Exception {
+	public void validateContextData(Session session) throws IllegalStateException {
 		if (selectedMethod == null)
 			throw new IllegalStateException(
-					"A valid session management method has to be selected for Context " + getUISharedContext().getName());
-		if (!selectedMethod.isConfigured())
-			throw new IllegalStateException(
-					"The session management method has not been properly configured for Context "
+					"A valid session management method has to be selected for Context "
 							+ getUISharedContext().getName());
+		if (shownConfigPanel != null)
+			shownConfigPanel.validateFields();
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
 		session.getContext(getContextIndex()).setSessionManagementMethod(selectedMethod);
-		
+
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		// Data is already saved in the uiSharedContext
+		uiSharedContext.setSessionManagementMethod(selectedMethod);
 	}
 
 }

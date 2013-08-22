@@ -121,8 +121,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 	}
 
 	@Override
-	public AbstractSessionManagementMethodOptionsPanel<CookieBasedSessionManagementMethod> buildOptionsPanel(
-			SessionManagementMethod existingMethod, Context uiSharedContext) {
+	public AbstractSessionManagementMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
 		// No need for a configuration panel yet
 		return null;
 	}
@@ -139,8 +138,6 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-		// TODO Auto-generated method stub
-		
+		// No need for hooking anything
 	}
-
 }
