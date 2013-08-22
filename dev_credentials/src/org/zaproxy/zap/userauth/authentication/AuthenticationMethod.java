@@ -34,6 +34,13 @@ public interface AuthenticationMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
+	
+	/**
+	 * Clones the current authentication method, creating a deep-copy of it.
+	 * 
+	 * @return a deep copy of the authentication method
+	 */
+	public AuthenticationMethod duplicate();
 
 	/**
 	 * Creates a new, empty, Authentication Credentials object corresponding to this type of

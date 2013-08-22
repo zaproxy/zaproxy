@@ -38,6 +38,13 @@ public interface SessionManagementMethod {
 	public boolean isConfigured();
 
 	/**
+	 * Clones the current session management method, creating a deep-copy of it.
+	 * 
+	 * @return a deep copy of the session management method
+	 */
+	public SessionManagementMethod duplicate();
+
+	/**
 	 * Identifies the web session, from a list of existing sessions, which matches the given
 	 * HttpMesage. The callers of this method <b>must</b> make sure that the provided list contains
 	 * sessions that are the same type and are adequate.

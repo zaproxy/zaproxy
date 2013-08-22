@@ -108,6 +108,11 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		private List<HttpSession> getSessionsForContext() {
 			return getHttpSessionsExtension().getHttpSessionsForContext(getContext());
 		}
+
+		@Override
+		public SessionManagementMethod duplicate() {
+			return new CookieBasedSessionManagementMethod(contextId);
+		}
 	}
 
 	@Override
