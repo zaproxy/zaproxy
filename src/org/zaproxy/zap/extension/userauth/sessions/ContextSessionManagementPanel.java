@@ -257,12 +257,16 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
+		if (shownConfigPanel != null)
+			shownConfigPanel.saveMethod();
 		session.getContext(getContextIndex()).setSessionManagementMethod(selectedMethod);
 
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
+		if (shownConfigPanel != null)
+			shownConfigPanel.saveMethod();
 		uiSharedContext.setSessionManagementMethod(selectedMethod);
 	}
 

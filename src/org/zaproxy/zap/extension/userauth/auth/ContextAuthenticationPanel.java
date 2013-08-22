@@ -263,6 +263,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
+		if (shownConfigPanel != null)
+			shownConfigPanel.saveMethod();
 		uiSharedContext.setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
