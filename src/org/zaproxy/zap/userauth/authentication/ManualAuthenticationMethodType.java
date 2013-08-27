@@ -101,6 +101,16 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		public AuthenticationMethod duplicate() {
 			return new ManualAuthenticationMethod(contextId);
 		}
+
+		@Override
+		public void onMethodPersisted() {
+			// Do nothing
+		}
+
+		@Override
+		public void onMethodDiscarded() {
+			// Do nothing
+		}
 	}
 
 	/**

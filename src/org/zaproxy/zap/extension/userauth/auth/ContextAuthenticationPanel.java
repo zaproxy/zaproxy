@@ -258,7 +258,19 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	public void saveContextData(Session session) throws Exception {
 		if (shownConfigPanel != null)
 			shownConfigPanel.saveMethod();
-		session.getContext(getContextIndex()).setAuthenticationMethod(selectedAuthenticationMethod);
+		Context context = session.getContext(getContextIndex());
+		// Notify the previously saved method that it's being discarded so the changes can be
+		// reflected in the UI
+		if (context.getAuthenticationMethod() != null)
+			if (!shownMethodType.isTypeForMethod(context.getAuthenticationMethod()))
+				context.getAuthenticationMethod().onMethodDiscarded();
+
+		context.setAuthenticationMethod(selectedAuthenticationMethod);
+		
+		// Notify the newly saved method that it's being persisted so the changes can be
+		// reflected in the UI
+		selectedAuthenticationMethod.onMethodPersisted();
+		
 	}
 
 	@Override

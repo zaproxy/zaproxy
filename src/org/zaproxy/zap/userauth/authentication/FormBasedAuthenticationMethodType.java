@@ -82,6 +82,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private static final String MSG_PASS_PATTERN = "{%password%}";
 
 		private HttpSender httpSender;
+		private SiteNode markedLoginSiteNode;
 		private SiteNode loginSiteNode = null;
 		private String loginRequestURL;
 		private String loginRequestBody;
@@ -223,7 +224,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * @param sn the new login request
 		 */
 		public void setLoginRequest(SiteNode loginSiteNode) throws Exception {
-			setLoginSiteNode(loginSiteNode);
+			this.loginSiteNode = loginSiteNode;
 
 			HttpMessage requestMessage = loginSiteNode.getHistoryReference().getHttpMessage();
 			this.loginRequestURL = requestMessage.getRequestHeader().getURI().toString();
@@ -234,20 +235,22 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 
 		/**
-		 * Sets the login site node.
+		 * Marks the provided Site Login as being a Login request. If {@code null} is provided, no
+		 * site node will be marked as login request (for the {@link Context} corresponding to this
+		 * AuthenticationMethod).
 		 * 
 		 * @param sn the new login site node
 		 */
-		private void setLoginSiteNode(SiteNode sn) {
+		private void markLoginSiteNode(SiteNode sn) {
 			// No need for resetting everything up if it's already the right node
-			if (this.loginSiteNode == sn) {
+			if (this.markedLoginSiteNode == sn) {
 				return;
 			}
-			if (this.loginSiteNode != null) {
-				this.loginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
+			if (this.markedLoginSiteNode != null) {
+				this.markedLoginSiteNode.removeCustomIcon(LOGIN_ICON_RESOURCE);
 			}
 
-			this.loginSiteNode = sn;
+			this.markedLoginSiteNode = sn;
 			if (sn == null) {
 				return;
 			}
@@ -284,8 +287,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				// same, as POSTs with different values are not delimited in the SitesTree anyway
 				// Note: Set the login site node anyway (even if null), to make sure any previously
 				// marked SiteNode is unmarked
-				SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
-				this.setLoginSiteNode(sn);
+				this.loginSiteNode = Model.getSingleton().getSession().getSiteTree()
+						.findNode(uri, method, postData);
 			}
 		}
 
@@ -295,12 +298,23 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 
 		@Override
-		public AuthenticationMethod duplicate() {
+		public FormBasedAuthenticationMethod duplicate() {
 			FormBasedAuthenticationMethod clonedMethod = new FormBasedAuthenticationMethod();
 			clonedMethod.loginRequestURL = this.loginRequestURL;
 			clonedMethod.loginRequestBody = this.loginRequestBody;
 			clonedMethod.loginSiteNode = this.loginSiteNode;
+			clonedMethod.markedLoginSiteNode = this.markedLoginSiteNode;
 			return clonedMethod;
+		}
+
+		@Override
+		public void onMethodPersisted() {
+			markLoginSiteNode(loginSiteNode);
+		}
+
+		@Override
+		public void onMethodDiscarded() {
+			markLoginSiteNode(null);
 		}
 
 	}
