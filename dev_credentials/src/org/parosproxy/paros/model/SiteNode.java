@@ -31,6 +31,7 @@
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/01/23 Ignore Active scanner history refs
+// ZAP: 2013/08/23 Make sure #nodeChanged() is called after removing a custom icon
 
 package org.parosproxy.paros.model;
 
@@ -94,6 +95,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     		int i = this.icons.indexOf(resourceName);
     		this.icons.remove(i);
     		this.clearIfManual.remove(i);
+    		this.nodeChanged();
     	}
     }
     
