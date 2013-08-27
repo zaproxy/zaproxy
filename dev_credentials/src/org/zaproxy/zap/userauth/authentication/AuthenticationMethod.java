@@ -34,7 +34,7 @@ public interface AuthenticationMethod {
 	 * @return true, if is configured
 	 */
 	public boolean isConfigured();
-	
+
 	/**
 	 * Clones the current authentication method, creating a deep-copy of it.
 	 * 
@@ -73,6 +73,18 @@ public interface AuthenticationMethod {
 	 */
 	public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
 			AuthenticationCredentials credentials) throws UnsupportedAuthenticationCredentialsException;
+
+	/**
+	 * Called when the Authentication Method is persisted/saved in a Context. For example, in this
+	 * method, UI elements can be marked accordingly.
+	 */
+	public void onMethodPersisted();
+
+	/**
+	 * Called when the Authentication Method is discarded from/not used in a Context. For example,
+	 * in this method, UI elements can be (un)marked accordingly.
+	 */
+	public void onMethodDiscarded();
 
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
