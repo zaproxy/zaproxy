@@ -438,6 +438,18 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	/**
+	 * Scans a node (URL). Equivalent to calling {@link #scanNode(SiteNode, boolean, User)} with a
+	 * null user.
+	 * 
+	 * @param node the node
+	 * @param incPort the inc port
+	 * @param user the user
+	 */
+	public void scanNode(SiteNode node, boolean incPort) {
+		this.scanNode(node, incPort, null);
+	}
+	
+	/**
 	 * Scans a node (URL). If a User is specified, the scan should be done from the point of view of
 	 * the user.
 	 * 
@@ -616,6 +628,10 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	protected void startScan() {
 		this.startScan(null, false, true, null, null);
+	}
+	
+	protected void startSan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext){
+		this.startScan(startNode, justScanInScope, scanChildren, scanContext, null);
 	}
 	
 	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext, User scanUser) {
