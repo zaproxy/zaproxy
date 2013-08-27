@@ -157,9 +157,7 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 	@Override
 	public void saveContextData(Session session) throws Exception {
 		Context context = session.getContext(getContextIndex());
-
 		context.setIncludeInContextRegexs(getModel().getLines());
-		session.saveContext(context);
 	}
 
 	@Override

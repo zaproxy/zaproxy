@@ -174,7 +174,6 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 					.getText());
 			ext.setLoggedInIndicationRegex(getContextIndex(), this.txtLoggedInIndicaterRegex.getText());
 			ext.setLoggedOutIndicationRegex(getContextIndex(), this.txtLoggedOutIndicaterRegex.getText());
-			ext.saveAuthParams(getContextIndex());
 		}
 	}
 
