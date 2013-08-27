@@ -47,6 +47,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
@@ -66,7 +67,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
 
-	private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethod.class);
+	private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethodType.class);
 
 	/**
 	 * The implementation for an {@link AuthenticationMethod} where the Users are authenticated by
@@ -278,10 +279,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				this.loginRequestURL = url;
 				this.loginRequestBody = postData;
 
-				// Note: the findNode just checks the parameter names, not their values
-				// TODO: Make sure the other parameters (besides user/password) are the same
-				// Note: Set the login site node anyway, to make sure any marked SiteNode is
-				// unmarked
+				// Note: The findNode just checks the parameter names, not their values
+				// Note: No need to make sure the other parameters (besides user/password) are the
+				// same, as POSTs with different values are not delimited in the SitesTree anyway
+				// Note: Set the login site node anyway (even if null), to make sure any previously
+				// marked SiteNode is unmarked
 				SiteNode sn = Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData);
 				this.setLoginSiteNode(sn);
 			}
@@ -498,7 +500,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	private PopupContextMenuSiteNodeFactory getPopupFlagLoginRequestMenuFactory() {
 		PopupContextMenuSiteNodeFactory popupFlagLoginRequestMenuFactory = new PopupContextMenuSiteNodeFactory(
 				Constant.messages.getString("context.flag.popup")) {
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 8927418764L;
 
 			@Override
 			public PopupContextMenu getContextMenu(Context context, String parentMenu) {
@@ -510,25 +512,31 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 					@Override
 					public void performAction(SiteNode sn) throws Exception {
+						// Manually create the UI shared contexts so any modifications are done
+						// on an UI shared Context, so changes can be undone by pressing Cancel
+						SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
+						sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
+						Context uiSharedContext = sessionDialog.getUISharedContext(this.getContext()
+								.getIndex());
+
+						// Do the work/changes on the UI shared context
 						if (this.getContext().getAuthenticationMethod() instanceof FormBasedAuthenticationMethod) {
-							if (log.isInfoEnabled())
-								log.info("Selected new login request. Changing existing Form-Based Authentication instance for Context "
-										+ getContext().getIndex());
-							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) this
-									.getContext().getAuthenticationMethod();
+							log.info("Selected new login request via PopupMenu. Changing existing Form-Based Authentication instance for Context "
+									+ getContext().getIndex());
+							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) uiSharedContext
+									.getAuthenticationMethod();
 							method.setLoginRequest(sn);
-							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-									ContextAuthenticationPanel.buildName(this.getContext().getIndex()));
 						} else {
-							if (log.isInfoEnabled())
-								log.info("Selected new login request. Creating new Form-Based Authentication instance for Context "
-										+ getContext().getIndex());
+							log.info("Selected new login request via PopupMenu. Creating new Form-Based Authentication instance for Context "
+									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
 							method.setLoginRequest(sn);
-							this.getContext().setAuthenticationMethod(method);
-							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-									ContextAuthenticationPanel.buildName(this.getContext().getIndex()));
+							uiSharedContext.setAuthenticationMethod(method);
 						}
+
+						// Show the session dialog without recreating UI Shared contexts
+						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+								ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false);
 					}
 				};
 			}
