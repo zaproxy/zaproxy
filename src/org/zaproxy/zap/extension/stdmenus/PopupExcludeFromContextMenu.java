@@ -57,7 +57,6 @@ public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 		
         Session session = Model.getSingleton().getSession();
         context.excludeFromContext(sn, ! sn.isLeaf());
-        session.saveContext(context);
 
         View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()));
 

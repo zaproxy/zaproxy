@@ -21,6 +21,7 @@
 // ZAP: 2012/08/29 Issue 250 Support for authentication management (enlarged window size)
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/08/21 Introduced support for shared UI Contexts for Context Property panels
+// ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 
 package org.parosproxy.paros.view;
 
@@ -87,6 +88,12 @@ public class SessionDialog extends AbstractParamDialog {
 				panel.initParam(obj);
 			}
 		}
+	}
+	
+	@Override
+	public void saveParam() throws Exception {
+		super.saveParam();
+		Model.getSingleton().getSession().saveAllContexts();
 	}
 
 	/**

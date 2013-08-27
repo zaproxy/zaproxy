@@ -86,7 +86,6 @@ public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
         }
 
         context.addIncludeInContextRegex(url);
-        session.saveContext(context);
 
         View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), ContextIncludePanel.getPanelName(context.getIndex()));
 	}

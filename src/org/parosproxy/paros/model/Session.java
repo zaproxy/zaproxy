@@ -34,7 +34,7 @@
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/12/14 Issue 438: Validate regexs as part of API enhancements
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
-
+// ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -840,6 +840,11 @@ public class Session extends FileXML {
 		if (View.isInitialised()) {
 			refreshScope();
 		}
+	}
+	
+	public void saveAllContexts(){
+		for(Context c: contexts)
+			this.saveContext(c);
 	}
 	
 	public Context getNewContext() {
