@@ -1,5 +1,6 @@
 package org.zaproxy.zap.userauth.session;
 
+import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +37,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 		private Context context;
 
-		private static ExtensionHttpSessions extHttpSessions;
+		private static WeakReference<ExtensionHttpSessions> extHttpSessions;
 
 		public CookieBasedSessionManagementMethod(int contextId) {
 			this.contextId = contextId;
@@ -92,13 +93,13 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		}
 
 		private ExtensionHttpSessions getHttpSessionsExtension() {
-			if (extHttpSessions == null) {
-				extHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-						.getExtension(ExtensionHttpSessions.class);
+			if (extHttpSessions == null || extHttpSessions.get() == null) {
+				extHttpSessions = new WeakReference<ExtensionHttpSessions>((ExtensionHttpSessions) Control
+						.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class));
 				if (extHttpSessions == null)
 					log.error("An error occured while loading the ExtensionHttpSessions.");
 			}
-			return extHttpSessions;
+			return extHttpSessions.get();
 		}
 
 		private Context getContext() {
