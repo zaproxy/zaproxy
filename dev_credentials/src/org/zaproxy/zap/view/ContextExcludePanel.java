@@ -153,9 +153,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	@Override
 	public void saveContextData(Session session) throws Exception {
 		Context context = session.getContext(getContextIndex());
-		
 		context.setExcludeFromContextRegexs(getModel().getLines());
-		session.saveContext(context);		
 	}
 
 	@Override

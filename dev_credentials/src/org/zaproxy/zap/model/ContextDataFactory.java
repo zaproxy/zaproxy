@@ -19,9 +19,27 @@
  */
 package org.zaproxy.zap.model;
 
+import org.parosproxy.paros.model.Session;
+
+/**
+ * A Context Data Factory implements the logic for persisting and loading data into {@link Context
+ * Contexts} into/from a {@link Session}, for external (non-core) components.
+ */
 public interface ContextDataFactory {
 
-	void loadContextData (Context ctx);
-	
-	void saveContextData (Context ctx);
+	/**
+	 * Loads the Context data from the given session.
+	 * 
+	 * @param session the session to load from
+	 * @param context the context to load into
+	 */
+	void loadContextData(Session session, Context context);
+
+	/**
+	 * Save the Context data into the given session.
+	 * 
+	 * @param session the session to persist into
+	 * @param context the context to persist from
+	 */
+	void persistContextData(Session session, Context context);
 }

@@ -51,7 +51,6 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
@@ -81,7 +80,6 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 
 	private HttpSender httpSender = null;
 	private boolean reauthenticate = false;
-	private Session session = null;
 	private AuthAPI api = null;
 	
 	private Map<Integer,SessionAuthenticationPanel> authPanelMap = new HashMap<Integer,SessionAuthenticationPanel>();
@@ -695,7 +693,6 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	@Override
 	public void sessionChanged(Session session) {
 		// Ignore
-		this.session = session;
 	}
 
 	@Override
@@ -713,7 +710,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 		setReauthButtonState();
 	}
 
-	protected void saveAuthParams(int contextId) {
+	protected void saveAuthParams(Session session, int contextId) {
 		if (session != null) {
     		ContextAuth ca = this.getContextAuth(contextId);
     		try {
@@ -738,8 +735,8 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	}
 	
 	@Override
-	public void saveContextData (Context ctx) {
-		this.saveAuthParams(ctx.getIndex());
+	public void persistContextData (Session session, Context ctx) {
+		this.saveAuthParams(session, ctx.getIndex());
 	}
 
 	public AuthAPI getApi() {
@@ -762,7 +759,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 	}
 
 	@Override
-	public void loadContextData(Context ctx) {
+	public void loadContextData(Session session, Context ctx) {
         try {
 			if (session != null) {
 				this.getContextAuth(ctx.getIndex());

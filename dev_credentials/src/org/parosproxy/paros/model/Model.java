@@ -28,6 +28,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 
 package org.parosproxy.paros.model;
 
@@ -415,13 +416,13 @@ public class Model {
     
     public void loadContext (Context ctx) {
 		for (ContextDataFactory cdf : this.contextDataFactories) {
-			cdf.loadContextData(ctx);
+			cdf.loadContextData(getSession(), ctx);
 		}
     }
     
     public void saveContext (Context ctx) {
 		for (ContextDataFactory cdf : this.contextDataFactories) {
-			cdf.saveContextData(ctx);
+			cdf.persistContextData(getSession(), ctx);
 		}
     }
     
