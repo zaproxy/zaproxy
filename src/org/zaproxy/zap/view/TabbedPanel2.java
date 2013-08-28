@@ -190,6 +190,16 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	}
 	
+    public void setIconAt(int index, Icon icon) {
+    	Component tabCom = this.getTabComponentAt(index);
+    	if (tabCom != null && tabCom instanceof JPanel) {
+    		Component c = ((JPanel)tabCom).getComponent(0);
+			if (c != null && c instanceof JLabel) {
+				((JLabel)c).setIcon(icon);
+			}
+    	}
+    }
+	
 	public List<Component> getTabList() {
 		return Collections.unmodifiableList(this.fullTabList);
 	}
