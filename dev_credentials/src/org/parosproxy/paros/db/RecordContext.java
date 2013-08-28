@@ -36,6 +36,13 @@ public class RecordContext {
 	public static final int TYPE_AUTH_LOGOUT_URL = 104;
 	public static final int TYPE_AUTH_LOGOUT_POST_DATA = 105;
 	public static final int TYPE_AUTH_LOGOUT_INDICATOR = 106;
+	
+	public static final int TYPE_AUTH_METHOD_TYPE = 200;
+	public static final int TYPE_AUTH_METHOD_FIELD_1 = 201;
+	public static final int TYPE_AUTH_METHOD_FIELD_2 = 202;
+	public static final int TYPE_AUTH_METHOD_FIELD_3 = 203;
+	public static final int TYPE_AUTH_METHOD_FIELD_4 = 204;
+	public static final int TYPE_AUTH_METHOD_FIELD_5 = 205;
 
     private long dataId = 0;
     private int contextId = 0;

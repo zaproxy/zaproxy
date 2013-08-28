@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
@@ -45,6 +46,8 @@ import org.zaproxy.zap.view.LayoutHelper;
  * and then just selects an already authenticated {@link WebSession}.
  */
 public class ManualAuthenticationMethodType extends AuthenticationMethodType {
+
+	private static final int METHOD_IDENTIFIER = 0;
 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages
@@ -263,6 +266,21 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		// Do nothing
+	}
+
+	@Override
+	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) {
+		return new ManualAuthenticationMethod(contextId);
+	}
+
+	@Override
+	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod) {
+		// Nothing to persist
+	}
+
+	@Override
+	public int getUniqueIdentifier() {
+		return METHOD_IDENTIFIER;
 	}
 
 }

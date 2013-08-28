@@ -21,15 +21,18 @@ package org.zaproxy.zap.extension.userauth.auth;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -112,26 +115,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		return Constant.ZAP_TEAM;
 	}
 
-	@Override
-	public void loadContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void discardContexts() {
-		// TODO Auto-generated method stub
-	}
-
 	/**
 	 * Load authentication method types using reflection and hooks them up.
-	 *
+	 * 
 	 * @param hook the extension hook
 	 */
 	private void loadAuthenticationMethodTypes(ExtensionHook hook) {
@@ -153,6 +139,48 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	 */
 	public List<AuthenticationMethodType> getAuthenticationMethodTypes() {
 		return authenticationMethodTypes;
+	}
+
+	public AuthenticationMethodType getAuthenticationMethodTypeForIdentifier(int id) {
+		for (AuthenticationMethodType t : authenticationMethodTypes)
+			if (t.getUniqueIdentifier() == id)
+				return t;
+		return null;
+	}
+
+	@Override
+	public void loadContextData(Session session, Context context) {
+		try {
+			List<String> typeL = session.getContextDataStrings(context.getIndex(),
+					RecordContext.TYPE_AUTH_METHOD_TYPE);
+			if (typeL != null && typeL.size() > 0) {
+				AuthenticationMethodType t = getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL
+						.get(0)));
+				if (t != null)
+					context.setAuthenticationMethod(t.loadMethodFromSession(session, context.getIndex()));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public void persistContextData(Session session, Context context) {
+		try {
+			AuthenticationMethodType t = context.getAuthenticationMethod().getType();
+			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE,
+					Integer.toString(t.getUniqueIdentifier()));
+			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void discardContexts() {
+		// TODO Auto-generated method stub
 	}
 
 }

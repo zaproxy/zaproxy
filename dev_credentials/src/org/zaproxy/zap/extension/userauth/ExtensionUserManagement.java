@@ -35,6 +35,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;
@@ -189,19 +190,19 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
-	public void loadContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void discardContexts() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void loadContextData(Session session, Context context) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void persistContextData(Session session, Context context) {
 		// TODO Auto-generated method stub
 
 	}
