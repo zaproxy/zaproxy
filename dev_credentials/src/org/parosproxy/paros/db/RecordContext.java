@@ -43,6 +43,13 @@ public class RecordContext {
 	public static final int TYPE_AUTH_METHOD_FIELD_3 = 203;
 	public static final int TYPE_AUTH_METHOD_FIELD_4 = 204;
 	public static final int TYPE_AUTH_METHOD_FIELD_5 = 205;
+	
+	public static final int TYPE_SESSION_MANAGEMENT_TYPE = 220;
+	public static final int TYPE_SESSION_MANAGEMENT_FIELD_1 = 221;
+	public static final int TYPE_SESSION_MANAGEMENT_FIELD_2 = 222;
+	public static final int TYPE_SESSION_MANAGEMENT_FIELD_3 = 223;
+	public static final int TYPE_SESSION_MANAGEMENT_FIELD_4 = 224;
+	public static final int TYPE_SESSION_MANAGEMENT_FIELD_5 = 225;
 
     private long dataId = 0;
     private int contextId = 0;

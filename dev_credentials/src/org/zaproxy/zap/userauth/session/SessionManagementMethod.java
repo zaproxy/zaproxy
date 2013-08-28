@@ -38,6 +38,17 @@ public interface SessionManagementMethod {
 	public boolean isConfigured();
 
 	/**
+	 * Gets the {@link SessionManagementMethodType} corresponding to this session management method.
+	 * <p>
+	 * Implementations may return new instantiations at every call, so performance considerations
+	 * should be taken by users.
+	 * </p>
+	 * 
+	 * @return the type
+	 */
+	public SessionManagementMethodType getType();
+
+	/**
 	 * Clones the current session management method, creating a deep-copy of it.
 	 * 
 	 * @return a deep copy of the session management method

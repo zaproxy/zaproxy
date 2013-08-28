@@ -2,6 +2,7 @@ package org.zaproxy.zap.userauth.session;
 
 import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
@@ -22,6 +24,7 @@ import org.zaproxy.zap.model.Context;
  */
 public class CookieBasedSessionManagementMethodType extends SessionManagementMethodType {
 
+	private static final int METHOD_IDENTIFIER = 0;
 	/** The Constant METHOD_NAME. */
 	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.cb.name");
 
@@ -133,6 +136,11 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 					it.remove();
 			msg.setCookies(requestCookies);
 		}
+
+		@Override
+		public SessionManagementMethodType getType() {
+			return new CookieBasedSessionManagementMethodType();
+		}
 	}
 
 	@Override
@@ -164,5 +172,22 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		// No need for hooking anything
+	}
+
+	@Override
+	public int getUniqueIdentifier() {
+		return METHOD_IDENTIFIER;
+	}
+
+	@Override
+	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+		return new CookieBasedSessionManagementMethod(contextId);
+	}
+
+	@Override
+	public void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
+			throws UnsupportedSessionManagementMethodException, SQLException {
+		// Nothing to persist
+
 	}
 }
