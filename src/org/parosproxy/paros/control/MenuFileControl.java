@@ -35,6 +35,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/05 Proper call for starting Session Properties dialog
+// ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 
 package org.parosproxy.paros.control;
  
@@ -90,21 +91,8 @@ public class MenuFileControl implements SessionListener {
 			control.createAndOpenUntitledDb();
 		}
 		
-		Session session = control.newSession();
+		control.newSession();
 
-		view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
-
-		// comment code below so new session use default untitled first.  
-//		if (isPromptNewSession) {
-//		    SessionDialog dialog = view.getSessionDialog("New Session");
-//		    dialog.initParam(session);
-//		    dialog.showDialog(false);
-//		    saveAsSession();
-//		}
-
-		// refresh display
-		view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
-		view.getOutputPanel().clear();
 	}
 	
 	public void openSession() {

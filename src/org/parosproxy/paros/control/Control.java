@@ -40,6 +40,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
+// ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 
 package org.parosproxy.paros.control;
 
@@ -275,6 +276,14 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		Session session = model.newSession();
 		getExtensionLoader().sessionChangedAllPlugin(session);
+
+		if (View.isInitialised()) {
+			view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+			
+			// refresh display
+			view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
+			view.getOutputPanel().clear();
+		}
 
 		return session;
 	}
