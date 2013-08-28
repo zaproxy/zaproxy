@@ -52,10 +52,11 @@ public abstract class AuthenticationMethodType {
 	 * @return the name
 	 */
 	public abstract String getName();
-	
+
 	/**
-	 * Gets the unique identifier.
-	 *
+	 * Gets the unique identifier of this Authentication Method Type. It has to be unique among all
+	 * Authentication Method Types.
+	 * 
 	 * @return the unique identifier
 	 */
 	public abstract int getUniqueIdentifier();

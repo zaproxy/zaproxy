@@ -21,12 +21,14 @@ package org.zaproxy.zap.extension.userauth.sessions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
@@ -135,20 +137,50 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	}
 
 	@Override
-	public void loadContextData(Session session, Context context) {
+	public void discardContexts() {
 		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * Gets the session management method type for a given identifier.
+	 * 
+	 * @param id the id
+	 * @return the session management method type for identifier
+	 */
+	public SessionManagementMethodType getSessionManagementMethodTypeForIdentifier(int id) {
+		for (SessionManagementMethodType t : getSessionManagementMethodTypes())
+			if (t.getUniqueIdentifier() == id)
+				return t;
+		return null;
+	}
+
+	@Override
+	public void loadContextData(Session session, Context context) {
+		try {
+			List<String> typeL = session.getContextDataStrings(context.getIndex(),
+					RecordContext.TYPE_SESSION_MANAGEMENT_TYPE);
+			if (typeL != null && typeL.size() > 0) {
+				SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(Integer
+						.parseInt(typeL.get(0)));
+				if (t != null)
+					context.setSessionManagementMethod(t.loadMethodFromSession(session, context.getIndex()));
+			}
+		} catch (SQLException e) {
+			log.error("Unable to load Session Management method.", e);
+		}
 
 	}
 
 	@Override
 	public void persistContextData(Session session, Context context) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void discardContexts() {
-		// TODO Auto-generated method stub
+		try {
+			SessionManagementMethodType t = context.getSessionManagementMethod().getType();
+			session.setContextData(context.getIndex(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
+					Integer.toString(t.getUniqueIdentifier()));
+			t.persistMethodToSession(session, context.getIndex(), context.getSessionManagementMethod());
+		} catch (SQLException e) {
+			log.error("Unable to persist Session Management method.", e);
+		}
 	}
 
 }

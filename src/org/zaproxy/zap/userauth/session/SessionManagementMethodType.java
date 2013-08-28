@@ -19,7 +19,10 @@
  */
 package org.zaproxy.zap.userauth.session;
 
+import java.sql.SQLException;
+
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -51,6 +54,14 @@ public abstract class SessionManagementMethodType {
 	 * @return the name
 	 */
 	public abstract String getName();
+
+	/**
+	 * Gets the unique identifier of this Session Management Method Type. It has to be unique among
+	 * all Session Management Method Types.
+	 * 
+	 * @return the unique identifier
+	 */
+	public abstract int getUniqueIdentifier();
 
 	/**
 	 * Builds the options panel that can be used to fully configure a session management method.
@@ -94,6 +105,30 @@ public abstract class SessionManagementMethodType {
 	 * @param extensionHook the extension hook
 	 */
 	public abstract void hook(ExtensionHook extensionHook);
+
+	/**
+	 * Loads a session management method from the Session. The implementation depends on the a
+	 * session management method type.
+	 * 
+	 * @param session the session
+	 * @param context the context
+	 * @return the session management method
+	 */
+	public abstract SessionManagementMethod loadMethodFromSession(Session session, int contextId)
+			throws SQLException;
+
+	/**
+	 * Persists the session management method to the session.
+	 * 
+	 * @param session the session
+	 * @param contextId the context id
+	 * @param method the session management method to persist
+	 * @throws UnsupportedSessionManagementMethodException the unsupported session management method
+	 *             exception
+	 * @throws SQLException the sQL exception
+	 */
+	public abstract void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
+			throws UnsupportedSessionManagementMethodException, SQLException;
 
 	/**
 	 * Thrown when an unsupported type of SessionManagement is used.

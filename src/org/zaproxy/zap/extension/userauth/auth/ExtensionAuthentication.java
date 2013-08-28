@@ -141,8 +141,14 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		return authenticationMethodTypes;
 	}
 
+	/**
+	 * Gets the authentication method type for a given identifier.
+	 * 
+	 * @param id the id
+	 * @return the authentication method type for identifier
+	 */
 	public AuthenticationMethodType getAuthenticationMethodTypeForIdentifier(int id) {
-		for (AuthenticationMethodType t : authenticationMethodTypes)
+		for (AuthenticationMethodType t : getAuthenticationMethodTypes())
 			if (t.getUniqueIdentifier() == id)
 				return t;
 		return null;
@@ -161,7 +167,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Unable to load Authentication method.", e);
 		}
 
 	}
@@ -174,7 +180,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 					Integer.toString(t.getUniqueIdentifier()));
 			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("Unable to persist Authentication method.", e);
 		}
 	}
 
