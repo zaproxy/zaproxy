@@ -21,30 +21,30 @@ import javax.swing.ImageIcon;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.User;
 
 /**
- * The Class PopupMenuSpiderContext.
+ * The Popup Menu used to Spider a Context As an User.
  */
-public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
+public class PopupMenuSpiderContextAsUser extends PopupUserMenuItemHolder {
 
 	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = -8413132951347511212L;
+	private static final long serialVersionUID = 7007308539824098245L;
 
 	/** The extension. */
 	private ExtensionSpider extension = null;
 
 	/**
-	 * Instantiates a new popup menu spider context.
+	 * Instantiates a new popup menu spider url as user.
 	 * 
 	 * @param label the label
 	 */
-	public PopupMenuSpiderContext(String label) {
+	public PopupMenuSpiderContextAsUser(String label) {
 		super(label, Constant.messages.getString("attack.site.popup"));
-		this.setIcon(new ImageIcon(PopupMenuSpiderContext.class.getResource("/resource/icon/16/spider.png")));
+		this.setIcon(new ImageIcon(PopupMenuSpiderContextAsUser.class.getResource("/resource/icon/16/spider.png")));
 	}
 
 	/**
@@ -61,14 +61,17 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 	}
 
 	@Override
-	public ExtensionPopupMenuItem getPopupContextMenu(Context context, String parentName) {
-		return new PopupContextMenu(context, parentName, context.getName()) {
+	public PopupUserMenu getPopupUserMenu(Context context, User user, String parentName) {
+		return new PopupUserMenu(context, user, parentName) {
 
-			private static final long serialVersionUID = -2524944630833835369L;
+			/** The Constant serialVersionUID. */
+			private static final long serialVersionUID = 3914042295666599416L;
 
 			@Override
 			public void performAction(SiteNode sn) throws Exception {
-				getExtensionSpider().startScanAllInContext(getContext(), null);
+				if (sn != null) {
+					getExtensionSpider().startScanAllInContext(getContext(), getUser());
+				}
 			}
 		};
 	}
