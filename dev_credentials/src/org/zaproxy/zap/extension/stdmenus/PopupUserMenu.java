@@ -49,11 +49,13 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 		this.user = user;
 		this.parentMenuName = parentMenu;
 		this.context = context;
+		if (!user.isEnabled())
+			this.setText(this.getText() + " (disabled)");
 	}
 
 	@Override
 	public boolean isEnabledForSiteNode(SiteNode sn) {
-		return context.isInContext(sn);
+		return this.user.isEnabled() && context.isInContext(sn);
 	}
 
 	@Override
@@ -99,6 +101,10 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 	 */
 	public User getUser() {
 		return user;
+	}
+
+	public Context getContext() {
+		return context;
 	}
 
 }

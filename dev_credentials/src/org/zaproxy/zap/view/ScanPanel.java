@@ -420,11 +420,15 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	public void scanAllInContext(Context context){
+		this.scanAllInContext(context, null);
+	}
+	
+	public void scanAllInContext(Context context, User user){
 		log.debug("Scan all in context: "+context.getName());
 		this.setTabFocus();
 		if (this.getStartScanButton().isEnabled()) {
 			
-			this.startScan(null, true, true, context, null);
+			this.startScan(null, true, true, context, user);
 		}
 	}
 	

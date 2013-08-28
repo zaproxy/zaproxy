@@ -366,11 +366,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 	/**
-	 * Start scan all in context.
+	 * Start scan all in context, from the POV of an User.
 	 */
-	public void startScanAllInContext(Context context) {
-		this.getSpiderPanel().scanAllInContext(context);
+	public void startScanAllInContext(Context context, User user) {
+		this.getSpiderPanel().scanAllInContext(context, user);
 	}
+	
 	
 	@Override
     public void destroy() {
