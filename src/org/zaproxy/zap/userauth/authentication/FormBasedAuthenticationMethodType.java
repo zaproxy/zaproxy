@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,10 +38,12 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -63,6 +66,8 @@ import org.zaproxy.zap.view.LayoutHelper;
  * posting a form with user and password.
  */
 public class FormBasedAuthenticationMethodType extends AuthenticationMethodType {
+
+	private static final int METHOD_IDENTIFIER = 2;
 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
@@ -561,5 +566,46 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 		};
 		return popupFlagLoginRequestMenuFactory;
+	}
+
+	@Override
+	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+		FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
+		List<String> urls = session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1);
+		String url = "";
+		if (urls != null && urls.size() > 0) {
+			url = urls.get(0);
+		}
+
+		List<String> postDatas = session.getContextDataStrings(contextId,
+				RecordContext.TYPE_AUTH_METHOD_FIELD_2);
+		String postData = null;
+		if (postDatas != null && urls.size() > 0) {
+			postData = postDatas.get(0);
+		}
+
+		try {
+			method.setLoginRequest(url, postData);
+		} catch (Exception e) {
+			log.error("Unable to load FormBasedAuthenticationMethod. ", e);
+		}
+		return method;
+	}
+
+	@Override
+	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
+			throws SQLException {
+		if (!(authMethod instanceof FormBasedAuthenticationMethod))
+			throw new UnsupportedAuthenticationMethodException(
+					"Form based authentication type only supports: " + FormBasedAuthenticationMethod.class);
+
+		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) authMethod;
+		session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.loginRequestURL);
+		session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_2, method.loginRequestBody);
+	}
+
+	@Override
+	public int getUniqueIdentifier() {
+		return METHOD_IDENTIFIER;
 	}
 }

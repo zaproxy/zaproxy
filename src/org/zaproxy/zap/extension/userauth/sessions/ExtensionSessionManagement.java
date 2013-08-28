@@ -30,6 +30,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -112,23 +113,6 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 		return Constant.ZAP_TEAM;
 	}
 
-	@Override
-	public void loadContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveContextData(Context ctx) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void discardContexts() {
-		// TODO Auto-generated method stub
-	}
-
 	public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
 		return sessionManagementMethodTypes;
 	}
@@ -148,6 +132,23 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 		if (log.isInfoEnabled()) {
 			log.info("Loaded session management method types: " + sessionManagementMethodTypes);
 		}
+	}
+
+	@Override
+	public void loadContextData(Session session, Context context) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void persistContextData(Session session, Context context) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void discardContexts() {
+		// TODO Auto-generated method stub
 	}
 
 }

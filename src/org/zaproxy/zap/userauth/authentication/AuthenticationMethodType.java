@@ -19,7 +19,10 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import java.sql.SQLException;
+
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -49,6 +52,13 @@ public abstract class AuthenticationMethodType {
 	 * @return the name
 	 */
 	public abstract String getName();
+	
+	/**
+	 * Gets the unique identifier.
+	 *
+	 * @return the unique identifier
+	 */
+	public abstract int getUniqueIdentifier();
 
 	/**
 	 * Builds the options panel that can be used to fully configure an authentication method.
@@ -94,7 +104,7 @@ public abstract class AuthenticationMethodType {
 
 	/**
 	 * Checks if is this is a type for the Authentication Method provided as parameter.
-	 *
+	 * 
 	 * @param method the method
 	 * @return true, if is factory for method
 	 */
@@ -110,6 +120,29 @@ public abstract class AuthenticationMethodType {
 	 * @param extensionHook the extension hook
 	 */
 	public abstract void hook(ExtensionHook extensionHook);
+
+	/**
+	 * Loads an authentication method from the Session. The implementation depends on the
+	 * Authentication method type.
+	 * 
+	 * @param session the session
+	 * @param context the context
+	 * @return the authentication method
+	 */
+	public abstract AuthenticationMethod loadMethodFromSession(Session session, int contextId)
+			throws SQLException;
+
+	/**
+	 * Persists the authentication method to the session.
+	 * 
+	 * @param session the session
+	 * @param contextId the context id
+	 * @param authMethod the auth method to persist
+	 * @throws UnsupportedAuthenticationMethodException the unsupported authentication method
+	 *             exception
+	 */
+	public abstract void persistMethodToSession(Session session, int contextId,
+			AuthenticationMethod authMethod) throws UnsupportedAuthenticationMethodException, SQLException;
 
 	@Override
 	public String toString() {
