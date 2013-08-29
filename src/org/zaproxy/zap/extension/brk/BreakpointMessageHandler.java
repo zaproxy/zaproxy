@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
@@ -179,6 +178,7 @@ public class BreakpointMessageHandler {
 			return true;
     	}
     	
+    	/* Disable pending other changes
     	String secHeader = aMessage.getHeader(HttpHeader.X_SECURITY_PROXY);
     	if (secHeader != null) {
 			for (String val : secHeader.split(",")) {
@@ -195,6 +195,7 @@ public class BreakpointMessageHandler {
 				}
     		}
     	}
+    	*/
     	
     	if (onlyIfInScope && ! aMessage.isInScope()) {
     		return false;

@@ -58,7 +58,8 @@ public class BreakAPI extends ApiImplementor {
 		extension = ext;
 		
 		this.addApiAction(new ApiAction(ACTION_BREAK, new String[] {PARAM_TYPE, PARAM_SCOPE, PARAM_STATE}));
-		this.addApiAction(new ApiAction(ACTION_BREAK_ON_ID, new String[] {PARAM_KEY, PARAM_STATE}));
+		// Disable pending other changes
+		//this.addApiAction(new ApiAction(ACTION_BREAK_ON_ID, new String[] {PARAM_KEY, PARAM_STATE}));
 		this.addApiAction(new ApiAction(ACTION_ADD_HTTP_BREAK_POINT, 
 				new String[] {PARAM_STRING, PARAM_LOCATION, PARAM_MATCH, PARAM_INVERSE, PARAM_IGNORECASE}));
 		this.addApiAction(new ApiAction(ACTION_REM_HTTP_BREAK_POINT, 
