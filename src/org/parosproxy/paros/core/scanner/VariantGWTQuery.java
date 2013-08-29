@@ -113,7 +113,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
             if (parameterTypes[i].startsWith("java.lang.String")) {
                 int idx = Integer.parseInt(strIndex);
                 if (idx > 0) {
-                    addParameter(String.valueOf(i), stringTableIndices[idx - 1], stringTableIndices[idx] - 1, false);
+                    addParameter(String.valueOf(i), stringTableIndices[idx - 1], stringTableIndices[idx] - 1, false, true);
                 }
             }
         }        
@@ -127,12 +127,12 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeValue(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
         return value;
     }
 
     @Override
-    public String decodeValue(String value) {
+    public String getUnescapedValue(String value) {
         return value;
     }
     

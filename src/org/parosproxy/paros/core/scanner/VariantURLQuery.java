@@ -44,7 +44,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
      * @return the Encoded value
      */
     @Override
-    protected String getEncodedValue(HttpMessage msg, String value) {
+    protected String getEscapedValue(HttpMessage msg, String value) {
         // ZAP: unfortunately the method setQuery() defined inside the httpclient Apache component
         // create trouble when special characters like ?+? are set inside the parameter, 
         // because this method implementation simply doesn?t encode them.
@@ -54,7 +54,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
     }
     
     @Override
-    protected String getDecodedValue(String value) {
+    protected String getUnescapedValue(String value) {
         return value;
         //return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
     }

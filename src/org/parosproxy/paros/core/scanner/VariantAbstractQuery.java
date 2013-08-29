@@ -52,21 +52,21 @@ public abstract class VariantAbstractQuery implements Variant {
     protected abstract void buildMessage(HttpMessage msg, String query);
 
     /**
-     * Return encoded mutate of the value. To be overridden by subclass.
+     * Return escaped mutate of the value. To be overridden by subclass.
      *
      * @param msg
      * @param value
-     * @return Encoded value
+     * @return the escaped value
      */
-    protected abstract String getEncodedValue(HttpMessage msg, String value);
+    protected abstract String getEscapedValue(HttpMessage msg, String value);
 
     /**
-     * Return decoded mutate of the value. To be overridden by subclass.
+     * Return unescaped mutate of the value. To be overridden by subclass.
      * 
      * @param value
-     * @return the decoded value
+     * @return the unescaped value
      */
-    protected abstract String getDecodedValue(String value);
+    protected abstract String getUnescapedValue(String value);
 
     /**
      * 
@@ -91,7 +91,7 @@ public abstract class VariantAbstractQuery implements Variant {
                 if (pos > 0) {
                     key = keyValue[i].substring(0, pos);
                     // ZAP: the parameter could be encoded so decode it
-                    value = getDecodedValue(keyValue[i].substring(pos + 1));
+                    value = getUnescapedValue(keyValue[i].substring(pos + 1));
                     
                 } else {
                     key = keyValue[i];
@@ -137,7 +137,7 @@ public abstract class VariantAbstractQuery implements Variant {
         for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
-                encodedValue = (escaped) ? value : getEncodedValue(msg, value);
+                encodedValue = (escaped) ? value : getEscapedValue(msg, value);
                 isAppended = paramAppend(sb, name, encodedValue);
 
             } else {

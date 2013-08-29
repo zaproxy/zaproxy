@@ -71,13 +71,13 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeValue(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
         String result = StringEscapeUtils.escapeJava(value);
         return (toQuote) ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK : result;
     }
 
     @Override
-    public String decodeValue(String value) {
+    public String getUnescapedValue(String value) {
         return StringEscapeUtils.unescapeJava(value);
     }
 
@@ -204,7 +204,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             
             // Now we have the string object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition(), false);
+            addParameter(fieldName, beginToken, sr.getPosition(), false, true);
             
         // check if the value is a number
         } else if (Character.isDigit(chr) || chr == '-') {
@@ -224,7 +224,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             sr.unreadLastCharacter();
             // Now we have the int object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition(), true);            
+            addParameter(fieldName, beginToken, sr.getPosition(), true, false);            
             
         } else if (chr == BEGIN_OBJECT) {
             sr.unreadLastCharacter();

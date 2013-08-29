@@ -76,7 +76,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeValue(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
         return StringEscapeUtils.escapeXml(value);
     }
     
@@ -86,7 +86,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String decodeValue(String value) {
+    public String getUnescapedValue(String value) {
         return StringEscapeUtils.unescapeXml(value);
     }
 
@@ -103,7 +103,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
         while (matcher.find()) {
             bidx = matcher.start(2) + 1;
             eidx = matcher.end(2) - 1;
-            addParameter(matcher.group(1), bidx, eidx, false);
+            addParameter(matcher.group(1), bidx, eidx, false, false);
         }
         
         matcher = tagPattern.matcher(content);
@@ -113,13 +113,13 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             if (matcher.group(2).startsWith("<![CDATA[")) {
                 bidx = matcher.start(2) + 9;    //<![CDATA[
                 eidx = matcher.end(2) - 3;       //]]>
+                addParameter(matcher.group(1), bidx, eidx, false, false);
                 
             } else {
                 bidx = matcher.start(2);
                 eidx = matcher.end(2);
-            }
-            
-            addParameter(matcher.group(1), bidx, eidx, false);
+                addParameter(matcher.group(1), bidx, eidx, false, true);
+            }            
         }
     }
 }

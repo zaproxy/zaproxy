@@ -53,15 +53,17 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
     /**
      * 
-     * @param name
-     * @param beginOffset
-     * @param endOffset
-     * @param quote
+     * @param name the name of the parameter
+     * @param beginOffset the begin offset of the parameter value inside the RPC content body
+     * @param endOffset the ending offset of the parameter value inside the RPC content body
+     * @param toQuote the parameter need to be quoted when used
+     * @param escaped the parameter value should be escaped so it has to be unescaped before
      */
-    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote) {
+    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote, boolean escaped) {
         RPCParameter param = new RPCParameter();
+        String value = requestContent.substring(beginOffset, endOffset);
         param.setName(name);
-        param.setValue(requestContent.substring(beginOffset, endOffset));
+        param.setValue((escaped) ? getUnescapedValue(value) : value);
         param.setBeginOffset(beginOffset);
         param.setEndOffset(endOffset);
         param.setToQuote(toQuote);
@@ -124,7 +126,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
-        sb.append(encodeValue(value, param.isToQuote(), escaped));
+        sb.append(getEscapedValue(value, param.isToQuote(), escaped));
         sb.append(requestContent.substring(param.getEndOffset()));
         
         String query = sb.toString();
@@ -148,7 +150,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
         for (int i = 0; i < listParam.size(); i++) {
             RPCParameter param = listParam.get(i);
-            params.add(new NameValuePair(param.getName(), decodeValue(param.getValue()), i));
+            params.add(new NameValuePair(param.getName(), param.getValue(), i));
         }         
     }
     
@@ -193,14 +195,14 @@ public abstract class VariantAbstractRPCQuery implements Variant {
      * @param escaped
      * @return 
      */
-    public abstract String encodeValue(String value, boolean toQuote, boolean escaped);
+    public abstract String getEscapedValue(String value, boolean toQuote, boolean escaped);
 
     /**
      * 
      * @param value
      * @return 
      */
-    public abstract String decodeValue(String value);
+    public abstract String getUnescapedValue(String value);
     
     /**
      * Inner support class

@@ -51,7 +51,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
     }
     
     @Override
-    protected String getEncodedValue(HttpMessage msg, String value) {
+    protected String getEscapedValue(HttpMessage msg, String value) {
         String encoded = "";
         
         if (value != null) {
@@ -62,7 +62,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
     }
 
     @Override
-    protected String getDecodedValue(String value) {
+    protected String getUnescapedValue(String value) {
         return value;
         //return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
     }
