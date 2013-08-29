@@ -18,6 +18,7 @@
  * limitations under the License. 
  */
 // ZAP: 2013/07/01 Added string encoding according to the abstract superclass
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -34,7 +35,7 @@ package org.parosproxy.paros.core.scanner;
  * classes work, how are managed proxy objects and, finally, 
  * the use of encoded types. 
  * 
- * @author andy
+ * @author yhawke
  */
 public class VariantGWTQuery extends VariantAbstractRPCQuery {
 
@@ -126,7 +127,12 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
+    public String encodeValue(String value, boolean toQuote, boolean escaped) {
+        return value;
+    }
+
+    @Override
+    public String decodeValue(String value) {
         return value;
     }
     

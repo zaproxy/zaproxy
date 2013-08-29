@@ -24,6 +24,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/02 Changed Vector to ArrayList because obsolete and faster
+// ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -34,60 +35,80 @@ import java.util.regex.Pattern;
 import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class VariantAbstractQuery implements Variant {
-    
-    private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);	
 
+    private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
     private List<NameValuePair> listParam = new ArrayList<>();
-    
+
     public VariantAbstractQuery() {
-        
     }
 
-    protected abstract void buildMessage(HttpMessage msg, String query, boolean escaped);
-    
     /**
-     * Return encoded mutate of the value.  To be overridden by subclass.
+     * Build the message content setting the query string
+     * according to the Variant specific implementation
+     * 
+     * @param msg the message object we need to modify
+     * @param query the query string we need to set inside the message
+     */
+    protected abstract void buildMessage(HttpMessage msg, String query);
+
+    /**
+     * Return encoded mutate of the value. To be overridden by subclass.
+     *
      * @param msg
      * @param value
      * @return Encoded value
      */
-    protected String getEncodedValue(HttpMessage msg, String value) {
-       return value; 
-    }
-    
+    protected abstract String getEncodedValue(HttpMessage msg, String value);
+
+    /**
+     * Return decoded mutate of the value. To be overridden by subclass.
+     * 
+     * @param value
+     * @return the decoded value
+     */
+    protected abstract String getDecodedValue(String value);
+
+    /**
+     * 
+     * @param params 
+     */
     protected void parse(String params) {
-        
+
         if (params == null || params.equals("")) {
             return;
         }
-        
-		String[] keyValue = staticPatternParam.split(params);
-		String key = null;
-		String value = null;
-		int pos = 0;
-		for (int i=0; i<keyValue.length; i++) {
-			key = null;
-			value = null;
-			pos = keyValue[i].indexOf('=');
-			try {
-				if (pos > 0) {
-					key = keyValue[i].substring(0,pos);
-					value = keyValue[i].substring(pos+1);
-				} else {
-				    key = keyValue[i];
-				    // ZAP: Removed "value = null;" the value is already initialized to null.
-				}
-				listParam.add(new NameValuePair(key, value, i));
 
-			} catch (Exception e) {
-			}
-		}
-		
+        String[] keyValue = staticPatternParam.split(params);
+        String key;
+        String value;
+        int pos;
+        
+        for (int i = 0; i < keyValue.length; i++) {
+            value = null;
+            pos = keyValue[i].indexOf('=');
+            
+            try {
+                if (pos > 0) {
+                    key = keyValue[i].substring(0, pos);
+                    // ZAP: the parameter could be encoded so decode it
+                    value = getDecodedValue(keyValue[i].substring(pos + 1));
+                    
+                } else {
+                    key = keyValue[i];
+                    // ZAP: Removed "value = null;" the value is already initialized to null.
+                }
+                
+                listParam.add(new NameValuePair(key, value, i));
+
+            } catch (Exception e) {
+            }
+        }
+
     }
-    
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     public List<NameValuePair> getParamList() {
@@ -99,43 +120,44 @@ public abstract class VariantAbstractQuery implements Variant {
      */
     @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return this.setParameter(msg, originalPair, name, value, false);
+        return this.setParameter(msg, originalPair, name, value, false);
     }
-    
+
     @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return this.setParameter(msg, originalPair, name, value, true);
+        return this.setParameter(msg, originalPair, name, value, true);
     }
-    
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
 
-    	StringBuilder sb = new StringBuilder();
-        NameValuePair pair = null;
-        boolean isAppended = false;
-        for (int i=0; i<getParamList().size(); i++) {
+    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
+        StringBuilder sb = new StringBuilder();
+        String encodedValue;
+        NameValuePair pair;
+        boolean isAppended;
+        
+        for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
-                String encodedValue = getEncodedValue(msg, value);
+                encodedValue = (escaped) ? value : getEncodedValue(msg, value);
                 isAppended = paramAppend(sb, name, encodedValue);
 
             } else {
                 isAppended = paramAppend(sb, pair.getName(), pair.getValue());
-
             }
 
-            if (isAppended && i<getParamList().size()-1) {
+            if (isAppended && i < getParamList().size() - 1) {
                 sb.append('&');
             }
         }
 
         String query = sb.toString();
-        buildMessage(msg, query, escaped);
+        buildMessage(msg, query);
         return query;
     }
 
     /**
-     * Set the name value pair into the StringBuilder.  If both name and value is null,
-     * not to append whole parameter.
+     * Set the name value pair into the StringBuilder. If both name and value is
+     * null, not to append whole parameter.
+     *
      * @param sb
      * @param name Null = not to append parameter.
      * @param value null = not to append parameter value.
@@ -143,16 +165,18 @@ public abstract class VariantAbstractQuery implements Variant {
      */
     private boolean paramAppend(StringBuilder sb, String name, String value) {
         boolean isEdited = false;
+        
         if (name != null) {
             sb.append(name);
             isEdited = true;
         }
+        
         if (value != null) {
             sb.append('=');
             sb.append(value);
             isEdited = true;
         }
+        
         return isEdited;
     }
-
 }

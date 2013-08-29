@@ -19,11 +19,13 @@
  */
 // ZAP: 2013/07/01 changed the name parameter retrieval on setParameter
 // ZAP: 2013/07/02 add dynamic check to avoid useless header scanning (to be improved)
+// ZAP: 2013/08/22 added regex escaping for header name setting (setHeader has trouble with '-' character)
 
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
@@ -133,7 +135,7 @@ public class VariantHeader implements Variant {
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
         // Here gives null pointer exception...
         // maybe bacause the name value isn't equal to the original value one
-        msg.getRequestHeader().setHeader(originalPair.getName(), value);
+        msg.getRequestHeader().setHeader(Pattern.quote(originalPair.getName()), value);
         return name + ":" + value;
     }    
 }

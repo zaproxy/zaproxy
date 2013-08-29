@@ -79,6 +79,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             try {
                 variant.setMessage(msg);
                 scanVariant();
+                
             } catch (Exception e) {
                 logger.error("Error occurred while scanning with variant " + variant.getClass().getCanonicalName(), e);
             }

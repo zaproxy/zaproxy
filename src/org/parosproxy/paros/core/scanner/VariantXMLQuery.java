@@ -19,6 +19,7 @@
  */
 // ZAP: 2013/07/10 Escaped all special characters inside the regex patterns + updated regex for non capturing groups
 // ZAP: 2013/08/02 Added new XML content type to the Variant
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -75,8 +76,18 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
+    public String encodeValue(String value, boolean toQuote, boolean escaped) {
         return StringEscapeUtils.escapeXml(value);
+    }
+    
+    /**
+     * 
+     * @param value
+     * @return 
+     */
+    @Override
+    public String decodeValue(String value) {
+        return StringEscapeUtils.unescapeXml(value);
     }
 
     /**

@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/01 Added content-type checking to allow special POST management by other Variants
+// ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -31,7 +32,6 @@ import org.parosproxy.paros.network.HttpMessage;
 public class VariantFormQuery extends VariantAbstractQuery {
 
     private static final String WWW_APP_URL_ENCODED = "application/x-www-form-urlencoded";
-    private static final String WWW_FORM_URLENCODED = "www-form-urlencoded";
 
     public VariantFormQuery() {
         super();
@@ -44,25 +44,26 @@ public class VariantFormQuery extends VariantAbstractQuery {
             parse(msg.getRequestBody().toString());
         }
     }
-        
-    
+            
     @Override
-    protected void buildMessage(HttpMessage msg, String query, boolean escaped) {
+    protected void buildMessage(HttpMessage msg, String query) {
         msg.getRequestBody().setBody(query);
     }
     
     @Override
     protected String getEncodedValue(HttpMessage msg, String value) {
-        String contentType;
         String encoded = "";
         
-        contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         if (value != null) {
-            if (contentType != null && contentType.toLowerCase().endsWith(WWW_FORM_URLENCODED)) {
-                encoded = AbstractPlugin.getURLEncode(value);
-            }
+            encoded = AbstractPlugin.getURLEncode(value);
         }
+        
         return encoded;
     }
 
+    @Override
+    protected String getDecodedValue(String value) {
+        return value;
+        //return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
+    }
 }

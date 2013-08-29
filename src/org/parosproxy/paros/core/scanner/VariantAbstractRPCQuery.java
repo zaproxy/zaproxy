@@ -20,6 +20,7 @@
 // ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
 // ZAP: 2013/07/10 Added some features and method encapsulation
 // ZAP: 2013/07/21 Added XML parameters ordering on tag position inside the overall content
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -123,7 +124,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
-        sb.append(encodeParameter(value, param.isToQuote(), escaped));
+        sb.append(encodeValue(value, param.isToQuote(), escaped));
         sb.append(requestContent.substring(param.getEndOffset()));
         
         String query = sb.toString();
@@ -147,7 +148,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
         for (int i = 0; i < listParam.size(); i++) {
             RPCParameter param = listParam.get(i);
-            params.add(new NameValuePair(param.getName(), param.getValue(), i));
+            params.add(new NameValuePair(param.getName(), decodeValue(param.getValue()), i));
         }         
     }
     
@@ -192,7 +193,14 @@ public abstract class VariantAbstractRPCQuery implements Variant {
      * @param escaped
      * @return 
      */
-    public abstract String encodeParameter(String value, boolean toQuote, boolean escaped);
+    public abstract String encodeValue(String value, boolean toQuote, boolean escaped);
+
+    /**
+     * 
+     * @param value
+     * @return 
+     */
+    public abstract String decodeValue(String value);
     
     /**
      * Inner support class

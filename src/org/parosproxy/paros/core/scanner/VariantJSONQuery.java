@@ -19,6 +19,7 @@
  */
 // ZAP: 2013/07/01 Added JSON string encoding to correctly inject payloads for integer values
 // ZAP: 2013/07/01 Added quotation mark escaping before parameter injection
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -70,9 +71,14 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
      * @return 
      */
     @Override
-    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
+    public String encodeValue(String value, boolean toQuote, boolean escaped) {
         String result = StringEscapeUtils.escapeJava(value);
         return (toQuote) ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK : result;
+    }
+
+    @Override
+    public String decodeValue(String value) {
+        return StringEscapeUtils.unescapeJava(value);
     }
 
     // --------------------------------------------------------------------
