@@ -20,11 +20,13 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.EventQueue;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
@@ -39,7 +41,17 @@ public class BreakpointMessageHandler {
     
     protected List<BreakpointMessageInterface> enabledBreakpoints;
     
-    public BreakpointMessageHandler(BreakPanel aBreakPanel) {
+    private List<String> enabledKeyBreakpoints = new ArrayList<String>();;
+    
+    public List<String> getEnabledKeyBreakpoints() {
+		return enabledKeyBreakpoints;
+	}
+
+	public void setEnabledKeyBreakpoints(List<String> enabledKeyBreakpoints) {
+		this.enabledKeyBreakpoints = enabledKeyBreakpoints;
+	}
+
+	public BreakpointMessageHandler(BreakPanel aBreakPanel) {
         this.breakPanel = aBreakPanel;
     }
     
@@ -58,6 +70,7 @@ public class BreakpointMessageHandler {
         if ( ! isBreakpoint(aMessage, true, onlyIfInScope)) {
             return true;
         }
+        
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
         // but be reset when the next break point is hit
         breakPanel.breakpointHit();
@@ -166,6 +179,23 @@ public class BreakpointMessageHandler {
 			return true;
     	}
     	
+    	String secHeader = aMessage.getHeader(HttpHeader.X_SECURITY_PROXY);
+    	if (secHeader != null) {
+			for (String val : secHeader.split(",")) {
+				if (val.trim().startsWith(HttpHeader.SEC_PROXY_KEY) && val.indexOf("=") > 0) {
+					String[] keyValue = val.split("=");
+					// Have we been told to intercept messages with this key?
+					for (String k : this.enabledKeyBreakpoints) {
+						if (k.equals(keyValue[1].trim())) {
+							// Yes, we have
+							logger.debug("isBreakpoint match on key " + k);
+							return true;
+						}
+					}
+				}
+    		}
+    	}
+    	
     	if (onlyIfInScope && ! aMessage.isInScope()) {
     		return false;
     	}
@@ -251,4 +281,6 @@ public class BreakpointMessageHandler {
             }
         }
     }
+    
+    
 }
