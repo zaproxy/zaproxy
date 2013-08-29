@@ -45,7 +45,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -411,15 +410,18 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
-	
-	public void addTableField(int tabIndex, AbstractTableModel model) {
+
+	public void addTableField(int tabIndex, JTable field) {
+		this.addTableField(tabIndex, field, null);
+	}
+
+	public void addTableField(int tabIndex, JTable field, List<JButton> buttons) {
 		if (!isTabbed()) {
 			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
 		}
 		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
-		JTable field = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
@@ -429,8 +431,33 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (this.fieldList.contains(field)) {
 			throw new IllegalArgumentException("Field already added: " + field);
 		}
-		this.tabPanels.get(tabIndex).add(scrollPane, 
+		if (buttons == null || buttons.size() == 0) {
+			this.tabPanels.get(tabIndex).add(scrollPane, 
 				LayoutHelper.getGBC(1, this.tabOffsets.get(tabIndex), 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		} else {
+			// TODO ok now?
+			JPanel tablePanel = new JPanel();
+			tablePanel.setLayout(new GridBagLayout());
+			tablePanel.add(scrollPane,
+					LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new GridBagLayout());
+			int buttonId = 0;
+			for (JButton button : buttons) {
+				buttonPanel.add(button,
+						LayoutHelper.getGBC(0, buttonId++, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			}
+			// Add spacer to force buttons to the top
+			buttonPanel.add(new JLabel(),
+					LayoutHelper.getGBC(0, buttonId++, 1, 0D, 1.0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			
+			tablePanel.add(buttonPanel,
+					LayoutHelper.getGBC(1, 0, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+
+			this.tabPanels.get(tabIndex).add(tablePanel, 
+					LayoutHelper.getGBC(1, this.tabOffsets.get(tabIndex), 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		}
 		this.fieldList.add(field);
 		this.incTabOffset(tabIndex);
 	}
