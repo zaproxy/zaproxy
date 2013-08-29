@@ -61,9 +61,12 @@ public class ExtensionScript extends ExtensionAdaptor {
 	private static final String LANG_ENGINE_SEP = " : ";
 	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "http://code.google.com/p/zaproxy/wiki/ScriptConsole";
 
+	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
 	public static final String TYPE_TARGETED = "targeted";
 
+	private static final ImageIcon PROXY_ICON = 
+			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-proxy.png"));
 	private static final ImageIcon STANDALONE_ICON = 
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-standalone.png"));
 	private static final ImageIcon TARGETED_ICON = 
@@ -75,6 +78,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	private ScriptTreeModel treeModel = null;
 	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<ScriptEngineWrapper>();
 	private Map<String, ScriptType> typeMap = new HashMap<String, ScriptType>();
+	private ProxyListenerScript proxyListener = null;
 	
 	private List<ScriptEventListener> listeners = new ArrayList<ScriptEventListener>();
 	private MultipleWriters writers = new MultipleWriters();
@@ -114,10 +118,19 @@ public class ExtensionScript extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
+		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", PROXY_ICON, true));
 		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
 
+		extensionHook.addProxyListener(this.getProxyListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
+	}
+	
+	private ProxyListenerScript getProxyListener() {
+		if (this.proxyListener == null) {
+			this.proxyListener = new ProxyListenerScript(this);
+		}
+		return this.proxyListener;
 	}
 	
 	public List<String> getScriptingEngines() {
@@ -280,6 +293,8 @@ public class ExtensionScript extends ExtensionAdaptor {
         fw.append(script.getContents());
         fw.close();
         this.setChanged(script, false);
+        // The removal is required for script that use wrappers, like Zest
+		this.getScriptParam().removeScript(script);
 		this.getScriptParam().addScript(script);
 		this.getScriptParam().saveScripts();
 		
@@ -416,6 +431,41 @@ public class ExtensionScript extends ExtensionAdaptor {
 		} else {
 			throw new InvalidParameterException("Script " + script.getName() + " is not a targeted script: " + script.getTypeName());
 		}
+	}
+
+    public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
+    	if (TYPE_PROXY.equals(script.getTypeName())) {
+			try {
+				// Dont need to check if enabled as it can only be invoked manually
+				ProxyScript s = this.getInterface(script, ProxyScript.class);
+				
+				if (s != null) {
+					if (request) {
+						return s.proxyRequest(msg);
+					} else {
+						return s.proxyResponse(msg);
+					}
+					
+				} else {
+					writers.append(Constant.messages.getString("script.interface.proxy.error"));
+					this.setError(script, writers.toString());
+					this.setEnabled(script, false);
+				}
+			
+			} catch (Exception e) {
+				try {
+					writers.append(e.toString());
+				} catch (IOException e1) {
+					logger.error(e.getMessage(), e);
+				}
+				this.setError(script, e);
+				this.setEnabled(script, false);
+			}
+		} else {
+			throw new InvalidParameterException("Script " + script.getName() + " is not a proxy script: " + script.getTypeName());
+		}
+    	// Return true so that the request is submitted - if we returned false all proxying would fail on script errors
+    	return true;
 	}
 
 
