@@ -325,6 +325,7 @@ public class ZAP {
 	private ControlOverrides getOverrides() {
 		ControlOverrides overrides = new ControlOverrides();
 		overrides.setProxyPort(this.cmdLine.getPort());
+		overrides.setProxyHost(this.cmdLine.getHost());
 		return overrides;
 	}
 
