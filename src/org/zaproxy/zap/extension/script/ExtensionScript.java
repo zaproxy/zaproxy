@@ -29,6 +29,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidParameterException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -552,5 +553,18 @@ public class ExtensionScript extends ExtensionAdaptor {
 		return invokeScript(script).getInterface(class1);
 
 	}
-	
+
+	@Override
+    public List<String> getUnsavedResources() {
+		// Report all of the unsaved scripts
+		List<String> list = new ArrayList<String>();
+		for (ScriptType type : this.getScriptTypes()) {
+			for (ScriptWrapper script : this.getScripts(type)) {
+				if (script.isChanged()) {
+					list.add(MessageFormat.format(Constant.messages.getString("script.resource"), script.getName()));
+				}
+			}
+		}
+    	return list;
+    }
 }

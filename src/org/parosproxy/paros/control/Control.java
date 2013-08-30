@@ -41,12 +41,14 @@
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
+// ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -169,14 +171,29 @@ public class Control extends AbstractControl implements SessionListener {
 	    boolean isNewState = model.getSession().isNewState();
 	    int rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
 	    boolean askOnExit = view != null && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
-	    
-	    if (isNewState && rootCount > 0 && askOnExit && ! noPrompt) {
-	    	// ZAP: i18n
-			if (view.showConfirmDialog(Constant.messages.getString("menu.file.sessionNotSaved")) != JOptionPane.OK_OPTION) {
-				return;
-			}
-			control.discardSession();
+	    boolean sessionUnsaved = isNewState && rootCount > 0 && askOnExit;
+	    		
+	    if (! noPrompt) {
+		    List<String> list = getExtensionLoader().getUnsavedResources();
+		    if (sessionUnsaved) {
+		    	list.add(0, Constant.messages.getString("menu.file.sessionResNotSaved"));
+		    }
+		    if (list.size() > 0) {
+		    	StringBuilder sb = new StringBuilder();
+		    	for (String res : list) {
+		    		sb.append("<li>");
+		    		sb.append(res);
+		    		sb.append("</li>");
+		    	}
+		    	
+				if (view.showConfirmDialog(
+						MessageFormat.format(Constant.messages.getString("menu.file.resourcesNotSaved"), sb.toString())) 
+							!= JOptionPane.OK_OPTION) {
+					return;
+				}
+		    }
 	    }
+		control.discardSession();
 
 	    Thread t = new Thread(new Runnable() {
 	        @Override
