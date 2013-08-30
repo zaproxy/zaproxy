@@ -24,6 +24,7 @@
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
+// ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 
 package org.parosproxy.paros;
 
@@ -45,6 +46,7 @@ public class CommandLine {
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
     public static final String PORT = "-port";
+    public static final String HOST = "-host";
     public static final String CMD = "-cmd";
     
     static final String NO_USER_AGENT = "-nouseragent";
@@ -54,6 +56,7 @@ public class CommandLine {
     private boolean daemon = false;
     private boolean reportVersion = false;
     private int port = -1;
+    private String host = null;
     private String[] args = null;
     private Hashtable<String, String> keywords = new Hashtable<>();
     private Vector<CommandLineArgument[]> commandList = null;
@@ -214,6 +217,9 @@ public class CommandLine {
 	    } else if (checkPair(args, DIR, i)) {
 	    	Constant.setZapHome(keywords.get(DIR));
 	        result = true;
+	    } else if (checkPair(args, HOST, i)) {
+	    	this.host = keywords.get(HOST);
+	        result = true;
 	    } else if (checkPair(args, PORT, i)) {
 	    	this.port = Integer.parseInt(keywords.get(PORT));
 	        result = true;
@@ -250,6 +256,10 @@ public class CommandLine {
 		return this.port;
 	}
 
+	public String getHost() {
+		return host;
+	}
+
 	public String getArgument(String keyword) {
         return keywords.get(keyword);
     }
@@ -277,7 +287,7 @@ public class CommandLine {
             sb.append("\tzap.sh ");
         }
         sb.append("[-h |-help] [-newsession session_file_path] [options] [-dir directory]\n" +
-        		"\t\t[-port port] [-daemon] [-cmd] [-version]\n");
+        		"\t\t[-host host] [-port port] [-daemon] [-cmd] [-version]\n");
         sb.append("options:\n");
 
         for (int i=0; i<commandList.size(); i++) {
