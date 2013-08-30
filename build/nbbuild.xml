@@ -71,6 +71,13 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-jar">
+        <tstamp>
+            <format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+        </tstamp>
+        <property name="version" value="D-${yyyymmdd}" />
+    </target>
+    
     <target name="-post-jar">
         <!--copy file="${src.src.dir}/xml/log4j.properties" tofile="${build}/xml/log4j.properties" /-->
 
