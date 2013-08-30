@@ -121,13 +121,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public abstract String getReference();
     
     @Override
-    public abstract int getCweId();
-    
-    @Override
-    public abstract int getWascId();
-
-    
-    @Override
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
         this.parent = parent;
@@ -747,6 +740,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	@Override
 	public void setTimeFinished() {
 		this.finished = new Date();
+	}
+
+	@Override
+	public int getCweId() {
+		// Default 'unknown' value
+		return 0;
+	}
+	
+	@Override
+	public int getWascId() {
+		// Default 'unknown' value
+		return 0;
 	}
 
 }
