@@ -11,9 +11,9 @@
     <property name="javadocs.dir" location="../javadocs" />
     <property name="crowdin.dir" location="${build}/crowdin" />
     <property name="lang.dir" value="${src}/lang" />
-    <property name="zap.extensions.alpha.src.dir" location="../../zap-extensions-alpha/src/" />
-    <property name="zap.extensions.beta.src.dir" location="../../zap-extensions-beta/src/" />
-    <property name="zap.extensions.trunk.src.dir" location="../../zap-extensions-trunk/src/" />
+    <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
+    <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
+    <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
     <property name="zap.java.api.version" value="4" />
 
     <!-- mac specific properties -->
@@ -351,7 +351,7 @@
           -->
 
         <!-- Copy all alpha extensions translations (project zap-extensions) -->
-        <copy todir="${zap.extensions.alpha.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+        <copy todir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
             <fileset dir="${crowdin.dir}/zap-extensions/alpha/" casesensitive="yes">
                 <include name="**/Messages_*.properties" />
             </fileset>
@@ -365,7 +365,7 @@
         </copy>
     	
         <!-- Copy all beta extensions translations (project zap-extensions) -->
-        <copy todir="${zap.extensions.beta.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+        <copy todir="${zap.extensions.beta.dir}/src//org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
             <fileset dir="${crowdin.dir}/zap-extensions/beta/" casesensitive="yes">
                 <include name="**/Messages_*.properties" />
             </fileset>
@@ -379,7 +379,7 @@
         </copy>
 
         <!-- Copy all release (trunk) extensions translations (project zap-extensions) -->
-        <copy todir="${zap.extensions.trunk.src.dir}/org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
+        <copy todir="${zap.extensions.trunk.dir}/src//org/zaproxy/zap/extension/" overwrite="true" failonerror="no">
             <fileset dir="${crowdin.dir}/zap-extensions/trunk" casesensitive="yes">
                 <include name="**/Messages_*.properties" />
             </fileset>
@@ -418,6 +418,12 @@
             <arg value="--recursive" />
             <arg value="--quiet" />
         </exec>
+    </target>
+
+    <target name="copy-jar-to-extension-projects" depends="dist">
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
     </target>
 
 
