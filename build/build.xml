@@ -109,6 +109,9 @@
         <copy todir="${dist}/plugin">
             <fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
         </copy>
+        <copy todir="${dist}/scripts">
+            <fileset dir="${src}/scripts" excludes="**/.svn/** **/_svn/**" />
+        </copy>
         <copy todir="${dist}/session">
             <fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
         </copy>
