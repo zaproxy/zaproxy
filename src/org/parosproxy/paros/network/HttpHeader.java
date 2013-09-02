@@ -222,7 +222,7 @@ public abstract class HttpHeader implements java.io.Serializable {
             } else {
                 // replace header
                 String newString = name + ": " + value + mLineDelimiter;
-                mMsgHeader = matcher.replaceAll(newString);
+                mMsgHeader = matcher.replaceAll(Matcher.quoteReplacement(newString));
             }
 
             // set into hashtable
