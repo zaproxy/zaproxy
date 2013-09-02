@@ -135,7 +135,7 @@ public class VariantHeader implements Variant {
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
         // Here gives null pointer exception...
         // maybe bacause the name value isn't equal to the original value one
-        msg.getRequestHeader().setHeader(Pattern.quote(originalPair.getName()), value);
+        msg.getRequestHeader().setHeader(originalPair.getName(), value);
         return name + ":" + value;
     }    
 }
