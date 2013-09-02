@@ -32,6 +32,7 @@ public class ScriptNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 	private String nodeName = null;
 	private ScriptType type = null;
+	private boolean template = false;
     
 	public ScriptNode() {
 		// Only use for the root node
@@ -39,9 +40,21 @@ public class ScriptNode extends DefaultMutableTreeNode {
         this.nodeName = Constant.messages.getString("script.tree.root");
     }
 
-	public ScriptNode(ScriptType type) {
+	public ScriptNode(boolean template) {
+		// Only use for the second level nodes
+        this.template = template;
+        if (template) {
+            this.nodeName = Constant.messages.getString("script.tree.templates");
+        } else {
+            this.nodeName = Constant.messages.getString("script.tree.scripts");
+        }
+        
+    }
+
+	public ScriptNode(ScriptType type, boolean template) {
 		this.nodeName = Constant.messages.getString(type.getI18nKey());
 		this.type = type;
+        this.template = template;
 	}
 
 	public ScriptNode(String name) {
@@ -49,8 +62,13 @@ public class ScriptNode extends DefaultMutableTreeNode {
 	}
 
 	public ScriptNode(ScriptWrapper script) {
+		this(script, false);
+	}
+
+	public ScriptNode(ScriptWrapper script, boolean template) {
 		this.nodeName = script.getName();
 		this.type  = script.getType();
+		this.template = template;
 		this.setUserObject(script);
 	}
 
@@ -75,5 +93,8 @@ public class ScriptNode extends DefaultMutableTreeNode {
 	public ScriptType getType() {
 		return type;
 	}
-	
+
+	public boolean isTemplate() {
+		return template;
+	}
 }

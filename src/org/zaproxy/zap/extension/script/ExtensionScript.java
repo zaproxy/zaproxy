@@ -72,7 +72,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-standalone.png"));
 	private static final ImageIcon TARGETED_ICON = 
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-targeted.png"));
-
+	
 	private ScriptEngineManager mgr = new ScriptEngineManager();
 	private ScriptParam scriptParam = null;
 
@@ -151,11 +151,14 @@ public class ExtensionScript extends ExtensionAdaptor {
 	}
 	
 	public void registerScriptEngineWrapper(ScriptEngineWrapper wrapper) {
+		logger.debug("registerEngineWrapper " + wrapper.getEngineName());
 		this.engineWrappers.add(wrapper);
+		// Templates for this engine might not have been loaded
+		this.loadTemplates(wrapper);
+
 	}
 	
 	public ScriptEngineWrapper getEngineWrapper(String name) {
-		
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
 			// In the configs we just use the engine name, in the UI we use the language name as well
 			if (name.indexOf(LANG_ENGINE_SEP) > 0) {
@@ -195,7 +198,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	public String getEngineNameForExtension(String ext) {
 		ScriptEngine engine = mgr.getEngineByExtension(ext);
 		if (engine != null) {
-			return (String)engine.get(ScriptEngine.LANGUAGE) + LANG_ENGINE_SEP + (String)engine.get(ScriptEngine.ENGINE);
+			return engine.getFactory().getLanguageName() + LANG_ENGINE_SEP + engine.getFactory().getEngineName();
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
 			if (sew.getExtensions() != null) {
@@ -302,7 +305,6 @@ public class ExtensionScript extends ExtensionAdaptor {
 		for (ScriptEventListener listener : this.listeners) {
 			listener.scriptSaved(script);
 		}
-
 	}
 
 	public void removeScript(ScriptWrapper script) {
@@ -312,7 +314,29 @@ public class ExtensionScript extends ExtensionAdaptor {
 		for (ScriptEventListener listener : this.listeners) {
 			listener.scriptRemoved(script);
 		}
+	}
 
+	public void removeTemplate(ScriptWrapper template) {
+		this.getTreeModel().removeTemplate(template);
+		for (ScriptEventListener listener : this.listeners) {
+			listener.templateRemoved(template);
+		}
+	}
+
+	public ScriptNode addTemplate(ScriptWrapper template) {
+		return this.addTemplate(template, true);
+	}
+	
+	public ScriptNode addTemplate(ScriptWrapper template, boolean display) {
+		if (template == null) {
+			return null;
+		}
+		ScriptNode node = this.getTreeModel().addTemplate(template);
+		
+		for (ScriptEventListener listener : this.listeners) {
+			listener.templateAdded(template, display);
+		}
+		return node;
 	}
 
 	@Override
@@ -324,6 +348,47 @@ public class ExtensionScript extends ExtensionAdaptor {
 				
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
+			}
+		}
+		this.loadTemplates();
+	}
+
+	private void loadTemplates() {
+		this.loadTemplates(null);
+	}
+
+	private void loadTemplates(ScriptEngineWrapper engine) {
+		for (ScriptType type : this.getScriptTypes()) {
+			File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
+			File stdDir = new File("." + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
+			
+			// Load local files first, as these override any one included in the release
+			if (locDir.exists()) {
+				for (File f : locDir.listFiles()) {
+					loadTemplate(f, type, engine);
+				}
+			}
+			for (File f : stdDir.listFiles()) {
+				loadTemplate(f, type, engine);
+			}
+		}
+	}
+
+	private void loadTemplate(File f, ScriptType type, ScriptEngineWrapper engine) {
+		if (f.getName().indexOf(".") > 0) {
+			if (this.getTreeModel().getTemplate(f.getName()) == null) {
+				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
+				String engineName = this.getEngineNameForExtension(ext);
+				if (engineName != null && (engine == null || engine.getEngine().getFactory().getExtensions().contains(ext))) {
+					try {
+						ScriptWrapper template = new ScriptWrapper(f.getName(), "", 
+								this.getEngineWrapper(engineName), type, false, f);
+						this.loadScript(template);
+						this.addTemplate(template);
+					} catch (IOException e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
 			}
 		}
 	}
