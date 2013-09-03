@@ -201,6 +201,20 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		return null;
 	}
 
+	/**
+	 * Gets the model of the users that are currently shown in the UI.
+	 * 
+	 * @param contextId the context id
+	 * @return the users model, if any, or null, if there is no panel for the given model
+	 */
+	public UsersTableModel getUIConfiguredUsersModel(int contextId) {
+		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
+		if (panel != null) {
+			return panel.getUsersTableModel();
+		}
+		return null;
+	}
+
 	@Override
 	public void discardContexts() {
 		this.contextManagers.clear();
