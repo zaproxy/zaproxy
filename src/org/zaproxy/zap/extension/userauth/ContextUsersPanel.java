@@ -187,4 +187,8 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 	public void saveTemporaryContextData(Context uiSharedContext) {
 		// Data is already saved in the uiSharedContext
 	}
+
+	protected UsersTableModel getUsersTableModel() {
+		return usersTableModel;
+	}
 }

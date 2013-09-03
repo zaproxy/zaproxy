@@ -281,7 +281,9 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 */
 		protected void setLoginRequest(String url, String postData) throws Exception {
 			if (url == null || url.length() == 0) {
-				this.setLoginRequest(null);
+				this.loginRequestURL = null;
+				this.loginRequestBody = null;
+				this.loginSiteNode = null;
 			} else {
 				String method = HttpRequestHeader.GET;
 				if (postData != null && postData.length() > 0) {
