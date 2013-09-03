@@ -38,6 +38,10 @@ public class User extends Enableable {
 
 	private static final Logger log = Logger.getLogger(User.class);
 
+	private static int ID_SOURCE = 0;
+
+	private int id;
+
 	/** The name. */
 	private String name;
 
@@ -58,6 +62,14 @@ public class User extends Enableable {
 
 	public User(int contextId, String name) {
 		super();
+		this.id = ID_SOURCE++;
+		this.contextId = contextId;
+		this.name = name;
+	}
+
+	public User(int contextId, String name, int id) {
+		super();
+		this.id = id;
 		this.contextId = contextId;
 		this.name = name;
 	}
@@ -169,6 +181,32 @@ public class User extends Enableable {
 		log.info("Authenticating user: " + this.name);
 		this.authenticatedSession = getContext().getAuthenticationMethod().authenticate(
 				getContext().getSessionManagementMethod(), this.authenticationCredentials);
+	}
+
+	public int getId() {
+		return this.id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 
 }
