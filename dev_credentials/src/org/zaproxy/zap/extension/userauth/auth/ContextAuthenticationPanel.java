@@ -253,9 +253,13 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			if (selectedAuthenticationMethod.getLoggedInIndicatorPattern() != null)
 				getLoggedInIndicaterRegexField().setText(
 						selectedAuthenticationMethod.getLoggedInIndicatorPattern().pattern());
+			else
+				getLoggedInIndicaterRegexField().setText("");
 			if (selectedAuthenticationMethod.getLoggedOutIndicatorPattern() != null)
 				getLoggedOutIndicaterRegexField().setText(
 						selectedAuthenticationMethod.getLoggedOutIndicatorPattern().pattern());
+			else
+				getLoggedOutIndicaterRegexField().setText("");
 
 			// If the proper type is already selected, just rebind the data
 			if (shownMethodType != null && shownMethodType.isTypeForMethod(selectedAuthenticationMethod)) {
