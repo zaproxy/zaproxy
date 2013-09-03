@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.userauth.auth;
 
 import java.awt.Component;
 import java.text.MessageFormat;
+import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -61,7 +62,8 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
 		sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
 		Context uiSharedContext = sessionDialog.getUISharedContext(this.contextId);
 
-		uiSharedContext.getAuthenticationMethod().setLoggedOutIndicatorPattern(getSelectedText());
+		uiSharedContext.getAuthenticationMethod().setLoggedOutIndicatorPattern(
+				Pattern.quote(getSelectedText()));
 
 		// Show the session dialog without recreating UI Shared contexts
 		View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
