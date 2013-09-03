@@ -98,4 +98,17 @@ public class ContextUserAuthManager {
 	public void removeUser(User user) {
 		users.remove(user);
 	}
+
+	/**
+	 * Gets the user with a given id.
+	 * 
+	 * @param id the id
+	 * @return the user by id
+	 */
+	public User getUserById(int id) {
+		for (User u : users)
+			if (u.getId() == id)
+				return u;
+		return null;
+	}
 }

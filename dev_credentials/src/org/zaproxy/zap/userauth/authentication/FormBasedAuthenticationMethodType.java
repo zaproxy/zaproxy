@@ -191,7 +191,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 
 			// Clear any session identifiers
-			sessionManagementMethod.clearWebSessionIdentifiers(msg);
+			//sessionManagementMethod.clearWebSessionIdentifiers(msg);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Authentication request header: \n" + msg.getRequestHeader());
