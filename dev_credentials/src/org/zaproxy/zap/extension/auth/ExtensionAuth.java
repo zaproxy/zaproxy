@@ -92,7 +92,7 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
      */
     public ExtensionAuth() {
         super();
- 		initialize();
+// 		initialize();
     }
     
 	private void initialize() {
@@ -106,24 +106,24 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-		extensionHook.addSessionListener(this);
-		// TODO addthis to the extensionHook??
-		Model.getSingleton().addContextDataFactory(this);
-
-	    if (getView() != null) {	
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginMenuFactory());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLogoutMenuFactory());
-
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenuFactory());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenuFactory());
-
-			View.getSingleton().addMainToolbarButton(getReauthenticateButton());
-
-			// Factory for generating Session Context Auth panels
-			getView().addContextPanelFactory(this);
-
-	    }
+//	    super.hook(extensionHook);
+//		extensionHook.addSessionListener(this);
+//		// TODO addthis to the extensionHook??
+//		Model.getSingleton().addContextDataFactory(this);
+//
+//	    if (getView() != null) {	
+//            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginMenuFactory());
+//            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLogoutMenuFactory());
+//
+//            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenuFactory());
+//            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenuFactory());
+//
+//			View.getSingleton().addMainToolbarButton(getReauthenticateButton());
+//
+//			// Factory for generating Session Context Auth panels
+//			getView().addContextPanelFactory(this);
+//
+//	    }
 	}
 	
 	protected void setReauthenticate(boolean reauth) {
