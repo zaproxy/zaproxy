@@ -228,8 +228,11 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (value != null) {
 				User item = (User) value;
-				setText(item.getName());
 				setBorder(BORDER);
+				if (!item.isEnabled())
+					setText(item.getName() + " (disabled)");
+				else
+					setText(item.getName());
 				setEnabled(item.isEnabled());
 			}
 			return this;

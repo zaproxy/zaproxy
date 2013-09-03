@@ -195,7 +195,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			}
 		}
 
-		if (requestingUser == null)
+		if (requestingUser == null || !requestingUser.isEnabled())
 			return;
 
 		if (log.isDebugEnabled()) {
