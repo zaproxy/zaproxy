@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.forceduser;
 
+import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.ImageIcon;
+import javax.swing.JToggleButton;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -35,6 +39,8 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.auth.ExtensionAuth;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
@@ -57,6 +63,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
 	}
 
+	private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE = "/resource/icon/fugue/door-half-open.png";
+	private static final String FORCED_USER_MODE_ON_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-loop-arrow.png";
+
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionForcedUser";
 
@@ -70,7 +79,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	private ExtensionUserManagement extensionUserManagement;
 
-	private boolean forcedUserModeEnabled = true;
+	private boolean forcedUserModeEnabled = false;
+
+	private JToggleButton forcedUserModeButton;
 
 	/**
 	 * Instantiates a new forced user extension.
@@ -95,10 +106,77 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		if (getView() != null) {
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
+
+			View.getSingleton().addMainToolbarButton(getForcedUserModeToggleButton());
 		}
 
 		// Register as Http Sender listener
 		HttpSender.addListener(this);
+	}
+
+	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
+		this.forcedUserModeEnabled = forcedUserModeEnabled;
+		if (getView() != null) {
+			forcedUserModeButton.setSelected(forcedUserModeEnabled);
+			if (forcedUserModeEnabled) {
+				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+						.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
+				forcedUserModeButton.setToolTipText(Constant.messages
+						.getString("auth.toolbar.button.reauth.on"));
+			} else {
+				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+						.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+				forcedUserModeButton.setToolTipText(Constant.messages
+						.getString("auth.toolbar.button.reauth.off"));
+			}
+		}
+	}
+
+	private void setForcedUserModeToggleButtonState(boolean enabled) {
+		if (enabled) {
+			this.getForcedUserModeToggleButton().setIcon(
+					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+			this.getForcedUserModeToggleButton().setToolTipText(
+					Constant.messages.getString("auth.toolbar.button.reauth.off"));
+			this.getForcedUserModeToggleButton().setEnabled(true);
+		} else {
+			this.forcedUserModeEnabled = false;
+			this.getForcedUserModeToggleButton().setIcon(
+					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+			this.getForcedUserModeToggleButton().setToolTipText(
+					Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
+			this.getForcedUserModeToggleButton().setSelected(false);
+			this.getForcedUserModeToggleButton().setEnabled(false);
+		}
+	}
+
+	private void updateForcedUserModeToggleButtonState() {
+		if (contextForcedUsersMap.isEmpty()) {
+			if (this.getForcedUserModeToggleButton().isEnabled())
+				this.setForcedUserModeToggleButtonState(false);
+		} else {
+			if (!this.getForcedUserModeToggleButton().isEnabled())
+				this.setForcedUserModeToggleButtonState(true);
+		}
+	}
+
+	private JToggleButton getForcedUserModeToggleButton() {
+		if (forcedUserModeButton == null) {
+			forcedUserModeButton = new JToggleButton();
+			forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+			forcedUserModeButton.setToolTipText(Constant.messages
+					.getString("auth.toolbar.button.reauth.disabled"));
+			forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
+
+			forcedUserModeButton.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setForcedUserModeEnabled(getForcedUserModeToggleButton().isSelected());
+				}
+			});
+		}
+		return forcedUserModeButton;
 	}
 
 	protected ExtensionUserManagement getUserManagementExtension() {
@@ -116,7 +194,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	 * @param user the user
 	 */
 	public void setForcedUser(int contextId, User user) {
-		this.contextForcedUsersMap.put(contextId, user);
+		if (user != null)
+			this.contextForcedUsersMap.put(contextId, user);
+		else
+			this.contextForcedUsersMap.remove(contextId);
+		this.updateForcedUserModeToggleButtonState();
 	}
 
 	/**
