@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.forceduser;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
@@ -29,6 +30,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -75,7 +77,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 				+ "</p></html>"), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
 		// Forced User combo box
-		this.add(getUsersComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
+		this.add(getUsersComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D, new Insets(5, 0, 0, 0)));
 
 		// Padding
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
@@ -218,6 +220,8 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 	private static class UserRenderer extends BasicComboBoxRenderer {
 		private static final long serialVersionUID = 3654541772447187317L;
 
+		private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
+
 		@SuppressWarnings("rawtypes")
 		public Component getListCellRendererComponent(JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus) {
@@ -225,6 +229,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 			if (value != null) {
 				User item = (User) value;
 				setText(item.getName());
+				setBorder(BORDER);
 				setEnabled(item.isEnabled());
 			}
 			return this;
