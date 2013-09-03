@@ -31,9 +31,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
@@ -57,6 +59,10 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 
 	/** The context panels map. */
 	private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
+
+	private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
+
+	private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory;
 
 	public ExtensionAuthentication() {
 		super();
@@ -83,6 +89,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		Model.getSingleton().addContextDataFactory(this);
 
 		if (getView() != null) {
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
+
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
 		}
@@ -113,6 +122,50 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
+	}
+
+	/**
+	 * Gets the popup menu for flagging the "Logged in" pattern.
+	 * 
+	 * @return the popup menu
+	 */
+	private PopupContextMenuItemFactory getPopupFlagLoggedInIndicatorMenu() {
+		if (this.popupFlagLoggedInIndicatorMenuFactory == null) {
+			popupFlagLoggedInIndicatorMenuFactory = new PopupContextMenuItemFactory("dd - "
+					+ Constant.messages.getString("context.flag.popup")) {
+
+				private static final long serialVersionUID = 2453839120088204122L;
+
+				@Override
+				public ExtensionPopupMenuItem getContextMenu(Context context, String parentMenu) {
+					return new PopupFlagLoggedInIndicatorMenu(context);
+				}
+
+			};
+		}
+		return this.popupFlagLoggedInIndicatorMenuFactory;
+	}
+
+	/**
+	 * Gets the popup menu for flagging the "Logged out" pattern.
+	 * 
+	 * @return the popup menu
+	 */
+	private PopupContextMenuItemFactory getPopupFlagLoggedOutIndicatorMenu() {
+		if (this.popupFlagLoggedOutIndicatorMenuFactory == null) {
+			popupFlagLoggedOutIndicatorMenuFactory = new PopupContextMenuItemFactory("dd - "
+					+ Constant.messages.getString("context.flag.popup")) {
+
+				private static final long serialVersionUID = 2453839120088204123L;
+
+				@Override
+				public ExtensionPopupMenuItem getContextMenu(Context context, String parentMenu) {
+					return new PopupFlagLoggedOutIndicatorMenu(context);
+				}
+
+			};
+		}
+		return this.popupFlagLoggedOutIndicatorMenuFactory;
 	}
 
 	/**
