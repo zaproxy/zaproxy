@@ -22,7 +22,9 @@ package org.zaproxy.zap.userauth.authentication;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 
@@ -123,6 +125,19 @@ public abstract class AuthenticationMethod {
 		if (msg == null || msg.getResponseBody() == null) {
 			return false;
 		}
+		// Assume logged in if nothing was set up
+		if (loggedInIndicatorPattern == null && loggedOutIndicatorPattern == null) {
+			if (View.isInitialised()) {
+				// Let the user know this
+				View.getSingleton()
+						.getOutputPanel()
+						.append(Constant.messages.getString("authentication.output.indicatorsNotSet", msg
+								.getRequestHeader().getURI())
+								+ "\n");
+			}
+			return true;
+		}
+
 		String body = msg.getResponseBody().toString();
 		String header = msg.getResponseHeader().toString();
 
@@ -136,9 +151,8 @@ public abstract class AuthenticationMethod {
 			return true;
 		}
 
-		if (loggedOutIndicatorPattern != null
-				&& (loggedOutIndicatorPattern.matcher(body).find() || loggedOutIndicatorPattern.matcher(
-						header).find())) {
+		if (loggedOutIndicatorPattern != null && !loggedOutIndicatorPattern.matcher(body).find()
+				&& !loggedOutIndicatorPattern.matcher(header).find()) {
 			// Cant find the unauthenticated indicator, assume we're authenticated
 			Logger.getRootLogger().debug(
 					"isLoggedIn " + msg.getRequestHeader().getURI() + " not found unauth pattern "
