@@ -26,6 +26,8 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -39,6 +41,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AbstractAuthenticationMethodOptionsPanel;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -76,6 +79,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	/** The container panel for the authentication method's configuration. */
 	private JPanel configContainerPanel;
 
+	private ZapTextField loggedInIndicaterRegexField = null;
+	private ZapTextField loggedOutIndicaterRegexField = null;
+
 	/**
 	 * Instantiates a new context authentication configuration panel.
 	 * 
@@ -111,6 +117,12 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 		// Method config panel container
 		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 3, 1, 1.0d, new Insets(10, 0, 10, 0)));
+
+		// Logged In/Out indicators
+		this.add(new JLabel("Logged In Indicator Pattern:"), LayoutHelper.getGBC(0, 4, 1, 1.0D));
+		this.add(getLoggedInIndicaterRegexField(), LayoutHelper.getGBC(0, 5, 1, 1.0D));
+		this.add(new JLabel("Logged Out Indicator Pattern:"), LayoutHelper.getGBC(0, 6, 1, 1.0D));
+		this.add(getLoggedOutIndicaterRegexField(), LayoutHelper.getGBC(0, 7, 1, 1.0D));
 
 		// Padding
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
@@ -210,6 +222,18 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		return configContainerPanel;
 	}
 
+	private ZapTextField getLoggedInIndicaterRegexField() {
+		if (loggedInIndicaterRegexField == null)
+			loggedInIndicaterRegexField = new ZapTextField();
+		return loggedInIndicaterRegexField;
+	}
+
+	private ZapTextField getLoggedOutIndicaterRegexField() {
+		if (loggedOutIndicaterRegexField == null)
+			loggedOutIndicaterRegexField = new ZapTextField();
+		return loggedOutIndicaterRegexField;
+	}
+
 	@Override
 	public String getHelpIndex() {
 		// TODO Auto-generated method stub
@@ -225,6 +249,14 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedAuthenticationMethod != null) {
+			// Set logged in/out indicators
+			if (selectedAuthenticationMethod.getLoggedInIndicatorPattern() != null)
+				getLoggedInIndicaterRegexField().setText(
+						selectedAuthenticationMethod.getLoggedInIndicatorPattern().pattern());
+			if (selectedAuthenticationMethod.getLoggedOutIndicatorPattern() != null)
+				getLoggedOutIndicaterRegexField().setText(
+						selectedAuthenticationMethod.getLoggedOutIndicatorPattern().pattern());
+
 			// If the proper type is already selected, just rebind the data
 			if (shownMethodType != null && shownMethodType.isTypeForMethod(selectedAuthenticationMethod)) {
 				if (shownMethodType.hasOptionsPanel()) {
@@ -252,12 +284,27 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	public void validateContextData(Session session) throws Exception {
 		if (shownConfigPanel != null)
 			shownConfigPanel.validateFields();
+		try {
+			Pattern.compile(getLoggedInIndicaterRegexField().getText());
+			Pattern.compile(getLoggedOutIndicaterRegexField().getText());
+		} catch (PatternSyntaxException e) {
+			throw new IllegalStateException("One of the patterns you have defined for context "
+					+ getUISharedContext().getName() + " is not valid.", e);
+		}
+	}
+
+	private void saveMethod() {
+		if (shownConfigPanel != null)
+			shownConfigPanel.saveMethod();
+		selectedAuthenticationMethod.setLoggedInIndicatorPattern(getLoggedInIndicaterRegexField().getText());
+		selectedAuthenticationMethod
+				.setLoggedOutIndicatorPattern(getLoggedOutIndicaterRegexField().getText());
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		if (shownConfigPanel != null)
-			shownConfigPanel.saveMethod();
+		saveMethod();
+
 		Context context = session.getContext(getContextIndex());
 		// Notify the previously saved method that it's being discarded so the changes can be
 		// reflected in the UI
@@ -266,17 +313,16 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 				context.getAuthenticationMethod().onMethodDiscarded();
 
 		context.setAuthenticationMethod(selectedAuthenticationMethod);
-		
+
 		// Notify the newly saved method that it's being persisted so the changes can be
 		// reflected in the UI
 		selectedAuthenticationMethod.onMethodPersisted();
-		
+
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		if (shownConfigPanel != null)
-			shownConfigPanel.saveMethod();
+		saveMethod();
 		uiSharedContext.setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 

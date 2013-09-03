@@ -53,7 +53,7 @@ public interface SessionManagementMethod {
 	 * 
 	 * @return a deep copy of the session management method
 	 */
-	public SessionManagementMethod duplicate();
+	public SessionManagementMethod clone();
 
 	/**
 	 * Identifies the web session, from a list of existing sessions, which matches the given
