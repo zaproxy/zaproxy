@@ -155,8 +155,6 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	@Override
 	public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
 		return getContextPanel(ctx.getIndex());
-		// // //TODO: Refix this
-		// // return new OptionsUserAuthUserPanel(this, ctx.getIndex());
 	}
 
 	/**
@@ -191,8 +189,8 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 
 	@Override
 	public void discardContexts() {
-		// TODO Auto-generated method stub
-
+		this.contextManagers.clear();
+		this.userPanelsMap.clear();
 	}
 
 	@Override

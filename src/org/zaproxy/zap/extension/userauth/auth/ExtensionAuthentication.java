@@ -186,7 +186,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 
 	@Override
 	public void discardContexts() {
-		// TODO Auto-generated method stub
+		contextPanelsMap.clear();
 	}
 
 }

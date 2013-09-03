@@ -138,7 +138,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	@Override
 	public void discardContexts() {
-		// TODO Auto-generated method stub
+		this.contextPanelsMap.clear();
 	}
 
 	/**
