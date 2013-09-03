@@ -187,6 +187,20 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		return manager;
 	}
 
+	/**
+	 * Gets an unmodifiable view of the users that are currently shown in the UI.
+	 * 
+	 * @param contextId the context id
+	 * @return the uI configured users
+	 */
+	public List<User> getUIConfiguredUsers(int contextId) {
+		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
+		if (panel != null) {
+			return Collections.unmodifiableList(panel.getUsersTableModel().getUsers());
+		}
+		return null;
+	}
+
 	@Override
 	public void discardContexts() {
 		this.contextManagers.clear();
