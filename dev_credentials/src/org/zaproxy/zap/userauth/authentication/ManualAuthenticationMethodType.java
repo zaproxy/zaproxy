@@ -57,7 +57,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
 	 * and then just selects an already authenticated {@link WebSession}.
 	 */
-	public static class ManualAuthenticationMethod implements AuthenticationMethod {
+	public static class ManualAuthenticationMethod extends AuthenticationMethod {
 		private int contextId;
 
 		public ManualAuthenticationMethod(int contextId) {

@@ -78,7 +78,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 * The implementation for an {@link AuthenticationMethod} where the Users are authenticated by
 	 * posting a form with user and password.
 	 */
-	public static class FormBasedAuthenticationMethod implements AuthenticationMethod {
+	public static class FormBasedAuthenticationMethod extends AuthenticationMethod {
 
 		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";

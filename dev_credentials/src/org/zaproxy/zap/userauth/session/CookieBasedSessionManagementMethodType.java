@@ -117,7 +117,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		}
 
 		@Override
-		public SessionManagementMethod duplicate() {
+		public SessionManagementMethod clone() {
 			return new CookieBasedSessionManagementMethod(contextId);
 		}
 

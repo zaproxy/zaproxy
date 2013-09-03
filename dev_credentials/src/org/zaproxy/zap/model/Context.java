@@ -404,8 +404,8 @@ public class Context {
 		newContext.excludeFromPatterns = new ArrayList<Pattern>(this.excludeFromPatterns);
 		newContext.inScope = this.inScope;
 		newContext.techSet = new TechSet(this.techSet);
-		newContext.authenticationMethod = this.authenticationMethod.duplicate();
-		newContext.sessionManagementMethod = this.sessionManagementMethod.duplicate();
+		newContext.authenticationMethod = this.authenticationMethod.clone();
+		newContext.sessionManagementMethod = this.sessionManagementMethod.clone();
 		return newContext;
 	}
 
