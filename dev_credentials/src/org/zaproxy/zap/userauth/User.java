@@ -98,9 +98,9 @@ public class User extends Enableable {
 		// If the user is not yet authenticated, authenticate now
 		// Make sure there are no simultaneous authentications for the same user
 		synchronized (this) {
-			if (!this.isAuthenticated()) {
+			if (!this.hasAuthenticatedSession()) {
 				this.authenticate();
-				if (!this.isAuthenticated()) {
+				if (!this.hasAuthenticatedSession()) {
 					log.info("Authentication failed for user: " + name);
 					return;
 				}
@@ -131,12 +131,30 @@ public class User extends Enableable {
 	}
 
 	/**
-	 * Checks if the user is authenticated.
+	 * Checks if the user has a corresponding authenticated session
 	 * 
 	 * @return true, if is authenticated
 	 */
-	public boolean isAuthenticated() {
+	public boolean hasAuthenticatedSession() {
 		return authenticatedSession != null;
+	}
+
+	/**
+	 * Resets the existing authenticated session, causing subsequent calls to
+	 * {@link #processMessageToMatchUser(HttpMessage)} to reauthenticate.
+	 */
+	public void resetAuthenticatedSession() {
+		authenticatedSession = null;
+	}
+
+	/**
+	 * Checks if the response received by the Http Message corresponds to this user.
+	 * 
+	 * @param msg the msg
+	 * @return true, if is authenticated
+	 */
+	public boolean isAuthenticated(HttpMessage msg) {
+		return getContext().getAuthenticationMethod().isAuthenticated(msg);
 	}
 
 	/**
