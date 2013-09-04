@@ -24,6 +24,6 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public interface TargetedScript {
 
-	public void invokeWith(HttpMessage msg);
+	void invokeWith(HttpMessage msg) throws ScriptException;
 
 }

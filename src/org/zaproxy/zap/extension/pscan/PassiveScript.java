@@ -24,10 +24,11 @@ import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner;
+import org.zaproxy.zap.extension.script.ScriptException;
 
 public interface PassiveScript {
 
-	public void scan(ScriptsPassiveScanner scriptsPassiveScanner,
-			HttpMessage msg, Source source);
+	void scan(ScriptsPassiveScanner scriptsPassiveScanner,
+			HttpMessage msg, Source source) throws ScriptException;
 
 }

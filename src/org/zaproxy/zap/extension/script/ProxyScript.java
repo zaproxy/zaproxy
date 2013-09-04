@@ -24,7 +24,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public interface ProxyScript {
 
-	public boolean proxyRequest (HttpMessage msg);
+	public boolean proxyRequest (HttpMessage msg) throws ScriptException;
 
-	public boolean proxyResponse (HttpMessage msg);
+	public boolean proxyResponse (HttpMessage msg) throws ScriptException;
 }
