@@ -458,6 +458,10 @@ public class ExtensionScript extends ExtensionAdaptor {
 	    try {
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
+	    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+	    		// Dereference one level
+	    		e = (Exception)e.getCause();
+	    	}
 	    	writers.append(e.toString());
 	    	this.setError(script, e);
 	    	this.setEnabled(script, false);
@@ -486,6 +490,10 @@ public class ExtensionScript extends ExtensionAdaptor {
 				}
 			
 			} catch (Exception e) {
+		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+		    		// Dereference one level
+		    		e = (Exception)e.getCause();
+		    	}
 				try {
 					writers.append(e.toString());
 				} catch (IOException e1) {
@@ -519,6 +527,10 @@ public class ExtensionScript extends ExtensionAdaptor {
 				}
 			
 			} catch (Exception e) {
+		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+		    		// Dereference one level
+		    		e = (Exception)e.getCause();
+		    	}
 				try {
 					writers.append(e.toString());
 				} catch (IOException e1) {

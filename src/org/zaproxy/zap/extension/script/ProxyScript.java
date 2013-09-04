@@ -20,11 +20,13 @@
 
 package org.zaproxy.zap.extension.script;
 
+import javax.script.ScriptException;
+
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface ProxyScript {
 
-	public boolean proxyRequest (HttpMessage msg) throws ScriptException;
+	boolean proxyRequest (HttpMessage msg) throws ScriptException;
 
-	public boolean proxyResponse (HttpMessage msg) throws ScriptException;
+	boolean proxyResponse (HttpMessage msg) throws ScriptException;
 }

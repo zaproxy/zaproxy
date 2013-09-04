@@ -20,11 +20,12 @@
 
 package org.zaproxy.zap.extension.pscan;
 
+import javax.script.ScriptException;
+
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner;
-import org.zaproxy.zap.extension.script.ScriptException;
 
 public interface PassiveScript {
 

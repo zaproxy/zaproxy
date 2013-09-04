@@ -19,8 +19,9 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import javax.script.ScriptException;
+
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.script.ScriptException;
 
 public interface ActiveScript {
 
