@@ -43,6 +43,8 @@ public class RecordContext {
 	public static final int TYPE_AUTH_METHOD_FIELD_3 = 203;
 	public static final int TYPE_AUTH_METHOD_FIELD_4 = 204;
 	public static final int TYPE_AUTH_METHOD_FIELD_5 = 205;
+	public static final int TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR = 206;
+	public static final int TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR = 207;
 	
 	public static final int TYPE_SESSION_MANAGEMENT_TYPE = 220;
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_1 = 221;
