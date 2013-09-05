@@ -215,8 +215,20 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 			if (typeL != null && typeL.size() > 0) {
 				AuthenticationMethodType t = getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL
 						.get(0)));
-				if (t != null)
+				if (t != null) {
 					context.setAuthenticationMethod(t.loadMethodFromSession(session, context.getIndex()));
+
+					List<String> loginIndicatorL = session.getContextDataStrings(context.getIndex(),
+							RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR);
+					if (loginIndicatorL != null && loginIndicatorL.size() > 0)
+						context.getAuthenticationMethod().setLoggedInIndicatorPattern(loginIndicatorL.get(0));
+
+					List<String> logoutIndicatorL = session.getContextDataStrings(context.getIndex(),
+							RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR);
+					if (logoutIndicatorL != null && logoutIndicatorL.size() > 0)
+						context.getAuthenticationMethod().setLoggedOutIndicatorPattern(
+								logoutIndicatorL.get(0));
+				}
 			}
 
 		} catch (SQLException e) {
@@ -231,6 +243,16 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 			AuthenticationMethodType t = context.getAuthenticationMethod().getType();
 			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE,
 					Integer.toString(t.getUniqueIdentifier()));
+
+			if (context.getAuthenticationMethod().getLoggedInIndicatorPattern() != null)
+				session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+						context.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+
+			if (context.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null)
+				session.setContextData(context.getIndex(),
+						RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, context.getAuthenticationMethod()
+								.getLoggedOutIndicatorPattern().toString());
+
 			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
 		} catch (SQLException e) {
 			log.error("Unable to persist Authentication method.", e);
