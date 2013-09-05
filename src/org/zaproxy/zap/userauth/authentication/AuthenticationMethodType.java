@@ -151,6 +151,14 @@ public abstract class AuthenticationMethodType {
 	}
 
 	/**
+	 * Creates a new, empty, Authentication Credentials object corresponding to this type of
+	 * Authentication method.
+	 * 
+	 * @return the authentication credentials
+	 */
+	public abstract AuthenticationCredentials createAuthenticationCredentials();
+	
+	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
 	 */
 	public static class UnsupportedAuthenticationMethodException extends RuntimeException {

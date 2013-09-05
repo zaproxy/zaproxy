@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -191,7 +192,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 
 			// Clear any session identifiers
-			//sessionManagementMethod.clearWebSessionIdentifiers(msg);
+			// sessionManagementMethod.clearWebSessionIdentifiers(msg);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Authentication request header: \n" + msg.getRequestHeader());
@@ -337,12 +338,29 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 */
 	private static class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
 
+		private static String FIELD_SEPARATOR = "~";
 		private String username;
 		private String password;
 
 		@Override
 		public boolean isConfigured() {
 			return username != null && password != null;
+		}
+
+		@Override
+		public String encode(String parentStringSeparator) {
+			assert (!FIELD_SEPARATOR.equals(parentStringSeparator));
+			StringBuilder out = new StringBuilder();
+			out.append(Base64.encodeBase64String(username.getBytes())).append(FIELD_SEPARATOR);
+			out.append(Base64.encodeBase64String(password.getBytes())).append(FIELD_SEPARATOR);
+			return out.toString();
+		}
+
+		@Override
+		public void decode(String encodedCredentials) {
+			String[] pieces = encodedCredentials.split(FIELD_SEPARATOR);
+			this.username = new String(Base64.decodeBase64(pieces[0]));
+			this.password = new String(Base64.decodeBase64(pieces[1]));
 		}
 	}
 
@@ -614,5 +632,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	@Override
 	public int getUniqueIdentifier() {
 		return METHOD_IDENTIFIER;
+	}
+
+	@Override
+	public AuthenticationCredentials createAuthenticationCredentials() {
+		return new UsernamePasswordAuthenticationCredentials();
 	}
 }

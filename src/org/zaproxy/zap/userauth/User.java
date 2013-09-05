@@ -21,9 +21,12 @@ package org.zaproxy.zap.userauth;
 
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
@@ -40,6 +43,10 @@ public class User extends Enableable {
 
 	private static int ID_SOURCE = 0;
 
+	/** The Constant FIELD_SEPARATOR used for separating Users's field during serialization. */
+	private static final String FIELD_SEPARATOR = ";";
+
+	/** The id. */
 	private int id;
 
 	/** The name. */
@@ -56,6 +63,9 @@ public class User extends Enableable {
 
 	/** The authentication credentials that can be used for configuring the user. */
 	private AuthenticationCredentials authenticationCredentials;
+
+	/** The extension auth. */
+	private static ExtensionAuthentication extensionAuth;
 
 	/** The context. */
 	private Context context;
@@ -83,13 +93,23 @@ public class User extends Enableable {
 		return name;
 	}
 
+	/**
+	 * Gets the context id.
+	 * 
+	 * @return the context id
+	 */
+	public int getContextId() {
+		return contextId;
+	}
+
 	@Override
 	public String toString() {
-		return "User [name=" + name + ", contextId=" + contextId + ", enabled=" + isEnabled() + "]";
+		return "User [id=" + id + ", name=" + name + ", contextId=" + contextId + ", enabled=" + isEnabled()
+				+ "]";
 	}
 
 	/**
-	 * Gets the context to which this user corresponds.
+	 * Lazy loader for getting the context to which this user corresponds.
 	 * 
 	 * @return the context
 	 */
@@ -98,6 +118,15 @@ public class User extends Enableable {
 			context = Model.getSingleton().getSession().getContext(this.contextId);
 		}
 		return context;
+	}
+
+	/**
+	 * Gets the id.
+	 * 
+	 * @return the id
+	 */
+	public int getId() {
+		return this.id;
 	}
 
 	/**
@@ -183,8 +212,68 @@ public class User extends Enableable {
 				getContext().getSessionManagementMethod(), this.authenticationCredentials);
 	}
 
-	public int getId() {
-		return this.id;
+	/**
+	 * Gets a reference to the authentication extension.
+	 * 
+	 * @return the authentication extension
+	 */
+	private static ExtensionAuthentication getAuthenticationExtension() {
+		if (extensionAuth == null) {
+			extensionAuth = (ExtensionAuthentication) Control.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionAuthentication.NAME);
+		}
+		return extensionAuth;
+	}
+
+	/**
+	 * Encodes the User in a String. Fields that contain strings are Base64 encoded.
+	 * 
+	 * @param user the user
+	 * @return the string
+	 */
+	public static String encode(User user) {
+		StringBuilder out = new StringBuilder();
+		out.append(user.id).append(FIELD_SEPARATOR);
+		out.append(user.contextId).append(FIELD_SEPARATOR);
+		out.append(user.isEnabled()).append(FIELD_SEPARATOR);
+		out.append(Base64.encodeBase64String(user.name.getBytes())).append(FIELD_SEPARATOR);
+		out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier()).append(
+				FIELD_SEPARATOR);
+		out.append(user.authenticationCredentials.encode(FIELD_SEPARATOR));
+		if (log.isDebugEnabled())
+			log.debug("Encoded user: " + out.toString());
+		return out.toString();
+	}
+
+	/**
+	 * Decodes an User from an encoded string. The string provided as input should have been
+	 * obtained through calls to {@link #encode(User)}.
+	 * 
+	 * @param encodedString the encoded string
+	 * @return the user
+	 */
+	public static User decode(String encodedString) {
+		String[] pieces = encodedString.split(FIELD_SEPARATOR);
+		User user = null;
+		try {
+			int id = Integer.parseInt(pieces[0]);
+			int contextId = Integer.parseInt(pieces[1]);
+			boolean enabled = pieces[2].equals("true");
+			String name = new String(Base64.decodeBase64(pieces[3]));
+			int authTypeId = Integer.parseInt(pieces[4]);
+			AuthenticationCredentials cred = getAuthenticationExtension()
+					.getAuthenticationMethodTypeForIdentifier(authTypeId).createAuthenticationCredentials();
+			cred.decode(pieces[5]);
+			user = new User(contextId, name, id);
+			user.setAuthenticationCredentials(cred);
+			user.setEnabled(enabled);
+		} catch (Exception ex) {
+			log.error("An error occured while decoding user from: " + encodedString, ex);
+			return null;
+		}
+		if (log.isDebugEnabled())
+			log.debug("Decoded user: " + user);
+		return user;
 	}
 
 	@Override
