@@ -50,6 +50,8 @@ public class RecordContext {
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_3 = 223;
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_4 = 224;
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_5 = 225;
+	
+	public static final int TYPE_USER = 300;
 
     private long dataId = 0;
     private int contextId = 0;

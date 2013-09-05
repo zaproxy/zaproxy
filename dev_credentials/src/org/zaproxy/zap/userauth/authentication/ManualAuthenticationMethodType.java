@@ -29,6 +29,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -135,6 +136,17 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		protected void setSelectedSession(WebSession selectedSession) {
 			this.selectedSession = selectedSession;
+		}
+
+		@Override
+		public String encode(String parentStringSeparator) {
+			return Base64.encodeBase64String(selectedSession.getName().getBytes());
+		}
+
+		@Override
+		public void decode(String encodedCredentials) {
+			// TODO: Currently, cannot be decoded as HttpSessions are not persisted.
+			throw new IllegalStateException("Manual Authentication Credentials cannot be decoded.");
 		}
 	}
 
@@ -281,6 +293,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	@Override
 	public int getUniqueIdentifier() {
 		return METHOD_IDENTIFIER;
+	}
+
+	@Override
+	public AuthenticationCredentials createAuthenticationCredentials() {
+		return new ManualAuthenticationCredentials();
 	}
 
 }

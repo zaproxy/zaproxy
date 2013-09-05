@@ -40,13 +40,23 @@ public interface AuthenticationCredentials {
 	 * 
 	 * @return true, if is configured
 	 */
-	public boolean isConfigured();
+	boolean isConfigured();
 
-	// /**
-	// * Gets a string describing the status (the configuration) of the authenticator.
-	// *
-	// * @return the status description
-	// */
-	// public String getStatusDescription();
+	/**
+	 * Encodes the Credentials in a String. Fields that contain strings should not contain the
+	 * {@code parentFieldSeparator}. Should be consistent with {@link #decode(String)}.
+	 * 
+	 * @param parentFieldSeparator the parent field separator
+	 * @return the string
+	 */
+	String encode(String parentFieldSeparator);
 
+	/**
+	 * Decodes the internal values of the Authentication Credentials from an encoded string and
+	 * fills in the current object. The string provided as input should have been obtained through
+	 * calls to {@link #encode(String)}.
+	 * 
+	 * @param encodedCredentials the encoded credentials
+	 */
+	void decode(String encodedCredentials);
 }

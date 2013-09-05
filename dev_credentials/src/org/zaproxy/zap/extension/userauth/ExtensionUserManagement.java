@@ -32,6 +32,7 @@ import javax.management.relation.Role;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
@@ -223,14 +224,28 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 
 	@Override
 	public void loadContextData(Session session, Context context) {
-		// TODO Auto-generated method stub
-
+		try {
+			List<String> encodedUsers = session.getContextDataStrings(context.getIndex(),
+					RecordContext.TYPE_USER);
+			for (String e : encodedUsers) {
+				User u = User.decode(e);
+				getContextUserAuthManager(u.getContextId()).addUser(u);
+			}
+		} catch (Exception ex) {
+			log.error("Unable to load Users.", ex);
+		}
 	}
 
 	@Override
 	public void persistContextData(Session session, Context context) {
-		// TODO Auto-generated method stub
-
+		try {
+			List<String> encodedUsers = new ArrayList<>();
+			for (ContextUserAuthManager m : contextManagers.values())
+				for (User u : m.getUsers())
+					encodedUsers.add(User.encode(u));
+			session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
+		} catch (Exception ex) {
+			log.error("Unable to persist Users.", ex);
+		}
 	}
-
 }
