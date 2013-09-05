@@ -69,6 +69,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	private JPanel mainPanel = null;
 	private List<JPanel> tabPanels = null;
 	private List<Integer> tabOffsets = null;
+	private JTabbedPane tabbedPane = null;
 
 	private JButton cancelButton = null;
 	private JButton saveButton = null;
@@ -125,9 +126,9 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		contentPanel.setPreferredSize(dim);
 		this.setContentPane(contentPanel);
 		
-		JTabbedPane jTabbed = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		
-		contentPanel.add(jTabbed, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
+		contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
 		contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
 		contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
 		contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
@@ -135,7 +136,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		for (String label : tabLabels) {
 			JPanel tabPanel = new JPanel();
 			tabPanel.setLayout(new GridBagLayout());
-			jTabbed.addTab(Constant.messages.getString(label), tabPanel);
+			tabbedPane.addTab(Constant.messages.getString(label), tabPanel);
 			this.tabPanels.add(tabPanel);
 			this.tabOffsets.add(0);
 		}
@@ -723,7 +724,17 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.fieldList.clear();
 		this.fieldMap.clear();
 	}
-	
+
+	public void requestTabFocus(int tabIndex) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		tabbedPane.setSelectedComponent(this.tabPanels.get(tabIndex));
+	}
+
 	public abstract void save();
 
 	public abstract String validateFields();
