@@ -1,0 +1,12 @@
+# This file is used by the class InformationDisclosureInURL under org.zaproxy.zap.extension.pscan.scanner
+# Strings below are used to search for sensitive information disclosure in URLs
+user
+username
+pass
+password
+pwd
+token
+ticket
+session
+jsessionid
+sessionid
