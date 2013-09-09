@@ -19,8 +19,10 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -28,12 +30,16 @@ import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
+import javax.swing.JList;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -46,6 +52,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -56,8 +64,10 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
+import org.zaproxy.zap.httputils.HtmlParametersUtils;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.userauth.authentication.UsernamePasswordAuthenticationCredentials.UsernamePasswordAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -195,6 +205,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			msg.setRequestingUser(user);
 
 			// Clear any session identifiers
+			msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
 			// sessionManagementMethod.clearWebSessionIdentifiers(msg);
 
 			if (log.isDebugEnabled()) {
@@ -336,38 +347,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	/**
-	 * The credentials implementation for use in systems that require a username and password
-	 * combination for authentication.
-	 */
-	private static class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
-
-		private static String FIELD_SEPARATOR = "~";
-		private String username;
-		private String password;
-
-		@Override
-		public boolean isConfigured() {
-			return username != null && password != null;
-		}
-
-		@Override
-		public String encode(String parentStringSeparator) {
-			assert (!FIELD_SEPARATOR.equals(parentStringSeparator));
-			StringBuilder out = new StringBuilder();
-			out.append(Base64.encodeBase64String(username.getBytes())).append(FIELD_SEPARATOR);
-			out.append(Base64.encodeBase64String(password.getBytes())).append(FIELD_SEPARATOR);
-			return out.toString();
-		}
-
-		@Override
-		public void decode(String encodedCredentials) {
-			String[] pieces = encodedCredentials.split(FIELD_SEPARATOR);
-			this.username = new String(Base64.decodeBase64(pieces[0]));
-			this.password = new String(Base64.decodeBase64(pieces[1]));
-		}
-	}
-
-	/**
 	 * The Options Panel used for configuring a {@link FormBasedAuthenticationMethod}.
 	 */
 	private static class FormBasedAuthenticationMethodOptionsPanel extends
@@ -384,6 +363,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private ZapTextField loginUrlField;
 		private ZapTextField postDataField;
+		private JComboBox<HtmlParameter> usernameParameterCombo;
+		private JComboBox<HtmlParameter> passwordParameterCombo;
 		private FormBasedAuthenticationMethod authenticationMethod;
 
 		public FormBasedAuthenticationMethodOptionsPanel() {
@@ -391,18 +372,40 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			initialize();
 		}
 
+		@SuppressWarnings("unchecked")
 		private void initialize() {
 			this.setLayout(new GridBagLayout());
 
-			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
+			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 0, 2, 1.0d, 0.0d));
 			this.loginUrlField = new ZapTextField();
-			this.add(this.loginUrlField, LayoutHelper.getGBC(0, 1, 1, 1.0d, 0.0d));
+			this.add(this.loginUrlField, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
 
-			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 1, 1.0d, 0.0d));
+			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 2, 1.0d, 0.0d));
 			this.postDataField = new ZapTextField();
-			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 1, 1.0d, 0.0d));
+			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 2, 1.0d, 0.0d));
 
-			this.add(new JLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
+			this.add(new JLabel("Username Param:"), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
+			this.usernameParameterCombo = new JComboBox<>();
+			this.usernameParameterCombo.setRenderer(new HtmlParameterRenderer());
+			this.add(usernameParameterCombo, LayoutHelper.getGBC(0, 5, 1, 1.0d, 0.0d));
+
+			this.add(new JLabel("Password Param:"), LayoutHelper.getGBC(1, 4, 1, 1.0d, 0.0d));
+			this.passwordParameterCombo = new JComboBox<>();
+			this.passwordParameterCombo.setRenderer(new HtmlParameterRenderer());
+			this.add(passwordParameterCombo, LayoutHelper.getGBC(1, 5, 1, 1.0d, 0.0d));
+
+			this.add(new JLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 8, 2, 1.0d, 0.0d));
+
+			this.postDataField.addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					updateParameters();
+				}
+
+				@Override
+				public void focusGained(FocusEvent e) {
+				}
+			});
 		}
 
 		@Override
@@ -416,10 +419,25 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 		}
 
+		private String replaceParameterValue(String originalString, HtmlParameter parameter,
+				String replaceString) {
+			return originalString.replace(parameter.getName() + "=" + parameter.getValue(),
+					parameter.getName() + "=" + replaceString);
+		}
+
 		@Override
 		public void saveMethod() {
 			try {
-				getMethod().setLoginRequest(loginUrlField.getText(), postDataField.getText());
+				String postData = postDataField.getText();
+				if (!postData.isEmpty()) {
+					postData = this.replaceParameterValue(postData,
+							(HtmlParameter) usernameParameterCombo.getSelectedItem(),
+							FormBasedAuthenticationMethod.MSG_USER_PATTERN);
+					postData = this.replaceParameterValue(postData,
+							(HtmlParameter) passwordParameterCombo.getSelectedItem(),
+							FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
+				}
+				getMethod().setLoginRequest(loginUrlField.getText(), postData);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -430,6 +448,38 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			this.authenticationMethod = (FormBasedAuthenticationMethod) method;
 			this.loginUrlField.setText(authenticationMethod.loginRequestURL);
 			this.postDataField.setText(authenticationMethod.loginRequestBody);
+
+			updateParameters();
+		}
+
+		/**
+		 * Gets the index of the parameter with a given value.
+		 * 
+		 * @param params the params
+		 * @param value the value
+		 * @return the index of param with value, or -1 if no match was found
+		 */
+		private int getIndexOfParamWithValue(HtmlParameter[] params, String value) {
+			for (int i = 0; i < params.length; i++)
+				if (params[i].getValue().equals(value))
+					return i;
+			return -1;
+		}
+
+		private void updateParameters() {
+			Set<HtmlParameter> params = HtmlParametersUtils.getParamsSet(Type.form,
+					this.postDataField.getText());
+			HtmlParameter paramsArray[] = params.toArray(new HtmlParameter[params.size()]);
+			this.usernameParameterCombo.setModel(new DefaultComboBoxModel<HtmlParameter>(paramsArray));
+			this.passwordParameterCombo.setModel(new DefaultComboBoxModel<HtmlParameter>(paramsArray));
+
+			int index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_USER_PATTERN);
+			if (index >= 0)
+				this.usernameParameterCombo.setSelectedIndex(index);
+
+			index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
+			if (index >= 0)
+				this.passwordParameterCombo.setSelectedIndex(index);
 		}
 
 		@Override
@@ -439,62 +489,23 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	/**
-	 * The Options Panel used for configuring a {@link UsernamePasswordAuthenticationCredentials}.
+	 * A renderer for properly displaying the name of an HtmlParameter in a ComboBox.
 	 */
-	private static class UsernamePasswordAuthenticationCredentialsOptionsPanel extends
-			AbstractCredentialsOptionsPanel<UsernamePasswordAuthenticationCredentials> {
+	private static class HtmlParameterRenderer extends BasicComboBoxRenderer {
+		private static final long serialVersionUID = 3654541772447187317L;
+		private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
 
-		private static final long serialVersionUID = 8881019014296985804L;
-
-		private static final String USERNAME_LABEL = Constant.messages
-				.getString("authentication.method.fb.credentials.field.label.user");
-		private static final String PASSWORD_LABEL = Constant.messages
-				.getString("authentication.method.fb.credentials.field.label.pass");
-
-		private ZapTextField usernameTextField;
-		private JPasswordField passwordTextField;
-
-		public UsernamePasswordAuthenticationCredentialsOptionsPanel(
-				UsernamePasswordAuthenticationCredentials credentials) {
-			super(credentials);
-			initialize();
-		}
-
-		private void initialize() {
-			this.setLayout(new GridBagLayout());
-
-			this.add(new JLabel(USERNAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d));
-			this.usernameTextField = new ZapTextField();
-			if (this.getCredentials().username != null)
-				this.usernameTextField.setText(this.getCredentials().username);
-			this.add(this.usernameTextField, LayoutHelper.getGBC(1, 0, 1, 0.0d, new Insets(0, 4, 0, 0)));
-
-			this.add(new JLabel(PASSWORD_LABEL), LayoutHelper.getGBC(0, 1, 1, 0.0d));
-			this.passwordTextField = new JPasswordField();
-			if (this.getCredentials().password != null)
-				this.passwordTextField.setText(this.getCredentials().password);
-			this.add(this.passwordTextField, LayoutHelper.getGBC(1, 1, 1, 1.0d, new Insets(0, 4, 0, 0)));
-		}
-
-		@Override
-		public boolean validateFields() {
-			if (usernameTextField.getText().isEmpty()) {
-				JOptionPane.showMessageDialog(this, Constant.messages
-						.getString("authentication.method.fb.credentials.dialog.error.user.text"),
-						Constant.messages.getString("authentication.method.fb.dialog.error.title"),
-						JOptionPane.WARNING_MESSAGE);
-				usernameTextField.requestFocusInWindow();
-				return false;
+		@SuppressWarnings("rawtypes")
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value != null) {
+				setBorder(BORDER);
+				HtmlParameter item = (HtmlParameter) value;
+				setText(item.getName());
 			}
-			return true;
+			return this;
 		}
-
-		@Override
-		public void saveCredentials() {
-			getCredentials().username = usernameTextField.getText();
-			getCredentials().password = new String(passwordTextField.getPassword());
-		}
-
 	}
 
 	@Override
