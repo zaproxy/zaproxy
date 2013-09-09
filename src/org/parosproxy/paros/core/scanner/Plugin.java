@@ -25,6 +25,7 @@
 // ZAP: 2012/10/03 Issue 388: Added enabling support for technologies
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2013/09/08 Issue 691: Handle old plugins
 
 package org.parosproxy.paros.core.scanner;
 
@@ -78,6 +79,7 @@ public interface Plugin extends Runnable {
      * @see Alert.RISK_MEDIUM
      * @see Alert.RISK_LOW
      * @see Alert.RISK_INFO
+     * @since 2.0.0
      */
     int getRisk ();
     
@@ -238,12 +240,14 @@ public interface Plugin extends Runnable {
 	/**
 	 * Get the CWE Id: http://cwe.mitre.org/index.html
 	 * @return
+	 * @since 2.2.0
 	 */
 	int getCweId();
 	
 	/**
 	 * Get the WASC Id: http://projects.webappsec.org/w/page/13246978/Threat%20Classification
 	 * @return
+	 * @since 2.2.0
 	 */
 	int getWascId();
 
