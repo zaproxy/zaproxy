@@ -65,6 +65,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE = "/resource/icon/fugue/door-half-open.png";
 	private static final String FORCED_USER_MODE_ON_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-loop-arrow.png";
+	private static final String BUTTON_LABEL_ON = Constant.messages.getString("forceduser.toolbar.button.on");
+	private static final String BUTTON_LABEL_OFF = Constant.messages
+			.getString("forceduser.toolbar.button.off");
+	private static final String BUTTON_LABEL_DISABLED = Constant.messages
+			.getString("forceduser.toolbar.button.disabled");
 
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionForcedUser";
@@ -75,6 +80,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	/** The map of context panels. */
 	private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();
 
+	/** The map of forced users for each context. */
 	private Map<Integer, User> contextForcedUsersMap = new HashMap<>();
 
 	private ExtensionUserManagement extensionUserManagement;
@@ -121,13 +127,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			if (forcedUserModeEnabled) {
 				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
 						.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
-				forcedUserModeButton.setToolTipText(Constant.messages
-						.getString("auth.toolbar.button.reauth.on"));
+				forcedUserModeButton.setToolTipText(BUTTON_LABEL_ON);
 			} else {
 				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
 						.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-				forcedUserModeButton.setToolTipText(Constant.messages
-						.getString("auth.toolbar.button.reauth.off"));
+				forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
 			}
 		}
 	}
@@ -136,15 +140,13 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		if (enabled) {
 			this.getForcedUserModeToggleButton().setIcon(
 					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			this.getForcedUserModeToggleButton().setToolTipText(
-					Constant.messages.getString("auth.toolbar.button.reauth.off"));
+			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_OFF);
 			this.getForcedUserModeToggleButton().setEnabled(true);
 		} else {
 			this.forcedUserModeEnabled = false;
 			this.getForcedUserModeToggleButton().setIcon(
 					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			this.getForcedUserModeToggleButton().setToolTipText(
-					Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
+			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_DISABLED);
 			this.getForcedUserModeToggleButton().setSelected(false);
 			this.getForcedUserModeToggleButton().setEnabled(false);
 		}
@@ -165,8 +167,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			forcedUserModeButton = new JToggleButton();
 			forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
 					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			forcedUserModeButton.setToolTipText(Constant.messages
-					.getString("auth.toolbar.button.reauth.disabled"));
+			forcedUserModeButton.setToolTipText(BUTTON_LABEL_DISABLED);
 			forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
 
 			forcedUserModeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -248,8 +249,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	@Override
 	public int getListenerOrder() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Later so any modifications or requested users are visible
+		return 9998;
 	}
 
 	@Override
@@ -289,8 +290,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
-		// TODO Auto-generated method stub
-
+		// Nothing to do
 	}
 
 }
