@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,6 +14,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
@@ -68,23 +70,24 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		@Override
 		public void processMessageToMatchSession(HttpMessage message, WebSession session)
 				throws UnsupportedWebSessionException {
+			message.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
 
-			//TODO: Fix this
-//			if (session != null && message.getHttpSession() != session) {
-//				if (log.isDebugEnabled()) {
-//					log.debug("Modifying message to match session: " + session);
-//				}
-//
-//				// make sure it's the right type
-//				if (!(session instanceof HttpSession)) {
-//					throw new UnsupportedWebSessionException(
-//							"The WebSession type provided is unsupported. Cookie based session management only supports "
-//									+ HttpSession.class + " type of WebSession.");
-//				}
-//
-//				CookieBasedSessionManagementHelper.processMessageToMatchSession(message,
-//						(HttpSession) session);
-//			}
+			// TODO: Fix this
+			// if (session != null && message.getHttpSession() != session) {
+			// if (log.isDebugEnabled()) {
+			// log.debug("Modifying message to match session: " + session);
+			// }
+			//
+			// // make sure it's the right type
+			// if (!(session instanceof HttpSession)) {
+			// throw new UnsupportedWebSessionException(
+			// "The WebSession type provided is unsupported. Cookie based session management only supports "
+			// + HttpSession.class + " type of WebSession.");
+			// }
+			//
+			// CookieBasedSessionManagementHelper.processMessageToMatchSession(message,
+			// (HttpSession) session);
+			// }
 		}
 
 		@Override
