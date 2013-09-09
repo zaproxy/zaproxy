@@ -69,21 +69,22 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		public void processMessageToMatchSession(HttpMessage message, WebSession session)
 				throws UnsupportedWebSessionException {
 
-			if (session != null && message.getHttpSession() != session) {
-				if (log.isDebugEnabled()) {
-					log.debug("Modifying message to match session: " + session);
-				}
-
-				// make sure it's the right type
-				if (!(session instanceof HttpSession)) {
-					throw new UnsupportedWebSessionException(
-							"The WebSession type provided is unsupported. Cookie based session management only supports "
-									+ HttpSession.class + " type of WebSession.");
-				}
-
-				CookieBasedSessionManagementHelper.processMessageToMatchSession(message,
-						(HttpSession) session);
-			}
+			//TODO: Fix this
+//			if (session != null && message.getHttpSession() != session) {
+//				if (log.isDebugEnabled()) {
+//					log.debug("Modifying message to match session: " + session);
+//				}
+//
+//				// make sure it's the right type
+//				if (!(session instanceof HttpSession)) {
+//					throw new UnsupportedWebSessionException(
+//							"The WebSession type provided is unsupported. Cookie based session management only supports "
+//									+ HttpSession.class + " type of WebSession.");
+//				}
+//
+//				CookieBasedSessionManagementHelper.processMessageToMatchSession(message,
+//						(HttpSession) session);
+//			}
 		}
 
 		@Override

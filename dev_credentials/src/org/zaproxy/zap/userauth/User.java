@@ -22,6 +22,7 @@ package org.zaproxy.zap.userauth;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -56,16 +57,22 @@ public class User extends Enableable {
 	private int contextId;
 
 	/** The roles corresponding to this user. */
+	// TODO: Here for future use
+	@SuppressWarnings("unused")
 	private List<Role> roles;
 
 	/** The authenticated session. */
 	private WebSession authenticatedSession;
+
+	private HttpState userHttpState;
 
 	/** The authentication credentials that can be used for configuring the user. */
 	private AuthenticationCredentials authenticationCredentials;
 
 	/** The extension auth. */
 	private static ExtensionAuthentication extensionAuth;
+
+	private long lastSuccessfulAuthTime;
 
 	/** The context. */
 	private Context context;
@@ -152,6 +159,14 @@ public class User extends Enableable {
 		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);
 	}
 
+	public HttpState getUserHttpState() {
+		if (userHttpState == null) {
+			// TODO: Make sure this gets copied on duplicate
+			userHttpState = new HttpState();
+		}
+		return userHttpState;
+	}
+
 	/**
 	 * Gets the configured authentication credentials of this user.
 	 * 
@@ -184,8 +199,11 @@ public class User extends Enableable {
 	 * Resets the existing authenticated session, causing subsequent calls to
 	 * {@link #processMessageToMatchUser(HttpMessage)} to reauthenticate.
 	 */
-	public void resetAuthenticatedSession() {
-		authenticatedSession = null;
+	public void queueAuthentication(HttpMessage unauthenticatedMessage) {
+		synchronized (this) {
+			if (unauthenticatedMessage.getTimeSentMillis() >= lastSuccessfulAuthTime)
+				authenticatedSession = null;
+		}
 	}
 
 	/**
@@ -208,8 +226,13 @@ public class User extends Enableable {
 	 */
 	public void authenticate() {
 		log.info("Authenticating user: " + this.name);
-		this.authenticatedSession = getContext().getAuthenticationMethod().authenticate(
-				getContext().getSessionManagementMethod(), this.authenticationCredentials);
+		WebSession result = getContext().getAuthenticationMethod().authenticate(
+				getContext().getSessionManagementMethod(), this.authenticationCredentials, this);
+		// no issues appear if a simultaneous call to #queueAuthentication() is made
+		synchronized (this) {
+			this.lastSuccessfulAuthTime = System.currentTimeMillis();
+			this.authenticatedSession = result;
+		}
 	}
 
 	/**
@@ -257,6 +280,8 @@ public class User extends Enableable {
 		User user = null;
 		try {
 			int id = Integer.parseInt(pieces[0]);
+			if (id >= ID_SOURCE)
+				ID_SOURCE = id + 1;
 			int contextId = Integer.parseInt(pieces[1]);
 			boolean enabled = pieces[2].equals("true");
 			String name = new String(Base64.decodeBase64(pieces[3]));

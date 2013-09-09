@@ -35,6 +35,7 @@
 // ZAP: 2013/07/14 Issue 729: Update NTLM authentication code
 // ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
 // ZAP: 2013/08/31 Reauthentication when sending a message from the perspective of a User
+// ZAP: 2013/09/07 Switched to using HttpState for requesting User for cookie management
 
 package org.parosproxy.paros.network;
 
@@ -50,6 +51,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.URI;
@@ -205,7 +207,7 @@ public class HttpSender {
 		return clientProxy;
 	}
 
-	public int executeMethod(HttpMethod method) throws IOException {
+	public int executeMethod(HttpMethod method, HttpState state) throws IOException {
 		int responseCode = -1;
 
 		String hostName;
@@ -220,14 +222,18 @@ public class HttpSender {
 			boolean isUpgrade = connectionHeader != null
 					&& connectionHeader.getValue().toLowerCase().contains("upgrade");
 
+			// ZAP: try to apply original handling of ParosProxy
+			HttpClient requestClient=client;
 			if (isUpgrade) {
-				// use another client that allows us to expose the socket connection.
-				HttpClient upgradeClient = new HttpClient(new ZapHttpConnectionManager());
-				responseCode = upgradeClient.executeMethod(method);
-			} else {
-				// ZAP: in this case apply original handling of ParosProxy
-				responseCode = client.executeMethod(method);
+				// Unless upgrade, when using another client that allows us to expose the socket connection.
+				requestClient = new HttpClient(new ZapHttpConnectionManager());
 			}
+			
+			// Check if a custom state is being used
+			if (state != null)
+				responseCode = requestClient.executeMethod(null, method, state);
+			else
+				responseCode = requestClient.executeMethod(method);
 		}
 
 		return responseCode;
@@ -364,7 +370,7 @@ public class HttpSender {
 	// ZAP: Make sure a message that needs to be authenticated is authenticated
 	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 		// Modify the request message if a 'Requesting User' has been set
-		if (msg.getRequestingUser() != null)
+		if (initiator!=AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null)
 			msg.getRequestingUser().processMessageToMatchUser(msg);
 
 		// Send the message
@@ -372,12 +378,12 @@ public class HttpSender {
 
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
-		if (msg.getRequestingUser() != null) {
+		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null) {
 			if (msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
 					&& !msg.getRequestingUser().isAuthenticated(msg)) {
 				log.debug("First try to send authenticated message failed for "
 						+ msg.getRequestHeader().getURI() + ". Authenticating and trying again...");
-				msg.getRequestingUser().resetAuthenticatedSession();
+				msg.getRequestingUser().queueAuthentication(msg);
 				msg.getRequestingUser().processMessageToMatchUser(msg);
 				send(msg, isFollowRedirect);
 			}
@@ -424,11 +430,15 @@ public class HttpSender {
 			// cant do this for Generic methods - it will fail
 			method.setFollowRedirects(isFollowRedirect);
 		}
-		this.executeMethod(method);
-		if (allowState) {
-			if (param.isHttpStateEnabled()) {
-				HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
-			}
+		// ZAP: Use custom HttpState if needed
+		if (msg.getRequestingUser() != null)
+			this.executeMethod(method, msg.getRequestingUser().getUserHttpState());
+		else
+			this.executeMethod(method, null);
+		// ZAP: If the state is enabled or there's a requesting user (so state is automatically
+		// used), update the request message according to what the HttpState contains
+		if ((allowState && param.isHttpStateEnabled()) || msg.getRequestingUser() != null) {
+			HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
 		}
 		return method;
 	}
