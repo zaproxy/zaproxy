@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 
@@ -90,7 +91,7 @@ public abstract class AuthenticationMethod {
 	 *             credentials exception {@link WebSession}.
 	 */
 	public abstract WebSession authenticate(SessionManagementMethod sessionManagementMethod,
-			AuthenticationCredentials credentials) throws UnsupportedAuthenticationCredentialsException;
+			AuthenticationCredentials credentials, User user) throws UnsupportedAuthenticationCredentialsException;
 
 	/**
 	 * Called when the Authentication Method is persisted/saved in a Context. For example, in this

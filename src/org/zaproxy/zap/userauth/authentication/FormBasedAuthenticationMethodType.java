@@ -57,6 +57,7 @@ import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -112,7 +113,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private HttpSender getHttpSender() {
 			if (this.httpSender == null) {
 				this.httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(),
-						false, HttpSender.AUTHENTICATION_INITIATOR);
+						true, HttpSender.AUTHENTICATION_INITIATOR);
 			}
 			return httpSender;
 		}
@@ -171,7 +172,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		@Override
 		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
-				AuthenticationCredentials credentials)
+				AuthenticationCredentials credentials, User user)
 				throws AuthenticationMethod.UnsupportedAuthenticationCredentialsException {
 
 			// type check
@@ -190,6 +191,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				log.error("Unable to prepare authentication message: " + e.getMessage());
 				return null;
 			}
+
+			msg.setRequestingUser(user);
 
 			// Clear any session identifiers
 			// sessionManagementMethod.clearWebSessionIdentifiers(msg);

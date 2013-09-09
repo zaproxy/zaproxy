@@ -38,6 +38,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -83,7 +84,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
-				AuthenticationCredentials credentials) {
+				AuthenticationCredentials credentials, User user) {
 			// Check proper type
 			if (!(credentials instanceof ManualAuthenticationCredentials)) {
 				Logger.getLogger(ManualAuthenticationMethod.class).error(
