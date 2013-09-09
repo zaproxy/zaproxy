@@ -152,7 +152,7 @@ public class HttpSender {
 		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", value);
 
 	}
-
+	
 	private void checkState() {
 		if (param.isHttpStateEnabled()) {
 			client.setState(param.getHttpState());
@@ -214,8 +214,9 @@ public class HttpSender {
 		hostName = method.getURI().getHost();
 		method.setDoAuthentication(true);
 
+		HttpClient requestClient;
 		if (param.isUseProxy(hostName)) {
-			responseCode = clientViaProxy.executeMethod(method);
+			requestClient = clientViaProxy;
 		} else {
 			// ZAP: use custom client on upgrade connection and on event-source data type
 			Header connectionHeader = method.getRequestHeader("connection");
@@ -223,18 +224,24 @@ public class HttpSender {
 					&& connectionHeader.getValue().toLowerCase().contains("upgrade");
 
 			// ZAP: try to apply original handling of ParosProxy
-			HttpClient requestClient=client;
+			requestClient = client;
 			if (isUpgrade) {
 				// Unless upgrade, when using another client that allows us to expose the socket connection.
 				requestClient = new HttpClient(new ZapHttpConnectionManager());
 			}
-			
-			// Check if a custom state is being used
-			if (state != null)
-				responseCode = requestClient.executeMethod(null, method, state);
-			else
-				responseCode = requestClient.executeMethod(method);
 		}
+		
+		// ZAP: Check if a custom state is being used
+		if (state != null)
+		{
+			// Make sure cookies are enabled and restore the cookie policy afterwards
+			String originalCookiePolicy = requestClient.getParams().getCookiePolicy();
+			requestClient.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+			responseCode = requestClient.executeMethod(null, method, state);
+			requestClient.getParams().setCookiePolicy(originalCookiePolicy);
+		}
+		else
+			responseCode = requestClient.executeMethod(method);
 
 		return responseCode;
 	}
