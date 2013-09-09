@@ -297,11 +297,21 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         if (view.isEnabled(message)) {
             enableView(viewItem);
             
+            boolean switchView = false;
             if (currentView == null) {
-                switchView(viewConfigName);
-            } else if (savedSelectedViewName != null && savedSelectedViewName.equals(viewConfigName)) {
-                switchView(viewConfigName);
-            } else if (savedSelectedViewName == null && currentView.getPosition() > view.getPosition()) {
+                switchView = true;
+            } else if (savedSelectedViewName != null) {
+                if (savedSelectedViewName.equals(viewConfigName)) {
+                    switchView = true;
+                } else if (!savedSelectedViewName.equals(currentView.getName())
+                        && currentView.getPosition() > view.getPosition()) {
+                    switchView = true;
+                }
+            } else if (currentView.getPosition() > view.getPosition()) {
+                switchView = true;
+            }
+
+            if (switchView) {
                 switchView(viewConfigName);
             }
         }
