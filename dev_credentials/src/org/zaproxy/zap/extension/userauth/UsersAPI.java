@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Copyright 2013 The ZAP Development Team
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.extension.userauth;
 
 import java.util.ArrayList;
@@ -22,6 +41,9 @@ import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 
+/**
+ * The API for manipulating {@link User Users}.
+ */
 public class UsersAPI extends ApiImplementor {
 
 	private static final Logger log = Logger.getLogger(UsersAPI.class);
@@ -29,6 +51,7 @@ public class UsersAPI extends ApiImplementor {
 	private static final String PREFIX = "users";
 
 	private static final String VIEW_USERS_LIST = "usersList";
+	private static final String VIEW_GET_USER_BY_ID = "getUserById";
 
 	private static final String ACTION_NEW_USER = "newUser";
 	private static final String ACTION_SET_ENABLED = "setUserEnabled";
@@ -45,13 +68,16 @@ public class UsersAPI extends ApiImplementor {
 		super();
 		this.extension = extension;
 
+		this.addApiView(new ApiView(VIEW_USERS_LIST, null, new String[] { PARAM_CONTEXT_ID }));
+		this.addApiView(new ApiView(VIEW_GET_USER_BY_ID, null,
+				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
+
 		this.addApiAction(new ApiAction(ACTION_NEW_USER, new String[] { PARAM_CONTEXT_ID, PARAM_USER_NAME }));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_ENABLED }));
 		this.addApiAction(new ApiAction(ACTION_SET_NAME, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_USER_NAME }));
 
-		this.addApiView(new ApiView(VIEW_USERS_LIST, null, new String[] { PARAM_CONTEXT_ID }));
 	}
 
 	@Override
@@ -81,6 +107,14 @@ public class UsersAPI extends ApiImplementor {
 			for (User user : users)
 				usersListResponse.addItem(buildResponseFromUser(user));
 			return usersListResponse;
+
+		case VIEW_GET_USER_BY_ID:
+			int contextId = getContextId(params);
+			int userId = getUserId(params);
+			User user = extension.getContextUserAuthManager(contextId).getUserById(userId);
+			if (user == null)
+				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
+			return buildResponseFromUser(user);
 
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
@@ -142,6 +176,12 @@ public class UsersAPI extends ApiImplementor {
 
 	}
 
+	/**
+	 * Builds the response describing an User.
+	 * 
+	 * @param u the user
+	 * @return the api response
+	 */
 	private ApiResponse buildResponseFromUser(User u) {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("name", u.getName());
@@ -152,6 +192,14 @@ public class UsersAPI extends ApiImplementor {
 		return response;
 	}
 
+	/**
+	 * Gets the user id from the parameters or throws a Missing Parameter exception, if any problems
+	 * occured.
+	 * 
+	 * @param params the params
+	 * @return the user id
+	 * @throws ApiException the api exception
+	 */
 	private int getUserId(JSONObject params) throws ApiException {
 		try {
 			return params.getInt(PARAM_USER_ID);
@@ -160,6 +208,14 @@ public class UsersAPI extends ApiImplementor {
 		}
 	}
 
+	/**
+	 * Gets the context id from the parameters or throws a Missing Parameter exception, if any
+	 * problems occured.
+	 * 
+	 * @param params the params
+	 * @return the context id
+	 * @throws ApiException the api exception
+	 */
 	private int getContextId(JSONObject params) throws ApiException {
 		try {
 			return params.getInt(PARAM_CONTEXT_ID);
