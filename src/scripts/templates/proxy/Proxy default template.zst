@@ -1,0 +1,49 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Proxy Template Script.zst",
+  "description": "",
+  "prefix": "",
+  "type": "Targeted",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {},
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "Proxy  scripts are called for every request and response made through ZAP.\nIf the response.url parameter is null then the script has been called for a response, otherwise it will have been called for a request.\n",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "rootExpression": {
+        "length": 0,
+        "approx": 0,
+        "variableName": "response.url",
+        "not": false,
+        "elementType": "ZestExpressionLength"
+      },
+      "ifStatements": [
+        {
+          "comment": "Called for the request.\nSet request.header to an empty string to drop the request.",
+          "index": 3,
+          "elementType": "ZestComment"
+        }
+      ],
+      "elseStatements": [
+        {
+          "comment": "Called for the response.\nSet request.header to an empty string to drop the response.",
+          "index": 6,
+          "elementType": "ZestComment"
+        }
+      ],
+      "index": 2,
+      "elementType": "ZestConditional"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}

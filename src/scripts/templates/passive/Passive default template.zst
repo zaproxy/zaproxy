@@ -1,0 +1,36 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Passive Script Template",
+  "description": "A template passive script",
+  "prefix": "",
+  "type": "Passive",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {
+      "response.body": "",
+      "response.header": "",
+      "request.body": "",
+      "request.header": "",
+      "request.url": "",
+      "request.method": ""
+    },
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "Passive scripts are called for every pair of requests and responses.\nThe template script just prints out the URL its been called for.\nPassive scripts cannot make new requests but can raise alerts via the \u0027Fail\u0027 action.",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "message": "Called for {{request.url}}",
+      "index": 1,
+      "elementType": "ZestActionPrint"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}
