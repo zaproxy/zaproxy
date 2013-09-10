@@ -38,6 +38,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;
 import org.zaproxy.zap.extension.userauth.sessions.ExtensionSessionManagement;
@@ -70,6 +71,8 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 
 	/** The context managers, mapped to each context. */
 	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
+	
+	private UsersAPI api;
 
 	/** The Constant EXTENSION DEPENDENCIES. */
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
@@ -115,11 +118,6 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	private void initialize() {
 		this.setName(NAME);
 		this.setOrder(102);
-
-		// TODO: Prepare API
-		// this.api = new AuthAPI(this);
-		// API.getInstance().registerApiImplementor(api);
-		// HttpSender.addListener(this);
 	}
 
 	@Override
@@ -137,6 +135,10 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 			// Factory for generating Session Context Users panels
 			getView().addContextPanelFactory(this);
 		}
+		
+		//Prepare API
+		this.api = new UsersAPI(this);
+		API.getInstance().registerApiImplementor(api);
 	}
 
 	@Override

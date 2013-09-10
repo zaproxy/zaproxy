@@ -323,4 +323,8 @@ public class User extends Enableable {
 		return true;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 }
