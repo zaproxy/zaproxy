@@ -151,7 +151,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	}
 	
 	public void registerScriptEngineWrapper(ScriptEngineWrapper wrapper) {
-		logger.debug("registerEngineWrapper " + wrapper.getEngineName());
+		logger.debug("registerEngineWrapper " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		this.engineWrappers.add(wrapper);
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);
@@ -171,6 +171,19 @@ public class ExtensionScript extends ExtensionAdaptor {
 				}
 			}
 		}
+
+		for (ScriptEngineWrapper sew : this.engineWrappers) {
+			// Nasty, but sometime the engine names are reported differently, eg 'Mozilla Rhino' vs 'Rhino'
+			if (name.indexOf(LANG_ENGINE_SEP) < 0) {
+				if (name.endsWith(sew.getEngineName())) {
+					return sew;
+				}
+				if (sew.getEngineName().endsWith(name)) {
+					return sew;
+				}
+			}
+		}
+
 		// Not one we know of, create a default wrapper
 		List<ScriptEngineFactory> engines = mgr.getEngineFactories();
 		ScriptEngine engine = null;
