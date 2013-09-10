@@ -157,7 +157,10 @@ public class ScriptWrapper {
 	}
 
 	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		if (this.enabled != enabled) {
+			this.enabled = enabled;
+			this.changed = true;
+		}
 	}
 
 	public String getLastErrorDetails() {
