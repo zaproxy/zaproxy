@@ -35,6 +35,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -63,6 +64,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
 
 	private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory;
+
+	AuthenticationAPI api;
 
 	public ExtensionAuthentication() {
 		super();
@@ -98,6 +101,10 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 
 		// Load the Authentication and Session Management methods
 		this.loadAuthenticationMethodTypes(extensionHook);
+
+		// Register the api
+		this.api = new AuthenticationAPI(this);
+		API.getInstance().registerApiImplementor(api);
 	}
 
 	@Override
