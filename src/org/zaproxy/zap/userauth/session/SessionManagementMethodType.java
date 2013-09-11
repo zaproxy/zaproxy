@@ -21,8 +21,12 @@ package org.zaproxy.zap.userauth.session;
 
 import java.sql.SQLException;
 
+import net.sf.json.JSONObject;
+
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -142,4 +146,28 @@ public abstract class SessionManagementMethodType {
 			super(message);
 		}
 	}
+
+	/**
+	 * Gets the {@link ApiAction} that can be used to set a session management method of this type
+	 * for a context.
+	 * <p>
+	 * This api action will be handled by executing the
+	 * {@link #handleSetMethodForContextApiAction(JSONObject)} method.
+	 * </p>
+	 * 
+	 * @return the api action, or null if there is no way to set this method type through the API
+	 */
+	public abstract ApiAction getSetMethodForContextApiAction();
+
+	/**
+	 * Handle the execution of the {@link ApiAction} used to set a session management method of this
+	 * type for a context.
+	 * <p>
+	 * The ApiAction for which this method is called is the one returned by the
+	 * {@link #getSetMethodForContextApiAction()}.
+	 * </p>
+	 * 
+	 * @param params the params
+	 */
+	public abstract void handleSetMethodForContextApiAction(JSONObject params) throws ApiException;
 }

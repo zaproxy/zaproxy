@@ -4,8 +4,10 @@ import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
 import java.sql.SQLException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -15,6 +17,11 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiException.Type;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
@@ -145,6 +152,11 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		public SessionManagementMethodType getType() {
 			return new CookieBasedSessionManagementMethodType();
 		}
+
+		@Override
+		public ApiResponse getApiResponseRepresentation() {
+			return new ApiResponseElement("type", METHOD_NAME);
+		}
 	}
 
 	@Override
@@ -193,5 +205,28 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			throws UnsupportedSessionManagementMethodException, SQLException {
 		// Nothing to persist
 
+	}
+
+	private static final String ACTION_SET_METHOD = "setCookieBasedSessionManagementMethod";
+	private static final String PARAM_CONTEXT_ID = "contextId";
+
+	@Override
+	public ApiAction getSetMethodForContextApiAction() {
+		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID });
+	}
+
+	@Override
+	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
+		int contextId;
+		try {
+			contextId = params.getInt(PARAM_CONTEXT_ID);
+		} catch (JSONException ex) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
+		}
+		Context context = Model.getSingleton().getSession().getContext(contextId);
+		if (context == null)
+			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
+
+		context.setSessionManagementMethod(createSessionManagementMethod(contextId));
 	}
 }

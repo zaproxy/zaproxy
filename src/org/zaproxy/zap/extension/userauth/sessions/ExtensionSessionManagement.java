@@ -34,6 +34,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.userauth.session.SessionManagementMethodType;
@@ -58,6 +59,8 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	/** The map of context panels. */
 	private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
 
+	private SessionManagementAPI api;
+
 	public ExtensionSessionManagement() {
 		super();
 		initialize();
@@ -69,11 +72,6 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	private void initialize() {
 		this.setName(NAME);
 		this.setOrder(103);
-
-		// TODO: Prepare API
-		// this.api = new AuthAPI(this);
-		// API.getInstance().registerApiImplementor(api);
-		// HttpSender.addListener(this);
 	}
 
 	@Override
@@ -89,6 +87,10 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 		// Load the Session Management methods
 		this.loadSesssionManagementMethodTypes(extensionHook);
+
+		// Register the api
+		this.api = new SessionManagementAPI(this);
+		API.getInstance().registerApiImplementor(api);
 	}
 
 	@Override
