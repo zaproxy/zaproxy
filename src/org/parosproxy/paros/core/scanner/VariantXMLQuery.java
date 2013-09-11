@@ -72,11 +72,10 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      * 
      * @param value
      * @param toQuote
-     * @param escaped
      * @return 
      */
     @Override
-    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote) {
         return StringEscapeUtils.escapeXml(value);
     }
     

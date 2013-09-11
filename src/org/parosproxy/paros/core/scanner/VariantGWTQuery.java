@@ -19,6 +19,7 @@
  */
 // ZAP: 2013/07/01 Added string encoding according to the abstract superclass
 // ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
+// ZAP: 2013/09/12 Added GWT escaping model according to the internal implementation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -120,22 +121,117 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
     }
     
     /**
+     * Escape a GWT string according to the client implementation found on
+     * com.google.gwt.user.client.rpc.impl.ClientSerializationStreamWriter
+     * http://www.gwtproject.org/
      * 
-     * @param value
+     * @param value the value that need to be escaped
      * @param toQuote
-     * @param escaped
      * @return 
      */
     @Override
-    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
-        return value;
+    public String getEscapedValue(String value, boolean toQuote) {
+        // Escape special characters
+        StringBuilder buf = new StringBuilder(value.length());
+        int idx = 0;
+        int ch;
+
+        while (idx < value.length()) {
+            ch = value.charAt(idx++);
+            if (ch == 0) {
+                buf.append("\\0");
+
+            } else if (ch == 92) { // backslash
+                buf.append("\\\\");
+
+            } else if (ch == 124) { // vertical bar
+                // 124 = "|" = AbstractSerializationStream.RPC_SEPARATOR_CHAR
+                buf.append("\\!");
+
+            } else if ((ch >= 0xD800) && (ch < 0xFFFF)) {
+                buf.append(String.format("\\u%04x", ch));
+
+            } else {
+                buf.append((char) ch);
+            }
+        }
+
+        return buf.toString();
     }
 
+    /**
+     * Unescape a GWT serialized string according to the server implementation found on
+     * com.google.gwt.user.server.rpc.impl.ServerSerializationStreamReader
+     * http://www.gwtproject.org/
+     * 
+     * @param value the value that need to be deserialized
+     * @return the deserialized value
+     */
     @Override
     public String getUnescapedValue(String value) {
-        return value;
-    }
+        // Change quoted characters back
+        if (value.indexOf('\\') < 0) {
+            return value;
+            
+        } else {
+            StringBuilder buf = new StringBuilder(value.length());
+            int idx = 0;
+            char ch;
+
+            while (idx < value.length()) {
+                ch = value.charAt(idx++);
+                if (ch == '\\') {
+                    if (idx == value.length()) {
+                        //Unmatched backslash, skip the backslash
+                        break;
+                    }
+
+                    ch = value.charAt(idx++);
+                    switch (ch) {
+                        case '0':
+                            buf.append('\u0000');
+                            break;
+
+                        case '!':
+                            buf.append((char)RPC_SEPARATOR_CHAR);
+                            break;
+
+                        case '\\':
+                            buf.append(ch);
+                            break;
+
+                        case 'u':
+                            try {
+                                if (idx + 4 < value.length()) {
+                                    ch = (char)Integer.parseInt(value.substring(idx, idx + 4), 16);
+                                    buf.append(ch);
+                                    
+                                } else {
+                                    //Invalid Unicode hex number
+                                    //skip the sequence
+                                }
+
+                            } catch (NumberFormatException ex) {
+                                //Invalid Unicode escape sequence
+                                //skip the sequence
+                            }
     
+                            idx += 4;
+                            break;
+
+                        default:
+                            //Unexpected escape character
+                            //skip the sequence
+                    }
+                } else {
+                    buf.append(ch);
+                }
+            }
+
+            return buf.toString();
+        }
+    }
+
     /* Code available for complete GWT parsing -----
     private List<NameValuePair> params = new ArrayList();
     private RPCRequest request = null;

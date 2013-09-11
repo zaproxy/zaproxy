@@ -67,11 +67,10 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
      * 
      * @param value
      * @param toQuote
-     * @param escaped
      * @return 
      */
     @Override
-    public String getEscapedValue(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote) {
         String result = StringEscapeUtils.escapeJava(value);
         return (toQuote) ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK : result;
     }

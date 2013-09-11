@@ -126,7 +126,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
-        sb.append(getEscapedValue(value, param.isToQuote(), escaped));
+        sb.append(escaped ? value : getEscapedValue(value, param.isToQuote()));
         sb.append(requestContent.substring(param.getEndOffset()));
         
         String query = sb.toString();
@@ -192,10 +192,9 @@ public abstract class VariantAbstractRPCQuery implements Variant {
      * 
      * @param value
      * @param toQuote
-     * @param escaped
      * @return 
      */
-    public abstract String getEscapedValue(String value, boolean toQuote, boolean escaped);
+    public abstract String getEscapedValue(String value, boolean toQuote);
 
     /**
      * 
