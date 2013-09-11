@@ -1,0 +1,39 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Active Script Template",
+  "description": "A template active script - replace the 'target' parameter value with your chosen attack",
+  "prefix": "",
+  "type": "Active",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {
+      "request.header": "",
+      "request.body": "",
+      "request.method": "",
+      "request.url": "",
+      "target": "__replace__"
+    },
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "Active  scripts are called for every parameter in every request included in the scan.\nReplace the 'target' parameter value with your chosen attack.\nYou can make as many requests as you need to - just copy and paste the original request and amend as required.\nActive scripts can raise alerts via the \u0027Fail\u0027 action.",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "urlToken": "{{request.url}}",
+      "data": "{{request.body}}",
+      "method": "{{request.method}}",
+      "headers": "{{request.header}}",
+      "assertions": [],
+      "index": 2,
+      "elementType": "ZestRequest"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}
