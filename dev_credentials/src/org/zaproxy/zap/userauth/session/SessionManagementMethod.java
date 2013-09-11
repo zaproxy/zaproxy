@@ -22,6 +22,7 @@ package org.zaproxy.zap.userauth.session;
 import java.util.List;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.ApiResponse;
 
 /**
  * The {@link SessionManagementMethod} represents a session management method that can be used to
@@ -88,6 +89,13 @@ public interface SessionManagementMethod {
 	 * @param msg the http message
 	 */
 	public void clearWebSessionIdentifiers(HttpMessage msg);
+	
+	/**
+	 * Gets an api response that represents the Authentication Method.
+	 * 
+	 * @return the api response representation
+	 */
+	public abstract ApiResponse getApiResponseRepresentation();
 
 	/**
 	 * Modifies a message so its Request Header/Body matches the given web session, according to
