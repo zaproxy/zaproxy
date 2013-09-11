@@ -28,6 +28,7 @@ import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.auth.AuthAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
+import org.zaproxy.zap.extension.brk.BreakAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.pscan.PassiveScanAPI;
@@ -82,6 +83,8 @@ public class ApiGeneratorUtils {
 		imps.add(new AuthAPI(null));
 
 		imps.add(new HttpSessionsAPI(null));
+
+		imps.add(new BreakAPI(null));
 
 		return imps;
 	}
