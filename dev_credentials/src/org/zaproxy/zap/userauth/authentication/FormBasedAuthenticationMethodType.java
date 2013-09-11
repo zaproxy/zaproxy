@@ -29,7 +29,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -39,6 +41,9 @@ import javax.swing.JList;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -61,6 +66,10 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
@@ -344,6 +353,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			markLoginSiteNode(null);
 		}
 
+		@Override
+		public ApiResponse getApiResponseRepresentation() {
+			Map<String, String> values = new HashMap<>();
+			values.put("type", METHOD_NAME);
+			values.put("loginUrl", loginRequestURL);
+			values.put("loginRequestData", this.loginRequestBody);
+			return new ApiResponseSet("method", values);
+		}
+
 	}
 
 	/**
@@ -509,7 +527,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	@Override
-	public AuthenticationMethod createAuthenticationMethod(int contextId) {
+	public FormBasedAuthenticationMethod createAuthenticationMethod(int contextId) {
 		return new FormBasedAuthenticationMethod();
 	}
 
@@ -651,5 +669,51 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	@Override
 	public AuthenticationCredentials createAuthenticationCredentials() {
 		return new UsernamePasswordAuthenticationCredentials();
+	}
+
+	private static final String ACTION_SET_METHOD = "setFormBasedAuthenticationMethod";
+	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_LOGIN_URL = "loginUrl";
+	private static final String PARAM_POST_DATA = "postData";
+
+	@Override
+	public ApiAction getSetMethodForContextApiAction() {
+		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID, PARAM_LOGIN_URL },
+				new String[] { PARAM_POST_DATA });
+	}
+
+	@Override
+	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
+		int contextId;
+		try {
+			contextId = params.getInt(PARAM_CONTEXT_ID);
+		} catch (JSONException ex) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
+		}
+		Context context = Model.getSingleton().getSession().getContext(contextId);
+		if (context == null)
+			throw new ApiException(ApiException.Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
+
+		String loginUrl = params.getString(PARAM_LOGIN_URL);
+		if (loginUrl == null || loginUrl.isEmpty())
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_LOGIN_URL);
+		try {
+			new URL(loginUrl);
+		} catch (Exception ex) {
+			throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
+		}
+
+		String postData = "";
+		if (params.containsKey(PARAM_POST_DATA))
+			postData = params.getString(PARAM_POST_DATA);
+
+		FormBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
+		try {
+			method.setLoginRequest(loginUrl, postData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+		}
+		context.setAuthenticationMethod(method);
 	}
 }

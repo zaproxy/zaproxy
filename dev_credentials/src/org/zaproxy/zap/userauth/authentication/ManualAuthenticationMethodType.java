@@ -29,12 +29,21 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.Context;
@@ -115,6 +124,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		@Override
 		public void onMethodDiscarded() {
 			// Do nothing
+		}
+
+		@Override
+		public ApiResponse getApiResponseRepresentation() {
+			return new ApiResponseElement("type", METHOD_NAME);
 		}
 	}
 
@@ -299,6 +313,49 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	@Override
 	public AuthenticationCredentials createAuthenticationCredentials() {
 		return new ManualAuthenticationCredentials();
+	}
+
+	private static final String ACTION_SET_METHOD = "setManualAuthentication";
+	private static final String PARAM_CONTEXT_ID = "contextId";
+
+	// private static final String PARAM_SESSION_NAME = "sessionName";
+
+	@Override
+	public ApiAction getSetMethodForContextApiAction() {
+		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID });
+	}
+
+	@Override
+	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
+		int contextId;
+		try {
+			contextId = params.getInt(PARAM_CONTEXT_ID);
+		} catch (JSONException ex) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
+		}
+		Context context = Model.getSingleton().getSession().getContext(contextId);
+		if (context == null)
+			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
+
+		// String sessionName = params.getString(PARAM_SESSION_NAME);
+		// if (sessionName == null || sessionName.isEmpty())
+		// throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_SESSION_NAME);
+		//
+		// ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions)
+		// Control.getSingleton()
+		// .getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
+		// List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
+		// HttpSession matchedSession = null;
+		// for (HttpSession session : sessions)
+		// if (session.getName().equals(sessionName)) {
+		// matchedSession = session;
+		// break;
+		// }
+		// if (matchedSession == null)
+		// throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
+		ManualAuthenticationMethod method = this.createAuthenticationMethod(contextId);
+		context.setAuthenticationMethod(method);
+
 	}
 
 }
