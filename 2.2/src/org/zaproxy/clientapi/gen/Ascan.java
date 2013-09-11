@@ -68,6 +68,11 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionHandleAntiCSRFTokens", map);
 	}
 
+	public ApiResponse optionDeleteRequestsOnShutdown() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionDeleteRequestsOnShutdown", map);
+	}
+
 	public ApiResponse optionAlertThreshold() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionAlertThreshold", map);
@@ -139,6 +144,13 @@ public class Ascan {
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("ascan", "action", "setOptionHandleAntiCSRFTokens", map);
+	}
+
+	public ApiResponse setOptionDeleteRequestsOnShutdown(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionDeleteRequestsOnShutdown", map);
 	}
 
 }

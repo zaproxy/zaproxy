@@ -60,10 +60,11 @@ public class HttpSessions {
 		return api.callApi("httpSessions", "view", "sessionTokens", map);
 	}
 
-	public ApiResponse createEmptySession(String site) throws ClientApiException {
+	public ApiResponse createEmptySession(String site, String session) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("site", site);
+		map.put("session", session);
 		return api.callApi("httpSessions", "action", "createEmptySession", map);
 	}
 

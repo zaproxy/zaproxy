@@ -158,7 +158,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void newSession () throws ClientApiException {
-		core.newSession("");
+		core.newSession("", "true");
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void newSession (String name) throws ClientApiException {
-		core.newSession(name);
+		core.newSession(name, "true");
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void saveSession (String name) throws ClientApiException {
-		core.saveSession(name);
+		core.saveSession(name, "true");
 	}
 
 	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws ClientApiException {
