@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.userauth.auth;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -33,7 +34,6 @@ import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
@@ -49,9 +49,17 @@ public class AuthenticationAPI extends ApiImplementor {
 	private static final String PREFIX = "authentication";
 
 	private static final String VIEW_GET_AUTHENTICATION = "getAuthenticationMethod";
+	private static final String VIEW_GET_LOGGED_IN_INDICATOR = "getLoggedInIndicator";
+	private static final String VIEW_GET_LOGGED_OUT_INDICATOR = "getLoggedOutIndicator";
+
+	private static final String ACTION_SET_LOGGED_IN_INDICATOR = "setLoggedInIndicator";
+	private static final String ACTION_SET_LOGGED_OUT_INDICATOR = "setLoggedOutIndicator";
 
 	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_LOGGED_IN_INDICATOR = "loggedInIndicatorRegex";
+	private static final String PARAM_LOGGED_OUT_INDICATOR = "loggedOutIndicatorRegex";
 
+	@SuppressWarnings("unused")
 	private ExtensionAuthentication extension;
 	private Map<String, AuthenticationMethodType> loadedAuthenticationMethodActions;
 
@@ -59,7 +67,9 @@ public class AuthenticationAPI extends ApiImplementor {
 		super();
 		this.extension = extension;
 
-		this.addApiView(new ApiView(VIEW_GET_AUTHENTICATION, null, new String[] { PARAM_CONTEXT_ID }));
+		this.addApiView(new ApiView(VIEW_GET_AUTHENTICATION, new String[] { PARAM_CONTEXT_ID }));
+		this.addApiView(new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] { PARAM_CONTEXT_ID }));
+		this.addApiView(new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] { PARAM_CONTEXT_ID }));
 
 		this.loadedAuthenticationMethodActions = new HashMap<String, AuthenticationMethodType>();
 		for (AuthenticationMethodType t : extension.getAuthenticationMethodTypes()) {
@@ -69,6 +79,10 @@ public class AuthenticationAPI extends ApiImplementor {
 				this.addApiAction(action);
 			}
 		}
+		this.addApiAction(new ApiAction(ACTION_SET_LOGGED_IN_INDICATOR, new String[] { PARAM_CONTEXT_ID,
+				PARAM_LOGGED_IN_INDICATOR }));
+		this.addApiAction(new ApiAction(ACTION_SET_LOGGED_OUT_INDICATOR, new String[] { PARAM_CONTEXT_ID,
+				PARAM_LOGGED_OUT_INDICATOR }));
 
 	}
 
@@ -82,13 +96,22 @@ public class AuthenticationAPI extends ApiImplementor {
 		log.debug("handleApiView " + name + " " + params.toString());
 
 		switch (name) {
-
 		case VIEW_GET_AUTHENTICATION:
-			int contextId = getContextId(params);
-			Context context = Model.getSingleton().getSession().getContext(contextId);
-			if (context == null)
-				throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-			return context.getAuthenticationMethod().getApiResponseRepresentation();
+			return getContext(params).getAuthenticationMethod().getApiResponseRepresentation();
+		case VIEW_GET_LOGGED_IN_INDICATOR:
+			Pattern loggedInPattern = getContext(params).getAuthenticationMethod()
+					.getLoggedInIndicatorPattern();
+			if (loggedInPattern != null)
+				return new ApiResponseElement("logged_in_regex", loggedInPattern.toString());
+			else
+				return new ApiResponseElement("logged_in_regex", "");
+		case VIEW_GET_LOGGED_OUT_INDICATOR:
+			Pattern loggedOutPattern = getContext(params).getAuthenticationMethod()
+					.getLoggedOutIndicatorPattern();
+			if (loggedOutPattern != null)
+				return new ApiResponseElement("logged_out_regex", loggedOutPattern.toString());
+			else
+				return new ApiResponseElement("logged_out_regex", "");
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
@@ -98,26 +121,44 @@ public class AuthenticationAPI extends ApiImplementor {
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
 
-		if (!loadedAuthenticationMethodActions.containsKey(name))
-			throw new ApiException(Type.BAD_ACTION);
-		loadedAuthenticationMethodActions.get(name).handleSetMethodForContextApiAction(params);
-		return ApiResponseElement.OK;
+		switch (name) {
+		case ACTION_SET_LOGGED_IN_INDICATOR:
+			String loggedInIndicator = params.getString(PARAM_LOGGED_IN_INDICATOR);
+			if (loggedInIndicator == null || loggedInIndicator.isEmpty())
+				throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_IN_INDICATOR);
+			getContext(params).getAuthenticationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
+			return ApiResponseElement.OK;
+
+		case ACTION_SET_LOGGED_OUT_INDICATOR:
+			String loggedOutIndicator = params.getString(PARAM_LOGGED_OUT_INDICATOR);
+			if (loggedOutIndicator == null || loggedOutIndicator.isEmpty())
+				throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_OUT_INDICATOR);
+			getContext(params).getAuthenticationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
+			return ApiResponseElement.OK;
+
+		default:
+			if (!loadedAuthenticationMethodActions.containsKey(name))
+				throw new ApiException(Type.BAD_ACTION);
+			loadedAuthenticationMethodActions.get(name).handleSetMethodForContextApiAction(params);
+			return ApiResponseElement.OK;
+		}
+
 	}
 
 	/**
-	 * Builds the response describing an User.
+	 * Gets the context from the parameters or throws a Missing Parameter exception, if any problems
+	 * occured.
 	 * 
-	 * @param u the user
-	 * @return the api response
+	 * @param params the params
+	 * @return the context
+	 * @throws ApiException the api exception
 	 */
-	private ApiResponse buildResponseFromUser(User u) {
-		Map<String, String> fields = new HashMap<>();
-		fields.put("name", u.getName());
-		fields.put("id", Integer.toString(u.getId()));
-		fields.put("contextId", Integer.toString(u.getContextId()));
-		fields.put("enabled", Boolean.toString(u.isEnabled()));
-		ApiResponseSet response = new ApiResponseSet("user", fields);
-		return response;
+	private Context getContext(JSONObject params) throws ApiException {
+		int contextId = getContextId(params);
+		Context context = Model.getSingleton().getSession().getContext(contextId);
+		if (context == null)
+			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
+		return context;
 	}
 
 	/**
@@ -136,6 +177,7 @@ public class AuthenticationAPI extends ApiImplementor {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private boolean hasContextId(JSONObject params) {
 		try {
 			params.getInt(PARAM_CONTEXT_ID);
