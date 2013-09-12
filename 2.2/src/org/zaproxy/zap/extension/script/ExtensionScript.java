@@ -376,13 +376,15 @@ public class ExtensionScript extends ExtensionAdaptor {
 			File stdDir = new File("." + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
 			
 			// Load local files first, as these override any one included in the release
-			if (locDir.exists()) {
+			if (locDir.exists() && locDir.listFiles() != null) {
 				for (File f : locDir.listFiles()) {
 					loadTemplate(f, type, engine);
 				}
 			}
-			for (File f : stdDir.listFiles()) {
-				loadTemplate(f, type, engine);
+			if (stdDir.listFiles() != null) {
+				for (File f : stdDir.listFiles()) {
+					loadTemplate(f, type, engine);
+				}
 			}
 		}
 	}
